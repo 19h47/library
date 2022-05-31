@@ -92,15 +92,20 @@ class Library_Metaboxes {
 		wp_nonce_field( 'custom_nonce_action', 'custom_nonce' );
 
 		// Retrieve an existing value from the database
-		$authors        = wp_get_post_terms( $post->ID, 'author', array( 'fields' => 'names' ) );
+		$series         = get_post_meta( $post->ID, 'series', true );
+		$authors        = wp_get_post_terms( $post->ID, 'library-author', array( 'fields' => 'names' ) );
 		$isbn           = get_post_meta( $post->ID, 'isbn', true );
 		$volume_number  = get_post_meta( $post->ID, 'volume_number', true );
 		$date_published = get_post_meta( $post->ID, 'date_published', true );
 		$translators    = get_post_meta( $post->ID, 'translators', true );
-		$publishers     = wp_get_post_terms( $post->ID, 'publisher', array( 'fields' => 'names' ) );
+		$publishers     = wp_get_post_terms( $post->ID, 'library-publisher', array( 'fields' => 'names' ) );
 		$book_editions  = get_post_meta( $post->ID, 'book_editions', true );
 
 		// Set default values
+		if ( empty( $series ) ) {
+			$series = '';
+		}
+
 		if ( empty( $authors ) ) {
 			$authors = '';
 		} else {
@@ -174,6 +179,7 @@ class Library_Metaboxes {
 		}
 
 		// Sanitize user input.
+		$series         = isset( $_POST['series'] ) ? sanitize_text_field( $_POST['series'] ) : '';
 		$authors        = isset( $_POST['authors'] ) ? sanitize_text_field( $_POST['authors'] ) : '';
 		$isbn           = isset( $_POST['isbn'] ) ? sanitize_text_field( $_POST['isbn'] ) : '';
 		$volume_number  = isset( $_POST['volume_number'] ) ? sanitize_text_field( $_POST['volume_number'] ) : '';
@@ -183,10 +189,12 @@ class Library_Metaboxes {
 		$book_editions  = isset( $_POST['book_editions'] ) ? sanitize_text_field( $_POST['book_editions'] ) : array();
 
 		// Update the meta field in the database.
-		wp_delete_object_term_relationships( $post_id, 'author' );
+		update_post_meta( $post_id, 'series', $series );
+
+		wp_delete_object_term_relationships( $post_id, 'library-author' );
 
 		if ( ! empty( $authors ) ) {
-			wp_set_object_terms( $post_id, $authors, 'author' );
+			wp_set_object_terms( $post_id, explode( ', ', $authors ), 'library-author' );
 		}
 
 		update_post_meta( $post_id, 'isbn', $isbn );
@@ -195,10 +203,10 @@ class Library_Metaboxes {
 		update_post_meta( $post_id, 'translators', $translators );
 		update_post_meta( $post_id, 'book_editions', $book_editions );
 
-		wp_delete_object_term_relationships( $post_id, 'publisher' );
+		wp_delete_object_term_relationships( $post_id, 'library-publisher' );
 
 		if ( ! empty( $publishers ) ) {
-			wp_set_object_terms( $post_id, $publishers, 'publisher' );
+			wp_set_object_terms( $post_id, explode( ', ', $publishers ), 'library-publisher' );
 		}
 	}
 }

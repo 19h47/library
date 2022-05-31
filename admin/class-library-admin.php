@@ -58,25 +58,18 @@ class Library_Admin {
 	}
 
 
+	/**
+	 * Load the required dependencies for the admin area.
+	 *
+	 * @since 0.0.0
+	 */
 	private function load_dependencies() {
-
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-metaboxes.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-rest-api.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-posts.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-taxonomies.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-metaboxes.php';
-
-		/**
-		 * Columns
-		 */
-		// require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-columns.php';
-
-		// new Library_Columns( $this->plugin_name, $this->plugin_version );
-
-		/**
-		 * Quick edit
-		 */
-		// require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-quick-edit.php';
-
-		// new Library_Quick_Edit( $this->plugin_name, $this->plugin_version );
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-wp-query.php';
 	}
 
 

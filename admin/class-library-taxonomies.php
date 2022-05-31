@@ -105,7 +105,7 @@ class Library_Taxonomies {
 			'graphql_plural_name' => 'authors',
 		);
 
-		register_taxonomy( 'author', 'book', $args );
+		register_taxonomy( 'library-author', 'book', $args );
 	}
 
 
@@ -155,7 +155,7 @@ class Library_Taxonomies {
 			'graphql_plural_name' => 'publishers',
 		);
 
-		register_taxonomy( 'publisher', 'book', $args );
+		register_taxonomy( 'library-publisher', 'book', $args );
 	}
 
 
@@ -169,7 +169,7 @@ class Library_Taxonomies {
 	 * @return $message
 	 */
 	public function messages( array $messages ) : array {
-		$messages['author'] = array(
+		$messages['library-author'] = array(
 			0 => '',
 			1 => __( 'Author added.', 'library' ),
 			2 => __( 'Author deleted.', 'library' ),
@@ -177,6 +177,16 @@ class Library_Taxonomies {
 			4 => __( 'Author not added.', 'library' ),
 			5 => __( 'Author not updated.', 'library' ),
 			6 => __( 'Authors deleted.', 'library' ),
+		);
+
+		$messages['library-publisher'] = array(
+			0 => '',
+			1 => __( 'Publisher added.', 'library' ),
+			2 => __( 'Publisher deleted.', 'library' ),
+			3 => __( 'Publisher updated.', 'library' ),
+			4 => __( 'Publisher not added.', 'library' ),
+			5 => __( 'Publisher not updated.', 'library' ),
+			6 => __( 'Publishers deleted.', 'library' ),
 		);
 
 		return $messages;

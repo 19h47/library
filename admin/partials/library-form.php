@@ -11,6 +11,26 @@
 
 <table class="form-table" role="presentation">
 
+	<!-- Series -->
+	<tr>
+		<th scope="row">
+			<label for="library-series">
+				<?php _e( 'Series', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="text"
+				id="library-series"
+				name="series"
+				class="regular-text"
+				placeholder="<?php esc_html_e( 'Series', 'library' ); ?>"
+				value="<?php echo esc_html( $series ); ?>"
+			>
+			<p class="description"><?php esc_html_e( 'Separate series with commas', 'library' ); ?></p>
+		</td>
+	</tr>
+
 	<!-- Authors -->
 	<tr>
 		<th scope="row">
@@ -41,7 +61,7 @@
 		<td>
 			<input
 				type="text"
-				pattern="(?:(?=.{17}$)97[89][ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])"
+				pattern="(?:(?=.{17}$)(97[89]|501)[ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])"
 				id="library-isbn"
 				name="isbn"
 				class="regular-text"
@@ -50,7 +70,7 @@
 			>
 		</td>
 	</tr>
-	
+
 	<!-- Volume Number -->
 	<tr>
 		<th>
@@ -69,7 +89,7 @@
 			>
 		</td>
 	</tr>
-	
+
 	<!-- Date Published -->
 	<tr>
 		<th>
@@ -88,7 +108,7 @@
 			>
 		</td>
 	</tr>
-	
+
 	<!-- Translators -->
 	<tr>
 		<th scope="row">
@@ -108,7 +128,7 @@
 			<p class="description"><?php esc_html_e( 'Separate translators with commas', 'library' ); ?></p>
 		</td>
 	</tr>
-	
+
 	<!-- Publishers -->
 	<tr>
 		<th scope="row">
@@ -128,7 +148,7 @@
 			<p class="description"><?php esc_html_e( 'Separate publishers with commas', 'library' ); ?></p>
 		</td>
 	</tr>
-	
+
 	<!-- Book Editions -->
 	<tr>
 		<th scope="row">

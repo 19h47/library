@@ -116,13 +116,17 @@ class Library {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin      = new Library_Admin( $this->get_plugin_name(), $this->get_plugin_version() );
-		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
 		$plugin_metaboxes  = new Library_Metaboxes( $this->plugin_name, $this->plugin_version );
+		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
+		$plugin_rest_api   = new Library_Rest_API( $this->plugin_name, $this->plugin_version );
+		$plugin_settings   = new Library_Settings( $this->plugin_name, $this->plugin_version );
 		$plugin_taxonomies = new Library_Taxonomies( $this->plugin_name, $this->plugin_version );
+		$plugin_wp_query   = new Library_WP_Query( $this->plugin_name, $this->plugin_version );
 
 		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		// Posts
 		$this->loader->add_action( 'admin_head', $plugin_posts, 'css' );
 		$this->loader->add_action( 'manage_book_posts_custom_column', $plugin_posts, 'render_custom_columns', 10, 2 );
 		$this->loader->add_action( 'quick_edit_custom_box', $plugin_posts, 'render_quick_edit', 10, 3 );
@@ -132,10 +136,24 @@ class Library {
 		$this->loader->add_action( 'pre_get_posts', $plugin_posts, 'pre_get_books' );
 		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save', 10, 3 );
 		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save_quick_edit', 10, 3 );
+		$this->loader->add_action( 'the_title', $plugin_posts, 'add_series_to_title', 10, 2 );
+		$this->loader->add_action( 'the_title', $plugin_posts, 'add_volume_number_to_title', 10, 2 );
+		$this->loader->add_action( 'views_edit-book', $plugin_posts, 'add_list_table_views', 10, 1 );
+
+		// Settings
+		$this->loader->add_action( 'admin_init', $plugin_settings, 'register_settings' );
+
+		// Rest API
+		$this->loader->add_action( 'rest_api_init', $plugin_rest_api, 'register_rest_routes', 10, 1 );
 
 		// Taxonomies
 		$this->loader->add_action( 'init', $plugin_taxonomies, 'register', 10, 0 );
 		$this->loader->add_action( 'term_updated_messages', $plugin_taxonomies, 'messages', 10, 1 );
+
+		$this->loader->add_filter( 'posts_join', $plugin_wp_query, 'search_join', 10, 2 );
+		$this->loader->add_filter( 'posts_where', $plugin_wp_query, 'search_where', 10, 2 );
+		$this->loader->add_filter( 'posts_distinct', $plugin_wp_query, 'search_distinct', 10, 2 );
+
 	}
 
 
