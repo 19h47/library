@@ -58,9 +58,51 @@ class Library_Posts {
 
 		// Add the Run post type
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		// add_action( 'init', array( $this, 'register_post_status' ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'admin_head', array( $this, 'css' ) );
+
+		// add_action( 'admin_footer-post.php', array( $this, 'my_custom_status_add_in_post_page' ) );
+		// add_action( 'admin_footer-post-new.php', array( $this, 'my_custom_status_add_in_post_page' ) );
+		// add_action( 'admin_footer-edit.php', array( $this, 'my_custom_status_add_in_quick_edit' ) );
 	}
+
+	// public function my_custom_status_add_in_quick_edit() {
+	// echo "<script>
+	// jQuery(document).ready( function() {
+	// jQuery( 'select[name=\"_status\"]' ).append( '<option value=\"read\">Read</option>' );
+	// });
+	// </script>";
+	// }
+	// public function my_custom_status_add_in_post_page() {
+	// echo "<script>
+	// jQuery(document).ready( function() {
+	// jQuery( 'select[name=\"post_status\"]' ).append( '<option value=\"read\">Read</option>' );
+	// });
+	// </script>";
+	// }
+
+
+	// /**
+	// * Register the post type status
+	// *
+	// * @since  0.0.0
+	// *
+	// * @access public
+	// */
+	// public function register_post_status() {
+	// register_post_status(
+	// __( 'Read', 'library' ),
+	// array(
+	// 'label'                     => _x( 'Read', 'library' ),
+	// 'label_count'               => _n_noop( 'Read <span class="count">(%s)</span>', 'Read <span class="count">(%s)</span>' ),
+	// 'public'                    => true,
+	// 'exclude_from_search'       => false,
+	// 'show_in_admin_all_list'    => true,
+	// 'show_in_admin_status_list' => true,
+	// )
+	// );
+	// }
 
 
 	/**

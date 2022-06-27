@@ -153,7 +153,6 @@ class Library {
 		$this->loader->add_filter( 'posts_join', $plugin_wp_query, 'search_join', 10, 2 );
 		$this->loader->add_filter( 'posts_where', $plugin_wp_query, 'search_where', 10, 2 );
 		$this->loader->add_filter( 'posts_distinct', $plugin_wp_query, 'search_distinct', 10, 2 );
-
 	}
 
 
