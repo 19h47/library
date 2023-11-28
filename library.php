@@ -3,7 +3,7 @@
  * Library
  *
  * @link              https://www.github.com/19h47/library
- * @since             1.0.0
+ * @since             1.0.1
  * @package           Library
  *
  * @wordpress-plugin

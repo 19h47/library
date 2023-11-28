@@ -71,6 +71,26 @@
 		</td>
 	</tr>
 
+	<!-- ISSN -->
+	<tr>
+		<th>
+			<label for="library-issn">
+				<?php _e( 'ISSN', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="text"
+				pattern="[\S]{4}\-[\S]{4}"
+				id="library-issn"
+				name="issn"
+				class="regular-text"
+				placeholder="<?php esc_html_e( 'ISSN', 'library' ); ?>"
+				value="<?php echo esc_html( $issn ); ?>"
+			>
+		</td>
+	</tr>
+
 	<!-- Volume Number -->
 	<tr>
 		<th>

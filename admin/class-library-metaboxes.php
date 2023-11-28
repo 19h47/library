@@ -95,6 +95,7 @@ class Library_Metaboxes {
 		$series         = get_post_meta( $post->ID, 'series', true );
 		$authors        = wp_get_post_terms( $post->ID, 'library-author', array( 'fields' => 'names' ) );
 		$isbn           = get_post_meta( $post->ID, 'isbn', true );
+		$issn           = get_post_meta( $post->ID, 'issn', true );
 		$volume_number  = get_post_meta( $post->ID, 'volume_number', true );
 		$date_published = get_post_meta( $post->ID, 'date_published', true );
 		$translators    = get_post_meta( $post->ID, 'translators', true );
@@ -114,6 +115,10 @@ class Library_Metaboxes {
 
 		if ( empty( $isbn ) ) {
 			$isbn = '';
+		}
+
+		if ( empty( $issn ) ) {
+			$issn = '';
 		}
 
 		if ( empty( $volume_number ) ) {
@@ -182,6 +187,7 @@ class Library_Metaboxes {
 		$series         = isset( $_POST['series'] ) ? sanitize_text_field( $_POST['series'] ) : '';
 		$authors        = isset( $_POST['authors'] ) ? sanitize_text_field( $_POST['authors'] ) : '';
 		$isbn           = isset( $_POST['isbn'] ) ? sanitize_text_field( $_POST['isbn'] ) : '';
+		$issn           = isset( $_POST['issn'] ) ? sanitize_text_field( $_POST['issn'] ) : '';
 		$volume_number  = isset( $_POST['volume_number'] ) ? sanitize_text_field( $_POST['volume_number'] ) : '';
 		$date_published = isset( $_POST['date_published'] ) ? sanitize_text_field( $_POST['date_published'] ) : '';
 		$translators    = isset( $_POST['translators'] ) ? sanitize_text_field( $_POST['translators'] ) : '';
@@ -198,6 +204,7 @@ class Library_Metaboxes {
 		}
 
 		update_post_meta( $post_id, 'isbn', $isbn );
+		update_post_meta( $post_id, 'issn', $issn );
 		update_post_meta( $post_id, 'volume_number', $volume_number );
 		update_post_meta( $post_id, 'date_published', $date_published );
 		update_post_meta( $post_id, 'translators', $translators );

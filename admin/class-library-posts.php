@@ -113,7 +113,9 @@ class Library_Posts {
 	 * @param bool    $update Whether this is an existing post being updated.
 	 */
 	public function save( int $post_ID, WP_Post $post, bool $update ) {
-		$isbn = isset( $_POST['isbn'] ) ? sanitize_text_field( $_POST['isbn'] ) : false;
+		$isbn          = isset( $_POST['isbn'] ) ? sanitize_text_field( $_POST['isbn'] ) : false;
+		$issn          = isset( $_POST['issn'] ) ? sanitize_text_field( $_POST['issn'] ) : false;
+		$volume_number = isset( $_POST['volume_number'] ) ? sanitize_text_field( $_POST['volume_number'] ) : false;
 
 		delete_option( 'reading_percentage' );
 
@@ -124,6 +126,19 @@ class Library_Posts {
 				array(
 					'ID'        => $post_ID,
 					'post_name' => $post->post_title . '-' . $isbn,
+				)
+			);
+
+			add_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
+		}
+
+		if ( $issn && $volume_number ) {
+			remove_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
+
+			wp_update_post(
+				array(
+					'ID'        => $post_ID,
+					'post_name' => $post->post_title . '-' . $issn . '-' . $volume_number,
 				)
 			);
 
@@ -142,6 +157,8 @@ class Library_Posts {
 	 */
 	public function add_custom_columns( array $columns ) : array {
 		unset( $columns['date'] );
+
+		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
 
 		$columns['date_published'] = __( 'Date published', 'library' );
 		$columns['isbn']           = __( 'ISBN', 'library' );
@@ -165,7 +182,7 @@ class Library_Posts {
 
 		switch ( $column_name ) {
 
-			case 'read':
+			case 'read': {
 				$read = get_post_meta( $post_id, 'read', true );
 
 				if ( $read ) {
@@ -175,8 +192,10 @@ class Library_Posts {
 				}
 
 				break;
+			}
 
-			case 'date_published':
+
+			case 'date_published': {
 				$date_published = get_post_meta( $post_id, 'date_published', true );
 
 				if ( $date_published ) {
@@ -186,8 +205,9 @@ class Library_Posts {
 				}
 
 				break;
+			}
 
-			case 'isbn':
+			case 'isbn': {
 				$isbn = get_post_meta( $post_id, 'isbn', true );
 
 				if ( $isbn ) {
@@ -197,13 +217,29 @@ class Library_Posts {
 				}
 
 				break;
+			}
 
-			case 'book_editions':
+			case 'book_editions': {
 				$book_editions = get_post_meta( $post_id, 'book_editions', true );
 
 				$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" name="' . $column_name . '" value="' . $book_editions . '" type="hidden">';
 
 				break;
+			}
+
+			case 'thumbnail': {
+				$thumbnail = get_the_post_thumbnail( $post_id );
+
+				if ( $thumbnail ) {
+					$output .= '<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">';
+					$output .= $thumbnail;
+					$output .= '</a>';
+				} else {
+					$output .= '—';
+				}
+
+				break;
+			}
 		}
 
 		echo $output;
@@ -328,7 +364,7 @@ class Library_Posts {
 			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
 		);
 
-		$supports   = array( 'title' /* , 'custom-fields' */ );
+		$supports   = array( 'title', 'thumbnail' /* , 'custom-fields' */ );
 		$taxonomies = array( 'library-author', 'library-publisher' );
 
 		$rewrite = array(
@@ -428,6 +464,24 @@ class Library_Posts {
 
 			.fixed .column-book_editions {
 				display: none;
+			}
+
+			.fixed .column-thumbnail {
+				vertical-align: top;
+				width: 80px;
+			}
+
+			.column-thumbnail a {
+				display: block;
+			}
+			.column-thumbnail a img {
+				display: inline-block;
+				vertical-align: middle;
+				width: 80px;
+				height: 80px;
+				object-fit: contain;
+				object-position: center;
+				overflow: hidden;
 			}
 		</style>
 		<?php

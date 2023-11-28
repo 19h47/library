@@ -48,6 +48,12 @@ class Library {
 
 
 	/**
+	 * Loader
+	 */
+	protected $loader;
+
+
+	/**
 	 * Construct function
 	 *
 	 * @access public
@@ -61,7 +67,7 @@ class Library {
 
 		add_filter(
 			'site_transient_update_plugins',
-			function( $value ) {
+			function ( $value ) {
 				unset( $value->response['library/library.php'] );
 				return $value;
 			},
@@ -90,12 +96,12 @@ class Library {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-library-loader.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-library-loader.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the Dashboard.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-admin.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-admin.php';
 
 		/**
 		 * The class responsible for all global functions.
@@ -173,7 +179,7 @@ class Library {
 	 * @since 1.0.0
 	 * @return string The name of the plugin.
 	 */
-	public function get_plugin_name() : string {
+	public function get_plugin_name(): string {
 		return $this->plugin_name;
 	}
 
@@ -184,7 +190,7 @@ class Library {
 	 * @since 1.0.0
 	 * @return Run_Loader Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() : Library_Loader {
+	public function get_loader(): Library_Loader {
 		return $this->loader;
 	}
 
@@ -195,7 +201,7 @@ class Library {
 	 * @since 0.0.0
 	 * @return string The version number of the plugin.
 	 */
-	public function get_plugin_version() : string {
+	public function get_plugin_version(): string {
 		return $this->plugin_version;
 	}
 }
