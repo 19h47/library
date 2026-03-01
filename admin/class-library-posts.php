@@ -48,6 +48,13 @@ class Library_Posts {
 	 */
 	private $plugin_version;
 
+	/**
+	 * Meta key used when sorting by date_published (évite double jointure postmeta avec filtre année).
+	 *
+	 * @var string|null
+	 */
+	private $orderby_meta_key = null;
+
 
 	/**
 	 * init
@@ -56,55 +63,15 @@ class Library_Posts {
 		$this->plugin_name    = $plugin_name;
 		$this->plugin_version = $plugin_version;
 
-		// Add the Run post type
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_filter( 'posts_join', array( $this, 'posts_join_book_date_published' ), 10, 2 );
+		add_filter( 'posts_orderby', array( $this, 'posts_orderby_book_date_published' ), 10, 2 );
 		// add_action( 'init', array( $this, 'register_post_status' ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'admin_head', array( $this, 'css' ) );
-
-		// add_action( 'admin_footer-post.php', array( $this, 'my_custom_status_add_in_post_page' ) );
-		// add_action( 'admin_footer-post-new.php', array( $this, 'my_custom_status_add_in_post_page' ) );
-		// add_action( 'admin_footer-edit.php', array( $this, 'my_custom_status_add_in_quick_edit' ) );
 	}
 
-	// public function my_custom_status_add_in_quick_edit() {
-	// echo "<script>
-	// jQuery(document).ready( function() {
-	// jQuery( 'select[name=\"_status\"]' ).append( '<option value=\"read\">Read</option>' );
-	// });
-	// </script>";
-	// }
-	// public function my_custom_status_add_in_post_page() {
-	// echo "<script>
-	// jQuery(document).ready( function() {
-	// jQuery( 'select[name=\"post_status\"]' ).append( '<option value=\"read\">Read</option>' );
-	// });
-	// </script>";
-	// }
-
-
-	// /**
-	// * Register the post type status
-	// *
-	// * @since  0.0.0
-	// *
-	// * @access public
-	// */
-	// public function register_post_status() {
-	// register_post_status(
-	// __( 'Read', 'library' ),
-	// array(
-	// 'label'                     => _x( 'Read', 'library' ),
-	// 'label_count'               => _n_noop( 'Read <span class="count">(%s)</span>', 'Read <span class="count">(%s)</span>' ),
-	// 'public'                    => true,
-	// 'exclude_from_search'       => false,
-	// 'show_in_admin_all_list'    => true,
-	// 'show_in_admin_status_list' => true,
-	// )
-	// );
-	// }
-
-
+	
 	/**
 	 * Save
 	 *
@@ -530,16 +497,58 @@ class Library_Posts {
 			return $query;
 		}
 
+		$this->orderby_meta_key = null;
+
 		$orderby = $query->get( 'orderby' );
 
-		switch ( $orderby ) {
-			case 'date_published':
-				$query->set( 'meta_key', 'date_published' );
-				$query->set( 'orderby', 'meta_value' );
-				break;
-			default:
-				break;
+		if ( 'date_published' === $orderby ) {
+			$this->orderby_meta_key = 'date_published';
+			$query->set( 'orderby', 'date' );
 		}
+	}
+
+
+	/**
+	 * Only one postmeta join (book_meta_sort) for date_published sort.
+	 *
+	 * @param string   $join  Clause JOIN.
+	 * @param WP_Query $query Requête.
+	 * @return string
+	 */
+	public function posts_join_book_date_published( $join, WP_Query $query ) {
+		if ( ! is_admin() || $query->get( 'post_type' ) !== 'book' || ! $this->orderby_meta_key ) {
+			return $join;
+		}
+
+		global $wpdb;
+
+		$join .= $wpdb->prepare(
+			" INNER JOIN {$wpdb->postmeta} AS book_meta_sort ON ({$wpdb->posts}.ID = book_meta_sort.post_id AND book_meta_sort.meta_key = %s) ",
+			$this->orderby_meta_key
+		);
+
+		return $join;
+	}
+
+
+	/**
+	 * ORDER BY book_meta_sort (date_published = meta_value date).
+	 *
+	 * @param string   $orderby Clause ORDER BY.
+	 * @param WP_Query $query   Requête.
+	 * @return string
+	 */
+	public function posts_orderby_book_date_published( $orderby, WP_Query $query ) {
+		if ( ! is_admin() || $query->get( 'post_type' ) !== 'book' || ! $this->orderby_meta_key ) {
+			return $orderby;
+		}
+
+		$order = strtoupper( $query->get( 'order' ) );
+		if ( 'DESC' !== $order ) {
+			$order = 'ASC';
+		}
+
+		return 'book_meta_sort.meta_value ' . $order;
 	}
 
 
