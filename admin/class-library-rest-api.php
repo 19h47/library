@@ -48,13 +48,60 @@ class Library_Rest_API {
 
 
 	/**
+	 * Reading stats for books (read count and total).
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_reading_stats( WP_REST_Request $request ) {
+		$counts   = (array) wp_count_posts( 'book' );
+		$total    = array_sum( $counts );
+		$read_q   = new WP_Query(
+			array(
+				'post_type'      => 'book',
+				'post_status'    => array_keys( get_post_stati() ),
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_query'     => array(
+					array(
+						'key'   => 'read',
+						'value' => '1',
+						'compare' => '=',
+					),
+				),
+			)
+		);
+		$read = $read_q->found_posts;
+
+		return rest_ensure_response(
+			array(
+				'read'  => (int) $read,
+				'total' => (int) $total,
+			)
+		);
+	}
+
+	/**
 	 * Register rest routes.
 	 *
 	 * @param WP_REST_Server $wp_rest_server Server object.
 	 */
 	public function register_rest_routes( WP_REST_Server $wp_rest_server ) {
 		$namespace = $this->plugin_name . '/v1';
-		$route     = '/settings/';
+
+		register_rest_route(
+			$namespace,
+			'books/reading-stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_reading_stats' ),
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			),
+		);
+
+		$route = '/settings/';
 
 		register_rest_route(
 			$namespace,

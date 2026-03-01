@@ -155,6 +155,8 @@ class Library {
 		// Taxonomies
 		$this->loader->add_action( 'init', $plugin_taxonomies, 'register', 10, 0 );
 		$this->loader->add_action( 'term_updated_messages', $plugin_taxonomies, 'messages', 10, 1 );
+		$this->loader->add_action( 'pre_get_posts', $plugin_taxonomies, 'pre_get_books', 10, 1 );
+		$this->loader->add_filter( 'get_terms_args', $plugin_taxonomies, 'get_terms_args', 10, 2 );
 
 		$this->loader->add_filter( 'posts_join', $plugin_wp_query, 'search_join', 10, 2 );
 		$this->loader->add_filter( 'posts_where', $plugin_wp_query, 'search_where', 10, 2 );

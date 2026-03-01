@@ -522,8 +522,12 @@ class Library_Posts {
 
 	function pre_get_books( $query ) {
 
-		if ( ! is_admin() ) {
-			return;
+		if ( ! ( is_admin() && $query->is_main_query() ) ) {
+			return $query;
+		}
+
+		if ( $query->get( 'post_type' ) !== 'book' ) {
+			return $query;
 		}
 
 		$orderby = $query->get( 'orderby' );

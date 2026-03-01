@@ -90,7 +90,7 @@ class Library_Taxonomies {
 
 		$args = array(
 			'labels'              => $labels,
-			'hierarchical'        => false,
+			'hierarchical'        => true, // Parent = nom réel, enfants = pseudonymes.
 			'public'              => true,
 			'publicly_queryable'  => true,
 			'show_ui'             => true,
@@ -190,5 +190,67 @@ class Library_Taxonomies {
 		);
 
 		return $messages;
+	}
+
+
+	/**
+	 * In admin, when filtering books by author, include children (pseudonyms).
+	 *
+	 * @param \WP_Query $query The WP_Query instance.
+	 * @return void
+	 */
+	public function pre_get_books( \WP_Query $query ) : void {
+		if ( ! is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		if ( $query->get( 'post_type' ) !== 'book' ) {
+			return;
+		}
+
+		$author_param = isset( $_GET['library-author'] ) ? sanitize_text_field( wp_unslash( $_GET['library-author'] ) ) : '';
+		if ( $author_param === '' ) {
+			return;
+		}
+
+		$term = is_numeric( $author_param )
+			? get_term( (int) $author_param, 'library-author' )
+			: get_term_by( 'slug', $author_param, 'library-author' );
+
+		if ( ! $term instanceof \WP_Term ) {
+			return;
+		}
+
+		$tax_query = $query->get( 'tax_query' );
+		if ( ! is_array( $tax_query ) ) {
+			$tax_query = array();
+		}
+
+		$tax_query[] = array(
+			'taxonomy'         => 'library-author',
+			'field'            => 'term_id',
+			'terms'            => $term->term_id,
+			'include_children' => true,
+		);
+
+		$query->set( 'tax_query', $tax_query );
+	}
+
+
+	/**
+	 * Include children (pseudonyms) in term counts for author taxonomy.
+	 *
+	 * @param array  $args       Arguments passés à get_terms().
+	 * @param string[] $taxonomies Taxonomies demandées.
+	 * @return array
+	 */
+	public function get_terms_args( array $args, array $taxonomies ) : array {
+		if ( ! in_array( 'library-author', $taxonomies, true ) ) {
+			return $args;
+		}
+
+		$args['pad_counts'] = true;
+
+		return $args;
 	}
 }
