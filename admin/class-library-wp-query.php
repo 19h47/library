@@ -1,57 +1,61 @@
 <?php
 /**
- * The settings of the plugin.
+ * Query modifications: search in post meta.
  *
- * @link       https://github.com/19h47/sellsy-clients/
- * @since      0.0.0
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
  *
  * @package    Library
  * @subpackage Library/admin
  */
 
 /**
- * Class Library_WP_Query
+ * Extends main query for book search (post meta).
+ *
+ * @since      1.0.0
+ * @package    Library
+ * @subpackage Library/admin
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_WP_Query {
 
 	/**
-	 * The ID of this plugin.
+	 * Plugin identifier.
 	 *
-	 * @since    0.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_name
 	 */
 	private $plugin_name;
 
 	/**
-	 * The version of this plugin.
+	 * Plugin version.
 	 *
-	 * @since    0.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
+	 * @since  1.0.0
+	 * @var    string $version
 	 */
 	private $version;
 
-
 	/**
-	 * Initialize the class and set its properties.
+	 * Constructor.
 	 *
-	 * @since    0.0.0
-	 * @param      string $plugin_name       The name of this plugin.
-	 * @param      string $version    The version of this plugin.
+	 * @since 1.0.0
+	 * @param string $plugin_name Plugin identifier.
+	 * @param string $version     Plugin version.
 	 */
 	public function __construct( string $plugin_name, string $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
 	}
 
-
 	/**
-	 * Join posts and postmeta tables
+	 * Join postmeta for search.
 	 *
-	 * @see https://developer.wordpress.org/reference/hooks/posts_join/
+	 * @since  1.0.0
+	 * @param  string   $join  JOIN clause.
+	 * @param  WP_Query $query Query instance.
+	 * @return string
 	 */
-	function search_join( string $join, WP_Query $query ) : string {
+	public function search_join( string $join, WP_Query $query ) : string {
 		global $wpdb;
 
 		if ( is_search() ) {
@@ -63,11 +67,14 @@ class Library_WP_Query {
 
 
 	/**
-	 * Modify the search query with posts_where
+	 * Extend WHERE clause for post meta search.
 	 *
-	 * @see https://developer.wordpress.org/reference/hooks/posts_where/
+	 * @since  1.0.0
+	 * @param  string   $where WHERE clause.
+	 * @param  WP_Query $query Query instance.
+	 * @return string
 	 */
-	function search_where( string $where, WP_Query $query ) : string {
+	public function search_where( string $where, WP_Query $query ) : string {
 		global $wpdb;
 
 		if ( is_search() ) {
@@ -83,11 +90,14 @@ class Library_WP_Query {
 
 
 	/**
-	 * Prevent duplicates
+	 * Add DISTINCT for search to avoid duplicates.
 	 *
-	 * @see https://developer.wordpress.org/reference/hooks/posts_distinct/
+	 * @since  1.0.0
+	 * @param  string   $distinct DISTINCT clause.
+	 * @param  WP_Query $query    Query instance.
+	 * @return string
 	 */
-	function search_distinct( string $distinct, WP_Query $query ) : string {
+	public function search_distinct( string $distinct, WP_Query $query ) : string {
 		if ( is_search() ) {
 			return 'DISTINCT';
 		}

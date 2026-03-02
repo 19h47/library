@@ -1,73 +1,71 @@
-/* global pagenow, typenow, adminpage */
+/**
+ * Quick edit: prefill ISBN and book editions in the inline edit row.
+ *
+ * Extends inlineEditPost.edit (WordPress core) then fills custom fields.
+ * Bulk edit uses admin-ajax.php with fetch() (same pattern as REST in admin).
+ *
+ * @package    Library
+ * @subpackage Library/admin
+ * @global     inlineEditPost
+ * @global     ajaxurl
+ * @global     pagenow
+ * @global     typenow
+ * @global     adminpage
+ */
+( function ( $ ) {
+	'use strict';
 
-(function ($) {
-	if ('book' === typenow && 'edit-php' === adminpage && 'edit-book' === pagenow) {
-		// we create a copy of the WP inline edit post function
-		const $wp_inline_edit = inlineEditPost.edit;
-
-		// and then we overwrite the function with our own code
-		inlineEditPost.edit = function (id) {
-			if (post_id < 0) {
-				return;
-			}
-
-			// "call" the original WP edit function
-			// we don't want to leave WordPress hanging
-			$wp_inline_edit.apply(this, arguments);
-
-			// now we take care of our business
-
-			// get the post ID
-			var post_id = 0;
-
-			if (typeof id == "object") {
-				post_id = parseInt(this.getId(id));
-			}
-
-			// define the edit row
-			const $editRow = document.getElementById("edit-" + post_id);
-
-			const isbn = document.getElementById("library-isbn-" + post_id).innerHTML;
-			const bookEditions = document.getElementById("library-book_editions-" + post_id).value;
-
-			$editRow.querySelector('input[name="isbn"]').value = isbn.trim();
-			$editRow.querySelector('input[name="book_editions"]').value = bookEditions.trim();
-		};
+	if ( 'book' !== typenow || 'edit-php' !== adminpage || 'edit-book' !== pagenow ) {
+		return;
 	}
 
+	// Wrap WordPress quick edit like core does for custom columns.
+	var originalEdit = inlineEditPost.edit;
 
-	$("#bulk_edit").on("click", function () {
-		// define the bulk edit row
-		const $bulkRow = $("#bulk-edit");
+	inlineEditPost.edit = function ( id ) {
+		originalEdit.apply( this, arguments );
 
-		// get the selected post ids that are being edited
-		const $post_ids = [];
+		var postId = 0;
+		if ( typeof id === 'object' ) {
+			postId = parseInt( this.getId( id ), 10 );
+		}
+		if ( postId <= 0 ) {
+			return;
+		}
 
-		$bulkRow
-			.find("#bulk-titles")
-			.children()
-			.each(function () {
-				$post_ids.push(
-					$(this)
-						.attr("id")
-						.replace(/^(ttle)/i, "")
-				);
-			});
+		var editRow = document.getElementById( 'edit-' + postId );
+		if ( ! editRow ) {
+			return;
+		}
 
-		// get the custom fields
-		const isbn = $bulkRow.find('input[name="isbn"]').val();
+		var isbnEl = document.getElementById( 'library-isbn-' + postId );
+		var bookEditionsEl = document.getElementById( 'library-book_editions-' + postId );
+		if ( isbnEl && bookEditionsEl ) {
+			editRow.querySelector( 'input[name="isbn"]' ).value = isbnEl.innerHTML.trim();
+			editRow.querySelector( 'input[name="book_editions"]' ).value = bookEditionsEl.value.trim();
+		}
+	};
 
-		// save the data
-		$.ajax({
-			url: ajaxurl, // this is a variable that WordPress has already defined for us
-			type: "POST",
-			async: false,
-			cache: false,
-			data: {
-				action: "manage_wp_posts_using_bulk_quick_save_bulk_edit", // this is the name of our WP AJAX function that we'll set up next
-				post_ids: $post_ids, // and these are the 2 parameters we're passing to our function
-				isbn,
-			},
-		});
-	});
-})(jQuery);
+	// Bulk edit: send via admin-ajax (fetch + FormData, no synchronous XHR).
+	$( '#bulk_edit' ).on( 'click', function () {
+		var $bulkRow = $( '#bulk-edit' );
+		var postIds  = [];
+
+		$bulkRow.find( '#bulk-titles' ).children().each( function () {
+			postIds.push( $( this ).attr( 'id' ).replace( /^(ttle)/i, '' ) );
+		} );
+
+		var formData = new FormData();
+		formData.append( 'action', 'manage_wp_posts_using_bulk_quick_save_bulk_edit' );
+		formData.append( 'isbn', $bulkRow.find( 'input[name="isbn"]' ).val() );
+		postIds.forEach( function ( id ) {
+			formData.append( 'post_ids[]', id );
+		} );
+
+		window.fetch( ajaxurl, {
+			method:      'POST',
+			body:        formData,
+			credentials: 'same-origin',
+		} );
+	} );
+} )( jQuery );

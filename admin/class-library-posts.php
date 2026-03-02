@@ -1,18 +1,18 @@
 <?php
 /**
- * Post types
+ * Book post type, columns, quick edit, and list views.
  *
- * @link       https://www.19h47.fr
- * @since      0.0.0
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
  *
  * @package    Library
  * @subpackage Library/admin
  */
 
 /**
- * Register post types
+ * Registers book post type and admin UI (columns, quick edit, save).
  *
- * @since      0.0.0
+ * @since      1.0.0
  * @package    Library
  * @subpackage Library/admin
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
@@ -20,44 +20,43 @@
 class Library_Posts {
 
 	/**
-	 * Post type name
+	 * Post type name.
 	 *
-	 * @since  0.0.0
-	 * @access   private
-	 * @var string
+	 * @since  1.0.0
+	 * @var    string $post_type
 	 */
 	protected $post_type = 'book';
 
-
 	/**
-	 * The unique identifier of this plugin.
+	 * Plugin identifier.
 	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_name
 	 */
 	protected $plugin_name;
 
-
 	/**
-	 * The version of the plugin.
+	 * Plugin version.
 	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_version
 	 */
 	private $plugin_version;
 
 	/**
-	 * Meta key used when sorting by date_published (évite double jointure postmeta avec filtre année).
+	 * Meta key used when sorting by date_published (avoids duplicate postmeta join).
 	 *
-	 * @var string|null
+	 * @since  1.0.0
+	 * @var    string|null $orderby_meta_key
 	 */
 	private $orderby_meta_key = null;
 
-
 	/**
-	 * init
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 * @param string $plugin_name    Plugin identifier.
+	 * @param string $plugin_version Plugin version.
 	 */
 	public function __construct( $plugin_name, $plugin_version ) {
 		$this->plugin_name    = $plugin_name;
@@ -383,12 +382,15 @@ class Library_Posts {
 			return $items;
 		}
 
+		$count = (int) $num_posts->{ $post_status };
+		$label = 1 === $count
+			? strtolower( $object->labels->singular_name )
+			: strtolower( $object->labels->name );
 		$text = sprintf(
-			/* translators: %1$s: number posts %2$s: singular name %3$s: name %4$s: pending */
-			_n( '%1$s %4$s%2$s', '%1$s %4$s%3$s', $num_posts->{ $post_status } ), // phpcs:ignore
-			number_format_i18n( $num_posts->{ $post_status } ),
-			strtolower( $object->labels->singular_name ),
-			strtolower( $object->labels->name ),
+			/* translators: %1$s: number, %2$s: post type name (singular or plural), %3$s: pending prefix */
+			_n( '%1$s %3$s%2$s', '%1$s %3$s%2$s', $count ),
+			number_format_i18n( $count ),
+			$label,
 			'pending' === $post_status ? 'Pending ' : ''
 		);
 
@@ -509,10 +511,15 @@ class Library_Posts {
 
 
 	/**
-	 * Only one postmeta join (book_meta_sort) for date_published sort.
+	 * Join postmeta with unique alias for date_published sort.
+	 *
+	 * Using only meta_key + orderby meta_value in pre_get_posts would let WP_Query
+	 * add its own postmeta join. With filters (e.g. year, search) or other plugins,
+	 * that produces a second join on the same table → "Not unique table/alias".
+	 * Same approach as in Run plugin (posts_join + posts_orderby with dedicated alias).
 	 *
 	 * @param string   $join  Clause JOIN.
-	 * @param WP_Query $query Requête.
+	 * @param WP_Query $query Query.
 	 * @return string
 	 */
 	public function posts_join_book_date_published( $join, WP_Query $query ) {
@@ -532,10 +539,10 @@ class Library_Posts {
 
 
 	/**
-	 * ORDER BY book_meta_sort (date_published = meta_value date).
+	 * ORDER BY book_meta_sort.meta_value for date_published.
 	 *
 	 * @param string   $orderby Clause ORDER BY.
-	 * @param WP_Query $query   Requête.
+	 * @param WP_Query $query   Query.
 	 * @return string
 	 */
 	public function posts_orderby_book_date_published( $orderby, WP_Query $query ) {

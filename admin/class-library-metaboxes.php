@@ -1,48 +1,46 @@
 <?php
-
 /**
- * Metaboxes
+ * Book metabox: information fields.
  *
- * @link       https://www.19h47.fr
- * @since      0.0.0
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
  *
  * @package    Library
  * @subpackage Library/admin
  */
 
-
 /**
- * Metaboxes
+ * Renders and saves the book information metabox.
  *
- * @since      0.0.0
+ * @since      1.0.0
  * @package    Library
  * @subpackage Library/admin
- * @author     Levron Jérémy <levronjeremy@19h47.fr>
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Metaboxes {
 
 	/**
-	 * The ID of this plugin.
+	 * Plugin identifier.
 	 *
-	 * @since       1.0.0
-	 * @access      private
-	 * @var         string          $plugin_name        The ID of this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_name
 	 */
 	private $plugin_name;
 
-
 	/**
-	 * The version of this plugin.
+	 * Plugin version.
 	 *
-	 * @since       1.0.0
-	 * @access      private
-	 * @var         string          $version            The current version of this plugin.
+	 * @since  1.0.0
+	 * @var    string $version
 	 */
 	private $version;
 
-
 	/**
-	 * Constructor
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 * @param string $plugin_name Plugin identifier.
+	 * @param string $version     Plugin version.
 	 */
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
@@ -56,9 +54,10 @@ class Library_Metaboxes {
 
 
 	/**
-	 * Meta box initialization
+	 * Register metabox and save callback.
 	 *
-	 * @see https://generatewp.com/snippet/90jakpm/
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function init_metabox() {
 		add_action( 'add_meta_boxes', array( $this, 'add_metabox' ) );
@@ -66,11 +65,10 @@ class Library_Metaboxes {
 	}
 
 	/**
-	 * Adds the meta box
+	 * Add the information metabox to the book edit screen.
 	 *
-	 * $id, $title, $callback, $page, $context, $priority, $callback_args
-	 *
-	 * @see  https://developer.wordpress.org/reference/functions/add_meta_box/
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function add_metabox() {
 		add_meta_box(
@@ -85,13 +83,16 @@ class Library_Metaboxes {
 
 
 	/**
-	 * Renders the meta box
+	 * Render metabox content.
+	 *
+	 * @since 1.0.0
+	 * @param WP_Post $post Post object.
+	 * @return void
 	 */
 	public function render_metabox( $post ) {
-		// Add nonce for security and authentication.
-		wp_nonce_field( 'custom_nonce_action', 'custom_nonce' );
+		wp_nonce_field( 'library_metabox_nonce', 'library_metabox_nonce' );
 
-		// Retrieve an existing value from the database
+		// Retrieve existing values from the database.
 		$series         = get_post_meta( $post->ID, 'series', true );
 		$authors        = wp_get_post_terms( $post->ID, 'library-author', array( 'fields' => 'names' ) );
 		$isbn           = get_post_meta( $post->ID, 'isbn', true );
@@ -102,7 +103,7 @@ class Library_Metaboxes {
 		$publishers     = wp_get_post_terms( $post->ID, 'library-publisher', array( 'fields' => 'names' ) );
 		$book_editions  = get_post_meta( $post->ID, 'book_editions', true );
 
-		// Set default values
+		// Set default values.
 		if ( empty( $series ) ) {
 			$series = '';
 		}
@@ -147,39 +148,22 @@ class Library_Metaboxes {
 	}
 
 	/**
-	 * Handles saving the meta box
+	 * Save metabox data.
 	 *
+	 * @since 1.0.0
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.
-	 * @return null
+	 * @return void
 	 */
 	public function save_metabox( $post_id, $post ) {
-		// Add nonce for security and authentication.
-		$nonce_name   = isset( $_POST['custom_nonce'] ) ? $_POST['custom_nonce'] : '';
-		$nonce_action = 'custom_nonce_action';
-
-		// Check if nonce is set.
-		if ( ! isset( $nonce_name ) ) {
+		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) ) {
 			return;
 		}
-
-		// Check if nonce is valid.
-		if ( ! wp_verify_nonce( $nonce_name, $nonce_action ) ) {
-			return;
-		}
-
-		// Check if user has permissions to save data.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
-
-		// Check if not an autosave.
-		if ( wp_is_post_autosave( $post_id ) ) {
-			return;
-		}
-
-		// Check if not a revision.
-		if ( wp_is_post_revision( $post_id ) ) {
+		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
 			return;
 		}
 

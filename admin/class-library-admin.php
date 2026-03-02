@@ -1,54 +1,46 @@
 <?php
 /**
- * The dashboard-specific functionality of the plugin.
+ * Admin functionality: scripts and dependencies.
  *
- * @link       http://www.19h47.fr
+ * @link       https://github.com/19h47/library
  * @since      1.0.0
  *
  * @package    Library
  * @subpackage Library/admin
  */
 
-
 /**
- * The dashboard-specific functionality of the plugin.
- *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the dashboard-specific stylesheet and JavaScript.
+ * Enqueues admin scripts for the book post type.
  *
  * @since      1.0.0
  * @package    Library
  * @subpackage Library/admin
- * @author     Levron Jérémy <jeremylevron@19h47.fr>
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Admin {
 
 	/**
-	 * The name of this plugin.
+	 * Plugin identifier.
 	 *
-	 * @since 1.0.0
-	 * @access protected
-	 * @var string $plugin_name The ID of this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_name
 	 */
 	protected $plugin_name;
 
-
 	/**
-	 * The version of this plugin.
+	 * Plugin version.
 	 *
-	 * @since 1.0.0
-	 * @access protected
-	 * @var string $plugin_version The current version of this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_version
 	 */
 	protected $plugin_version;
 
-
 	/**
-	 * Initialize the class and set its properties.
+	 * Constructor.
 	 *
 	 * @since 1.0.0
-	 * @param string $plugin_name The name of this plugin.
-	 * @param string $plugin_version The version of this plugin.
+	 * @param string $plugin_name    Plugin identifier.
+	 * @param string $plugin_version Plugin version.
 	 */
 	public function __construct( string $plugin_name, string $plugin_version ) {
 		$this->plugin_name    = $plugin_name;
@@ -59,9 +51,10 @@ class Library_Admin {
 
 
 	/**
-	 * Load the required dependencies for the admin area.
+	 * Load admin dependencies.
 	 *
-	 * @since 0.0.0
+	 * @since  1.0.0
+	 * @access private
 	 */
 	private function load_dependencies() {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-metaboxes.php';
@@ -74,12 +67,43 @@ class Library_Admin {
 
 
 	/**
-	 * Register the JavaScript for the admin area.
+	 * Enqueue admin scripts for book edit screen.
 	 *
-	 * @since    0.0.0
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name . '-admin-read', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array( 'jquery', 'wp-api' ), $this->plugin_version, true );
+		$screen = get_current_screen();
+		if ( ! $screen || $screen->post_type !== 'book' ) {
+			return;
+		}
+
+		$read_handle = $this->plugin_name . '-admin-read';
+		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array( 'jquery' ), $this->plugin_version, true );
+		wp_localize_script(
+			$read_handle,
+			'libraryAdminRead',
+			array(
+				'restUrl'          => rest_url(),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
+			)
+		);
 		wp_enqueue_script( $this->plugin_name . '-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-inline-edit.js', array( 'jquery' ), $this->plugin_version, true );
+
+		wp_enqueue_script( $this->plugin_name . '-admin-isbn', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-isbn.js', array( 'jquery' ), $this->plugin_version, true );
+		wp_localize_script(
+			$this->plugin_name . '-admin-isbn',
+			'libraryAdminIsbn',
+			array(
+				'restUrl'   => rest_url( '/' ),
+				'nonce'     => wp_create_nonce( 'wp_rest' ),
+				'loading'   => __( 'Loading…', 'library' ),
+				'success'   => __( 'Info loaded.', 'library' ),
+				'error'     => __( 'Could not fetch book data.', 'library' ),
+				'notFound'  => __( 'No book found for this ISBN.', 'library' ),
+				'enterIsbn' => __( 'Please enter an ISBN.', 'library' ),
+			)
+		);
 	}
 }

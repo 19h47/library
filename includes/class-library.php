@@ -1,62 +1,58 @@
 <?php
-
 /**
- * The file that defines the core plugin class
+ * Core plugin class.
  *
- * A class definition that includes attributes and functions used across both the
- * public-facing side of the site and the admin area.
+ * Defines internationalization, admin-specific hooks, and loader.
  *
- * @link       https://www.19h47.fr
- * @since      0.0.0
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
  *
  * @package    Library
  * @subpackage Library/includes
  */
 
-
 /**
- * The core plugin class.
+ * Core plugin class.
  *
- * Also maintains the unique identifier of this plugin as well as the current
- * version of the plugin.
+ * Maintains the unique identifier and version of the plugin, and loads dependencies.
  *
- * @since      0.0.0
+ * @since      1.0.0
  * @package    Library
  * @subpackage Library/includes
- * @author     Levron Jérémy <levronjeremy@19h47.fr>
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library {
 
 	/**
-	 * The unique identifier of this plugin.
+	 * Plugin identifier.
 	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $plugin_name    The string used to uniquely identify this theme.
+	 * @since  1.0.0
+	 * @var    string $plugin_name
 	 */
 	protected $plugin_name;
 
-
 	/**
-	 * The version of the theme.
+	 * Plugin version.
 	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this theme.
+	 * @since  1.0.0
+	 * @var    string $plugin_version
 	 */
 	protected $plugin_version;
 
-
 	/**
-	 * Loader
+	 * Loader instance.
+	 *
+	 * @since  1.0.0
+	 * @var    Library_Loader $loader
 	 */
 	protected $loader;
 
-
 	/**
-	 * Construct function
+	 * Constructor.
 	 *
-	 * @access public
+	 * @since 1.0.0
+	 * @param string $plugin_name    Plugin identifier.
+	 * @param string $plugin_version Plugin version.
 	 */
 	public function __construct( string $plugin_name, string $plugin_version ) {
 		$this->plugin_name    = $plugin_name;
@@ -76,37 +72,14 @@ class Library {
 
 
 	/**
-	 * Load the required dependencies for this plugin.
+	 * Load required dependencies.
 	 *
-	 * Include the following files that make up the plugin:
-	 *
-	 * - Run_Loader. Orchestrates the hooks of the plugin.
-	 * - Run_Admin. Defines all hooks for the dashboard.
-	 * - Run_Public. Defines all hooks for the public side of the site.
-	 *
-	 * Create an instance of the loader which will be used to register the hooks
-	 * with WordPress.
-	 *
-	 * @since 1.0.0
+	 * @since  1.0.0
 	 * @access private
 	 */
 	private function load_dependencies() {
-
-		/**
-		 * The class responsible for orchestrating the actions and filters of the
-		 * core plugin.
-		 */
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-library-loader.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the Dashboard.
-		 */
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-admin.php';
-
-		/**
-		 * The class responsible for all global functions.
-		 */
-		// require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/api.php';
 
 		$this->loader = new Library_Loader();
 	}
@@ -114,13 +87,13 @@ class Library {
 
 
 	/**
-	 * Register all of the hooks related to the dashboard functionality
-	 * of the plugin.
+	 * Register admin hooks.
 	 *
-	 * @since 1.0.0
+	 * @since  1.0.0
 	 * @access private
 	 */
-	private function define_admin_hooks() {
+	private function define_admin_hooks() 
+	{
 		$plugin_admin      = new Library_Admin( $this->get_plugin_name(), $this->get_plugin_version() );
 		$plugin_metaboxes  = new Library_Metaboxes( $this->plugin_name, $this->plugin_version );
 		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
@@ -163,9 +136,8 @@ class Library {
 		$this->loader->add_filter( 'posts_distinct', $plugin_wp_query, 'search_distinct', 10, 2 );
 	}
 
-
 	/**
-	 * Run the loader to execute all of the hooks with WordPress.
+	 * Run the loader.
 	 *
 	 * @since 1.0.0
 	 */
@@ -173,35 +145,31 @@ class Library {
 		$this->loader->run();
 	}
 
-
 	/**
-	 * The name of the plugin used to uniquely identify it within the context of
-	 * WordPress and to define internationalization functionality.
+	 * Plugin name.
 	 *
-	 * @since 1.0.0
-	 * @return string The name of the plugin.
+	 * @since  1.0.0
+	 * @return string
 	 */
 	public function get_plugin_name(): string {
 		return $this->plugin_name;
 	}
 
-
 	/**
-	 * The reference to the class that orchestrates the hooks with the plugin.
+	 * Loader instance.
 	 *
-	 * @since 1.0.0
-	 * @return Run_Loader Orchestrates the hooks of the plugin.
+	 * @since  1.0.0
+	 * @return Library_Loader
 	 */
 	public function get_loader(): Library_Loader {
 		return $this->loader;
 	}
 
-
 	/**
-	 * Retrieve the version number of the plugin.
+	 * Plugin version.
 	 *
-	 * @since 0.0.0
-	 * @return string The version number of the plugin.
+	 * @since  1.0.0
+	 * @return string
 	 */
 	public function get_plugin_version(): string {
 		return $this->plugin_version;

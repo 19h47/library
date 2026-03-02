@@ -1,27 +1,32 @@
 <?php
 /**
- * Library
+ * Plugin bootstrap and text domain loading.
  *
- * @link              https://www.github.com/19h47/library
- * @since             1.0.1
- * @package           Library
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
+ *
+ * @package    Library
  *
  * @wordpress-plugin
- * Plugin Name: Library
- * Plugin URI: https://www.github.com/19h47/library
- * Description: Enables a Book post type, taxonomy and metaboxes.
- * Version: 0.0.0
- * Author: Jérémy Levron
- * Author URI: https://www.19h47.fr
- * License: GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain: library
+ * Plugin Name:       Library
+ * Plugin URI:        https://www.github.com/19h47/library
+ * Description:       Enables a Book post type, taxonomy and metaboxes.
+ * Version:           0.0.0
+ * Requires at least: 5.9
+ * Requires PHP:      7.4
+ * Author:            Jérémy Levron
+ * Author URI:        https://www.19h47.fr
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Update URI:        https://github.com/19h47/library
+ * Text Domain:       library
+ * Domain Path:       /languages
  */
 
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 if ( ! function_exists( 'get_plugin_data' ) ) {
@@ -30,6 +35,27 @@ if ( ! function_exists( 'get_plugin_data' ) ) {
 
 define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
 
+/**
+ * Load plugin text domain for translations.
+ * Uses absolute path so translations load even when plugin path is non-standard.
+ */
+add_action(
+	'plugins_loaded',
+	function () {
+		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+		$mofile = LIBRARY_DIR_PATH . 'languages/library-' . $locale . '.mo';
+		if ( is_readable( $mofile ) ) {
+			load_textdomain( 'library', $mofile, $locale );
+			return;
+		}
+		load_plugin_textdomain(
+			'library',
+			false,
+			dirname( plugin_basename( __FILE__ ) ) . '/languages'
+		);
+	},
+	0
+);
 
 /**
  * The core plugin class that is used to define internationalization,
@@ -39,10 +65,6 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-library.php';
 
 /**
  * Begins execution of the plugin.
- *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
  *
  * @since 1.0.0
  */
@@ -54,4 +76,4 @@ function run_library() {
 	$plugin->run();
 }
 
-run_library(); // Run, Forrest, run!
+run_library();

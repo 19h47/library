@@ -1,8 +1,10 @@
 <?php
 /**
- * Form fields
+ * Book information metabox form fields.
  *
- * @since      0.0.0
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
+ *
  * @package    Library
  * @subpackage Library/admin/partials
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
@@ -68,6 +70,10 @@
 				placeholder="<?php esc_html_e( 'ISBN', 'library' ); ?>"
 				value="<?php echo esc_html( $isbn ); ?>"
 			>
+			<button type="button" id="library-fetch-isbn" class="button button-secondary" style="margin-left: 6px;">
+				<?php esc_html_e( 'Fetch info', 'library' ); ?>
+			</button>
+			<span id="library-fetch-isbn-status" class="library-fetch-status" aria-live="polite"></span>
 		</td>
 	</tr>
 

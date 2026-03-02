@@ -1,56 +1,56 @@
 <?php
 /**
- * Taxonomies of the plugin.
+ * Book taxonomies: author and publisher.
  *
- * @link       https://github.com/19h47/sellsy-clients/
- * @since      0.0.0
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
  *
  * @package    Library
  * @subpackage Library/admin
  */
 
 /**
- * Taxonomies
+ * Registers library-author and library-publisher taxonomies.
+ *
+ * @since      1.0.0
+ * @package    Library
+ * @subpackage Library/admin
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Taxonomies {
 
 	/**
-	 * The ID of this plugin.
+	 * Plugin identifier.
 	 *
-	 * @since    0.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
+	 * @since  1.0.0
+	 * @var    string $plugin_name
 	 */
 	private $plugin_name;
 
 	/**
-	 * The version of this plugin.
+	 * Plugin version.
 	 *
-	 * @since    0.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
+	 * @since  1.0.0
+	 * @var    string $version
 	 */
 	private $version;
 
-
 	/**
-	 * Initialize the class and set its properties.
+	 * Constructor.
 	 *
-	 * @since    0.0.0
-	 * @param      string $plugin_name       The name of this plugin.
-	 * @param      string $version    The version of this plugin.
+	 * @since 1.0.0
+	 * @param string $plugin_name Plugin identifier.
+	 * @param string $version     Plugin version.
 	 */
 	public function __construct( string $plugin_name, string $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
 	}
 
-
 	/**
-	 * Register
+	 * Register taxonomies.
 	 *
-	 * @see https://developer.wordpress.org/reference/functions/register_taxonomy/
-	 *
+	 * @since  1.0.0
 	 * @return void
 	 */
 	public function register() : void {
