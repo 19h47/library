@@ -57,12 +57,12 @@ class Library_Admin {
 	 * @access private
 	 */
 	private function load_dependencies() {
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-metaboxes.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-rest-api.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-settings.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-posts.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-taxonomies.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-library-wp-query.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-metaboxes.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-rest-api.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-settings.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-posts.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-taxonomies.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-wp-query.php';
 	}
 
 
@@ -74,7 +74,7 @@ class Library_Admin {
 	 */
 	public function enqueue_scripts() {
 		$screen = get_current_screen();
-		if ( ! $screen || $screen->post_type !== 'book' ) {
+		if ( ! $screen || 'book' !== $screen->post_type ) {
 			return;
 		}
 
@@ -84,8 +84,9 @@ class Library_Admin {
 			$read_handle,
 			'libraryAdminRead',
 			array(
-				'restUrl'          => rest_url(),
-				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'restUrl'           => rest_url(),
+				'nonce'             => wp_create_nonce( 'wp_rest' ),
+				/* translators: %s: reading percentage. */
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
 			)
 		);

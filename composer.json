@@ -1,11 +1,17 @@
 {
+	"name": "19h47/library",
+	"version": "0.0.0",
+	"description": "Plugin library for WordPress",
+	"type": "wordpress-plugin",
+	"authors": [
+		{
+			"name": "19h47",
+			"email": "jeremylevron@19h47.fr"
+		}
+	],
 	"require-dev": {
 		"wp-coding-standards/wpcs": "^3.3",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.2"
-	},
-	"scripts": {
-		"phpcs": "phpcs",
-		"fix": "phpcbf"
 	},
 	"config": {
 		"allow-plugins": {

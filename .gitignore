@@ -19,3 +19,9 @@ node_modules
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# IDE #
+#######
+.idea/
+.vscode/
+*.sublime-*

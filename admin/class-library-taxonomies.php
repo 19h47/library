@@ -53,7 +53,7 @@ class Library_Taxonomies {
 	 * @since  1.0.0
 	 * @return void
 	 */
-	public function register() : void {
+	public function register(): void {
 		$this->register_author();
 		$this->register_publisher();
 	}
@@ -168,7 +168,7 @@ class Library_Taxonomies {
 	 *
 	 * @return $message
 	 */
-	public function messages( array $messages ) : array {
+	public function messages( array $messages ): array {
 		$messages['library-author'] = array(
 			0 => '',
 			1 => __( 'Author added.', 'library' ),
@@ -199,7 +199,7 @@ class Library_Taxonomies {
 	 * @param \WP_Query $query The WP_Query instance.
 	 * @return void
 	 */
-	public function pre_get_books( \WP_Query $query ) : void {
+	public function pre_get_books( \WP_Query $query ): void {
 		if ( ! is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
@@ -208,8 +208,9 @@ class Library_Taxonomies {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter on books list.
 		$author_param = isset( $_GET['library-author'] ) ? sanitize_text_field( wp_unslash( $_GET['library-author'] ) ) : '';
-		if ( $author_param === '' ) {
+		if ( '' === $author_param ) {
 			return;
 		}
 
@@ -240,11 +241,11 @@ class Library_Taxonomies {
 	/**
 	 * Include children (pseudonyms) in term counts for author taxonomy.
 	 *
-	 * @param array  $args       Arguments passés à get_terms().
+	 * @param array    $args       Arguments passés à get_terms().
 	 * @param string[] $taxonomies Taxonomies demandées.
 	 * @return array
 	 */
-	public function get_terms_args( array $args, array $taxonomies ) : array {
+	public function get_terms_args( array $args, array $taxonomies ): array {
 		if ( ! in_array( 'library-author', $taxonomies, true ) ) {
 			return $args;
 		}

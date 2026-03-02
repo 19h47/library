@@ -23,7 +23,6 @@
  * Domain Path:       /languages
  */
 
-
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,9 +37,10 @@ define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
 /**
  * Load plugin text domain for translations.
  * Uses absolute path so translations load even when plugin path is non-standard.
+ * Must run at init or later (WordPress 6.7+).
  */
 add_action(
-	'plugins_loaded',
+	'init',
 	function () {
 		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
 		$mofile = LIBRARY_DIR_PATH . 'languages/library-' . $locale . '.mo';
@@ -68,12 +68,13 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-library.php';
  *
  * @since 1.0.0
  */
-function run_library() {
-	$plugin = new Library(
-		get_plugin_data( LIBRARY_DIR_PATH . 'library.php' )['TextDomain'],
-		get_plugin_data( LIBRARY_DIR_PATH . 'library.php' )['Version']
+function run_library(): void {
+	$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
+	$plugin      = new Library(
+		$plugin_data['TextDomain'],
+		$plugin_data['Version']
 	);
 	$plugin->run();
 }
 
-run_library();
+add_action( 'plugins_loaded', 'run_library' );

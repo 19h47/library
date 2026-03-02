@@ -92,8 +92,7 @@ class Library {
 	 * @since  1.0.0
 	 * @access private
 	 */
-	private function define_admin_hooks() 
-	{
+	private function define_admin_hooks() {
 		$plugin_admin      = new Library_Admin( $this->get_plugin_name(), $this->get_plugin_version() );
 		$plugin_metaboxes  = new Library_Metaboxes( $this->plugin_name, $this->plugin_version );
 		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
@@ -102,10 +101,9 @@ class Library {
 		$plugin_taxonomies = new Library_Taxonomies( $this->plugin_name, $this->plugin_version );
 		$plugin_wp_query   = new Library_WP_Query( $this->plugin_name, $this->plugin_version );
 
-		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-		// Posts
+		// Posts.
 		$this->loader->add_action( 'admin_head', $plugin_posts, 'css' );
 		$this->loader->add_action( 'manage_book_posts_custom_column', $plugin_posts, 'render_custom_columns', 10, 2 );
 		$this->loader->add_action( 'quick_edit_custom_box', $plugin_posts, 'render_quick_edit', 10, 3 );
@@ -119,13 +117,13 @@ class Library {
 		$this->loader->add_action( 'the_title', $plugin_posts, 'add_volume_number_to_title', 10, 2 );
 		$this->loader->add_action( 'views_edit-book', $plugin_posts, 'add_list_table_views', 10, 1 );
 
-		// Settings
+		// Settings.
 		$this->loader->add_action( 'admin_init', $plugin_settings, 'register_settings' );
 
-		// Rest API
+		// Rest API.
 		$this->loader->add_action( 'rest_api_init', $plugin_rest_api, 'register_rest_routes', 10, 1 );
 
-		// Taxonomies
+		// Taxonomies.
 		$this->loader->add_action( 'init', $plugin_taxonomies, 'register', 10, 0 );
 		$this->loader->add_action( 'term_updated_messages', $plugin_taxonomies, 'messages', 10, 1 );
 		$this->loader->add_action( 'pre_get_posts', $plugin_taxonomies, 'pre_get_books', 10, 1 );

@@ -65,12 +65,11 @@ class Library_Posts {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_filter( 'posts_join', array( $this, 'posts_join_book_date_published' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'posts_orderby_book_date_published' ), 10, 2 );
-		// add_action( 'init', array( $this, 'register_post_status' ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'admin_head', array( $this, 'css' ) );
 	}
 
-	
+
 	/**
 	 * Save
 	 *
@@ -78,12 +77,21 @@ class Library_Posts {
 	 * @param WP_Post $post Post object.
 	 * @param bool    $update Whether this is an existing post being updated.
 	 */
-	public function save( int $post_ID, WP_Post $post, bool $update ) {
-		$isbn          = isset( $_POST['isbn'] ) ? sanitize_text_field( $_POST['isbn'] ) : false;
-		$issn          = isset( $_POST['issn'] ) ? sanitize_text_field( $_POST['issn'] ) : false;
-		$volume_number = isset( $_POST['volume_number'] ) ? sanitize_text_field( $_POST['volume_number'] ) : false;
+	public function save( int $post_ID, WP_Post $post, bool $update ): void {
 
-		delete_option( 'reading_percentage' );
+		// Verify metabox nonce before processing form data from $_POST.
+		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) ) {
+			return;
+		}
+
+		$isbn          = isset( $_POST['isbn'] ) ? sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) : false;
+		$issn          = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : false;
+		$volume_number = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : false;
+
+		if ( $update ) {
+			delete_option( 'reading_percentage' );
+		}
 
 		if ( $isbn ) {
 			remove_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
@@ -121,7 +129,7 @@ class Library_Posts {
 	 *
 	 * @return array
 	 */
-	public function add_custom_columns( array $columns ) : array {
+	public function add_custom_columns( array $columns ): array {
 		unset( $columns['date'] );
 
 		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
@@ -143,12 +151,12 @@ class Library_Posts {
 	 *
 	 * @return void
 	 */
-	public function render_custom_columns( string $column_name, int $post_id ) : void {
+	public function render_custom_columns( string $column_name, int $post_id ): void {
 		$output = '';
 
 		switch ( $column_name ) {
 
-			case 'read': {
+			case 'read':
 				$read = get_post_meta( $post_id, 'read', true );
 
 				if ( $read ) {
@@ -158,10 +166,7 @@ class Library_Posts {
 				}
 
 				break;
-			}
-
-
-			case 'date_published': {
+			case 'date_published':
 				$date_published = get_post_meta( $post_id, 'date_published', true );
 
 				if ( $date_published ) {
@@ -171,29 +176,24 @@ class Library_Posts {
 				}
 
 				break;
-			}
-
-			case 'isbn': {
+			case 'isbn':
 				$isbn = get_post_meta( $post_id, 'isbn', true );
 
 				if ( $isbn ) {
 					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '">' . $isbn . '</span>';
 				} else {
-					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '"></span>' . '—';
+					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '"></span>—';
 				}
 
 				break;
-			}
-
-			case 'book_editions': {
+			case 'book_editions':
 				$book_editions = get_post_meta( $post_id, 'book_editions', true );
 
 				$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" name="' . $column_name . '" value="' . $book_editions . '" type="hidden">';
 
 				break;
-			}
 
-			case 'thumbnail': {
+			case 'thumbnail':
 				$thumbnail = get_the_post_thumbnail( $post_id );
 
 				if ( $thumbnail ) {
@@ -205,10 +205,32 @@ class Library_Posts {
 				}
 
 				break;
-			}
+
 		}
 
-		echo $output;
+		$allowed_column_html = array(
+			'input' => array(
+				'id'           => true,
+				'type'         => true,
+				'name'         => true,
+				'value'        => true,
+				'class'        => true,
+				'checked'      => true,
+				'data-post-id' => true,
+			),
+			'span'  => array( 'id' => true ),
+			'a'     => array( 'href' => true ),
+			'img'   => array(
+				'src'      => true,
+				'alt'      => true,
+				'class'    => true,
+				'width'    => true,
+				'height'   => true,
+				'loading'  => true,
+				'decoding' => true,
+			),
+		);
+		echo wp_kses( $output, $allowed_column_html );
 	}
 
 	/**
@@ -220,11 +242,13 @@ class Library_Posts {
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/quick_edit_custom_box/
 	 */
-	function render_quick_edit( string $column_name, string $post_type, string $taxonomy ) : void {
+	public function render_quick_edit( string $column_name, string $post_type, string $taxonomy ): void {
+		unset( $post_type, $taxonomy );
+
 		$html = '';
 
 		switch ( $column_name ) {
-			case 'isbn': {
+			case 'isbn':
 				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
 				$html .= '<label class="inline-edit-isbn">';
 				$html .= '<span class="title">' . esc_html__( 'ISBN', 'library' ) . '</span>';
@@ -233,9 +257,7 @@ class Library_Posts {
 				$html .= '</div></fieldset>';
 
 				break;
-			}
-
-			case 'book_editions': {
+			case 'book_editions':
 				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
 				$html .= '<label class="inline-edit-book-editions">';
 				$html .= '<span class="title">' . esc_html__( 'Book editions', 'library' ) . '</span>';
@@ -244,36 +266,48 @@ class Library_Posts {
 				$html .= '</div></fieldset>';
 
 				break;
-			}
 		}
 
-		echo $html;
+		$allowed_quick_edit_html = array(
+			'fieldset' => array( 'class' => true ),
+			'div'      => array( 'class' => true ),
+			'label'    => array( 'class' => true ),
+			'span'     => array( 'class' => true ),
+			'input'    => array(
+				'name'        => true,
+				'class'       => true,
+				'type'        => true,
+				'placeholder' => true,
+				'value'       => true,
+				'pattern'     => true,
+			),
+		);
+		echo wp_kses( $html, $allowed_quick_edit_html );
 	}
 
 	/**
-	 * Save quick edit
+	 * Save quick edit.
 	 *
 	 * @param int     $post_ID Post ID.
-	 * @param WP_Post $post Post object.
-	 * @param bool    $update Whether this is an existing post being updated.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated.
 	 */
-	function save_quick_edit( int $post_ID, WP_Post $post, bool $update ) {
-		// pointless if $_POST is empty (this happens on bulk edit)
+	public function save_quick_edit( int $post_ID, WP_Post $post, bool $update ) {
+		unset( $update );
+
 		if ( empty( $_POST ) ) {
 			return $post_ID;
 		}
 
 		// Verify quick edit nonce.
-		if ( isset( $_POST['_inline_edit'] ) && ! wp_verify_nonce( $_POST['_inline_edit'], 'inlineeditnonce' ) ) {
+		if ( isset( $_POST['_inline_edit'] ) && ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_inline_edit'] ) ), 'inlineeditnonce' ) ) {
 			return $post_ID;
 		}
 
-		// don't save for autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post_ID;
 		}
 
-		// dont save for revisions
 		if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
 			return $post_ID;
 		}
@@ -285,7 +319,7 @@ class Library_Posts {
 
 				foreach ( $fields as $field ) {
 					if ( array_key_exists( $field, $_POST ) ) {
-						update_post_meta( $post_ID, $field, $_POST[ $field ] );
+						update_post_meta( $post_ID, $field, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
 					}
 				}
 
@@ -384,11 +418,11 @@ class Library_Posts {
 
 		$count = (int) $num_posts->{ $post_status };
 		$label = 1 === $count
-			? strtolower( $object->labels->singular_name )
-			: strtolower( $object->labels->name );
-		$text = sprintf(
-			/* translators: %1$s: number, %2$s: post type name (singular or plural), %3$s: pending prefix */
-			_n( '%1$s %3$s%2$s', '%1$s %3$s%2$s', $count ),
+		? strtolower( $object->labels->singular_name )
+		: strtolower( $object->labels->name );
+		$text  = sprintf(
+		/* translators: %1$s: number, %2$s: post type name (singular or plural), %3$s: pending prefix */
+			_n( '%1$s %3$s%2$s', '%1$s %3$s%2$s', $count, 'library' ),
 			number_format_i18n( $count ),
 			$label,
 			'pending' === $post_status ? 'Pending ' : ''
@@ -463,13 +497,13 @@ class Library_Posts {
 	 *
 	 * @see https://developer.wordpress.org/reference/functions/register_rest_field/
 	 */
-	function register_rest_fields() {
+	public function register_rest_fields(): void {
 		register_rest_field(
 			'book',
 			'read',
 			array(
-				'get_callback'    => fn( array $object, $field_name, $request ) => (bool) get_post_meta( $object['id'], 'read', true ),
-				'update_callback' => fn( $value, WP_Post $object, $field_name ) => update_post_meta( $object->ID, 'read', (bool) $value ),
+				'get_callback'    => fn( array $data ) => (bool) get_post_meta( $data['id'], 'read', true ),
+				'update_callback' => fn( $value, WP_Post $post ) => update_post_meta( $post->ID, 'read', (bool) $value ),
 				'schema'          => null,
 			)
 		);
@@ -478,18 +512,24 @@ class Library_Posts {
 	/**
 	 * Sortable columns.
 	 *
-	 * @param  array $sortable_columns
+	 * @param array $sortable_columns Sortable columns.
 	 *
 	 * @return array
 	 */
-	public function sortable_columns( array $sortable_columns ) : array {
+	public function sortable_columns( array $sortable_columns ): array {
 		$sortable_columns['date_published'] = array( 'date_published', true );
 
 		return $sortable_columns;
 	}
 
 
-	function pre_get_books( $query ) {
+	/**
+	 * Pre-get books.
+	 *
+	 * @param WP_Query $query Query.
+	 * @return WP_Query
+	 */
+	public function pre_get_books( WP_Query $query ): WP_Query {
 
 		if ( ! ( is_admin() && $query->is_main_query() ) ) {
 			return $query;
@@ -507,6 +547,8 @@ class Library_Posts {
 			$this->orderby_meta_key = 'date_published';
 			$query->set( 'orderby', 'date' );
 		}
+
+		return $query;
 	}
 
 
@@ -563,7 +605,7 @@ class Library_Posts {
 	 * Add volume number to book title.
 	 *
 	 * @param string $title The post title.
-	 * @param int    $id The post ID.
+	 * @param int    $post_id The post ID.
 	 *
 	 * @return string
 	 */
@@ -588,7 +630,7 @@ class Library_Posts {
 	 * Add series to book title.
 	 *
 	 * @param string $title The post title.
-	 * @param int    $id The post ID.
+	 * @param int    $post_id The post ID.
 	 *
 	 * @return string
 	 */
@@ -617,14 +659,15 @@ class Library_Posts {
 	 *
 	 * @return array
 	 */
-	public function add_list_table_views( array $views ) : array {
+	public function add_list_table_views( array $views ): array {
 		if ( get_option( 'reading_percentage' ) ) {
+
+			/* translators: %s: reading percentage. */
 			$views[] = '<a class="js-library-read-percentage" data-loading-text="' . esc_html__( 'Loading percent read...', 'library' ) . '">' . sprintf( __( '%s%% read', 'library' ), get_option( 'reading_percentage' ) ) . '</a>';
 		} else {
 			$views[] = '<a class="js-library-read-percentage js-library-read-percentage-init" data-loading-text="' . esc_html__( 'Loading percent read...', 'library' ) . '">' . esc_html__( 'Loading percent read...', 'library' ) . '</a>';
 		}
 
 		return $views;
-
 	}
 }

@@ -56,24 +56,27 @@ class Library_Rest_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_reading_stats( WP_REST_Request $request ) {
-		$counts   = (array) wp_count_posts( 'book' );
-		$total    = array_sum( $counts );
-		$read_q   = new WP_Query(
+		unset( $request );
+
+		$counts = (array) wp_count_posts( 'book' );
+		$total  = array_sum( $counts );
+		$read_q = new WP_Query(
 			array(
 				'post_type'      => 'book',
 				'post_status'    => array_keys( get_post_stati() ),
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Single meta_query for reading stats endpoint on limited dataset.
 				'meta_query'     => array(
 					array(
-						'key'   => 'read',
-						'value' => '1',
+						'key'     => 'read',
+						'value'   => '1',
 						'compare' => '=',
 					),
 				),
 			)
 		);
-		$read = $read_q->found_posts;
+		$read   = $read_q->found_posts;
 
 		return rest_ensure_response(
 			array(
@@ -92,8 +95,8 @@ class Library_Rest_API {
 	 * @return array|null Associative array or null on failure.
 	 */
 	private function fetch_from_bnf( $isbn ) {
-		$query = 'bib.isbn%20all%20%22' . rawurlencode( $isbn ) . '%22';
-		$url   = 'https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=' . $query . '&maximumRecords=1&recordSchema=dublincore';
+		$query    = 'bib.isbn%20all%20%22' . rawurlencode( $isbn ) . '%22';
+		$url      = 'https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=' . $query . '&maximumRecords=1&recordSchema=dublincore';
 		$response = wp_remote_get(
 			$url,
 			array(
@@ -109,10 +112,16 @@ class Library_Rest_API {
 
 		$body = trim( wp_remote_retrieve_body( $response ) );
 		$body = preg_replace( '/^\xEF\xBB\xBF/', '', $body );
-		$xml  = @simplexml_load_string( $body, 'SimpleXMLElement', LIBXML_NOERROR );
+
+		\libxml_use_internal_errors( true );
+		$xml = simplexml_load_string( $body, 'SimpleXMLElement', LIBXML_NOERROR );
 		if ( ! $xml instanceof \SimpleXMLElement ) {
+			\libxml_clear_errors();
+			\libxml_use_internal_errors( false );
 			return null;
 		}
+		\libxml_clear_errors();
+		\libxml_use_internal_errors( false );
 
 		$xml->registerXPathNamespace( 'srw', 'http://www.loc.gov/zing/srw/' );
 		$xml->registerXPathNamespace( 'dc', 'http://purl.org/dc/elements/1.1/' );
@@ -123,9 +132,9 @@ class Library_Rest_API {
 
 		$titles   = $xml->xpath( '//dc:title' );
 		$creators = $xml->xpath( '//dc:creator' );
-		$pubs      = $xml->xpath( '//dc:publisher' );
-		$dates     = $xml->xpath( '//dc:date' );
-		$formats   = $xml->xpath( '//dc:format' );
+		$pubs     = $xml->xpath( '//dc:publisher' );
+		$dates    = $xml->xpath( '//dc:date' );
+		$formats  = $xml->xpath( '//dc:format' );
 
 		$title = ! empty( $titles[0] ) ? trim( (string) $titles[0] ) : '';
 		if ( empty( $title ) ) {
@@ -140,7 +149,7 @@ class Library_Rest_API {
 			$name = preg_replace( '/\s*;\s*.*$/', '', $name );
 			$name = preg_replace( '/\s*\([^)]*\)\s*$/', '', $name );
 			$name = trim( $name, ':.,; ' );
-			if ( $name !== '' ) {
+			if ( '' !== $name ) {
 				$authors[] = $name;
 			}
 		}
@@ -200,6 +209,8 @@ class Library_Rest_API {
 	 * @return void
 	 */
 	public function register_rest_routes( WP_REST_Server $wp_rest_server ) {
+		unset( $wp_rest_server );
+
 		$namespace = $this->plugin_name . '/v1';
 
 		register_rest_route(
@@ -241,7 +252,7 @@ class Library_Rest_API {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => function( $request ) {
+					'callback'            => function ( $request ) {
 						if ( null !== $request->get_param( 'name' ) ) {
 							return rest_ensure_response( get_option( $request->get_param( 'name' ) ) );
 						} else {
@@ -252,7 +263,7 @@ class Library_Rest_API {
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => function( $request ) {
+					'callback'            => function ( $request ) {
 						foreach ( json_decode( $request->get_body() ) as $key => $value ) {
 							update_option( $key, $value );
 						}

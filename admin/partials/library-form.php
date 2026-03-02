@@ -9,6 +9,7 @@
  * @subpackage Library/admin/partials
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
+
 ?>
 
 <table class="form-table" role="presentation">
@@ -17,7 +18,7 @@
 	<tr>
 		<th scope="row">
 			<label for="library-series">
-				<?php _e( 'Series', 'library' ); ?>
+				<?php esc_html_e( 'Series', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -37,7 +38,7 @@
 	<tr>
 		<th scope="row">
 			<label for="library-authors">
-				<?php _e( 'Authors', 'library' ); ?>
+				<?php esc_html_e( 'Authors', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -57,7 +58,7 @@
 	<tr>
 		<th>
 			<label for="library-isbn">
-				<?php _e( 'ISBN', 'library' ); ?>
+				<?php esc_html_e( 'ISBN', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -81,7 +82,7 @@
 	<tr>
 		<th>
 			<label for="library-issn">
-				<?php _e( 'ISSN', 'library' ); ?>
+				<?php esc_html_e( 'ISSN', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -101,7 +102,7 @@
 	<tr>
 		<th>
 			<label for="library-volume-number">
-				<?php _e( 'Volume Number', 'library' ); ?>
+				<?php esc_html_e( 'Volume Number', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -120,7 +121,7 @@
 	<tr>
 		<th>
 			<label for="library-date-published">
-				<?php _e( 'Date Published', 'library' ); ?>
+				<?php esc_html_e( 'Date Published', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -139,7 +140,7 @@
 	<tr>
 		<th scope="row">
 			<label for="library-translators">
-				<?php _e( 'Translators', 'library' ); ?>
+				<?php esc_html_e( 'Translators', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -159,7 +160,7 @@
 	<tr>
 		<th scope="row">
 			<label for="library-publishers">
-				<?php _e( 'Publishers', 'library' ); ?>
+				<?php esc_html_e( 'Publishers', 'library' ); ?>
 			</label>
 		</th>
 		<td>
@@ -179,7 +180,7 @@
 	<tr>
 		<th scope="row">
 			<label for="library-book-editions">
-				<?php _e( 'Book Editions', 'library' ); ?>
+				<?php esc_html_e( 'Book Editions', 'library' ); ?>
 			</label>
 		</th>
 		<td>

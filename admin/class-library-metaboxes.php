@@ -155,7 +155,11 @@ class Library_Metaboxes {
 	 * @param WP_Post $post    Post object.
 	 * @return void
 	 */
-	public function save_metabox( $post_id, $post ) {
+	public function save_metabox( int $post_id, WP_Post $post ): void {
+		if ( 'book' !== get_post_type( $post ) ) {
+			return;
+		}
+
 		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) ) {
 			return;
@@ -168,15 +172,15 @@ class Library_Metaboxes {
 		}
 
 		// Sanitize user input.
-		$series         = isset( $_POST['series'] ) ? sanitize_text_field( $_POST['series'] ) : '';
-		$authors        = isset( $_POST['authors'] ) ? sanitize_text_field( $_POST['authors'] ) : '';
-		$isbn           = isset( $_POST['isbn'] ) ? sanitize_text_field( $_POST['isbn'] ) : '';
-		$issn           = isset( $_POST['issn'] ) ? sanitize_text_field( $_POST['issn'] ) : '';
-		$volume_number  = isset( $_POST['volume_number'] ) ? sanitize_text_field( $_POST['volume_number'] ) : '';
-		$date_published = isset( $_POST['date_published'] ) ? sanitize_text_field( $_POST['date_published'] ) : '';
-		$translators    = isset( $_POST['translators'] ) ? sanitize_text_field( $_POST['translators'] ) : '';
-		$publishers     = isset( $_POST['publishers'] ) ? sanitize_text_field( $_POST['publishers'] ) : array();
-		$book_editions  = isset( $_POST['book_editions'] ) ? sanitize_text_field( $_POST['book_editions'] ) : array();
+		$series         = isset( $_POST['series'] ) ? sanitize_text_field( wp_unslash( $_POST['series'] ) ) : '';
+		$authors        = isset( $_POST['authors'] ) ? sanitize_text_field( wp_unslash( $_POST['authors'] ) ) : '';
+		$isbn           = isset( $_POST['isbn'] ) ? sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) : '';
+		$issn           = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : '';
+		$volume_number  = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : '';
+		$date_published = isset( $_POST['date_published'] ) ? sanitize_text_field( wp_unslash( $_POST['date_published'] ) ) : '';
+		$translators    = isset( $_POST['translators'] ) ? sanitize_text_field( wp_unslash( $_POST['translators'] ) ) : '';
+		$publishers     = isset( $_POST['publishers'] ) ? sanitize_text_field( wp_unslash( $_POST['publishers'] ) ) : array();
+		$book_editions  = isset( $_POST['book_editions'] ) ? sanitize_text_field( wp_unslash( $_POST['book_editions'] ) ) : array();
 
 		// Update the meta field in the database.
 		update_post_meta( $post_id, 'series', $series );

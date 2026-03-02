@@ -55,10 +55,10 @@ class Library_WP_Query {
 	 * @param  WP_Query $query Query instance.
 	 * @return string
 	 */
-	public function search_join( string $join, WP_Query $query ) : string {
+	public function search_join( string $join, WP_Query $query ): string {
 		global $wpdb;
 
-		if ( is_search() ) {
+		if ( $query->is_search() ) {
 			$join .= ' LEFT JOIN ' . $wpdb->postmeta . ' ON ' . $wpdb->posts . '.ID = ' . $wpdb->postmeta . '.post_id ';
 		}
 
@@ -74,10 +74,10 @@ class Library_WP_Query {
 	 * @param  WP_Query $query Query instance.
 	 * @return string
 	 */
-	public function search_where( string $where, WP_Query $query ) : string {
+	public function search_where( string $where, WP_Query $query ): string {
 		global $wpdb;
 
-		if ( is_search() ) {
+		if ( $query->is_search() ) {
 			$where = preg_replace(
 				'/\(\s*' . $wpdb->posts . ".post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
 				'(' . $wpdb->posts . '.post_title LIKE $1) OR (' . $wpdb->postmeta . '.meta_value LIKE $1)',
@@ -97,8 +97,8 @@ class Library_WP_Query {
 	 * @param  WP_Query $query    Query instance.
 	 * @return string
 	 */
-	public function search_distinct( string $distinct, WP_Query $query ) : string {
-		if ( is_search() ) {
+	public function search_distinct( string $distinct, WP_Query $query ): string {
+		if ( $query->is_search() ) {
 			return 'DISTINCT';
 		}
 
