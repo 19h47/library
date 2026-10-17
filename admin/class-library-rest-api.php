@@ -44,5 +44,42 @@ class Library_Rest_API {
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 			),
 		);
+
+		register_rest_route(
+			'library/v1',
+			'books/reading-idea',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_reading_idea' ),
+				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'args'                => array(
+					'position' => array(
+						'description' => __( 'Position in the week\'s list of ideas, 0 for the idea of the week.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 0,
+						'default'     => 0,
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * The reading idea of the week, or the one at the given position; the book is linked, and embeddable with _embed.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_reading_idea( WP_REST_Request $request ) {
+		$idea = ( new Library_Reading_Idea() )->get_idea( $request['position'] );
+
+		if ( ! $idea ) {
+			return new WP_Error( 'library_no_idea', __( 'Every book has been read.', 'library' ), array( 'status' => 404 ) );
+		}
+
+		$response = rest_ensure_response( $idea );
+		$response->add_link( 'book', rest_url( 'wp/v2/books/' . $idea['id'] ), array( 'embeddable' => true ) );
+
+		return $response;
 	}
 }

@@ -32,6 +32,7 @@ class Library_Posts {
 	 * @return void
 	 */
 	public function hooks(): void {
+		add_action( 'after_setup_theme', array( $this, 'add_thumbnail_support' ), 11 );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_post_status' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'not_kept' ), 10, 2 );
@@ -47,6 +48,18 @@ class Library_Posts {
 		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
 		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
+	}
+
+	/**
+	 * Enable featured images, i.e. covers, for books whatever the theme supports.
+	 *
+	 * The featured image box needs both the post type and the theme support. Core merges this
+	 * with the theme support, and keeps it when the theme supports every post type.
+	 *
+	 * @return void
+	 */
+	public function add_thumbnail_support(): void {
+		add_theme_support( 'post-thumbnails', array( 'book' ) );
 	}
 
 	/**
