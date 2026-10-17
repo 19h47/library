@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T12:33:20+00:00\n"
+"POT-Creation-Date: 2026-10-17T12:46:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -328,6 +328,39 @@ msgstr ""
 msgid "Loading percent read..."
 msgstr ""
 
+#: admin/class-library-reading-idea.php:52
+msgid "Reading idea of the week"
+msgstr ""
+
+#. translators: 1: series, 2: number of volumes read.
+#: admin/class-library-reading-idea.php:199
+msgid "Next in %1$s: you have read %2$s volume."
+msgid_plural "Next in %1$s: you have read %2$s volumes."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: author, 2: average rating, 3: number of books rated.
+#: admin/class-library-reading-idea.php:258
+msgid "You gave %1$s %2$s/10 on average over %3$s books."
+msgstr ""
+
+#: admin/class-library-reading-idea.php:281
+msgid "Not kept, still to read: borrowed?"
+msgstr ""
+
+#: admin/class-library-reading-idea.php:282
+msgid "Waiting on the reading pile."
+msgstr ""
+
+#: admin/class-library-rest-api.php:57
+msgid "Position in the week's list of ideas, 0 for the idea of the week."
+msgstr ""
+
+#: admin/class-library-rest-api.php:77
+#: admin/partials/library-dashboard-idea.php:22
+msgid "Every book has been read."
+msgstr ""
+
 #: admin/class-library-taxonomies.php:72
 msgctxt "library authors general name"
 msgid "Authors"
@@ -549,6 +582,19 @@ msgstr ""
 #. translators: 1: number of translated books, 2: percent of the books.
 #: admin/partials/library-dashboard-collection.php:37
 msgid "%1$s translated (%2$d%%)"
+msgstr ""
+
+#: admin/partials/library-dashboard-idea.php:38
+msgid "Add a cover"
+msgstr ""
+
+#: admin/partials/library-dashboard-idea.php:51
+msgid "Another idea"
+msgstr ""
+
+#. translators: 1: position of the idea, 2: number of ideas.
+#: admin/partials/library-dashboard-idea.php:56
+msgid "%1$s of %2$s"
 msgstr ""
 
 #. translators: %s: number of books to read.

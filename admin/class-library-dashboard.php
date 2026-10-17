@@ -26,7 +26,7 @@ class Library_Dashboard {
 	 *
 	 * @var string
 	 */
-	private const BOOKS = "p.post_type = 'book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )";
+	public const BOOKS = "p.post_type = 'book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )";
 
 	/**
 	 * SQL condition on the posts table aliased "p": the books in the library, i.e. kept.
@@ -162,7 +162,7 @@ class Library_Dashboard {
 	 * @param mixed  ...$args Values for the placeholders.
 	 * @return object[]
 	 */
-	private function select( string $sql, mixed ...$args ): array {
+	public static function select( string $sql, mixed ...$args ): array {
 		global $wpdb;
 
 		$sql = str_replace( array( '{books}', '{library}' ), array( self::BOOKS, self::LIBRARY ), $sql );
@@ -182,7 +182,7 @@ class Library_Dashboard {
 	private function count_by_meta_start( string $meta_key, int $length, string $scope = '{books}' ): array {
 		global $wpdb;
 
-		$rows = $this->select(
+		$rows = self::select(
 			"SELECT LEFT( m.meta_value, %d ) AS value_start, COUNT( DISTINCT p.ID ) AS books
 			FROM {$wpdb->postmeta} AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
@@ -283,7 +283,7 @@ class Library_Dashboard {
 		$this_year_from = $today->format( 'Y-01-01' );
 		$last_year_from = $same_day->format( 'Y-01-01' );
 
-		[ $row ] = $this->select(
+		[ $row ] = self::select(
 			"SELECT
 				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ) ) AS this_year,
 				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ) ) AS last_year
@@ -435,7 +435,7 @@ class Library_Dashboard {
 	private function get_average_rating_chart(): array {
 		global $wpdb;
 
-		$rows = $this->select(
+		$rows = self::select(
 			"SELECT LEFT( d.meta_value, 4 ) AS year, AVG( r.meta_value ) AS average
 			FROM {$wpdb->postmeta} AS d
 			INNER JOIN {$wpdb->postmeta} AS r ON r.post_id = d.post_id AND r.meta_key = 'rating'
@@ -477,7 +477,7 @@ class Library_Dashboard {
 	private function get_oldest_unread_book(): ?WP_Post {
 		global $wpdb;
 
-		$rows = $this->select(
+		$rows = self::select(
 			"SELECT p.ID
 			FROM {$wpdb->posts} AS p
 			INNER JOIN {$wpdb->postmeta} AS d ON d.post_id = p.ID AND d.meta_key = 'date_published' AND d.meta_value != ''
@@ -545,7 +545,7 @@ class Library_Dashboard {
 	private function get_top_terms( string $taxonomy ): array {
 		global $wpdb;
 
-		$rows = $this->select(
+		$rows = self::select(
 			"SELECT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
@@ -595,7 +595,7 @@ class Library_Dashboard {
 	private function get_top_editions(): array {
 		global $wpdb;
 
-		$rows = $this->select(
+		$rows = self::select(
 			"SELECT e.meta_value AS name, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->postmeta} AS e
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = e.post_id
@@ -627,7 +627,7 @@ class Library_Dashboard {
 	private function count_unread_books(): int {
 		global $wpdb;
 
-		[ $row ] = $this->select(
+		[ $row ] = self::select(
 			"SELECT COUNT( DISTINCT p.ID ) AS books
 			FROM {$wpdb->posts} AS p
 			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
@@ -647,7 +647,7 @@ class Library_Dashboard {
 	private function count_terms( string $taxonomy ): int {
 		global $wpdb;
 
-		[ $row ] = $this->select(
+		[ $row ] = self::select(
 			"SELECT COUNT( DISTINCT tt.term_id ) AS terms
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
@@ -667,7 +667,7 @@ class Library_Dashboard {
 	private function count_translated_books(): int {
 		global $wpdb;
 
-		[ $row ] = $this->select(
+		[ $row ] = self::select(
 			"SELECT COUNT( DISTINCT p.ID ) AS books
 			FROM {$wpdb->postmeta} AS t
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = t.post_id
