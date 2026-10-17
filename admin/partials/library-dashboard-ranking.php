@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard ranking: a titled, ordered list of entries, linked when they have a link.
+ * Dashboard ranking: a titled, ordered list of linked entries.
  *
  * @package Library
  * @subpackage Library/admin/partials
@@ -14,17 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <section class="library-dashboard-ranking">
-	<?php if ( '' !== $ranking['title'] ) : ?>
-		<h3 class="library-dashboard-graph-title"><?php echo esc_html( $ranking['title'] ); ?></h3>
-	<?php endif; ?>
+	<h3 class="library-dashboard-graph-title"><?php echo esc_html( $ranking['title'] ); ?></h3>
 	<ol>
 		<?php foreach ( $ranking['items'] as $entry ) : ?>
 			<li>
-				<?php if ( '' !== $entry['url'] ) : ?>
-					<a href="<?php echo esc_url( $entry['url'] ); ?>"><?php echo esc_html( $entry['name'] ); ?></a>
-				<?php else : ?>
-					<?php echo esc_html( $entry['name'] ); ?>
-				<?php endif; ?>
+				<a href="<?php echo esc_url( $entry['url'] ); ?>"><?php echo esc_html( $entry['name'] ); ?></a>
 				<span class="library-dashboard-ranking-text"><?php echo esc_html( $entry['text'] ); ?></span>
 			</li>
 		<?php endforeach; ?>

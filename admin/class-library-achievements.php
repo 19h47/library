@@ -135,6 +135,43 @@ class Library_Achievements {
 	private const LIST_LENGTH = 5;
 
 	/**
+	 * Dashicon of each kind of achievement.
+	 *
+	 * @var array<string,string>
+	 */
+	private const ICONS = array(
+		'author'              => 'admin-users',
+		'series'              => 'book',
+		'collection'          => 'category',
+		'collection-step'     => 'chart-pie',
+		'read'                => 'awards',
+		'pages'               => 'media-document',
+		'record-year'         => 'chart-bar',
+		'record-month'        => 'chart-bar',
+		'streak'              => 'calendar-alt',
+		'hot-off-the-press'   => 'clock',
+		'centenarian'         => 'backup',
+		'archaeologist'       => 'search',
+		'decades'             => 'admin-site-alt3',
+		'translator'          => 'translation',
+		'tsundoku'            => 'book-alt',
+		'leap-day'            => 'calendar',
+		'pi-day'              => 'calculator',
+		'new-year'            => 'calendar',
+		'new-years-eve'       => 'calendar',
+		'friday-13th'         => 'warning',
+		'palindrome'          => 'image-flip-horizontal',
+		'love-at-first-sight' => 'heart',
+		'brick'               => 'database',
+		'one-that-got-away'   => 'migrate',
+		'mouthful'            => 'editor-quote',
+		'marathon'            => 'performance',
+		'hat-trick'           => 'star-filled',
+		'namesakes'           => 'groups',
+		'back-to-the-start'   => 'undo',
+	);
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -151,21 +188,43 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Render the latest achievements, the close ones and all of them.
+	 * Render the latest achievements as badges, the closest with their progress, and all of them.
 	 */
 	public function render(): void {
 		$achievements = $this->get_achievements();
-		$latest       = array_map( array( self::class, 'ranking_item' ), array_slice( $achievements['earned'], 0, self::LIST_LENGTH ) );
-		$close        = array_map( array( self::class, 'ranking_item' ), array_slice( $achievements['close'], 0, self::LIST_LENGTH ) );
-		$all          = array_map( array( self::class, 'ranking_item' ), $achievements['earned'] );
+		$earned       = $achievements['earned'];
+		$latest       = array_slice( $earned, 0, self::LIST_LENGTH );
+		$close        = array_slice( $achievements['close'], 0, self::LIST_LENGTH );
+		$easter_eggs  = count( array_filter( array_column( $earned, 'easter_egg' ) ) );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-achievements.php';
 	}
 
 	/**
-	 * Achievements earned, latest first and undated last, and those close to be earned, closest first.
+	 * Dashicon class of a kind of achievement.
 	 *
-	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string}>}
+	 * @param string $kind Kind.
+	 * @return string
+	 */
+	public static function icon( string $kind ): string {
+		return 'dashicons-' . ( self::ICONS[ $kind ] ?? 'awards' );
+	}
+
+	/**
+	 * Date an achievement was earned, in the site's format, or empty.
+	 *
+	 * @param array $achievement Achievement.
+	 * @return string
+	 */
+	public static function date( array $achievement ): string {
+		return '' !== $achievement['date'] ? date_i18n( get_option( 'date_format' ), strtotime( $achievement['date'] ) ) : '';
+	}
+
+	/**
+	 * Achievements earned, latest first and undated last, and those close to be earned, with the books
+	 * done and their total, closest first.
+	 *
+	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool,done:int,total:int}>}
 	 */
 	public function get_achievements(): array {
 		$books = Library_Books::all();
@@ -185,18 +244,19 @@ class Library_Achievements {
 			$this->get_discoveries( $books, $reads ),
 			$tour,
 			$translators,
-			$this->get_easter_eggs( $books, $reads )
+			array_map( fn( array $egg ) => array_merge( $egg, array( 'easter_egg' => true ) ), $this->get_easter_eggs( $books, $reads ) )
 		);
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
 
 		$close = array_merge( $close, $close_tour, $close_translators );
 
-		usort( $close, fn( array $a, array $b ) => array( $a['left'], $a['subject'] ) <=> array( $b['left'], $b['subject'] ) );
+		// Fewest books left first, then the furthest along.
+		usort( $close, fn( array $a, array $b ) => array( $a['total'] - $a['done'], $b['done'] / $b['total'], $a['subject'] ) <=> array( $b['total'] - $b['done'], $a['done'] / $a['total'], $b['subject'] ) );
 
 		return array(
 			'earned' => $earned,
-			'close'  => array_map( fn( array $item ) => array_diff_key( $item, array( 'left' => true ) ), $close ),
+			'close'  => $close,
 		);
 	}
 
@@ -209,34 +269,17 @@ class Library_Achievements {
 	 * @param string $detail  Detail, e.g. "9 books".
 	 * @param string $url     Link, or empty.
 	 * @param string $date    Date earned, Y-m-d, or empty when unknown or not dated.
-	 * @return array{kind:string,title:string,subject:string,detail:string,url:string,date:string}
+	 * @return array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool}
 	 */
 	private static function achievement( string $kind, string $title, string $subject, string $detail, string $url, string $date ): array {
 		return array(
-			'kind'    => $kind,
-			'title'   => $title,
-			'subject' => $subject,
-			'detail'  => $detail,
-			'url'     => $url,
-			'date'    => $date,
-		);
-	}
-
-	/**
-	 * An entry of a widget ranking: the subject, or else the title, then the rest.
-	 *
-	 * @param array $achievement Achievement.
-	 * @return array{name:string,url:string,text:string}
-	 */
-	private static function ranking_item( array $achievement ): array {
-		$date = '' !== $achievement['date'] ? date_i18n( get_option( 'date_format' ), strtotime( $achievement['date'] ) ) : '';
-		$name = '' !== $achievement['subject'] ? $achievement['subject'] : $achievement['title'];
-		$text = array( '' !== $achievement['subject'] ? $achievement['title'] : '', $achievement['detail'], $date );
-
-		return array(
-			'name' => $name,
-			'url'  => $achievement['url'],
-			'text' => implode( ' · ', array_filter( $text ) ),
+			'kind'       => $kind,
+			'title'      => $title,
+			'subject'    => $subject,
+			'detail'     => $detail,
+			'url'        => $url,
+			'date'       => $date,
+			'easter_egg' => false,
 		);
 	}
 
@@ -377,7 +420,10 @@ class Library_Achievements {
 					),
 					$url,
 					''
-				) + array( 'left' => $left );
+				) + array(
+					'done'  => count( $read ),
+					'total' => $total,
+				);
 			}
 		}
 
@@ -720,7 +766,12 @@ class Library_Achievements {
 		}
 
 		if ( count( $decades ) >= self::CLOSE_DECADES ) {
-			return array( array(), array( self::achievement( 'decades', $title, '', $detail, '', '' ) + array( 'left' => 10 - count( $decades ) ) ) );
+			$progress = array(
+				'done'  => count( $decades ),
+				'total' => 10,
+			);
+
+			return array( array(), array( self::achievement( 'decades', $title, '', $detail, '', '' ) + $progress ) );
 		}
 
 		return array( array(), array() );
@@ -750,7 +801,10 @@ class Library_Achievements {
 			if ( $left <= 0 ) {
 				$earned[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
-				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator ), '' ) + array( 'left' => $left );
+				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator ), '' ) + array(
+					'done'  => count( $books ),
+					'total' => self::TRANSLATOR_BOOKS,
+				);
 			}
 		}
 
