@@ -28,11 +28,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! function_exists( 'get_plugin_data' ) ) {
-	require_once ABSPATH . 'wp-admin/includes/plugin.php';
-}
-
 define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
+define( 'LIBRARY_VERSION', get_file_data( __FILE__, array( 'version' => 'Version' ) )['version'] );
 
 add_action(
 	'init',
@@ -40,24 +37,6 @@ add_action(
 	0
 );
 
-/**
- * The core plugin class that is used to define internationalization,
- * dashboard-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path( __FILE__ ) . 'includes/class-library.php';
+require LIBRARY_DIR_PATH . 'includes/class-library.php';
 
-/**
- * Begins execution of the plugin.
- *
- * @since 1.0.0
- */
-function run_library(): void {
-	$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
-	$plugin      = new Library(
-		$plugin_data['TextDomain'],
-		$plugin_data['Version']
-	);
-	$plugin->run();
-}
-
-add_action( 'plugins_loaded', 'run_library' );
+add_action( 'plugins_loaded', array( new Library(), 'run' ) );

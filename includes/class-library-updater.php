@@ -37,6 +37,17 @@ class Library_Updater {
 	public function __construct( private readonly string $plugin_file ) {}
 
 	/**
+	 * Register hooks.
+	 *
+	 * @return void
+	 */
+	public function hooks(): void {
+		add_filter( 'update_plugins_github.com', array( $this, 'check_update' ), 10, 3 );
+		add_filter( 'plugins_api', array( $this, 'plugin_information' ), 20, 3 );
+		add_filter( 'upgrader_source_selection', array( $this, 'rename_source' ), 10, 4 );
+	}
+
+	/**
 	 * Return the latest release as update data.
 	 *
 	 * @param array|false $update      Update data, false when no other filter answered.
@@ -182,9 +193,9 @@ class Library_Updater {
 	 * @return string
 	 */
 	private function repository(): string {
-		$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
+		$update_uri = get_file_data( LIBRARY_DIR_PATH . 'library.php', array( 'update_uri' => 'Update URI' ) )['update_uri'];
 
-		return trim( (string) wp_parse_url( $plugin_data['UpdateURI'], PHP_URL_PATH ), '/' );
+		return trim( (string) wp_parse_url( $update_uri, PHP_URL_PATH ), '/' );
 	}
 
 	/**

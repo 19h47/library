@@ -20,38 +20,14 @@
 class Library_Metaboxes {
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @return void
 	 */
-	private $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $version
-	 */
-	private $version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name Plugin identifier.
-	 * @param string $version     Plugin version.
-	 */
-	public function __construct( $plugin_name, $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
-
-		if ( is_admin() ) {
-			add_action( 'load-post.php', array( $this, 'init_metabox' ) );
-			add_action( 'load-post-new.php', array( $this, 'init_metabox' ) );
-		}
+	public function hooks(): void {
+		add_action( 'load-post.php', array( $this, 'init_metabox' ) );
+		add_action( 'load-post-new.php', array( $this, 'init_metabox' ) );
 	}
-
 
 	/**
 	 * Register metabox and save callback.
@@ -101,7 +77,7 @@ class Library_Metaboxes {
 			$values[ $key ] = get_post_meta( $post->ID, $key, true );
 		}
 
-		include plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-form.php';
+		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
 
 	/**

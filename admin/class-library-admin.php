@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin functionality: scripts and dependencies.
+ * Admin scripts.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -20,50 +20,12 @@
 class Library_Admin {
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @return void
 	 */
-	protected $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_version
-	 */
-	protected $plugin_version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name    Plugin identifier.
-	 * @param string $plugin_version Plugin version.
-	 */
-	public function __construct( string $plugin_name, string $plugin_version ) {
-		$this->plugin_name    = $plugin_name;
-		$this->plugin_version = $plugin_version;
-
-		$this->load_dependencies();
-	}
-
-
-	/**
-	 * Load admin dependencies.
-	 *
-	 * @since  1.0.0
-	 * @access private
-	 */
-	private function load_dependencies() {
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-meta.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-metaboxes.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-rest-api.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-posts.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-dashboard.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-taxonomies.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-wp-query.php';
+	public function hooks(): void {
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 
@@ -79,8 +41,8 @@ class Library_Admin {
 			return;
 		}
 
-		$read_handle = $this->plugin_name . '-admin-read';
-		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array( 'wp-api-fetch' ), $this->plugin_version, true );
+		$read_handle = 'library-admin-read';
+		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/library-admin-read.js', array( 'wp-api-fetch' ), LIBRARY_VERSION, true );
 		wp_localize_script(
 			$read_handle,
 			'libraryAdminRead',
@@ -89,6 +51,6 @@ class Library_Admin {
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
 			)
 		);
-		wp_enqueue_script( $this->plugin_name . '-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-inline-edit.js', array( 'inline-edit-post' ), $this->plugin_version, true );
+		wp_enqueue_script( 'library-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/library-admin-inline-edit.js', array( 'inline-edit-post' ), LIBRARY_VERSION, true );
 	}
 }

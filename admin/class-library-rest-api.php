@@ -20,31 +20,12 @@
 class Library_Rest_API {
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @return void
 	 */
-	private $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $version
-	 */
-	private $version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name Plugin identifier.
-	 * @param string $version     Plugin version.
-	 */
-	public function __construct( string $plugin_name, string $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
+	public function hooks(): void {
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
 	/**
@@ -55,7 +36,7 @@ class Library_Rest_API {
 	 */
 	public function register_rest_routes() {
 		register_rest_route(
-			$this->plugin_name . '/v1',
+			'library/v1',
 			'books/reading-stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,

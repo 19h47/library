@@ -20,9 +20,16 @@
 class Library_WP_Query {
 
 	/**
-	 * Also match books whose text meta contains the search phrase.
+	 * Register hooks.
 	 *
-	 * Hooked to posts_search.
+	 * @return void
+	 */
+	public function hooks(): void {
+		add_filter( 'posts_search', array( $this, 'search' ), 10, 2 );
+	}
+
+	/**
+	 * Also match books whose text meta contains the search phrase.
 	 *
 	 * @param string   $search Search SQL, starting with " AND ".
 	 * @param WP_Query $query  Query instance.

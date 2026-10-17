@@ -84,6 +84,9 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 * Fixed PHP warnings when querying author terms by ID.
 * Search only applies to book queries and matches the book text meta (series, ISBN, ISSN, volume number, translators, book editions) through a subquery. Other searches are no longer changed, and a search combined with a meta query no longer fails.
 * Sorting by publication date uses the core meta ordering.
+* Each class registers its own hooks; `Library_Loader` is removed. The books list CSS and the dashboard widget were registered twice. Breaking for code using `Library_Loader` or the plugin class constructors, which no longer take a name and version: use the `LIBRARY_VERSION` constant.
+* The series and volume number are added to book titles by a single `the_title` filter, which no longer fails when called without a post ID.
+* The “At a Glance” dashboard widget shows the number of published books with a plain “%s books” string.
 
 = 0.0.0 =
 * Initial release.

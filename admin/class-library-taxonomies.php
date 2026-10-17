@@ -20,31 +20,14 @@
 class Library_Taxonomies {
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @return void
 	 */
-	private $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $version
-	 */
-	private $version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name Plugin identifier.
-	 * @param string $version     Plugin version.
-	 */
-	public function __construct( string $plugin_name, string $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
+	public function hooks(): void {
+		add_action( 'init', array( $this, 'register' ) );
+		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
+		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
 	}
 
 	/**

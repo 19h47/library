@@ -20,29 +20,11 @@
 class Library_Dashboard {
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @var string
+	 * @return void
 	 */
-	private $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @var string
-	 */
-	private $plugin_version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param string $plugin_name    Plugin identifier.
-	 * @param string $plugin_version Plugin version.
-	 */
-	public function __construct( string $plugin_name, string $plugin_version ) {
-		$this->plugin_name    = $plugin_name;
-		$this->plugin_version = $plugin_version;
-
+	public function hooks(): void {
 		add_action( 'wp_dashboard_setup', array( $this, 'register_widget' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
@@ -61,7 +43,7 @@ class Library_Dashboard {
 			'library-dashboard',
 			plugin_dir_url( __FILE__ ) . 'css/library-dashboard.css',
 			array(),
-			$this->plugin_version
+			LIBRARY_VERSION
 		);
 	}
 
@@ -89,7 +71,7 @@ class Library_Dashboard {
 			(int) $data['read']
 		);
 
-		include plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-dashboard-widget.php';
+		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-widget.php';
 	}
 
 	/**

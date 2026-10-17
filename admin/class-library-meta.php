@@ -45,6 +45,18 @@ class Library_Meta {
 	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'rating', 'read' );
 
 	/**
+	 * Register hooks.
+	 *
+	 * @return void
+	 */
+	public function hooks(): void {
+		add_action( 'init', array( $this, 'register' ) );
+		add_action( 'added_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
+		add_action( 'updated_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
+		add_action( 'deleted_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
+	}
+
+	/**
 	 * Register book meta.
 	 *
 	 * @return void
@@ -111,8 +123,6 @@ class Library_Meta {
 	 * Keep the read state and the read date consistent, whatever wrote them:
 	 * a read date marks the book as read, marking it as read without a date sets today,
 	 * marking it as unread clears the date.
-	 *
-	 * Hooked to added_post_meta, updated_post_meta and deleted_post_meta.
 	 *
 	 * @param int|int[] $meta_ids Meta ID(s).
 	 * @param int       $post_id  Post ID.

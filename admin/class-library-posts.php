@@ -20,45 +20,24 @@
 class Library_Posts {
 
 	/**
-	 * Post type name.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $post_type
+	 * @return void
 	 */
-	protected $post_type = 'book';
-
-	/**
-	 * Plugin identifier.
-	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
-	 */
-	protected $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_version
-	 */
-	private $plugin_version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name    Plugin identifier.
-	 * @param string $plugin_version Plugin version.
-	 */
-	public function __construct( $plugin_name, $plugin_version ) {
-		$this->plugin_name    = $plugin_name;
-		$this->plugin_version = $plugin_version;
-
+	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'admin_head', array( $this, 'css' ) );
+		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
+		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ), 10, 3 );
+		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
+		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'sortable_columns' ) );
+		add_action( 'pre_get_posts', array( $this, 'pre_get_books' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'slug' ), 10, 2 );
+		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
+		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
+		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
 	}
-
 
 	/**
 	 * Build the slug from the title and the ISBN, or the ISSN and volume number.
@@ -142,8 +121,7 @@ class Library_Posts {
 				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
 
 				$output .= sprintf(
-					'<input id="%1$s-%2$s-%3$d" type="checkbox" class="js-library-checkbox" data-post-id="%3$d" aria-label="%4$s"%5$s>',
-					$this->plugin_name,
+					'<input id="library-%1$s-%2$d" type="checkbox" class="js-library-checkbox" data-post-id="%2$d" aria-label="%3$s"%4$s>',
 					$column_name,
 					$post_id,
 					esc_attr( $label ),
@@ -165,26 +143,26 @@ class Library_Posts {
 				$isbn = get_post_meta( $post_id, 'isbn', true );
 
 				if ( $isbn ) {
-					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '">' . $isbn . '</span>';
+					$output .= '<span id="library-' . $column_name . '-' . $post_id . '">' . $isbn . '</span>';
 				} else {
-					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '"></span>—';
+					$output .= '<span id="library-' . $column_name . '-' . $post_id . '"></span>—';
 				}
 
 				break;
 			case 'read_date':
 				$read_date = get_post_meta( $post_id, 'read_date', true );
-				$output   .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" class="hidden">' . esc_html( (string) $read_date ) . '</span>';
+				$output   .= '<span id="library-' . $column_name . '-' . $post_id . '" class="hidden">' . esc_html( (string) $read_date ) . '</span>';
 				$output   .= '<span class="js-library-read-date-label">' . ( $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—' ) . '</span>';
 				break;
 			case 'rating':
 				$rating_val = get_post_meta( $post_id, 'rating', true );
-				$output    .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '">' . esc_html( (string) $rating_val ) . '</span>';
+				$output    .= '<span id="library-' . $column_name . '-' . $post_id . '">' . esc_html( (string) $rating_val ) . '</span>';
 				$output    .= ( '' !== $rating_val && null !== $rating_val ) ? ' / 10' : '—';
 				break;
 			case 'book_editions':
 				$book_editions = get_post_meta( $post_id, 'book_editions', true );
 
-				$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" name="' . $column_name . '" value="' . $book_editions . '" type="hidden">';
+				$output .= '<input id="library-' . $column_name . '-' . $post_id . '" name="' . $column_name . '" value="' . $book_editions . '" type="hidden">';
 
 				break;
 
@@ -197,7 +175,7 @@ class Library_Posts {
 					$output        .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_display ) . '/10" aria-hidden="true">' . esc_html( $rating_display ) . '</span>';
 				}
 
-				$output .= '<span class="library-thumbnail-cell">';
+				$output   .= '<span class="library-thumbnail-cell">';
 				$thumbnail = get_the_post_thumbnail( $post_id );
 
 				if ( $thumbnail ) {
@@ -225,11 +203,11 @@ class Library_Posts {
 				'aria-label'   => true,
 			),
 			'span'  => array(
-				'id'            => true,
-				'class'         => true,
-				'style'         => true,
-				'title'         => true,
-				'aria-hidden'   => true,
+				'id'          => true,
+				'class'       => true,
+				'style'       => true,
+				'title'       => true,
+				'aria-hidden' => true,
 			),
 			'a'     => array( 'href' => true ),
 			'img'   => array(
@@ -406,46 +384,36 @@ class Library_Posts {
 
 		$args = apply_filters( 'library_post_type_args', $args );
 
-		register_post_type( $this->post_type, $args );
+		register_post_type( 'book', $args );
 	}
 
 	/**
-	 * "At a glance" items (dashboard widget): add the testimony.
+	 * Add the number of published books to the "At a Glance" dashboard widget.
 	 *
-	 * @param arr $items Items.
+	 * @param string[] $items Items.
+	 * @return string[]
 	 */
-	public function at_a_glance( $items ) {
-		$post_status = 'publish';
-		$object      = get_post_type_object( $this->post_type );
+	public function at_a_glance( array $items ): array {
+		$count = (int) wp_count_posts( 'book' )->publish;
 
-		$num_posts = wp_count_posts( $this->post_type );
-
-		if ( ! $num_posts || ! isset( $num_posts->{ $post_status } ) || 0 === (int) $num_posts->{ $post_status } ) {
+		if ( ! $count ) {
 			return $items;
 		}
 
-		$count = (int) $num_posts->{ $post_status };
-		$label = 1 === $count
-		? strtolower( $object->labels->singular_name )
-		: strtolower( $object->labels->name );
-		$text  = sprintf(
-		/* translators: %1$s: number, %2$s: post type name (singular or plural), %3$s: pending prefix */
-			_n( '%1$s %3$s%2$s', '%1$s %3$s%2$s', $count, 'library' ),
-			number_format_i18n( $count ),
-			$label,
-			'pending' === $post_status ? 'Pending ' : ''
-		);
+		/* translators: %s: number of books. */
+		$text = sprintf( _n( '%s book', '%s books', $count, 'library' ), number_format_i18n( $count ) );
 
-		if ( current_user_can( $object->cap->edit_posts ) ) {
-			$items[] = sprintf(
-				'<a class="%1$s-count" href="edit.php?post_status=%2$s&post_type=%1$s">%3$s</a>',
-				$this->post_type,
-				$post_status,
-				$text
-			);
-		} else {
-			$items[] = sprintf( '<span class="%1$s-count">%s</span>', $text );
+		if ( ! current_user_can( get_post_type_object( 'book' )->cap->edit_posts ) ) {
+			$items[] = sprintf( '<span class="book-count">%s</span>', esc_html( $text ) );
+
+			return $items;
 		}
+
+		$items[] = sprintf(
+			'<a class="book-count" href="%1$s">%2$s</a>',
+			esc_url( admin_url( 'edit.php?post_type=book' ) ),
+			esc_html( $text )
+		);
 
 		return $items;
 	}
@@ -458,7 +426,7 @@ class Library_Posts {
 
 		echo '<style>#dashboard_right_now .book-count:before { content: "\f330"; }</style>';
 
-		if ( $this->post_type !== $typenow ) {
+		if ( 'book' !== $typenow ) {
 			return false;
 		}
 
@@ -581,52 +549,22 @@ class Library_Posts {
 
 
 	/**
-	 * Add volume number to book title.
+	 * Show a book title with its series and volume number: "Series, Title, 3".
 	 *
-	 * @param string $title The post title.
-	 * @param int    $post_id The post ID.
-	 *
+	 * @param string $title   The post title.
+	 * @param int    $post_id The post ID; some callers of the_title omit it.
 	 * @return string
 	 */
-	public function add_volume_number_to_title( string $title, int $post_id ) {
-		$post_type = get_post_type( $post_id );
-
-		if ( $this->post_type === $post_type ) {
-			$volume_number = get_post_meta( $post_id, 'volume_number', true );
-
-			if ( $volume_number ) {
-				$title = $title . ', ' . $volume_number;
-			}
-
+	public function title( string $title, int $post_id = 0 ): string {
+		if ( ! $post_id || 'book' !== get_post_type( $post_id ) ) {
 			return $title;
 		}
 
-		return $title;
-	}
+		$series        = get_post_meta( $post_id, 'series', true );
+		$volume_number = get_post_meta( $post_id, 'volume_number', true );
+		$parts         = array_filter( array( $series, $title, $volume_number ), 'strlen' );
 
-
-	/**
-	 * Add series to book title.
-	 *
-	 * @param string $title The post title.
-	 * @param int    $post_id The post ID.
-	 *
-	 * @return string
-	 */
-	public function add_series_to_title( string $title, int $post_id ) {
-		$post_type = get_post_type( $post_id );
-
-		if ( $this->post_type === $post_type ) {
-			$series = get_post_meta( $post_id, 'series', true );
-
-			if ( $series ) {
-				$title = $series . ', ' . $title;
-			}
-
-			return $title;
-		}
-
-		return $title;
+		return implode( ', ', $parts );
 	}
 
 	/**
