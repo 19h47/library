@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 2.0.0\n"
+"Project-Id-Version: Library 2.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T15:22:14+00:00\n"
+"POT-Creation-Date: 2026-10-17T15:32:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -347,102 +347,102 @@ msgid "Reading idea of the week"
 msgstr ""
 
 #. translators: 1: series, 2: number of volumes read.
-#: admin/class-library-reading-idea.php:369
+#: admin/class-library-reading-idea.php:372
 msgid "Next in %1$s: you have read %2$s volume."
 msgid_plural "Next in %1$s: you have read %2$s volumes."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: series, 2: number of volumes read, 3: year of the last one read.
-#: admin/class-library-reading-idea.php:375
+#: admin/class-library-reading-idea.php:378
 msgid "Next in %1$s: you have read %2$s volume, in %3$s."
 msgid_plural "Next in %1$s: you have read %2$s volumes, the last one in %3$s."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: author, 2: average rating, 3: number of books rated, 4: year of the last one read.
-#: admin/class-library-reading-idea.php:469
+#: admin/class-library-reading-idea.php:472
 msgid "You gave %1$s %2$s/10 on average over %3$s books, the last one read in %4$s."
 msgstr ""
 
 #. translators: 1: author, 2: average rating, 3: number of books rated.
-#: admin/class-library-reading-idea.php:479
+#: admin/class-library-reading-idea.php:482
 msgid "You gave %1$s %2$s/10 on average over %3$s books."
 msgstr ""
 
 #. translators: 1: author, 2: number of books.
-#: admin/class-library-reading-idea.php:521
+#: admin/class-library-reading-idea.php:524
 msgid "You have %2$s books by %1$s, and none read."
 msgstr ""
 
 #. translators: 1: translator, 2: average rating, 3: number of books rated.
-#: admin/class-library-reading-idea.php:548
+#: admin/class-library-reading-idea.php:551
 msgid "Translated by %1$s: %2$s/10 on average over %3$s books rated."
 msgstr ""
 
 #. translators: 1: collection, e.g. "Folio", 2: average rating, 3: number of books rated.
-#: admin/class-library-reading-idea.php:570
+#: admin/class-library-reading-idea.php:573
 msgid "In %1$s: %2$s/10 on average over %3$s books rated."
 msgstr ""
 
 #. translators: %s: number of years.
-#: admin/class-library-reading-idea.php:593
+#: admin/class-library-reading-idea.php:596
 msgid "First published %s years ago this month."
 msgstr ""
 
 #. translators: %s: number of years.
-#: admin/class-library-reading-idea.php:596
+#: admin/class-library-reading-idea.php:599
 msgid "This edition came out %s years ago this month."
 msgstr ""
 
 #. translators: %s: number of reads.
-#: admin/class-library-reading-idea.php:658
+#: admin/class-library-reading-idea.php:661
 msgid "Your last %s reads were all translated."
 msgstr ""
 
 #. translators: %s: number of reads.
-#: admin/class-library-reading-idea.php:660
+#: admin/class-library-reading-idea.php:663
 msgid "None of your last %s reads was translated."
 msgstr ""
 
 #. translators: %s: number of reads.
-#: admin/class-library-reading-idea.php:667
+#: admin/class-library-reading-idea.php:670
 msgid "Your last %s reads were all volumes of a series."
 msgstr ""
 
 #. translators: %s: number of reads.
-#: admin/class-library-reading-idea.php:669
+#: admin/class-library-reading-idea.php:672
 msgid "None of your last %s reads was a volume of a series."
 msgstr ""
 
 #. translators: %d: decade, e.g. 1960.
-#: admin/class-library-reading-idea.php:739
+#: admin/class-library-reading-idea.php:742
 msgid "You have not read any book first published in the %ds yet."
 msgstr ""
 
 #. translators: 1: number of pages, 2: number of books read this year, 3: number of books read by the same date last year.
-#: admin/class-library-reading-idea.php:772
+#: admin/class-library-reading-idea.php:775
 msgid "%1$s pages, to catch up: %2$s book read this year against %3$s by this date last year."
 msgid_plural "%1$s pages, to catch up: %2$s books read this year against %3$s by this date last year."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: time since the book was added, e.g. "12 days".
-#: admin/class-library-reading-idea.php:805
+#: admin/class-library-reading-idea.php:808
 msgid "Added %s ago."
 msgstr ""
 
 #. translators: 1: rating, 2: year read.
-#: admin/class-library-reading-idea.php:835
+#: admin/class-library-reading-idea.php:838
 msgid "Rated %1$s/10, read in %2$s: read it again?"
 msgstr ""
 
-#: admin/class-library-reading-idea.php:856
+#: admin/class-library-reading-idea.php:859
 msgid "Not kept, still to read: borrowed?"
 msgstr ""
 
 #. translators: %s: year the book was added.
-#: admin/class-library-reading-idea.php:859
+#: admin/class-library-reading-idea.php:862
 msgid "Waiting on the reading pile since %s."
 msgstr ""
 

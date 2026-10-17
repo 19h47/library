@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -108,9 +108,12 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 
 == Changelog ==
 
+= 2.0.1 =
+* The “Not kept” checkbox moves from the Information box to the Publish box, under the status.
+* Fixed: “Another idea” cut the top of the dashboard widgets, its link to the widget scrolling the widgets area.
+
 = 2.0.0 =
 * Breaking: the `date_published` book meta is renamed `edition_date`, as it holds when the edition came out, in the REST API (`meta.edition_date`) and the books list (`orderby=edition_date`). Migration, with your table prefix: `wp db query "UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id SET m.meta_key = 'edition_date' WHERE m.meta_key = 'date_published' AND p.post_type = 'book'"`.
-* The “Not kept” checkbox moves from the Information box to the Publish box, under the status.
 * Breaking: the `book_editions` book meta is removed. It held collections, such as Folio at Gallimard: the Publishers taxonomy is now hierarchical, a collection being a child of its publisher, given to the book instead of the publisher. The field leaves the Information box, quick edit and the REST API (`meta.book_editions`); the Library widget ranks the collections from the taxonomy and counts them for their publisher.
 * Book searches also match the authors, publishers and collections.
 * Fixed: the Library widget counted pseudonyms apart from their real name in the authors with the most books and the number of authors.
