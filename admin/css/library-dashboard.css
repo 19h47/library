@@ -5,7 +5,8 @@
 #library_dashboard_overview .inside,
 #library_dashboard_ratings .inside,
 #library_dashboard_pile .inside,
-#library_dashboard_collection .inside {
+#library_dashboard_collection .inside,
+#library_dashboard_achievements .inside {
 	margin: 0;
 	padding-top: 0;
 }
@@ -226,4 +227,143 @@
 	align-items: center;
 	gap: 8px;
 	margin: 12px 0 0;
+}
+
+/* Achievements: decorations take the admin color scheme, text keeps its own colors. */
+.library-achievements-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 10px;
+}
+
+.library-achievements-header .library-dashboard-primary {
+	font-size: 20px;
+}
+
+.library-achievements-easter-eggs {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin: 0;
+	padding: 2px 10px 2px 6px;
+	border-radius: 999px;
+	background: rgb(var(--wp-admin-theme-color--rgb, 34, 113, 177), 0.1);
+	font-size: 12px;
+}
+
+.library-achievements-easter-eggs .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.library-achievements-badges,
+.library-achievements-close,
+.library-achievements-list {
+	margin: 0 0 14px;
+	padding: 0 2px;
+	list-style: none;
+}
+
+.library-achievement {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0 0 10px;
+}
+
+.library-achievement-icon.dashicons {
+	flex: 0 0 auto;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: rgb(var(--wp-admin-theme-color--rgb, 34, 113, 177), 0.12);
+	color: var(--wp-admin-theme-color, #2271b1);
+	font-size: 18px;
+	line-height: 34px;
+	text-align: center;
+}
+
+.library-achievement--easter-egg .library-achievement-icon.dashicons {
+	background: var(--wp-admin-theme-color, #2271b1);
+	color: #fff;
+}
+
+.library-achievement-text {
+	min-width: 0;
+	word-break: break-word;
+}
+
+.library-achievement-title,
+.library-achievement-subject,
+.library-achievement-meta {
+	display: block;
+}
+
+.library-achievement-title {
+	font-weight: 600;
+}
+
+.library-achievement-meta {
+	font-size: 12px;
+	color: #646970;
+}
+
+.library-achievements-close li {
+	margin: 0 0 12px;
+}
+
+.library-achievement-close-name {
+	font-weight: 600;
+}
+
+.library-achievement-progress {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 4px;
+}
+
+.library-achievement-progress progress {
+	flex: 1 1 auto;
+	height: 8px;
+	accent-color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.library-achievement-count {
+	min-width: 4.5em;
+	font-size: 12px;
+	text-align: right;
+	color: #646970;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.library-achievements-all {
+	padding: 0 2px;
+}
+
+.library-achievements-all summary {
+	margin-bottom: 8px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.library-achievements-list .library-achievement {
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.library-achievements-list .library-achievement-icon.dashicons {
+	width: 24px;
+	height: 24px;
+	font-size: 14px;
+	line-height: 24px;
+}
+
+.library-achievements-list .library-achievement-subject {
+	font-size: 12px;
 }

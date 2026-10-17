@@ -32,7 +32,9 @@ class Library {
 		'admin/class-library-rest-api.php',
 		'admin/class-library-posts.php',
 		'admin/class-library-dashboard.php',
+		'admin/class-library-books.php',
 		'admin/class-library-reading-idea.php',
+		'admin/class-library-achievements.php',
 		'admin/class-library-taxonomies.php',
 		'admin/class-library-wp-query.php',
 	);
@@ -59,6 +61,7 @@ class Library {
 		( new Library_Admin() )->hooks();
 		( new Library_Dashboard() )->hooks();
 		( new Library_Reading_Idea() )->hooks();
+		( new Library_Achievements() )->hooks();
 		( new Library_Updater( $plugin_file ) )->hooks();
 	}
 }
