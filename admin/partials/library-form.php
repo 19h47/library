@@ -135,15 +135,17 @@
 		</th>
 		<td>
 			<input
-				type="date"
+				type="text"
 				id="library-published-date"
 				name="published_date"
 				class="regular-text"
+				inputmode="numeric"
+				pattern="\d{4}(-\d{2}(-\d{2})?)?"
 				aria-describedby="library-published-date-description"
 				value="<?php echo esc_attr( $values['published_date'] ); ?>"
 			>
 			<p class="description" id="library-published-date-description">
-				<?php esc_html_e( 'Optional. When the work first came out, whatever the edition.', 'library' ); ?>
+				<?php esc_html_e( 'Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>

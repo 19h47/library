@@ -32,7 +32,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	private const DATE_KEYS = array( 'edition_date', 'published_date', 'read_date' );
+	private const DATE_KEYS = array( 'edition_date', 'read_date' );
 
 	/**
 	 * HTML pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
@@ -56,7 +56,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'pages', 'rating', 'read' );
+	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'published_date', 'pages', 'rating', 'read' );
 
 	/**
 	 * Register hooks.
@@ -103,6 +103,20 @@ class Library_Meta {
 				)
 			);
 		}
+
+		// Often known by its year only.
+		register_post_meta(
+			'book',
+			'published_date',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
+				),
+				'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
+			)
+		);
 
 		register_post_meta(
 			'book',
@@ -222,6 +236,25 @@ class Library_Meta {
 		$date  = DateTimeImmutable::createFromFormat( '!Y-m-d', $value );
 
 		return $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
+	}
+
+	/**
+	 * Keep a valid year, year and month, or Y-m-d date, such as 1929, 1929-11 or 1929-11-08; anything else becomes empty.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_partial_date( $value ): string {
+		$value   = (string) $value;
+		$formats = array(
+			4  => 'Y',
+			7  => 'Y-m',
+			10 => 'Y-m-d',
+		);
+		$format  = $formats[ strlen( $value ) ] ?? null;
+		$date    = $format ? DateTimeImmutable::createFromFormat( "!$format", $value ) : false;
+
+		return $date && $date->format( $format ) === $value ? $value : '';
 	}
 
 	/**

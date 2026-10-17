@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 2.0.3\n"
+"Project-Id-Version: Library 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T16:28:03+00:00\n"
+"POT-Creation-Date: 2026-10-17T16:52:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -44,7 +44,7 @@ msgstr ""
 #: admin/class-library-admin.php:88
 #: admin/class-library-posts.php:77
 #: admin/class-library-posts.php:112
-#: admin/class-library-taxonomies.php:307
+#: admin/class-library-taxonomies.php:334
 msgctxt "book status"
 msgid "Not kept"
 msgstr ""
@@ -140,7 +140,7 @@ msgstr ""
 #: admin/class-library-dashboard.php:452
 #: admin/class-library-posts.php:204
 #: admin/class-library-posts.php:352
-#: admin/partials/library-form.php:195
+#: admin/partials/library-form.php:197
 msgid "Rating"
 msgstr ""
 
@@ -205,13 +205,13 @@ msgid "ISBN"
 msgstr ""
 
 #: admin/class-library-posts.php:202
-#: admin/partials/library-form.php:155
+#: admin/partials/library-form.php:157
 msgid "Read"
 msgstr ""
 
 #: admin/class-library-posts.php:203
 #: admin/class-library-posts.php:351
-#: admin/partials/library-form.php:174
+#: admin/partials/library-form.php:176
 msgid "Read date"
 msgstr ""
 
@@ -777,23 +777,23 @@ msgstr ""
 msgid "First published"
 msgstr ""
 
-#: admin/partials/library-form.php:146
-msgid "Optional. When the work first came out, whatever the edition."
+#: admin/partials/library-form.php:148
+msgid "Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
 msgstr ""
 
-#: admin/partials/library-form.php:186
+#: admin/partials/library-form.php:188
 msgid "Optional. Setting a date marks the book as read; marking it as read without a date sets today."
 msgstr ""
 
-#: admin/partials/library-form.php:209
+#: admin/partials/library-form.php:211
 msgid "Rating from 1 to 10."
 msgstr ""
 
-#: admin/partials/library-form.php:217
+#: admin/partials/library-form.php:219
 msgid "Translators"
 msgstr ""
 
-#: admin/partials/library-form.php:228
+#: admin/partials/library-form.php:230
 msgid "Separate translators with commas"
 msgstr ""
 
