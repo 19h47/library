@@ -62,6 +62,16 @@ class Library_Rest_API {
 				),
 			),
 		);
+
+		register_rest_route(
+			'library/v1',
+			'books/achievements',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => fn() => rest_ensure_response( ( new Library_Achievements() )->get_achievements() ),
+				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+			),
+		);
 	}
 
 	/**

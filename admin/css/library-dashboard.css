@@ -5,7 +5,8 @@
 #library_dashboard_overview .inside,
 #library_dashboard_ratings .inside,
 #library_dashboard_pile .inside,
-#library_dashboard_collection .inside {
+#library_dashboard_collection .inside,
+#library_dashboard_achievements .inside {
 	margin: 0;
 	padding-top: 0;
 }
@@ -226,4 +227,19 @@
 	align-items: center;
 	gap: 8px;
 	margin: 12px 0 0;
+}
+
+.library-achievements-all {
+	padding: 0 2px;
+}
+
+.library-achievements-all summary {
+	margin-bottom: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.library-achievements-all .library-dashboard-ranking {
+	padding: 0;
 }

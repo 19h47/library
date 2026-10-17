@@ -215,16 +215,15 @@ class Library_Taxonomies {
 
 
 	/**
-	 * Names of the collections of a book, i.e. its publishers that have a parent.
+	 * Collections of a book, i.e. its publishers that have a parent.
 	 *
 	 * @param int $book_id Book ID.
-	 * @return string[]
+	 * @return WP_Term[]
 	 */
 	public static function get_collections( int $book_id ): array {
 		$terms = get_the_terms( $book_id, 'library-publisher' );
-		$terms = is_array( $terms ) ? $terms : array();
 
-		return array_values( wp_list_pluck( wp_list_filter( $terms, array( 'parent' => 0 ), 'NOT' ), 'name' ) );
+		return array_values( wp_list_filter( is_array( $terms ) ? $terms : array(), array( 'parent' => 0 ), 'NOT' ) );
 	}
 
 

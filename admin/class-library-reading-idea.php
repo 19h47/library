@@ -159,7 +159,7 @@ class Library_Reading_Idea {
 	 */
 	private function get_ideas(): array {
 		$week    = wp_date( 'o-W' );
-		$books   = $this->get_books();
+		$books   = Library_Books::all();
 		$to_read = self::get_books_to_read( $books );
 		$kinds   = array(
 			$this->get_series_ideas( $books, $to_read ),
@@ -203,87 +203,6 @@ class Library_Reading_Idea {
 		}
 
 		return $ideas;
-	}
-
-	/**
-	 * All the books, kept or not, with what the ideas are made of.
-	 *
-	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
-	 * Authors are counted for their real name. The date added is the post date.
-	 *
-	 * @return array<int,array{id:int,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],translators:string[],collections:string[]}>
-	 */
-	private function get_books(): array {
-		$posts = get_posts(
-			array(
-				'post_type'   => 'book',
-				'post_status' => array_diff( get_post_stati(), array( 'trash', 'auto-draft' ) ),
-				'numberposts' => -1,
-			)
-		);
-
-		$books = array();
-
-		foreach ( $posts as $post ) {
-			$volume = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'volume_number', true ), $match ) ? (int) $match[0] : null;
-			$series = (string) get_post_meta( $post->ID, 'series', true );
-			$rating = get_post_meta( $post->ID, 'rating', true );
-			$pages  = (int) get_post_meta( $post->ID, 'pages', true );
-
-			if ( '' === $series && null !== $volume ) {
-				$series = $post->post_title;
-			}
-
-			$books[ $post->ID ] = array(
-				'id'             => $post->ID,
-				'status'         => $post->post_status,
-				'series'         => $series,
-				'volume'         => $volume,
-				'read'           => Library_Posts::is_read( $post->ID ),
-				'read_date'      => (string) get_post_meta( $post->ID, 'read_date', true ),
-				'rating'         => '' !== $rating ? (float) $rating : null,
-				'pages'          => $pages ? $pages : null,
-				'edition_date'   => (string) get_post_meta( $post->ID, 'edition_date', true ),
-				'published_date' => (string) get_post_meta( $post->ID, 'published_date', true ),
-				'added'          => $post->post_date,
-				'authors'        => self::get_real_names( $post->ID ),
-				'translators'    => self::split( (string) get_post_meta( $post->ID, 'translators', true ) ),
-				'collections'    => Library_Taxonomies::get_collections( $post->ID ),
-			);
-		}
-
-		return $books;
-	}
-
-	/**
-	 * Names of the authors of a book, a pseudonym counted for its real name.
-	 *
-	 * @param int $book_id Book ID.
-	 * @return string[]
-	 */
-	private static function get_real_names( int $book_id ): array {
-		$terms = get_the_terms( $book_id, 'library-author' );
-		$names = array();
-
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$author = $term->parent ? get_term( $term->parent, 'library-author' ) : $term;
-
-			if ( $author instanceof WP_Term ) {
-				$names[] = $author->name;
-			}
-		}
-
-		return array_values( array_unique( $names ) );
-	}
-
-	/**
-	 * Values of a field separated with commas.
-	 *
-	 * @param string $value Field value.
-	 * @return string[]
-	 */
-	private static function split( string $value ): array {
-		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ), 'strlen' ) );
 	}
 
 	/**

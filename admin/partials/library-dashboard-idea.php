@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$edit_url    = (string) get_edit_post_link( $book->ID );
 		$authors     = wp_get_post_terms( $book->ID, 'library-author', array( 'fields' => 'names' ) );
 		$edition     = substr( (string) get_post_meta( $book->ID, 'edition_date', true ), 0, 4 );
-		$collections = implode( ', ', Library_Taxonomies::get_collections( $book->ID ) );
+		$collections = implode( ', ', wp_list_pluck( Library_Taxonomies::get_collections( $book->ID ), 'name' ) );
 		$page_count  = (int) get_post_meta( $book->ID, 'pages', true );
 		/* translators: %s: number of pages. */
 		$length  = $page_count ? sprintf( _n( '%s page', '%s pages', $page_count, 'library' ), number_format_i18n( $page_count ) ) : '';
