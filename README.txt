@@ -96,7 +96,7 @@ Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`
 
 = How do I log a book I read but did not keep? =
 
-Add it as any book and check **Not kept** in the Information box, or pick the “Not kept” status in quick or bulk edit. The book is then hidden from the “All” view of the books list, the site and the Library widget, but its reading and rating count in the Reading and Ratings widgets. Find these books in the “Not kept” view of the books list. The count of an author or publisher only includes the books kept; their books not kept are in the “Not kept” column of **Books > Authors** and **Books > Publishers**.
+Add it as any book and check **Not kept** in the Publish box, under the status, or pick the “Not kept” status in quick or bulk edit. The book is then hidden from the “All” view of the books list, the site and the Library widget, but its reading and rating count in the Reading and Ratings widgets. Find these books in the “Not kept” view of the books list. The count of an author or publisher only includes the books kept; their books not kept are in the “Not kept” column of **Books > Authors** and **Books > Publishers**.
 
 = Can I import books from a WordPress export? =
 
@@ -110,6 +110,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 
 = 2.0.0 =
 * Breaking: the `date_published` book meta is renamed `edition_date`, as it holds when the edition came out, in the REST API (`meta.edition_date`) and the books list (`orderby=edition_date`). Migration, with your table prefix: `wp db query "UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id SET m.meta_key = 'edition_date' WHERE m.meta_key = 'date_published' AND p.post_type = 'book'"`.
+* The “Not kept” checkbox moves from the Information box to the Publish box, under the status.
 * Breaking: the `book_editions` book meta is removed. It held collections, such as Folio at Gallimard: the Publishers taxonomy is now hierarchical, a collection being a child of its publisher, given to the book instead of the publisher. The field leaves the Information box, quick edit and the REST API (`meta.book_editions`); the Library widget ranks the collections from the taxonomy and counts them for their publisher.
 * Book searches also match the authors, publishers and collections.
 * Fixed: the Library widget counted pseudonyms apart from their real name in the authors with the most books and the number of authors.

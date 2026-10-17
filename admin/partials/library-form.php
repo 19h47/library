@@ -167,28 +167,6 @@
 		</td>
 	</tr>
 
-	<!-- Not kept -->
-	<tr>
-		<th>
-			<label for="library-not-kept">
-				<?php echo esc_html_x( 'Not kept', 'book status', 'library' ); ?>
-			</label>
-		</th>
-		<td>
-			<input
-				type="checkbox"
-				id="library-not-kept"
-				name="not_kept"
-				value="1"
-				aria-describedby="library-not-kept-description"
-				<?php checked( $values['not_kept'] ); ?>
-			>
-			<p class="description" id="library-not-kept-description">
-				<?php esc_html_e( 'Read but not in my library: hidden from the books list and the site, counted in the reading stats.', 'library' ); ?>
-			</p>
-		</td>
-	</tr>
-
 	<!-- Read Date -->
 	<tr>
 		<th>
