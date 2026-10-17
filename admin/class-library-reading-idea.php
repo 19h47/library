@@ -615,8 +615,8 @@ class Library_Reading_Idea {
 	 *
 	 * A first of January often stands for a date known by its year only, so it is left out.
 	 *
-	 * @param string $date Date, Y-m-d, or empty.
-	 * @return int|null Null when the date is not an anniversary this month.
+	 * @param string $date Date, Y-m-d, or Y-m or Y for a first published date, or empty.
+	 * @return int|null Null when the date is not an anniversary this month, or has no month.
 	 */
 	private static function get_anniversary( string $date ): ?int {
 		$month_day = substr( $date, 5 );
