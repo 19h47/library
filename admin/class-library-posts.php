@@ -420,6 +420,13 @@ class Library_Posts {
 			'rest_base'           => 'books',
 		);
 
+		/**
+		 * Filters the arguments of the book post type, before it is registered.
+		 *
+		 * @since 0.0.0
+		 *
+		 * @param array $args Arguments for register_post_type(), with the `books` rewrite slug and the `books` REST base.
+		 */
 		$args = apply_filters( 'library_post_type_args', $args );
 
 		register_post_type( 'book', $args );
