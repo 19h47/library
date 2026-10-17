@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 0.0.0
+Stable tag: 1.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -25,7 +25,11 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read, marking it as read without a date sets today, marking it as unread clears the date.
 * **Books list** – Columns for the cover (with the rating), date published, ISBN, read state, read date and rating; date published and rating are sortable. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, book editions, read date and rating.
 * **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators and book editions.
-* **Dashboard** – A widget with the number of books read and rated, and charts of books read by year and by month, publication years and ratings. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
+* **Dashboard** – Four widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
+    * **Reading** – Books read, this year against the same date last year, the number expected by the end of the year, and books read by year and by month.
+    * **Ratings** – Number of rated books, average, distribution and average rating by year read.
+    * **Reading pile** – Books to read, the oldest one by publication date and the latest reads.
+    * **Library** – Books, authors and publishers, share of translated books, the authors (pseudonyms counted for their real name), publishers and book editions with the most books, and publication years.
 * **REST API** – Books, authors and publishers in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta`. `/wp-json/library/v1/books/reading-stats` returns the reading stats to users who can edit posts.
 * **Updates** – From the GitHub releases, see below.
 * **Translatable** – French translation included (Domain Path: `/languages`).
@@ -70,7 +74,7 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 
 == Changelog ==
 
-= Unreleased =
+= 1.0.0 =
 * Updates from GitHub releases.
 * The reading percentage in the books list is computed on display; the books list and the dashboard widget now count the same books (trash and auto-drafts excluded).
 * Admin scripts no longer depend on jQuery.
@@ -94,6 +98,7 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 * The “At a Glance” dashboard widget shows the number of published books with a plain “%s books” string.
 * Dashboard widget: one chart template for the five charts, run from three queries instead of seven. Each chart is a figure whose data screen readers get as a table; the bars are hidden from them. Years without readings are shown, month names and initials come from the site language, and counts exclude auto-drafts like the books list.
 * The books list styles moved from an inline `<style>` to `admin/css/library-admin.css`; unused dashboard styles are removed.
+* The dashboard widget is split into four widgets: Reading (it keeps the former widget position), Ratings, Reading pile and Library. New stats: books read this year against the same date last year and the projection to the end of the year, average rating by year read, books to read, the oldest unread book, the latest reads, the share of translated books, and the authors, publishers and book editions with the most books.
 * Admin styles and scripts are versioned by their modification time, so browsers never keep an outdated file.
 * Quick edit reads the book fields from the row inline data (`add_inline_data`), rendered once with core markup. The hidden “Book Editions” column, which only carried data and showed up in Screen Options, is removed. The form and quick edit share one ISBN pattern.
 
@@ -106,6 +111,9 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 * Translation-ready.
 
 == Upgrade Notice ==
+
+= 1.0.0 =
+Closes a REST route that let anyone read or update any site option: update now. Requires WordPress 7.1 and PHP 8.2. The `read` REST field is replaced by `meta.read`. Delete the unused `reading_percentage` option. Install this version by hand: earlier versions block plugin updates.
 
 = 0.0.0 =
 Initial release of Library.
