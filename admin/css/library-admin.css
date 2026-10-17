@@ -53,3 +53,10 @@
 	object-position: center;
 	overflow: hidden;
 }
+
+/* Same as the core "Count" column next to it. */
+.fixed .column-library_not_kept {
+	width: 74px;
+	text-align: center;
+	hyphens: auto;
+}

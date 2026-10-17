@@ -45,19 +45,25 @@ class Library_Admin {
 	}
 
 	/**
-	 * Enqueue the books list styles and scripts.
+	 * Enqueue the styles of the books, authors and publishers lists, and the books list scripts.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		$screen = get_current_screen();
-		if ( ! $screen || 'edit-book' !== $screen->id ) {
+		$screen  = get_current_screen();
+		$screens = array( 'edit-book', 'edit-library-author', 'edit-library-publisher' );
+
+		if ( ! $screen || ! in_array( $screen->id, $screens, true ) ) {
 			return;
 		}
 
 		[ $style_url, $style_version ] = self::asset( 'css/library-admin.css' );
 		wp_enqueue_style( 'library-admin', $style_url, array(), $style_version );
+
+		if ( 'edit-book' !== $screen->id ) {
+			return;
+		}
 
 		$read_handle                 = 'library-admin-read';
 		[ $read_url, $read_version ] = self::asset( 'js/library-admin-read.js' );

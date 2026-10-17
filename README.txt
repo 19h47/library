@@ -91,7 +91,7 @@ Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`
 
 = How do I log a book I read but did not keep? =
 
-Add it as any book and check **Not kept** in the Information box, or pick the “Not kept” status in quick or bulk edit. The book is then hidden from the “All” view of the books list, the site and the Library widget, but its reading and rating count in the Reading and Ratings widgets. Find these books in the “Not kept” view of the books list.
+Add it as any book and check **Not kept** in the Information box, or pick the “Not kept” status in quick or bulk edit. The book is then hidden from the “All” view of the books list, the site and the Library widget, but its reading and rating count in the Reading and Ratings widgets. Find these books in the “Not kept” view of the books list. The count of an author or publisher only includes the books kept; their books not kept are in the “Not kept” column of **Books > Authors** and **Books > Publishers**.
 
 = Can I import books from a WordPress export? =
 
@@ -122,7 +122,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 * Search only applies to book queries and matches the book text meta (series, ISBN, ISSN, volume number, translators, book editions) through a subquery. Other searches are no longer changed, and a search combined with a meta query no longer fails.
 * Sorting by publication date uses the core meta ordering.
 * The books list can be sorted by rating; unrated books come last in both orders.
-* New “Not kept” status for the books read but not kept: hidden from the “All” view, the site and the library stats, counted in the reading stats. Set it with the checkbox of the Information box, or in quick and bulk edit.
+* New “Not kept” status for the books read but not kept: hidden from the “All” view, the site and the library stats, counted in the reading stats. Set it with the checkbox of the Information box, or in quick and bulk edit. The authors and publishers lists show their books not kept in a column of their own, and the author and publisher links of the books list keep the current view.
 * Each class registers its own hooks; `Library_Loader` is removed. The books list CSS and the dashboard widget were registered twice. Breaking for code using `Library_Loader` or the plugin class constructors, which no longer take a name and version.
 * The series and volume number are added to book titles by a single `the_title` filter, which no longer fails when called without a post ID.
 * The “At a Glance” dashboard widget shows the number of published books with a plain “%s books” string.
