@@ -28,10 +28,12 @@ class Library_Posts {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
-		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ), 10, 3 );
+		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
+		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
 		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
 		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'sortable_columns' ) );
 		add_action( 'pre_get_posts', array( $this, 'pre_get_books' ) );
+		add_filter( 'posts_clauses', array( $this, 'sort_by_rating' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( $this, 'slug' ), 10, 2 );
 		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
@@ -96,7 +98,6 @@ class Library_Posts {
 		$columns['read']           = __( 'Read', 'library' );
 		$columns['read_date']      = __( 'Read date', 'library' );
 		$columns['rating']         = __( 'Rating', 'library' );
-		$columns['book_editions']  = __( 'Book Editions', 'library' );
 
 		return $columns;
 	}
@@ -120,8 +121,7 @@ class Library_Posts {
 				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
 
 				$output .= sprintf(
-					'<input id="library-%1$s-%2$d" type="checkbox" class="js-library-checkbox" data-post-id="%2$d" aria-label="%3$s"%4$s>',
-					$column_name,
+					'<input type="checkbox" class="js-library-checkbox" data-post-id="%1$d" aria-label="%2$s"%3$s>',
 					$post_id,
 					esc_attr( $label ),
 					checked( self::is_read( $post_id ), true, false )
@@ -141,37 +141,26 @@ class Library_Posts {
 			case 'isbn':
 				$isbn = get_post_meta( $post_id, 'isbn', true );
 
-				if ( $isbn ) {
-					$output .= '<span id="library-' . $column_name . '-' . $post_id . '">' . $isbn . '</span>';
-				} else {
-					$output .= '<span id="library-' . $column_name . '-' . $post_id . '"></span>—';
-				}
+				$output .= $isbn ? esc_html( $isbn ) : '—';
 
 				break;
 			case 'read_date':
 				$read_date = get_post_meta( $post_id, 'read_date', true );
-				$output   .= '<span id="library-' . $column_name . '-' . $post_id . '" class="hidden">' . esc_html( (string) $read_date ) . '</span>';
-				$output   .= '<span class="js-library-read-date-label">' . ( $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—' ) . '</span>';
+
+				$output .= $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—';
+
 				break;
 			case 'rating':
-				$rating_val = get_post_meta( $post_id, 'rating', true );
-				$output    .= '<span id="library-' . $column_name . '-' . $post_id . '">' . esc_html( (string) $rating_val ) . '</span>';
-				$output    .= ( '' !== $rating_val && null !== $rating_val ) ? ' / 10' : '—';
-				break;
-			case 'book_editions':
-				$book_editions = get_post_meta( $post_id, 'book_editions', true );
+				$rating = get_post_meta( $post_id, 'rating', true );
 
-				$output .= '<input id="library-' . $column_name . '-' . $post_id . '" name="' . $column_name . '" value="' . $book_editions . '" type="hidden">';
+				$output .= '' !== $rating ? esc_html( $rating ) . ' / 10' : '—';
 
 				break;
-
 			case 'thumbnail':
-				$rating_val = get_post_meta( $post_id, 'rating', true );
-				$has_rating = ( '' !== $rating_val && null !== $rating_val && is_numeric( $rating_val ) && (float) $rating_val >= 1 && (float) $rating_val <= 10 );
+				$rating = get_post_meta( $post_id, 'rating', true );
 
-				if ( $has_rating ) {
-					$rating_display = (string) ( (float) $rating_val === (int) (float) $rating_val ? (int) (float) $rating_val : (float) $rating_val );
-					$output        .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_display ) . '/10" aria-hidden="true">' . esc_html( $rating_display ) . '</span>';
+				if ( '' !== $rating ) {
+					$output .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating ) . '/10" aria-hidden="true">' . esc_html( $rating ) . '</span>';
 				}
 
 				$output   .= '<span class="library-thumbnail-cell">';
@@ -192,19 +181,14 @@ class Library_Posts {
 
 		$allowed_column_html = array(
 			'input' => array(
-				'id'           => true,
 				'type'         => true,
-				'name'         => true,
-				'value'        => true,
 				'class'        => true,
 				'checked'      => true,
 				'data-post-id' => true,
 				'aria-label'   => true,
 			),
 			'span'  => array(
-				'id'          => true,
 				'class'       => true,
-				'style'       => true,
 				'title'       => true,
 				'aria-hidden' => true,
 			),
@@ -223,76 +207,58 @@ class Library_Posts {
 	}
 
 	/**
-	 * Render quick edit
+	 * Add the quick edit values to the hidden inline data of a book row.
 	 *
-	 * @param string $column_name Name of the column to edit.
-	 * @param string $post_type   The post type slug, or current screen name if this is a taxonomy list table.
-	 * @param string $taxonomy    The taxonomy name, if any.
-	 *
-	 * @see https://developer.wordpress.org/reference/hooks/quick_edit_custom_box/
+	 * @param WP_Post $post Post.
+	 * @see https://developer.wordpress.org/reference/hooks/add_inline_data/
 	 */
-	public function render_quick_edit( string $column_name, string $post_type, string $taxonomy ): void {
-		unset( $post_type, $taxonomy );
-
-		$html = '';
-
-		switch ( $column_name ) {
-			case 'isbn':
-				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
-				$html .= '<label class="inline-edit-isbn">';
-				$html .= '<span class="title">' . esc_html__( 'ISBN', 'library' ) . '</span>';
-				$html .= '<input pattern="(?:(?=.{17}$)97[89][ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])" name="isbn" class="inline-edit-isbn-input js-library-isbn" type="text" placeholder="' . esc_html__( 'ISBN', 'library' ) . '" value="">';
-				$html .= '</label>';
-				$html .= '</div></fieldset>';
-
-				break;
-			case 'book_editions':
-				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
-				$html .= '<label class="inline-edit-book-editions">';
-				$html .= '<span class="title">' . esc_html__( 'Book editions', 'library' ) . '</span>';
-				$html .= '<input name="book_editions" class="inline-edit-book-editions-input js-library-book-editions" type="text" placeholder="' . esc_html__( 'Book editions', 'library' ) . '" value="">';
-				$html .= '</label>';
-				$html .= '</div></fieldset>';
-
-				break;
-			case 'read_date':
-				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
-				$html .= '<label class="inline-edit-read-date">';
-				$html .= '<span class="title">' . esc_html__( 'Read date', 'library' ) . '</span>';
-				$html .= '<input name="read_date" class="inline-edit-read-date-input js-library-read-date" type="date" value="">';
-				$html .= '</label>';
-				$html .= '</div></fieldset>';
-
-				break;
-			case 'rating':
-				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
-				$html .= '<label class="inline-edit-rating">';
-				$html .= '<span class="title">' . esc_html__( 'Rating', 'library' ) . '</span>';
-				$html .= '<input name="rating" class="inline-edit-rating-input js-library-rating" type="number" min="1" max="10" step="0.5" placeholder="1–10" value="">';
-				$html .= '</label>';
-				$html .= '</div></fieldset>';
-
-				break;
+	public function add_inline_data( WP_Post $post ): void {
+		if ( 'book' !== $post->post_type ) {
+			return;
 		}
 
-		$allowed_quick_edit_html = array(
-			'fieldset' => array( 'class' => true ),
-			'div'      => array( 'class' => true ),
-			'label'    => array( 'class' => true ),
-			'span'     => array( 'class' => true ),
-			'input'    => array(
-				'name'        => true,
-				'class'       => true,
-				'type'        => true,
-				'placeholder' => true,
-				'value'       => true,
-				'pattern'     => true,
-				'min'         => true,
-				'max'         => true,
-				'step'        => true,
-			),
+		foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) {
+			$value = (string) get_post_meta( $post->ID, $key, true );
+
+			printf( '<div class="library_%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
+		}
+	}
+
+	/**
+	 * Render the book fields of quick edit, once, with the ISBN column.
+	 *
+	 * @param string $column_name Name of the column to edit.
+	 * @see https://developer.wordpress.org/reference/hooks/quick_edit_custom_box/
+	 */
+	public function render_quick_edit( string $column_name ): void {
+		if ( 'isbn' !== $column_name ) {
+			return;
+		}
+
+		$fields = array(
+			'isbn'          => sprintf( '<input type="text" name="isbn" pattern="%s">', esc_attr( Library_Meta::ISBN_PATTERN ) ),
+			'book_editions' => '<input type="text" name="book_editions">',
+			'read_date'     => '<input type="date" name="read_date">',
+			'rating'        => '<input type="number" name="rating" min="1" max="10" step="0.5">',
 		);
-		echo wp_kses( $html, $allowed_quick_edit_html );
+		$labels = array(
+			'isbn'          => __( 'ISBN', 'library' ),
+			'book_editions' => __( 'Book editions', 'library' ),
+			'read_date'     => __( 'Read date', 'library' ),
+			'rating'        => __( 'Rating', 'library' ),
+		);
+		?>
+		<fieldset class="inline-edit-col-right">
+			<div class="inline-edit-col">
+				<?php foreach ( $fields as $key => $input ) : ?>
+					<label>
+						<span class="title"><?php echo esc_html( $labels[ $key ] ); ?></span>
+						<span class="input-text-wrap"><?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, attributes escaped above. ?></span>
+					</label>
+				<?php endforeach; ?>
+			</div>
+		</fieldset>
+		<?php
 	}
 
 	/**
@@ -436,6 +402,7 @@ class Library_Posts {
 	 */
 	public function sortable_columns( array $sortable_columns ): array {
 		$sortable_columns['date_published'] = array( 'date_published', true );
+		$sortable_columns['rating']         = array( 'rating', true );
 
 		return $sortable_columns;
 	}
@@ -465,6 +432,31 @@ class Library_Posts {
 		return $query;
 	}
 
+
+	/**
+	 * Sort the books list by rating, unrated books last.
+	 *
+	 * A core meta query cannot keep the unrated books without mixing them in:
+	 * its OR clauses join every other meta of these books and sort on one of them.
+	 *
+	 * @param string[] $clauses Query clauses.
+	 * @param WP_Query $query   Query.
+	 * @return string[]
+	 */
+	public function sort_by_rating( array $clauses, WP_Query $query ): array {
+		if ( ! is_admin() || ! $query->is_main_query() || 'book' !== $query->get( 'post_type' ) || 'rating' !== $query->get( 'orderby' ) ) {
+			return $clauses;
+		}
+
+		global $wpdb;
+
+		$order = 'ASC' === strtoupper( $query->get( 'order' ) ) ? 'ASC' : 'DESC';
+
+		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS library_rating ON ( library_rating.post_id = {$wpdb->posts}.ID AND library_rating.meta_key = 'rating' )";
+		$clauses['orderby'] = "library_rating.meta_value IS NULL, CAST( library_rating.meta_value AS DECIMAL(3,1) ) $order, {$wpdb->posts}.post_title ASC";
+
+		return $clauses;
+	}
 
 	/**
 	 * Show a book title with its series and volume number: "Series, Title, 3".

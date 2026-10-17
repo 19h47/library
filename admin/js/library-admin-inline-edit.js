@@ -1,7 +1,8 @@
 /**
- * Quick edit: prefill the book fields in the inline edit row.
+ * Quick edit: prefill the book fields from the row inline data (library_{meta key}).
  *
- * Extends inlineEditPost.edit (WordPress core) then fills custom fields.
+ * Extends inlineEditPost.edit (WordPress core), which fills its own fields
+ * from the hidden #inline_{id} block the same way.
  *
  * @package    Library
  * @subpackage Library/admin
@@ -10,27 +11,25 @@
 ( () => {
 	'use strict';
 
-	const fields = [ 'isbn', 'book_editions', 'read_date', 'rating' ];
-
-	// Wrap WordPress quick edit like core does for custom columns.
 	const originalEdit = inlineEditPost.edit;
 
 	inlineEditPost.edit = function ( id, ...args ) {
 		originalEdit.call( this, id, ...args );
 
-		const postId  = typeof id === 'object' ? parseInt( this.getId( id ), 10 ) : 0;
-		const editRow = document.getElementById( `edit-${ postId }` );
+		const postId     = typeof id === 'object' ? this.getId( id ) : id;
+		const inlineData = document.getElementById( `inline_${ postId }` );
+		const editRow    = document.getElementById( `edit-${ postId }` );
 
-		if ( ! editRow ) {
+		if ( ! inlineData || ! editRow ) {
 			return;
 		}
 
-		fields.forEach( ( field ) => {
-			const source = document.getElementById( `library-${ field }-${ postId }` );
-			const input  = editRow.querySelector( `input[name="${ field }"]` );
+		inlineData.querySelectorAll( '[class^="library_"]' ).forEach( ( value ) => {
+			const field = value.className.replace( 'library_', '' );
+			const input = editRow.querySelector( `input[name="${ field }"]` );
 
-			if ( source && input ) {
-				input.value = ( source.value ?? source.textContent ).trim();
+			if ( input ) {
+				input.value = value.textContent;
 			}
 		} );
 	};

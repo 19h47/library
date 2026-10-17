@@ -35,6 +35,20 @@ class Library_Meta {
 	private const DATE_KEYS = array( 'date_published', 'read_date' );
 
 	/**
+	 * HTML pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
+	 *
+	 * @var string
+	 */
+	public const ISBN_PATTERN = '(?:(?=.{17}$)(97[89]|501)[ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])';
+
+	/**
+	 * Book meta edited in quick edit.
+	 *
+	 * @var string[]
+	 */
+	public const QUICK_EDIT_KEYS = array( 'isbn', 'book_editions', 'read_date', 'rating' );
+
+	/**
 	 * All book meta keys.
 	 *
 	 * The read state comes after the read date, so unchecking "Read" in the form

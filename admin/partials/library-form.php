@@ -43,7 +43,7 @@
 		<td>
 			<input
 				type="text"
-				pattern="(?:(?=.{17}$)(97[89]|501)[ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])"
+				pattern="<?php echo esc_attr( Library_Meta::ISBN_PATTERN ); ?>"
 				id="library-isbn"
 				name="isbn"
 				class="regular-text"

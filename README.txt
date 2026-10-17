@@ -10,7 +10,7 @@ Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Manage a book library with a custom post type, authors and publishers taxonomies, and book metadata (ISBN, series, reading status).
+Manage a book library with a custom post type, authors and publishers taxonomies, book metadata (ISBN, series, reading status, rating) and a reading dashboard.
 
 == Description ==
 
@@ -18,18 +18,22 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 
 = Features =
 
-* **Book post type** – Custom post type with title, featured image (cover), and archive at `/books/`
-* **Authors taxonomy** – Attach one or more authors to each book
-* **Publishers taxonomy** – Attach one or more publishers to each book
-* **Information metabox** – Fields for series, ISBN, ISSN, volume number, date published, read state and date, rating, translators and book editions
-* **List table** – Custom columns (thumbnail, read, date published, ISBN, book editions) with sortable date published and quick edit for ISBN and book editions
-* **REST API** – Books, authors, and publishers are exposed via the REST API (`/wp-json/wp/v2/books`, etc.) for use in themes or external apps
-* **Translatable** – Ready for translation (Domain Path: `/languages`)
+* **Book post type** – Title, featured image (cover) and archive at `/books/`. Book titles show their series and volume number: “Series, Title, 3”.
+* **Authors taxonomy** – Hierarchical: a real name as parent, pseudonyms as children. Filtering by an author includes their pseudonyms.
+* **Publishers taxonomy** – One or more publishers per book.
+* **Information metabox** – Series, ISBN, ISSN, volume number, date published, read state and read date, rating from 1 to 10 by half points, translators and book editions. Authors and publishers are edited in their own tag boxes, with autocomplete.
+* **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read, marking it as read without a date sets today, marking it as unread clears the date.
+* **Books list** – Columns for the cover (with the rating), date published, ISBN, read state, read date and rating; date published and rating are sortable. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, book editions, read date and rating.
+* **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators and book editions.
+* **Dashboard** – A widget with the number of books read and rated, and charts of books read by year and by month, publication years and ratings. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
+* **REST API** – Books, authors and publishers in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta`. `/wp-json/library/v1/books/reading-stats` returns the reading stats to users who can edit posts.
+* **Updates** – From the GitHub releases, see below.
+* **Translatable** – French translation included (Domain Path: `/languages`).
 
 = Technical =
 
-* Registers the `book` post type with `show_in_rest` for block editor support
-* Registers `library-author` and `library-publisher` taxonomies
+* Registers the `book` post type with `show_in_rest`; books are edited in the classic screen, as the type has no editor
+* Registers the `library-author` and `library-publisher` taxonomies and the book meta (`register_post_meta`)
 * Loads the text domain at `init`
 * No shortcodes or front-end templates included; use your theme or blocks to display books
 
@@ -84,12 +88,14 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 * Fixed PHP warnings when querying author terms by ID.
 * Search only applies to book queries and matches the book text meta (series, ISBN, ISSN, volume number, translators, book editions) through a subquery. Other searches are no longer changed, and a search combined with a meta query no longer fails.
 * Sorting by publication date uses the core meta ordering.
+* The books list can be sorted by rating; unrated books come last in both orders.
 * Each class registers its own hooks; `Library_Loader` is removed. The books list CSS and the dashboard widget were registered twice. Breaking for code using `Library_Loader` or the plugin class constructors, which no longer take a name and version.
 * The series and volume number are added to book titles by a single `the_title` filter, which no longer fails when called without a post ID.
 * The “At a Glance” dashboard widget shows the number of published books with a plain “%s books” string.
 * Dashboard widget: one chart template for the five charts, run from three queries instead of seven. Each chart is a figure whose data screen readers get as a table; the bars are hidden from them. Years without readings are shown, month names and initials come from the site language, and counts exclude auto-drafts like the books list.
 * The books list styles moved from an inline `<style>` to `admin/css/library-admin.css`; unused dashboard styles are removed.
 * Admin styles and scripts are versioned by their modification time, so browsers never keep an outdated file.
+* Quick edit reads the book fields from the row inline data (`add_inline_data`), rendered once with core markup. The hidden “Book Editions” column, which only carried data and showed up in Screen Options, is removed. The form and quick edit share one ISBN pattern.
 
 = 0.0.0 =
 * Initial release.

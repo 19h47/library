@@ -25,12 +25,12 @@
 		readPercentageEl.textContent = format.replace( '%s', percent.toLocaleString() );
 	};
 
-	// Quick edit reads the hidden date, so it must follow the date the server kept.
+	// Quick edit reads the inline data, so it must follow the date the server kept.
 	const updateReadDate = ( id, readDate ) => {
-		const dateEl  = document.getElementById( `library-read_date-${ id }` );
-		const labelEl = dateEl?.nextElementSibling;
+		const cell       = document.querySelector( `#post-${ id } .column-read_date` );
+		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
 
-		if ( ! dateEl || ! labelEl ) {
+		if ( ! cell || ! inlineDate ) {
 			return;
 		}
 
@@ -38,8 +38,8 @@
 			? new Date( `${ readDate }T00:00` ).toLocaleDateString( document.documentElement.lang, { dateStyle: 'long' } )
 			: '—';
 
-		dateEl.textContent  = readDate;
-		labelEl.textContent = label;
+		cell.textContent       = label;
+		inlineDate.textContent = readDate;
 	};
 
 	const handleChange = async ( event ) => {
