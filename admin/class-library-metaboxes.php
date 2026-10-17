@@ -79,6 +79,9 @@ class Library_Metaboxes {
 			'normal',
 			'default'
 		);
+
+		// Custom fields support only exposes the meta in the REST API; this form edits them.
+		remove_meta_box( 'postcustom', 'book', 'normal' );
 	}
 
 
@@ -89,69 +92,13 @@ class Library_Metaboxes {
 	 * @param WP_Post $post Post object.
 	 * @return void
 	 */
-	public function render_metabox( $post ) {
+	public function render_metabox( WP_Post $post ): void {
 		wp_nonce_field( 'library_metabox_nonce', 'library_metabox_nonce' );
 
-		// Retrieve existing values from the database.
-		$series         = get_post_meta( $post->ID, 'series', true );
-		$authors        = wp_get_post_terms( $post->ID, 'library-author', array( 'fields' => 'names' ) );
-		$isbn           = get_post_meta( $post->ID, 'isbn', true );
-		$issn           = get_post_meta( $post->ID, 'issn', true );
-		$volume_number  = get_post_meta( $post->ID, 'volume_number', true );
-		$date_published = get_post_meta( $post->ID, 'date_published', true );
-		$read_date      = get_post_meta( $post->ID, 'read_date', true );
-		$rating         = get_post_meta( $post->ID, 'rating', true );
-		$translators    = get_post_meta( $post->ID, 'translators', true );
-		$publishers     = wp_get_post_terms( $post->ID, 'library-publisher', array( 'fields' => 'names' ) );
-		$book_editions  = get_post_meta( $post->ID, 'book_editions', true );
+		$values = array();
 
-		// Set default values.
-		if ( empty( $series ) ) {
-			$series = '';
-		}
-
-		if ( empty( $authors ) ) {
-			$authors = '';
-		} else {
-			$authors = implode( ', ', $authors );
-		}
-
-		if ( empty( $isbn ) ) {
-			$isbn = '';
-		}
-
-		if ( empty( $issn ) ) {
-			$issn = '';
-		}
-
-		if ( empty( $volume_number ) ) {
-			$volume_number = '';
-		}
-
-		if ( empty( $date_published ) ) {
-			$date_published = '';
-		}
-
-		if ( empty( $read_date ) ) {
-			$read_date = '';
-		}
-
-		if ( '' === $rating && $rating !== 0 && $rating !== '0' ) {
-			$rating = '';
-		}
-
-		if ( empty( $translators ) ) {
-			$translators = '';
-		}
-
-		if ( empty( $publishers ) ) {
-			$publishers = '';
-		} else {
-			$publishers = implode( ', ', $publishers );
-		}
-
-		if ( empty( $book_editions ) ) {
-			$book_editions = '';
+		foreach ( Library_Meta::KEYS as $key ) {
+			$values[ $key ] = get_post_meta( $post->ID, $key, true );
 		}
 
 		include plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-form.php';
@@ -166,67 +113,19 @@ class Library_Metaboxes {
 	 * @return void
 	 */
 	public function save_metabox( int $post_id, WP_Post $post ): void {
-		if ( 'book' !== get_post_type( $post ) ) {
+		if ( 'book' !== $post->post_type ) {
 			return;
 		}
 
-		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) ) {
-			return;
-		}
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
-		}
-		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
+
+		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) || ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		// Sanitize user input.
-		$series         = isset( $_POST['series'] ) ? sanitize_text_field( wp_unslash( $_POST['series'] ) ) : '';
-		$authors        = isset( $_POST['authors'] ) ? sanitize_text_field( wp_unslash( $_POST['authors'] ) ) : '';
-		$isbn           = isset( $_POST['isbn'] ) ? sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) : '';
-		$issn           = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : '';
-		$volume_number  = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : '';
-		$date_published = isset( $_POST['date_published'] ) ? sanitize_text_field( wp_unslash( $_POST['date_published'] ) ) : '';
-		$read_date      = isset( $_POST['read_date'] ) ? sanitize_text_field( wp_unslash( $_POST['read_date'] ) ) : '';
-		$rating         = isset( $_POST['rating'] ) ? sanitize_text_field( wp_unslash( $_POST['rating'] ) ) : '';
-		$translators    = isset( $_POST['translators'] ) ? sanitize_text_field( wp_unslash( $_POST['translators'] ) ) : '';
-		$publishers     = isset( $_POST['publishers'] ) ? sanitize_text_field( wp_unslash( $_POST['publishers'] ) ) : array();
-		$book_editions  = isset( $_POST['book_editions'] ) ? sanitize_text_field( wp_unslash( $_POST['book_editions'] ) ) : array();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Library_Meta.
+		$values = wp_unslash( $_POST );
 
-		// Update the meta field in the database.
-		update_post_meta( $post_id, 'series', $series );
-
-		wp_delete_object_term_relationships( $post_id, 'library-author' );
-
-		if ( ! empty( $authors ) ) {
-			wp_set_object_terms( $post_id, explode( ', ', $authors ), 'library-author' );
-		}
-
-		update_post_meta( $post_id, 'isbn', $isbn );
-		update_post_meta( $post_id, 'issn', $issn );
-		update_post_meta( $post_id, 'volume_number', $volume_number );
-		update_post_meta( $post_id, 'date_published', $date_published );
-		update_post_meta( $post_id, 'read_date', $read_date );
-
-		// Rating 0–10: save if valid number, else delete.
-		if ( '' !== $rating && is_numeric( $rating ) ) {
-			$rating_num = (float) $rating;
-			if ( $rating_num >= 1 && $rating_num <= 10 ) {
-				update_post_meta( $post_id, 'rating', $rating_num );
-			} else {
-				delete_post_meta( $post_id, 'rating' );
-			}
-		} else {
-			delete_post_meta( $post_id, 'rating' );
-		}
-		update_post_meta( $post_id, 'translators', $translators );
-		update_post_meta( $post_id, 'book_editions', $book_editions );
-
-		wp_delete_object_term_relationships( $post_id, 'library-publisher' );
-
-		if ( ! empty( $publishers ) ) {
-			wp_set_object_terms( $post_id, explode( ', ', $publishers ), 'library-publisher' );
-		}
+		Library_Meta::save( $post_id, $values );
 	}
 }

@@ -1,15 +1,16 @@
 /**
- * Read checkbox in the books list, then refresh the reading percentage.
+ * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
- * Uses libraryAdminRead (restUrl, nonce) and fetch() with X-WP-Nonce.
+ * Uses wp.apiFetch, which handles the REST root and nonce, and libraryAdminRead (readPercentFormat).
  *
  * @package    Library
  * @subpackage Library/admin
- * @global     libraryAdminRead
+ * @global     wp, libraryAdminRead
  */
 ( () => {
 	'use strict';
 
+	const { apiFetch }     = window.wp;
 	const config           = window.libraryAdminRead ?? {};
 	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
 	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
@@ -18,33 +19,27 @@
 		return;
 	}
 
-	const request = async ( path, body ) => {
-		const options = {
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': config.nonce,
-				'Content-Type': 'application/json',
-			},
-		};
-
-		if ( body ) {
-			options.method = 'POST';
-			options.body   = JSON.stringify( body );
-		}
-
-		const response = await window.fetch( config.restUrl + path, options );
-
-		if ( ! response.ok ) {
-			throw new Error( response.statusText );
-		}
-
-		return response.json();
-	};
-
-	const updateUI = ( percent ) => {
+	const updatePercent = ( percent ) => {
 		const format = config.readPercentFormat ?? '%s% read';
 
 		readPercentageEl.textContent = format.replace( '%s', percent.toLocaleString() );
+	};
+
+	// Quick edit reads the hidden date, so it must follow the date the server kept.
+	const updateReadDate = ( id, readDate ) => {
+		const dateEl  = document.getElementById( `library-read_date-${ id }` );
+		const labelEl = dateEl?.nextElementSibling;
+
+		if ( ! dateEl || ! labelEl ) {
+			return;
+		}
+
+		const label = readDate
+			? new Date( `${ readDate }T00:00` ).toLocaleDateString( document.documentElement.lang, { dateStyle: 'long' } )
+			: '—';
+
+		dateEl.textContent  = readDate;
+		labelEl.textContent = label;
 	};
 
 	const handleChange = async ( event ) => {
@@ -59,11 +54,17 @@
 		readPercentageEl.textContent = readPercentageEl.dataset.loadingText ?? '…';
 
 		try {
-			await request( `wp/v2/books/${ id }`, { read: checkbox.checked } );
+			const book = await apiFetch( {
+				path: `/wp/v2/books/${ id }`,
+				method: 'POST',
+				data: { meta: { read: checkbox.checked } },
+			} );
 
-			const stats = await request( 'library/v1/books/reading-stats' );
+			updateReadDate( id, book.meta.read_date );
 
-			updateUI( stats.percent );
+			const stats = await apiFetch( { path: '/library/v1/books/reading-stats' } );
+
+			updatePercent( stats.percent );
 		} catch {
 			readPercentageEl.textContent = '—';
 		} finally {

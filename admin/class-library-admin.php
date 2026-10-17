@@ -57,6 +57,7 @@ class Library_Admin {
 	 * @access private
 	 */
 	private function load_dependencies() {
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-meta.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-metaboxes.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-rest-api.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-posts.php';
@@ -79,13 +80,11 @@ class Library_Admin {
 		}
 
 		$read_handle = $this->plugin_name . '-admin-read';
-		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array(), $this->plugin_version, true );
+		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array( 'wp-api-fetch' ), $this->plugin_version, true );
 		wp_localize_script(
 			$read_handle,
 			'libraryAdminRead',
 			array(
-				'restUrl'           => rest_url(),
-				'nonce'             => wp_create_nonce( 'wp_rest' ),
 				/* translators: %s: reading percentage. */
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
 			)

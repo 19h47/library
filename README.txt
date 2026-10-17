@@ -21,7 +21,7 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Book post type** – Custom post type with title, featured image (cover), and archive at `/books/`
 * **Authors taxonomy** – Attach one or more authors to each book
 * **Publishers taxonomy** – Attach one or more publishers to each book
-* **Information metabox** – Fields for series, ISBN, ISSN, volume number, date published, book editions, and a “Read” checkbox
+* **Information metabox** – Fields for series, ISBN, ISSN, volume number, date published, read state and date, rating, translators and book editions
 * **List table** – Custom columns (thumbnail, read, date published, ISBN, book editions) with sortable date published and quick edit for ISBN and book editions
 * **REST API** – Books, authors, and publishers are exposed via the REST API (`/wp-json/wp/v2/books`, etc.) for use in themes or external apps
 * **Translatable** – Ready for translation (Domain Path: `/languages`)
@@ -75,17 +75,13 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 * Breaking: removed the `library/v1/isbn/{isbn}` REST route and the “Fetch info” button (BnF lookup).
 * Breaking: removed the `reading_percentage` option. Migration: delete it with `wp option delete reading_percentage`.
 * The `library/v1/books/reading-stats` response now includes `percent`.
-* Breaking: the read date is the only reading state. A book is read when it has a read date, stored as `Y-m-d`; the `read` meta is removed. Checking “Read” sets the date to today, unchecking clears it. The `read` REST field is still there, computed from the date.
+* Breaking: the `read` REST field is replaced by `meta.read`. The read date is optional and stored as `Y-m-d`, which fixes the date being lost after checking “Read” in the books list. Setting a read date marks the book as read, marking it as read without a date sets today, marking it as unread clears the date, from the form, quick edit or the REST API. Existing books need no migration.
 * Read checkboxes in the books list have an accessible name.
-
-Migration of the read state: books marked as read without a read date get their publication date, books with a read date but unchecked lose it, dates are cut to `Y-m-d`, and the `read` meta is deleted:
-
-    wp eval 'foreach ( get_posts( array( "post_type" => "book", "post_status" => array_keys( get_post_stati() ), "numberposts" => -1 ) ) as $book ) {
-        $date = substr( (string) get_post_meta( $book->ID, "read_date", true ), 0, 10 );
-        $date = get_post_meta( $book->ID, "read", true ) ? ( $date ?: get_the_date( "Y-m-d", $book ) ) : "";
-        update_post_meta( $book->ID, "read_date", $date );
-        delete_post_meta( $book->ID, "read" );
-    }'
+* Book meta are registered with their type and sanitization, and exposed in the REST API under `meta` (books now support `custom-fields`; the Custom Fields box is removed since the Information box edits them). Dates must be `Y-m-d`, ratings go from 1 to 10 by half points; an empty value deletes the meta.
+* The form and quick edit save through the same code; quick edit requires its nonce.
+* The slug is built before the book is saved, from quick edit too.
+* Authors and publishers are edited in the core tag boxes, with autocomplete, instead of fields in the Information box. New authors typed there are created.
+* Fixed PHP warnings when querying author terms by ID.
 
 = 0.0.0 =
 * Initial release.

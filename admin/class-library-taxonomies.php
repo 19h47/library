@@ -89,23 +89,53 @@ class Library_Taxonomies {
 		);
 
 		$args = array(
-			'labels'              => $labels,
-			'hierarchical'        => true, // Parent = nom réel, enfants = pseudonymes.
-			'public'              => true,
-			'publicly_queryable'  => true,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
-			'show_in_nav_menus'   => true,
-			'show_in_quick_edit'  => true,
-			'show_admin_column'   => true,
-			'show_in_rest'        => true,
-			'show_in_graphql'     => true,
-			'meta_box_cb'         => false,
-			'graphql_single_name' => 'author',
-			'graphql_plural_name' => 'authors',
+			'labels'               => $labels,
+			'hierarchical'         => true, // Parent = nom réel, enfants = pseudonymes.
+			'public'               => true,
+			'publicly_queryable'   => true,
+			'show_ui'              => true,
+			'show_in_menu'         => true,
+			'show_in_nav_menus'    => true,
+			'show_in_quick_edit'   => true,
+			'show_admin_column'    => true,
+			'show_in_rest'         => true,
+			'show_in_graphql'      => true,
+			// The tag box lets authors be typed rather than picked from a checklist.
+			'meta_box_cb'          => 'post_tags_meta_box',
+			'meta_box_sanitize_cb' => array( self::class, 'sanitize_author_names' ),
+			'graphql_single_name'  => 'author',
+			'graphql_plural_name'  => 'authors',
 		);
 
 		register_taxonomy( 'library-author', 'book', $args );
+	}
+
+	/**
+	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
+	 *
+	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
+	 *
+	 * @param string          $taxonomy Taxonomy name.
+	 * @param string|string[] $terms    Comma-separated names, or names.
+	 * @return int[]
+	 */
+	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+		$term_ids = array();
+
+		foreach ( taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) as $term ) {
+			if ( is_int( $term ) ) {
+				$term_ids[] = $term;
+				continue;
+			}
+
+			$inserted = wp_insert_term( $term, $taxonomy );
+
+			if ( ! is_wp_error( $inserted ) ) {
+				$term_ids[] = $inserted['term_id'];
+			}
+		}
+
+		return $term_ids;
 	}
 
 
@@ -150,7 +180,6 @@ class Library_Taxonomies {
 			'show_admin_column'   => true,
 			'show_in_rest'        => true,
 			'show_in_graphql'     => true,
-			'meta_box_cb'         => false,
 			'graphql_single_name' => 'publisher',
 			'graphql_plural_name' => 'publishers',
 		);
@@ -246,7 +275,8 @@ class Library_Taxonomies {
 	 * @return array
 	 */
 	public function get_terms_args( array $args, array $taxonomies ): array {
-		if ( ! in_array( 'library-author', $taxonomies, true ) ) {
+		// Counts only exist on full terms; padding other queries breaks the core cache.
+		if ( ! in_array( 'library-author', $taxonomies, true ) || 'all' !== $args['fields'] ) {
 			return $args;
 		}
 

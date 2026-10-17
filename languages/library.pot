@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T10:17:03+00:00\n"
+"POT-Creation-Date: 2026-10-17T10:48:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -36,8 +36,8 @@ msgid "https://www.19h47.fr"
 msgstr ""
 
 #. translators: %s: reading percentage.
-#: admin/class-library-admin.php:90
-#: admin/class-library-posts.php:783
+#: admin/class-library-admin.php:89
+#: admin/class-library-posts.php:708
 msgid "%s%% read"
 msgstr ""
 
@@ -55,178 +55,172 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#: admin/class-library-posts.php:130
+#: admin/class-library-posts.php:124
 msgid "Thumbnail"
 msgstr ""
 
-#: admin/class-library-posts.php:132
+#: admin/class-library-posts.php:126
 msgid "Date published"
 msgstr ""
 
-#: admin/class-library-posts.php:133
-#: admin/class-library-posts.php:282
-#: admin/class-library-posts.php:283
-#: admin/partials/library-form.php:61
-#: admin/partials/library-form.php:71
+#: admin/class-library-posts.php:127
+#: admin/class-library-posts.php:276
+#: admin/class-library-posts.php:277
+#: admin/partials/library-form.php:40
 msgid "ISBN"
 msgstr ""
 
-#: admin/class-library-posts.php:134
+#: admin/class-library-posts.php:128
+#: admin/partials/library-form.php:114
 msgid "Read"
 msgstr ""
 
-#: admin/class-library-posts.php:135
-#: admin/class-library-posts.php:300
-#: admin/partials/library-form.php:139
-#: admin/partials/library-form.php:148
+#: admin/class-library-posts.php:129
+#: admin/class-library-posts.php:294
+#: admin/partials/library-form.php:133
 msgid "Read date"
 msgstr ""
 
-#: admin/class-library-posts.php:136
-#: admin/class-library-posts.php:309
-#: admin/partials/library-form.php:161
+#: admin/class-library-posts.php:130
+#: admin/class-library-posts.php:303
+#: admin/partials/library-form.php:154
 msgid "Rating"
 msgstr ""
 
-#: admin/class-library-posts.php:137
-#: admin/partials/library-form.php:224
-#: admin/partials/library-form.php:233
+#: admin/class-library-posts.php:131
+#: admin/partials/library-form.php:195
 msgid "Book Editions"
 msgstr ""
 
 #. translators: %s: book title.
-#: admin/class-library-posts.php:158
+#: admin/class-library-posts.php:152
 msgid "Read: %s"
 msgstr ""
 
-#: admin/class-library-posts.php:213
+#: admin/class-library-posts.php:207
 msgid "Rated"
 msgstr ""
 
-#: admin/class-library-posts.php:291
-#: admin/class-library-posts.php:292
+#: admin/class-library-posts.php:285
+#: admin/class-library-posts.php:286
 msgid "Book editions"
 msgstr ""
 
-#: admin/class-library-posts.php:402
-#: admin/class-library-posts.php:404
-#: admin/class-library-posts.php:440
+#: admin/class-library-posts.php:356
+#: admin/class-library-posts.php:358
+#: admin/class-library-posts.php:394
 msgid "Books"
 msgstr ""
 
-#: admin/class-library-posts.php:403
-#: admin/class-library-posts.php:405
+#: admin/class-library-posts.php:357
+#: admin/class-library-posts.php:359
 msgid "Book"
 msgstr ""
 
-#: admin/class-library-posts.php:406
+#: admin/class-library-posts.php:360
 msgid "Book Archives"
 msgstr ""
 
-#: admin/class-library-posts.php:407
+#: admin/class-library-posts.php:361
 msgid "Item Attributes"
 msgstr ""
 
-#: admin/class-library-posts.php:408
+#: admin/class-library-posts.php:362
 msgid "Parent Book:"
 msgstr ""
 
-#: admin/class-library-posts.php:409
+#: admin/class-library-posts.php:363
 msgid "All books"
 msgstr ""
 
-#: admin/class-library-posts.php:410
+#: admin/class-library-posts.php:364
 msgid "Add New Book"
 msgstr ""
 
-#: admin/class-library-posts.php:411
+#: admin/class-library-posts.php:365
 msgid "Add New"
 msgstr ""
 
-#: admin/class-library-posts.php:412
+#: admin/class-library-posts.php:366
 msgid "New Book"
 msgstr ""
 
-#: admin/class-library-posts.php:413
+#: admin/class-library-posts.php:367
 msgid "Edit book"
 msgstr ""
 
-#: admin/class-library-posts.php:414
+#: admin/class-library-posts.php:368
 msgid "Update book"
 msgstr ""
 
-#: admin/class-library-posts.php:415
+#: admin/class-library-posts.php:369
 msgid "View Book"
 msgstr ""
 
-#: admin/class-library-posts.php:416
+#: admin/class-library-posts.php:370
 msgid "View Books"
 msgstr ""
 
-#: admin/class-library-posts.php:417
+#: admin/class-library-posts.php:371
 msgid "Search Book"
 msgstr ""
 
-#: admin/class-library-posts.php:418
+#: admin/class-library-posts.php:372
 msgid "Not found"
 msgstr ""
 
-#: admin/class-library-posts.php:419
+#: admin/class-library-posts.php:373
 msgid "Not found in Trash"
 msgstr ""
 
-#: admin/class-library-posts.php:420
+#: admin/class-library-posts.php:374
 msgid "Featured Image"
 msgstr ""
 
-#: admin/class-library-posts.php:421
+#: admin/class-library-posts.php:375
 msgid "Set featured image"
 msgstr ""
 
-#: admin/class-library-posts.php:422
+#: admin/class-library-posts.php:376
 msgid "Remove featured image"
 msgstr ""
 
-#: admin/class-library-posts.php:423
+#: admin/class-library-posts.php:377
 msgid "Use as featured image"
 msgstr ""
 
-#: admin/class-library-posts.php:424
+#: admin/class-library-posts.php:378
 msgid "Insert into book"
 msgstr ""
 
-#: admin/class-library-posts.php:425
+#: admin/class-library-posts.php:379
 msgid "Updloaded to this book"
 msgstr ""
 
-#: admin/class-library-posts.php:426
+#: admin/class-library-posts.php:380
 msgid "Books list"
 msgstr ""
 
-#: admin/class-library-posts.php:427
+#: admin/class-library-posts.php:381
 msgid "Books list navigation"
 msgstr ""
 
-#: admin/class-library-posts.php:428
+#: admin/class-library-posts.php:382
 msgid "Filtrer books list"
 msgstr ""
 
-#: admin/class-library-posts.php:441
+#: admin/class-library-posts.php:395
 msgid "Book description"
 msgstr ""
 
 #. translators: %1$s: number, %2$s: post type name (singular or plural), %3$s: pending prefix
-#: admin/class-library-posts.php:489
+#: admin/class-library-posts.php:443
 msgid "%1$s %3$s%2$s"
 msgid_plural "%1$s %3$s%2$s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/class-library-posts.php:622
-msgid "Whether the book has been read, i.e. has a read date."
-msgstr ""
-
-#: admin/class-library-posts.php:787
+#: admin/class-library-posts.php:712
 msgid "Loading percent read..."
 msgstr ""
 
@@ -273,7 +267,6 @@ msgid "New Author Name"
 msgstr ""
 
 #: admin/class-library-taxonomies.php:79
-#: admin/partials/library-form.php:53
 msgid "Separate authors with commas"
 msgstr ""
 
@@ -311,132 +304,131 @@ msgstr ""
 msgid "&larr; Back to Authors"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:119
+#: admin/class-library-taxonomies.php:149
 msgctxt "library publishers general name"
 msgid "Publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:120
+#: admin/class-library-taxonomies.php:150
 msgctxt "library publishers singular name"
 msgid "Publisher"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:121
+#: admin/class-library-taxonomies.php:151
 msgid "Search Publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:122
+#: admin/class-library-taxonomies.php:152
 msgid "All Publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:123
+#: admin/class-library-taxonomies.php:153
 msgid "Popular Publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:124
+#: admin/class-library-taxonomies.php:154
 msgid "Edit Publisher"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:125
+#: admin/class-library-taxonomies.php:155
 msgid "View Publisher"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:126
+#: admin/class-library-taxonomies.php:156
 msgid "Update Publisher"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:127
+#: admin/class-library-taxonomies.php:157
 msgid "Add New Publisher"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:128
+#: admin/class-library-taxonomies.php:158
 msgid "New Publisher Name"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:129
-#: admin/partials/library-form.php:216
+#: admin/class-library-taxonomies.php:159
 msgid "Separate publishers with commas"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:130
+#: admin/class-library-taxonomies.php:160
 msgid "Add or remove publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:131
+#: admin/class-library-taxonomies.php:161
 msgid "Choose from the most used publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:132
+#: admin/class-library-taxonomies.php:162
 msgid "No publishers found."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:133
+#: admin/class-library-taxonomies.php:163
 msgid "No publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:134
+#: admin/class-library-taxonomies.php:164
 msgid "Publishers list navigation"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:135
+#: admin/class-library-taxonomies.php:165
 msgid "Publishers list"
 msgstr ""
 
 #. translators: Publisher heading when selecting from the most used terms.
-#: admin/class-library-taxonomies.php:137
+#: admin/class-library-taxonomies.php:167
 msgctxt "editor"
 msgid "Most Used"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:138
+#: admin/class-library-taxonomies.php:168
 msgid "&larr; Back to Publishers"
 msgstr ""
 
-#: admin/class-library-taxonomies.php:174
+#: admin/class-library-taxonomies.php:203
 msgid "Author added."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:175
+#: admin/class-library-taxonomies.php:204
 msgid "Author deleted."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:176
+#: admin/class-library-taxonomies.php:205
 msgid "Author updated."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:177
+#: admin/class-library-taxonomies.php:206
 msgid "Author not added."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:178
+#: admin/class-library-taxonomies.php:207
 msgid "Author not updated."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:179
+#: admin/class-library-taxonomies.php:208
 msgid "Authors deleted."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:184
+#: admin/class-library-taxonomies.php:213
 msgid "Publisher added."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:185
+#: admin/class-library-taxonomies.php:214
 msgid "Publisher deleted."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:186
+#: admin/class-library-taxonomies.php:215
 msgid "Publisher updated."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:187
+#: admin/class-library-taxonomies.php:216
 msgid "Publisher not added."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:188
+#: admin/class-library-taxonomies.php:217
 msgid "Publisher not updated."
 msgstr ""
 
-#: admin/class-library-taxonomies.php:189
+#: admin/class-library-taxonomies.php:218
 msgid "Publishers deleted."
 msgstr ""
 
@@ -595,57 +587,42 @@ msgid "Most books: %1$s (rating %2$s)"
 msgstr ""
 
 #: admin/partials/library-form.php:21
-#: admin/partials/library-form.php:30
 msgid "Series"
 msgstr ""
 
-#: admin/partials/library-form.php:33
+#: admin/partials/library-form.php:32
 msgid "Separate series with commas"
 msgstr ""
 
-#: admin/partials/library-form.php:41
-#: admin/partials/library-form.php:50
-msgid "Authors"
-msgstr ""
-
-#: admin/partials/library-form.php:81
-#: admin/partials/library-form.php:91
+#: admin/partials/library-form.php:59
 msgid "ISSN"
 msgstr ""
 
-#: admin/partials/library-form.php:101
-#: admin/partials/library-form.php:110
+#: admin/partials/library-form.php:78
 msgid "Volume Number"
 msgstr ""
 
-#: admin/partials/library-form.php:120
-#: admin/partials/library-form.php:129
+#: admin/partials/library-form.php:96
 msgid "Date Published"
 msgstr ""
 
-#: admin/partials/library-form.php:152
-msgid "Leave empty if the book has not been read. Checking “Read” in the books list sets it to today."
+#: admin/partials/library-form.php:145
+msgid "Optional. Setting a date marks the book as read; marking it as read without a date sets today."
 msgstr ""
 
-#: admin/partials/library-form.php:176
+#: admin/partials/library-form.php:168
 msgid "Rating from 1 to 10."
 msgstr ""
 
-#: admin/partials/library-form.php:184
-#: admin/partials/library-form.php:193
+#: admin/partials/library-form.php:176
 msgid "Translators"
 msgstr ""
 
-#: admin/partials/library-form.php:196
+#: admin/partials/library-form.php:187
 msgid "Separate translators with commas"
 msgstr ""
 
-#: admin/partials/library-form.php:204
-#: admin/partials/library-form.php:213
-msgid "Publishers"
-msgstr ""
-
-#: admin/partials/library-form.php:236
+#: admin/partials/library-form.php:206
 msgid "Separate book editions with commas"
 msgstr ""
 

@@ -88,6 +88,7 @@ class Library {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin      = new Library_Admin( $this->get_plugin_name(), $this->get_plugin_version() );
+		$plugin_meta       = new Library_Meta();
 		$plugin_metaboxes  = new Library_Metaboxes( $this->plugin_name, $this->plugin_version );
 		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
 		$plugin_rest_api   = new Library_Rest_API( $this->plugin_name, $this->plugin_version );
@@ -97,16 +98,21 @@ class Library {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		// Meta.
+		$this->loader->add_action( 'init', $plugin_meta, 'register' );
+		$this->loader->add_action( 'added_post_meta', $plugin_meta, 'sync_reading_state', 10, 3 );
+		$this->loader->add_action( 'updated_post_meta', $plugin_meta, 'sync_reading_state', 10, 3 );
+		$this->loader->add_action( 'deleted_post_meta', $plugin_meta, 'sync_reading_state', 10, 3 );
+
 		// Posts.
 		$this->loader->add_action( 'admin_head', $plugin_posts, 'css' );
 		$this->loader->add_action( 'manage_book_posts_custom_column', $plugin_posts, 'render_custom_columns', 10, 2 );
 		$this->loader->add_action( 'quick_edit_custom_box', $plugin_posts, 'render_quick_edit', 10, 3 );
 		$this->loader->add_filter( 'manage_book_posts_columns', $plugin_posts, 'add_custom_columns' );
-		$this->loader->add_action( 'rest_api_init', $plugin_posts, 'register_rest_fields' );
 		$this->loader->add_filter( 'manage_edit-book_sortable_columns', $plugin_posts, 'sortable_columns' );
 		$this->loader->add_action( 'pre_get_posts', $plugin_posts, 'pre_get_books' );
-		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save', 10, 2 );
-		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save_quick_edit', 10, 3 );
+		$this->loader->add_filter( 'wp_insert_post_data', $plugin_posts, 'slug', 10, 2 );
+		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save_quick_edit' );
 		$this->loader->add_action( 'the_title', $plugin_posts, 'add_series_to_title', 10, 2 );
 		$this->loader->add_action( 'the_title', $plugin_posts, 'add_volume_number_to_title', 10, 2 );
 		$this->loader->add_action( 'views_edit-book', $plugin_posts, 'add_list_table_views', 10, 1 );

@@ -71,50 +71,44 @@ class Library_Posts {
 
 
 	/**
-	 * Save
+	 * Build the slug from the title and the ISBN, or the ISSN and volume number.
 	 *
-	 * @param int     $post_ID Post ID.
-	 * @param WP_Post $post Post object.
+	 * Runs before the post is written, so no second update is needed.
+	 *
+	 * @param array $data    Slashed post data about to be saved.
+	 * @param array $postarr Slashed submitted data, with the form fields.
+	 * @return array
 	 */
-	public function save( int $post_ID, WP_Post $post ): void {
-
-		// Verify metabox nonce before processing form data from $_POST.
-		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) ) {
-			return;
+	public function slug( array $data, array $postarr ): array {
+		if ( 'book' !== $data['post_type'] ) {
+			return $data;
 		}
 
-		$isbn          = isset( $_POST['isbn'] ) ? sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) : false;
-		$issn          = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : false;
-		$volume_number = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : false;
+		$fields = array_map(
+			fn( string $key ) => sanitize_text_field( wp_unslash( $postarr[ $key ] ?? '' ) ),
+			array(
+				'title'         => 'post_title',
+				'isbn'          => 'isbn',
+				'issn'          => 'issn',
+				'volume_number' => 'volume_number',
+			)
+		);
 
-		if ( $isbn ) {
-			remove_action( 'save_post_book', array( $this, 'save' ), 10 );
-
-			wp_update_post(
-				array(
-					'ID'        => $post_ID,
-					'post_name' => $post->post_title . '-' . $isbn,
-				)
-			);
-
-			add_action( 'save_post_book', array( $this, 'save' ), 10, 2 );
+		if ( $fields['issn'] && $fields['volume_number'] ) {
+			$parts = array( $fields['title'], $fields['issn'], $fields['volume_number'] );
+		} elseif ( $fields['isbn'] ) {
+			$parts = array( $fields['title'], $fields['isbn'] );
+		} else {
+			return $data;
 		}
 
-		if ( $issn && $volume_number ) {
-			remove_action( 'save_post_book', array( $this, 'save' ), 10 );
+		$slug    = sanitize_title( implode( '-', $parts ) );
+		$post_id = (int) ( $postarr['ID'] ?? 0 );
 
-			wp_update_post(
-				array(
-					'ID'        => $post_ID,
-					'post_name' => $post->post_title . '-' . $issn . '-' . $volume_number,
-				)
-			);
+		$data['post_name'] = wp_unique_post_slug( $slug, $post_id, $data['post_status'], 'book', $data['post_parent'] );
 
-			add_action( 'save_post_book', array( $this, 'save' ), 10, 2 );
-		}
+		return $data;
 	}
-
 
 	/**
 	 * Add custom columns
@@ -190,7 +184,7 @@ class Library_Posts {
 			case 'read_date':
 				$read_date = get_post_meta( $post_id, 'read_date', true );
 				$output   .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" class="hidden">' . esc_html( (string) $read_date ) . '</span>';
-				$output   .= $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—';
+				$output   .= '<span class="js-library-read-date-label">' . ( $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—' ) . '</span>';
 				break;
 			case 'rating':
 				$rating_val = get_post_meta( $post_id, 'rating', true );
@@ -337,58 +331,18 @@ class Library_Posts {
 	/**
 	 * Save quick edit.
 	 *
-	 * @param int     $post_ID Post ID.
-	 * @param WP_Post $post    Post object.
-	 * @param bool    $update  Whether this is an existing post being updated.
+	 * Core checks the capability before saving; the nonce tells a quick edit
+	 * apart from any other save.
+	 *
+	 * @param int $post_id Post ID.
 	 */
-	public function save_quick_edit( int $post_ID, WP_Post $post, bool $update ) {
-		unset( $update );
-
-		if ( empty( $_POST ) ) {
-			return $post_ID;
+	public function save_quick_edit( int $post_id ): void {
+		if ( ! check_ajax_referer( 'inlineeditnonce', '_inline_edit', false ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
 		}
 
-		// Verify quick edit nonce.
-		if ( isset( $_POST['_inline_edit'] ) && ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_inline_edit'] ) ), 'inlineeditnonce' ) ) {
-			return $post_ID;
-		}
-
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return $post_ID;
-		}
-
-		if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
-			return $post_ID;
-		}
-
-		switch ( $post->post_type ) {
-
-			case 'book':
-				$fields = array( 'isbn', 'book_editions', 'read_date', 'rating' );
-
-				foreach ( $fields as $field ) {
-					if ( ! array_key_exists( $field, $_POST ) ) {
-						continue;
-					}
-					$value = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
-					if ( 'rating' === $field ) {
-						if ( '' !== $value && is_numeric( $value ) ) {
-							$rating_num = (float) $value;
-							if ( $rating_num >= 1 && $rating_num <= 10 ) {
-								update_post_meta( $post_ID, 'rating', $rating_num );
-							} else {
-								delete_post_meta( $post_ID, 'rating' );
-							}
-						} else {
-							delete_post_meta( $post_ID, 'rating' );
-						}
-						continue;
-					}
-					update_post_meta( $post_ID, $field, $value );
-				}
-
-				break;
-		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Library_Meta.
+		Library_Meta::save( $post_id, wp_unslash( $_POST ) );
 	}
 
 	/**
@@ -428,7 +382,7 @@ class Library_Posts {
 			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
 		);
 
-		$supports   = array( 'title', 'thumbnail' /* , 'custom-fields' */ );
+		$supports   = array( 'title', 'thumbnail', 'custom-fields' );
 		$taxonomies = array( 'library-author', 'library-publisher' );
 
 		$rewrite = array(
@@ -588,42 +542,13 @@ class Library_Posts {
 	}
 
 	/**
-	 * Whether a book has been read: the read date is the only source of truth.
+	 * Whether a book has been read; the read date is optional.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return bool
 	 */
 	public static function is_read( int $post_id ): bool {
-		return '' !== get_post_meta( $post_id, 'read_date', true );
-	}
-
-	/**
-	 * Register rest fields
-	 *
-	 * @see https://developer.wordpress.org/reference/functions/register_rest_field/
-	 */
-	public function register_rest_fields(): void {
-		register_rest_field(
-			'book',
-			'read',
-			array(
-				'get_callback'    => fn( array $data ) => self::is_read( $data['id'] ),
-				'update_callback' => function ( bool $read, WP_Post $post ) {
-					if ( ! $read ) {
-						delete_post_meta( $post->ID, 'read_date' );
-						return;
-					}
-
-					if ( ! self::is_read( $post->ID ) ) {
-						update_post_meta( $post->ID, 'read_date', current_time( 'Y-m-d' ) );
-					}
-				},
-				'schema'          => array(
-					'description' => __( 'Whether the book has been read, i.e. has a read date.', 'library' ),
-					'type'        => 'boolean',
-				),
-			)
-		);
+		return (bool) get_post_meta( $post_id, 'read', true );
 	}
 
 	/**
@@ -810,9 +735,8 @@ class Library_Posts {
 				'posts_per_page'   => 1,
 				'fields'           => 'ids',
 				'suppress_filters' => true,
-				'meta_key'         => 'read_date', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
-				'meta_value'       => '', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
-				'meta_compare'     => '!=',
+				'meta_key'         => 'read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
+				'meta_value'       => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
 			)
 		);
 

@@ -27,30 +27,9 @@
 				id="library-series"
 				name="series"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'Series', 'library' ); ?>"
-				value="<?php echo esc_html( $series ); ?>"
+				value="<?php echo esc_attr( $values['series'] ); ?>"
 			>
 			<p class="description"><?php esc_html_e( 'Separate series with commas', 'library' ); ?></p>
-		</td>
-	</tr>
-
-	<!-- Authors -->
-	<tr>
-		<th scope="row">
-			<label for="library-authors">
-				<?php esc_html_e( 'Authors', 'library' ); ?>
-			</label>
-		</th>
-		<td>
-			<input
-				type="text"
-				id="library-authors"
-				name="authors"
-				class="regular-text"
-				placeholder="<?php esc_html_e( 'Authors', 'library' ); ?>"
-				value="<?php echo esc_html( $authors ); ?>"
-			>
-			<p class="description"><?php esc_html_e( 'Separate authors with commas', 'library' ); ?></p>
 		</td>
 	</tr>
 
@@ -68,8 +47,7 @@
 				id="library-isbn"
 				name="isbn"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'ISBN', 'library' ); ?>"
-				value="<?php echo esc_html( $isbn ); ?>"
+				value="<?php echo esc_attr( $values['isbn'] ); ?>"
 			>
 		</td>
 	</tr>
@@ -88,8 +66,7 @@
 				id="library-issn"
 				name="issn"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'ISSN', 'library' ); ?>"
-				value="<?php echo esc_html( $issn ); ?>"
+				value="<?php echo esc_attr( $values['issn'] ); ?>"
 			>
 		</td>
 	</tr>
@@ -107,8 +84,7 @@
 				id="library-volume-number"
 				name="volume_number"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'Volume Number', 'library' ); ?>"
-				value="<?php echo esc_html( $volume_number ); ?>"
+				value="<?php echo esc_attr( $values['volume_number'] ); ?>"
 			>
 		</td>
 	</tr>
@@ -126,8 +102,26 @@
 				id="library-date-published"
 				name="date_published"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'Date Published', 'library' ); ?>"
-				value="<?php echo esc_html( $date_published ); ?>"
+				value="<?php echo esc_attr( $values['date_published'] ); ?>"
+			>
+		</td>
+	</tr>
+
+	<!-- Read -->
+	<tr>
+		<th>
+			<label for="library-read">
+				<?php esc_html_e( 'Read', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input type="hidden" name="read" value="0">
+			<input
+				type="checkbox"
+				id="library-read"
+				name="read"
+				value="1"
+				<?php checked( (bool) $values['read'] ); ?>
 			>
 		</td>
 	</tr>
@@ -145,11 +139,10 @@
 				id="library-read-date"
 				name="read_date"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'Read date', 'library' ); ?>"
-				value="<?php echo esc_html( $read_date ); ?>"
+				value="<?php echo esc_attr( $values['read_date'] ); ?>"
 			>
 			<p class="description">
-				<?php esc_html_e( 'Leave empty if the book has not been read. Checking “Read” in the books list sets it to today.', 'library' ); ?>
+				<?php esc_html_e( 'Optional. Setting a date marks the book as read; marking it as read without a date sets today.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>
@@ -170,8 +163,7 @@
 				min="1"
 				max="10"
 				step="0.5"
-				placeholder="1–10"
-				value="<?php echo esc_attr( $rating ); ?>"
+				value="<?php echo esc_attr( $values['rating'] ); ?>"
 			>
 			<p class="description"><?php esc_html_e( 'Rating from 1 to 10.', 'library' ); ?></p>
 		</td>
@@ -190,30 +182,9 @@
 				id="library-translators"
 				name="translators"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'Translators', 'library' ); ?>"
-				value="<?php echo esc_html( $translators ); ?>"
+				value="<?php echo esc_attr( $values['translators'] ); ?>"
 			>
 			<p class="description"><?php esc_html_e( 'Separate translators with commas', 'library' ); ?></p>
-		</td>
-	</tr>
-
-	<!-- Publishers -->
-	<tr>
-		<th scope="row">
-			<label for="library-publishers">
-				<?php esc_html_e( 'Publishers', 'library' ); ?>
-			</label>
-		</th>
-		<td>
-			<input
-				type="text"
-				id="library-publishers"
-				name="publishers"
-				class="regular-text"
-				placeholder="<?php esc_html_e( 'Publishers', 'library' ); ?>"
-				value="<?php echo esc_html( $publishers ); ?>"
-			>
-			<p class="description"><?php esc_html_e( 'Separate publishers with commas', 'library' ); ?></p>
 		</td>
 	</tr>
 
@@ -230,8 +201,7 @@
 				id="library-book-editions"
 				name="book_editions"
 				class="regular-text"
-				placeholder="<?php esc_html_e( 'Book Editions', 'library' ); ?>"
-				value="<?php echo esc_html( $book_editions ); ?>"
+				value="<?php echo esc_attr( $values['book_editions'] ); ?>"
 			>
 			<p class="description"><?php esc_html_e( 'Separate book editions with commas', 'library' ); ?></p>
 		</td>
