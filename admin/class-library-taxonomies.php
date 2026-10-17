@@ -42,7 +42,7 @@ class Library_Taxonomies {
 		add_action( 'init', array( $this, 'register' ) );
 		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
 		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
-		add_filter( 'post_column_taxonomy_links', array( $this, 'keep_status_in_term_links' ), 10, 3 );
+		add_filter( 'post_column_taxonomy_links', array( $this, 'column_term_links' ), 10, 3 );
 		add_action( 'add_meta_boxes_book', array( $this, 'register_author_box' ) );
 
 		foreach ( self::TAXONOMIES as $taxonomy ) {
@@ -133,12 +133,17 @@ class Library_Taxonomies {
 	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
 	 *
 	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
+	 * Quick and bulk edit post the checklist of a hierarchical taxonomy instead: term IDs, kept as they are.
 	 *
 	 * @param string          $taxonomy Taxonomy name.
-	 * @param string|string[] $terms    Comma-separated names, or names.
+	 * @param string|string[] $terms    Comma-separated names from the tag box, or term IDs from the checklist.
 	 * @return int[]
 	 */
 	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+		if ( is_array( $terms ) ) {
+			return taxonomy_meta_box_sanitize_cb_checkboxes( $taxonomy, $terms );
+		}
+
 		$term_ids = array();
 
 		foreach ( taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) as $term ) {
@@ -258,38 +263,65 @@ class Library_Taxonomies {
 
 
 	/**
-	 * Keep the status of the current view in the author and publisher links of the books list.
+	 * Links of the authors and publishers columns of the books list.
 	 *
-	 * Core links to the "All" view, which leaves out the books not kept: from their view, these links listed nothing.
+	 * A collection shows as its publisher, once. The links keep the status of the current view:
+	 * core links to the "All" view, which leaves out the books not kept, so from their view they listed nothing.
 	 *
 	 * @param string[]  $term_links Term links.
 	 * @param string    $taxonomy   Taxonomy.
 	 * @param WP_Term[] $terms      Terms.
 	 * @return string[]
 	 */
-	public function keep_status_in_term_links( array $term_links, string $taxonomy, array $terms ): array {
+	public function column_term_links( array $term_links, string $taxonomy, array $terms ): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view filter.
 		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
 
-		if ( '' === $status || ! in_array( $taxonomy, self::TAXONOMIES, true ) ) {
+		if ( ! in_array( $taxonomy, self::TAXONOMIES, true ) ) {
+			return $term_links;
+		}
+
+		if ( 'library-publisher' === $taxonomy ) {
+			$terms = self::get_publishers( $terms );
+		} elseif ( '' === $status ) {
 			return $term_links;
 		}
 
 		return array_map(
 			function ( WP_Term $term ) use ( $taxonomy, $status ) {
-				$url = add_query_arg(
+				$query_args = array_filter(
 					array(
 						'post_type'   => 'book',
 						'post_status' => $status,
 						$taxonomy     => $term->slug,
-					),
-					admin_url( 'edit.php' )
+					)
 				);
+				$url        = add_query_arg( $query_args, admin_url( 'edit.php' ) );
 
 				return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $term->name ) );
 			},
 			$terms
 		);
+	}
+
+	/**
+	 * Publishers of publisher terms: a collection stands for its parent, each publisher once.
+	 *
+	 * @param WP_Term[] $terms Publisher terms.
+	 * @return WP_Term[]
+	 */
+	private static function get_publishers( array $terms ): array {
+		$publishers = array();
+
+		foreach ( $terms as $term ) {
+			$publisher = $term->parent ? get_term( $term->parent, 'library-publisher' ) : $term;
+
+			if ( $publisher instanceof WP_Term ) {
+				$publishers[ $publisher->term_id ] = $publisher;
+			}
+		}
+
+		return array_values( $publishers );
 	}
 
 	/**
