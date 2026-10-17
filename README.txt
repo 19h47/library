@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,13 +26,14 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
 * **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date and rating; the Publishers column shows the publisher of a collection. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, read date and rating.
 * **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators, authors, publishers and collections. A real name finds the books of its pseudonyms, a publisher the books of its collections.
-* **Dashboard** – Five widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
+* **Dashboard** – Six widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
     * **Reading** – Books read, this year against the same date last year, the number expected by the end of the year, the pages read this year over the books with their number of pages, and books read by year and by month.
     * **Ratings** – Number of rated books, average, distribution and average rating by year read.
     * **Reading pile** – Books to read, kept or not, the oldest one by edition date and the latest reads.
     * **Library** – Books, authors and publishers (pseudonyms and collections counted for their parent), share of translated books, the authors, publishers and collections with the most books, and edition years.
     * **Reading idea of the week** – A book, kept or not, with its cover, or a link to add one, and why it is suggested: the next volume of a series in progress; a book by an author, a translator or in a collection rated 8 or more on average, an author long unread being named so; an author with three books or more and none read; a work or an edition whose anniversary falls this month; the opposite of the six latest reads (translated or not, volume of a series or not) or a decade first published with nothing read; a short book when behind last year's pace; a book added in the last 30 days; a book rated 9 or more and read 10 years ago or more, to read again; or the rest of the reading pile, with the year it was added. A volume of a series is only suggested when it is the first one not read yet. The idea changes every week, as does the kind of the first one; “Another idea” moves to the next one.
-* **REST API** – Books, authors and publishers in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta`. `/wp-json/library/v1/books/reading-stats` returns the reading stats and `/wp-json/library/v1/books/reading-idea` the reading idea of the week, to users who can edit posts.
+    * **Achievements** – Computed from the books, so a completion is lost when a book to read joins it and comes back once it is read; books not kept count. An author (3 books or more), a series (2 or more) or a collection (3 or more) read in full, half and three quarters of the collections of 10 books or more, 100, 250, 500… books read, 10,000, 25,000… pages read, the record year and month, 6 months in a row or more with a reading, books read the year they came out, a work read a century after it first came out, the oldest book of the pile read, a book read from each decade of the 20th century, 10 books read by the same translator, and a few easter eggs to find. Each one is dated by the reading that earned it. The widget shows the latest ones, those close to it (2 books left or fewer) and all of them.
+* **REST API** – Books, authors and publishers in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta`. `/wp-json/library/v1/books/reading-stats` returns the reading stats, `/wp-json/library/v1/books/reading-idea` the reading idea of the week and `/wp-json/library/v1/books/achievements` the achievements, to users who can edit posts.
 * **Updates** – From the GitHub releases, see below.
 * **Translatable** – French translation included (Domain Path: `/languages`).
 
@@ -107,6 +108,9 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 2.2.0 =
+* Achievements: a dashboard widget and the `library/v1/books/achievements` REST route list the achievements earned, latest first, and those close to it: completions of authors, series and collections, milestones of books and pages read, records, discoveries and easter eggs. Nothing is stored, they are computed from the books.
 
 = 2.1.0 =
 * The date first published may be a year alone or a year and month, such as 1929 or 1929-11, in the Information box and the REST API (`meta.published_date`). The reading idea only names its anniversary when the month is known.
