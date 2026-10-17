@@ -77,8 +77,6 @@ class Library_Metaboxes {
 			$values[ $key ] = get_post_meta( $post->ID, $key, true );
 		}
 
-		$values['not_kept'] = Library_Posts::NOT_KEPT === $post->post_status;
-
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
 

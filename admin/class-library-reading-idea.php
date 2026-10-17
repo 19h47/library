@@ -113,13 +113,16 @@ class Library_Reading_Idea {
 
 	/**
 	 * Render the idea at the requested position of this week's list.
+	 *
+	 * The "Another idea" link has no anchor to the widget: following one also scrolls the
+	 * widgets wrap, whose overflow is hidden, and cuts the top of the widgets.
 	 */
 	public function render(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only position in the list.
 		$position = isset( $_GET[ self::QUERY_ARG ] ) ? absint( $_GET[ self::QUERY_ARG ] ) : 0;
 		$idea     = $this->get_idea( $position );
 		$book     = $idea ? get_post( $idea['id'] ) : null;
-		$next_url = add_query_arg( self::QUERY_ARG, $position + 1, admin_url( 'index.php' ) ) . '#library_dashboard_idea';
+		$next_url = add_query_arg( self::QUERY_ARG, $position + 1, admin_url( 'index.php' ) );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-idea.php';
 	}
