@@ -7,6 +7,7 @@
  *
  * @var array{read:int,total:int,percent:int}                                $stats
  * @var array{year:int,this_year:int,last_year:int,projection:int|null}     $year_to_date
+ * @var array{pages:int,books:int}                                           $pages_read
  * @var array<int,array>                                                     $charts
  */
 
@@ -46,6 +47,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 					/* translators: %s: number of books expected by the end of the year. */
 					esc_html__( 'About %s by the end of the year at this pace', 'library' ),
 					esc_html( number_format_i18n( $year_to_date['projection'] ) )
+				);
+				?>
+			</p>
+		<?php endif; ?>
+		<?php if ( $pages_read['books'] ) : ?>
+			<p class="library-dashboard-secondary">
+				<?php
+				printf(
+					/* translators: 1: number of pages, 2: year, 3: number of books read this year with their number of pages. */
+					esc_html( _n( '%1$s pages read in %2$d, over %3$s book with its number of pages', '%1$s pages read in %2$d, over %3$s books with their number of pages', $pages_read['books'], 'library' ) ),
+					esc_html( number_format_i18n( $pages_read['pages'] ) ),
+					(int) $year_to_date['year'],
+					esc_html( number_format_i18n( $pages_read['books'] ) )
 				);
 				?>
 			</p>

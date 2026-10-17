@@ -42,8 +42,7 @@ class Library_Posts {
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
 		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
 		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'sortable_columns' ) );
-		add_action( 'pre_get_posts', array( $this, 'pre_get_books' ) );
-		add_filter( 'posts_clauses', array( $this, 'sort_by_rating' ), 10, 2 );
+		add_filter( 'posts_clauses', array( $this, 'sort_by_meta' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( $this, 'slug' ), 10, 2 );
 		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
@@ -166,11 +165,11 @@ class Library_Posts {
 
 		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
 
-		$columns['date_published'] = __( 'Date published', 'library' );
-		$columns['isbn']           = __( 'ISBN', 'library' );
-		$columns['read']           = __( 'Read', 'library' );
-		$columns['read_date']      = __( 'Read date', 'library' );
-		$columns['rating']         = __( 'Rating', 'library' );
+		$columns['edition_date'] = __( 'Edition date', 'library' );
+		$columns['isbn']         = __( 'ISBN', 'library' );
+		$columns['read']         = __( 'Read', 'library' );
+		$columns['read_date']    = __( 'Read date', 'library' );
+		$columns['rating']       = __( 'Rating', 'library' );
 
 		return $columns;
 	}
@@ -201,11 +200,11 @@ class Library_Posts {
 				);
 
 				break;
-			case 'date_published':
-				$date_published = get_post_meta( $post_id, 'date_published', true );
+			case 'edition_date':
+				$edition_date = get_post_meta( $post_id, 'edition_date', true );
 
-				if ( $date_published ) {
-					$output .= date_i18n( get_option( 'date_format' ), strtotime( $date_published ) );
+				if ( $edition_date ) {
+					$output .= date_i18n( get_option( 'date_format' ), strtotime( $edition_date ) );
 				} else {
 					$output .= '—';
 				}
@@ -309,16 +308,16 @@ class Library_Posts {
 		}
 
 		$fields = array(
-			'isbn'          => sprintf( '<input type="text" name="isbn" pattern="%s">', esc_attr( Library_Meta::ISBN_PATTERN ) ),
-			'book_editions' => '<input type="text" name="book_editions">',
-			'read_date'     => '<input type="date" name="read_date">',
-			'rating'        => '<input type="number" name="rating" min="1" max="10" step="0.5">',
+			'isbn'      => sprintf( '<input type="text" name="isbn" pattern="%s">', esc_attr( Library_Meta::ISBN_PATTERN ) ),
+			'pages'     => '<input type="number" name="pages" min="1">',
+			'read_date' => '<input type="date" name="read_date">',
+			'rating'    => '<input type="number" name="rating" min="1" max="10" step="0.5">',
 		);
 		$labels = array(
-			'isbn'          => __( 'ISBN', 'library' ),
-			'book_editions' => __( 'Book editions', 'library' ),
-			'read_date'     => __( 'Read date', 'library' ),
-			'rating'        => __( 'Rating', 'library' ),
+			'isbn'      => __( 'ISBN', 'library' ),
+			'pages'     => __( 'Pages', 'library' ),
+			'read_date' => __( 'Read date', 'library' ),
+			'rating'    => __( 'Rating', 'library' ),
 		);
 		?>
 		<fieldset class="inline-edit-col-right">
@@ -474,57 +473,42 @@ class Library_Posts {
 	}
 
 	/**
-	 * Sortable columns.
+	 * Sortable columns; the books list is sorted by edition date by default.
 	 *
 	 * @param array $sortable_columns Sortable columns.
 	 *
 	 * @return array
 	 */
 	public function sortable_columns( array $sortable_columns ): array {
-		$sortable_columns['date_published'] = array( 'date_published', true );
-		$sortable_columns['rating']         = array( 'rating', true );
+		$sortable_columns['edition_date'] = array( 'edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
+		$sortable_columns['rating']       = array( 'rating', true, '', __( 'Table ordered by rating.', 'library' ) );
 
 		return $sortable_columns;
 	}
 
 
 	/**
-	 * Pre-get books.
+	 * Sort the books list by edition date, by default, or by rating; books without them come last.
 	 *
-	 * @param WP_Query $query Query.
-	 * @return WP_Query
-	 */
-	public function pre_get_books( WP_Query $query ): WP_Query {
-
-		if ( ! ( is_admin() && $query->is_main_query() ) ) {
-			return $query;
-		}
-
-		if ( $query->get( 'post_type' ) !== 'book' ) {
-			return $query;
-		}
-
-		if ( 'date_published' === $query->get( 'orderby' ) ) {
-			$query->set( 'meta_key', 'date_published' );
-			$query->set( 'orderby', 'meta_value' );
-		}
-
-		return $query;
-	}
-
-
-	/**
-	 * Sort the books list by rating, unrated books last.
-	 *
-	 * A core meta query cannot keep the unrated books without mixing them in:
-	 * its OR clauses join every other meta of these books and sort on one of them.
+	 * The post date is the date added. A core meta query cannot keep the books without the meta
+	 * without mixing them in: its OR clauses join every other meta of these books and sort on one of them.
 	 *
 	 * @param string[] $clauses Query clauses.
 	 * @param WP_Query $query   Query.
 	 * @return string[]
 	 */
-	public function sort_by_rating( array $clauses, WP_Query $query ): array {
-		if ( ! is_admin() || ! $query->is_main_query() || 'book' !== $query->get( 'post_type' ) || 'rating' !== $query->get( 'orderby' ) ) {
+	public function sort_by_meta( array $clauses, WP_Query $query ): array {
+		if ( ! is_admin() || ! $query->is_main_query() || 'book' !== $query->get( 'post_type' ) ) {
+			return $clauses;
+		}
+
+		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'edition_date';
+		$values  = array(
+			'edition_date' => 'library_sort.meta_value',
+			'rating'       => 'CAST( library_sort.meta_value AS DECIMAL(3,1) )',
+		);
+
+		if ( ! isset( $values[ $orderby ] ) ) {
 			return $clauses;
 		}
 
@@ -532,8 +516,9 @@ class Library_Posts {
 
 		$order = 'ASC' === strtoupper( $query->get( 'order' ) ) ? 'ASC' : 'DESC';
 
-		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS library_rating ON ( library_rating.post_id = {$wpdb->posts}.ID AND library_rating.meta_key = 'rating' )";
-		$clauses['orderby'] = "library_rating.meta_value IS NULL, CAST( library_rating.meta_value AS DECIMAL(3,1) ) $order, {$wpdb->posts}.post_title ASC";
+		// One row per book, even with the meta saved twice.
+		$clauses['join']   .= $wpdb->prepare( " LEFT JOIN ( SELECT post_id, MAX( meta_value ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID", $orderby );
+		$clauses['orderby'] = "library_sort.meta_value IS NULL, {$values[ $orderby ]} $order, {$wpdb->posts}.post_title ASC";
 
 		return $clauses;
 	}

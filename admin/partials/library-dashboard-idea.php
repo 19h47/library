@@ -22,11 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<p class="library-dashboard-secondary"><?php esc_html_e( 'Every book has been read.', 'library' ); ?></p>
 	<?php else : ?>
 		<?php
-		$edit_url  = (string) get_edit_post_link( $book->ID );
-		$authors   = wp_get_post_terms( $book->ID, 'library-author', array( 'fields' => 'names' ) );
-		$published = substr( (string) get_post_meta( $book->ID, 'date_published', true ), 0, 4 );
-		$editions  = (string) get_post_meta( $book->ID, 'book_editions', true );
-		$details   = array_filter( array( is_array( $authors ) ? implode( ', ', $authors ) : '', $published, $editions ) );
+		$edit_url    = (string) get_edit_post_link( $book->ID );
+		$authors     = wp_get_post_terms( $book->ID, 'library-author', array( 'fields' => 'names' ) );
+		$edition     = substr( (string) get_post_meta( $book->ID, 'edition_date', true ), 0, 4 );
+		$collections = implode( ', ', Library_Taxonomies::get_collections( $book->ID ) );
+		$page_count  = (int) get_post_meta( $book->ID, 'pages', true );
+		/* translators: %s: number of pages. */
+		$length  = $page_count ? sprintf( _n( '%s page', '%s pages', $page_count, 'library' ), number_format_i18n( $page_count ) ) : '';
+		$details = array_filter( array( is_array( $authors ) ? implode( ', ', $authors ) : '', $edition, $collections, $length ) );
 		?>
 		<div class="library-idea">
 			<?php if ( has_post_thumbnail( $book ) ) : ?>

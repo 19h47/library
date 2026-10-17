@@ -25,14 +25,14 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'series', 'isbn', 'issn', 'volume_number', 'translators', 'book_editions' );
+	public const TEXT_KEYS = array( 'series', 'isbn', 'issn', 'volume_number', 'translators' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d.
 	 *
 	 * @var string[]
 	 */
-	private const DATE_KEYS = array( 'date_published', 'read_date' );
+	private const DATE_KEYS = array( 'edition_date', 'published_date', 'read_date' );
 
 	/**
 	 * HTML pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
@@ -46,7 +46,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const QUICK_EDIT_KEYS = array( 'isbn', 'book_editions', 'read_date', 'rating' );
+	public const QUICK_EDIT_KEYS = array( 'isbn', 'pages', 'read_date', 'rating' );
 
 	/**
 	 * All book meta keys.
@@ -56,7 +56,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'rating', 'read' );
+	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'pages', 'rating', 'read' );
 
 	/**
 	 * Register hooks.
@@ -103,6 +103,19 @@ class Library_Meta {
 				)
 			);
 		}
+
+		register_post_meta(
+			'book',
+			'pages',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array( 'minimum' => 1 ),
+				),
+				'sanitize_callback' => array( self::class, 'sanitize_pages' ),
+			)
+		);
 
 		register_post_meta(
 			'book',
@@ -209,6 +222,20 @@ class Library_Meta {
 		$date  = DateTimeImmutable::createFromFormat( '!Y-m-d', $value );
 
 		return $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
+	}
+
+	/**
+	 * Keep a number of pages from 1, anything else becomes empty.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int|string
+	 */
+	public static function sanitize_pages( $value ): int|string {
+		if ( ! is_numeric( $value ) || $value < 1 ) {
+			return '';
+		}
+
+		return (int) $value;
 	}
 
 	/**
