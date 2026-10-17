@@ -99,6 +99,8 @@ class Library_Metaboxes {
 		$issn           = get_post_meta( $post->ID, 'issn', true );
 		$volume_number  = get_post_meta( $post->ID, 'volume_number', true );
 		$date_published = get_post_meta( $post->ID, 'date_published', true );
+		$read_date      = get_post_meta( $post->ID, 'read_date', true );
+		$rating         = get_post_meta( $post->ID, 'rating', true );
 		$translators    = get_post_meta( $post->ID, 'translators', true );
 		$publishers     = wp_get_post_terms( $post->ID, 'library-publisher', array( 'fields' => 'names' ) );
 		$book_editions  = get_post_meta( $post->ID, 'book_editions', true );
@@ -128,6 +130,14 @@ class Library_Metaboxes {
 
 		if ( empty( $date_published ) ) {
 			$date_published = '';
+		}
+
+		if ( empty( $read_date ) ) {
+			$read_date = '';
+		}
+
+		if ( '' === $rating && $rating !== 0 && $rating !== '0' ) {
+			$rating = '';
 		}
 
 		if ( empty( $translators ) ) {
@@ -178,6 +188,8 @@ class Library_Metaboxes {
 		$issn           = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : '';
 		$volume_number  = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : '';
 		$date_published = isset( $_POST['date_published'] ) ? sanitize_text_field( wp_unslash( $_POST['date_published'] ) ) : '';
+		$read_date      = isset( $_POST['read_date'] ) ? sanitize_text_field( wp_unslash( $_POST['read_date'] ) ) : '';
+		$rating         = isset( $_POST['rating'] ) ? sanitize_text_field( wp_unslash( $_POST['rating'] ) ) : '';
 		$translators    = isset( $_POST['translators'] ) ? sanitize_text_field( wp_unslash( $_POST['translators'] ) ) : '';
 		$publishers     = isset( $_POST['publishers'] ) ? sanitize_text_field( wp_unslash( $_POST['publishers'] ) ) : array();
 		$book_editions  = isset( $_POST['book_editions'] ) ? sanitize_text_field( wp_unslash( $_POST['book_editions'] ) ) : array();
@@ -195,6 +207,19 @@ class Library_Metaboxes {
 		update_post_meta( $post_id, 'issn', $issn );
 		update_post_meta( $post_id, 'volume_number', $volume_number );
 		update_post_meta( $post_id, 'date_published', $date_published );
+		update_post_meta( $post_id, 'read_date', $read_date );
+
+		// Rating 0–10: save if valid number, else delete.
+		if ( '' !== $rating && is_numeric( $rating ) ) {
+			$rating_num = (float) $rating;
+			if ( $rating_num >= 1 && $rating_num <= 10 ) {
+				update_post_meta( $post_id, 'rating', $rating_num );
+			} else {
+				delete_post_meta( $post_id, 'rating' );
+			}
+		} else {
+			delete_post_meta( $post_id, 'rating' );
+		}
 		update_post_meta( $post_id, 'translators', $translators );
 		update_post_meta( $post_id, 'book_editions', $book_editions );
 

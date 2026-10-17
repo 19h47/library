@@ -1,71 +1,37 @@
 /**
- * Quick edit: prefill ISBN and book editions in the inline edit row.
+ * Quick edit: prefill the book fields in the inline edit row.
  *
  * Extends inlineEditPost.edit (WordPress core) then fills custom fields.
- * Bulk edit uses admin-ajax.php with fetch() (same pattern as REST in admin).
  *
  * @package    Library
  * @subpackage Library/admin
  * @global     inlineEditPost
- * @global     ajaxurl
- * @global     pagenow
- * @global     typenow
- * @global     adminpage
  */
-( function ( $ ) {
+( () => {
 	'use strict';
 
-	if ( 'book' !== typenow || 'edit-php' !== adminpage || 'edit-book' !== pagenow ) {
-		return;
-	}
+	const fields = [ 'isbn', 'book_editions', 'read_date', 'rating' ];
 
 	// Wrap WordPress quick edit like core does for custom columns.
-	var originalEdit = inlineEditPost.edit;
+	const originalEdit = inlineEditPost.edit;
 
-	inlineEditPost.edit = function ( id ) {
-		originalEdit.apply( this, arguments );
+	inlineEditPost.edit = function ( id, ...args ) {
+		originalEdit.call( this, id, ...args );
 
-		var postId = 0;
-		if ( typeof id === 'object' ) {
-			postId = parseInt( this.getId( id ), 10 );
-		}
-		if ( postId <= 0 ) {
-			return;
-		}
+		const postId  = typeof id === 'object' ? parseInt( this.getId( id ), 10 ) : 0;
+		const editRow = document.getElementById( `edit-${ postId }` );
 
-		var editRow = document.getElementById( 'edit-' + postId );
 		if ( ! editRow ) {
 			return;
 		}
 
-		var isbnEl = document.getElementById( 'library-isbn-' + postId );
-		var bookEditionsEl = document.getElementById( 'library-book_editions-' + postId );
-		if ( isbnEl && bookEditionsEl ) {
-			editRow.querySelector( 'input[name="isbn"]' ).value = isbnEl.innerHTML.trim();
-			editRow.querySelector( 'input[name="book_editions"]' ).value = bookEditionsEl.value.trim();
-		}
+		fields.forEach( ( field ) => {
+			const source = document.getElementById( `library-${ field }-${ postId }` );
+			const input  = editRow.querySelector( `input[name="${ field }"]` );
+
+			if ( source && input ) {
+				input.value = ( source.value ?? source.textContent ).trim();
+			}
+		} );
 	};
-
-	// Bulk edit: send via admin-ajax (fetch + FormData, no synchronous XHR).
-	$( '#bulk_edit' ).on( 'click', function () {
-		var $bulkRow = $( '#bulk-edit' );
-		var postIds  = [];
-
-		$bulkRow.find( '#bulk-titles' ).children().each( function () {
-			postIds.push( $( this ).attr( 'id' ).replace( /^(ttle)/i, '' ) );
-		} );
-
-		var formData = new FormData();
-		formData.append( 'action', 'manage_wp_posts_using_bulk_quick_save_bulk_edit' );
-		formData.append( 'isbn', $bulkRow.find( 'input[name="isbn"]' ).val() );
-		postIds.forEach( function ( id ) {
-			formData.append( 'post_ids[]', id );
-		} );
-
-		window.fetch( ajaxurl, {
-			method:      'POST',
-			body:        formData,
-			credentials: 'same-origin',
-		} );
-	} );
-} )( jQuery );
+} )();

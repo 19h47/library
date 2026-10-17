@@ -59,27 +59,27 @@ class Library_Admin {
 	private function load_dependencies() {
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-metaboxes.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-rest-api.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-settings.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-posts.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-dashboard.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-taxonomies.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-wp-query.php';
 	}
 
 
 	/**
-	 * Enqueue admin scripts for book edit screen.
+	 * Enqueue admin scripts for the books list.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function enqueue_scripts() {
 		$screen = get_current_screen();
-		if ( ! $screen || 'book' !== $screen->post_type ) {
+		if ( ! $screen || 'edit-book' !== $screen->id ) {
 			return;
 		}
 
 		$read_handle = $this->plugin_name . '-admin-read';
-		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array( 'jquery' ), $this->plugin_version, true );
+		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array(), $this->plugin_version, true );
 		wp_localize_script(
 			$read_handle,
 			'libraryAdminRead',
@@ -90,21 +90,6 @@ class Library_Admin {
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
 			)
 		);
-		wp_enqueue_script( $this->plugin_name . '-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-inline-edit.js', array( 'jquery' ), $this->plugin_version, true );
-
-		wp_enqueue_script( $this->plugin_name . '-admin-isbn', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-isbn.js', array( 'jquery' ), $this->plugin_version, true );
-		wp_localize_script(
-			$this->plugin_name . '-admin-isbn',
-			'libraryAdminIsbn',
-			array(
-				'restUrl'   => rest_url( '/' ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'loading'   => __( 'Loading…', 'library' ),
-				'success'   => __( 'Info loaded.', 'library' ),
-				'error'     => __( 'Could not fetch book data.', 'library' ),
-				'notFound'  => __( 'No book found for this ISBN.', 'library' ),
-				'enterIsbn' => __( 'Please enter an ISBN.', 'library' ),
-			)
-		);
+		wp_enqueue_script( $this->plugin_name . '-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-inline-edit.js', array( 'inline-edit-post' ), $this->plugin_version, true );
 	}
 }

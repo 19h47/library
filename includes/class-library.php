@@ -60,14 +60,7 @@ class Library {
 
 		$this->load_dependencies();
 		$this->define_admin_hooks();
-
-		add_filter(
-			'site_transient_update_plugins',
-			function ( $value ) {
-				unset( $value->response['library/library.php'] );
-				return $value;
-			},
-		);
+		$this->define_update_hooks();
 	}
 
 
@@ -79,6 +72,7 @@ class Library {
 	 */
 	private function load_dependencies() {
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-library-loader.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-library-updater.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-admin.php';
 
 		$this->loader = new Library_Loader();
@@ -97,9 +91,9 @@ class Library {
 		$plugin_metaboxes  = new Library_Metaboxes( $this->plugin_name, $this->plugin_version );
 		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
 		$plugin_rest_api   = new Library_Rest_API( $this->plugin_name, $this->plugin_version );
-		$plugin_settings   = new Library_Settings( $this->plugin_name, $this->plugin_version );
 		$plugin_taxonomies = new Library_Taxonomies( $this->plugin_name, $this->plugin_version );
 		$plugin_wp_query   = new Library_WP_Query( $this->plugin_name, $this->plugin_version );
+		$plugin_dashboard  = new Library_Dashboard( $this->plugin_name, $this->plugin_version );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
@@ -111,17 +105,14 @@ class Library {
 		$this->loader->add_action( 'rest_api_init', $plugin_posts, 'register_rest_fields' );
 		$this->loader->add_filter( 'manage_edit-book_sortable_columns', $plugin_posts, 'sortable_columns' );
 		$this->loader->add_action( 'pre_get_posts', $plugin_posts, 'pre_get_books' );
-		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save', 10, 3 );
+		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save', 10, 2 );
 		$this->loader->add_action( 'save_post_book', $plugin_posts, 'save_quick_edit', 10, 3 );
 		$this->loader->add_action( 'the_title', $plugin_posts, 'add_series_to_title', 10, 2 );
 		$this->loader->add_action( 'the_title', $plugin_posts, 'add_volume_number_to_title', 10, 2 );
 		$this->loader->add_action( 'views_edit-book', $plugin_posts, 'add_list_table_views', 10, 1 );
 
-		// Settings.
-		$this->loader->add_action( 'admin_init', $plugin_settings, 'register_settings' );
-
 		// Rest API.
-		$this->loader->add_action( 'rest_api_init', $plugin_rest_api, 'register_rest_routes', 10, 1 );
+		$this->loader->add_action( 'rest_api_init', $plugin_rest_api, 'register_rest_routes', 10, 0 );
 
 		// Taxonomies.
 		$this->loader->add_action( 'init', $plugin_taxonomies, 'register', 10, 0 );
@@ -129,9 +120,26 @@ class Library {
 		$this->loader->add_action( 'pre_get_posts', $plugin_taxonomies, 'pre_get_books', 10, 1 );
 		$this->loader->add_filter( 'get_terms_args', $plugin_taxonomies, 'get_terms_args', 10, 2 );
 
+		// Dashboard.
+		$this->loader->add_action( 'wp_dashboard_setup', $plugin_dashboard, 'register_widget' );
+
 		$this->loader->add_filter( 'posts_join', $plugin_wp_query, 'search_join', 10, 2 );
 		$this->loader->add_filter( 'posts_where', $plugin_wp_query, 'search_where', 10, 2 );
 		$this->loader->add_filter( 'posts_distinct', $plugin_wp_query, 'search_distinct', 10, 2 );
+	}
+
+	/**
+	 * Register update hooks (GitHub releases).
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 */
+	private function define_update_hooks() {
+		$plugin_updater = new Library_Updater( plugin_basename( LIBRARY_DIR_PATH . 'library.php' ) );
+
+		$this->loader->add_filter( 'update_plugins_github.com', $plugin_updater, 'check_update', 10, 3 );
+		$this->loader->add_filter( 'plugins_api', $plugin_updater, 'plugin_information', 20, 3 );
+		$this->loader->add_filter( 'upgrader_source_selection', $plugin_updater, 'rename_source', 10, 4 );
 	}
 
 	/**

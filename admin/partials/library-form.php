@@ -71,10 +71,6 @@
 				placeholder="<?php esc_html_e( 'ISBN', 'library' ); ?>"
 				value="<?php echo esc_html( $isbn ); ?>"
 			>
-			<button type="button" id="library-fetch-isbn" class="button button-secondary" style="margin-left: 6px;">
-				<?php esc_html_e( 'Fetch info', 'library' ); ?>
-			</button>
-			<span id="library-fetch-isbn-status" class="library-fetch-status" aria-live="polite"></span>
 		</td>
 	</tr>
 
@@ -133,6 +129,51 @@
 				placeholder="<?php esc_html_e( 'Date Published', 'library' ); ?>"
 				value="<?php echo esc_html( $date_published ); ?>"
 			>
+		</td>
+	</tr>
+
+	<!-- Read Date -->
+	<tr>
+		<th>
+			<label for="library-read-date">
+				<?php esc_html_e( 'Read date', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="date"
+				id="library-read-date"
+				name="read_date"
+				class="regular-text"
+				placeholder="<?php esc_html_e( 'Read date', 'library' ); ?>"
+				value="<?php echo esc_html( $read_date ); ?>"
+			>
+			<p class="description">
+				<?php esc_html_e( 'Leave empty if the book has not been read. Checking “Read” in the books list sets it to today.', 'library' ); ?>
+			</p>
+		</td>
+	</tr>
+
+	<!-- Rating -->
+	<tr>
+		<th>
+			<label for="library-rating">
+				<?php esc_html_e( 'Rating', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="number"
+				id="library-rating"
+				name="rating"
+				class="small-text"
+				min="1"
+				max="10"
+				step="0.5"
+				placeholder="1–10"
+				value="<?php echo esc_attr( $rating ); ?>"
+			>
+			<p class="description"><?php esc_html_e( 'Rating from 1 to 10.', 'library' ); ?></p>
 		</td>
 	</tr>
 

@@ -3,10 +3,10 @@
 Contributors: 19h47
 Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, reading
-Requires at least: 5.9
-Tested up to: 6.7
+Requires at least: 7.1
+Tested up to: 7.1
 Stable tag: 0.0.0
-Requires PHP: 7.4
+Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,7 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 
 * Registers the `book` post type with `show_in_rest` for block editor support
 * Registers `library-author` and `library-publisher` taxonomies
-* Loads the text domain at `init` (WordPress 6.7+ compatible)
+* Loads the text domain at `init`
 * No shortcodes or front-end templates included; use your theme or blocks to display books
 
 == Installation ==
@@ -43,6 +43,17 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 
 * Add translations in `wp-content/plugins/library/languages/` (e.g. `library-fr_FR.po` / `.mo`) or use a translation plugin.
 
+= Updates =
+
+The plugin updates from the latest release of [19h47/library](https://github.com/19h47/library/releases), like any other plugin in **Dashboard > Updates**. The `Update URI` header routes the check to GitHub instead of WordPress.org.
+
+To publish a release:
+
+1. Bump `Version` in `library.php` and `Stable tag` in this file.
+2. Commit, push, then create the release: `gh release create v1.0.0 --notes "…"`. The tag may start with `v`; the notes appear in the plugin details.
+
+No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder.
+
 == Frequently Asked Questions ==
 
 = Can I change the book slug? =
@@ -54,6 +65,27 @@ Yes. The post type rewrite slug is `books` by default. Use the `library_post_typ
 No. The plugin only provides the post type, taxonomies, and admin UI. Use your theme, blocks, or custom templates to display books on the front end.
 
 == Changelog ==
+
+= Unreleased =
+* Updates from GitHub releases.
+* The reading percentage in the books list is computed on display; the books list and the dashboard widget now count the same books (trash and auto-drafts excluded).
+* Admin scripts no longer depend on jQuery.
+* Breaking: requires WordPress 7.1 and PHP 8.2.
+* Breaking: removed the `library/v1/settings/{name}` REST route, which let anyone read or update any site option.
+* Breaking: removed the `library/v1/isbn/{isbn}` REST route and the “Fetch info” button (BnF lookup).
+* Breaking: removed the `reading_percentage` option. Migration: delete it with `wp option delete reading_percentage`.
+* The `library/v1/books/reading-stats` response now includes `percent`.
+* Breaking: the read date is the only reading state. A book is read when it has a read date, stored as `Y-m-d`; the `read` meta is removed. Checking “Read” sets the date to today, unchecking clears it. The `read` REST field is still there, computed from the date.
+* Read checkboxes in the books list have an accessible name.
+
+Migration of the read state: books marked as read without a read date get their publication date, books with a read date but unchecked lose it, dates are cut to `Y-m-d`, and the `read` meta is deleted:
+
+    wp eval 'foreach ( get_posts( array( "post_type" => "book", "post_status" => array_keys( get_post_stati() ), "numberposts" => -1 ) ) as $book ) {
+        $date = substr( (string) get_post_meta( $book->ID, "read_date", true ), 0, 10 );
+        $date = get_post_meta( $book->ID, "read", true ) ? ( $date ?: get_the_date( "Y-m-d", $book ) ) : "";
+        update_post_meta( $book->ID, "read_date", $date );
+        delete_post_meta( $book->ID, "read" );
+    }'
 
 = 0.0.0 =
 * Initial release.

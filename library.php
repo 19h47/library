@@ -12,8 +12,8 @@
  * Plugin URI:        https://www.github.com/19h47/library
  * Description:       Enables a Book post type, taxonomy and metaboxes.
  * Version:           0.0.0
- * Requires at least: 5.9
- * Requires PHP:      7.4
+ * Requires at least: 7.1
+ * Requires PHP:      8.2
  * Author:            Jérémy Levron
  * Author URI:        https://www.19h47.fr
  * License:           GPL v2 or later
@@ -34,26 +34,9 @@ if ( ! function_exists( 'get_plugin_data' ) ) {
 
 define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
 
-/**
- * Load plugin text domain for translations.
- * Uses absolute path so translations load even when plugin path is non-standard.
- * Must run at init or later (WordPress 6.7+).
- */
 add_action(
 	'init',
-	function () {
-		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
-		$mofile = LIBRARY_DIR_PATH . 'languages/library-' . $locale . '.mo';
-		if ( is_readable( $mofile ) ) {
-			load_textdomain( 'library', $mofile, $locale );
-			return;
-		}
-		load_plugin_textdomain(
-			'library',
-			false,
-			dirname( plugin_basename( __FILE__ ) ) . '/languages'
-		);
-	},
+	fn() => load_plugin_textdomain( 'library', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' ),
 	0
 );
 

@@ -1,128 +1,75 @@
 /**
- * Reading percentage (at a glance) and checkbox handling.
+ * Read checkbox in the books list, then refresh the reading percentage.
  *
- * Uses libraryAdminRead (restUrl, nonce) and fetch() with X-WP-Nonce like the ISBN script.
+ * Uses libraryAdminRead (restUrl, nonce) and fetch() with X-WP-Nonce.
  *
  * @package    Library
  * @subpackage Library/admin
- * @global     pagenow
- * @global     typenow
- * @global     adminpage
  * @global     libraryAdminRead
  */
-( function () {
+( () => {
 	'use strict';
 
-	var config = window.libraryAdminRead || {};
+	const config           = window.libraryAdminRead ?? {};
+	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
+	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
 
-	jQuery( async function () {
-		if ( 'book' !== typenow || 'edit-php' !== adminpage || 'edit-book' !== pagenow ) {
+	if ( ! readPercentageEl ) {
+		return;
+	}
+
+	const request = async ( path, body ) => {
+		const options = {
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': config.nonce,
+				'Content-Type': 'application/json',
+			},
+		};
+
+		if ( body ) {
+			options.method = 'POST';
+			options.body   = JSON.stringify( body );
+		}
+
+		const response = await window.fetch( config.restUrl + path, options );
+
+		if ( ! response.ok ) {
+			throw new Error( response.statusText );
+		}
+
+		return response.json();
+	};
+
+	const updateUI = ( percent ) => {
+		const format = config.readPercentFormat ?? '%s% read';
+
+		readPercentageEl.textContent = format.replace( '%s', percent.toLocaleString() );
+	};
+
+	const handleChange = async ( event ) => {
+		const checkbox = event.target;
+		const id       = checkbox.dataset.postId;
+
+		if ( ! id ) {
 			return;
 		}
 
-		var checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
-		var readPercentageEl = document.querySelector( '.js-library-read-percentage' );
+		checkbox.disabled = true;
+		readPercentageEl.textContent = readPercentageEl.dataset.loadingText ?? '…';
 
-		if ( ! readPercentageEl ) {
-			return;
+		try {
+			await request( `wp/v2/books/${ id }`, { read: checkbox.checked } );
+
+			const stats = await request( 'library/v1/books/reading-stats' );
+
+			updateUI( stats.percent );
+		} catch {
+			readPercentageEl.textContent = '—';
+		} finally {
+			checkbox.disabled = false;
 		}
+	};
 
-		var restUrl = config.restUrl || '';
-		var nonce   = config.nonce || '';
-
-		function fetchLibrary( path, options ) {
-			options = options || {};
-			var url = restUrl + 'library/v1/' + path;
-			var opts = {
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': nonce,
-					'Content-Type': 'application/json',
-				},
-				method: options.method || 'GET',
-			};
-			if ( options.body !== undefined ) {
-				opts.body = options.body;
-			}
-			return window.fetch( url, opts );
-		}
-
-		function fetchWpApi( route, body, method ) {
-			method = method || 'POST';
-			body   = body || {};
-			var opts = {
-				method: method,
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': nonce,
-					'Content-Type': 'application/json',
-				},
-			};
-			if ( 'POST' === method && Object.keys( body ).length > 0 ) {
-				opts.body = JSON.stringify( body );
-			}
-			return window.fetch( restUrl + 'wp/v2/' + route, opts );
-		}
-
-		function getReadingStats() {
-			return fetchLibrary( 'books/reading-stats' ).then( function ( res ) {
-				if ( ! res.ok ) {
-					throw new Error( 'Failed to load reading stats' );
-				}
-				return res.json();
-			} );
-		}
-
-		function saveReadingPercentage( value ) {
-			fetchLibrary( 'settings/reading_percentage', {
-				method: 'POST',
-				body: JSON.stringify( { reading_percentage: value } ),
-			} );
-		}
-
-		function updateUI( read, total ) {
-			var pct    = total > 0 ? Math.trunc( ( read / total ) * 100 ) : 0;
-			var format = config.readPercentFormat || '%s%% read';
-			readPercentageEl.textContent = format.replace( '%s', String( pct ) );
-			saveReadingPercentage( pct );
-		}
-
-		async function handleChange( evt ) {
-			var target = evt.target;
-			var id     = target.dataset.postId;
-			if ( ! id ) {
-				return;
-			}
-
-			target.disabled = true;
-			readPercentageEl.textContent = readPercentageEl.getAttribute( 'data-loading-text' ) || '…';
-
-			try {
-				var res = await fetchWpApi( 'books/' + id, { read: target.checked }, 'POST' );
-				if ( ! res.ok ) {
-					throw new Error( 'Failed to update' );
-				}
-				var stats = await getReadingStats();
-				updateUI( stats.read, stats.total );
-			} catch ( err ) {
-				readPercentageEl.textContent = '—';
-			} finally {
-				target.disabled = false;
-			}
-		}
-
-		checkboxes.forEach( function ( cb ) {
-			cb.addEventListener( 'change', handleChange );
-		} );
-
-		if ( readPercentageEl.classList.contains( 'js-library-read-percentage-init' ) ) {
-			try {
-				var stats = await getReadingStats();
-				readPercentageEl.classList.remove( 'js-library-read-percentage-init' );
-				updateUI( stats.read, stats.total );
-			} catch ( err ) {
-				readPercentageEl.textContent = '—';
-			}
-		}
-	} );
+	checkboxes.forEach( ( checkbox ) => checkbox.addEventListener( 'change', handleChange ) );
 } )();

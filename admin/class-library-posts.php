@@ -75,9 +75,8 @@ class Library_Posts {
 	 *
 	 * @param int     $post_ID Post ID.
 	 * @param WP_Post $post Post object.
-	 * @param bool    $update Whether this is an existing post being updated.
 	 */
-	public function save( int $post_ID, WP_Post $post, bool $update ): void {
+	public function save( int $post_ID, WP_Post $post ): void {
 
 		// Verify metabox nonce before processing form data from $_POST.
 		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
@@ -89,12 +88,8 @@ class Library_Posts {
 		$issn          = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : false;
 		$volume_number = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : false;
 
-		if ( $update ) {
-			delete_option( 'reading_percentage' );
-		}
-
 		if ( $isbn ) {
-			remove_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
+			remove_action( 'save_post_book', array( $this, 'save' ), 10 );
 
 			wp_update_post(
 				array(
@@ -103,11 +98,11 @@ class Library_Posts {
 				)
 			);
 
-			add_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
+			add_action( 'save_post_book', array( $this, 'save' ), 10, 2 );
 		}
 
 		if ( $issn && $volume_number ) {
-			remove_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
+			remove_action( 'save_post_book', array( $this, 'save' ), 10 );
 
 			wp_update_post(
 				array(
@@ -116,7 +111,7 @@ class Library_Posts {
 				)
 			);
 
-			add_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
+			add_action( 'save_post_book', array( $this, 'save' ), 10, 2 );
 		}
 	}
 
@@ -137,6 +132,8 @@ class Library_Posts {
 		$columns['date_published'] = __( 'Date published', 'library' );
 		$columns['isbn']           = __( 'ISBN', 'library' );
 		$columns['read']           = __( 'Read', 'library' );
+		$columns['read_date']      = __( 'Read date', 'library' );
+		$columns['rating']         = __( 'Rating', 'library' );
 		$columns['book_editions']  = __( 'Book Editions', 'library' );
 
 		return $columns;
@@ -157,13 +154,17 @@ class Library_Posts {
 		switch ( $column_name ) {
 
 			case 'read':
-				$read = get_post_meta( $post_id, 'read', true );
+				/* translators: %s: book title. */
+				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
 
-				if ( $read ) {
-					$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" type="checkbox" checked class="js-library-checkbox" data-post-id="' . esc_attr( $post_id ) . '">';
-				} else {
-					$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" type="checkbox" class="js-library-checkbox" data-post-id="' . esc_attr( $post_id ) . '">';
-				}
+				$output .= sprintf(
+					'<input id="%1$s-%2$s-%3$d" type="checkbox" class="js-library-checkbox" data-post-id="%3$d" aria-label="%4$s"%5$s>',
+					$this->plugin_name,
+					$column_name,
+					$post_id,
+					esc_attr( $label ),
+					checked( self::is_read( $post_id ), true, false )
+				);
 
 				break;
 			case 'date_published':
@@ -186,6 +187,16 @@ class Library_Posts {
 				}
 
 				break;
+			case 'read_date':
+				$read_date = get_post_meta( $post_id, 'read_date', true );
+				$output   .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" class="hidden">' . esc_html( (string) $read_date ) . '</span>';
+				$output   .= $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—';
+				break;
+			case 'rating':
+				$rating_val = get_post_meta( $post_id, 'rating', true );
+				$output    .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '">' . esc_html( (string) $rating_val ) . '</span>';
+				$output    .= ( '' !== $rating_val && null !== $rating_val ) ? ' / 10' : '—';
+				break;
 			case 'book_editions':
 				$book_editions = get_post_meta( $post_id, 'book_editions', true );
 
@@ -194,6 +205,15 @@ class Library_Posts {
 				break;
 
 			case 'thumbnail':
+				$rating_val = get_post_meta( $post_id, 'rating', true );
+				$has_rating = ( '' !== $rating_val && null !== $rating_val && is_numeric( $rating_val ) && (float) $rating_val >= 1 && (float) $rating_val <= 10 );
+
+				if ( $has_rating ) {
+					$rating_display = (string) ( (float) $rating_val === (int) (float) $rating_val ? (int) (float) $rating_val : (float) $rating_val );
+					$output        .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_display ) . '/10" aria-hidden="true">' . esc_html( $rating_display ) . '</span>';
+				}
+
+				$output .= '<span class="library-thumbnail-cell">';
 				$thumbnail = get_the_post_thumbnail( $post_id );
 
 				if ( $thumbnail ) {
@@ -203,6 +223,7 @@ class Library_Posts {
 				} else {
 					$output .= '—';
 				}
+				$output .= '</span>';
 
 				break;
 
@@ -217,8 +238,15 @@ class Library_Posts {
 				'class'        => true,
 				'checked'      => true,
 				'data-post-id' => true,
+				'aria-label'   => true,
 			),
-			'span'  => array( 'id' => true ),
+			'span'  => array(
+				'id'            => true,
+				'class'         => true,
+				'style'         => true,
+				'title'         => true,
+				'aria-hidden'   => true,
+			),
 			'a'     => array( 'href' => true ),
 			'img'   => array(
 				'src'      => true,
@@ -266,6 +294,24 @@ class Library_Posts {
 				$html .= '</div></fieldset>';
 
 				break;
+			case 'read_date':
+				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
+				$html .= '<label class="inline-edit-read-date">';
+				$html .= '<span class="title">' . esc_html__( 'Read date', 'library' ) . '</span>';
+				$html .= '<input name="read_date" class="inline-edit-read-date-input js-library-read-date" type="date" value="">';
+				$html .= '</label>';
+				$html .= '</div></fieldset>';
+
+				break;
+			case 'rating':
+				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
+				$html .= '<label class="inline-edit-rating">';
+				$html .= '<span class="title">' . esc_html__( 'Rating', 'library' ) . '</span>';
+				$html .= '<input name="rating" class="inline-edit-rating-input js-library-rating" type="number" min="1" max="10" step="0.5" placeholder="1–10" value="">';
+				$html .= '</label>';
+				$html .= '</div></fieldset>';
+
+				break;
 		}
 
 		$allowed_quick_edit_html = array(
@@ -280,6 +326,9 @@ class Library_Posts {
 				'placeholder' => true,
 				'value'       => true,
 				'pattern'     => true,
+				'min'         => true,
+				'max'         => true,
+				'step'        => true,
 			),
 		);
 		echo wp_kses( $html, $allowed_quick_edit_html );
@@ -315,12 +364,27 @@ class Library_Posts {
 		switch ( $post->post_type ) {
 
 			case 'book':
-				$fields = array( 'isbn', 'book_editions' );
+				$fields = array( 'isbn', 'book_editions', 'read_date', 'rating' );
 
 				foreach ( $fields as $field ) {
-					if ( array_key_exists( $field, $_POST ) ) {
-						update_post_meta( $post_ID, $field, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
+					if ( ! array_key_exists( $field, $_POST ) ) {
+						continue;
 					}
+					$value = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
+					if ( 'rating' === $field ) {
+						if ( '' !== $value && is_numeric( $value ) ) {
+							$rating_num = (float) $value;
+							if ( $rating_num >= 1 && $rating_num <= 10 ) {
+								update_post_meta( $post_ID, 'rating', $rating_num );
+							} else {
+								delete_post_meta( $post_ID, 'rating' );
+							}
+						} else {
+							delete_post_meta( $post_ID, 'rating' );
+						}
+						continue;
+					}
+					update_post_meta( $post_ID, $field, $value );
 				}
 
 				break;
@@ -456,6 +520,37 @@ class Library_Posts {
 
 		?>
 		<style>
+			.fixed .column-thumbnail {
+				position: relative;
+			}
+
+			.fixed .column-thumbnail::before {
+				display: none;
+			}
+
+			.fixed .column-thumbnail .library-thumbnail-cell {
+				display: inline-block;
+			}
+
+			.fixed .column-thumbnail .library-rating-dot {
+				position: absolute;
+				top: 4px;
+				left: 4px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-width: 18px;
+				height: 18px;
+				padding: 0 4px;
+				box-sizing: border-box;
+				font-size: 11px;
+				font-weight: 600;
+				line-height: 1;
+				color: #fff;
+				background: #2271b1;
+				border-radius: 50%;
+			}
+
 			.fixed .column-read {
 				width: 80px;
 				text-align: right;
@@ -493,6 +588,16 @@ class Library_Posts {
 	}
 
 	/**
+	 * Whether a book has been read: the read date is the only source of truth.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public static function is_read( int $post_id ): bool {
+		return '' !== get_post_meta( $post_id, 'read_date', true );
+	}
+
+	/**
 	 * Register rest fields
 	 *
 	 * @see https://developer.wordpress.org/reference/functions/register_rest_field/
@@ -502,9 +607,21 @@ class Library_Posts {
 			'book',
 			'read',
 			array(
-				'get_callback'    => fn( array $data ) => (bool) get_post_meta( $data['id'], 'read', true ),
-				'update_callback' => fn( $value, WP_Post $post ) => update_post_meta( $post->ID, 'read', (bool) $value ),
-				'schema'          => null,
+				'get_callback'    => fn( array $data ) => self::is_read( $data['id'] ),
+				'update_callback' => function ( bool $read, WP_Post $post ) {
+					if ( ! $read ) {
+						delete_post_meta( $post->ID, 'read_date' );
+						return;
+					}
+
+					if ( ! self::is_read( $post->ID ) ) {
+						update_post_meta( $post->ID, 'read_date', current_time( 'Y-m-d' ) );
+					}
+				},
+				'schema'          => array(
+					'description' => __( 'Whether the book has been read, i.e. has a read date.', 'library' ),
+					'type'        => 'boolean',
+				),
 			)
 		);
 	}
@@ -660,14 +777,52 @@ class Library_Posts {
 	 * @return array
 	 */
 	public function add_list_table_views( array $views ): array {
-		if ( get_option( 'reading_percentage' ) ) {
+		$stats = self::get_reading_stats();
 
-			/* translators: %s: reading percentage. */
-			$views[] = '<a class="js-library-read-percentage" data-loading-text="' . esc_html__( 'Loading percent read...', 'library' ) . '">' . sprintf( __( '%s%% read', 'library' ), get_option( 'reading_percentage' ) ) . '</a>';
-		} else {
-			$views[] = '<a class="js-library-read-percentage js-library-read-percentage-init" data-loading-text="' . esc_html__( 'Loading percent read...', 'library' ) . '">' . esc_html__( 'Loading percent read...', 'library' ) . '</a>';
-		}
+		/* translators: %s: reading percentage. */
+		$label = sprintf( __( '%s%% read', 'library' ), number_format_i18n( $stats['percent'] ) );
+
+		$views['library-read-percentage'] = sprintf(
+			'<span class="js-library-read-percentage" data-loading-text="%1$s">%2$s</span>',
+			esc_attr__( 'Loading percent read...', 'library' ),
+			esc_html( $label )
+		);
 
 		return $views;
+	}
+
+	/**
+	 * Reading stats: books read out of all books, trash and auto-drafts excluded.
+	 *
+	 * @return array{read:int,total:int,percent:int}
+	 */
+	public static function get_reading_stats(): array {
+		$counts = (array) wp_count_posts( 'book' );
+		unset( $counts['trash'], $counts['auto-draft'] );
+
+		$total = (int) array_sum( $counts );
+
+		// The list table sort filters must not alter this count.
+		$read_query = new WP_Query(
+			array(
+				'post_type'        => 'book',
+				'post_status'      => 'any',
+				'posts_per_page'   => 1,
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+				'meta_key'         => 'read_date', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
+				'meta_value'       => '', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
+				'meta_compare'     => '!=',
+			)
+		);
+
+		$read    = (int) $read_query->found_posts;
+		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
+
+		return array(
+			'read'    => $read,
+			'total'   => $total,
+			'percent' => $percent,
+		);
 	}
 }
