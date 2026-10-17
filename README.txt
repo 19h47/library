@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -21,7 +21,7 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Book post type** – Title, featured image (cover) and archive at `/books/`. Book titles show their series and volume number: “Series, Title, 3”. The post date is the date the book was added to the library.
 * **Authors taxonomy** – Hierarchical: a real name as parent, pseudonyms as children. Filtering by an author includes their pseudonyms.
 * **Publishers taxonomy** – Hierarchical: a publisher as parent, its collections as children, such as Folio at Gallimard. A book gets its collection, or its publisher when it has none. Filtering by a publisher includes its collections.
-* **Information metabox** – Series, ISBN, ISSN, volume number, number of pages, edition date and date first published, read state and read date, rating from 1 to 10 by half points and translators. The edition date is when this edition came out; the optional date first published is when the work first came out, whatever the edition. Authors and publishers or collections are edited in their own tag boxes, with autocomplete.
+* **Information metabox** – Series, ISBN, ISSN, volume number, number of pages, edition date and date first published, read state and read date, rating from 1 to 10 by half points and translators. The edition date is when this edition came out; the optional date first published is when the work first came out, whatever the edition. Authors are edited in a tag box, with autocomplete; publishers and collections in a checklist shown as a tree.
 * **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read and marking it as unread clears the date; marking it as read without a date in the form or the books list sets today.
 * **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
 * **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date and rating. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, read date and rating.
@@ -88,7 +88,7 @@ Add the pseudonym as a child of the author's real name in **Books > Authors**. F
 
 = How do I add a collection? =
 
-Add the collection as a child of its publisher in **Books > Publishers**, then give it to the book in the Publishers box instead of the publisher. Filtering the books list by the publisher then includes the books of the collection, and the Library dashboard widget counts them for the publisher. When two publishers have a collection of the same name, prefix it with the publisher, such as “Glénat Shōnen”: the Publishers box finds a term by its name only.
+Check the collection instead of its publisher in the Publishers box of the book; a new one is added there with **Add New Publisher**, picking its publisher as parent, or in **Books > Publishers**. Filtering the books list by the publisher then includes the books of the collection, and the Library dashboard widget counts them for the publisher.
 
 = How do I get book data from the REST API? =
 
@@ -107,6 +107,9 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 2.0.2 =
+* The Publishers box is a checklist showing publishers and their collections as a tree, where a collection is added under its publisher, instead of a tag box.
 
 = 2.0.1 =
 * The “Not kept” checkbox moves from the Information box to the Publish box, under the status.
