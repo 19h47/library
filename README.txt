@@ -72,6 +72,26 @@ Yes. The post type rewrite slug is `books` by default. Use the `library_post_typ
 
 No. The plugin only provides the post type, taxonomies, and admin UI. Use your theme, blocks, or custom templates to display books on the front end.
 
+= Why is no update offered? =
+
+Updates come from the GitHub releases, see Updates above. No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder. Versions before 1.0.0 also blocked plugin updates: install 1.0.0 by hand once, later versions update as usual.
+
+= How is a book marked as read? =
+
+The “Read” checkbox, in the books list or the Information box, is the reading state; the read date is optional. Setting a read date marks the book as read, marking it as read without a date sets today, and marking it as unread clears the date. The same rules apply to quick edit and the REST API.
+
+= How do I handle pseudonyms? =
+
+Add the pseudonym as a child of the author's real name in **Books > Authors**. Filtering the books list by the real name then includes the books signed with the pseudonym, and the Library dashboard widget counts them for the real name.
+
+= How do I get book data from the REST API? =
+
+Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `book_editions`, `date_published` and `read_date` (`Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, to users who can edit posts.
+
+= Where is the former dashboard widget? =
+
+Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
+
 == Changelog ==
 
 = 1.0.0 =
