@@ -27,7 +27,6 @@ class Library_Posts {
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
-		add_action( 'admin_head', array( $this, 'css' ) );
 		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ), 10, 3 );
 		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
@@ -416,87 +415,6 @@ class Library_Posts {
 		);
 
 		return $items;
-	}
-
-	/**
-	 * CSS
-	 */
-	public function css() {
-		global $typenow;
-
-		echo '<style>#dashboard_right_now .book-count:before { content: "\f330"; }</style>';
-
-		if ( 'book' !== $typenow ) {
-			return false;
-		}
-
-		?>
-		<style>
-			.fixed .column-thumbnail {
-				position: relative;
-			}
-
-			.fixed .column-thumbnail::before {
-				display: none;
-			}
-
-			.fixed .column-thumbnail .library-thumbnail-cell {
-				display: inline-block;
-			}
-
-			.fixed .column-thumbnail .library-rating-dot {
-				position: absolute;
-				top: 4px;
-				left: 4px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				min-width: 18px;
-				height: 18px;
-				padding: 0 4px;
-				box-sizing: border-box;
-				font-size: 11px;
-				font-weight: 600;
-				line-height: 1;
-				color: #fff;
-				background: #2271b1;
-				border-radius: 50%;
-			}
-
-			.fixed .column-read {
-				width: 80px;
-				text-align: right;
-			}
-
-			.fixed .column-read input {
-				margin: 0;
-			}
-
-			.fixed .column-book_editions {
-				display: none;
-			}
-
-			.fixed .column-thumbnail {
-				vertical-align: top;
-				width: 80px;
-			}
-
-			.column-thumbnail a {
-				display: block;
-			}
-			.column-thumbnail a img {
-				display: inline-block;
-				vertical-align: middle;
-				width: 80px;
-				height: 80px;
-				object-fit: contain;
-				object-position: center;
-				overflow: hidden;
-			}
-		</style>
-		<?php
-
-		return true;
 	}
 
 	/**

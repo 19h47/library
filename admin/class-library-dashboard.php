@@ -39,12 +39,9 @@ class Library_Dashboard {
 			return;
 		}
 
-		wp_enqueue_style(
-			'library-dashboard',
-			plugin_dir_url( __FILE__ ) . 'css/library-dashboard.css',
-			array(),
-			LIBRARY_VERSION
-		);
+		[ $url, $version ] = Library_Admin::asset( 'css/library-dashboard.css' );
+
+		wp_enqueue_style( 'library-dashboard', $url, array(), $version );
 	}
 
 	/**
@@ -62,289 +59,197 @@ class Library_Dashboard {
 	 * Render the dashboard widget content.
 	 */
 	public function render_widget(): void {
-		$data = $this->get_reading_stats();
-
-		$widget_aria_label = sprintf(
-			/* translators: 1: total books, 2: read books. */
-			__( 'Library reading overview: %1$d books, %2$d read', 'library' ),
-			(int) $data['total'],
-			(int) $data['read']
+		$stats   = Library_Posts::get_reading_stats();
+		$ratings = $this->get_ratings();
+		$charts  = array(
+			...$this->get_reading_charts(),
+			$this->get_publication_chart(),
+			$ratings['chart'],
 		);
+		$charts  = array_filter( $charts, fn( array $chart ) => array_sum( array_column( $chart['items'], 'value' ) ) > 0 );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-widget.php';
 	}
 
 	/**
-	 * Get basic stats: total books, read books, and yearly breakdown.
+	 * Count books by the start of a meta value, e.g. "2024-05" (length 7) or "2024" (length 4) for a date.
 	 *
-	 * @return array{
-	 *     total:int,
-	 *     read:int,
-	 *     percent:int,
-	 *     years:array<int,array{year:int,read:int}>
-	 * }
+	 * Books are counted like in the reading stats: trash and auto-drafts excluded.
+	 *
+	 * @param string $meta_key Meta key.
+	 * @param int    $length   Number of characters to group by.
+	 * @return array<string,int> Books keyed by value start, in ascending order.
 	 */
-	private function get_reading_stats(): array {
-		$reading_stats = Library_Posts::get_reading_stats();
-
+	private function count_by_meta_start( string $meta_key, int $length ): array {
 		global $wpdb;
 
-		// Yearly breakdown based on read_date meta (Y-m-d).
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dashboard widget only.
 			$wpdb->prepare(
-				"SELECT YEAR( m_read_date.meta_value ) AS y, COUNT( DISTINCT p.ID ) AS c
-				FROM {$wpdb->posts} AS p
-				INNER JOIN {$wpdb->postmeta} AS m_read_date
-					ON ( p.ID = m_read_date.post_id AND m_read_date.meta_key = %s AND m_read_date.meta_value != '' )
-				WHERE p.post_type = %s
-					AND p.post_status != 'trash'
-				GROUP BY y
-				ORDER BY y DESC",
-				'read_date',
-				'book'
-			),
-			ARRAY_A
-		);
-
-		$years = array();
-
-		if ( is_array( $rows ) ) {
-			foreach ( $rows as $row ) {
-				$year  = isset( $row['y'] ) ? (int) $row['y'] : 0;
-				$count = isset( $row['c'] ) ? (int) $row['c'] : 0;
-
-				if ( $year > 0 ) {
-					$years[] = array(
-						'year' => $year,
-						'read' => $count,
-					);
-				}
-			}
-		}
-
-		// Rating: count and average (books with rating meta).
-		$rated_count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT COUNT( DISTINCT p.ID )
-				FROM {$wpdb->posts} AS p
-				INNER JOIN {$wpdb->postmeta} AS m_rating
-					ON ( p.ID = m_rating.post_id AND m_rating.meta_key = %s AND m_rating.meta_value != '' )
-				WHERE p.post_type = %s
-					AND p.post_status != 'trash'",
-				'rating',
-				'book'
+				"SELECT LEFT( m.meta_value, %d ) AS value_start, COUNT( * ) AS books
+				FROM {$wpdb->postmeta} AS m
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
+				WHERE m.meta_key = %s
+					AND m.meta_value != ''
+					AND p.post_type = 'book'
+					AND p.post_status NOT IN ( 'trash', 'auto-draft' )
+				GROUP BY value_start
+				ORDER BY value_start",
+				$length,
+				$meta_key
 			)
 		);
-		$rating_avg  = null;
-		if ( $rated_count > 0 ) {
-			$rating_avg = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->prepare(
-					"SELECT AVG( CAST( m_rating.meta_value AS DECIMAL(4,2) ) )
-					FROM {$wpdb->posts} AS p
-					INNER JOIN {$wpdb->postmeta} AS m_rating
-						ON ( p.ID = m_rating.post_id AND m_rating.meta_key = %s AND m_rating.meta_value != '' )
-					WHERE p.post_type = %s
-						AND p.post_status != 'trash'",
-					'rating',
-					'book'
-				)
-			);
-			$rating_avg = is_numeric( $rating_avg ) ? round( (float) $rating_avg, 1 ) : null;
-		}
 
-		// Chart: all years with readings (oldest first for left-to-right bars).
-		$current_year = (int) gmdate( 'Y' );
-		$year_keys    = array_column( $years, 'year' );
-		if ( ! in_array( $current_year, $year_keys, true ) ) {
-			array_unshift(
-				$years,
-				array(
-					'year' => $current_year,
-					'read' => 0,
-				)
-			);
-		}
-		$chart_years = array_values( array_reverse( $years ) );
+		return array_map( 'intval', wp_list_pluck( $rows, 'books', 'value_start' ) );
+	}
 
-		// Chart: current year by month (1–12).
-		$months_rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT MONTH( m_read_date.meta_value ) AS m, COUNT( DISTINCT p.ID ) AS c
-				FROM {$wpdb->posts} AS p
-				INNER JOIN {$wpdb->postmeta} AS m_read_date
-					ON ( p.ID = m_read_date.post_id AND m_read_date.meta_key = %s AND m_read_date.meta_value != '' )
-				WHERE p.post_type = %s
-					AND p.post_status != 'trash'
-					AND YEAR( m_read_date.meta_value ) = %d
-				GROUP BY m
-				ORDER BY m ASC",
-				'read_date',
-				'book',
-				$current_year
-			),
-			ARRAY_A
+	/**
+	 * A chart bar.
+	 *
+	 * @param string $label Short label under the bar.
+	 * @param string $name  Full name, for the tooltip and the data table.
+	 * @param int    $value Number of books.
+	 * @return array{label:string,name:string,value:int}
+	 */
+	private static function item( string $label, string $name, int $value ): array {
+		return array(
+			'label' => $label,
+			'name'  => $name,
+			'value' => $value,
 		);
-		$chart_months = array();
-		for ( $m = 1; $m <= 12; $m++ ) {
-			$chart_months[] = array(
-				'month' => $m,
-				'read'  => 0,
+	}
+
+	/**
+	 * Books read by year, by month this year and by month over all years, from the read dates.
+	 *
+	 * @return array<int,array{title:string,column:string,items:array}>
+	 */
+	private function get_reading_charts(): array {
+		global $wp_locale;
+
+		$current_year     = (int) wp_date( 'Y' );
+		$books_by_year    = array();
+		$books_this_year  = array_fill( 1, 12, 0 );
+		$books_by_month   = array_fill( 1, 12, 0 );
+		$books_by_yearmon = $this->count_by_meta_start( 'read_date', 7 );
+
+		foreach ( $books_by_yearmon as $year_month => $books ) {
+			[ $year, $month ] = array_map( 'intval', explode( '-', $year_month ) );
+
+			$books_by_year[ $year ]    = ( $books_by_year[ $year ] ?? 0 ) + $books;
+			$books_by_month[ $month ] += $books;
+
+			if ( $current_year === $year ) {
+				$books_this_year[ $month ] += $books;
+			}
+		}
+
+		$first_year = $books_by_year ? min( array_keys( $books_by_year ) ) : $current_year;
+		$last_year  = $books_by_year ? max( $current_year, ...array_keys( $books_by_year ) ) : $current_year;
+
+		$year_items = array_map(
+			fn( int $year ) => self::item( '’' . substr( (string) $year, -2 ), (string) $year, $books_by_year[ $year ] ?? 0 ),
+			range( $first_year, $last_year )
+		);
+
+		$month_items = fn( array $books ) => array_map(
+			fn( int $month ) => self::item(
+				mb_strtoupper( mb_substr( $wp_locale->get_month( $month ), 0, 1 ) ),
+				$wp_locale->get_month( $month ),
+				$books[ $month ]
+			),
+			range( 1, 12 )
+		);
+
+		return array(
+			array(
+				'title'  => __( 'Books read by year', 'library' ),
+				'column' => __( 'Year', 'library' ),
+				'items'  => $year_items,
+			),
+			array(
+				/* translators: %d: year. */
+				'title'  => sprintf( __( 'Books read in %d by month', 'library' ), $current_year ),
+				'column' => __( 'Month', 'library' ),
+				'items'  => $month_items( $books_this_year ),
+			),
+			array(
+				'title'  => __( 'Reading distribution by month', 'library' ),
+				'column' => __( 'Month', 'library' ),
+				'items'  => $month_items( $books_by_month ),
+			),
+		);
+	}
+
+	/**
+	 * Books by publication year, by decade when there are too many years to show.
+	 *
+	 * @return array{title:string,column:string,items:array}
+	 */
+	private function get_publication_chart(): array {
+		$books_by_year = $this->count_by_meta_start( 'date_published', 4 );
+
+		if ( count( $books_by_year ) <= 40 ) {
+			return array(
+				'title'  => __( 'Publication year distribution', 'library' ),
+				'column' => __( 'Publication year', 'library' ),
+				'items'  => array_map(
+					fn( string $year, int $books ) => self::item( $year, $year, $books ),
+					array_map( 'strval', array_keys( $books_by_year ) ),
+					$books_by_year
+				),
 			);
 		}
-		if ( is_array( $months_rows ) ) {
-			foreach ( $months_rows as $row ) {
-				$m = isset( $row['m'] ) ? (int) $row['m'] : 0;
-				$c = isset( $row['c'] ) ? (int) $row['c'] : 0;
-				if ( $m >= 1 && $m <= 12 ) {
-					$chart_months[ $m - 1 ]['read'] = $c;
-				}
-			}
-		}
 
-		// Chart: all years combined by month (1–12).
-		$months_all_rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT MONTH( m_read_date.meta_value ) AS m, COUNT( DISTINCT p.ID ) AS c
-				FROM {$wpdb->posts} AS p
-				INNER JOIN {$wpdb->postmeta} AS m_read_date
-					ON ( p.ID = m_read_date.post_id AND m_read_date.meta_key = %s AND m_read_date.meta_value != '' )
-				WHERE p.post_type = %s
-					AND p.post_status != 'trash'
-				GROUP BY m
-				ORDER BY m ASC",
-				'read_date',
-				'book'
-			),
-			ARRAY_A
-		);
-		$chart_months_all = array();
-		for ( $m = 1; $m <= 12; $m++ ) {
-			$chart_months_all[] = array(
-				'month' => $m,
-				'read'  => 0,
-			);
-		}
-		if ( is_array( $months_all_rows ) ) {
-			foreach ( $months_all_rows as $row ) {
-				$m = isset( $row['m'] ) ? (int) $row['m'] : 0;
-				$c = isset( $row['c'] ) ? (int) $row['c'] : 0;
-				if ( $m >= 1 && $m <= 12 ) {
-					$chart_months_all[ $m - 1 ]['read'] = $c;
-				}
-			}
-		}
+		$books_by_decade = array();
 
-		// Chart: rating distribution (1–10). Round stored value to nearest integer.
-		$rating_rows   = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT ROUND( CAST( m_rating.meta_value AS DECIMAL(4,2) ) ) AS r, COUNT( DISTINCT p.ID ) AS c
-				FROM {$wpdb->posts} AS p
-				INNER JOIN {$wpdb->postmeta} AS m_rating
-					ON ( p.ID = m_rating.post_id AND m_rating.meta_key = %s AND m_rating.meta_value != '' )
-				WHERE p.post_type = %s
-					AND p.post_status != 'trash'
-					AND CAST( m_rating.meta_value AS DECIMAL(4,2) ) >= 1
-					AND CAST( m_rating.meta_value AS DECIMAL(4,2) ) <= 10
-				GROUP BY r
-				ORDER BY r ASC",
-				'rating',
-				'book'
-			),
-			ARRAY_A
-		);
-		$chart_ratings = array();
-		for ( $r = 1; $r <= 10; $r++ ) {
-			$chart_ratings[] = array(
-				'rating' => $r,
-				'count'  => 0,
-			);
-		}
-		if ( is_array( $rating_rows ) ) {
-			foreach ( $rating_rows as $row ) {
-				$r = isset( $row['r'] ) ? (int) $row['r'] : 0;
-				$c = isset( $row['c'] ) ? (int) $row['c'] : 0;
-				if ( $r >= 1 && $r <= 10 ) {
-					$chart_ratings[ $r - 1 ]['count'] = $c;
-				}
-			}
-		}
+		foreach ( $books_by_year as $year => $books ) {
+			$decade = intdiv( (int) $year, 10 ) * 10;
 
-		// Chart: publication year distribution (date_published = edition year).
-		$pub_year_rows   = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT SUBSTRING( m_pub.meta_value, 1, 4 ) AS y, COUNT( DISTINCT p.ID ) AS c
-				FROM {$wpdb->posts} AS p
-				INNER JOIN {$wpdb->postmeta} AS m_pub
-					ON ( p.ID = m_pub.post_id AND m_pub.meta_key = %s AND m_pub.meta_value != '' AND m_pub.meta_value REGEXP %s )
-				WHERE p.post_type = %s
-					AND p.post_status != 'trash'
-				GROUP BY y
-				HAVING y REGEXP %s AND CAST( y AS UNSIGNED ) BETWEEN 1000 AND 2100
-				ORDER BY y ASC",
-				'date_published',
-				'^[0-9]{4}',
-				'book',
-				'^[0-9]{4}$'
-			),
-			ARRAY_A
-		);
-		$chart_pub_years = array();
-		if ( is_array( $pub_year_rows ) ) {
-			foreach ( $pub_year_rows as $row ) {
-				$y = isset( $row['y'] ) ? (int) $row['y'] : 0;
-				$c = isset( $row['c'] ) ? (int) $row['c'] : 0;
-				if ( $y >= 1000 && $y <= 2100 ) {
-					$chart_pub_years[] = array(
-						'year'  => $y,
-						'count' => $c,
-					);
-				}
-			}
-		}
-
-		// If there are too many publication years to display nicely, bucket by decade.
-		$chart_pub_years_display = $chart_pub_years;
-		$pub_year_bucket_size    = 1;
-		if ( count( $chart_pub_years_display ) > 40 ) {
-			$pub_year_bucket_size = 10;
-			$buckets              = array();
-			foreach ( $chart_pub_years_display as $item ) {
-				$year = isset( $item['year'] ) ? (int) $item['year'] : 0;
-				$c    = isset( $item['count'] ) ? (int) $item['count'] : 0;
-				if ( $year < 1000 || $year > 2100 ) {
-					continue;
-				}
-				$start = (int) ( floor( $year / $pub_year_bucket_size ) * $pub_year_bucket_size );
-				$end   = $start + ( $pub_year_bucket_size - 1 );
-				$key   = (string) $start;
-				if ( ! isset( $buckets[ $key ] ) ) {
-					$buckets[ $key ] = array(
-						'start' => $start,
-						'end'   => $end,
-						'label' => sprintf( '%ds', $start ),
-						'count' => 0,
-					);
-				}
-				$buckets[ $key ]['count'] += $c;
-			}
-			ksort( $buckets, SORT_NUMERIC );
-			$chart_pub_years_display = array_values( $buckets );
+			$books_by_decade[ $decade ] = ( $books_by_decade[ $decade ] ?? 0 ) + $books;
 		}
 
 		return array(
-			'total'                => $reading_stats['total'],
-			'read'                 => $reading_stats['read'],
-			'percent'              => $reading_stats['percent'],
-			'rated_count'          => $rated_count,
-			'rating_avg'           => $rating_avg,
-			'chart_ratings'        => $chart_ratings,
-			'years'                => $years,
-			'chart_years'          => $chart_years,
-			'chart_months'         => $chart_months,
-			'chart_months_all'     => $chart_months_all,
-			'chart_pub_years'      => $chart_pub_years_display,
-			'pub_year_bucket_size' => $pub_year_bucket_size,
-			'current_year'         => $current_year,
+			'title'  => __( 'Publication year distribution (by decade)', 'library' ),
+			'column' => __( 'Publication years', 'library' ),
+			'items'  => array_map(
+				fn( int $decade, int $books ) => self::item( (string) $decade, sprintf( '%d–%d', $decade, $decade + 9 ), $books ),
+				array_keys( $books_by_decade ),
+				$books_by_decade
+			),
+		);
+	}
+
+	/**
+	 * Number of rated books, average rating and distribution, rounded to the nearest point.
+	 *
+	 * @return array{count:int,average:float|null,chart:array}
+	 */
+	private function get_ratings(): array {
+		$books_by_rating = $this->count_by_meta_start( 'rating', 4 );
+		$books_by_point  = array_fill( 1, 10, 0 );
+		$rated           = array_sum( $books_by_rating );
+		$sum             = 0;
+
+		foreach ( $books_by_rating as $rating => $books ) {
+			$point = (int) round( (float) $rating );
+			$sum  += (float) $rating * $books;
+
+			if ( isset( $books_by_point[ $point ] ) ) {
+				$books_by_point[ $point ] += $books;
+			}
+		}
+
+		return array(
+			'count'   => $rated,
+			'average' => $rated ? round( $sum / $rated, 1 ) : null,
+			'chart'   => array(
+				'title'  => __( 'Rating distribution', 'library' ),
+				'column' => __( 'Rating', 'library' ),
+				'items'  => array_map(
+					fn( int $point ) => self::item( (string) $point, $point . '/10', $books_by_point[ $point ] ),
+					range( 1, 10 )
+				),
+			),
 		);
 	}
 }

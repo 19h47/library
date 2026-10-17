@@ -29,7 +29,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
-define( 'LIBRARY_VERSION', get_file_data( __FILE__, array( 'version' => 'Version' ) )['version'] );
 
 add_action(
 	'init',

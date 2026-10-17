@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin scripts.
+ * Admin styles and scripts for the books list.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -25,24 +25,43 @@ class Library_Admin {
 	 * @return void
 	 */
 	public function hooks(): void {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
 
 	/**
-	 * Enqueue admin scripts for the books list.
+	 * URL and version of an admin asset.
+	 *
+	 * The version is the file modification time, so a changed file is never served from cache.
+	 *
+	 * @param string $path Path relative to the admin folder.
+	 * @return array{0:string,1:string}
+	 */
+	public static function asset( string $path ): array {
+		$url     = plugin_dir_url( __FILE__ ) . $path;
+		$version = (string) filemtime( plugin_dir_path( __FILE__ ) . $path );
+
+		return array( $url, $version );
+	}
+
+	/**
+	 * Enqueue the books list styles and scripts.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_assets(): void {
 		$screen = get_current_screen();
 		if ( ! $screen || 'edit-book' !== $screen->id ) {
 			return;
 		}
 
-		$read_handle = 'library-admin-read';
-		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/library-admin-read.js', array( 'wp-api-fetch' ), LIBRARY_VERSION, true );
+		[ $style_url, $style_version ] = self::asset( 'css/library-admin.css' );
+		wp_enqueue_style( 'library-admin', $style_url, array(), $style_version );
+
+		$read_handle                 = 'library-admin-read';
+		[ $read_url, $read_version ] = self::asset( 'js/library-admin-read.js' );
+		wp_enqueue_script( $read_handle, $read_url, array( 'wp-api-fetch' ), $read_version, true );
 		wp_localize_script(
 			$read_handle,
 			'libraryAdminRead',
@@ -51,6 +70,8 @@ class Library_Admin {
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
 			)
 		);
-		wp_enqueue_script( 'library-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/library-admin-inline-edit.js', array( 'inline-edit-post' ), LIBRARY_VERSION, true );
+
+		[ $inline_edit_url, $inline_edit_version ] = self::asset( 'js/library-admin-inline-edit.js' );
+		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );
 	}
 }
