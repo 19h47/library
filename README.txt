@@ -24,7 +24,7 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Information metabox** – Series, ISBN, ISSN, volume number, number of pages, edition date and date first published, read state and read date, rating from 1 to 10 by half points and translators. The edition date is when this edition came out; the optional date first published is when the work first came out, whatever the edition. Authors are edited in a tag box, with autocomplete; publishers and collections in a checklist shown as a tree.
 * **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read and marking it as unread clears the date; marking it as read without a date in the form or the books list sets today.
 * **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
-* **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date and rating. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, read date and rating.
+* **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date and rating; the Publishers column shows the publisher of a collection. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, read date and rating.
 * **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators, authors, publishers and collections. A real name finds the books of its pseudonyms, a publisher the books of its collections.
 * **Dashboard** – Five widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
     * **Reading** – Books read, this year against the same date last year, the number expected by the end of the year, the pages read this year over the books with their number of pages, and books read by year and by month.
@@ -109,6 +109,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 == Changelog ==
 
 = 2.0.3 =
+* The Publishers column of the books list shows the publisher of a collection, such as 10/18 for Domaine étranger, once.
 * Fixed: quick and bulk edit replaced the authors checked with new authors named after their ID.
 
 = 2.0.2 =
