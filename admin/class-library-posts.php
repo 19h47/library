@@ -20,12 +20,21 @@
 class Library_Posts {
 
 	/**
+	 * Status of the books read but not kept: hidden from the books list and the site, counted in the reading stats.
+	 *
+	 * @var string
+	 */
+	public const NOT_KEPT = 'library-not-kept';
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
 	 */
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_action( 'init', array( $this, 'register_post_status' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'not_kept' ), 10, 2 );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
@@ -38,6 +47,57 @@ class Library_Posts {
 		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
 		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
+	}
+
+	/**
+	 * Register the status of the books read but not kept.
+	 *
+	 * Core then leaves them out of the "All" view, its count, the site and search,
+	 * and lists them in their own view of the books list.
+	 *
+	 * @return void
+	 */
+	public function register_post_status(): void {
+		register_post_status(
+			self::NOT_KEPT,
+			array(
+				'label'                     => _x( 'Not kept', 'book status', 'library' ),
+				/* translators: %s: number of books. */
+				'label_count'               => _n_noop( 'Not kept <span class="count">(%s)</span>', 'Not kept <span class="count">(%s)</span>', 'library' ),
+				'public'                    => false,
+				'protected'                 => true,
+				'exclude_from_search'       => true,
+				'show_in_admin_all_list'    => false,
+				'show_in_admin_status_list' => true,
+			)
+		);
+	}
+
+	/**
+	 * Apply the "Not kept" checkbox of the Information box to the book status.
+	 *
+	 * The publish box only offers core statuses, so the checkbox decides; unchecking publishes the book.
+	 *
+	 * @param array $data    Slashed post data to insert.
+	 * @param array $postarr Slashed submitted data, with the form fields.
+	 * @return array
+	 */
+	public function not_kept( array $data, array $postarr ): array {
+		$nonce = isset( $postarr['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $postarr['library_metabox_nonce'] ) ) : '';
+
+		if ( 'book' !== $data['post_type'] || ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) || in_array( $data['post_status'], array( 'trash', 'auto-draft' ), true ) ) {
+			return $data;
+		}
+
+		$not_kept = ! empty( $postarr['not_kept'] );
+
+		if ( $not_kept ) {
+			$data['post_status'] = self::NOT_KEPT;
+		} elseif ( self::NOT_KEPT === $data['post_status'] ) {
+			$data['post_status'] = 'publish';
+		}
+
+		return $data;
 	}
 
 	/**
@@ -502,13 +562,13 @@ class Library_Posts {
 	}
 
 	/**
-	 * Reading stats: books read out of all books, trash and auto-drafts excluded.
+	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts and books not kept.
 	 *
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
 		$counts = (array) wp_count_posts( 'book' );
-		unset( $counts['trash'], $counts['auto-draft'] );
+		unset( $counts['trash'], $counts['auto-draft'], $counts[ self::NOT_KEPT ] );
 
 		$total = (int) array_sum( $counts );
 

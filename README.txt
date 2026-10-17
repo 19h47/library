@@ -22,7 +22,8 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Authors taxonomy** – Hierarchical: a real name as parent, pseudonyms as children. Filtering by an author includes their pseudonyms.
 * **Publishers taxonomy** – One or more publishers per book.
 * **Information metabox** – Series, ISBN, ISSN, volume number, date published, read state and read date, rating from 1 to 10 by half points, translators and book editions. Authors and publishers are edited in their own tag boxes, with autocomplete.
-* **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read, marking it as read without a date sets today, marking it as unread clears the date.
+* **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read and marking it as unread clears the date; marking it as read without a date in the form or the books list sets today.
+* **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
 * **Books list** – Columns for the cover (with the rating), date published, ISBN, read state, read date and rating; date published and rating are sortable. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, book editions, read date and rating.
 * **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators and book editions.
 * **Dashboard** – Four widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
@@ -78,7 +79,7 @@ Updates come from the GitHub releases, see Updates above. No update is offered w
 
 = How is a book marked as read? =
 
-The “Read” checkbox, in the books list or the Information box, is the reading state; the read date is optional. Setting a read date marks the book as read, marking it as read without a date sets today, and marking it as unread clears the date. The same rules apply to quick edit and the REST API.
+The “Read” checkbox, in the books list or the Information box, is the reading state; the read date is optional. Setting a read date marks the book as read and marking it as unread clears the date, wherever the change comes from. Marking a book as read without a date in the Information box or the books list sets today; the REST API and imports can save a book read without a date.
 
 = How do I handle pseudonyms? =
 
@@ -87,6 +88,14 @@ Add the pseudonym as a child of the author's real name in **Books > Authors**. F
 = How do I get book data from the REST API? =
 
 Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `book_editions`, `date_published` and `read_date` (`Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, to users who can edit posts.
+
+= How do I log a book I read but did not keep? =
+
+Add it as any book and check **Not kept** in the Information box, or pick the “Not kept” status in quick or bulk edit. The book is then hidden from the “All” view of the books list, the site and the Library widget, but its reading and rating count in the Reading and Ratings widgets. Find these books in the “Not kept” view of the books list.
+
+= Can I import books from a WordPress export? =
+
+Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states are saved as they are in the file. Install the plugin first, so that statuses like “Not kept” are known.
 
 = Where is the former dashboard widget? =
 
@@ -103,7 +112,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 * Breaking: removed the `library/v1/isbn/{isbn}` REST route and the “Fetch info” button (BnF lookup).
 * Breaking: removed the `reading_percentage` option. Migration: delete it with `wp option delete reading_percentage`.
 * The `library/v1/books/reading-stats` response now includes `percent`.
-* Breaking: the `read` REST field is replaced by `meta.read`. The read date is optional and stored as `Y-m-d`, which fixes the date being lost after checking “Read” in the books list. Setting a read date marks the book as read, marking it as read without a date sets today, marking it as unread clears the date, from the form, quick edit or the REST API. Existing books need no migration.
+* Breaking: the `read` REST field is replaced by `meta.read`. The read date is optional and stored as `Y-m-d`, which fixes the date being lost after checking “Read” in the books list. Setting a read date marks the book as read and marking it as unread clears the date, from the form, quick edit or the REST API; marking it as read without a date in the form or the books list sets today. Imports are saved as they are. Existing books need no migration.
 * Read checkboxes in the books list have an accessible name.
 * Book meta are registered with their type and sanitization, and exposed in the REST API under `meta` (books now support `custom-fields`; the Custom Fields box is removed since the Information box edits them). Dates must be `Y-m-d`, ratings go from 1 to 10 by half points; an empty value deletes the meta.
 * The form and quick edit save through the same code; quick edit requires its nonce.
@@ -113,6 +122,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 * Search only applies to book queries and matches the book text meta (series, ISBN, ISSN, volume number, translators, book editions) through a subquery. Other searches are no longer changed, and a search combined with a meta query no longer fails.
 * Sorting by publication date uses the core meta ordering.
 * The books list can be sorted by rating; unrated books come last in both orders.
+* New “Not kept” status for the books read but not kept: hidden from the “All” view, the site and the library stats, counted in the reading stats. Set it with the checkbox of the Information box, or in quick and bulk edit.
 * Each class registers its own hooks; `Library_Loader` is removed. The books list CSS and the dashboard widget were registered twice. Breaking for code using `Library_Loader` or the plugin class constructors, which no longer take a name and version.
 * The series and volume number are added to book titles by a single `the_title` filter, which no longer fails when called without a post ID.
 * The “At a Glance” dashboard widget shows the number of published books with a plain “%s books” string.

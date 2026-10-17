@@ -135,8 +135,10 @@ class Library_Meta {
 
 	/**
 	 * Keep the read state and the read date consistent, whatever wrote them:
-	 * a read date marks the book as read, marking it as read without a date sets today,
-	 * marking it as unread clears the date.
+	 * a read date marks the book as read, marking it as unread clears the date.
+	 *
+	 * Imports are left as they are: their data is already consistent, and the importer
+	 * adds each meta after the ones this rule would write, which would duplicate them.
 	 *
 	 * @param int|int[] $meta_ids Meta ID(s).
 	 * @param int       $post_id  Post ID.
@@ -144,7 +146,7 @@ class Library_Meta {
 	 * @return void
 	 */
 	public function sync_reading_state( $meta_ids, int $post_id, string $meta_key ): void {
-		if ( 'book' !== get_post_type( $post_id ) ) {
+		if ( ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || 'book' !== get_post_type( $post_id ) ) {
 			return;
 		}
 
@@ -153,10 +155,6 @@ class Library_Meta {
 
 		if ( 'read_date' === $meta_key && '' !== $read_date && ! $read ) {
 			update_post_meta( $post_id, 'read', true );
-		}
-
-		if ( 'read' === $meta_key && $read && '' === $read_date ) {
-			update_post_meta( $post_id, 'read_date', current_time( 'Y-m-d' ) );
 		}
 
 		if ( 'read' === $meta_key && ! $read && '' !== $read_date ) {
@@ -169,12 +167,15 @@ class Library_Meta {
 	 *
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
 	 * Values are saved in the order of KEYS, whatever the order of the form fields.
+	 * A book marked as read without a read date gets today.
 	 *
 	 * @param int   $post_id Post ID.
 	 * @param array $values  Unslashed values keyed by meta key.
 	 * @return void
 	 */
 	public static function save( int $post_id, array $values ): void {
+		$was_read = (bool) get_post_meta( $post_id, 'read', true );
+
 		foreach ( self::KEYS as $key ) {
 			if ( ! array_key_exists( $key, $values ) ) {
 				continue;
@@ -188,6 +189,12 @@ class Library_Meta {
 			}
 
 			update_post_meta( $post_id, $key, wp_slash( $value ) );
+		}
+
+		$marked_read = ! $was_read && (bool) get_post_meta( $post_id, 'read', true );
+
+		if ( $marked_read && '' === get_post_meta( $post_id, 'read_date', true ) ) {
+			update_post_meta( $post_id, 'read_date', current_time( 'Y-m-d' ) );
 		}
 	}
 

@@ -68,10 +68,19 @@ class Library_Admin {
 			array(
 				/* translators: %s: reading percentage. */
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
+				'today'             => current_time( 'Y-m-d' ),
 			)
 		);
 
 		[ $inline_edit_url, $inline_edit_version ] = self::asset( 'js/library-admin-inline-edit.js' );
 		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );
+		wp_localize_script(
+			'library-admin-inline-edit',
+			'libraryInlineEdit',
+			array(
+				'notKeptStatus' => Library_Posts::NOT_KEPT,
+				'notKeptLabel'  => _x( 'Not kept', 'book status', 'library' ),
+			)
+		);
 	}
 }

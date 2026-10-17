@@ -1,7 +1,8 @@
 /**
  * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
- * Uses wp.apiFetch, which handles the REST root and nonce, and libraryAdminRead (readPercentFormat).
+ * Uses wp.apiFetch, which handles the REST root and nonce, and libraryAdminRead (readPercentFormat, today).
+ * Checking a book without a read date sets it to today.
  *
  * @package    Library
  * @subpackage Library/admin
@@ -53,11 +54,18 @@
 		checkbox.disabled = true;
 		readPercentageEl.textContent = readPercentageEl.dataset.loadingText ?? '…';
 
+		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
+		const meta       = { read: checkbox.checked };
+
+		if ( checkbox.checked && ! inlineDate?.textContent ) {
+			meta.read_date = config.today;
+		}
+
 		try {
 			const book = await apiFetch( {
 				path: `/wp/v2/books/${ id }`,
 				method: 'POST',
-				data: { meta: { read: checkbox.checked } },
+				data: { meta },
 			} );
 
 			updateReadDate( id, book.meta.read_date );

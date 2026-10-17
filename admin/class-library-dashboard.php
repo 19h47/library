@@ -22,11 +22,18 @@
 class Library_Dashboard {
 
 	/**
-	 * SQL condition on the posts table aliased "p": books counted in the stats, as in the books list.
+	 * SQL condition on the posts table aliased "p": all books, kept or not, for the reading stats.
 	 *
 	 * @var string
 	 */
 	private const BOOKS = "p.post_type = 'book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )";
+
+	/**
+	 * SQL condition on the posts table aliased "p": the books in the library, i.e. kept.
+	 *
+	 * @var string
+	 */
+	private const LIBRARY = self::BOOKS . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
 
 	/**
 	 * Number of entries in the rankings and the recent reads.
@@ -94,11 +101,10 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Reading pile widget: books to read, the oldest one and the latest reads.
+	 * Reading pile widget: books to read, kept or not, the oldest one and the latest reads.
 	 */
 	public function render_pile(): void {
-		$stats        = Library_Posts::get_reading_stats();
-		$to_read      = $stats['total'] - $stats['read'];
+		$to_read      = $this->count_unread_books();
 		$oldest       = $this->get_oldest_unread_book();
 		$recent_reads = $this->get_recent_reads();
 
@@ -106,7 +112,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Collection widget: authors, publishers, book editions, translations and publication years.
+	 * Collection widget, on the books kept: authors, publishers, book editions, translations and publication years.
 	 */
 	public function render_collection(): void {
 		$stats    = Library_Posts::get_reading_stats();
@@ -126,8 +132,8 @@ class Library_Dashboard {
 		);
 		$counts   = array(
 			'books'      => $stats['total'],
-			'authors'    => (int) wp_count_terms( array( 'taxonomy' => 'library-author' ) ),
-			'publishers' => (int) wp_count_terms( array( 'taxonomy' => 'library-publisher' ) ),
+			'authors'    => $this->count_terms( 'library-author' ),
+			'publishers' => $this->count_terms( 'library-publisher' ),
 			'translated' => $this->count_translated_books(),
 		);
 		$charts   = array( $this->get_publication_chart() );
@@ -150,7 +156,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Run a SELECT on the books; "{books}" in the SQL stands for the BOOKS condition.
+	 * Run a SELECT on the books; "{books}" and "{library}" in the SQL stand for the BOOKS and LIBRARY conditions.
 	 *
 	 * @param string $sql  SQL, with placeholders for the arguments.
 	 * @param mixed  ...$args Values for the placeholders.
@@ -159,7 +165,7 @@ class Library_Dashboard {
 	private function select( string $sql, mixed ...$args ): array {
 		global $wpdb;
 
-		$sql = str_replace( '{books}', self::BOOKS, $sql );
+		$sql = str_replace( array( '{books}', '{library}' ), array( self::BOOKS, self::LIBRARY ), $sql );
 		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
 
 		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets only.
@@ -170,9 +176,10 @@ class Library_Dashboard {
 	 *
 	 * @param string $meta_key Meta key.
 	 * @param int    $length   Number of characters to group by.
+	 * @param string $scope    "{books}" for all books, "{library}" for the books kept.
 	 * @return array<string,int> Books keyed by value start, in ascending order.
 	 */
-	private function count_by_meta_start( string $meta_key, int $length ): array {
+	private function count_by_meta_start( string $meta_key, int $length, string $scope = '{books}' ): array {
 		global $wpdb;
 
 		$rows = $this->select(
@@ -181,7 +188,7 @@ class Library_Dashboard {
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
 			WHERE m.meta_key = %s
 				AND m.meta_value != ''
-				AND {books}
+				AND $scope
 			GROUP BY value_start
 			ORDER BY value_start",
 			$length,
@@ -359,7 +366,7 @@ class Library_Dashboard {
 	 * @return array
 	 */
 	private function get_publication_chart(): array {
-		$books_by_year = $this->count_by_meta_start( 'date_published', 4 );
+		$books_by_year = $this->count_by_meta_start( 'date_published', 4, '{library}' );
 
 		if ( count( $books_by_year ) <= 40 ) {
 			$items = array();
@@ -493,7 +500,7 @@ class Library_Dashboard {
 		$query = new WP_Query(
 			array(
 				'post_type'      => 'book',
-				'post_status'    => 'any',
+				'post_status'    => array_diff( get_post_stati( array( 'show_in_admin_status_list' => true ) ), array( 'trash' ) ),
 				'posts_per_page' => self::LIST_LENGTH,
 				'no_found_rows'  => true,
 				'meta_key'       => 'read_date', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Small dataset.
@@ -544,7 +551,7 @@ class Library_Dashboard {
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
 			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
-			WHERE {books}
+			WHERE {library}
 			GROUP BY term_id
 			ORDER BY books DESC, books_read DESC
 			LIMIT %d",
@@ -595,7 +602,7 @@ class Library_Dashboard {
 			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
 			WHERE e.meta_key = 'book_editions'
 				AND e.meta_value != ''
-				AND {books}
+				AND {library}
 			GROUP BY e.meta_value
 			ORDER BY books DESC, books_read DESC
 			LIMIT %d",
@@ -613,7 +620,47 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Number of books with a translator.
+	 * Number of books not read yet, kept or not.
+	 *
+	 * @return int
+	 */
+	private function count_unread_books(): int {
+		global $wpdb;
+
+		[ $row ] = $this->select(
+			"SELECT COUNT( DISTINCT p.ID ) AS books
+			FROM {$wpdb->posts} AS p
+			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
+			WHERE r.post_id IS NULL
+				AND {books}"
+		);
+
+		return (int) $row->books;
+	}
+
+	/**
+	 * Number of terms of a taxonomy with at least one book kept.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 * @return int
+	 */
+	private function count_terms( string $taxonomy ): int {
+		global $wpdb;
+
+		[ $row ] = $this->select(
+			"SELECT COUNT( DISTINCT tt.term_id ) AS terms
+			FROM {$wpdb->term_relationships} AS tr
+			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
+			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
+			WHERE {library}",
+			$taxonomy
+		);
+
+		return (int) $row->terms;
+	}
+
+	/**
+	 * Number of books kept with a translator.
 	 *
 	 * @return int
 	 */
@@ -626,7 +673,7 @@ class Library_Dashboard {
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = t.post_id
 			WHERE t.meta_key = 'translators'
 				AND t.meta_value != ''
-				AND {books}"
+				AND {library}"
 		);
 
 		return (int) $row->books;

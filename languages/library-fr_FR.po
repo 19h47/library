@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-17T11:35:47+00:00\n"
+"POT-Creation-Date: 2026-10-17T12:01:50+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -23,7 +23,7 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-1: vendor\n"
 
 #. Plugin Name of the plugin
-#: admin/class-library-dashboard.php:72
+#: admin/class-library-dashboard.php:79
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -44,123 +44,129 @@ msgid "https://www.19h47.fr"
 msgstr "https://www.19h47.fr"
 
 #. translators: %s: reading percentage.
-#: admin/class-library-admin.php:70 admin/class-library-posts.php:493
+#: admin/class-library-admin.php:70 admin/class-library-posts.php:553
 msgid "%s%% read"
 msgstr "%s%% lu"
 
-#: admin/class-library-dashboard.php:69
+#: admin/class-library-admin.php:82 admin/class-library-posts.php:64
+#: admin/partials/library-form.php:133
+msgctxt "book status"
+msgid "Not kept"
+msgstr "Pas gardé"
+
+#: admin/class-library-dashboard.php:76
 msgid "Reading"
 msgstr "Lectures"
 
-#: admin/class-library-dashboard.php:70
+#: admin/class-library-dashboard.php:77
 msgid "Ratings"
 msgstr "Notes"
 
-#: admin/class-library-dashboard.php:71
+#: admin/class-library-dashboard.php:78
 msgid "Reading pile"
 msgstr "Pile à lire"
 
-#: admin/class-library-dashboard.php:115
+#: admin/class-library-dashboard.php:121
 msgid "Most present authors"
 msgstr "Auteurs les plus présents"
 
-#: admin/class-library-dashboard.php:119
+#: admin/class-library-dashboard.php:125
 msgid "Most present publishers"
 msgstr "Éditeurs les plus présents"
 
-#: admin/class-library-dashboard.php:123
+#: admin/class-library-dashboard.php:129
 msgid "Most present book editions"
 msgstr "Éditions les plus présentes"
 
 #. translators: %s: number of books.
-#: admin/class-library-dashboard.php:202 admin/class-library-posts.php:369
+#: admin/class-library-dashboard.php:209 admin/class-library-posts.php:429
 msgid "%s book"
 msgid_plural "%s books"
 msgstr[0] "%s livre"
 msgstr[1] "%s livres"
 
-#: admin/class-library-dashboard.php:235 admin/class-library-posts.php:289
-#: admin/class-library-posts.php:291 admin/class-library-posts.php:327
+#: admin/class-library-dashboard.php:242 admin/class-library-posts.php:349
+#: admin/class-library-posts.php:351 admin/class-library-posts.php:387
 msgid "Books"
 msgstr "Livres"
 
 #. translators: 1: year, month or rating, 2: number of books, e.g. "2022 (71 books)".
-#: admin/class-library-dashboard.php:237
+#: admin/class-library-dashboard.php:244
 msgid "Most: %1$s (%2$s)"
 msgstr "Maximum : %1$s (%2$s)"
 
-#: admin/class-library-dashboard.php:349
+#: admin/class-library-dashboard.php:356
 msgid "Books read by year"
 msgstr "Livres lus par année"
 
-#: admin/class-library-dashboard.php:349 admin/class-library-dashboard.php:456
+#: admin/class-library-dashboard.php:356 admin/class-library-dashboard.php:463
 msgid "Year"
 msgstr "Année"
 
 #. translators: %d: year.
-#: admin/class-library-dashboard.php:351
+#: admin/class-library-dashboard.php:358
 msgid "Books read in %d by month"
 msgstr "Livres lus en %d par mois"
 
 #. translators: %d: year.
-#: admin/class-library-dashboard.php:351 admin/class-library-dashboard.php:352
+#: admin/class-library-dashboard.php:358 admin/class-library-dashboard.php:359
 msgid "Month"
 msgstr "Mois"
 
-#: admin/class-library-dashboard.php:352
+#: admin/class-library-dashboard.php:359
 msgid "Reading distribution by month"
 msgstr "Répartition des lectures par mois"
 
-#: admin/class-library-dashboard.php:371
+#: admin/class-library-dashboard.php:378
 msgid "Publication year distribution"
 msgstr "Répartition par année de publication"
 
-#: admin/class-library-dashboard.php:371
+#: admin/class-library-dashboard.php:378
 msgid "Publication year"
 msgstr "Année de publication"
 
-#: admin/class-library-dashboard.php:388
+#: admin/class-library-dashboard.php:395
 msgid "Publication year distribution (by decade)"
 msgstr "Répartition par année de publication (par décennie)"
 
-#: admin/class-library-dashboard.php:388
+#: admin/class-library-dashboard.php:395
 msgid "Publication years"
 msgstr "Années de publication"
 
-#: admin/class-library-dashboard.php:419
+#: admin/class-library-dashboard.php:426
 msgid "Rating distribution"
 msgstr "Répartition des notes"
 
-#: admin/class-library-dashboard.php:419 admin/class-library-posts.php:100
-#: admin/class-library-posts.php:248 admin/partials/library-form.php:154
+#: admin/class-library-dashboard.php:426 admin/class-library-posts.php:160
+#: admin/class-library-posts.php:308 admin/partials/library-form.php:176
 msgid "Rating"
 msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:447
+#: admin/class-library-dashboard.php:454
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:447
+#: admin/class-library-dashboard.php:454
 msgid "No rating"
 msgstr "Pas de note"
 
-#: admin/class-library-dashboard.php:455
+#: admin/class-library-dashboard.php:462
 msgid "Average rating by year read"
 msgstr "Note moyenne par année de lecture"
 
-#: admin/class-library-dashboard.php:457
+#: admin/class-library-dashboard.php:464
 msgid "Average rating"
 msgstr "Note moyenne"
 
 #. translators: 1: year, 2: average rating, e.g. "2011 (8.1/10)".
-#: admin/class-library-dashboard.php:459
+#: admin/class-library-dashboard.php:466
 msgid "Best: %1$s (%2$s)"
 msgstr "Meilleure : %1$s (%2$s)"
 
 #. translators: 1: number of books, 2: number of books read.
-#: admin/class-library-dashboard.php:526
+#: admin/class-library-dashboard.php:533
 msgid "%1$s book, %2$s read"
 msgid_plural "%1$s books, %2$s read"
 msgstr[0] "%1$s livre, %2$s lu"
@@ -170,142 +176,149 @@ msgstr[1] "%1$s livres, %2$s lus"
 msgid "Information"
 msgstr "Informations"
 
-#: admin/class-library-posts.php:94
+#. translators: %s: number of books.
+#: admin/class-library-posts.php:66
+msgid "Not kept <span class=\"count\">(%s)</span>"
+msgid_plural "Not kept <span class=\"count\">(%s)</span>"
+msgstr[0] "Pas gardé <span class=\"count\">(%s)</span>"
+msgstr[1] "Pas gardés <span class=\"count\">(%s)</span>"
+
+#: admin/class-library-posts.php:154
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-posts.php:96
+#: admin/class-library-posts.php:156
 msgid "Date published"
 msgstr "Date de publication"
 
-#: admin/class-library-posts.php:97 admin/class-library-posts.php:245
+#: admin/class-library-posts.php:157 admin/class-library-posts.php:305
 #: admin/partials/library-form.php:40
 msgid "ISBN"
 msgstr "ISBN"
 
-#: admin/class-library-posts.php:98 admin/partials/library-form.php:114
+#: admin/class-library-posts.php:158 admin/partials/library-form.php:114
 msgid "Read"
 msgstr "Lu"
 
-#: admin/class-library-posts.php:99 admin/class-library-posts.php:247
-#: admin/partials/library-form.php:133
+#: admin/class-library-posts.php:159 admin/class-library-posts.php:307
+#: admin/partials/library-form.php:155
 msgid "Read date"
 msgstr "Date de lecture"
 
 #. translators: %s: book title.
-#: admin/class-library-posts.php:121
+#: admin/class-library-posts.php:181
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-library-posts.php:163
+#: admin/class-library-posts.php:223
 msgid "Rated"
 msgstr "Noté"
 
-#: admin/class-library-posts.php:246
+#: admin/class-library-posts.php:306
 msgid "Book editions"
 msgstr "Éditions"
 
-#: admin/class-library-posts.php:290 admin/class-library-posts.php:292
+#: admin/class-library-posts.php:350 admin/class-library-posts.php:352
 msgid "Book"
 msgstr "Livre"
 
-#: admin/class-library-posts.php:293
+#: admin/class-library-posts.php:353
 msgid "Book Archives"
 msgstr "Archives des livres"
 
-#: admin/class-library-posts.php:294
+#: admin/class-library-posts.php:354
 msgid "Item Attributes"
 msgstr "Attributs de l'élément"
 
-#: admin/class-library-posts.php:295
+#: admin/class-library-posts.php:355
 msgid "Parent Book:"
 msgstr "Livre parent :"
 
-#: admin/class-library-posts.php:296
+#: admin/class-library-posts.php:356
 msgid "All books"
 msgstr "Tous les livres"
 
-#: admin/class-library-posts.php:297
+#: admin/class-library-posts.php:357
 msgid "Add New Book"
 msgstr "Ajouter un livre"
 
-#: admin/class-library-posts.php:298
+#: admin/class-library-posts.php:358
 msgid "Add New"
 msgstr "Ajouter"
 
-#: admin/class-library-posts.php:299
+#: admin/class-library-posts.php:359
 msgid "New Book"
 msgstr "Nouveau livre"
 
-#: admin/class-library-posts.php:300
+#: admin/class-library-posts.php:360
 msgid "Edit book"
 msgstr "Modifier le livre"
 
-#: admin/class-library-posts.php:301
+#: admin/class-library-posts.php:361
 msgid "Update book"
 msgstr "Mettre à jour le livre"
 
-#: admin/class-library-posts.php:302
+#: admin/class-library-posts.php:362
 msgid "View Book"
 msgstr "Voir le livre"
 
-#: admin/class-library-posts.php:303
+#: admin/class-library-posts.php:363
 msgid "View Books"
 msgstr "Voir les livres"
 
-#: admin/class-library-posts.php:304
+#: admin/class-library-posts.php:364
 msgid "Search Book"
 msgstr "Rechercher un livre"
 
-#: admin/class-library-posts.php:305
+#: admin/class-library-posts.php:365
 msgid "Not found"
 msgstr "Introuvable"
 
-#: admin/class-library-posts.php:306
+#: admin/class-library-posts.php:366
 msgid "Not found in Trash"
 msgstr "Introuvable dans la corbeille"
 
-#: admin/class-library-posts.php:307
+#: admin/class-library-posts.php:367
 msgid "Featured Image"
 msgstr "Image à la une"
 
-#: admin/class-library-posts.php:308
+#: admin/class-library-posts.php:368
 msgid "Set featured image"
 msgstr "Définir l'image à la une"
 
-#: admin/class-library-posts.php:309
+#: admin/class-library-posts.php:369
 msgid "Remove featured image"
 msgstr "Supprimer l'image à la une"
 
-#: admin/class-library-posts.php:310
+#: admin/class-library-posts.php:370
 msgid "Use as featured image"
 msgstr "Utiliser comme image à la une"
 
-#: admin/class-library-posts.php:311
+#: admin/class-library-posts.php:371
 msgid "Insert into book"
 msgstr "Insérer dans le livre"
 
-#: admin/class-library-posts.php:312
+#: admin/class-library-posts.php:372
 msgid "Updloaded to this book"
 msgstr "Envoyé vers ce livre"
 
-#: admin/class-library-posts.php:313
+#: admin/class-library-posts.php:373
 msgid "Books list"
 msgstr "Liste des livres"
 
-#: admin/class-library-posts.php:314
+#: admin/class-library-posts.php:374
 msgid "Books list navigation"
 msgstr "Navigation de la liste des livres"
 
-#: admin/class-library-posts.php:315
+#: admin/class-library-posts.php:375
 msgid "Filtrer books list"
 msgstr "Filtrer la liste des livres"
 
-#: admin/class-library-posts.php:328
+#: admin/class-library-posts.php:388
 msgid "Book description"
 msgstr "Description du livre"
 
-#: admin/class-library-posts.php:497
+#: admin/class-library-posts.php:557
 msgid "Loading percent read..."
 msgstr "Chargement du pourcentage lu..."
 
@@ -596,7 +609,15 @@ msgstr "Numéro de volume"
 msgid "Date Published"
 msgstr "Date de publication"
 
-#: admin/partials/library-form.php:145
+#: admin/partials/library-form.php:146
+msgid ""
+"Read but not in my library: hidden from the books list and the site, counted "
+"in the reading stats."
+msgstr ""
+"Lu mais pas dans ma bibliothèque : masqué de la liste des livres et du site, "
+"compté dans les statistiques de lecture."
+
+#: admin/partials/library-form.php:167
 msgid ""
 "Optional. Setting a date marks the book as read; marking it as read without "
 "a date sets today."
@@ -604,23 +625,23 @@ msgstr ""
 "Facultative. Saisir une date marque le livre comme lu ; le marquer comme lu "
 "sans date la renseigne à la date du jour."
 
-#: admin/partials/library-form.php:168
+#: admin/partials/library-form.php:190
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 
-#: admin/partials/library-form.php:176
+#: admin/partials/library-form.php:198
 msgid "Translators"
 msgstr "Traducteurs"
 
-#: admin/partials/library-form.php:187
+#: admin/partials/library-form.php:209
 msgid "Separate translators with commas"
 msgstr "Séparez les traducteurs par des virgules"
 
-#: admin/partials/library-form.php:195
+#: admin/partials/library-form.php:217
 msgid "Book Editions"
 msgstr "Éditions"
 
-#: admin/partials/library-form.php:206
+#: admin/partials/library-form.php:228
 msgid "Separate book editions with commas"
 msgstr "Séparez les éditions par des virgules"
 
