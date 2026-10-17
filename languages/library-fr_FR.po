@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-17T15:44:21+00:00\n"
+"POT-Creation-Date: 2026-10-17T16:28:03+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -49,7 +49,7 @@ msgid "%s%% read"
 msgstr "%s%% lu"
 
 #: admin/class-library-admin.php:88 admin/class-library-posts.php:77
-#: admin/class-library-posts.php:112 admin/class-library-taxonomies.php:302
+#: admin/class-library-posts.php:112 admin/class-library-taxonomies.php:307
 msgctxt "book status"
 msgid "Not kept"
 msgstr "Pas gardé"
@@ -542,91 +542,91 @@ msgstr "Les plus utilisés"
 msgid "&larr; Back to Authors"
 msgstr "&larr; Retour aux auteurs"
 
-#: admin/class-library-taxonomies.php:168
+#: admin/class-library-taxonomies.php:173
 msgctxt "library publishers general name"
 msgid "Publishers"
 msgstr "Éditeurs"
 
-#: admin/class-library-taxonomies.php:169
+#: admin/class-library-taxonomies.php:174
 msgctxt "library publishers singular name"
 msgid "Publisher"
 msgstr "Éditeur"
 
-#: admin/class-library-taxonomies.php:170
+#: admin/class-library-taxonomies.php:175
 msgid "Search Publishers"
 msgstr "Rechercher des éditeurs"
 
-#: admin/class-library-taxonomies.php:171
+#: admin/class-library-taxonomies.php:176
 msgid "All Publishers"
 msgstr "Tous les éditeurs"
 
-#: admin/class-library-taxonomies.php:172
+#: admin/class-library-taxonomies.php:177
 msgid "Popular Publishers"
 msgstr "Éditeurs populaires"
 
-#: admin/class-library-taxonomies.php:173
+#: admin/class-library-taxonomies.php:178
 msgid "Edit Publisher"
 msgstr "Modifier l'éditeur"
 
-#: admin/class-library-taxonomies.php:174
+#: admin/class-library-taxonomies.php:179
 msgid "View Publisher"
 msgstr "Voir l'éditeur"
 
-#: admin/class-library-taxonomies.php:175
+#: admin/class-library-taxonomies.php:180
 msgid "Update Publisher"
 msgstr "Mettre à jour l'éditeur"
 
-#: admin/class-library-taxonomies.php:176
+#: admin/class-library-taxonomies.php:181
 msgid "Add New Publisher"
 msgstr "Ajouter un éditeur"
 
-#: admin/class-library-taxonomies.php:177
+#: admin/class-library-taxonomies.php:182
 msgid "New Publisher Name"
 msgstr "Nom du nouvel éditeur"
 
-#: admin/class-library-taxonomies.php:178
+#: admin/class-library-taxonomies.php:183
 msgid "Add or remove publishers"
 msgstr "Ajouter ou supprimer des éditeurs"
 
-#: admin/class-library-taxonomies.php:179
+#: admin/class-library-taxonomies.php:184
 msgid "Choose from the most used publishers"
 msgstr "Choisir parmi les éditeurs les plus utilisés"
 
-#: admin/class-library-taxonomies.php:180
+#: admin/class-library-taxonomies.php:185
 msgid "No publishers found."
 msgstr "Aucun éditeur trouvé."
 
-#: admin/class-library-taxonomies.php:181
+#: admin/class-library-taxonomies.php:186
 msgid "No publishers"
 msgstr "Aucun éditeur"
 
-#: admin/class-library-taxonomies.php:182
+#: admin/class-library-taxonomies.php:187
 msgid "Publishers list navigation"
 msgstr "Navigation de la liste des éditeurs"
 
-#: admin/class-library-taxonomies.php:183
+#: admin/class-library-taxonomies.php:188
 msgid "Publishers list"
 msgstr "Liste des éditeurs"
 
 #. translators: Publisher heading when selecting from the most used terms.
-#: admin/class-library-taxonomies.php:185
+#: admin/class-library-taxonomies.php:190
 msgctxt "editor"
 msgid "Most Used"
 msgstr "Les plus utilisés"
 
-#: admin/class-library-taxonomies.php:186
+#: admin/class-library-taxonomies.php:191
 msgid "&larr; Back to Publishers"
 msgstr "&larr; Retour aux éditeurs"
 
-#: admin/class-library-taxonomies.php:187
+#: admin/class-library-taxonomies.php:192
 msgid "Parent Publisher"
 msgstr "Éditeur parent"
 
-#: admin/class-library-taxonomies.php:188
+#: admin/class-library-taxonomies.php:193
 msgid "Parent Publisher:"
 msgstr "Éditeur parent :"
 
-#: admin/class-library-taxonomies.php:189
+#: admin/class-library-taxonomies.php:194
 msgid ""
 "Pick the publisher of a collection, such as Gallimard for Folio. A publisher "
 "has none."
@@ -634,51 +634,51 @@ msgstr ""
 "Choisissez l’éditeur d’une collection, comme Gallimard pour Folio. Un "
 "éditeur n’en a pas."
 
-#: admin/class-library-taxonomies.php:238
+#: admin/class-library-taxonomies.php:243
 msgid "Author added."
 msgstr "Auteur ajouté."
 
-#: admin/class-library-taxonomies.php:239
+#: admin/class-library-taxonomies.php:244
 msgid "Author deleted."
 msgstr "Auteur supprimé."
 
-#: admin/class-library-taxonomies.php:240
+#: admin/class-library-taxonomies.php:245
 msgid "Author updated."
 msgstr "Auteur mis à jour."
 
-#: admin/class-library-taxonomies.php:241
+#: admin/class-library-taxonomies.php:246
 msgid "Author not added."
 msgstr "Auteur non ajouté."
 
-#: admin/class-library-taxonomies.php:242
+#: admin/class-library-taxonomies.php:247
 msgid "Author not updated."
 msgstr "Auteur non mis à jour."
 
-#: admin/class-library-taxonomies.php:243
+#: admin/class-library-taxonomies.php:248
 msgid "Authors deleted."
 msgstr "Auteurs supprimés."
 
-#: admin/class-library-taxonomies.php:248
+#: admin/class-library-taxonomies.php:253
 msgid "Publisher added."
 msgstr "Éditeur ajouté."
 
-#: admin/class-library-taxonomies.php:249
+#: admin/class-library-taxonomies.php:254
 msgid "Publisher deleted."
 msgstr "Éditeur supprimé."
 
-#: admin/class-library-taxonomies.php:250
+#: admin/class-library-taxonomies.php:255
 msgid "Publisher updated."
 msgstr "Éditeur mis à jour."
 
-#: admin/class-library-taxonomies.php:251
+#: admin/class-library-taxonomies.php:256
 msgid "Publisher not added."
 msgstr "Éditeur non ajouté."
 
-#: admin/class-library-taxonomies.php:252
+#: admin/class-library-taxonomies.php:257
 msgid "Publisher not updated."
 msgstr "Éditeur non mis à jour."
 
-#: admin/class-library-taxonomies.php:253
+#: admin/class-library-taxonomies.php:258
 msgid "Publishers deleted."
 msgstr "Éditeurs supprimés."
 
