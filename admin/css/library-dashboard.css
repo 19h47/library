@@ -2,7 +2,10 @@
 	content: "\f330";
 }
 
-#library_dashboard_overview .inside {
+#library_dashboard_overview .inside,
+#library_dashboard_ratings .inside,
+#library_dashboard_pile .inside,
+#library_dashboard_collection .inside {
 	margin: 0;
 	padding-top: 0;
 }
@@ -51,6 +54,29 @@
 
 .library-dashboard-link:hover {
 	text-decoration: underline;
+}
+
+.library-dashboard-ranking {
+	padding: 0 2px 10px;
+}
+
+.library-dashboard-ranking ol {
+	margin: 0;
+	padding-left: 18px;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.library-dashboard-ranking li {
+	margin: 0;
+}
+
+.library-dashboard-ranking-text {
+	color: #646970;
+}
+
+.library-dashboard-ranking-text::before {
+	content: " · ";
 }
 
 .library-dashboard-graph-wrapper {
