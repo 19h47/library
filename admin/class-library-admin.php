@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin functionality: scripts and dependencies.
+ * Admin styles and scripts for the books list.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -20,90 +20,72 @@
 class Library_Admin {
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @return void
 	 */
-	protected $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_version
-	 */
-	protected $plugin_version;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name    Plugin identifier.
-	 * @param string $plugin_version Plugin version.
-	 */
-	public function __construct( string $plugin_name, string $plugin_version ) {
-		$this->plugin_name    = $plugin_name;
-		$this->plugin_version = $plugin_version;
-
-		$this->load_dependencies();
+	public function hooks(): void {
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
 
 	/**
-	 * Load admin dependencies.
+	 * URL and version of an admin asset.
 	 *
-	 * @since  1.0.0
-	 * @access private
+	 * The version is the file modification time, so a changed file is never served from cache.
+	 *
+	 * @param string $path Path relative to the admin folder.
+	 * @return array{0:string,1:string}
 	 */
-	private function load_dependencies() {
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-metaboxes.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-rest-api.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-settings.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-posts.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-taxonomies.php';
-		require_once plugin_dir_path( __DIR__ ) . 'admin/class-library-wp-query.php';
+	public static function asset( string $path ): array {
+		$url     = plugin_dir_url( __FILE__ ) . $path;
+		$version = (string) filemtime( plugin_dir_path( __FILE__ ) . $path );
+
+		return array( $url, $version );
 	}
 
-
 	/**
-	 * Enqueue admin scripts for book edit screen.
+	 * Enqueue the styles of the books, authors and publishers lists, and the books list scripts.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public function enqueue_scripts() {
-		$screen = get_current_screen();
-		if ( ! $screen || 'book' !== $screen->post_type ) {
+	public function enqueue_assets(): void {
+		$screen  = get_current_screen();
+		$screens = array( 'edit-book', 'edit-library-author', 'edit-library-publisher' );
+
+		if ( ! $screen || ! in_array( $screen->id, $screens, true ) ) {
 			return;
 		}
 
-		$read_handle = $this->plugin_name . '-admin-read';
-		wp_enqueue_script( $read_handle, plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-read.js', array( 'jquery' ), $this->plugin_version, true );
+		[ $style_url, $style_version ] = self::asset( 'css/library-admin.css' );
+		wp_enqueue_style( 'library-admin', $style_url, array(), $style_version );
+
+		if ( 'edit-book' !== $screen->id ) {
+			return;
+		}
+
+		$read_handle                 = 'library-admin-read';
+		[ $read_url, $read_version ] = self::asset( 'js/library-admin-read.js' );
+		wp_enqueue_script( $read_handle, $read_url, array( 'wp-api-fetch' ), $read_version, true );
 		wp_localize_script(
 			$read_handle,
 			'libraryAdminRead',
 			array(
-				'restUrl'           => rest_url(),
-				'nonce'             => wp_create_nonce( 'wp_rest' ),
 				/* translators: %s: reading percentage. */
 				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
+				'today'             => current_time( 'Y-m-d' ),
 			)
 		);
-		wp_enqueue_script( $this->plugin_name . '-admin-inline-edit', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-inline-edit.js', array( 'jquery' ), $this->plugin_version, true );
 
-		wp_enqueue_script( $this->plugin_name . '-admin-isbn', plugin_dir_url( __FILE__ ) . 'js/' . $this->plugin_name . '-admin-isbn.js', array( 'jquery' ), $this->plugin_version, true );
+		[ $inline_edit_url, $inline_edit_version ] = self::asset( 'js/library-admin-inline-edit.js' );
+		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );
 		wp_localize_script(
-			$this->plugin_name . '-admin-isbn',
-			'libraryAdminIsbn',
+			'library-admin-inline-edit',
+			'libraryInlineEdit',
 			array(
-				'restUrl'   => rest_url( '/' ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'loading'   => __( 'Loading…', 'library' ),
-				'success'   => __( 'Info loaded.', 'library' ),
-				'error'     => __( 'Could not fetch book data.', 'library' ),
-				'notFound'  => __( 'No book found for this ISBN.', 'library' ),
-				'enterIsbn' => __( 'Please enter an ISBN.', 'library' ),
+				'notKeptStatus' => Library_Posts::NOT_KEPT,
+				'notKeptLabel'  => _x( 'Not kept', 'book status', 'library' ),
 			)
 		);
 	}

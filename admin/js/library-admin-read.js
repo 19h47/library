@@ -1,128 +1,84 @@
 /**
- * Reading percentage (at a glance) and checkbox handling.
+ * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
- * Uses libraryAdminRead (restUrl, nonce) and fetch() with X-WP-Nonce like the ISBN script.
+ * Uses wp.apiFetch, which handles the REST root and nonce, and libraryAdminRead (readPercentFormat, today).
+ * Checking a book without a read date sets it to today.
  *
  * @package    Library
  * @subpackage Library/admin
- * @global     pagenow
- * @global     typenow
- * @global     adminpage
- * @global     libraryAdminRead
+ * @global     wp, libraryAdminRead
  */
-( function () {
+( () => {
 	'use strict';
 
-	var config = window.libraryAdminRead || {};
+	const { apiFetch }     = window.wp;
+	const config           = window.libraryAdminRead ?? {};
+	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
+	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
 
-	jQuery( async function () {
-		if ( 'book' !== typenow || 'edit-php' !== adminpage || 'edit-book' !== pagenow ) {
+	if ( ! readPercentageEl ) {
+		return;
+	}
+
+	const updatePercent = ( percent ) => {
+		const format = config.readPercentFormat ?? '%s% read';
+
+		readPercentageEl.textContent = format.replace( '%s', percent.toLocaleString() );
+	};
+
+	// Quick edit reads the inline data, so it must follow the date the server kept.
+	const updateReadDate = ( id, readDate ) => {
+		const cell       = document.querySelector( `#post-${ id } .column-read_date` );
+		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
+
+		if ( ! cell || ! inlineDate ) {
 			return;
 		}
 
-		var checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
-		var readPercentageEl = document.querySelector( '.js-library-read-percentage' );
+		const label = readDate
+			? new Date( `${ readDate }T00:00` ).toLocaleDateString( document.documentElement.lang, { dateStyle: 'long' } )
+			: '—';
 
-		if ( ! readPercentageEl ) {
+		cell.textContent       = label;
+		inlineDate.textContent = readDate;
+	};
+
+	const handleChange = async ( event ) => {
+		const checkbox = event.target;
+		const id       = checkbox.dataset.postId;
+
+		if ( ! id ) {
 			return;
 		}
 
-		var restUrl = config.restUrl || '';
-		var nonce   = config.nonce || '';
+		checkbox.disabled = true;
+		readPercentageEl.textContent = readPercentageEl.dataset.loadingText ?? '…';
 
-		function fetchLibrary( path, options ) {
-			options = options || {};
-			var url = restUrl + 'library/v1/' + path;
-			var opts = {
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': nonce,
-					'Content-Type': 'application/json',
-				},
-				method: options.method || 'GET',
-			};
-			if ( options.body !== undefined ) {
-				opts.body = options.body;
-			}
-			return window.fetch( url, opts );
+		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
+		const meta       = { read: checkbox.checked };
+
+		if ( checkbox.checked && ! inlineDate?.textContent ) {
+			meta.read_date = config.today;
 		}
 
-		function fetchWpApi( route, body, method ) {
-			method = method || 'POST';
-			body   = body || {};
-			var opts = {
-				method: method,
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': nonce,
-					'Content-Type': 'application/json',
-				},
-			};
-			if ( 'POST' === method && Object.keys( body ).length > 0 ) {
-				opts.body = JSON.stringify( body );
-			}
-			return window.fetch( restUrl + 'wp/v2/' + route, opts );
-		}
-
-		function getReadingStats() {
-			return fetchLibrary( 'books/reading-stats' ).then( function ( res ) {
-				if ( ! res.ok ) {
-					throw new Error( 'Failed to load reading stats' );
-				}
-				return res.json();
-			} );
-		}
-
-		function saveReadingPercentage( value ) {
-			fetchLibrary( 'settings/reading_percentage', {
+		try {
+			const book = await apiFetch( {
+				path: `/wp/v2/books/${ id }`,
 				method: 'POST',
-				body: JSON.stringify( { reading_percentage: value } ),
+				data: { meta },
 			} );
+
+			updateReadDate( id, book.meta.read_date );
+
+			const stats = await apiFetch( { path: '/library/v1/books/reading-stats' } );
+
+			updatePercent( stats.percent );
+		} catch {
+			readPercentageEl.textContent = '—';
+		} finally {
+			checkbox.disabled = false;
 		}
+	};
 
-		function updateUI( read, total ) {
-			var pct    = total > 0 ? Math.trunc( ( read / total ) * 100 ) : 0;
-			var format = config.readPercentFormat || '%s%% read';
-			readPercentageEl.textContent = format.replace( '%s', String( pct ) );
-			saveReadingPercentage( pct );
-		}
-
-		async function handleChange( evt ) {
-			var target = evt.target;
-			var id     = target.dataset.postId;
-			if ( ! id ) {
-				return;
-			}
-
-			target.disabled = true;
-			readPercentageEl.textContent = readPercentageEl.getAttribute( 'data-loading-text' ) || '…';
-
-			try {
-				var res = await fetchWpApi( 'books/' + id, { read: target.checked }, 'POST' );
-				if ( ! res.ok ) {
-					throw new Error( 'Failed to update' );
-				}
-				var stats = await getReadingStats();
-				updateUI( stats.read, stats.total );
-			} catch ( err ) {
-				readPercentageEl.textContent = '—';
-			} finally {
-				target.disabled = false;
-			}
-		}
-
-		checkboxes.forEach( function ( cb ) {
-			cb.addEventListener( 'change', handleChange );
-		} );
-
-		if ( readPercentageEl.classList.contains( 'js-library-read-percentage-init' ) ) {
-			try {
-				var stats = await getReadingStats();
-				readPercentageEl.classList.remove( 'js-library-read-percentage-init' );
-				updateUI( stats.read, stats.total );
-			} catch ( err ) {
-				readPercentageEl.textContent = '—';
-			}
-		}
-	} );
+	checkboxes.forEach( ( checkbox ) => checkbox.addEventListener( 'change', handleChange ) );
 } )();

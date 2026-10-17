@@ -20,31 +20,34 @@
 class Library_Taxonomies {
 
 	/**
-	 * Plugin identifier.
+	 * Book taxonomies.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @var string[]
 	 */
-	private $plugin_name;
+	private const TAXONOMIES = array( 'library-author', 'library-publisher' );
 
 	/**
-	 * Plugin version.
+	 * Books not kept by term ID, with the pseudonyms counted for their real name.
 	 *
-	 * @since  1.0.0
-	 * @var    string $version
+	 * @var array<int,int>|null
 	 */
-	private $version;
+	private ?array $not_kept_counts = null;
 
 	/**
-	 * Constructor.
+	 * Register hooks.
 	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name Plugin identifier.
-	 * @param string $version     Plugin version.
+	 * @return void
 	 */
-	public function __construct( string $plugin_name, string $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
+	public function hooks(): void {
+		add_action( 'init', array( $this, 'register' ) );
+		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
+		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
+		add_filter( 'post_column_taxonomy_links', array( $this, 'keep_status_in_term_links' ), 10, 3 );
+
+		foreach ( self::TAXONOMIES as $taxonomy ) {
+			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_not_kept_column' ) );
+			add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'render_not_kept_column' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -89,23 +92,53 @@ class Library_Taxonomies {
 		);
 
 		$args = array(
-			'labels'              => $labels,
-			'hierarchical'        => true, // Parent = nom réel, enfants = pseudonymes.
-			'public'              => true,
-			'publicly_queryable'  => true,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
-			'show_in_nav_menus'   => true,
-			'show_in_quick_edit'  => true,
-			'show_admin_column'   => true,
-			'show_in_rest'        => true,
-			'show_in_graphql'     => true,
-			'meta_box_cb'         => false,
-			'graphql_single_name' => 'author',
-			'graphql_plural_name' => 'authors',
+			'labels'               => $labels,
+			'hierarchical'         => true, // Parent = nom réel, enfants = pseudonymes.
+			'public'               => true,
+			'publicly_queryable'   => true,
+			'show_ui'              => true,
+			'show_in_menu'         => true,
+			'show_in_nav_menus'    => true,
+			'show_in_quick_edit'   => true,
+			'show_admin_column'    => true,
+			'show_in_rest'         => true,
+			'show_in_graphql'      => true,
+			// The tag box lets authors be typed rather than picked from a checklist.
+			'meta_box_cb'          => 'post_tags_meta_box',
+			'meta_box_sanitize_cb' => array( self::class, 'sanitize_author_names' ),
+			'graphql_single_name'  => 'author',
+			'graphql_plural_name'  => 'authors',
 		);
 
 		register_taxonomy( 'library-author', 'book', $args );
+	}
+
+	/**
+	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
+	 *
+	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
+	 *
+	 * @param string          $taxonomy Taxonomy name.
+	 * @param string|string[] $terms    Comma-separated names, or names.
+	 * @return int[]
+	 */
+	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+		$term_ids = array();
+
+		foreach ( taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) as $term ) {
+			if ( is_int( $term ) ) {
+				$term_ids[] = $term;
+				continue;
+			}
+
+			$inserted = wp_insert_term( $term, $taxonomy );
+
+			if ( ! is_wp_error( $inserted ) ) {
+				$term_ids[] = $inserted['term_id'];
+			}
+		}
+
+		return $term_ids;
 	}
 
 
@@ -150,7 +183,6 @@ class Library_Taxonomies {
 			'show_admin_column'   => true,
 			'show_in_rest'        => true,
 			'show_in_graphql'     => true,
-			'meta_box_cb'         => false,
 			'graphql_single_name' => 'publisher',
 			'graphql_plural_name' => 'publishers',
 		);
@@ -194,49 +226,118 @@ class Library_Taxonomies {
 
 
 	/**
-	 * In admin, when filtering books by author, include children (pseudonyms).
+	 * Keep the status of the current view in the author and publisher links of the books list.
 	 *
-	 * @param \WP_Query $query The WP_Query instance.
-	 * @return void
+	 * Core links to the "All" view, which leaves out the books not kept: from their view, these links listed nothing.
+	 *
+	 * @param string[]  $term_links Term links.
+	 * @param string    $taxonomy   Taxonomy.
+	 * @param WP_Term[] $terms      Terms.
+	 * @return string[]
 	 */
-	public function pre_get_books( \WP_Query $query ): void {
-		if ( ! is_admin() || ! $query->is_main_query() ) {
-			return;
+	public function keep_status_in_term_links( array $term_links, string $taxonomy, array $terms ): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view filter.
+		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
+
+		if ( '' === $status || ! in_array( $taxonomy, self::TAXONOMIES, true ) ) {
+			return $term_links;
 		}
 
-		if ( $query->get( 'post_type' ) !== 'book' ) {
-			return;
-		}
+		return array_map(
+			function ( WP_Term $term ) use ( $taxonomy, $status ) {
+				$url = add_query_arg(
+					array(
+						'post_type'   => 'book',
+						'post_status' => $status,
+						$taxonomy     => $term->slug,
+					),
+					admin_url( 'edit.php' )
+				);
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin filter on books list.
-		$author_param = isset( $_GET['library-author'] ) ? sanitize_text_field( wp_unslash( $_GET['library-author'] ) ) : '';
-		if ( '' === $author_param ) {
-			return;
-		}
-
-		$term = is_numeric( $author_param )
-			? get_term( (int) $author_param, 'library-author' )
-			: get_term_by( 'slug', $author_param, 'library-author' );
-
-		if ( ! $term instanceof \WP_Term ) {
-			return;
-		}
-
-		$tax_query = $query->get( 'tax_query' );
-		if ( ! is_array( $tax_query ) ) {
-			$tax_query = array();
-		}
-
-		$tax_query[] = array(
-			'taxonomy'         => 'library-author',
-			'field'            => 'term_id',
-			'terms'            => $term->term_id,
-			'include_children' => true,
+				return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $term->name ) );
+			},
+			$terms
 		);
-
-		$query->set( 'tax_query', $tax_query );
 	}
 
+	/**
+	 * Add a "Not kept" column after the count, which only counts the published books.
+	 *
+	 * @param string[] $columns Columns.
+	 * @return string[]
+	 */
+	public function add_not_kept_column( array $columns ): array {
+		$columns['library_not_kept'] = _x( 'Not kept', 'book status', 'library' );
+
+		return $columns;
+	}
+
+	/**
+	 * Number of books not kept of a term, linked to their view.
+	 *
+	 * @param string $content     Column content.
+	 * @param string $column_name Column name.
+	 * @param int    $term_id     Term ID.
+	 * @return string
+	 */
+	public function render_not_kept_column( string $content, string $column_name, int $term_id ): string {
+		if ( 'library_not_kept' !== $column_name ) {
+			return $content;
+		}
+
+		$books = $this->get_not_kept_counts()[ $term_id ] ?? 0;
+		$term  = get_term( $term_id );
+
+		if ( ! $books || ! $term instanceof WP_Term ) {
+			return number_format_i18n( $books );
+		}
+
+		$url = add_query_arg(
+			array(
+				'post_type'     => 'book',
+				'post_status'   => Library_Posts::NOT_KEPT,
+				$term->taxonomy => $term->slug,
+			),
+			admin_url( 'edit.php' )
+		);
+
+		return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( number_format_i18n( $books ) ) );
+	}
+
+	/**
+	 * Count the books not kept of every term in one query; a real name also counts its pseudonyms' books.
+	 *
+	 * @return array<int,int>
+	 */
+	private function get_not_kept_counts(): array {
+		if ( null !== $this->not_kept_counts ) {
+			return $this->not_kept_counts;
+		}
+
+		global $wpdb;
+
+		$this->not_kept_counts = array();
+
+		// Each term, then each real name over itself and its pseudonyms, which overrides its own count.
+		foreach ( array( 'tt.term_id', 'COALESCE( NULLIF( tt.parent, 0 ), tt.term_id )' ) as $group ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $group is one of the two constant expressions above.
+			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
+				$wpdb->prepare(
+					"SELECT $group AS term_id, COUNT( DISTINCT p.ID ) AS books
+					FROM {$wpdb->term_relationships} AS tr
+					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+					INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'book' AND p.post_status = %s
+					GROUP BY 1",
+					Library_Posts::NOT_KEPT
+				)
+			);
+			// phpcs:enable
+
+			$this->not_kept_counts = array_replace( $this->not_kept_counts, array_map( 'intval', wp_list_pluck( $rows, 'books', 'term_id' ) ) );
+		}
+
+		return $this->not_kept_counts;
+	}
 
 	/**
 	 * Include children (pseudonyms) in term counts for author taxonomy.
@@ -246,7 +347,8 @@ class Library_Taxonomies {
 	 * @return array
 	 */
 	public function get_terms_args( array $args, array $taxonomies ): array {
-		if ( ! in_array( 'library-author', $taxonomies, true ) ) {
+		// Counts only exist on full terms; padding other queries breaks the core cache.
+		if ( ! in_array( 'library-author', $taxonomies, true ) || 'all' !== $args['fields'] ) {
 			return $args;
 		}
 

@@ -20,106 +20,125 @@
 class Library_Posts {
 
 	/**
-	 * Post type name.
+	 * Status of the books read but not kept: hidden from the books list and the site, counted in the reading stats.
 	 *
-	 * @since  1.0.0
-	 * @var    string $post_type
+	 * @var string
 	 */
-	protected $post_type = 'book';
+	public const NOT_KEPT = 'library-not-kept';
 
 	/**
-	 * Plugin identifier.
+	 * Register hooks.
 	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_name
+	 * @return void
 	 */
-	protected $plugin_name;
-
-	/**
-	 * Plugin version.
-	 *
-	 * @since  1.0.0
-	 * @var    string $plugin_version
-	 */
-	private $plugin_version;
-
-	/**
-	 * Meta key used when sorting by date_published (avoids duplicate postmeta join).
-	 *
-	 * @since  1.0.0
-	 * @var    string|null $orderby_meta_key
-	 */
-	private $orderby_meta_key = null;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 * @param string $plugin_name    Plugin identifier.
-	 * @param string $plugin_version Plugin version.
-	 */
-	public function __construct( $plugin_name, $plugin_version ) {
-		$this->plugin_name    = $plugin_name;
-		$this->plugin_version = $plugin_version;
-
+	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
-		add_filter( 'posts_join', array( $this, 'posts_join_book_date_published' ), 10, 2 );
-		add_filter( 'posts_orderby', array( $this, 'posts_orderby_book_date_published' ), 10, 2 );
+		add_action( 'init', array( $this, 'register_post_status' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'not_kept' ), 10, 2 );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
-		add_action( 'admin_head', array( $this, 'css' ) );
+		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
+		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
+		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
+		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
+		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'sortable_columns' ) );
+		add_action( 'pre_get_posts', array( $this, 'pre_get_books' ) );
+		add_filter( 'posts_clauses', array( $this, 'sort_by_rating' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'slug' ), 10, 2 );
+		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
+		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
+		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
 	}
-
 
 	/**
-	 * Save
+	 * Register the status of the books read but not kept.
 	 *
-	 * @param int     $post_ID Post ID.
-	 * @param WP_Post $post Post object.
-	 * @param bool    $update Whether this is an existing post being updated.
+	 * Core then leaves them out of the "All" view, its count, the site and search,
+	 * and lists them in their own view of the books list.
+	 *
+	 * @return void
 	 */
-	public function save( int $post_ID, WP_Post $post, bool $update ): void {
-
-		// Verify metabox nonce before processing form data from $_POST.
-		$nonce = isset( $_POST['library_metabox_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) ) {
-			return;
-		}
-
-		$isbn          = isset( $_POST['isbn'] ) ? sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) : false;
-		$issn          = isset( $_POST['issn'] ) ? sanitize_text_field( wp_unslash( $_POST['issn'] ) ) : false;
-		$volume_number = isset( $_POST['volume_number'] ) ? sanitize_text_field( wp_unslash( $_POST['volume_number'] ) ) : false;
-
-		if ( $update ) {
-			delete_option( 'reading_percentage' );
-		}
-
-		if ( $isbn ) {
-			remove_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
-
-			wp_update_post(
-				array(
-					'ID'        => $post_ID,
-					'post_name' => $post->post_title . '-' . $isbn,
-				)
-			);
-
-			add_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
-		}
-
-		if ( $issn && $volume_number ) {
-			remove_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
-
-			wp_update_post(
-				array(
-					'ID'        => $post_ID,
-					'post_name' => $post->post_title . '-' . $issn . '-' . $volume_number,
-				)
-			);
-
-			add_action( 'save_post_book', array( $this, 'save' ), 10, 3 );
-		}
+	public function register_post_status(): void {
+		register_post_status(
+			self::NOT_KEPT,
+			array(
+				'label'                     => _x( 'Not kept', 'book status', 'library' ),
+				/* translators: %s: number of books. */
+				'label_count'               => _n_noop( 'Not kept <span class="count">(%s)</span>', 'Not kept <span class="count">(%s)</span>', 'library' ),
+				'public'                    => false,
+				'protected'                 => true,
+				'exclude_from_search'       => true,
+				'show_in_admin_all_list'    => false,
+				'show_in_admin_status_list' => true,
+			)
+		);
 	}
 
+	/**
+	 * Apply the "Not kept" checkbox of the Information box to the book status.
+	 *
+	 * The publish box only offers core statuses, so the checkbox decides; unchecking publishes the book.
+	 *
+	 * @param array $data    Slashed post data to insert.
+	 * @param array $postarr Slashed submitted data, with the form fields.
+	 * @return array
+	 */
+	public function not_kept( array $data, array $postarr ): array {
+		$nonce = isset( $postarr['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $postarr['library_metabox_nonce'] ) ) : '';
+
+		if ( 'book' !== $data['post_type'] || ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) || in_array( $data['post_status'], array( 'trash', 'auto-draft' ), true ) ) {
+			return $data;
+		}
+
+		$not_kept = ! empty( $postarr['not_kept'] );
+
+		if ( $not_kept ) {
+			$data['post_status'] = self::NOT_KEPT;
+		} elseif ( self::NOT_KEPT === $data['post_status'] ) {
+			$data['post_status'] = 'publish';
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Build the slug from the title and the ISBN, or the ISSN and volume number.
+	 *
+	 * Runs before the post is written, so no second update is needed.
+	 *
+	 * @param array $data    Slashed post data about to be saved.
+	 * @param array $postarr Slashed submitted data, with the form fields.
+	 * @return array
+	 */
+	public function slug( array $data, array $postarr ): array {
+		if ( 'book' !== $data['post_type'] ) {
+			return $data;
+		}
+
+		$fields = array_map(
+			fn( string $key ) => sanitize_text_field( wp_unslash( $postarr[ $key ] ?? '' ) ),
+			array(
+				'title'         => 'post_title',
+				'isbn'          => 'isbn',
+				'issn'          => 'issn',
+				'volume_number' => 'volume_number',
+			)
+		);
+
+		if ( $fields['issn'] && $fields['volume_number'] ) {
+			$parts = array( $fields['title'], $fields['issn'], $fields['volume_number'] );
+		} elseif ( $fields['isbn'] ) {
+			$parts = array( $fields['title'], $fields['isbn'] );
+		} else {
+			return $data;
+		}
+
+		$slug    = sanitize_title( implode( '-', $parts ) );
+		$post_id = (int) ( $postarr['ID'] ?? 0 );
+
+		$data['post_name'] = wp_unique_post_slug( $slug, $post_id, $data['post_status'], 'book', $data['post_parent'] );
+
+		return $data;
+	}
 
 	/**
 	 * Add custom columns
@@ -137,7 +156,8 @@ class Library_Posts {
 		$columns['date_published'] = __( 'Date published', 'library' );
 		$columns['isbn']           = __( 'ISBN', 'library' );
 		$columns['read']           = __( 'Read', 'library' );
-		$columns['book_editions']  = __( 'Book Editions', 'library' );
+		$columns['read_date']      = __( 'Read date', 'library' );
+		$columns['rating']         = __( 'Rating', 'library' );
 
 		return $columns;
 	}
@@ -157,13 +177,15 @@ class Library_Posts {
 		switch ( $column_name ) {
 
 			case 'read':
-				$read = get_post_meta( $post_id, 'read', true );
+				/* translators: %s: book title. */
+				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
 
-				if ( $read ) {
-					$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" type="checkbox" checked class="js-library-checkbox" data-post-id="' . esc_attr( $post_id ) . '">';
-				} else {
-					$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" type="checkbox" class="js-library-checkbox" data-post-id="' . esc_attr( $post_id ) . '">';
-				}
+				$output .= sprintf(
+					'<input type="checkbox" class="js-library-checkbox" data-post-id="%1$d" aria-label="%2$s"%3$s>',
+					$post_id,
+					esc_attr( $label ),
+					checked( self::is_read( $post_id ), true, false )
+				);
 
 				break;
 			case 'date_published':
@@ -179,21 +201,29 @@ class Library_Posts {
 			case 'isbn':
 				$isbn = get_post_meta( $post_id, 'isbn', true );
 
-				if ( $isbn ) {
-					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '">' . $isbn . '</span>';
-				} else {
-					$output .= '<span id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '"></span>—';
+				$output .= $isbn ? esc_html( $isbn ) : '—';
+
+				break;
+			case 'read_date':
+				$read_date = get_post_meta( $post_id, 'read_date', true );
+
+				$output .= $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—';
+
+				break;
+			case 'rating':
+				$rating = get_post_meta( $post_id, 'rating', true );
+
+				$output .= '' !== $rating ? esc_html( $rating ) . ' / 10' : '—';
+
+				break;
+			case 'thumbnail':
+				$rating = get_post_meta( $post_id, 'rating', true );
+
+				if ( '' !== $rating ) {
+					$output .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating ) . '/10" aria-hidden="true">' . esc_html( $rating ) . '</span>';
 				}
 
-				break;
-			case 'book_editions':
-				$book_editions = get_post_meta( $post_id, 'book_editions', true );
-
-				$output .= '<input id="' . $this->plugin_name . '-' . $column_name . '-' . $post_id . '" name="' . $column_name . '" value="' . $book_editions . '" type="hidden">';
-
-				break;
-
-			case 'thumbnail':
+				$output   .= '<span class="library-thumbnail-cell">';
 				$thumbnail = get_the_post_thumbnail( $post_id );
 
 				if ( $thumbnail ) {
@@ -203,6 +233,7 @@ class Library_Posts {
 				} else {
 					$output .= '—';
 				}
+				$output .= '</span>';
 
 				break;
 
@@ -210,15 +241,17 @@ class Library_Posts {
 
 		$allowed_column_html = array(
 			'input' => array(
-				'id'           => true,
 				'type'         => true,
-				'name'         => true,
-				'value'        => true,
 				'class'        => true,
 				'checked'      => true,
 				'data-post-id' => true,
+				'aria-label'   => true,
 			),
-			'span'  => array( 'id' => true ),
+			'span'  => array(
+				'class'       => true,
+				'title'       => true,
+				'aria-hidden' => true,
+			),
 			'a'     => array( 'href' => true ),
 			'img'   => array(
 				'src'      => true,
@@ -234,97 +267,75 @@ class Library_Posts {
 	}
 
 	/**
-	 * Render quick edit
+	 * Add the quick edit values to the hidden inline data of a book row.
 	 *
-	 * @param string $column_name Name of the column to edit.
-	 * @param string $post_type   The post type slug, or current screen name if this is a taxonomy list table.
-	 * @param string $taxonomy    The taxonomy name, if any.
-	 *
-	 * @see https://developer.wordpress.org/reference/hooks/quick_edit_custom_box/
+	 * @param WP_Post $post Post.
+	 * @see https://developer.wordpress.org/reference/hooks/add_inline_data/
 	 */
-	public function render_quick_edit( string $column_name, string $post_type, string $taxonomy ): void {
-		unset( $post_type, $taxonomy );
-
-		$html = '';
-
-		switch ( $column_name ) {
-			case 'isbn':
-				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
-				$html .= '<label class="inline-edit-isbn">';
-				$html .= '<span class="title">' . esc_html__( 'ISBN', 'library' ) . '</span>';
-				$html .= '<input pattern="(?:(?=.{17}$)97[89][ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])" name="isbn" class="inline-edit-isbn-input js-library-isbn" type="text" placeholder="' . esc_html__( 'ISBN', 'library' ) . '" value="">';
-				$html .= '</label>';
-				$html .= '</div></fieldset>';
-
-				break;
-			case 'book_editions':
-				$html .= '<fieldset class="inline-edit-col"><div class="inline-edit-col">';
-				$html .= '<label class="inline-edit-book-editions">';
-				$html .= '<span class="title">' . esc_html__( 'Book editions', 'library' ) . '</span>';
-				$html .= '<input name="book_editions" class="inline-edit-book-editions-input js-library-book-editions" type="text" placeholder="' . esc_html__( 'Book editions', 'library' ) . '" value="">';
-				$html .= '</label>';
-				$html .= '</div></fieldset>';
-
-				break;
+	public function add_inline_data( WP_Post $post ): void {
+		if ( 'book' !== $post->post_type ) {
+			return;
 		}
 
-		$allowed_quick_edit_html = array(
-			'fieldset' => array( 'class' => true ),
-			'div'      => array( 'class' => true ),
-			'label'    => array( 'class' => true ),
-			'span'     => array( 'class' => true ),
-			'input'    => array(
-				'name'        => true,
-				'class'       => true,
-				'type'        => true,
-				'placeholder' => true,
-				'value'       => true,
-				'pattern'     => true,
-			),
+		foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) {
+			$value = (string) get_post_meta( $post->ID, $key, true );
+
+			printf( '<div class="library_%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
+		}
+	}
+
+	/**
+	 * Render the book fields of quick edit, once, with the ISBN column.
+	 *
+	 * @param string $column_name Name of the column to edit.
+	 * @see https://developer.wordpress.org/reference/hooks/quick_edit_custom_box/
+	 */
+	public function render_quick_edit( string $column_name ): void {
+		if ( 'isbn' !== $column_name ) {
+			return;
+		}
+
+		$fields = array(
+			'isbn'          => sprintf( '<input type="text" name="isbn" pattern="%s">', esc_attr( Library_Meta::ISBN_PATTERN ) ),
+			'book_editions' => '<input type="text" name="book_editions">',
+			'read_date'     => '<input type="date" name="read_date">',
+			'rating'        => '<input type="number" name="rating" min="1" max="10" step="0.5">',
 		);
-		echo wp_kses( $html, $allowed_quick_edit_html );
+		$labels = array(
+			'isbn'          => __( 'ISBN', 'library' ),
+			'book_editions' => __( 'Book editions', 'library' ),
+			'read_date'     => __( 'Read date', 'library' ),
+			'rating'        => __( 'Rating', 'library' ),
+		);
+		?>
+		<fieldset class="inline-edit-col-right">
+			<div class="inline-edit-col">
+				<?php foreach ( $fields as $key => $input ) : ?>
+					<label>
+						<span class="title"><?php echo esc_html( $labels[ $key ] ); ?></span>
+						<span class="input-text-wrap"><?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, attributes escaped above. ?></span>
+					</label>
+				<?php endforeach; ?>
+			</div>
+		</fieldset>
+		<?php
 	}
 
 	/**
 	 * Save quick edit.
 	 *
-	 * @param int     $post_ID Post ID.
-	 * @param WP_Post $post    Post object.
-	 * @param bool    $update  Whether this is an existing post being updated.
+	 * Core checks the capability before saving; the nonce tells a quick edit
+	 * apart from any other save.
+	 *
+	 * @param int $post_id Post ID.
 	 */
-	public function save_quick_edit( int $post_ID, WP_Post $post, bool $update ) {
-		unset( $update );
-
-		if ( empty( $_POST ) ) {
-			return $post_ID;
+	public function save_quick_edit( int $post_id ): void {
+		if ( ! check_ajax_referer( 'inlineeditnonce', '_inline_edit', false ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
 		}
 
-		// Verify quick edit nonce.
-		if ( isset( $_POST['_inline_edit'] ) && ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_inline_edit'] ) ), 'inlineeditnonce' ) ) {
-			return $post_ID;
-		}
-
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return $post_ID;
-		}
-
-		if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
-			return $post_ID;
-		}
-
-		switch ( $post->post_type ) {
-
-			case 'book':
-				$fields = array( 'isbn', 'book_editions' );
-
-				foreach ( $fields as $field ) {
-					if ( array_key_exists( $field, $_POST ) ) {
-						update_post_meta( $post_ID, $field, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
-					}
-				}
-
-				break;
-		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Library_Meta.
+		Library_Meta::save( $post_id, wp_unslash( $_POST ) );
 	}
 
 	/**
@@ -364,7 +375,7 @@ class Library_Posts {
 			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
 		);
 
-		$supports   = array( 'title', 'thumbnail' /* , 'custom-fields' */ );
+		$supports   = array( 'title', 'thumbnail', 'custom-fields' );
 		$taxonomies = array( 'library-author', 'library-publisher' );
 
 		$rewrite = array(
@@ -398,115 +409,48 @@ class Library_Posts {
 
 		$args = apply_filters( 'library_post_type_args', $args );
 
-		register_post_type( $this->post_type, $args );
+		register_post_type( 'book', $args );
 	}
 
 	/**
-	 * "At a glance" items (dashboard widget): add the testimony.
+	 * Add the number of published books to the "At a Glance" dashboard widget.
 	 *
-	 * @param arr $items Items.
+	 * @param string[] $items Items.
+	 * @return string[]
 	 */
-	public function at_a_glance( $items ) {
-		$post_status = 'publish';
-		$object      = get_post_type_object( $this->post_type );
+	public function at_a_glance( array $items ): array {
+		$count = (int) wp_count_posts( 'book' )->publish;
 
-		$num_posts = wp_count_posts( $this->post_type );
-
-		if ( ! $num_posts || ! isset( $num_posts->{ $post_status } ) || 0 === (int) $num_posts->{ $post_status } ) {
+		if ( ! $count ) {
 			return $items;
 		}
 
-		$count = (int) $num_posts->{ $post_status };
-		$label = 1 === $count
-		? strtolower( $object->labels->singular_name )
-		: strtolower( $object->labels->name );
-		$text  = sprintf(
-		/* translators: %1$s: number, %2$s: post type name (singular or plural), %3$s: pending prefix */
-			_n( '%1$s %3$s%2$s', '%1$s %3$s%2$s', $count, 'library' ),
-			number_format_i18n( $count ),
-			$label,
-			'pending' === $post_status ? 'Pending ' : ''
-		);
+		/* translators: %s: number of books. */
+		$text = sprintf( _n( '%s book', '%s books', $count, 'library' ), number_format_i18n( $count ) );
 
-		if ( current_user_can( $object->cap->edit_posts ) ) {
-			$items[] = sprintf(
-				'<a class="%1$s-count" href="edit.php?post_status=%2$s&post_type=%1$s">%3$s</a>',
-				$this->post_type,
-				$post_status,
-				$text
-			);
-		} else {
-			$items[] = sprintf( '<span class="%1$s-count">%s</span>', $text );
+		if ( ! current_user_can( get_post_type_object( 'book' )->cap->edit_posts ) ) {
+			$items[] = sprintf( '<span class="book-count">%s</span>', esc_html( $text ) );
+
+			return $items;
 		}
+
+		$items[] = sprintf(
+			'<a class="book-count" href="%1$s">%2$s</a>',
+			esc_url( admin_url( 'edit.php?post_type=book' ) ),
+			esc_html( $text )
+		);
 
 		return $items;
 	}
 
 	/**
-	 * CSS
-	 */
-	public function css() {
-		global $typenow;
-
-		echo '<style>#dashboard_right_now .book-count:before { content: "\f330"; }</style>';
-
-		if ( $this->post_type !== $typenow ) {
-			return false;
-		}
-
-		?>
-		<style>
-			.fixed .column-read {
-				width: 80px;
-				text-align: right;
-			}
-
-			.fixed .column-read input {
-				margin: 0;
-			}
-
-			.fixed .column-book_editions {
-				display: none;
-			}
-
-			.fixed .column-thumbnail {
-				vertical-align: top;
-				width: 80px;
-			}
-
-			.column-thumbnail a {
-				display: block;
-			}
-			.column-thumbnail a img {
-				display: inline-block;
-				vertical-align: middle;
-				width: 80px;
-				height: 80px;
-				object-fit: contain;
-				object-position: center;
-				overflow: hidden;
-			}
-		</style>
-		<?php
-
-		return true;
-	}
-
-	/**
-	 * Register rest fields
+	 * Whether a book has been read; the read date is optional.
 	 *
-	 * @see https://developer.wordpress.org/reference/functions/register_rest_field/
+	 * @param int $post_id Post ID.
+	 * @return bool
 	 */
-	public function register_rest_fields(): void {
-		register_rest_field(
-			'book',
-			'read',
-			array(
-				'get_callback'    => fn( array $data ) => (bool) get_post_meta( $data['id'], 'read', true ),
-				'update_callback' => fn( $value, WP_Post $post ) => update_post_meta( $post->ID, 'read', (bool) $value ),
-				'schema'          => null,
-			)
-		);
+	public static function is_read( int $post_id ): bool {
+		return (bool) get_post_meta( $post_id, 'read', true );
 	}
 
 	/**
@@ -518,6 +462,7 @@ class Library_Posts {
 	 */
 	public function sortable_columns( array $sortable_columns ): array {
 		$sortable_columns['date_published'] = array( 'date_published', true );
+		$sortable_columns['rating']         = array( 'rating', true );
 
 		return $sortable_columns;
 	}
@@ -539,13 +484,9 @@ class Library_Posts {
 			return $query;
 		}
 
-		$this->orderby_meta_key = null;
-
-		$orderby = $query->get( 'orderby' );
-
-		if ( 'date_published' === $orderby ) {
-			$this->orderby_meta_key = 'date_published';
-			$query->set( 'orderby', 'date' );
+		if ( 'date_published' === $query->get( 'orderby' ) ) {
+			$query->set( 'meta_key', 'date_published' );
+			$query->set( 'orderby', 'meta_value' );
 		}
 
 		return $query;
@@ -553,101 +494,47 @@ class Library_Posts {
 
 
 	/**
-	 * Join postmeta with unique alias for date_published sort.
+	 * Sort the books list by rating, unrated books last.
 	 *
-	 * Using only meta_key + orderby meta_value in pre_get_posts would let WP_Query
-	 * add its own postmeta join. With filters (e.g. year, search) or other plugins,
-	 * that produces a second join on the same table → "Not unique table/alias".
-	 * Same approach as in Run plugin (posts_join + posts_orderby with dedicated alias).
+	 * A core meta query cannot keep the unrated books without mixing them in:
+	 * its OR clauses join every other meta of these books and sort on one of them.
 	 *
-	 * @param string   $join  Clause JOIN.
-	 * @param WP_Query $query Query.
-	 * @return string
+	 * @param string[] $clauses Query clauses.
+	 * @param WP_Query $query   Query.
+	 * @return string[]
 	 */
-	public function posts_join_book_date_published( $join, WP_Query $query ) {
-		if ( ! is_admin() || $query->get( 'post_type' ) !== 'book' || ! $this->orderby_meta_key ) {
-			return $join;
+	public function sort_by_rating( array $clauses, WP_Query $query ): array {
+		if ( ! is_admin() || ! $query->is_main_query() || 'book' !== $query->get( 'post_type' ) || 'rating' !== $query->get( 'orderby' ) ) {
+			return $clauses;
 		}
 
 		global $wpdb;
 
-		$join .= $wpdb->prepare(
-			" INNER JOIN {$wpdb->postmeta} AS book_meta_sort ON ({$wpdb->posts}.ID = book_meta_sort.post_id AND book_meta_sort.meta_key = %s) ",
-			$this->orderby_meta_key
-		);
+		$order = 'ASC' === strtoupper( $query->get( 'order' ) ) ? 'ASC' : 'DESC';
 
-		return $join;
+		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS library_rating ON ( library_rating.post_id = {$wpdb->posts}.ID AND library_rating.meta_key = 'rating' )";
+		$clauses['orderby'] = "library_rating.meta_value IS NULL, CAST( library_rating.meta_value AS DECIMAL(3,1) ) $order, {$wpdb->posts}.post_title ASC";
+
+		return $clauses;
 	}
 
-
 	/**
-	 * ORDER BY book_meta_sort.meta_value for date_published.
+	 * Show a book title with its series and volume number: "Series, Title, 3".
 	 *
-	 * @param string   $orderby Clause ORDER BY.
-	 * @param WP_Query $query   Query.
+	 * @param string $title   The post title.
+	 * @param int    $post_id The post ID; some callers of the_title omit it.
 	 * @return string
 	 */
-	public function posts_orderby_book_date_published( $orderby, WP_Query $query ) {
-		if ( ! is_admin() || $query->get( 'post_type' ) !== 'book' || ! $this->orderby_meta_key ) {
-			return $orderby;
-		}
-
-		$order = strtoupper( $query->get( 'order' ) );
-		if ( 'DESC' !== $order ) {
-			$order = 'ASC';
-		}
-
-		return 'book_meta_sort.meta_value ' . $order;
-	}
-
-
-	/**
-	 * Add volume number to book title.
-	 *
-	 * @param string $title The post title.
-	 * @param int    $post_id The post ID.
-	 *
-	 * @return string
-	 */
-	public function add_volume_number_to_title( string $title, int $post_id ) {
-		$post_type = get_post_type( $post_id );
-
-		if ( $this->post_type === $post_type ) {
-			$volume_number = get_post_meta( $post_id, 'volume_number', true );
-
-			if ( $volume_number ) {
-				$title = $title . ', ' . $volume_number;
-			}
-
+	public function title( string $title, int $post_id = 0 ): string {
+		if ( ! $post_id || 'book' !== get_post_type( $post_id ) ) {
 			return $title;
 		}
 
-		return $title;
-	}
+		$series        = get_post_meta( $post_id, 'series', true );
+		$volume_number = get_post_meta( $post_id, 'volume_number', true );
+		$parts         = array_filter( array( $series, $title, $volume_number ), 'strlen' );
 
-
-	/**
-	 * Add series to book title.
-	 *
-	 * @param string $title The post title.
-	 * @param int    $post_id The post ID.
-	 *
-	 * @return string
-	 */
-	public function add_series_to_title( string $title, int $post_id ) {
-		$post_type = get_post_type( $post_id );
-
-		if ( $this->post_type === $post_type ) {
-			$series = get_post_meta( $post_id, 'series', true );
-
-			if ( $series ) {
-				$title = $series . ', ' . $title;
-			}
-
-			return $title;
-		}
-
-		return $title;
+		return implode( ', ', $parts );
 	}
 
 	/**
@@ -660,14 +547,51 @@ class Library_Posts {
 	 * @return array
 	 */
 	public function add_list_table_views( array $views ): array {
-		if ( get_option( 'reading_percentage' ) ) {
+		$stats = self::get_reading_stats();
 
-			/* translators: %s: reading percentage. */
-			$views[] = '<a class="js-library-read-percentage" data-loading-text="' . esc_html__( 'Loading percent read...', 'library' ) . '">' . sprintf( __( '%s%% read', 'library' ), get_option( 'reading_percentage' ) ) . '</a>';
-		} else {
-			$views[] = '<a class="js-library-read-percentage js-library-read-percentage-init" data-loading-text="' . esc_html__( 'Loading percent read...', 'library' ) . '">' . esc_html__( 'Loading percent read...', 'library' ) . '</a>';
-		}
+		/* translators: %s: reading percentage. */
+		$label = sprintf( __( '%s%% read', 'library' ), number_format_i18n( $stats['percent'] ) );
+
+		$views['library-read-percentage'] = sprintf(
+			'<span class="js-library-read-percentage" data-loading-text="%1$s">%2$s</span>',
+			esc_attr__( 'Loading percent read...', 'library' ),
+			esc_html( $label )
+		);
 
 		return $views;
+	}
+
+	/**
+	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts and books not kept.
+	 *
+	 * @return array{read:int,total:int,percent:int}
+	 */
+	public static function get_reading_stats(): array {
+		$counts = (array) wp_count_posts( 'book' );
+		unset( $counts['trash'], $counts['auto-draft'], $counts[ self::NOT_KEPT ] );
+
+		$total = (int) array_sum( $counts );
+
+		// The list table sort filters must not alter this count.
+		$read_query = new WP_Query(
+			array(
+				'post_type'        => 'book',
+				'post_status'      => 'any',
+				'posts_per_page'   => 1,
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+				'meta_key'         => 'read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
+				'meta_value'       => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
+			)
+		);
+
+		$read    = (int) $read_query->found_posts;
+		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
+
+		return array(
+			'read'    => $read,
+			'total'   => $total,
+			'percent' => $percent,
+		);
 	}
 }

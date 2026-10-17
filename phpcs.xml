@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Nexiode-Standards">
-    <description>Règles de l'agence pour WordPress.</description>
+<ruleset name="Library-Standards">
+    <description>WordPress standards for the Library plugin.</description>
 
     <rule ref="WordPress" />
 
