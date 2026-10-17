@@ -44,14 +44,6 @@ class Library_Posts {
 	private $plugin_version;
 
 	/**
-	 * Meta key used when sorting by date_published (avoids duplicate postmeta join).
-	 *
-	 * @since  1.0.0
-	 * @var    string|null $orderby_meta_key
-	 */
-	private $orderby_meta_key = null;
-
-	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -63,8 +55,6 @@ class Library_Posts {
 		$this->plugin_version = $plugin_version;
 
 		add_action( 'init', array( $this, 'register_post_type' ) );
-		add_filter( 'posts_join', array( $this, 'posts_join_book_date_published' ), 10, 2 );
-		add_filter( 'posts_orderby', array( $this, 'posts_orderby_book_date_published' ), 10, 2 );
 		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 		add_action( 'admin_head', array( $this, 'css' ) );
 	}
@@ -581,65 +571,12 @@ class Library_Posts {
 			return $query;
 		}
 
-		$this->orderby_meta_key = null;
-
-		$orderby = $query->get( 'orderby' );
-
-		if ( 'date_published' === $orderby ) {
-			$this->orderby_meta_key = 'date_published';
-			$query->set( 'orderby', 'date' );
+		if ( 'date_published' === $query->get( 'orderby' ) ) {
+			$query->set( 'meta_key', 'date_published' );
+			$query->set( 'orderby', 'meta_value' );
 		}
 
 		return $query;
-	}
-
-
-	/**
-	 * Join postmeta with unique alias for date_published sort.
-	 *
-	 * Using only meta_key + orderby meta_value in pre_get_posts would let WP_Query
-	 * add its own postmeta join. With filters (e.g. year, search) or other plugins,
-	 * that produces a second join on the same table → "Not unique table/alias".
-	 * Same approach as in Run plugin (posts_join + posts_orderby with dedicated alias).
-	 *
-	 * @param string   $join  Clause JOIN.
-	 * @param WP_Query $query Query.
-	 * @return string
-	 */
-	public function posts_join_book_date_published( $join, WP_Query $query ) {
-		if ( ! is_admin() || $query->get( 'post_type' ) !== 'book' || ! $this->orderby_meta_key ) {
-			return $join;
-		}
-
-		global $wpdb;
-
-		$join .= $wpdb->prepare(
-			" INNER JOIN {$wpdb->postmeta} AS book_meta_sort ON ({$wpdb->posts}.ID = book_meta_sort.post_id AND book_meta_sort.meta_key = %s) ",
-			$this->orderby_meta_key
-		);
-
-		return $join;
-	}
-
-
-	/**
-	 * ORDER BY book_meta_sort.meta_value for date_published.
-	 *
-	 * @param string   $orderby Clause ORDER BY.
-	 * @param WP_Query $query   Query.
-	 * @return string
-	 */
-	public function posts_orderby_book_date_published( $orderby, WP_Query $query ) {
-		if ( ! is_admin() || $query->get( 'post_type' ) !== 'book' || ! $this->orderby_meta_key ) {
-			return $orderby;
-		}
-
-		$order = strtoupper( $query->get( 'order' ) );
-		if ( 'DESC' !== $order ) {
-			$order = 'ASC';
-		}
-
-		return 'book_meta_sort.meta_value ' . $order;
 	}
 
 

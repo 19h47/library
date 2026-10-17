@@ -82,6 +82,8 @@ No. The plugin only provides the post type, taxonomies, and admin UI. Use your t
 * The slug is built before the book is saved, from quick edit too.
 * Authors and publishers are edited in the core tag boxes, with autocomplete, instead of fields in the Information box. New authors typed there are created.
 * Fixed PHP warnings when querying author terms by ID.
+* Search only applies to book queries and matches the book text meta (series, ISBN, ISSN, volume number, translators, book editions) through a subquery. Other searches are no longer changed, and a search combined with a meta query no longer fails.
+* Sorting by publication date uses the core meta ordering.
 
 = 0.0.0 =
 * Initial release.

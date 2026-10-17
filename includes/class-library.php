@@ -93,7 +93,7 @@ class Library {
 		$plugin_posts      = new Library_Posts( $this->plugin_name, $this->plugin_version );
 		$plugin_rest_api   = new Library_Rest_API( $this->plugin_name, $this->plugin_version );
 		$plugin_taxonomies = new Library_Taxonomies( $this->plugin_name, $this->plugin_version );
-		$plugin_wp_query   = new Library_WP_Query( $this->plugin_name, $this->plugin_version );
+		$plugin_wp_query   = new Library_WP_Query();
 		$plugin_dashboard  = new Library_Dashboard( $this->plugin_name, $this->plugin_version );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -123,15 +123,12 @@ class Library {
 		// Taxonomies.
 		$this->loader->add_action( 'init', $plugin_taxonomies, 'register', 10, 0 );
 		$this->loader->add_action( 'term_updated_messages', $plugin_taxonomies, 'messages', 10, 1 );
-		$this->loader->add_action( 'pre_get_posts', $plugin_taxonomies, 'pre_get_books', 10, 1 );
 		$this->loader->add_filter( 'get_terms_args', $plugin_taxonomies, 'get_terms_args', 10, 2 );
 
 		// Dashboard.
 		$this->loader->add_action( 'wp_dashboard_setup', $plugin_dashboard, 'register_widget' );
 
-		$this->loader->add_filter( 'posts_join', $plugin_wp_query, 'search_join', 10, 2 );
-		$this->loader->add_filter( 'posts_where', $plugin_wp_query, 'search_where', 10, 2 );
-		$this->loader->add_filter( 'posts_distinct', $plugin_wp_query, 'search_distinct', 10, 2 );
+		$this->loader->add_filter( 'posts_search', $plugin_wp_query, 'search', 10, 2 );
 	}
 
 	/**
