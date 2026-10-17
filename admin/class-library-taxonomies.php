@@ -133,12 +133,17 @@ class Library_Taxonomies {
 	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
 	 *
 	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
+	 * Quick and bulk edit post the checklist of a hierarchical taxonomy instead: term IDs, kept as they are.
 	 *
 	 * @param string          $taxonomy Taxonomy name.
-	 * @param string|string[] $terms    Comma-separated names, or names.
+	 * @param string|string[] $terms    Comma-separated names from the tag box, or term IDs from the checklist.
 	 * @return int[]
 	 */
 	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+		if ( is_array( $terms ) ) {
+			return taxonomy_meta_box_sanitize_cb_checkboxes( $taxonomy, $terms );
+		}
+
 		$term_ids = array();
 
 		foreach ( taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) as $term ) {
