@@ -89,21 +89,62 @@
 		</td>
 	</tr>
 
-	<!-- Date Published -->
+	<!-- Pages -->
 	<tr>
 		<th>
-			<label for="library-date-published">
-				<?php esc_html_e( 'Date Published', 'library' ); ?>
+			<label for="library-pages">
+				<?php esc_html_e( 'Pages', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="number"
+				id="library-pages"
+				name="pages"
+				class="small-text"
+				min="1"
+				value="<?php echo esc_attr( $values['pages'] ); ?>"
+			>
+		</td>
+	</tr>
+
+	<!-- Edition Date -->
+	<tr>
+		<th>
+			<label for="library-edition-date">
+				<?php esc_html_e( 'Edition date', 'library' ); ?>
 			</label>
 		</th>
 		<td>
 			<input
 				type="date"
-				id="library-date-published"
-				name="date_published"
+				id="library-edition-date"
+				name="edition_date"
 				class="regular-text"
-				value="<?php echo esc_attr( $values['date_published'] ); ?>"
+				value="<?php echo esc_attr( $values['edition_date'] ); ?>"
 			>
+		</td>
+	</tr>
+
+	<!-- Published Date -->
+	<tr>
+		<th>
+			<label for="library-published-date">
+				<?php esc_html_e( 'First published', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="date"
+				id="library-published-date"
+				name="published_date"
+				class="regular-text"
+				aria-describedby="library-published-date-description"
+				value="<?php echo esc_attr( $values['published_date'] ); ?>"
+			>
+			<p class="description" id="library-published-date-description">
+				<?php esc_html_e( 'Optional. When the work first came out, whatever the edition.', 'library' ); ?>
+			</p>
 		</td>
 	</tr>
 
@@ -207,25 +248,6 @@
 				value="<?php echo esc_attr( $values['translators'] ); ?>"
 			>
 			<p class="description"><?php esc_html_e( 'Separate translators with commas', 'library' ); ?></p>
-		</td>
-	</tr>
-
-	<!-- Book Editions -->
-	<tr>
-		<th scope="row">
-			<label for="library-book-editions">
-				<?php esc_html_e( 'Book Editions', 'library' ); ?>
-			</label>
-		</th>
-		<td>
-			<input
-				type="text"
-				id="library-book-editions"
-				name="book_editions"
-				class="regular-text"
-				value="<?php echo esc_attr( $values['book_editions'] ); ?>"
-			>
-			<p class="description"><?php esc_html_e( 'Separate book editions with commas', 'library' ); ?></p>
 		</td>
 	</tr>
 </table>

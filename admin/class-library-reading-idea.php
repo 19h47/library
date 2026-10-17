@@ -10,10 +10,13 @@
  */
 
 /**
- * Suggests a book to read each week, among all the books not read yet, kept or not.
+ * Suggests a book to read each week, among all the books, kept or not.
  *
- * Ideas alternate between three kinds, each one with its reason: the next volume of a series
- * in progress, a book by an author rated well, and the rest of the reading pile.
+ * Ideas alternate between kinds, each one with its reason drawn from the data: the next volume of
+ * a series in progress, a book by an author, a translator or in a collection rated well, an author
+ * never read despite many books, an anniversary of the work or the edition, the opposite of the latest reads, a short
+ * book to catch up on last year, a book just added, a book rated well long ago to read again, and the
+ * rest of the reading pile. A volume of a series is only suggested when it is the first one not read yet.
  *
  * @since      1.1.0
  * @package    Library
@@ -30,11 +33,67 @@ class Library_Reading_Idea {
 	private const QUERY_ARG = 'library_idea';
 
 	/**
-	 * Average rating, out of 10, from which an author counts as rated well.
+	 * Average rating, out of 10, from which an author, a translator or a collection counts as rated well.
 	 *
 	 * @var int
 	 */
 	private const WELL_RATED = 8;
+
+	/**
+	 * Number of books rated from which an average counts.
+	 *
+	 * @var int
+	 */
+	private const MIN_RATED = 2;
+
+	/**
+	 * Years without reading an author rated well from which the reason says when they were last read.
+	 *
+	 * @var int
+	 */
+	private const DORMANT_YEARS = 3;
+
+	/**
+	 * Number of books by an author from which not having read any of them stands out.
+	 *
+	 * @var int
+	 */
+	private const UNREAD_AUTHOR_BOOKS = 3;
+
+	/**
+	 * Number of latest reads whose opposite is suggested.
+	 *
+	 * @var int
+	 */
+	private const LATEST_READS = 6;
+
+	/**
+	 * Number of pages up to which a book is short.
+	 *
+	 * @var int
+	 */
+	private const SHORT_BOOK = 200;
+
+	/**
+	 * Days during which a book just added is suggested.
+	 *
+	 * @var int
+	 */
+	private const FRESH_DAYS = 30;
+
+	/**
+	 * Rating, out of 10, from which a book is worth reading again.
+	 *
+	 * @var int
+	 */
+	private const REREAD_RATING = 9;
+
+	/**
+	 * Years since the reading from which a book is worth reading again.
+	 *
+	 * @var int
+	 */
+	private const REREAD_YEARS = 10;
 
 	/**
 	 * Register hooks.
@@ -69,7 +128,7 @@ class Library_Reading_Idea {
 	 * The idea at a position of this week's list, which loops.
 	 *
 	 * @param int $position Position, 0 for the idea of the week.
-	 * @return array{id:int,reason:string,position:int,total:int,week:string}|null Null when every book is read.
+	 * @return array{id:int,reason:string,position:int,total:int,week:string}|null Null when there is nothing to suggest.
 	 */
 	public function get_idea( int $position = 0 ): ?array {
 		$ideas = $this->get_ideas();
@@ -89,15 +148,39 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * This week's ideas: the three kinds taken in turn, each one shuffled the same way all week.
+	 * This week's ideas: the kinds taken in turn, from a different one each week, each one shuffled the same way all week.
+	 *
+	 * A book comes once, with the reason of the first kind suggesting it.
 	 *
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_ideas(): array {
-		$week   = wp_date( 'o-W' );
-		$kinds  = array( $this->get_series_ideas(), $this->get_author_ideas(), $this->get_pile_ideas() );
-		$ideas  = array();
-		$chosen = array();
+		$week    = wp_date( 'o-W' );
+		$books   = $this->get_books();
+		$to_read = self::get_books_to_read( $books );
+		$kinds   = array(
+			$this->get_series_ideas( $books, $to_read ),
+			$this->get_author_ideas( $books, $to_read ),
+			$this->get_unread_author_ideas( $books, $to_read ),
+			$this->get_translator_ideas( $books, $to_read ),
+			$this->get_collection_ideas( $books, $to_read ),
+			$this->get_anniversary_ideas( $to_read ),
+			$this->get_change_ideas( $books, $to_read ),
+			$this->get_short_ideas( $to_read ),
+			$this->get_fresh_ideas( $to_read ),
+			$this->get_reread_ideas( $books ),
+			$this->get_pile_ideas( $to_read ),
+		);
+		$kinds   = array_values( array_filter( $kinds ) );
+		$ideas   = array();
+		$chosen  = array();
+
+		if ( ! $kinds ) {
+			return array();
+		}
+
+		$first = (int) wp_date( 'W' ) % count( $kinds );
+		$kinds = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
 
 		foreach ( $kinds as &$kind ) {
 			usort( $kind, fn( array $a, array $b ) => strcmp( md5( $week . $a['id'] ), md5( $week . $b['id'] ) ) );
@@ -120,41 +203,49 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * Books not read yet with their series and volume number.
+	 * All the books, kept or not, with what the ideas are made of.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
+	 * Authors are counted for their real name. The date added is the post date.
 	 *
-	 * @param bool $read Whether to get the books read instead.
-	 * @return array<int,array{id:int,series:string,volume:int|null,status:string}>
+	 * @return array<int,array{id:int,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],translators:string[],collections:string[]}>
 	 */
-	private function get_books( bool $read ): array {
-		global $wpdb;
-
-		$condition = $read ? 'r.post_id IS NOT NULL' : 'r.post_id IS NULL';
-		$rows      = Library_Dashboard::select(
-			"SELECT p.ID, p.post_title, p.post_status, s.meta_value AS series, v.meta_value AS volume
-			FROM {$wpdb->posts} AS p
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
-			LEFT JOIN {$wpdb->postmeta} AS s ON s.post_id = p.ID AND s.meta_key = 'series'
-			LEFT JOIN {$wpdb->postmeta} AS v ON v.post_id = p.ID AND v.meta_key = 'volume_number'
-			WHERE $condition AND {books}"
+	private function get_books(): array {
+		$posts = get_posts(
+			array(
+				'post_type'   => 'book',
+				'post_status' => array_diff( get_post_stati(), array( 'trash', 'auto-draft' ) ),
+				'numberposts' => -1,
+			)
 		);
 
 		$books = array();
 
-		foreach ( $rows as $row ) {
-			$volume = preg_match( '/\d+/', (string) $row->volume, $match ) ? (int) $match[0] : null;
-			$series = (string) $row->series;
+		foreach ( $posts as $post ) {
+			$volume = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'volume_number', true ), $match ) ? (int) $match[0] : null;
+			$series = (string) get_post_meta( $post->ID, 'series', true );
+			$rating = get_post_meta( $post->ID, 'rating', true );
+			$pages  = (int) get_post_meta( $post->ID, 'pages', true );
 
 			if ( '' === $series && null !== $volume ) {
-				$series = $row->post_title;
+				$series = $post->post_title;
 			}
 
-			$books[ (int) $row->ID ] = array(
-				'id'     => (int) $row->ID,
-				'series' => $series,
-				'volume' => $volume,
-				'status' => $row->post_status,
+			$books[ $post->ID ] = array(
+				'id'             => $post->ID,
+				'status'         => $post->post_status,
+				'series'         => $series,
+				'volume'         => $volume,
+				'read'           => Library_Posts::is_read( $post->ID ),
+				'read_date'      => (string) get_post_meta( $post->ID, 'read_date', true ),
+				'rating'         => '' !== $rating ? (float) $rating : null,
+				'pages'          => $pages ? $pages : null,
+				'edition_date'   => (string) get_post_meta( $post->ID, 'edition_date', true ),
+				'published_date' => (string) get_post_meta( $post->ID, 'published_date', true ),
+				'added'          => $post->post_date,
+				'authors'        => self::get_real_names( $post->ID ),
+				'translators'    => self::split( (string) get_post_meta( $post->ID, 'translators', true ) ),
+				'collections'    => Library_Taxonomies::get_collections( $post->ID ),
 			);
 		}
 
@@ -162,103 +253,491 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * The first volume not read yet of each series with at least one volume read.
+	 * Names of the authors of a book, a pseudonym counted for its real name.
 	 *
-	 * @return array<int,array{id:int,reason:string}>
+	 * @param int $book_id Book ID.
+	 * @return string[]
 	 */
-	private function get_series_ideas(): array {
-		$read_by_series = array();
+	private static function get_real_names( int $book_id ): array {
+		$terms = get_the_terms( $book_id, 'library-author' );
+		$names = array();
 
-		foreach ( $this->get_books( true ) as $book ) {
-			if ( '' !== $book['series'] && null !== $book['volume'] ) {
-				$read_by_series[ $book['series'] ] = ( $read_by_series[ $book['series'] ] ?? 0 ) + 1;
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			$author = $term->parent ? get_term( $term->parent, 'library-author' ) : $term;
+
+			if ( $author instanceof WP_Term ) {
+				$names[] = $author->name;
 			}
 		}
 
-		$next_by_series = array();
-
-		foreach ( $this->get_books( false ) as $book ) {
-			$series = $book['series'];
-
-			if ( ! isset( $read_by_series[ $series ] ) || null === $book['volume'] ) {
-				continue;
-			}
-
-			if ( ! isset( $next_by_series[ $series ] ) || $book['volume'] < $next_by_series[ $series ]['volume'] ) {
-				$next_by_series[ $series ] = $book;
-			}
-		}
-
-		$ideas = array();
-
-		foreach ( $next_by_series as $series => $book ) {
-			$ideas[] = array(
-				'id'     => $book['id'],
-				'reason' => sprintf(
-					/* translators: 1: series, 2: number of volumes read. */
-					_n( 'Next in %1$s: you have read %2$s volume.', 'Next in %1$s: you have read %2$s volumes.', $read_by_series[ $series ], 'library' ),
-					$series,
-					number_format_i18n( $read_by_series[ $series ] )
-				),
-			);
-		}
-
-		return $ideas;
+		return array_values( array_unique( $names ) );
 	}
 
 	/**
-	 * Books not read yet by the authors rated well, pseudonyms counted for their real name.
+	 * Values of a field separated with commas.
 	 *
-	 * @return array<int,array{id:int,reason:string}>
+	 * @param string $value Field value.
+	 * @return string[]
 	 */
-	private function get_author_ideas(): array {
-		global $wpdb;
+	private static function split( string $value ): array {
+		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ), 'strlen' ) );
+	}
 
-		$author = 'COALESCE( NULLIF( tt.parent, 0 ), tt.term_id )';
-
-		$authors = array_column(
-			Library_Dashboard::select(
-				"SELECT $author AS author_id, AVG( n.meta_value ) AS average, COUNT( DISTINCT p.ID ) AS rated
-				FROM {$wpdb->term_relationships} AS tr
-				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library-author'
-				INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-				INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = p.ID AND n.meta_key = 'rating'
-				WHERE {books}
-				GROUP BY author_id
-				HAVING rated >= 2 AND average >= %d",
-				self::WELL_RATED
-			),
-			null,
-			'author_id'
-		);
-
-		$books = $authors ? Library_Dashboard::select(
-			"SELECT DISTINCT p.ID, $author AS author_id
-			FROM {$wpdb->term_relationships} AS tr
-			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library-author'
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
-			WHERE r.post_id IS NULL AND {books}"
-		) : array();
-
-		$ideas = array();
+	/**
+	 * The books not read yet that can be read now: a volume of a series only when it is the first one not read yet.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<int,array>
+	 */
+	private static function get_books_to_read( array $books ): array {
+		$first_volumes = array();
 
 		foreach ( $books as $book ) {
-			$rating = $authors[ $book->author_id ] ?? null;
-			$term   = $rating ? get_term( (int) $book->author_id, 'library-author' ) : null;
+			if ( ! $book['read'] && null !== $book['volume'] ) {
+				$first_volumes[ $book['series'] ] = min( $book['volume'], $first_volumes[ $book['series'] ] ?? PHP_INT_MAX );
+			}
+		}
 
-			if ( ! $term instanceof WP_Term ) {
+		return array_filter(
+			$books,
+			fn( array $book ) => ! $book['read'] && ( null === $book['volume'] || $first_volumes[ $book['series'] ] === $book['volume'] )
+		);
+	}
+
+	/**
+	 * Year of a date, e.g. "2021" for "2021-05-03".
+	 *
+	 * @param string $date Date, Y-m-d.
+	 * @return string
+	 */
+	private static function year( string $date ): string {
+		return substr( $date, 0, 4 );
+	}
+
+	/**
+	 * A rating or an average as text, with one decimal unless it is round: "9", "8,5".
+	 *
+	 * @param float $rating Rating, out of 10.
+	 * @return string
+	 */
+	private static function rating( float $rating ): string {
+		$rating   = round( $rating, 1 );
+		$decimals = floor( $rating ) === $rating ? 0 : 1;
+
+		return number_format_i18n( $rating, $decimals );
+	}
+
+	/**
+	 * The next volume of each series with at least one volume read.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_series_ideas( array $books, array $to_read ): array {
+		$read_by_series = array();
+
+		foreach ( $books as $book ) {
+			if ( ! $book['read'] || null === $book['volume'] ) {
+				continue;
+			}
+
+			$read = $read_by_series[ $book['series'] ] ?? array(
+				'volumes'   => 0,
+				'last_read' => '',
+			);
+
+			$read_by_series[ $book['series'] ] = array(
+				'volumes'   => $read['volumes'] + 1,
+				'last_read' => max( $read['last_read'], $book['read_date'] ),
+			);
+		}
+
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			$read = $read_by_series[ $book['series'] ] ?? null;
+
+			if ( ! $read || null === $book['volume'] ) {
+				continue;
+			}
+
+			$volumes = number_format_i18n( $read['volumes'] );
+			$reason  = '' === $read['last_read']
+				? sprintf(
+					/* translators: 1: series, 2: number of volumes read. */
+					_n( 'Next in %1$s: you have read %2$s volume.', 'Next in %1$s: you have read %2$s volumes.', $read['volumes'], 'library' ),
+					$book['series'],
+					$volumes
+				)
+				: sprintf(
+					/* translators: 1: series, 2: number of volumes read, 3: year of the last one read. */
+					_n( 'Next in %1$s: you have read %2$s volume, in %3$s.', 'Next in %1$s: you have read %2$s volumes, the last one in %3$s.', $read['volumes'], 'library' ),
+					$book['series'],
+					$volumes,
+					self::year( $read['last_read'] )
+				);
+
+			$ideas[] = array(
+				'id'     => $book['id'],
+				'reason' => $reason,
+			);
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Books to read with a name rated well in a field: the best rated name gives the reason.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @param string           $field   Field listing the names: authors, translators or collections.
+	 * @param callable         $reason  Reason, from the name and its average, number of books rated and last read date.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private static function get_rated_well_ideas( array $books, array $to_read, string $field, callable $reason ): array {
+		$ratings   = array();
+		$last_read = array();
+
+		foreach ( $books as $book ) {
+			foreach ( $book[ $field ] as $name ) {
+				if ( null !== $book['rating'] ) {
+					$ratings[ $name ][] = $book['rating'];
+				}
+
+				$last_read[ $name ] = max( $last_read[ $name ] ?? '', $book['read_date'] );
+			}
+		}
+
+		$rated_well = array();
+
+		foreach ( $ratings as $name => $values ) {
+			$rated   = count( $values );
+			$average = array_sum( $values ) / $rated;
+
+			if ( $rated >= self::MIN_RATED && $average >= self::WELL_RATED ) {
+				$rated_well[ $name ] = array(
+					'average'   => $average,
+					'rated'     => $rated,
+					'last_read' => $last_read[ $name ],
+				);
+			}
+		}
+
+		uasort( $rated_well, fn( array $a, array $b ) => $b['average'] <=> $a['average'] );
+
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			$names = array_intersect_key( $rated_well, array_flip( $book[ $field ] ) );
+			$name  = array_key_first( $names );
+
+			if ( null !== $name ) {
+				$ideas[] = array(
+					'id'     => $book['id'],
+					'reason' => $reason( (string) $name, $names[ $name ] ),
+				);
+			}
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Books to read by the authors rated well, and when they were last read if it was long ago.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_author_ideas( array $books, array $to_read ): array {
+		$dormant_year = (int) wp_date( 'Y' ) - self::DORMANT_YEARS;
+
+		return self::get_rated_well_ideas(
+			$books,
+			$to_read,
+			'authors',
+			function ( string $author, array $stats ) use ( $dormant_year ): string {
+				$average   = self::rating( $stats['average'] );
+				$rated     = number_format_i18n( $stats['rated'] );
+				$last_year = self::year( $stats['last_read'] );
+
+				if ( '' !== $last_year && (int) $last_year <= $dormant_year ) {
+					return sprintf(
+						/* translators: 1: author, 2: average rating, 3: number of books rated, 4: year of the last one read. */
+						__( 'You gave %1$s %2$s/10 on average over %3$s books, the last one read in %4$s.', 'library' ),
+						$author,
+						$average,
+						$rated,
+						$last_year
+					);
+				}
+
+				return sprintf(
+					/* translators: 1: author, 2: average rating, 3: number of books rated. */
+					__( 'You gave %1$s %2$s/10 on average over %3$s books.', 'library' ),
+					$author,
+					$average,
+					$rated
+				);
+			}
+		);
+	}
+
+	/**
+	 * Books to read by the authors with many books and none read.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_unread_author_ideas( array $books, array $to_read ): array {
+		$books_by_author = array();
+		$read_authors    = array();
+
+		foreach ( $books as $book ) {
+			foreach ( $book['authors'] as $author ) {
+				$books_by_author[ $author ] = ( $books_by_author[ $author ] ?? 0 ) + 1;
+
+				if ( $book['read'] ) {
+					$read_authors[ $author ] = true;
+				}
+			}
+		}
+
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			foreach ( $book['authors'] as $author ) {
+				if ( isset( $read_authors[ $author ] ) || $books_by_author[ $author ] < self::UNREAD_AUTHOR_BOOKS ) {
+					continue;
+				}
+
+				$ideas[] = array(
+					'id'     => $book['id'],
+					'reason' => sprintf(
+						/* translators: 1: author, 2: number of books. */
+						__( 'You have %2$s books by %1$s, and none read.', 'library' ),
+						$author,
+						number_format_i18n( $books_by_author[ $author ] )
+					),
+				);
+
+				break;
+			}
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Books to read translated by the translators rated well.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_translator_ideas( array $books, array $to_read ): array {
+		return self::get_rated_well_ideas(
+			$books,
+			$to_read,
+			'translators',
+			fn( string $translator, array $stats ): string => sprintf(
+				/* translators: 1: translator, 2: average rating, 3: number of books rated. */
+				__( 'Translated by %1$s: %2$s/10 on average over %3$s books rated.', 'library' ),
+				$translator,
+				self::rating( $stats['average'] ),
+				number_format_i18n( $stats['rated'] )
+			)
+		);
+	}
+
+	/**
+	 * Books to read in the collections rated well.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_collection_ideas( array $books, array $to_read ): array {
+		return self::get_rated_well_ideas(
+			$books,
+			$to_read,
+			'collections',
+			fn( string $collection, array $stats ): string => sprintf(
+				/* translators: 1: collection, e.g. "Folio", 2: average rating, 3: number of books rated. */
+				__( 'In %1$s: %2$s/10 on average over %3$s books rated.', 'library' ),
+				$collection,
+				self::rating( $stats['average'] ),
+				number_format_i18n( $stats['rated'] )
+			)
+		);
+	}
+
+	/**
+	 * Books to read first published, or else whose edition came out, this month a round number of years ago.
+	 *
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_anniversary_ideas( array $to_read ): array {
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			$work_years    = self::get_anniversary( $book['published_date'] );
+			$edition_years = self::get_anniversary( $book['edition_date'] );
+
+			if ( $work_years ) {
+				/* translators: %s: number of years. */
+				$reason = sprintf( __( 'First published %s years ago this month.', 'library' ), number_format_i18n( $work_years ) );
+			} elseif ( $edition_years ) {
+				/* translators: %s: number of years. */
+				$reason = sprintf( __( 'This edition came out %s years ago this month.', 'library' ), number_format_i18n( $edition_years ) );
+			} else {
 				continue;
 			}
 
 			$ideas[] = array(
-				'id'     => (int) $book->ID,
+				'id'     => $book['id'],
+				'reason' => $reason,
+			);
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Years since a date that falls this month a round number of years ago.
+	 *
+	 * A first of January often stands for a date known by its year only, so it is left out.
+	 *
+	 * @param string $date Date, Y-m-d, or empty.
+	 * @return int|null Null when the date is not an anniversary this month.
+	 */
+	private static function get_anniversary( string $date ): ?int {
+		$month_day = substr( $date, 5 );
+		$years     = (int) wp_date( 'Y' ) - (int) self::year( $date );
+
+		if ( '01-01' === $month_day || ! str_starts_with( $month_day, wp_date( 'm' ) ) || $years < 10 || 0 !== $years % 10 ) {
+			return null;
+		}
+
+		return $years;
+	}
+
+	/**
+	 * Books to read unlike the latest reads: translated or not, volume of a series or not,
+	 * and first published in a decade with nothing read.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_change_ideas( array $books, array $to_read ): array {
+		$dated_reads = array_filter( $books, fn( array $book ) => '' !== $book['read_date'] );
+
+		usort( $dated_reads, fn( array $a, array $b ) => strcmp( $b['read_date'], $a['read_date'] ) );
+
+		$latest_reads = array_slice( $dated_reads, 0, self::LATEST_READS );
+		$ideas        = $this->get_decade_ideas( $books, $to_read );
+
+		if ( count( $latest_reads ) < self::LATEST_READS ) {
+			return $ideas;
+		}
+
+		$reads = number_format_i18n( self::LATEST_READS );
+
+		return array_merge(
+			$ideas,
+			self::get_opposite_ideas(
+				$latest_reads,
+				$to_read,
+				fn( array $book ) => (bool) $book['translators'],
+				/* translators: %s: number of reads. */
+				sprintf( __( 'Your last %s reads were all translated.', 'library' ), $reads ),
+				/* translators: %s: number of reads. */
+				sprintf( __( 'None of your last %s reads was translated.', 'library' ), $reads )
+			),
+			self::get_opposite_ideas(
+				$latest_reads,
+				$to_read,
+				fn( array $book ) => null !== $book['volume'],
+				/* translators: %s: number of reads. */
+				sprintf( __( 'Your last %s reads were all volumes of a series.', 'library' ), $reads ),
+				/* translators: %s: number of reads. */
+				sprintf( __( 'None of your last %s reads was a volume of a series.', 'library' ), $reads )
+			)
+		);
+	}
+
+	/**
+	 * Books to read without a trait when the latest reads all have it, and with it when none of them has it.
+	 *
+	 * @param array<int,array> $latest_reads Latest reads.
+	 * @param array<int,array> $to_read      Books to read.
+	 * @param callable         $has_trait    Whether a book has the trait.
+	 * @param string           $all_reason   Reason when the latest reads all have the trait.
+	 * @param string           $none_reason  Reason when none of them has it.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private static function get_opposite_ideas( array $latest_reads, array $to_read, callable $has_trait, string $all_reason, string $none_reason ): array {
+		$with_trait = count( array_filter( $latest_reads, $has_trait ) );
+
+		if ( count( $latest_reads ) === $with_trait ) {
+			$wanted = false;
+			$reason = $all_reason;
+		} elseif ( 0 === $with_trait ) {
+			$wanted = true;
+			$reason = $none_reason;
+		} else {
+			return array();
+		}
+
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			if ( $has_trait( $book ) === $wanted ) {
+				$ideas[] = array(
+					'id'     => $book['id'],
+					'reason' => $reason,
+				);
+			}
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Books to read first published in a decade with no book read.
+	 *
+	 * @param array<int,array> $books   All the books.
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_decade_ideas( array $books, array $to_read ): array {
+		$decade       = fn( array $book ) => intdiv( (int) self::year( $book['published_date'] ), 10 ) * 10;
+		$read_decades = array();
+
+		foreach ( $books as $book ) {
+			if ( $book['read'] && '' !== $book['published_date'] ) {
+				$read_decades[ $decade( $book ) ] = true;
+			}
+		}
+
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			if ( '' === $book['published_date'] || isset( $read_decades[ $decade( $book ) ] ) ) {
+				continue;
+			}
+
+			$ideas[] = array(
+				'id'     => $book['id'],
 				'reason' => sprintf(
-					/* translators: 1: author, 2: average rating, 3: number of books rated. */
-					__( 'You gave %1$s %2$s/10 on average over %3$s books.', 'library' ),
-					$term->name,
-					number_format_i18n( (float) $rating->average, 1 ),
-					number_format_i18n( (int) $rating->rated )
+					/* translators: %d: decade, e.g. 1960. */
+					__( 'You have not read any book first published in the %ds yet.', 'library' ),
+					$decade( $book )
 				),
 			);
 		}
@@ -267,19 +746,122 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * All the other books not read yet.
+	 * Short books to read, when fewer books are read this year than by the same date last year.
 	 *
+	 * @param array<int,array> $to_read Books to read.
 	 * @return array<int,array{id:int,reason:string}>
 	 */
-	private function get_pile_ideas(): array {
+	private function get_short_ideas( array $to_read ): array {
+		$pace = Library_Dashboard::get_year_to_date();
+
+		if ( $pace['this_year'] >= $pace['last_year'] ) {
+			return array();
+		}
+
 		$ideas = array();
 
-		foreach ( $this->get_books( false ) as $book ) {
+		foreach ( $to_read as $book ) {
+			if ( null === $book['pages'] || $book['pages'] > self::SHORT_BOOK ) {
+				continue;
+			}
+
 			$ideas[] = array(
 				'id'     => $book['id'],
-				'reason' => Library_Posts::NOT_KEPT === $book['status']
-					? __( 'Not kept, still to read: borrowed?', 'library' )
-					: __( 'Waiting on the reading pile.', 'library' ),
+				'reason' => sprintf(
+					/* translators: 1: number of pages, 2: number of books read this year, 3: number of books read by the same date last year. */
+					_n( '%1$s pages, to catch up: %2$s book read this year against %3$s by this date last year.', '%1$s pages, to catch up: %2$s books read this year against %3$s by this date last year.', $pace['this_year'], 'library' ),
+					number_format_i18n( $book['pages'] ),
+					number_format_i18n( $pace['this_year'] ),
+					number_format_i18n( $pace['last_year'] )
+				),
+			);
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Books to read added lately, while the wish to read them is still fresh.
+	 *
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_fresh_ideas( array $to_read ): array {
+		$now   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- Compared with post dates, in the site time zone.
+		$since = $now - self::FRESH_DAYS * DAY_IN_SECONDS;
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			$added = strtotime( $book['added'] );
+
+			if ( $added < $since ) {
+				continue;
+			}
+
+			$ideas[] = array(
+				'id'     => $book['id'],
+				'reason' => sprintf(
+					/* translators: %s: time since the book was added, e.g. "12 days". */
+					__( 'Added %s ago.', 'library' ),
+					human_time_diff( $added, $now )
+				),
+			);
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * Books read long ago and rated well, to read again.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_reread_ideas( array $books ): array {
+		$latest_year = (int) wp_date( 'Y' ) - self::REREAD_YEARS;
+		$ideas       = array();
+
+		foreach ( $books as $book ) {
+			$read_year = self::year( $book['read_date'] );
+
+			if ( '' === $read_year || (int) $read_year > $latest_year || null === $book['rating'] || $book['rating'] < self::REREAD_RATING ) {
+				continue;
+			}
+
+			$ideas[] = array(
+				'id'     => $book['id'],
+				'reason' => sprintf(
+					/* translators: 1: rating, 2: year read. */
+					__( 'Rated %1$s/10, read in %2$s: read it again?', 'library' ),
+					self::rating( $book['rating'] ),
+					$read_year
+				),
+			);
+		}
+
+		return $ideas;
+	}
+
+	/**
+	 * All the other books to read, with the year they were added.
+	 *
+	 * @param array<int,array> $to_read Books to read.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_pile_ideas( array $to_read ): array {
+		$ideas = array();
+
+		foreach ( $to_read as $book ) {
+			if ( Library_Posts::NOT_KEPT === $book['status'] ) {
+				$reason = __( 'Not kept, still to read: borrowed?', 'library' );
+			} else {
+				/* translators: %s: year the book was added. */
+				$reason = sprintf( __( 'Waiting on the reading pile since %s.', 'library' ), self::year( $book['added'] ) );
+			}
+
+			$ideas[] = array(
+				'id'     => $book['id'],
+				'reason' => $reason,
 			);
 		}
 

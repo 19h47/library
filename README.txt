@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 1.1.0
+Stable tag: 2.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,20 +18,20 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 
 = Features =
 
-* **Book post type** – Title, featured image (cover) and archive at `/books/`. Book titles show their series and volume number: “Series, Title, 3”.
+* **Book post type** – Title, featured image (cover) and archive at `/books/`. Book titles show their series and volume number: “Series, Title, 3”. The post date is the date the book was added to the library.
 * **Authors taxonomy** – Hierarchical: a real name as parent, pseudonyms as children. Filtering by an author includes their pseudonyms.
-* **Publishers taxonomy** – One or more publishers per book.
-* **Information metabox** – Series, ISBN, ISSN, volume number, date published, read state and read date, rating from 1 to 10 by half points, translators and book editions. Authors and publishers are edited in their own tag boxes, with autocomplete.
+* **Publishers taxonomy** – Hierarchical: a publisher as parent, its collections as children, such as Folio at Gallimard. A book gets its collection, or its publisher when it has none. Filtering by a publisher includes its collections.
+* **Information metabox** – Series, ISBN, ISSN, volume number, number of pages, edition date and date first published, read state and read date, rating from 1 to 10 by half points and translators. The edition date is when this edition came out; the optional date first published is when the work first came out, whatever the edition. Authors and publishers or collections are edited in their own tag boxes, with autocomplete.
 * **Reading state** – A book is read or not; the read date is optional. Setting a read date marks the book as read and marking it as unread clears the date; marking it as read without a date in the form or the books list sets today.
 * **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
-* **Books list** – Columns for the cover (with the rating), date published, ISBN, read state, read date and rating; date published and rating are sortable. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, book editions, read date and rating.
-* **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators and book editions.
+* **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date and rating. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, read date and rating.
+* **Search** – Book searches also match the series, ISBN, ISSN, volume number, translators, authors, publishers and collections. A real name finds the books of its pseudonyms, a publisher the books of its collections.
 * **Dashboard** – Five widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
-    * **Reading** – Books read, this year against the same date last year, the number expected by the end of the year, and books read by year and by month.
+    * **Reading** – Books read, this year against the same date last year, the number expected by the end of the year, the pages read this year over the books with their number of pages, and books read by year and by month.
     * **Ratings** – Number of rated books, average, distribution and average rating by year read.
-    * **Reading pile** – Books to read, kept or not, the oldest one by publication date and the latest reads.
-    * **Library** – Books, authors and publishers, share of translated books, the authors (pseudonyms counted for their real name), publishers and book editions with the most books, and publication years.
-    * **Reading idea of the week** – A book not read yet, kept or not, with its cover, or a link to add one, and why it is suggested: the next volume of a series in progress, a book by an author rated 8 or more on average, or the rest of the reading pile. The idea changes every week; “Another idea” moves to the next one.
+    * **Reading pile** – Books to read, kept or not, the oldest one by edition date and the latest reads.
+    * **Library** – Books, authors and publishers (pseudonyms and collections counted for their parent), share of translated books, the authors, publishers and collections with the most books, and edition years.
+    * **Reading idea of the week** – A book, kept or not, with its cover, or a link to add one, and why it is suggested: the next volume of a series in progress; a book by an author, a translator or in a collection rated 8 or more on average, an author long unread being named so; an author with three books or more and none read; a work or an edition whose anniversary falls this month; the opposite of the six latest reads (translated or not, volume of a series or not) or a decade first published with nothing read; a short book when behind last year's pace; a book added in the last 30 days; a book rated 9 or more and read 10 years ago or more, to read again; or the rest of the reading pile, with the year it was added. A volume of a series is only suggested when it is the first one not read yet. The idea changes every week, as does the kind of the first one; “Another idea” moves to the next one.
 * **REST API** – Books, authors and publishers in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta`. `/wp-json/library/v1/books/reading-stats` returns the reading stats and `/wp-json/library/v1/books/reading-idea` the reading idea of the week, to users who can edit posts.
 * **Updates** – From the GitHub releases, see below.
 * **Translatable** – French translation included (Domain Path: `/languages`).
@@ -86,9 +86,13 @@ The “Read” checkbox, in the books list or the Information box, is the readin
 
 Add the pseudonym as a child of the author's real name in **Books > Authors**. Filtering the books list by the real name then includes the books signed with the pseudonym, and the Library dashboard widget counts them for the real name.
 
+= How do I add a collection? =
+
+Add the collection as a child of its publisher in **Books > Publishers**, then give it to the book in the Publishers box instead of the publisher. Filtering the books list by the publisher then includes the books of the collection, and the Library dashboard widget counts them for the publisher. When two publishers have a collection of the same name, prefix it with the publisher, such as “Glénat Shōnen”: the Publishers box finds a term by its name only.
+
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `book_editions`, `date_published` and `read_date` (`Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, to users who can edit posts. `/wp-json/library/v1/books/reading-idea` returns the reading idea of the week with its reason, to the same users: `?position=1` gives the next idea, `_embed` adds the book. Books not kept have the `library-not-kept` status: list them with `?status=library-not-kept` as a user who can edit posts.
+Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `pages`, `edition_date`, `published_date` and `read_date` (`Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`; a collection is a publisher with a `parent`. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, to users who can edit posts. `/wp-json/library/v1/books/reading-idea` returns the reading idea of the week with its reason, to the same users: `?position=1` gives the next idea, `_embed` adds the book. Books not kept have the `library-not-kept` status: list them with `?status=library-not-kept` as a user who can edit posts.
 
 = How do I log a book I read but did not keep? =
 
@@ -103,6 +107,18 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 2.0.0 =
+* Breaking: the `date_published` book meta is renamed `edition_date`, as it holds when the edition came out, in the REST API (`meta.edition_date`) and the books list (`orderby=edition_date`). Migration, with your table prefix: `wp db query "UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id SET m.meta_key = 'edition_date' WHERE m.meta_key = 'date_published' AND p.post_type = 'book'"`.
+* Breaking: the `book_editions` book meta is removed. It held collections, such as Folio at Gallimard: the Publishers taxonomy is now hierarchical, a collection being a child of its publisher, given to the book instead of the publisher. The field leaves the Information box, quick edit and the REST API (`meta.book_editions`); the Library widget ranks the collections from the taxonomy and counts them for their publisher.
+* Book searches also match the authors, publishers and collections.
+* Fixed: the Library widget counted pseudonyms apart from their real name in the authors with the most books and the number of authors.
+* New optional date first published (`published_date`), when the work first came out, whatever the edition.
+* New number of pages (`pages`), in the Information box, quick edit and the REST API, shown in the reading idea. The Reading widget shows the pages read this year, once a book read this year has its number of pages.
+* The post date is the date the book was added to the library: the reading idea relies on it. Books whose post date was set to another date, such as the edition date, should get back their date added.
+* The books list is sorted by edition date by default. Books without edition date or rating are no longer left out when sorting by them, and come last.
+* Reading idea of the week: new kinds of ideas, from translators and collections rated well, authors with many books and none read, anniversaries, the opposite of the latest reads, short books to catch up, books just added and books to read again. A volume of a series is only suggested when it is the first one not read yet, and the kind of the idea of the week changes every week.
+* The Library and Reading pile widgets show edition years.
 
 = 1.1.0 =
 * Fixed: the featured image (cover) box was missing with themes that do not support featured images; the plugin now enables them for books.
@@ -149,6 +165,9 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 * Translation-ready.
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+The `date_published` book meta is renamed `edition_date`: rename it in the database with the command in the changelog. The `book_editions` book meta is removed: its collections become children of their publisher in the Publishers taxonomy. Update the code that reads them.
 
 = 1.0.0 =
 Closes a REST route that let anyone read or update any site option: update now. Requires WordPress 7.1 and PHP 8.2. The `read` REST field is replaced by `meta.read`. Delete the unused `reading_percentage` option. Install this version by hand: earlier versions block plugin updates.

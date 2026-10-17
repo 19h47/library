@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	private const TAXONOMIES = array( 'library-author', 'library-publisher' );
+	public const TAXONOMIES = array( 'library-author', 'library-publisher' );
 
 	/**
 	 * Books not kept by term ID, with the pseudonyms counted for their real name.
@@ -43,6 +43,7 @@ class Library_Taxonomies {
 		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
 		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
 		add_filter( 'post_column_taxonomy_links', array( $this, 'keep_status_in_term_links' ), 10, 3 );
+		add_action( 'add_meta_boxes_book', array( $this, 'register_tag_boxes' ) );
 
 		foreach ( self::TAXONOMIES as $taxonomy ) {
 			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_not_kept_column' ) );
@@ -105,7 +106,7 @@ class Library_Taxonomies {
 			'show_in_graphql'      => true,
 			// The tag box lets authors be typed rather than picked from a checklist.
 			'meta_box_cb'          => 'post_tags_meta_box',
-			'meta_box_sanitize_cb' => array( self::class, 'sanitize_author_names' ),
+			'meta_box_sanitize_cb' => array( self::class, 'sanitize_term_names' ),
 			'graphql_single_name'  => 'author',
 			'graphql_plural_name'  => 'authors',
 		);
@@ -114,7 +115,24 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
+	 * Give the tag boxes of the hierarchical taxonomies the id of a tag box.
+	 *
+	 * Core names the box of a hierarchical taxonomy "{taxonomy}div", and only starts the tag box
+	 * script when a box id starts with "tagsdiv-": otherwise the tag boxes stay empty.
+	 *
+	 * @return void
+	 */
+	public function register_tag_boxes(): void {
+		foreach ( self::TAXONOMIES as $taxonomy ) {
+			$taxonomy_object = get_taxonomy( $taxonomy );
+
+			remove_meta_box( "{$taxonomy}div", 'book', 'side' );
+			add_meta_box( "tagsdiv-{$taxonomy}", $taxonomy_object->labels->name, $taxonomy_object->meta_box_cb, 'book', 'side', 'core', array( 'taxonomy' => $taxonomy ) );
+		}
+	}
+
+	/**
+	 * Turn the names typed in the tag box into term IDs, creating the missing terms.
 	 *
 	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
 	 *
@@ -122,7 +140,7 @@ class Library_Taxonomies {
 	 * @param string|string[] $terms    Comma-separated names, or names.
 	 * @return int[]
 	 */
-	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+	public static function sanitize_term_names( string $taxonomy, $terms ): array {
 		$term_ids = array();
 
 		foreach ( taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) as $term ) {
@@ -159,7 +177,7 @@ class Library_Taxonomies {
 			'update_item'                => __( 'Update Publisher', 'library' ),
 			'add_new_item'               => __( 'Add New Publisher', 'library' ),
 			'new_item_name'              => __( 'New Publisher Name', 'library' ),
-			'separate_items_with_commas' => __( 'Separate publishers with commas', 'library' ),
+			'separate_items_with_commas' => __( 'Separate publishers or collections with commas', 'library' ),
 			'add_or_remove_items'        => __( 'Add or remove publishers', 'library' ),
 			'choose_from_most_used'      => __( 'Choose from the most used publishers', 'library' ),
 			'not_found'                  => __( 'No publishers found.', 'library' ),
@@ -169,25 +187,45 @@ class Library_Taxonomies {
 			/* translators: Publisher heading when selecting from the most used terms. */
 			'most_used'                  => _x( 'Most Used', 'editor', 'library' ),
 			'back_to_items'              => __( '&larr; Back to Publishers', 'library' ),
+			'parent_item'                => __( 'Parent Publisher', 'library' ),
+			'parent_item_colon'          => __( 'Parent Publisher:', 'library' ),
+			'parent_field_description'   => __( 'Pick the publisher of a collection, such as Gallimard for Folio. A publisher has none.', 'library' ),
 		);
 
 		$args = array(
-			'labels'              => $labels,
-			'hierarchical'        => false,
-			'public'              => true,
-			'publicly_queryable'  => true,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
-			'show_in_nav_menus'   => true,
-			'show_in_quick_edit'  => true,
-			'show_admin_column'   => true,
-			'show_in_rest'        => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'publisher',
-			'graphql_plural_name' => 'publishers',
+			'labels'               => $labels,
+			'hierarchical'         => true, // Parent = publisher, children = collections.
+			'public'               => true,
+			'publicly_queryable'   => true,
+			'show_ui'              => true,
+			'show_in_menu'         => true,
+			'show_in_nav_menus'    => true,
+			'show_in_quick_edit'   => true,
+			'show_admin_column'    => true,
+			'show_in_rest'         => true,
+			'show_in_graphql'      => true,
+			// The tag box lets publishers and collections be typed rather than picked from a checklist.
+			'meta_box_cb'          => 'post_tags_meta_box',
+			'meta_box_sanitize_cb' => array( self::class, 'sanitize_term_names' ),
+			'graphql_single_name'  => 'publisher',
+			'graphql_plural_name'  => 'publishers',
 		);
 
 		register_taxonomy( 'library-publisher', 'book', $args );
+	}
+
+
+	/**
+	 * Names of the collections of a book, i.e. its publishers that have a parent.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return string[]
+	 */
+	public static function get_collections( int $book_id ): array {
+		$terms = get_the_terms( $book_id, 'library-publisher' );
+		$terms = is_array( $terms ) ? $terms : array();
+
+		return array_values( wp_list_pluck( wp_list_filter( $terms, array( 'parent' => 0 ), 'NOT' ), 'name' ) );
 	}
 
 
@@ -340,7 +378,7 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Include children (pseudonyms) in term counts for author taxonomy.
+	 * Include children (pseudonyms, collections) in term counts.
 	 *
 	 * @param array    $args       Arguments passés à get_terms().
 	 * @param string[] $taxonomies Taxonomies demandées.
@@ -348,7 +386,7 @@ class Library_Taxonomies {
 	 */
 	public function get_terms_args( array $args, array $taxonomies ): array {
 		// Counts only exist on full terms; padding other queries breaks the core cache.
-		if ( ! in_array( 'library-author', $taxonomies, true ) || 'all' !== $args['fields'] ) {
+		if ( ! array_intersect( self::TAXONOMIES, $taxonomies ) || 'all' !== $args['fields'] ) {
 			return $args;
 		}
 
