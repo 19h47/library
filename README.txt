@@ -29,7 +29,7 @@ Library adds a **Book** custom post type and two taxonomies (**Authors** and **P
 * **Dashboard** – Four widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
     * **Reading** – Books read, this year against the same date last year, the number expected by the end of the year, and books read by year and by month.
     * **Ratings** – Number of rated books, average, distribution and average rating by year read.
-    * **Reading pile** – Books to read, the oldest one by publication date and the latest reads.
+    * **Reading pile** – Books to read, kept or not, the oldest one by publication date and the latest reads.
     * **Library** – Books, authors and publishers, share of translated books, the authors (pseudonyms counted for their real name), publishers and book editions with the most books, and publication years.
 * **REST API** – Books, authors and publishers in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta`. `/wp-json/library/v1/books/reading-stats` returns the reading stats to users who can edit posts.
 * **Updates** – From the GitHub releases, see below.
@@ -87,7 +87,7 @@ Add the pseudonym as a child of the author's real name in **Books > Authors**. F
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `book_editions`, `date_published` and `read_date` (`Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, to users who can edit posts.
+Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `book_editions`, `date_published` and `read_date` (`Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, to users who can edit posts. Books not kept have the `library-not-kept` status: list them with `?status=library-not-kept` as a user who can edit posts.
 
 = How do I log a book I read but did not keep? =
 
@@ -95,7 +95,7 @@ Add it as any book and check **Not kept** in the Information box, or pick the �
 
 = Can I import books from a WordPress export? =
 
-Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states are saved as they are in the file. Install the plugin first, so that statuses like “Not kept” are known.
+Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states are saved as they are in the file. Install the plugin first, so that statuses like “Not kept” are known. The importer only adds books: it skips a book that already exists (same title and date) and never updates it; complete existing books through the REST API instead.
 
 = Where is the former dashboard widget? =
 
