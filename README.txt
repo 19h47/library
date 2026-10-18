@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -109,6 +109,9 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 2.3.1 =
+* Fixed: the link of an achievement led to the “All” view, empty when none of its books is kept, such as a borrowed series. It leads to the “Not kept” view then.
 
 = 2.3.0 =
 * Original languages: a new taxonomy, in the books list, quick and bulk edit, the search, the Library widget and the achievements.
