@@ -78,6 +78,7 @@ class Library_Updater {
 			'version' => $release['version'],
 			'url'     => $release['url'],
 			'package' => $release['package'],
+			'tested'  => $this->tested( $release['readme'] ?? '' ),
 		);
 	}
 
@@ -111,12 +112,28 @@ class Library_Updater {
 			'author'        => $plugin_data['Author'],
 			'homepage'      => $plugin_data['PluginURI'],
 			'requires'      => $plugin_data['RequiresWP'],
-			'tested'        => Library_Readme::header( $readme, 'Tested up to' ),
+			'tested'        => $this->tested( $readme ),
 			'requires_php'  => $plugin_data['RequiresPHP'],
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
 			'sections'      => $sections ? $sections : array( 'changelog' => wpautop( esc_html( $release['notes'] ) ) ),
 		);
+	}
+
+	/**
+	 * WordPress version the release is tested with.
+	 *
+	 * As on WordPress.org, "Tested up to: 7.1" covers every 7.1.x release: WordPress compares
+	 * the full versions, so a 7.1.3 site would otherwise warn that the plugin is not tested with it.
+	 *
+	 * @param string $readme Readme of the release.
+	 * @return string
+	 */
+	private function tested( string $readme ): string {
+		$tested     = Library_Readme::header( $readme, 'Tested up to' );
+		$wp_version = get_bloginfo( 'version' );
+
+		return '' !== $tested && str_starts_with( $wp_version . '.', $tested . '.' ) ? $wp_version : $tested;
 	}
 
 	/**
