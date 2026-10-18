@@ -104,6 +104,7 @@ class Library_Updater {
 		$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
 		$readme      = $release['readme'] ?? '';
 		$sections    = Library_Readme::sections( $readme );
+		$banner      = plugin_dir_url( LIBRARY_DIR_PATH . 'library.php' ) . 'assets/banner.svg';
 
 		return (object) array(
 			'name'          => $plugin_data['Name'],
@@ -116,6 +117,7 @@ class Library_Updater {
 			'requires_php'  => $plugin_data['RequiresPHP'],
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
+			'banners'       => array( 'high' => $banner ),
 			'sections'      => $sections ? $sections : array( 'changelog' => wpautop( esc_html( $release['notes'] ) ) ),
 		);
 	}
