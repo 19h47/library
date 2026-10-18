@@ -387,26 +387,42 @@ class Library_Achievements {
 	}
 
 	/**
-	 * The link to the books of a term in the books list.
+	 * The link to the books list showing books: the "Not kept" view when none of them is kept,
+	 * since the "All" view leaves them out.
 	 *
-	 * @param string $taxonomy Taxonomy.
-	 * @param int    $term_id  Term ID.
+	 * @param array<int,array> $books Books the link leads to.
 	 * @return string
 	 */
-	private static function term_url( string $taxonomy, int $term_id ): string {
+	private static function books_list_url( array $books ): string {
+		$statuses = array_unique( array_column( $books, 'status' ) );
+		$url      = admin_url( 'edit.php?post_type=book' );
+
+		return array( Library_Posts::NOT_KEPT ) === $statuses ? add_query_arg( 'post_status', Library_Posts::NOT_KEPT, $url ) : $url;
+	}
+
+	/**
+	 * The link to the books of a term in the books list.
+	 *
+	 * @param string           $taxonomy Taxonomy.
+	 * @param int              $term_id  Term ID.
+	 * @param array<int,array> $books    Books of the term.
+	 * @return string
+	 */
+	private static function term_url( string $taxonomy, int $term_id, array $books ): string {
 		$term = get_term( $term_id, $taxonomy );
 
-		return $term instanceof WP_Term ? add_query_arg( $taxonomy, $term->slug, admin_url( 'edit.php?post_type=book' ) ) : '';
+		return $term instanceof WP_Term ? add_query_arg( $taxonomy, $term->slug, self::books_list_url( $books ) ) : '';
 	}
 
 	/**
 	 * The link to the books list searched for a text, e.g. a series or a translator.
 	 *
-	 * @param string $search Search.
+	 * @param string           $search Search.
+	 * @param array<int,array> $books  Books found.
 	 * @return string
 	 */
-	private static function search_url( string $search ): string {
-		return add_query_arg( 's', rawurlencode( $search ), admin_url( 'edit.php?post_type=book' ) );
+	private static function search_url( string $search, array $books ): string {
+		return add_query_arg( 's', rawurlencode( $search ), self::books_list_url( $books ) );
 	}
 
 	/**
@@ -472,12 +488,12 @@ class Library_Achievements {
 
 				if ( 'series' === $kind ) {
 					$subject = (string) $key;
-					$url     = self::search_url( $subject );
+					$url     = self::search_url( $subject, $group );
 				} else {
 					$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
 					$term     = get_term( (int) $key, $taxonomy );
 					$subject  = $term instanceof WP_Term ? $term->name : '';
-					$url      = self::term_url( $taxonomy, (int) $key );
+					$url      = self::term_url( $taxonomy, (int) $key, $group );
 				}
 
 				if ( 0 === $left ) {
@@ -552,7 +568,7 @@ class Library_Achievements {
 					$term instanceof WP_Term ? $term->name : '',
 					/* translators: 1: number of books read, 2: number of books. */
 					sprintf( __( '%1$s read of %2$s', 'library' ), number_format_i18n( count( $reads ) ), number_format_i18n( $total ) ),
-					self::term_url( 'library-publisher', $collection_id ),
+					self::term_url( 'library-publisher', $collection_id, $group ),
 					$reads[ $needed - 1 ]['read_date']
 				);
 				break;
@@ -878,9 +894,9 @@ class Library_Achievements {
 			$detail = self::books_text( count( $books ) );
 
 			if ( $left <= 0 ) {
-				$earned[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
+				$earned[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator, $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
-				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator ), '' ) + array(
+				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator, $books ), '' ) + array(
 					'done'  => count( $books ),
 					'total' => self::TRANSLATOR_BOOKS,
 				);
@@ -1022,7 +1038,7 @@ class Library_Achievements {
 				(string) $translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::search_url( (string) $translator ),
+				self::search_url( (string) $translator, array_values( $languages ) ),
 				array_values( $languages )[1]['read_date']
 			);
 		}
@@ -1424,7 +1440,7 @@ class Library_Achievements {
 					if ( $book['author_ids'] && $other['author_ids'] && ! array_intersect( $book['author_ids'], $other['author_ids'] ) ) {
 						$latest = max( $book['read_date'], $other['read_date'] );
 
-						return array( self::achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::search_url( $book['title'] ), $latest ) );
+						return array( self::achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::search_url( $book['title'], $books ), $latest ) );
 					}
 				}
 			}
