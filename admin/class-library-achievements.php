@@ -959,15 +959,13 @@ class Library_Achievements {
 	/**
 	 * Books read in their original language, a polyglot month, a Rosetta week and translators from several languages.
 	 *
-	 * The original language is foreign when it is not the language of the admin, as the French translation names it:
-	 * "Français" for "English".
+	 * The original language is foreign when its code, the slug of the term, is not the language of the admin: "fr" for fr_FR.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_language_feats( array $reads ): array {
-		/* translators: Name of the language of this translation, as typed in the original languages, e.g. "Français". */
-		$own_language = sanitize_title( __( 'English', 'library' ) );
+		$own_language = strtok( get_user_locale(), '_' );
 		$dated        = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
 		$languages    = fn( array $book ) => $book['languages'];
 		$feats        = self::latest(
@@ -977,7 +975,7 @@ class Library_Achievements {
 			array_values(
 				array_filter(
 					$reads,
-					fn( array $book ) => $book['languages'] && ! $book['translators'] && ! in_array( $own_language, array_map( 'sanitize_title', $book['languages'] ), true )
+					fn( array $book ) => $book['languages'] && ! $book['translators'] && ! isset( $book['languages'][ $own_language ] )
 				)
 			)
 		);
