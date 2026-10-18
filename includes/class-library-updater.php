@@ -79,6 +79,7 @@ class Library_Updater {
 			'url'     => $release['url'],
 			'package' => $release['package'],
 			'tested'  => $this->tested( $release['readme'] ?? '' ),
+			'icons'   => array( 'svg' => $this->asset_url( 'icon.svg' ) ),
 		);
 	}
 
@@ -104,7 +105,6 @@ class Library_Updater {
 		$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
 		$readme      = $release['readme'] ?? '';
 		$sections    = Library_Readme::sections( $readme );
-		$banner      = plugin_dir_url( LIBRARY_DIR_PATH . 'library.php' ) . 'assets/banner.svg';
 
 		return (object) array(
 			'name'          => $plugin_data['Name'],
@@ -117,7 +117,7 @@ class Library_Updater {
 			'requires_php'  => $plugin_data['RequiresPHP'],
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
-			'banners'       => array( 'high' => $banner ),
+			'banners'       => array( 'high' => $this->asset_url( 'banner.svg' ) ),
 			'sections'      => $sections ? $sections : array( 'changelog' => wpautop( esc_html( $release['notes'] ) ) ),
 		);
 	}
@@ -218,6 +218,16 @@ class Library_Updater {
 		$response = wp_remote_get( 'https://raw.githubusercontent.com/' . $this->repository() . '/' . rawurlencode( $tag ) . '/README.txt' );
 
 		return 200 === wp_remote_retrieve_response_code( $response ) ? wp_remote_retrieve_body( $response ) : '';
+	}
+
+	/**
+	 * URL of an image of the assets folder, as shown by the updates screen and the plugin details.
+	 *
+	 * @param string $file File name, e.g. "icon.svg".
+	 * @return string
+	 */
+	private function asset_url( string $file ): string {
+		return plugin_dir_url( LIBRARY_DIR_PATH . 'library.php' ) . 'assets/' . $file;
 	}
 
 	/**
