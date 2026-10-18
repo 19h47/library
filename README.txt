@@ -112,6 +112,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 
 = 2.3.0 =
 * Original languages: a new taxonomy, in the books list, quick and bulk edit, the search, the Library widget and the achievements.
+* A new easter egg to find in the achievements.
 * Subtitle: a new field, shown after the title and matched by the search (`meta.subtitle` in the REST API).
 * A book is named the same way everywhere, achievements included: “Series, vol. 3: Title: Subtitle”, instead of “Series, Title, Tome 03”. The reading idea shows the credits of the book: authors, publisher and collection, edition year.
 

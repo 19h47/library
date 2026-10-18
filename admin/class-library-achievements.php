@@ -114,6 +114,13 @@ class Library_Achievements {
 	private const MARATHON_BOOKS = 3;
 
 	/**
+	 * Number of days in a row with a book finished each day that counts.
+	 *
+	 * @var int
+	 */
+	private const DAILY_STREAK = 7;
+
+	/**
 	 * Number of pages from which a book is a brick.
 	 *
 	 * @var int
@@ -174,6 +181,7 @@ class Library_Achievements {
 		'one-that-got-away'   => 'migrate',
 		'mouthful'            => 'editor-quote',
 		'marathon'            => 'performance',
+		'seven-days-a-week'   => 'calendar-alt',
 		'hat-trick'           => 'star-filled',
 		'namesakes'           => 'groups',
 		'back-to-the-start'   => 'undo',
@@ -935,6 +943,7 @@ class Library_Achievements {
 				array_values( array_filter( $reads, fn( array $book ) => mb_strlen( $book['title'] ) >= self::LONG_TITLE ) )
 			),
 			$this->get_marathon( $dated ),
+			$this->get_daily_streak( $dated ),
 			$this->get_hat_trick( $dated ),
 			$this->get_namesakes( $reads ),
 			$this->get_back_to_the_start( $dated )
@@ -966,6 +975,42 @@ class Library_Achievements {
 
 		/* translators: %s: number of books read the same day. */
 		return array( self::achievement( 'marathon', __( 'Marathon', 'library' ), '', sprintf( __( '%s books read the same day', 'library' ), number_format_i18n( count( $marathons[ $day ] ) ) ), '', $day ) );
+	}
+
+	/**
+	 * The longest run of days in a row with a book finished each day, the latest one among the longest.
+	 *
+	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @return array<int,array>
+	 */
+	private function get_daily_streak( array $dated ): array {
+		$longest = array();
+		$run     = array();
+
+		foreach ( array_unique( array_column( $dated, 'read_date' ) ) as $day ) {
+			$previous = $run ? gmdate( 'Y-m-d', strtotime( end( $run ) . ' +1 day' ) ) : '';
+			$run      = $previous === $day ? array( ...$run, $day ) : array( $day );
+
+			if ( count( $run ) >= count( $longest ) ) {
+				$longest = $run;
+			}
+		}
+
+		if ( count( $longest ) < self::DAILY_STREAK ) {
+			return array();
+		}
+
+		return array(
+			self::achievement(
+				'seven-days-a-week',
+				__( 'Seven days a week', 'library' ),
+				'',
+				/* translators: %s: number of days. */
+				sprintf( __( 'A book finished every day for %s days', 'library' ), number_format_i18n( count( $longest ) ) ),
+				'',
+				end( $longest )
+			),
+		);
 	}
 
 	/**
