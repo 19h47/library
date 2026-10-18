@@ -25,6 +25,7 @@ class Library {
 	 * @var string[]
 	 */
 	private const FILES = array(
+		'includes/class-library-readme.php',
 		'includes/class-library-updater.php',
 		'admin/class-library-admin.php',
 		'admin/class-library-meta.php',
