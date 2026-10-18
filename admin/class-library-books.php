@@ -31,8 +31,9 @@ class Library_Books {
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
 	 * Authors are counted for their real name. The date added is the post date. The full title is the one to show.
+	 * Original languages are their names keyed by their code, e.g. "it" => "Italien".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:string[]}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
 	 */
 	public static function all(): array {
 		if ( null !== self::$books ) {
@@ -56,6 +57,7 @@ class Library_Books {
 			$pages       = (int) get_post_meta( $post->ID, 'pages', true );
 			$authors     = self::get_real_authors( $post->ID );
 			$collections = Library_Taxonomies::get_collections( $post->ID );
+			$languages   = wp_get_post_terms( $post->ID, 'library-language' );
 
 			if ( '' === $series && null !== $volume ) {
 				$series = $post->post_title;
@@ -80,7 +82,7 @@ class Library_Books {
 				'translators'    => self::split( (string) get_post_meta( $post->ID, 'translators', true ) ),
 				'collections'    => wp_list_pluck( $collections, 'name' ),
 				'collection_ids' => wp_list_pluck( $collections, 'term_id' ),
-				'languages'      => wp_get_post_terms( $post->ID, 'library-language', array( 'fields' => 'names' ) ),
+				'languages'      => wp_list_pluck( $languages, 'name', 'slug' ),
 			);
 		}
 

@@ -43,6 +43,7 @@ class Library_Taxonomies {
 		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
 		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
 		add_filter( 'post_column_taxonomy_links', array( $this, 'column_term_links' ), 10, 3 );
+		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 		add_action( 'add_meta_boxes_book', array( $this, 'register_author_box' ) );
 
 		foreach ( self::TAXONOMIES as $taxonomy ) {
@@ -218,7 +219,8 @@ class Library_Taxonomies {
 	/**
 	 * Register original language
 	 *
-	 * A book read in its original language is one in a foreign language without translator.
+	 * A language is identified by its ISO 639 code, the slug of the term, e.g. "it". A book read in its original
+	 * language is one in a foreign language, i.e. not the language of the admin, without translator.
 	 *
 	 * @return void
 	 */
@@ -258,6 +260,27 @@ class Library_Taxonomies {
 		);
 
 		register_taxonomy( 'library-language', 'book', $args );
+	}
+
+	/**
+	 * Name a new language typed as its ISO 639 code, e.g. "it" becomes "Italien" in a French site; the code stays its slug.
+	 *
+	 * @param array  $data     Term data: name, slug and group.
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return array
+	 */
+	public function name_language( array $data, string $taxonomy ): array {
+		if ( 'library-language' !== $taxonomy || ! class_exists( 'Locale' ) || ! preg_match( '/^[a-z]{2,3}$/', $data['name'] ) ) {
+			return $data;
+		}
+
+		$name = Locale::getDisplayLanguage( $data['name'], get_locale() );
+
+		if ( $name !== $data['name'] ) {
+			$data['name'] = mb_strtoupper( mb_substr( $name, 0, 1 ) ) . mb_substr( $name, 1 );
+		}
+
+		return $data;
 	}
 
 
