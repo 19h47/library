@@ -65,6 +65,13 @@ class Library_Achievements {
 	private const PAGE_MILESTONES = array( 10000, 25000, 50000, 100000 );
 
 	/**
+	 * Numbers of original languages read that count.
+	 *
+	 * @var int[]
+	 */
+	private const LANGUAGE_MILESTONES = array( 5, 10, 20, 30 );
+
+	/**
 	 * Number of months in a row with a reading from which the longest run counts.
 	 *
 	 * @var int
@@ -154,6 +161,7 @@ class Library_Achievements {
 		'archaeologist'       => 'search',
 		'decades'             => 'admin-site-alt3',
 		'translator'          => 'translation',
+		'languages'           => 'admin-site',
 		'tsundoku'            => 'book-alt',
 		'leap-day'            => 'calendar',
 		'pi-day'              => 'calculator',
@@ -233,6 +241,7 @@ class Library_Achievements {
 		[ $completions, $close ]             = $this->get_completions( $books );
 		[ $tour, $close_tour ]               = $this->get_decade_tour( $reads );
 		[ $translators, $close_translators ] = $this->get_translators( $reads );
+		[ $languages, $close_languages ]     = $this->get_language_milestones( $reads );
 
 		$earned = array_merge(
 			$completions,
@@ -244,12 +253,13 @@ class Library_Achievements {
 			$this->get_discoveries( $books, $reads ),
 			$tour,
 			$translators,
+			$languages,
 			array_map( fn( array $egg ) => array_merge( $egg, array( 'easter_egg' => true ) ), $this->get_easter_eggs( $books, $reads ) )
 		);
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
 
-		$close = array_merge( $close, $close_tour, $close_translators );
+		$close = array_merge( $close, $close_tour, $close_translators, $close_languages );
 
 		// Fewest books left first, then the furthest along.
 		usort( $close, fn( array $a, array $b ) => array( $a['total'] - $a['done'], $b['done'] / $b['total'], $a['subject'] ) <=> array( $b['total'] - $b['done'], $a['done'] / $a['total'], $b['subject'] ) );
@@ -809,6 +819,56 @@ class Library_Achievements {
 		}
 
 		return array( $earned, $close );
+	}
+
+	/**
+	 * Numbers of original languages read, dated by the reading that reached them, and the next one when close.
+	 *
+	 * @param array<int,array> $reads Books read, in reading order.
+	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 */
+	private function get_language_milestones( array $reads ): array {
+		$languages  = array();
+		$earned     = array();
+		$milestones = self::LANGUAGE_MILESTONES;
+
+		foreach ( $reads as $book ) {
+			foreach ( $book['languages'] as $language ) {
+				if ( isset( $languages[ $language ] ) ) {
+					continue;
+				}
+
+				$languages[ $language ] = $book;
+
+				if ( $milestones && count( $languages ) === $milestones[0] ) {
+					$earned[] = self::achievement(
+						'languages',
+						/* translators: %s: number of original languages read. */
+						sprintf( __( '%s original languages', 'library' ), number_format_i18n( array_shift( $milestones ) ) ),
+						'',
+						$book['title'],
+						(string) get_edit_post_link( $book['id'], 'raw' ),
+						$book['read_date']
+					);
+				}
+			}
+		}
+
+		if ( ! $milestones || $milestones[0] - count( $languages ) > self::CLOSE_BOOKS ) {
+			return array( $earned, array() );
+		}
+
+		$progress = array(
+			'done'  => count( $languages ),
+			'total' => $milestones[0],
+		);
+
+		/* translators: %s: number of original languages read. */
+		$title = sprintf( __( '%s original languages', 'library' ), number_format_i18n( $milestones[0] ) );
+		/* translators: %s: number of original languages read. */
+		$detail = sprintf( _n( '%s language read', '%s languages read', count( $languages ), 'library' ), number_format_i18n( count( $languages ) ) );
+
+		return array( $earned, array( self::achievement( 'languages', $title, '', $detail, '', '' ) + $progress ) );
 	}
 
 	/**

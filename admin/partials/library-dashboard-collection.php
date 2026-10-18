@@ -5,7 +5,7 @@
  * @package Library
  * @subpackage Library/admin/partials
  *
- * @var array{books:int,authors:int,publishers:int,translated:int} $counts
+ * @var array{books:int,authors:int,publishers:int,languages:int,translated:int} $counts
  * @var array<int,array{title:string,items:array}>                $rankings
  * @var array<int,array>                                          $charts
  */
@@ -40,6 +40,17 @@ $translated_percent = $counts['books'] ? (int) round( $counts['translated'] / $c
 			);
 			?>
 		</p>
+		<?php if ( $counts['languages'] ) : ?>
+			<p class="library-dashboard-secondary">
+				<?php
+				printf(
+					/* translators: %s: number of original languages. */
+					esc_html( _n( '%s original language', '%s original languages', $counts['languages'], 'library' ) ),
+					esc_html( number_format_i18n( $counts['languages'] ) )
+				);
+				?>
+			</p>
+		<?php endif; ?>
 	</div>
 
 	<?php

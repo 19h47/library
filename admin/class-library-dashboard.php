@@ -113,7 +113,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Collection widget, on the books kept: authors, publishers, collections, translations and edition years.
+	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and edition years.
 	 */
 	public function render_collection(): void {
 		$stats    = Library_Posts::get_reading_stats();
@@ -130,11 +130,16 @@ class Library_Dashboard {
 				'title' => __( 'Most present collections', 'library' ),
 				'items' => $this->get_top_collections(),
 			),
+			array(
+				'title' => __( 'Most present original languages', 'library' ),
+				'items' => $this->get_top_terms( 'library-language' ),
+			),
 		);
 		$counts   = array(
 			'books'      => $stats['total'],
 			'authors'    => $this->count_terms( 'library-author' ),
 			'publishers' => $this->count_terms( 'library-publisher' ),
+			'languages'  => $this->count_terms( 'library-language' ),
 			'translated' => $this->count_translated_books(),
 		);
 		$charts   = array( $this->get_edition_chart() );
