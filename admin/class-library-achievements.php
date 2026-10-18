@@ -426,7 +426,7 @@ class Library_Achievements {
 						/* translators: 1: number of books left, 2: title of a book left. */
 						_n( '%1$s book left: %2$s', '%1$s books left, such as %2$s', $left, 'library' ),
 						number_format_i18n( $left ),
-						$next['title']
+						$next['full_title']
 					),
 					$url,
 					''
@@ -512,7 +512,7 @@ class Library_Achievements {
 				/* translators: %s: number of books read. */
 				sprintf( __( '%s books read', 'library' ), number_format_i18n( $milestone ) ),
 				'',
-				$reads[ $milestone - 1 ]['title'],
+				$reads[ $milestone - 1 ]['full_title'],
 				(string) get_edit_post_link( $reads[ $milestone - 1 ]['id'], 'raw' ),
 				$reads[ $milestone - 1 ]['read_date']
 			);
@@ -541,7 +541,7 @@ class Library_Achievements {
 					/* translators: %s: number of pages read. */
 					sprintf( __( '%s pages read', 'library' ), number_format_i18n( array_shift( $milestones ) ) ),
 					'',
-					$book['title'],
+					$book['full_title'],
 					(string) get_edit_post_link( $book['id'], 'raw' ),
 					$book['read_date']
 				);
@@ -686,7 +686,7 @@ class Library_Achievements {
 			self::achievement(
 				$kind,
 				$title,
-				$book['title'],
+				$book['full_title'],
 				$detail,
 				(string) get_edit_post_link( $book['id'], 'raw' ),
 				$book['read_date']
@@ -846,7 +846,7 @@ class Library_Achievements {
 						/* translators: %s: number of original languages read. */
 						sprintf( __( '%s original languages', 'library' ), number_format_i18n( array_shift( $milestones ) ) ),
 						'',
-						$book['title'],
+						$book['full_title'],
 						(string) get_edit_post_link( $book['id'], 'raw' ),
 						$book['read_date']
 					);
@@ -990,7 +990,7 @@ class Library_Achievements {
 			return array();
 		}
 
-		return array( self::achievement( 'hat-trick', __( 'Hat-trick', 'library' ), $found['title'], __( 'Three books rated 10 in a row', 'library' ), (string) get_edit_post_link( $found['id'], 'raw' ), $found['read_date'] ) );
+		return array( self::achievement( 'hat-trick', __( 'Hat-trick', 'library' ), $found['full_title'], __( 'Three books rated 10 in a row', 'library' ), (string) get_edit_post_link( $found['id'], 'raw' ), $found['read_date'] ) );
 	}
 
 	/**
@@ -1047,6 +1047,6 @@ class Library_Achievements {
 			return array();
 		}
 
-		return array( self::achievement( 'back-to-the-start', __( 'Back to the start', 'library' ), $found['title'], __( 'Volume 1 read after a later volume', 'library' ), (string) get_edit_post_link( $found['id'], 'raw' ), $found['read_date'] ) );
+		return array( self::achievement( 'back-to-the-start', __( 'Back to the start', 'library' ), $found['full_title'], __( 'Volume 1 read after a later volume', 'library' ), (string) get_edit_post_link( $found['id'], 'raw' ), $found['read_date'] ) );
 	}
 }

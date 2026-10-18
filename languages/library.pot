@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T09:28:25+00:00\n"
+"POT-Creation-Date: 2026-10-18T09:39:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -293,7 +293,7 @@ msgstr ""
 
 #. translators: %s: reading percentage.
 #: admin/class-library-admin.php:76
-#: admin/class-library-posts.php:590
+#: admin/class-library-posts.php:586
 msgid "%s%% read"
 msgstr ""
 
@@ -303,6 +303,31 @@ msgstr ""
 #: admin/class-library-taxonomies.php:390
 msgctxt "book status"
 msgid "Not kept"
+msgstr ""
+
+#. translators: 1: title, 2: subtitle.
+#. translators: 1: series, 2: title.
+#. translators: 1: year, month or rating, 2: value, e.g. "2022: 71 books".
+#: admin/class-library-books.php:107
+#: admin/class-library-books.php:112
+#: admin/class-library-books.php:130
+#: admin/partials/library-dashboard-chart.php:40
+msgid "%1$s: %2$s"
+msgstr ""
+
+#. translators: %s: volume number.
+#: admin/class-library-books.php:117
+msgid "vol. %s"
+msgstr ""
+
+#. translators: %s: volume number.
+#: admin/class-library-books.php:117
+msgid "no. %s"
+msgstr ""
+
+#. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
+#: admin/class-library-books.php:121
+msgid "%1$s, %2$s"
 msgstr ""
 
 #: admin/class-library-dashboard.php:76
@@ -392,7 +417,7 @@ msgstr ""
 #: admin/class-library-dashboard.php:457
 #: admin/class-library-posts.php:204
 #: admin/class-library-posts.php:352
-#: admin/partials/library-form.php:197
+#: admin/partials/library-form.php:219
 msgid "Rating"
 msgstr ""
 
@@ -446,24 +471,24 @@ msgid "Thumbnail"
 msgstr ""
 
 #: admin/class-library-posts.php:200
-#: admin/partials/library-form.php:115
+#: admin/partials/library-form.php:137
 msgid "Edition date"
 msgstr ""
 
 #: admin/class-library-posts.php:201
 #: admin/class-library-posts.php:349
-#: admin/partials/library-form.php:40
+#: admin/partials/library-form.php:62
 msgid "ISBN"
 msgstr ""
 
 #: admin/class-library-posts.php:202
-#: admin/partials/library-form.php:157
+#: admin/partials/library-form.php:179
 msgid "Read"
 msgstr ""
 
 #: admin/class-library-posts.php:203
 #: admin/class-library-posts.php:351
-#: admin/partials/library-form.php:176
+#: admin/partials/library-form.php:198
 msgid "Read date"
 msgstr ""
 
@@ -477,7 +502,7 @@ msgid "Rated"
 msgstr ""
 
 #: admin/class-library-posts.php:350
-#: admin/partials/library-form.php:96
+#: admin/partials/library-form.php:118
 msgid "Pages"
 msgstr ""
 
@@ -590,7 +615,7 @@ msgstr ""
 msgid "Table ordered by rating."
 msgstr ""
 
-#: admin/class-library-posts.php:594
+#: admin/class-library-posts.php:590
 msgid "Loading percent read..."
 msgstr ""
 
@@ -1035,18 +1060,13 @@ msgstr ""
 #. translators: 1: number done, 2: total, e.g. "13 of 14".
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-dashboard-achievements.php:75
-#: admin/partials/library-dashboard-idea.php:59
+#: admin/partials/library-dashboard-idea.php:56
 msgid "%1$s of %2$s"
 msgstr ""
 
 #. translators: %s: number of achievements.
 #: admin/partials/library-dashboard-achievements.php:92
 msgid "All achievements (%s)"
-msgstr ""
-
-#. translators: 1: year, month or rating, 2: value, e.g. "2022: 71 books".
-#: admin/partials/library-dashboard-chart.php:40
-msgid "%1$s: %2$s"
 msgstr ""
 
 #. translators: 1: number of books, 2: number of authors, 3: number of publishers.
@@ -1067,17 +1087,17 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of pages.
-#: admin/partials/library-dashboard-idea.php:31
+#: admin/partials/library-dashboard-idea.php:28
 msgid "%s page"
 msgid_plural "%s pages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/partials/library-dashboard-idea.php:41
+#: admin/partials/library-dashboard-idea.php:38
 msgid "Add a cover"
 msgstr ""
 
-#: admin/partials/library-dashboard-idea.php:54
+#: admin/partials/library-dashboard-idea.php:51
 msgid "Another idea"
 msgstr ""
 
@@ -1133,42 +1153,50 @@ msgid "View all books"
 msgstr ""
 
 #: admin/partials/library-form.php:21
+msgid "Subtitle"
+msgstr ""
+
+#: admin/partials/library-form.php:34
+msgid "Optional. Shown after the title, such as “The Knife: Meditations After an Attempted Murder”."
+msgstr ""
+
+#: admin/partials/library-form.php:43
 msgid "Series"
 msgstr ""
 
-#: admin/partials/library-form.php:32
+#: admin/partials/library-form.php:54
 msgid "Separate series with commas"
 msgstr ""
 
-#: admin/partials/library-form.php:59
+#: admin/partials/library-form.php:81
 msgid "ISSN"
 msgstr ""
 
-#: admin/partials/library-form.php:78
+#: admin/partials/library-form.php:100
 msgid "Volume Number"
 msgstr ""
 
-#: admin/partials/library-form.php:133
+#: admin/partials/library-form.php:155
 msgid "First published"
 msgstr ""
 
-#: admin/partials/library-form.php:148
+#: admin/partials/library-form.php:170
 msgid "Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
 msgstr ""
 
-#: admin/partials/library-form.php:188
+#: admin/partials/library-form.php:210
 msgid "Optional. Setting a date marks the book as read; marking it as read without a date sets today."
 msgstr ""
 
-#: admin/partials/library-form.php:211
+#: admin/partials/library-form.php:233
 msgid "Rating from 1 to 10."
 msgstr ""
 
-#: admin/partials/library-form.php:219
+#: admin/partials/library-form.php:241
 msgid "Translators"
 msgstr ""
 
-#: admin/partials/library-form.php:230
+#: admin/partials/library-form.php:252
 msgid "Separate translators with commas"
 msgstr ""
 

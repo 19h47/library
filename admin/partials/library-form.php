@@ -14,9 +14,31 @@
 
 <table class="form-table" role="presentation">
 
-	<!-- Series -->
+	<!-- Subtitle -->
 	<tr>
 		<th scope="row">
+			<label for="library-subtitle">
+				<?php esc_html_e( 'Subtitle', 'library' ); ?>
+			</label>
+		</th>
+		<td>
+			<input
+				type="text"
+				id="library-subtitle"
+				name="subtitle"
+				class="large-text"
+				aria-describedby="library-subtitle-description"
+				value="<?php echo esc_attr( $values['subtitle'] ); ?>"
+			>
+			<p class="description" id="library-subtitle-description">
+				<?php esc_html_e( 'Optional. Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ); ?>
+			</p>
+		</td>
+	</tr>
+
+	<!-- Series -->
+	<tr>
+		<th>
 			<label for="library-series">
 				<?php esc_html_e( 'Series', 'library' ); ?>
 			</label>

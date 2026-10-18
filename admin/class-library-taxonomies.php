@@ -366,7 +366,7 @@ class Library_Taxonomies {
 	 * @param WP_Term[] $terms Publisher terms.
 	 * @return WP_Term[]
 	 */
-	private static function get_publishers( array $terms ): array {
+	public static function get_publishers( array $terms ): array {
 		$publishers = array();
 
 		foreach ( $terms as $term ) {
