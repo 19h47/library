@@ -1,6 +1,6 @@
 <?php
 /**
- * Books data shared by the reading idea and the achievements.
+ * Books data shared by the reading idea and the achievements, and how a book is named.
  *
  * @link       https://github.com/19h47/library
  * @since      2.2.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Loads all the books once per request, with their meta and terms.
+ * Loads all the books once per request, with their meta and terms, and names a book the same way everywhere.
  *
  * @since      2.2.0
  * @package    Library
@@ -30,9 +30,9 @@ class Library_Books {
 	 * All the books, kept or not.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
-	 * Authors are counted for their real name. The date added is the post date.
+	 * Authors are counted for their real name. The date added is the post date. The full title is the one to show.
 	 *
-	 * @return array<int,array{id:int,title:string,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[]}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:string[]}>
 	 */
 	public static function all(): array {
 		if ( null !== self::$books ) {
@@ -64,6 +64,7 @@ class Library_Books {
 			self::$books[ $post->ID ] = array(
 				'id'             => $post->ID,
 				'title'          => $post->post_title,
+				'full_title'     => self::title( $post->ID, $post->post_title ),
 				'status'         => $post->post_status,
 				'series'         => $series,
 				'volume'         => $volume,
@@ -79,10 +80,79 @@ class Library_Books {
 				'translators'    => self::split( (string) get_post_meta( $post->ID, 'translators', true ) ),
 				'collections'    => wp_list_pluck( $collections, 'name' ),
 				'collection_ids' => wp_list_pluck( $collections, 'term_id' ),
+				'languages'      => wp_get_post_terms( $post->ID, 'library-language', array( 'fields' => 'names' ) ),
 			);
 		}
 
 		return self::$books;
+	}
+
+	/**
+	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
+	 *
+	 * A book without series but with a volume number is a volume of the series named by its title: "City Hunter, vol. 3".
+	 * A volume typed "Tome 08" shows as "vol. 8", a number alone as "no. 8", anything else as typed, e.g. "Chant II".
+	 *
+	 * @param int    $book_id Book ID.
+	 * @param string $title   Title of the post.
+	 * @return string
+	 */
+	public static function title( int $book_id, string $title ): string {
+		$series   = (string) get_post_meta( $book_id, 'series', true );
+		$volume   = (string) get_post_meta( $book_id, 'volume_number', true );
+		$subtitle = (string) get_post_meta( $book_id, 'subtitle', true );
+
+		if ( '' !== $subtitle ) {
+			/* translators: 1: title, 2: subtitle. */
+			$title = sprintf( __( '%1$s: %2$s', 'library' ), $title, $subtitle );
+		}
+
+		if ( '' === $volume ) {
+			/* translators: 1: series, 2: title. */
+			return '' !== $series ? sprintf( __( '%1$s: %2$s', 'library' ), $series, $title ) : $title;
+		}
+
+		if ( preg_match( '/^(?:tome\s+)?0*(\w+)$/iu', $volume, $match ) ) {
+			/* translators: %s: volume number. */
+			$volume = str_starts_with( strtolower( $volume ), 'tome' ) ? sprintf( __( 'vol. %s', 'library' ), $match[1] ) : sprintf( __( 'no. %s', 'library' ), $match[1] );
+		}
+
+		/* translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3". */
+		$numbered = __( '%1$s, %2$s', 'library' );
+
+		if ( '' === $series ) {
+			return sprintf( $numbered, $title, $volume );
+		}
+
+		$series = sprintf( $numbered, $series, $volume );
+
+		/* translators: 1: series, 2: title. */
+		return sprintf( __( '%1$s: %2$s', 'library' ), $series, $title );
+	}
+
+	/**
+	 * Credits of a book, to show under its title: "Authors · Publisher, Collection · edition year".
+	 *
+	 * @param int $book_id Book ID.
+	 * @return string
+	 */
+	public static function credits( int $book_id ): string {
+		$authors    = get_the_terms( $book_id, 'library-author' );
+		$terms      = get_the_terms( $book_id, 'library-publisher' );
+		$publishers = array();
+
+		foreach ( Library_Taxonomies::get_publishers( is_array( $terms ) ? $terms : array() ) as $publisher ) {
+			$collections  = wp_list_filter( Library_Taxonomies::get_collections( $book_id ), array( 'parent' => $publisher->term_id ) );
+			$publishers[] = implode( ', ', array( $publisher->name, ...wp_list_pluck( $collections, 'name' ) ) );
+		}
+
+		$parts = array(
+			implode( ', ', wp_list_pluck( is_array( $authors ) ? $authors : array(), 'name' ) ),
+			implode( ', ', $publishers ),
+			substr( (string) get_post_meta( $book_id, 'edition_date', true ), 0, 4 ),
+		);
+
+		return implode( ' · ', array_filter( $parts, 'strlen' ) );
 	}
 
 	/**

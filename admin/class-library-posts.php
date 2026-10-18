@@ -556,7 +556,7 @@ class Library_Posts {
 	}
 
 	/**
-	 * Show a book title with its series and volume number: "Series, Title, 3".
+	 * Show a book title with its series, volume and subtitle, as everywhere else.
 	 *
 	 * @param string $title   The post title.
 	 * @param int    $post_id The post ID; some callers of the_title omit it.
@@ -567,11 +567,7 @@ class Library_Posts {
 			return $title;
 		}
 
-		$series        = get_post_meta( $post_id, 'series', true );
-		$volume_number = get_post_meta( $post_id, 'volume_number', true );
-		$parts         = array_filter( array( $series, $title, $volume_number ), 'strlen' );
-
-		return implode( ', ', $parts );
+		return Library_Books::title( $post_id, $title );
 	}
 
 	/**

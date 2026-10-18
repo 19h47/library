@@ -1,6 +1,6 @@
 <?php
 /**
- * Book taxonomies: author and publisher.
+ * Book taxonomies: author, publisher and original language.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Registers library-author and library-publisher taxonomies.
+ * Registers library-author, library-publisher and library-language taxonomies.
  *
  * @since      1.0.0
  * @package    Library
@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	public const TAXONOMIES = array( 'library-author', 'library-publisher' );
+	public const TAXONOMIES = array( 'library-author', 'library-publisher', 'library-language' );
 
 	/**
 	 * Books not kept by term ID, with the pseudonyms counted for their real name.
@@ -60,6 +60,7 @@ class Library_Taxonomies {
 	public function register(): void {
 		$this->register_author();
 		$this->register_publisher();
+		$this->register_language();
 	}
 
 
@@ -215,6 +216,52 @@ class Library_Taxonomies {
 
 
 	/**
+	 * Register original language
+	 *
+	 * A book read in its original language is one in a foreign language without translator.
+	 *
+	 * @return void
+	 */
+	public function register_language() {
+		$labels = array(
+			'name'                  => _x( 'Original languages', 'library languages general name', 'library' ),
+			'singular_name'         => _x( 'Original language', 'library languages singular name', 'library' ),
+			'menu_name'             => _x( 'Languages', 'library languages menu name', 'library' ),
+			'search_items'          => __( 'Search Languages', 'library' ),
+			'all_items'             => __( 'All Languages', 'library' ),
+			'edit_item'             => __( 'Edit Language', 'library' ),
+			'view_item'             => __( 'View Language', 'library' ),
+			'update_item'           => __( 'Update Language', 'library' ),
+			'add_new_item'          => __( 'Add New Language', 'library' ),
+			'new_item_name'         => __( 'New Language Name', 'library' ),
+			'not_found'             => __( 'No languages found.', 'library' ),
+			'no_terms'              => __( 'No languages', 'library' ),
+			'items_list_navigation' => __( 'Languages list navigation', 'library' ),
+			'items_list'            => __( 'Languages list', 'library' ),
+			'back_to_items'         => __( '&larr; Back to Languages', 'library' ),
+		);
+
+		$args = array(
+			'labels'              => $labels,
+			'hierarchical'        => true, // For the checklist box, in quick and bulk edit too.
+			'public'              => true,
+			'publicly_queryable'  => true,
+			'show_ui'             => true,
+			'show_in_menu'        => true,
+			'show_in_nav_menus'   => true,
+			'show_in_quick_edit'  => true,
+			'show_admin_column'   => true,
+			'show_in_rest'        => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'language',
+			'graphql_plural_name' => 'languages',
+		);
+
+		register_taxonomy( 'library-language', 'book', $args );
+	}
+
+
+	/**
 	 * Collections of a book, i.e. its publishers that have a parent.
 	 *
 	 * @param int $book_id Book ID.
@@ -257,12 +304,22 @@ class Library_Taxonomies {
 			6 => __( 'Publishers deleted.', 'library' ),
 		);
 
+		$messages['library-language'] = array(
+			0 => '',
+			1 => __( 'Language added.', 'library' ),
+			2 => __( 'Language deleted.', 'library' ),
+			3 => __( 'Language updated.', 'library' ),
+			4 => __( 'Language not added.', 'library' ),
+			5 => __( 'Language not updated.', 'library' ),
+			6 => __( 'Languages deleted.', 'library' ),
+		);
+
 		return $messages;
 	}
 
 
 	/**
-	 * Links of the authors and publishers columns of the books list.
+	 * Links of the authors, publishers and languages columns of the books list.
 	 *
 	 * A collection shows as its publisher, once. The links keep the status of the current view:
 	 * core links to the "All" view, which leaves out the books not kept, so from their view they listed nothing.
@@ -309,7 +366,7 @@ class Library_Taxonomies {
 	 * @param WP_Term[] $terms Publisher terms.
 	 * @return WP_Term[]
 	 */
-	private static function get_publishers( array $terms ): array {
+	public static function get_publishers( array $terms ): array {
 		$publishers = array();
 
 		foreach ( $terms as $term ) {

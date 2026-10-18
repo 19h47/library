@@ -25,7 +25,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'series', 'isbn', 'issn', 'volume_number', 'translators' );
+	public const TEXT_KEYS = array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'translators' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d.
