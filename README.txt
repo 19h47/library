@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -109,6 +109,10 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 2.3.3 =
+* The plugin details have a banner.
+* Fixed: the plugin details and the updates screen warned that the plugin was not tested with a patch release of WordPress, such as 7.1.3 with “Tested up to: 7.1”.
 
 = 2.3.2 =
 * The plugin details show the readme of the release, with its description, installation, FAQ and changelog, as on WordPress.org, instead of the raw release notes.
