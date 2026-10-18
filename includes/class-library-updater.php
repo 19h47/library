@@ -82,7 +82,7 @@ class Library_Updater {
 	}
 
 	/**
-	 * Fill the "View details" modal with the release notes.
+	 * Fill the "View details" modal with the readme of the release, as on WordPress.org, or else its notes.
 	 *
 	 * @param false|object|array $result Plugin information, false by default.
 	 * @param string             $action API action.
@@ -101,6 +101,8 @@ class Library_Updater {
 		}
 
 		$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
+		$readme      = $release['readme'] ?? '';
+		$sections    = Library_Readme::sections( $readme );
 
 		return (object) array(
 			'name'          => $plugin_data['Name'],
@@ -109,12 +111,11 @@ class Library_Updater {
 			'author'        => $plugin_data['Author'],
 			'homepage'      => $plugin_data['PluginURI'],
 			'requires'      => $plugin_data['RequiresWP'],
+			'tested'        => Library_Readme::header( $readme, 'Tested up to' ),
 			'requires_php'  => $plugin_data['RequiresPHP'],
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
-			'sections'      => array(
-				'changelog' => wpautop( esc_html( $release['notes'] ) ),
-			),
+			'sections'      => $sections ? $sections : array( 'changelog' => wpautop( esc_html( $release['notes'] ) ) ),
 		);
 	}
 
@@ -150,9 +151,9 @@ class Library_Updater {
 	}
 
 	/**
-	 * Latest GitHub release, cached to stay under the API rate limit.
+	 * Latest GitHub release with its readme, cached to stay under the API rate limit.
 	 *
-	 * @return array{version:string,package:string,url:string,notes:string,date:string}|null
+	 * @return array{version:string,package:string,url:string,notes:string,date:string,readme:string}|null
 	 */
 	private function get_release(): ?array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- "Check again" button on the updates screen.
@@ -175,6 +176,7 @@ class Library_Updater {
 				'url'     => $body['html_url'],
 				'notes'   => (string) $body['body'],
 				'date'    => $body['published_at'],
+				'readme'  => $this->get_readme( $body['tag_name'] ),
 			);
 		}
 
@@ -185,6 +187,18 @@ class Library_Updater {
 		set_site_transient( self::CACHE_KEY, $cached, $expiration );
 
 		return $release;
+	}
+
+	/**
+	 * Readme of a release, empty when it cannot be read.
+	 *
+	 * @param string $tag Release tag, e.g. "v2.3.2".
+	 * @return string
+	 */
+	private function get_readme( string $tag ): string {
+		$response = wp_remote_get( 'https://raw.githubusercontent.com/' . $this->repository() . '/' . rawurlencode( $tag ) . '/README.txt' );
+
+		return 200 === wp_remote_retrieve_response_code( $response ) ? wp_remote_retrieve_body( $response ) : '';
 	}
 
 	/**

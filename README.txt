@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -62,7 +62,7 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 To publish a release:
 
 1. Bump `Version` in `library.php` and `Stable tag` in this file.
-2. Commit, push, then create the release: `gh release create v1.0.0 --notes "…"`. The tag may start with `v`; the notes appear in the plugin details.
+2. Commit, push, then create the release: `gh release create v1.0.0 --notes "…"`. The tag may start with `v`. The plugin details show this file as it is in the release: description, installation, FAQ and changelog.
 
 No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder.
 
@@ -109,6 +109,9 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 2.3.2 =
+* The plugin details show the readme of the release, with its description, installation, FAQ and changelog, as on WordPress.org, instead of the raw release notes.
 
 = 2.3.1 =
 * Fixed: the link of an achievement led to the “All” view, empty when none of its books is kept, such as a borrowed series. It leads to the “Not kept” view then.
