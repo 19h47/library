@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T09:48:07+00:00\n"
+"POT-Creation-Date: 2026-10-18T09:53:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -35,12 +35,12 @@ msgstr ""
 msgid "https://www.19h47.fr"
 msgstr ""
 
-#: admin/class-library-achievements.php:203
+#: admin/class-library-achievements.php:263
 msgid "Achievements"
 msgstr ""
 
 #. translators: %s: number of books.
-#: admin/class-library-achievements.php:359
+#: admin/class-library-achievements.php:420
 #: admin/class-library-dashboard.php:215
 #: admin/class-library-posts.php:480
 msgid "%s book"
@@ -48,255 +48,357 @@ msgid_plural "%s books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/class-library-achievements.php:390
+#: admin/class-library-achievements.php:451
 msgid "Complete author"
 msgstr ""
 
-#: admin/class-library-achievements.php:391
+#: admin/class-library-achievements.php:452
 msgid "Series finished"
 msgstr ""
 
-#: admin/class-library-achievements.php:392
+#: admin/class-library-achievements.php:453
 msgid "Collection finished"
 msgstr ""
 
 #. translators: 1: number of books left, 2: title of a book left.
-#: admin/class-library-achievements.php:435
+#: admin/class-library-achievements.php:496
 msgid "%1$s book left: %2$s"
 msgid_plural "%1$s books left, such as %2$s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/class-library-achievements.php:476
+#: admin/class-library-achievements.php:537
 msgid "Three quarters of a collection"
 msgstr ""
 
-#: admin/class-library-achievements.php:477
+#: admin/class-library-achievements.php:538
 msgid "Half of a collection"
 msgstr ""
 
 #. translators: 1: number of books read, 2: number of books.
-#: admin/class-library-achievements.php:493
+#: admin/class-library-achievements.php:554
 msgid "%1$s read of %2$s"
 msgstr ""
 
 #. translators: %s: number of books read.
-#: admin/class-library-achievements.php:521
+#: admin/class-library-achievements.php:582
 msgid "%s books read"
 msgstr ""
 
 #. translators: %s: number of pages read.
-#: admin/class-library-achievements.php:550
+#: admin/class-library-achievements.php:611
 msgid "%s pages read"
 msgstr ""
 
-#: admin/class-library-achievements.php:573
+#: admin/class-library-achievements.php:634
 msgid "Record year"
 msgstr ""
 
-#: admin/class-library-achievements.php:578
+#: admin/class-library-achievements.php:639
 msgid "Record month"
 msgstr ""
 
 #. translators: %s: number of months.
-#: admin/class-library-achievements.php:649
+#: admin/class-library-achievements.php:710
 msgid "%s months in a row"
 msgstr ""
 
 #. translators: 1: first month, 2: last month, e.g. "January 2024 to June 2025".
-#: admin/class-library-achievements.php:653
+#: admin/class-library-achievements.php:714
 msgid "%1$s to %2$s"
 msgstr ""
 
 #. translators: 1: what the books did, e.g. "Read on 29 February", 2: number of books, e.g. "3 books".
-#: admin/class-library-achievements.php:691
+#: admin/class-library-achievements.php:752
 msgid "%1$s (%2$s)"
 msgstr ""
 
-#: admin/class-library-achievements.php:722
+#: admin/class-library-achievements.php:783
 msgid "Hot off the press"
 msgstr ""
 
-#: admin/class-library-achievements.php:722
+#: admin/class-library-achievements.php:783
 msgid "Read the year it came out"
 msgstr ""
 
-#: admin/class-library-achievements.php:723
+#: admin/class-library-achievements.php:784
 msgid "Centenarian"
 msgstr ""
 
-#: admin/class-library-achievements.php:723
+#: admin/class-library-achievements.php:784
 msgid "Read a century or more after it first came out"
 msgstr ""
 
-#: admin/class-library-achievements.php:724
+#: admin/class-library-achievements.php:785
 msgid "Archaeologist"
 msgstr ""
 
-#: admin/class-library-achievements.php:724
+#: admin/class-library-achievements.php:785
 msgid "Read while the oldest book of the pile"
 msgstr ""
 
-#: admin/class-library-achievements.php:778
+#: admin/class-library-achievements.php:839
 msgid "Tour of the 20th century"
 msgstr ""
 
 #. translators: %s: number of decades of the 20th century with a book read.
-#: admin/class-library-achievements.php:780
+#: admin/class-library-achievements.php:841
 msgid "%s decades of 10"
 msgstr ""
 
-#: admin/class-library-achievements.php:820
-#: admin/class-library-achievements.php:822
+#: admin/class-library-achievements.php:881
+#: admin/class-library-achievements.php:883
 msgid "Faithful to a translator"
 msgstr ""
 
 #. translators: %s: number of original languages read.
-#: admin/class-library-achievements.php:855
-#: admin/class-library-achievements.php:875
+#: admin/class-library-achievements.php:916
+#: admin/class-library-achievements.php:936
 msgid "%s original languages"
 msgstr ""
 
 #. translators: %s: number of original languages read.
-#: admin/class-library-achievements.php:877
+#: admin/class-library-achievements.php:938
 msgid "%s language read"
 msgid_plural "%s languages read"
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: Name of the language of this translation, as typed in the original languages, e.g. "Français".
+#: admin/class-library-achievements.php:954
+msgid "English"
+msgstr ""
+
+#: admin/class-library-achievements.php:959
+msgid "In the original"
+msgstr ""
+
+#: admin/class-library-achievements.php:960
+msgid "Read in its original language, without translator"
+msgstr ""
+
+#: admin/class-library-achievements.php:974
+msgid "Polyglot of the month"
+msgstr ""
+
+#. translators: %s: number of original languages.
+#: admin/class-library-achievements.php:977
+msgid "%s original languages in a month"
+msgstr ""
+
+#: admin/class-library-achievements.php:988
+msgid "Rosetta Stone"
+msgstr ""
+
+#. translators: %s: number of original languages.
+#: admin/class-library-achievements.php:991
+msgid "%s original languages in a week"
+msgstr ""
+
+#: admin/class-library-achievements.php:1021
+msgid "Go-between"
+msgstr ""
+
+#. translators: %s: original languages, e.g. "Japanese, English".
+#: admin/class-library-achievements.php:1024
+msgid "Translated from %s"
+msgstr ""
+
+#: admin/class-library-achievements.php:1087
+msgid "Error 404"
+msgstr ""
+
+#. translators: %s: number of pages.
+#: admin/class-library-achievements.php:1089
+msgid "Page not found: a book of %s pages"
+msgstr ""
+
+#: admin/class-library-achievements.php:1094
+msgid "Fahrenheit 451"
+msgstr ""
+
+#. translators: %s: number of pages.
+#: admin/class-library-achievements.php:1096
+msgid "A book of %s pages, the temperature at which paper burns"
+msgstr ""
+
+#: admin/class-library-achievements.php:1099
+msgid "The Ultimate Question"
+msgstr ""
+
+#: admin/class-library-achievements.php:1099
+msgid "A book of 42 pages, or the 42nd read of a year"
+msgstr ""
+
+#: admin/class-library-achievements.php:1125
+msgid "The splits"
+msgstr ""
+
+#. translators: 1: number of pages of a short book, 2: number of pages of a long one.
+#: admin/class-library-achievements.php:1129
+msgid "Under %1$s and over %2$s pages in the same month"
+msgstr ""
+
+#. translators: %s: number of pages.
+#: admin/class-library-achievements.php:1169
+msgid "%s pages read within a year"
+msgstr ""
+
+#: admin/class-library-achievements.php:1171
+msgid "Everest"
+msgstr ""
+
+#: admin/class-library-achievements.php:1191
+msgid "Time machine"
+msgstr ""
+
+#. translators: %s: number of centuries.
+#: admin/class-library-achievements.php:1194
+msgid "Works from %s centuries in the same month"
+msgstr ""
+
+#: admin/class-library-achievements.php:1230
+msgid "Twins"
+msgstr ""
+
+#. translators: 1: title of the other book, 2: year both first came out.
+#: admin/class-library-achievements.php:1234
+msgid "Read the same day as %1$s, both first published in %2$s"
+msgstr ""
+
 #. translators: %s: number of books to read.
-#: admin/class-library-achievements.php:897
+#: admin/class-library-achievements.php:1259
 msgid "Tsundoku"
 msgstr ""
 
 #. translators: %s: number of books to read.
-#: admin/class-library-achievements.php:897
+#: admin/class-library-achievements.php:1259
 msgid "%s books waiting to be read"
 msgstr ""
 
-#: admin/class-library-achievements.php:902
+#: admin/class-library-achievements.php:1264
 msgid "Leap day"
 msgstr ""
 
-#: admin/class-library-achievements.php:902
+#: admin/class-library-achievements.php:1264
 msgid "Read on 29 February"
 msgstr ""
 
-#: admin/class-library-achievements.php:903
+#: admin/class-library-achievements.php:1265
 msgid "Pi day"
 msgstr ""
 
-#: admin/class-library-achievements.php:903
+#: admin/class-library-achievements.php:1265
 msgid "Read on 14 March"
 msgstr ""
 
-#: admin/class-library-achievements.php:904
+#: admin/class-library-achievements.php:1266
 msgid "New Year's resolution"
 msgstr ""
 
-#: admin/class-library-achievements.php:904
+#: admin/class-library-achievements.php:1266
 msgid "Read on 1 January"
 msgstr ""
 
-#: admin/class-library-achievements.php:905
+#: admin/class-library-achievements.php:1267
 msgid "Last of the year"
 msgstr ""
 
-#: admin/class-library-achievements.php:905
+#: admin/class-library-achievements.php:1267
 msgid "Read on 31 December"
 msgstr ""
 
-#: admin/class-library-achievements.php:908
+#: admin/class-library-achievements.php:1270
 msgid "Friday the 13th"
 msgstr ""
 
-#: admin/class-library-achievements.php:909
+#: admin/class-library-achievements.php:1271
 msgid "Read on a Friday the 13th"
 msgstr ""
 
-#: admin/class-library-achievements.php:914
+#: admin/class-library-achievements.php:1276
 msgid "Palindrome date"
 msgstr ""
 
-#: admin/class-library-achievements.php:915
+#: admin/class-library-achievements.php:1277
 msgid "Read on a date that reads the same backwards"
 msgstr ""
 
-#: admin/class-library-achievements.php:920
+#: admin/class-library-achievements.php:1282
 msgid "Love at first sight"
 msgstr ""
 
-#: admin/class-library-achievements.php:921
+#: admin/class-library-achievements.php:1283
 msgid "Added and read the same day"
 msgstr ""
 
-#: admin/class-library-achievements.php:926
+#: admin/class-library-achievements.php:1288
 msgid "Brick"
 msgstr ""
 
 #. translators: %s: number of pages.
-#: admin/class-library-achievements.php:928
+#: admin/class-library-achievements.php:1290
 msgid "A book of %s pages or more"
 msgstr ""
 
-#: admin/class-library-achievements.php:933
+#: admin/class-library-achievements.php:1295
 msgid "The one that got away"
 msgstr ""
 
 #. translators: %s: rating, out of 10.
-#: admin/class-library-achievements.php:935
+#: admin/class-library-achievements.php:1297
 msgid "Not kept, rated %s or more"
 msgstr ""
 
-#: admin/class-library-achievements.php:940
+#: admin/class-library-achievements.php:1302
 msgid "Mouthful"
 msgstr ""
 
 #. translators: %s: number of characters.
-#: admin/class-library-achievements.php:942
+#: admin/class-library-achievements.php:1304
 msgid "A title of %s characters or more"
 msgstr ""
 
 #. translators: %s: number of books read the same day.
-#: admin/class-library-achievements.php:977
+#: admin/class-library-achievements.php:1344
 msgid "Marathon"
 msgstr ""
 
 #. translators: %s: number of books read the same day.
-#: admin/class-library-achievements.php:977
+#: admin/class-library-achievements.php:1344
 msgid "%s books read the same day"
 msgstr ""
 
-#: admin/class-library-achievements.php:1006
+#: admin/class-library-achievements.php:1373
 msgid "Seven days a week"
 msgstr ""
 
 #. translators: %s: number of days.
-#: admin/class-library-achievements.php:1009
+#: admin/class-library-achievements.php:1376
 msgid "A book finished every day for %s days"
 msgstr ""
 
-#: admin/class-library-achievements.php:1038
+#: admin/class-library-achievements.php:1405
 msgid "Hat-trick"
 msgstr ""
 
-#: admin/class-library-achievements.php:1038
+#: admin/class-library-achievements.php:1405
 msgid "Three books rated 10 in a row"
 msgstr ""
 
-#: admin/class-library-achievements.php:1060
+#: admin/class-library-achievements.php:1427
 msgid "Namesakes"
 msgstr ""
 
-#: admin/class-library-achievements.php:1060
+#: admin/class-library-achievements.php:1427
 msgid "The same title, different authors"
 msgstr ""
 
-#: admin/class-library-achievements.php:1095
+#: admin/class-library-achievements.php:1462
 msgid "Back to the start"
 msgstr ""
 
-#: admin/class-library-achievements.php:1095
+#: admin/class-library-achievements.php:1462
 msgid "Volume 1 read after a later volume"
 msgstr ""
 
