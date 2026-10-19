@@ -58,10 +58,15 @@ class Library_Dashboard {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue_assets( string $hook ): void {
-		if ( 'index.php' !== $hook ) {
-			return;
+		if ( 'index.php' === $hook ) {
+			self::enqueue_style();
 		}
+	}
 
+	/**
+	 * Enqueue the styles of the widgets, shared with the achievements page.
+	 */
+	public static function enqueue_style(): void {
 		[ $url, $version ] = Library_Admin::asset( 'css/library-dashboard.css' );
 
 		wp_enqueue_style( 'library-dashboard', $url, array(), $version );

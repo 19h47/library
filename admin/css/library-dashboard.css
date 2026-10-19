@@ -341,29 +341,29 @@
 	white-space: nowrap;
 }
 
-.library-achievements-all {
+.library-achievements-more {
+	margin: 0;
 	padding: 0 2px;
 }
 
-.library-achievements-all summary {
-	margin-bottom: 8px;
-	font-size: 12px;
-	font-weight: 600;
-	cursor: pointer;
+/* Achievements page: the families side by side as long as they fit. */
+.library-achievements-page .library-achievements-header {
+	margin: 8px 0 20px;
 }
 
-.library-achievements-list .library-achievement {
-	gap: 8px;
-	margin-bottom: 6px;
+.library-achievements-family {
+	margin-bottom: 24px;
 }
 
-.library-achievements-list .library-achievement-icon.dashicons {
-	width: 24px;
-	height: 24px;
-	font-size: 14px;
-	line-height: 24px;
+.library-achievements-family h2 .count {
+	font-weight: 400;
+	color: #646970;
 }
 
-.library-achievements-list .library-achievement-subject {
-	font-size: 12px;
+.library-achievements-page .library-achievements-badges,
+.library-achievements-page .library-achievements-close {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+	gap: 4px 24px;
+	padding: 0;
 }

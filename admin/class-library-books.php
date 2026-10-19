@@ -57,7 +57,7 @@ class Library_Books {
 			$pages       = (int) get_post_meta( $post->ID, 'pages', true );
 			$authors     = self::get_real_authors( $post->ID );
 			$collections = Library_Taxonomies::get_collections( $post->ID );
-			$languages   = wp_get_post_terms( $post->ID, 'library-language' );
+			$languages   = get_the_terms( $post->ID, 'library-language' );
 
 			if ( '' === $series && null !== $volume ) {
 				$series = $post->post_title;
@@ -82,7 +82,7 @@ class Library_Books {
 				'translators'    => self::split( (string) get_post_meta( $post->ID, 'translators', true ) ),
 				'collections'    => wp_list_pluck( $collections, 'name' ),
 				'collection_ids' => wp_list_pluck( $collections, 'term_id' ),
-				'languages'      => wp_list_pluck( $languages, 'name', 'slug' ),
+				'languages'      => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
 			);
 		}
 

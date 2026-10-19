@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -109,6 +109,14 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 3.1.0 =
+* Achievements: a page under Books lists them all by family, completions, milestones, discoveries, languages and translators, and easter eggs, after all those close to be earned. The widget keeps the latest and the closest ones, with a link to the page instead of the list of all achievements.
+* Achievements: books that complete a series, authors or collections count once, for their series, else for their authors together, else for their collection. Hergé and The Adventures of Tintin were two completions of the same books.
+* Achievements: a series or a translator typed with different cases, such as “Le Cycle de Dune” and “Le cycle de Dune”, is one.
+* Achievements: the tour of the 20th century and the twins take the year a work came out like the other achievements, its date first published or else its edition date, instead of the date first published only.
+* Achievements: the record month, the new year, the last of the year and seven days a week have their own icon.
+* Fixed: the dashboard and the achievements page ran a database query per book to get its original languages.
 
 = 3.0.0 =
 * Original languages are identified by their ISO 639 code, their slug: a language added by typing its code is named in the site language. Your own language, for the “In the original” achievement, is the one of your profile, in any language, and no longer the name the French translation gives.
