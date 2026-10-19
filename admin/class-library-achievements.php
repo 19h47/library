@@ -1,6 +1,6 @@
 <?php
 /**
- * Achievements dashboard widget.
+ * Achievements dashboard widget and page.
  *
  * @link       https://github.com/19h47/library
  * @since      2.2.0
@@ -13,10 +13,11 @@
  * Achievements drawn from the books, computed on each view: nothing is stored, so a completion is lost
  * when a book to read joins it, and comes back once it is read.
  *
- * Completions (an author, a series or a collection read in full), milestones (books and pages read,
- * record year and month, months in a row), discoveries (hot off the press, a centenarian, the oldest of
- * the pile, the decades of the 20th century, a translator) and a few easter eggs. Books not kept count,
- * since they are read. An achievement is dated by the reading that earned it, when it has a date.
+ * By family: completions (a series, an author or a collection read in full, half and three quarters of
+ * a collection), milestones (books and pages read, record year and month, months in a row), discoveries
+ * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
+ * and translators, and easter eggs. Books not kept count, since they are read. An achievement is dated
+ * by the reading that earned it, when it has a date.
  *
  * @since      2.2.0
  * @package    Library
@@ -198,54 +199,71 @@ class Library_Achievements {
 	private const LIST_LENGTH = 5;
 
 	/**
-	 * Dashicon of each kind of achievement.
+	 * Kinds of achievement by family, in the order of the achievements page, with their dashicon.
 	 *
-	 * @var array<string,string>
+	 * @var array<string,array<string,string>>
 	 */
-	private const ICONS = array(
-		'author'              => 'admin-users',
-		'series'              => 'book',
-		'collection'          => 'category',
-		'collection-step'     => 'chart-pie',
-		'read'                => 'awards',
-		'pages'               => 'media-document',
-		'record-year'         => 'chart-bar',
-		'record-month'        => 'chart-bar',
-		'streak'              => 'calendar-alt',
-		'hot-off-the-press'   => 'clock',
-		'centenarian'         => 'backup',
-		'archaeologist'       => 'search',
-		'decades'             => 'admin-site-alt3',
-		'translator'          => 'translation',
-		'languages'           => 'admin-site',
-		'tsundoku'            => 'book-alt',
-		'leap-day'            => 'calendar',
-		'pi-day'              => 'calculator',
-		'new-year'            => 'calendar',
-		'new-years-eve'       => 'calendar',
-		'friday-13th'         => 'warning',
-		'palindrome'          => 'image-flip-horizontal',
-		'love-at-first-sight' => 'heart',
-		'brick'               => 'database',
-		'one-that-got-away'   => 'migrate',
-		'mouthful'            => 'editor-quote',
-		'marathon'            => 'performance',
-		'seven-days-a-week'   => 'calendar-alt',
-		'hat-trick'           => 'star-filled',
-		'namesakes'           => 'groups',
-		'back-to-the-start'   => 'undo',
-		'original-language'   => 'format-chat',
-		'polyglot'            => 'admin-site-alt',
-		'go-between'          => 'randomize',
-		'rosetta-stone'       => 'admin-site-alt2',
-		'page-404'            => 'no-alt',
-		'fahrenheit-451'      => 'lightbulb',
-		'ultimate-question'   => 'editor-help',
-		'splits'              => 'leftright',
-		'everest'             => 'chart-area',
-		'time-machine'        => 'update',
-		'twins'               => 'controls-repeat',
+	private const KINDS = array(
+		'completions' => array(
+			'author'          => 'admin-users',
+			'series'          => 'book',
+			'collection'      => 'category',
+			'collection-step' => 'chart-pie',
+		),
+		'milestones'  => array(
+			'read'         => 'awards',
+			'pages'        => 'media-document',
+			'record-year'  => 'chart-bar',
+			'record-month' => 'chart-line',
+			'streak'       => 'calendar-alt',
+		),
+		'discoveries' => array(
+			'hot-off-the-press' => 'clock',
+			'centenarian'       => 'backup',
+			'archaeologist'     => 'search',
+			'decades'           => 'admin-site-alt3',
+		),
+		'languages'   => array(
+			'languages'         => 'admin-site',
+			'original-language' => 'format-chat',
+			'polyglot'          => 'admin-site-alt',
+			'rosetta-stone'     => 'admin-site-alt2',
+			'translator'        => 'translation',
+			'go-between'        => 'randomize',
+		),
+		'easter-eggs' => array(
+			'tsundoku'            => 'book-alt',
+			'leap-day'            => 'calendar',
+			'pi-day'              => 'calculator',
+			'new-year'            => 'flag',
+			'new-years-eve'       => 'beer',
+			'friday-13th'         => 'warning',
+			'palindrome'          => 'image-flip-horizontal',
+			'love-at-first-sight' => 'heart',
+			'brick'               => 'database',
+			'one-that-got-away'   => 'migrate',
+			'mouthful'            => 'editor-quote',
+			'page-404'            => 'no-alt',
+			'fahrenheit-451'      => 'lightbulb',
+			'ultimate-question'   => 'editor-help',
+			'splits'              => 'leftright',
+			'everest'             => 'chart-area',
+			'time-machine'        => 'update',
+			'twins'               => 'controls-repeat',
+			'marathon'            => 'performance',
+			'seven-days-a-week'   => 'schedule',
+			'hat-trick'           => 'star-filled',
+			'namesakes'           => 'groups',
+			'back-to-the-start'   => 'undo',
+		),
 	);
+
+	/**
+	 * Slug of the achievements page, under the books menu.
+	 *
+	 * @var string
+	 */
+	private const PAGE = 'library-achievements';
 
 	/**
 	 * Register hooks.
@@ -254,6 +272,7 @@ class Library_Achievements {
 	 */
 	public function hooks(): void {
 		add_action( 'wp_dashboard_setup', array( $this, 'register_widget' ) );
+		add_action( 'admin_menu', array( $this, 'add_page' ) );
 	}
 
 	/**
@@ -264,16 +283,68 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Render the latest achievements as badges, the closest with their progress, and all of them.
+	 * Add the achievements page under the books menu, with the dashboard styles.
+	 */
+	public function add_page(): void {
+		$hook = add_submenu_page( 'edit.php?post_type=book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), 'edit_posts', self::PAGE, array( $this, 'render_page' ) );
+
+		add_action( "admin_print_styles-$hook", array( Library_Dashboard::class, 'enqueue_style' ) );
+	}
+
+	/**
+	 * Render the widget: the latest achievements as badges, the closest with their progress, and a link to the page.
 	 */
 	public function render(): void {
 		$achievements = $this->get_achievements();
 		$earned       = $achievements['earned'];
 		$latest       = array_slice( $earned, 0, self::LIST_LENGTH );
 		$close        = array_slice( $achievements['close'], 0, self::LIST_LENGTH );
-		$easter_eggs  = count( array_filter( array_column( $earned, 'easter_egg' ) ) );
+		$page_url     = menu_page_url( self::PAGE, false );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-achievements.php';
+	}
+
+	/**
+	 * Render the page: all the achievements close to be earned, then those earned by family.
+	 */
+	public function render_page(): void {
+		$achievements     = $this->get_achievements();
+		$earned           = $achievements['earned'];
+		$close            = $achievements['close'];
+		$families         = self::by_family( $earned );
+		$easter_egg_kinds = count( self::KINDS['easter-eggs'] );
+
+		include plugin_dir_path( __FILE__ ) . 'partials/library-achievements.php';
+	}
+
+	/**
+	 * Achievements earned by family, in the order of the page; families without any are left out.
+	 *
+	 * @param array<int,array> $earned Achievements earned.
+	 * @return array<string,array{name:string,achievements:array<int,array>}>
+	 */
+	private static function by_family( array $earned ): array {
+		$names    = array(
+			'completions' => __( 'Completions', 'library' ),
+			'milestones'  => __( 'Milestones', 'library' ),
+			'discoveries' => __( 'Discoveries', 'library' ),
+			'languages'   => __( 'Languages and translators', 'library' ),
+			'easter-eggs' => __( 'Easter eggs', 'library' ),
+		);
+		$families = array();
+
+		foreach ( $names as $family => $name ) {
+			$achievements = array_values( array_filter( $earned, fn( array $achievement ) => isset( self::KINDS[ $family ][ $achievement['kind'] ] ) ) );
+
+			if ( $achievements ) {
+				$families[ $family ] = array(
+					'name'         => $name,
+					'achievements' => $achievements,
+				);
+			}
+		}
+
+		return $families;
 	}
 
 	/**
@@ -283,7 +354,9 @@ class Library_Achievements {
 	 * @return string
 	 */
 	public static function icon( string $kind ): string {
-		return 'dashicons-' . ( self::ICONS[ $kind ] ?? 'awards' );
+		$icons = array_merge( ...array_values( self::KINDS ) );
+
+		return 'dashicons-' . $icons[ $kind ];
 	}
 
 	/**
@@ -323,7 +396,7 @@ class Library_Achievements {
 			$translators,
 			$languages,
 			$this->get_language_feats( $reads ),
-			array_map( fn( array $egg ) => array_merge( $egg, array( 'easter_egg' => true ) ), $this->get_easter_eggs( $books, $reads ) )
+			$this->get_easter_eggs( $books, $reads )
 		);
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
@@ -358,8 +431,18 @@ class Library_Achievements {
 			'detail'     => $detail,
 			'url'        => $url,
 			'date'       => $date,
-			'easter_egg' => false,
+			'easter_egg' => isset( self::KINDS['easter-eggs'][ $kind ] ),
 		);
+	}
+
+	/**
+	 * Key of a name typed by hand, such as a series or a translator, the same whatever its case.
+	 *
+	 * @param string $name Name.
+	 * @return string
+	 */
+	private static function key( string $name ): string {
+		return mb_strtolower( trim( $name ) );
 	}
 
 	/**
@@ -437,29 +520,44 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Authors, series and collections read in full, and those with few books left.
+	 * Series, authors and collections read in full, and those with few books left.
+	 *
+	 * The same books count once: for their series, else for their authors together, else for their collection.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
 	 */
 	private function get_completions( array $books ): array {
 		$groups = array(
-			'author'     => array(),
 			'series'     => array(),
+			'author'     => array(),
 			'collection' => array(),
 		);
 
 		foreach ( $books as $book ) {
+			if ( '' !== $book['series'] ) {
+				$groups['series'][ self::key( $book['series'] ) ][] = $book;
+			}
+
 			foreach ( $book['author_ids'] as $author_id ) {
 				$groups['author'][ $author_id ][] = $book;
 			}
 
-			if ( '' !== $book['series'] ) {
-				$groups['series'][ $book['series'] ][] = $book;
-			}
-
 			foreach ( $book['collection_ids'] as $collection_id ) {
 				$groups['collection'][ $collection_id ][] = $book;
+			}
+		}
+
+		// Groups keyed by their books, then by kind.
+		$completions = array();
+
+		foreach ( $groups as $kind => $kind_groups ) {
+			foreach ( $kind_groups as $key => $group ) {
+				$left = count( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
+
+				if ( count( $group ) >= self::COMPLETION_BOOKS[ $kind ] && $left <= self::CLOSE_BOOKS ) {
+					$completions[ implode( ',', array_column( $group, 'id' ) ) ][ $kind ][ $key ] = $group;
+				}
 			}
 		}
 
@@ -471,55 +569,47 @@ class Library_Achievements {
 		$earned = array();
 		$close  = array();
 
-		foreach ( $groups as $kind => $kind_groups ) {
-			foreach ( $kind_groups as $key => $group ) {
-				$total = count( $group );
+		foreach ( $completions as $kinds ) {
+			$kind  = (string) array_key_first( $kinds );
+			$key   = array_key_first( $kinds[ $kind ] );
+			$group = $kinds[ $kind ][ $key ];
+			$total = count( $group );
+			$read  = array_filter( $group, fn( array $book ) => $book['read'] );
+			$left  = $total - count( $read );
 
-				if ( $total < self::COMPLETION_BOOKS[ $kind ] ) {
-					continue;
-				}
-
-				$read = array_filter( $group, fn( array $book ) => $book['read'] );
-				$left = $total - count( $read );
-
-				if ( $left > self::CLOSE_BOOKS ) {
-					continue;
-				}
-
-				if ( 'series' === $kind ) {
-					$subject = (string) $key;
-					$url     = self::search_url( $subject, $group );
-				} else {
-					$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
-					$term     = get_term( (int) $key, $taxonomy );
-					$subject  = $term instanceof WP_Term ? $term->name : '';
-					$url      = self::term_url( $taxonomy, (int) $key, $group );
-				}
-
-				if ( 0 === $left ) {
-					$earned[] = self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
-					continue;
-				}
-
-				$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
-
-				$close[] = self::achievement(
-					$kind,
-					$titles[ $kind ],
-					$subject,
-					sprintf(
-						/* translators: 1: number of books left, 2: title of a book left. */
-						_n( '%1$s book left: %2$s', '%1$s books left, such as %2$s', $left, 'library' ),
-						number_format_i18n( $left ),
-						$next['full_title']
-					),
-					$url,
-					''
-				) + array(
-					'done'  => count( $read ),
-					'total' => $total,
-				);
+			if ( 'series' === $kind ) {
+				$subject = $group[0]['series'];
+				$url     = self::search_url( $subject, $group );
+			} else {
+				$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
+				$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
+				$subject  = wp_sprintf( '%l', wp_list_pluck( array_filter( $terms, fn( $term ) => $term instanceof WP_Term ), 'name' ) );
+				$url      = self::term_url( $taxonomy, (int) $key, $group );
 			}
+
+			if ( 0 === $left ) {
+				$earned[] = self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
+				continue;
+			}
+
+			$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
+
+			$close[] = self::achievement(
+				$kind,
+				$titles[ $kind ],
+				$subject,
+				sprintf(
+					/* translators: 1: number of books left, 2: title of a book left. */
+					_n( '%1$s book left: %2$s', '%1$s books left, such as %2$s', $left, 'library' ),
+					number_format_i18n( $left ),
+					$next['full_title']
+				),
+				$url,
+				''
+			) + array(
+				'done'  => count( $read ),
+				'total' => $total,
+			);
 		}
 
 		return array( $earned, $close );
@@ -836,7 +926,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * A book read first published in each decade of the 20th century.
+	 * A book read that came out in each decade of the 20th century.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
 	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
@@ -845,7 +935,7 @@ class Library_Achievements {
 		$decades = array();
 
 		foreach ( $reads as $book ) {
-			$year = '' !== $book['published_date'] ? (int) substr( $book['published_date'], 0, 4 ) : 0;
+			$year = self::first_year( $book ) ?? 0;
 
 			if ( $year >= 1900 && $year < 2000 && ! isset( $decades[ intdiv( $year, 10 ) ] ) ) {
 				$decades[ intdiv( $year, 10 ) ] = $book;
@@ -880,23 +970,26 @@ class Library_Achievements {
 	 */
 	private function get_translators( array $reads ): array {
 		$translators = array();
+		$names       = array();
 		$earned      = array();
 		$close       = array();
 
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
-				$translators[ $translator ][] = $book;
+				$translators[ self::key( $translator ) ][] = $book;
+				$names[ self::key( $translator ) ] ??= $translator;
 			}
 		}
 
-		foreach ( $translators as $translator => $books ) {
-			$left   = self::TRANSLATOR_BOOKS - count( $books );
-			$detail = self::books_text( count( $books ) );
+		foreach ( $translators as $key => $books ) {
+			$translator = $names[ $key ];
+			$left       = self::TRANSLATOR_BOOKS - count( $books );
+			$detail     = self::books_text( count( $books ) );
 
 			if ( $left <= 0 ) {
-				$earned[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator, $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
+				$earned[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_url( $translator, $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
-				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), (string) $translator, $detail, self::search_url( (string) $translator, $books ), '' ) + array(
+				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_url( $translator, $books ), '' ) + array(
 					'done'  => count( $books ),
 					'total' => self::TRANSLATOR_BOOKS,
 				);
@@ -1019,24 +1112,28 @@ class Library_Achievements {
 	 */
 	private function get_go_betweens( array $reads ): array {
 		$from   = array();
+		$names  = array();
 		$earned = array();
 
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
+				$names[ self::key( $translator ) ] ??= $translator;
+
 				foreach ( $book['languages'] as $language ) {
-					$from[ $translator ][ $language ] ??= $book;
+					$from[ self::key( $translator ) ][ $language ] ??= $book;
 				}
 			}
 		}
 
-		foreach ( array_filter( $from, fn( array $languages ) => count( $languages ) > 1 ) as $translator => $languages ) {
-			$earned[] = self::achievement(
+		foreach ( array_filter( $from, fn( array $languages ) => count( $languages ) > 1 ) as $key => $languages ) {
+			$translator = $names[ $key ];
+			$earned[]   = self::achievement(
 				'go-between',
 				__( 'Go-between', 'library' ),
-				(string) $translator,
+				$translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::search_url( (string) $translator, array_values( $languages ) ),
+				self::search_url( $translator, array_values( $languages ) ),
 				array_values( $languages )[1]['read_date']
 			);
 		}
@@ -1213,7 +1310,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * The latest two works first published the same year, by different authors, read the same day.
+	 * The latest two works that came out the same year, by different authors, read the same day.
 	 *
 	 * @param array<int,array> $dated Books read with their date, in reading order.
 	 * @return array<int,array>
@@ -1222,8 +1319,8 @@ class Library_Achievements {
 		$seen  = array();
 		$twins = null;
 
-		foreach ( array_filter( $dated, fn( array $book ) => '' !== $book['published_date'] && $book['author_ids'] ) as $book ) {
-			$key = $book['read_date'] . substr( $book['published_date'], 0, 4 );
+		foreach ( array_filter( $dated, fn( array $book ) => null !== self::first_year( $book ) && $book['author_ids'] ) as $book ) {
+			$key = $book['read_date'] . self::first_year( $book );
 
 			foreach ( $seen[ $key ] ?? array() as $twin ) {
 				if ( ! array_intersect( $twin['author_ids'], $book['author_ids'] ) ) {
@@ -1245,9 +1342,9 @@ class Library_Achievements {
 				$twins[1]['full_title'],
 				sprintf(
 					/* translators: 1: title of the other book, 2: year both first came out. */
-					__( 'Read the same day as %1$s, both first published in %2$s', 'library' ),
+					__( 'Read the same day as %1$s, both came out in %2$s', 'library' ),
 					$twins[0]['full_title'],
-					substr( $twins[1]['published_date'], 0, 4 )
+					self::first_year( $twins[1] )
 				),
 				(string) get_edit_post_link( $twins[1]['id'], 'raw' ),
 				$twins[1]['read_date']
@@ -1429,7 +1526,7 @@ class Library_Achievements {
 		$titles = array();
 
 		foreach ( $reads as $book ) {
-			$titles[ mb_strtolower( trim( $book['title'] ) ) ][] = $book;
+			$titles[ self::key( $book['title'] ) ][] = $book;
 		}
 
 		foreach ( array_reverse( $titles ) as $books ) {
@@ -1462,10 +1559,10 @@ class Library_Achievements {
 				continue;
 			}
 
-			if ( 1 === $book['volume'] && isset( $later[ $book['series'] ] ) ) {
+			if ( 1 === $book['volume'] && isset( $later[ self::key( $book['series'] ) ] ) ) {
 				$found = $book;
 			} elseif ( $book['volume'] > 1 ) {
-				$later[ $book['series'] ] = true;
+				$later[ self::key( $book['series'] ) ] = true;
 			}
 		}
 
