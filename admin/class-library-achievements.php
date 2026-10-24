@@ -13,10 +13,12 @@
  * Achievements drawn from the books, computed on each view: nothing is stored, so a completion is lost
  * when a book to read joins it, and comes back once it is read.
  *
- * By family: completions (a series, an author or a collection read in full, half and three quarters of
- * a collection), milestones (books and pages read, record year and month, months in a row), discoveries
+ * By family: completions (series, authors and collections read in full, collections read by half or
+ * more), milestones (books and pages read, record year and month, months in a row, a book read
+ * again, whose level is the most times a book was read again), discoveries
  * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
- * and translators, and easter eggs. Books not kept count, since they are read. An achievement is dated
+ * and translators, and easter eggs. Books not kept count, since they are read. Completions and translators
+ * are one achievement each, whose level is the number of subjects that earned it. An achievement is dated
  * by the reading that earned it, when it has a date. Achievements that count books take their first
  * reading; those about readings over time count a book read again once per reading.
  *
@@ -39,7 +41,7 @@ class Library_Achievements {
 	);
 
 	/**
-	 * Number of books of a collection from which reading half and three quarters of them counts.
+	 * Number of books of a collection from which reading half of them counts.
 	 *
 	 * @var int
 	 */
@@ -217,6 +219,7 @@ class Library_Achievements {
 			'record-year'  => 'chart-bar',
 			'record-month' => 'chart-line',
 			'streak'       => 'calendar-alt',
+			'reread'       => 'image-rotate',
 		),
 		'discoveries' => array(
 			'hot-off-the-press' => 'clock',
@@ -394,6 +397,7 @@ class Library_Achievements {
 			$this->get_page_milestones( $readings ),
 			$this->get_records( $readings ),
 			$this->get_month_streak( $readings ),
+			$this->get_rereads( $readings ),
 			$this->get_discoveries( $books, $reads ),
 			$tour,
 			$translators,
@@ -544,7 +548,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Series, authors and collections read in full, and those with few books left.
+	 * Series, authors and collections read in full, one achievement for each kind, and those with few books left.
 	 *
 	 * The same books count once: for their series, else for their authors together, else for their collection.
 	 *
@@ -612,7 +616,7 @@ class Library_Achievements {
 			}
 
 			if ( 0 === $left ) {
-				$earned[] = self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
+				$earned[ $kind ][] = self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
 				continue;
 			}
 
@@ -636,11 +640,43 @@ class Library_Achievements {
 			);
 		}
 
-		return array( $earned, $close );
+		$level_titles = array(
+			/* translators: %s: number of series read in full. */
+			'series'     => fn( int $count ) => sprintf( _n( '%s series finished', '%s series finished', $count, 'library' ), number_format_i18n( $count ) ),
+			/* translators: %s: number of authors read in full. */
+			'author'     => fn( int $count ) => sprintf( _n( '%s complete author', '%s complete authors', $count, 'library' ), number_format_i18n( $count ) ),
+			/* translators: %s: number of collections read in full. */
+			'collection' => fn( int $count ) => sprintf( _n( '%s collection finished', '%s collections finished', $count, 'library' ), number_format_i18n( $count ) ),
+		);
+		$levels       = array();
+
+		foreach ( $earned as $kind => $kind_earned ) {
+			$levels = array_merge( $levels, self::level( $kind_earned, $level_titles[ $kind ] ) );
+		}
+
+		return array( $levels, $close );
 	}
 
 	/**
-	 * Half and three quarters of the big collections read, dated by the reading that reached them.
+	 * One achievement for those of a kind earned by several subjects, at the level of their number: the latest
+	 * subject to earn it, with its detail and link, dated by the reading that did.
+	 *
+	 * @param array<int,array> $earned Achievements of a kind, one per subject.
+	 * @param callable         $title  Title from the number of subjects, e.g. "38 complete authors".
+	 * @return array<int,array> The achievement, or none.
+	 */
+	private static function level( array $earned, callable $title ): array {
+		if ( ! $earned ) {
+			return array();
+		}
+
+		usort( $earned, fn( array $a, array $b ) => strcmp( $a['date'], $b['date'] ) );
+
+		return array( array( 'title' => $title( count( $earned ) ) ) + end( $earned ) );
+	}
+
+	/**
+	 * The big collections read by half or more, not in full, as one achievement; each one dated by the reading that reached half.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array>
@@ -659,37 +695,29 @@ class Library_Achievements {
 			$total = count( $group );
 			$reads = self::get_reads( $group );
 
-			if ( $total < self::COLLECTION_STEP_BOOKS || count( $reads ) === $total ) {
+			$half = (int) ceil( $total / 2 );
+
+			if ( $total < self::COLLECTION_STEP_BOOKS || count( $reads ) === $total || count( $reads ) < $half ) {
 				continue;
 			}
 
-			$steps = array(
-				75 => __( 'Three quarters of a collection', 'library' ),
-				50 => __( 'Half of a collection', 'library' ),
+			$term     = get_term( $collection_id, 'library-publisher' );
+			$earned[] = self::achievement(
+				'collection-step',
+				'',
+				$term instanceof WP_Term ? $term->name : '',
+				/* translators: 1: number of books read, 2: number of books. */
+				sprintf( __( '%1$s read of %2$s', 'library' ), number_format_i18n( count( $reads ) ), number_format_i18n( $total ) ),
+				self::term_url( 'library-publisher', $collection_id, $group ),
+				$reads[ $half - 1 ]['read_date']
 			);
-
-			foreach ( $steps as $percent => $title ) {
-				$needed = (int) ceil( $total * $percent / 100 );
-
-				if ( count( $reads ) < $needed ) {
-					continue;
-				}
-
-				$term     = get_term( $collection_id, 'library-publisher' );
-				$earned[] = self::achievement(
-					'collection-step',
-					$title,
-					$term instanceof WP_Term ? $term->name : '',
-					/* translators: 1: number of books read, 2: number of books. */
-					sprintf( __( '%1$s read of %2$s', 'library' ), number_format_i18n( count( $reads ) ), number_format_i18n( $total ) ),
-					self::term_url( 'library-publisher', $collection_id, $group ),
-					$reads[ $needed - 1 ]['read_date']
-				);
-				break;
-			}
 		}
 
-		return $earned;
+		return self::level(
+			$earned,
+			/* translators: %s: number of collections read by half or more. */
+			fn( int $count ) => sprintf( _n( '%s collection read by half or more', '%s collections read by half or more', $count, 'library' ), number_format_i18n( $count ) )
+		);
 	}
 
 	/**
@@ -852,6 +880,45 @@ class Library_Achievements {
 	}
 
 	/**
+	 * A book read again, at the level of the most times a book was read again: by the first book to reach it,
+	 * dated by the reading that did.
+	 *
+	 * @param array<int,array> $readings Readings, in reading order.
+	 * @return array<int,array>
+	 */
+	private function get_rereads( array $readings ): array {
+		$counts = array();
+		$level  = 0;
+		$found  = null;
+
+		foreach ( $readings as $reading ) {
+			$counts[ $reading['id'] ] = ( $counts[ $reading['id'] ] ?? 0 ) + 1;
+
+			if ( $counts[ $reading['id'] ] - 1 > $level ) {
+				$level = $counts[ $reading['id'] ] - 1;
+				$found = $reading;
+			}
+		}
+
+		if ( ! $found ) {
+			return array();
+		}
+
+		return array(
+			self::achievement(
+				'reread',
+				/* translators: %s: most times a book was read again. */
+				sprintf( _n( 'Read again %s time', 'Read again %s times', $level, 'library' ), number_format_i18n( $level ) ),
+				$found['full_title'],
+				/* translators: %s: year of the first reading of the book. */
+				sprintf( __( 'First read in %s', 'library' ), substr( $found['read_dates'][0], 0, 4 ) ),
+				(string) get_edit_post_link( $found['id'], 'raw' ),
+				$found['read_date']
+			),
+		);
+	}
+
+	/**
 	 * Year a work first came out: its date first published, or else its edition date.
 	 *
 	 * @param array $book Book.
@@ -987,7 +1054,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Translators with many books read, and those close to it.
+	 * Translators with many books read, as one achievement, and those close to it.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
 	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
@@ -1011,7 +1078,7 @@ class Library_Achievements {
 			$detail     = self::books_text( count( $books ) );
 
 			if ( $left <= 0 ) {
-				$earned[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_url( $translator, $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
+				$earned[] = self::achievement( 'translator', '', $translator, $detail, self::search_url( $translator, $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
 				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_url( $translator, $books ), '' ) + array(
 					'done'  => count( $books ),
@@ -1020,7 +1087,13 @@ class Library_Achievements {
 			}
 		}
 
-		return array( $earned, $close );
+		$level = self::level(
+			$earned,
+			/* translators: %s: number of translators with many books read. */
+			fn( int $count ) => sprintf( _n( 'Faithful to %s translator', 'Faithful to %s translators', $count, 'library' ), number_format_i18n( $count ) )
+		);
+
+		return array( $level, $close );
 	}
 
 	/**
