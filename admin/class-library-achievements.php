@@ -374,8 +374,8 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Achievements earned, latest first and undated last, and those close to be earned, with the books
-	 * done and their total, closest first.
+	 * Achievements earned, latest first and undated last, and those close to be earned, with what is done
+	 * and the total, books or pages, closest first.
 	 *
 	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool,done:int,total:int}>}
 	 */
@@ -386,6 +386,8 @@ class Library_Achievements {
 		$readings = self::get_readings( $books );
 
 		[ $completions, $close ]             = $this->get_completions( $books );
+		[ $read, $close_read ]               = $this->get_read_milestones( $reads );
+		[ $pages, $close_pages ]             = $this->get_page_milestones( $readings );
 		[ $tour, $close_tour ]               = $this->get_decade_tour( $reads );
 		[ $translators, $close_translators ] = $this->get_translators( $reads );
 		[ $languages, $close_languages ]     = $this->get_language_milestones( $reads );
@@ -393,8 +395,8 @@ class Library_Achievements {
 		$earned = array_merge(
 			$completions,
 			$this->get_collection_steps( $books ),
-			$this->get_read_milestones( $reads ),
-			$this->get_page_milestones( $readings ),
+			$read,
+			$pages,
 			$this->get_records( $readings ),
 			$this->get_month_streak( $readings ),
 			$this->get_rereads( $readings ),
@@ -408,9 +410,9 @@ class Library_Achievements {
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
 
-		$close = array_merge( $close, $close_tour, $close_translators, $close_languages );
+		$close = array_merge( $close, $close_read, $close_pages, $close_tour, $close_translators, $close_languages );
 
-		// Fewest books left first, then the furthest along.
+		// Fewest left first, then the furthest along.
 		usort( $close, fn( array $a, array $b ) => array( $a['total'] - $a['done'], $b['done'] / $b['total'], $a['subject'] ) <=> array( $b['total'] - $b['done'], $a['done'] / $a['total'], $b['subject'] ) );
 
 		return array(
@@ -721,40 +723,52 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Numbers of books read, dated by the reading that reached them; reads without date come first.
+	 * The highest number of books read reached, dated by the reading that reached it, and the next one
+	 * with its progress; reads without date come first.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
-	 * @return array<int,array>
+	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then next.
 	 */
 	private function get_read_milestones( array $reads ): array {
+		/* translators: %s: number of books read. */
+		$title  = fn( int $milestone ) => sprintf( __( '%s books read', 'library' ), number_format_i18n( $milestone ) );
 		$earned = array();
+		$next   = array();
 
 		foreach ( self::READ_MILESTONES as $milestone ) {
 			if ( count( $reads ) < $milestone ) {
+				$next[] = self::achievement( 'read', $title( $milestone ), '', '', '', '' ) + array(
+					'done'  => count( $reads ),
+					'total' => $milestone,
+				);
 				break;
 			}
 
-			$earned[] = self::achievement(
-				'read',
-				/* translators: %s: number of books read. */
-				sprintf( __( '%s books read', 'library' ), number_format_i18n( $milestone ) ),
-				'',
-				$reads[ $milestone - 1 ]['full_title'],
-				(string) get_edit_post_link( $reads[ $milestone - 1 ]['id'], 'raw' ),
-				$reads[ $milestone - 1 ]['read_date']
+			$earned = array(
+				self::achievement(
+					'read',
+					$title( $milestone ),
+					'',
+					$reads[ $milestone - 1 ]['full_title'],
+					(string) get_edit_post_link( $reads[ $milestone - 1 ]['id'], 'raw' ),
+					$reads[ $milestone - 1 ]['read_date']
+				),
 			);
 		}
 
-		return $earned;
+		return array( $earned, $next );
 	}
 
 	/**
-	 * Numbers of pages read, over the books read with their number of pages.
+	 * The highest number of pages read reached, over the books read with their number of pages, and the next
+	 * one with its progress, once a book read has its number of pages.
 	 *
 	 * @param array<int,array> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then next.
 	 */
 	private function get_page_milestones( array $readings ): array {
+		/* translators: %s: number of pages read. */
+		$title      = fn( int $milestone ) => sprintf( __( '%s pages read', 'library' ), number_format_i18n( $milestone ) );
 		$earned     = array();
 		$pages      = 0;
 		$milestones = self::PAGE_MILESTONES;
@@ -763,19 +777,30 @@ class Library_Achievements {
 			$pages += (int) $book['pages'];
 
 			while ( $milestones && $pages >= $milestones[0] ) {
-				$earned[] = self::achievement(
-					'pages',
-					/* translators: %s: number of pages read. */
-					sprintf( __( '%s pages read', 'library' ), number_format_i18n( array_shift( $milestones ) ) ),
-					'',
-					$book['full_title'],
-					(string) get_edit_post_link( $book['id'], 'raw' ),
-					$book['read_date']
+				$earned = array(
+					self::achievement(
+						'pages',
+						$title( array_shift( $milestones ) ),
+						'',
+						$book['full_title'],
+						(string) get_edit_post_link( $book['id'], 'raw' ),
+						$book['read_date']
+					),
 				);
 			}
 		}
 
-		return $earned;
+		// Like the Reading widget, nothing to show until a book read has its number of pages.
+		if ( ! $milestones || ! $pages ) {
+			return array( $earned, array() );
+		}
+
+		$next = self::achievement( 'pages', $title( $milestones[0] ), '', '', '', '' ) + array(
+			'done'  => $pages,
+			'total' => $milestones[0],
+		);
+
+		return array( $earned, array( $next ) );
 	}
 
 	/**
