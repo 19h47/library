@@ -2,7 +2,7 @@
  * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
  * Uses wp.apiFetch, which handles the REST root and nonce, and libraryAdminRead (readPercentFormat, today).
- * Checking a book without a read date sets it to today.
+ * Checking a book without a read date sets it to today; unchecking it clears its read dates.
  *
  * @package    Library
  * @subpackage Library/admin
@@ -27,15 +27,17 @@
 	};
 
 	// Quick edit reads the inline data, so it must follow the date the server kept.
-	const updateReadDate = ( id, readDate ) => {
+	// The checkbox adds or clears a single date: the cell of a book read several times stays as it is.
+	const updateReadDates = ( id, readDates ) => {
 		const cell       = document.querySelector( `#post-${ id } .column-read_date` );
 		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
 
-		if ( ! cell || ! inlineDate ) {
+		if ( ! cell || ! inlineDate || readDates.length > 1 ) {
 			return;
 		}
 
-		const label = readDate
+		const [ readDate = '' ] = readDates;
+		const label             = readDate
 			? new Date( `${ readDate }T00:00` ).toLocaleDateString( document.documentElement.lang, { dateStyle: 'long' } )
 			: '—';
 
@@ -58,7 +60,7 @@
 		const meta       = { read: checkbox.checked };
 
 		if ( checkbox.checked && ! inlineDate?.textContent ) {
-			meta.read_date = config.today;
+			meta.read_date = [ config.today ];
 		}
 
 		try {
@@ -68,7 +70,8 @@
 				data: { meta },
 			} );
 
-			updateReadDate( id, book.meta.read_date );
+			// A date stored empty comes back as null.
+			updateReadDates( id, book.meta.read_date.filter( Boolean ) );
 
 			const stats = await apiFetch( { path: '/library/v1/books/reading-stats' } );
 

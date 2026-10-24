@@ -185,6 +185,8 @@ class Library_Dashboard {
 	/**
 	 * Count books by the start of a meta value, e.g. "2024-05" (length 7) or "2024" (length 4) for a date.
 	 *
+	 * A book counts once per value: once per reading for the read dates.
+	 *
 	 * @param string $meta_key Meta key.
 	 * @param int    $length   Number of characters to group by.
 	 * @param string $scope    "{books}" for all books, "{library}" for the books kept.
@@ -194,7 +196,7 @@ class Library_Dashboard {
 		global $wpdb;
 
 		$rows = self::select(
-			"SELECT LEFT( m.meta_value, %d ) AS value_start, COUNT( DISTINCT p.ID ) AS books
+			"SELECT LEFT( m.meta_value, %d ) AS value_start, COUNT( DISTINCT p.ID, m.meta_value ) AS books
 			FROM {$wpdb->postmeta} AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
 			WHERE m.meta_key = %s
@@ -282,7 +284,8 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Books read this year and by the same date last year, and the number expected by the end of the year.
+	 * Books read this year and by the same date last year, and the number expected by the end of the year;
+	 * a book read again counts once per reading.
 	 *
 	 * @return array{year:int,this_year:int,last_year:int,projection:int|null}
 	 */
@@ -296,8 +299,8 @@ class Library_Dashboard {
 
 		[ $row ] = self::select(
 			"SELECT
-				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ) ) AS this_year,
-				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ) ) AS last_year
+				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ), m.meta_value ) AS this_year,
+				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ), m.meta_value ) AS last_year
 			FROM {$wpdb->postmeta} AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
 			WHERE m.meta_key = 'read_date'
@@ -324,7 +327,8 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Pages read this year, over the books read this year with their number of pages.
+	 * Pages read this year, over the books read this year with their number of pages;
+	 * a book read again counts once per reading.
 	 *
 	 * @return array{pages:int,books:int}
 	 */
@@ -332,13 +336,11 @@ class Library_Dashboard {
 		global $wpdb;
 
 		[ $row ] = self::select(
-			"SELECT SUM( n.meta_value ) AS pages, COUNT( DISTINCT p.ID ) AS books
-			FROM {$wpdb->postmeta} AS m
+			"SELECT SUM( n.meta_value ) AS pages, COUNT( DISTINCT p.ID, m.meta_value ) AS books
+			FROM ( SELECT DISTINCT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'read_date' AND meta_value >= %s ) AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
 			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = p.ID AND n.meta_key = 'pages'
-			WHERE m.meta_key = 'read_date'
-				AND m.meta_value >= %s
-				AND {books}",
+			WHERE {books}",
 			wp_date( 'Y-01-01' )
 		);
 
@@ -349,7 +351,8 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Books read by year, by month this year and by month over all years, from the read dates.
+	 * Books read by year, by month this year and by month over all years, from the read dates;
+	 * a book read again counts once per reading.
 	 *
 	 * @return array<int,array>
 	 */
@@ -528,32 +531,32 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * The latest books read, as ranking items.
+	 * The latest readings, as ranking items; a book read again shows once per reading.
 	 *
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
 	private function get_recent_reads(): array {
-		$query = new WP_Query(
-			array(
-				'post_type'      => 'book',
-				'post_status'    => array_diff( get_post_stati( array( 'show_in_admin_status_list' => true ) ), array( 'trash' ) ),
-				'posts_per_page' => self::LIST_LENGTH,
-				'no_found_rows'  => true,
-				'meta_key'       => 'read_date', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Small dataset.
-				'orderby'        => array(
-					'meta_value' => 'DESC', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Order key, small dataset.
-					'ID'         => 'DESC',
-				),
-			)
+		global $wpdb;
+
+		$rows = self::select(
+			"SELECT DISTINCT p.ID, m.meta_value AS read_date
+			FROM {$wpdb->postmeta} AS m
+			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
+			WHERE m.meta_key = 'read_date'
+				AND m.meta_value != ''
+				AND {books}
+			ORDER BY m.meta_value DESC, p.ID DESC
+			LIMIT %d",
+			self::LIST_LENGTH
 		);
 
 		return array_map(
-			fn( WP_Post $book ) => array(
-				'name' => get_the_title( $book ),
-				'url'  => (string) get_edit_post_link( $book->ID ),
-				'text' => date_i18n( get_option( 'date_format' ), strtotime( get_post_meta( $book->ID, 'read_date', true ) ) ),
+			fn( object $row ) => array(
+				'name' => get_the_title( (int) $row->ID ),
+				'url'  => (string) get_edit_post_link( (int) $row->ID ),
+				'text' => date_i18n( get_option( 'date_format' ), strtotime( $row->read_date ) ),
 			),
-			$query->posts
+			$rows
 		);
 	}
 

@@ -17,7 +17,8 @@
  * a collection), milestones (books and pages read, record year and month, months in a row), discoveries
  * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
  * and translators, and easter eggs. Books not kept count, since they are read. An achievement is dated
- * by the reading that earned it, when it has a date.
+ * by the reading that earned it, when it has a date. Achievements that count books take their first
+ * reading; those about readings over time count a book read again once per reading.
  *
  * @since      2.2.0
  * @package    Library
@@ -376,8 +377,10 @@ class Library_Achievements {
 	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool,done:int,total:int}>}
 	 */
 	public function get_achievements(): array {
-		$books = Library_Books::all();
-		$reads = self::get_reads( $books );
+		// A book is dated by its first reading.
+		$books    = array_map( fn( array $book ) => $book + array( 'read_date' => $book['read_dates'][0] ?? '' ), Library_Books::all() );
+		$reads    = self::get_reads( $books );
+		$readings = self::get_readings( $books );
 
 		[ $completions, $close ]             = $this->get_completions( $books );
 		[ $tour, $close_tour ]               = $this->get_decade_tour( $reads );
@@ -388,15 +391,15 @@ class Library_Achievements {
 			$completions,
 			$this->get_collection_steps( $books ),
 			$this->get_read_milestones( $reads ),
-			$this->get_page_milestones( $reads ),
-			$this->get_records( $reads ),
-			$this->get_month_streak( $reads ),
+			$this->get_page_milestones( $readings ),
+			$this->get_records( $readings ),
+			$this->get_month_streak( $readings ),
 			$this->get_discoveries( $books, $reads ),
 			$tour,
 			$translators,
 			$languages,
-			$this->get_language_feats( $reads ),
-			$this->get_easter_eggs( $books, $reads )
+			$this->get_language_feats( $reads, $readings ),
+			$this->get_easter_eggs( $books, $reads, $readings )
 		);
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
@@ -446,7 +449,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * The books read, those without read date first, then by read date.
+	 * The books read, dated by their first reading, those without read date first, then by read date.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array>
@@ -457,6 +460,27 @@ class Library_Achievements {
 		usort( $reads, fn( array $a, array $b ) => array( $a['read_date'], $a['id'] ) <=> array( $b['read_date'], $b['id'] ) );
 
 		return $reads;
+	}
+
+	/**
+	 * The readings of the books read, one per read date and one for a book read without date,
+	 * those without date first, then by date.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<int,array> Books read, each one with the date of a reading as read date.
+	 */
+	private static function get_readings( array $books ): array {
+		$readings = array();
+
+		foreach ( self::get_reads( $books ) as $book ) {
+			foreach ( $book['read_dates'] ? $book['read_dates'] : array( '' ) as $read_date ) {
+				$readings[] = array( 'read_date' => $read_date ) + $book;
+			}
+		}
+
+		usort( $readings, fn( array $a, array $b ) => array( $a['read_date'], $a['id'] ) <=> array( $b['read_date'], $b['id'] ) );
+
+		return $readings;
 	}
 
 	/**
@@ -699,15 +723,15 @@ class Library_Achievements {
 	/**
 	 * Numbers of pages read, over the books read with their number of pages.
 	 *
-	 * @param array<int,array> $reads Books read, in reading order.
+	 * @param array<int,array> $readings Readings, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_page_milestones( array $reads ): array {
+	private function get_page_milestones( array $readings ): array {
 		$earned     = array();
 		$pages      = 0;
 		$milestones = self::PAGE_MILESTONES;
 
-		foreach ( $reads as $book ) {
+		foreach ( $readings as $book ) {
 			$pages += (int) $book['pages'];
 
 			while ( $milestones && $pages >= $milestones[0] ) {
@@ -729,11 +753,11 @@ class Library_Achievements {
 	/**
 	 * The year and the month with the most books read, dated by the reading that beat the former record.
 	 *
-	 * @param array<int,array> $reads Books read, in reading order.
+	 * @param array<int,array> $readings Readings, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_records( array $reads ): array {
-		$dated   = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
+	private function get_records( array $readings ): array {
+		$dated   = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
 		$periods = array(
 			'year'  => array(
 				'length' => 4,
@@ -781,13 +805,13 @@ class Library_Achievements {
 	/**
 	 * The longest run of months in a row with a reading.
 	 *
-	 * @param array<int,array> $reads Books read, in reading order.
+	 * @param array<int,array> $readings Readings, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_month_streak( array $reads ): array {
+	private function get_month_streak( array $readings ): array {
 		$months = array();
 
-		foreach ( $reads as $book ) {
+		foreach ( $readings as $book ) {
 			if ( '' !== $book['read_date'] ) {
 				$months[ substr( $book['read_date'], 0, 7 ) ] = $book['read_date'];
 			}
@@ -1054,12 +1078,13 @@ class Library_Achievements {
 	 *
 	 * The original language is foreign when its code, the slug of the term, is not the language of the admin: "fr" for fr_FR.
 	 *
-	 * @param array<int,array> $reads Books read, in reading order.
+	 * @param array<int,array> $reads    Books read, in reading order.
+	 * @param array<int,array> $readings Readings, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_language_feats( array $reads ): array {
+	private function get_language_feats( array $reads, array $readings ): array {
 		$own_language = strtok( get_user_locale(), '_' );
-		$dated        = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
+		$dated        = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
 		$languages    = fn( array $book ) => $book['languages'];
 		$feats        = self::latest(
 			'original-language',
@@ -1145,8 +1170,8 @@ class Library_Achievements {
 	 * The latest period, e.g. a month, in which books read reached a number of different values, e.g. languages,
 	 * with the reading that reached it.
 	 *
-	 * @param array<int,array> $dated  Books read with their date, in reading order.
-	 * @param callable         $period Period of a book read, e.g. "2026-10".
+	 * @param array<int,array> $dated  Readings with their date, in reading order.
+	 * @param callable         $period Period of a reading, e.g. "2026-10".
 	 * @param callable         $values Values of a book, e.g. its languages.
 	 * @param int              $count  Number of different values to reach.
 	 * @return array{period:string,book:array}|null
@@ -1177,7 +1202,7 @@ class Library_Achievements {
 	 * Books read of 404, 451 or 42 pages; the 42nd reading of a year is an answer too.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_odd_pages( array $reads, array $dated ): array {
@@ -1214,7 +1239,7 @@ class Library_Achievements {
 	/**
 	 * The latest month with a short book and a long one read.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_splits( array $dated ): array {
@@ -1250,7 +1275,7 @@ class Library_Achievements {
 	/**
 	 * The latest reading that brought the pages read over the previous 365 days to the height of the Everest.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_everest( array $dated ): array {
@@ -1285,7 +1310,7 @@ class Library_Achievements {
 	/**
 	 * The latest month with works read from several centuries.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_time_machine( array $dated ): array {
@@ -1312,7 +1337,7 @@ class Library_Achievements {
 	/**
 	 * The latest two works that came out the same year, by different authors, read the same day.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_twins( array $dated ): array {
@@ -1355,15 +1380,17 @@ class Library_Achievements {
 	/**
 	 * Easter eggs: odd days, odd books and odd habits.
 	 *
-	 * @param array<int,array> $books All the books.
-	 * @param array<int,array> $reads Books read, in reading order.
+	 * @param array<int,array> $books    All the books.
+	 * @param array<int,array> $reads    Books read, in reading order.
+	 * @param array<int,array> $readings Readings, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_easter_eggs( array $books, array $reads ): array {
-		$dated   = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
-		$on      = fn( string $month_day ) => array_values( array_filter( $dated, fn( array $book ) => substr( $book['read_date'], 5 ) === $month_day ) );
-		$to_read = count( $books ) - count( $reads );
-		$eggs    = array();
+	private function get_easter_eggs( array $books, array $reads, array $readings ): array {
+		$dated       = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
+		$dated_reads = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
+		$on          = fn( string $month_day ) => array_values( array_filter( $dated, fn( array $book ) => substr( $book['read_date'], 5 ) === $month_day ) );
+		$to_read     = count( $books ) - count( $reads );
+		$eggs        = array();
 
 		if ( $to_read >= self::TSUNDOKU_BOOKS ) {
 			/* translators: %s: number of books to read. */
@@ -1424,7 +1451,7 @@ class Library_Achievements {
 			$this->get_daily_streak( $dated ),
 			$this->get_hat_trick( $dated ),
 			$this->get_namesakes( $reads ),
-			$this->get_back_to_the_start( $dated )
+			$this->get_back_to_the_start( $dated_reads )
 		);
 
 		return $eggs;
@@ -1433,7 +1460,7 @@ class Library_Achievements {
 	/**
 	 * The latest day with many books read.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_marathon( array $dated ): array {
@@ -1458,7 +1485,7 @@ class Library_Achievements {
 	/**
 	 * The longest run of days in a row with a book finished each day, the latest one among the longest.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_daily_streak( array $dated ): array {
@@ -1494,7 +1521,7 @@ class Library_Achievements {
 	/**
 	 * Three books rated 10 read in a row.
 	 *
-	 * @param array<int,array> $dated Books read with their date, in reading order.
+	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_hat_trick( array $dated ): array {

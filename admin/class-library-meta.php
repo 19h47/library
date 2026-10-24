@@ -28,7 +28,7 @@ class Library_Meta {
 	public const TEXT_KEYS = array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'translators' );
 
 	/**
-	 * Date meta keys, stored as Y-m-d.
+	 * Date meta keys, stored as Y-m-d; a book has one read date per reading.
 	 *
 	 * @var string[]
 	 */
@@ -51,8 +51,8 @@ class Library_Meta {
 	/**
 	 * All book meta keys.
 	 *
-	 * The read state comes after the read date, so unchecking "Read" in the form
-	 * clears the date instead of the date checking "Read" again.
+	 * The read state comes after the read dates, so unchecking "Read" in the form
+	 * clears the dates instead of the dates checking "Read" again.
 	 *
 	 * @var string[]
 	 */
@@ -95,7 +95,7 @@ class Library_Meta {
 				$key,
 				array(
 					'type'              => 'string',
-					'single'            => true,
+					'single'            => 'read_date' !== $key,
 					'show_in_rest'      => array(
 						'schema' => array( 'pattern' => '^\d{4}-\d{2}-\d{2}$' ),
 					),
@@ -161,8 +161,8 @@ class Library_Meta {
 	}
 
 	/**
-	 * Keep the read state and the read date consistent, whatever wrote them:
-	 * a read date marks the book as read, marking it as unread clears the date.
+	 * Keep the read state and the read dates consistent, whatever wrote them:
+	 * a read date marks the book as read, marking it as unread clears the dates.
 	 *
 	 * Imports are left as they are: their data is already consistent, and the importer
 	 * adds each meta after the ones this rule would write, which would duplicate them.
@@ -177,20 +177,50 @@ class Library_Meta {
 			return;
 		}
 
-		$read      = (bool) get_post_meta( $post_id, 'read', true );
-		$read_date = get_post_meta( $post_id, 'read_date', true );
+		$read       = (bool) get_post_meta( $post_id, 'read', true );
+		$read_dates = self::get_read_dates( $post_id );
 
-		if ( 'read_date' === $meta_key && '' !== $read_date && ! $read ) {
+		if ( 'read_date' === $meta_key && $read_dates && ! $read ) {
 			update_post_meta( $post_id, 'read', true );
 		}
 
-		if ( 'read' === $meta_key && ! $read && '' !== $read_date ) {
+		if ( 'read' === $meta_key && ! $read && $read_dates ) {
 			delete_post_meta( $post_id, 'read_date' );
 		}
 	}
 
 	/**
-	 * Save the given meta values; an empty value deletes the meta.
+	 * Read dates of a book, one per reading, from the first to the latest.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string[]
+	 */
+	public static function get_read_dates( int $post_id ): array {
+		$read_dates = array_unique( array_filter( get_post_meta( $post_id, 'read_date', false ) ) );
+
+		sort( $read_dates );
+
+		return $read_dates;
+	}
+
+	/**
+	 * Read dates of a book with the latest one replaced by the given date, or removed when it is empty:
+	 * quick edit edits the latest reading.
+	 *
+	 * @param int    $post_id   Post ID.
+	 * @param string $read_date Date of the latest reading, Y-m-d, or empty.
+	 * @return string[]
+	 */
+	public static function replace_last_read_date( int $post_id, string $read_date ): array {
+		$read_dates = self::get_read_dates( $post_id );
+
+		array_pop( $read_dates );
+
+		return array( ...$read_dates, $read_date );
+	}
+
+	/**
+	 * Save the given meta values; an empty value deletes the meta, the read dates replace the former ones.
 	 *
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
 	 * Values are saved in the order of KEYS, whatever the order of the form fields.
@@ -208,6 +238,11 @@ class Library_Meta {
 				continue;
 			}
 
+			if ( 'read_date' === $key ) {
+				self::save_read_dates( $post_id, (array) $values[ $key ] );
+				continue;
+			}
+
 			$value = sanitize_meta( $key, $values[ $key ], 'post', 'book' );
 
 			if ( '' === $value || false === $value ) {
@@ -220,8 +255,32 @@ class Library_Meta {
 
 		$marked_read = ! $was_read && (bool) get_post_meta( $post_id, 'read', true );
 
-		if ( $marked_read && '' === get_post_meta( $post_id, 'read_date', true ) ) {
-			update_post_meta( $post_id, 'read_date', current_time( 'Y-m-d' ) );
+		if ( $marked_read && ! self::get_read_dates( $post_id ) ) {
+			add_post_meta( $post_id, 'read_date', current_time( 'Y-m-d' ) );
+		}
+	}
+
+	/**
+	 * Replace the read dates of a book, one row per reading; empty and invalid dates are dropped, a date is kept once.
+	 *
+	 * @param int   $post_id    Post ID.
+	 * @param array $read_dates Read dates, Y-m-d.
+	 * @return void
+	 */
+	private static function save_read_dates( int $post_id, array $read_dates ): void {
+		$read_dates = array_map( fn( $read_date ) => sanitize_meta( 'read_date', $read_date, 'post', 'book' ), $read_dates );
+		$read_dates = array_unique( array_filter( $read_dates ) );
+
+		sort( $read_dates );
+
+		if ( self::get_read_dates( $post_id ) === $read_dates ) {
+			return;
+		}
+
+		delete_post_meta( $post_id, 'read_date' );
+
+		foreach ( $read_dates as $read_date ) {
+			add_post_meta( $post_id, 'read_date', $read_date );
 		}
 	}
 

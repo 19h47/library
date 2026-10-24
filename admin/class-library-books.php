@@ -30,10 +30,11 @@ class Library_Books {
 	 * All the books, kept or not.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
-	 * Authors are counted for their real name. The date added is the post date. The full title is the one to show.
+	 * Authors are counted for their real name. The read dates go from the first reading to the latest.
+	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_date:string,rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
 	 */
 	public static function all(): array {
 		if ( null !== self::$books ) {
@@ -71,7 +72,7 @@ class Library_Books {
 				'series'         => $series,
 				'volume'         => $volume,
 				'read'           => Library_Posts::is_read( $post->ID ),
-				'read_date'      => (string) get_post_meta( $post->ID, 'read_date', true ),
+				'read_dates'     => Library_Meta::get_read_dates( $post->ID ),
 				'rating'         => '' !== $rating ? (float) $rating : null,
 				'pages'          => $pages ? $pages : null,
 				'edition_date'   => (string) get_post_meta( $post->ID, 'edition_date', true ),

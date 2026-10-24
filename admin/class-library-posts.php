@@ -249,9 +249,20 @@ class Library_Posts {
 
 				break;
 			case 'read_date':
-				$read_date = get_post_meta( $post_id, 'read_date', true );
+				$read_dates = Library_Meta::get_read_dates( $post_id );
+				$readings   = count( $read_dates );
 
-				$output .= $read_date ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) ) : '—';
+				if ( ! $read_dates ) {
+					$output .= '—';
+					break;
+				}
+
+				$output .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( end( $read_dates ) ) ) );
+
+				if ( $readings > 1 ) {
+					/* translators: %s: number of readings of a book. */
+					$output .= ' · ' . esc_html( sprintf( _n( '%s reading', '%s readings', $readings, 'library' ), number_format_i18n( $readings ) ) );
+				}
 
 				break;
 			case 'rating':
@@ -321,8 +332,11 @@ class Library_Posts {
 			return;
 		}
 
+		$read_dates = Library_Meta::get_read_dates( $post->ID );
+
 		foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) {
-			$value = (string) get_post_meta( $post->ID, $key, true );
+			// Quick edit edits the latest reading.
+			$value = 'read_date' === $key ? (string) end( $read_dates ) : (string) get_post_meta( $post->ID, $key, true );
 
 			printf( '<div class="library_%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
 		}
@@ -348,7 +362,7 @@ class Library_Posts {
 		$labels = array(
 			'isbn'      => __( 'ISBN', 'library' ),
 			'pages'     => __( 'Pages', 'library' ),
-			'read_date' => __( 'Read date', 'library' ),
+			'read_date' => __( 'Last read date', 'library' ),
 			'rating'    => __( 'Rating', 'library' ),
 		);
 		?>
@@ -379,7 +393,13 @@ class Library_Posts {
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Library_Meta.
-		Library_Meta::save( $post_id, wp_unslash( $_POST ) );
+		$values = wp_unslash( $_POST );
+
+		if ( isset( $values['read_date'] ) ) {
+			$values['read_date'] = Library_Meta::replace_last_read_date( $post_id, (string) $values['read_date'] );
+		}
+
+		Library_Meta::save( $post_id, $values );
 	}
 
 	/**

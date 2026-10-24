@@ -77,6 +77,8 @@ class Library_Metaboxes {
 			$values[ $key ] = get_post_meta( $post->ID, $key, true );
 		}
 
+		$values['read_date'] = Library_Meta::get_read_dates( $post->ID );
+
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
 

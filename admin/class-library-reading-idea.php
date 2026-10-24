@@ -89,7 +89,7 @@ class Library_Reading_Idea {
 	private const REREAD_RATING = 9;
 
 	/**
-	 * Years since the reading from which a book is worth reading again.
+	 * Years since the latest reading from which a book is worth reading again.
 	 *
 	 * @var int
 	 */
@@ -237,6 +237,16 @@ class Library_Reading_Idea {
 	}
 
 	/**
+	 * Date of the latest reading of a book, or empty when it has no read date.
+	 *
+	 * @param array $book Book.
+	 * @return string
+	 */
+	private static function last_read_date( array $book ): string {
+		return (string) end( $book['read_dates'] );
+	}
+
+	/**
 	 * A rating or an average as text, with one decimal unless it is round: "9", "8,5".
 	 *
 	 * @param float $rating Rating, out of 10.
@@ -271,7 +281,7 @@ class Library_Reading_Idea {
 
 			$read_by_series[ $book['series'] ] = array(
 				'volumes'   => $read['volumes'] + 1,
-				'last_read' => max( $read['last_read'], $book['read_date'] ),
+				'last_read' => max( $read['last_read'], self::last_read_date( $book ) ),
 			);
 		}
 
@@ -328,7 +338,7 @@ class Library_Reading_Idea {
 					$ratings[ $name ][] = $book['rating'];
 				}
 
-				$last_read[ $name ] = max( $last_read[ $name ] ?? '', $book['read_date'] );
+				$last_read[ $name ] = max( $last_read[ $name ] ?? '', self::last_read_date( $book ) );
 			}
 		}
 
@@ -557,11 +567,18 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_change_ideas( array $books, array $to_read ): array {
-		$dated_reads = array_filter( $books, fn( array $book ) => '' !== $book['read_date'] );
+		// A book read again counts once per reading.
+		$readings = array();
 
-		usort( $dated_reads, fn( array $a, array $b ) => strcmp( $b['read_date'], $a['read_date'] ) );
+		foreach ( $books as $book ) {
+			foreach ( $book['read_dates'] as $read_date ) {
+				$readings[] = array( 'read_date' => $read_date ) + $book;
+			}
+		}
 
-		$latest_reads = array_slice( $dated_reads, 0, self::LATEST_READS );
+		usort( $readings, fn( array $a, array $b ) => strcmp( $b['read_date'], $a['read_date'] ) );
+
+		$latest_reads = array_slice( $readings, 0, self::LATEST_READS );
 		$ideas        = $this->get_decade_ideas( $books, $to_read );
 
 		if ( count( $latest_reads ) < self::LATEST_READS ) {
@@ -734,7 +751,7 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * Books read long ago and rated well, to read again.
+	 * Books last read long ago and rated well, to read again.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array{id:int,reason:string}>
@@ -744,7 +761,7 @@ class Library_Reading_Idea {
 		$ideas       = array();
 
 		foreach ( $books as $book ) {
-			$read_year = self::year( $book['read_date'] );
+			$read_year = self::year( self::last_read_date( $book ) );
 
 			if ( '' === $read_year || (int) $read_year > $latest_year || null === $book['rating'] || $book['rating'] < self::REREAD_RATING ) {
 				continue;

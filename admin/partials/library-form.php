@@ -191,23 +191,33 @@
 		</td>
 	</tr>
 
-	<!-- Read Date -->
+	<!-- Read Dates -->
 	<tr>
-		<th>
-			<label for="library-read-date">
-				<?php esc_html_e( 'Read date', 'library' ); ?>
-			</label>
+		<th scope="row">
+			<?php esc_html_e( 'Read dates', 'library' ); ?>
 		</th>
 		<td>
-			<input
-				type="date"
-				id="library-read-date"
-				name="read_date"
-				class="regular-text"
-				value="<?php echo esc_attr( $values['read_date'] ); ?>"
-			>
-			<p class="description">
-				<?php esc_html_e( 'Optional. Setting a date marks the book as read; marking it as read without a date sets today.', 'library' ); ?>
+			<fieldset>
+				<legend class="screen-reader-text"><?php esc_html_e( 'Read dates', 'library' ); ?></legend>
+				<?php foreach ( array( ...$values['read_date'], '' ) as $index => $read_date ) : ?>
+					<label for="library-read-date-<?php echo esc_attr( $index ); ?>" class="screen-reader-text">
+						<?php
+						/* translators: %d: number of the reading, e.g. 2 for the second one. */
+						echo esc_html( '' !== $read_date ? sprintf( __( 'Reading %d', 'library' ), $index + 1 ) : __( 'New reading', 'library' ) );
+						?>
+					</label>
+					<input
+						type="date"
+						id="library-read-date-<?php echo esc_attr( $index ); ?>"
+						name="read_date[]"
+						class="regular-text"
+						aria-describedby="library-read-date-description"
+						value="<?php echo esc_attr( $read_date ); ?>"
+					><br>
+				<?php endforeach; ?>
+			</fieldset>
+			<p class="description" id="library-read-date-description">
+				<?php esc_html_e( 'Optional. One date per reading: fill in the empty one to add a reading, empty a date to remove it. Setting a date marks the book as read; marking it as read without a date sets today.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>
