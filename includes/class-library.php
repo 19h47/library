@@ -38,6 +38,7 @@ class Library {
 		'admin/class-library-achievements.php',
 		'admin/class-library-taxonomies.php',
 		'admin/class-library-wp-query.php',
+		'app/class-library-app.php',
 	);
 
 	/**
@@ -78,6 +79,7 @@ class Library {
 		( new Library_Dashboard() )->hooks();
 		( new Library_Reading_Idea() )->hooks();
 		( new Library_Achievements() )->hooks();
+		( new Library_App() )->hooks();
 		( new Library_Updater( $plugin_file ) )->hooks();
 	}
 }

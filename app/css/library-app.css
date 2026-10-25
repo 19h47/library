@@ -1,0 +1,254 @@
+/**
+ * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
+ *
+ * The views and their navigation, the book cards with their cover, the reading idea,
+ * the stats and the achievements, and the dialog of a book.
+ */
+
+:root {
+	/* A card with its cover, until it renders */
+	--app-item-size: 10rem;
+	--library-cover-width: calc(var(--app-u3) * var(--app-phi));
+}
+
+/* The views, as pills; the current one stands out */
+.library-nav {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-gap);
+}
+
+.library-nav a {
+	text-decoration: none;
+}
+
+.library-nav a:hover,
+.library-nav a[aria-current="page"] {
+	color: var(--app-text);
+	border-color: var(--app-line);
+}
+
+.library-nav a[aria-current="page"] {
+	background: var(--app-fill);
+}
+
+library-view {
+	display: block;
+}
+
+.library-section + .library-section {
+	margin-top: var(--app-u3);
+}
+
+.library-title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--app-gap);
+	margin-bottom: var(--app-u1);
+	font-size: var(--app-u1);
+}
+
+.library-title__count {
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	font-weight: normal;
+	text-transform: uppercase;
+}
+
+/* A pill that is a button */
+button.app-pill {
+	background: transparent;
+	cursor: pointer;
+}
+
+button.app-pill:hover {
+	color: var(--app-text);
+	border-color: var(--app-line);
+}
+
+button.app-pill:disabled {
+	cursor: progress;
+}
+
+/* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
+.library-item {
+	position: relative;
+	align-items: start;
+}
+
+.library-item:has(> .library-item__cover:not([hidden])) {
+	grid-template-columns: auto 1fr;
+	column-gap: var(--app-u1);
+}
+
+.library-item:hover {
+	border-color: var(--app-line);
+}
+
+.library-item:has(:focus-visible) {
+	outline: var(--app-focus-outline);
+	outline-offset: var(--app-focus-outline-offset);
+}
+
+.library-item__cover {
+	display: block;
+	width: var(--library-cover-width);
+	height: auto;
+	border-radius: calc(var(--app-radius) / 2);
+}
+
+.library-item__body {
+	display: grid;
+	gap: var(--app-gap-small);
+	min-width: 0;
+}
+
+.library-item__title {
+	font-size: inherit;
+	font-weight: normal;
+	overflow-wrap: anywhere;
+}
+
+.library-item__button {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
+}
+
+.library-item__button::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.library-item__button:focus-visible {
+	outline: none;
+}
+
+.library-idea__reason {
+	margin-bottom: var(--app-u1);
+}
+
+.library-idea__actions {
+	margin-top: var(--app-u1);
+}
+
+.library-year {
+	display: grid;
+	gap: var(--app-gap-small);
+	margin-bottom: var(--app-u3);
+}
+
+.library-year p:first-child {
+	font-size: calc(var(--app-u1) * 1.25);
+}
+
+.library-year p + p {
+	color: var(--app-text-muted);
+}
+
+.library-achievement {
+	overflow-wrap: anywhere;
+}
+
+.library-achievement__progress {
+	display: flex;
+	align-items: center;
+	gap: var(--app-gap);
+}
+
+.library-achievement__progress progress {
+	flex: 1;
+	height: var(--app-gap);
+	accent-color: var(--app-text);
+}
+
+/* The book open: full screen on a phone, its close control where the toolbar is; a panel beyond. */
+.library-book {
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	max-height: none;
+	padding: var(--app-u2);
+	padding-top: calc(var(--app-u2) + var(--app-control-size) + var(--app-u1));
+	border: 0;
+	background: var(--app-bg);
+	color: var(--app-text);
+}
+
+.library-book[open] {
+	display: grid;
+	gap: var(--app-u1);
+	align-content: start;
+}
+
+.library-book::backdrop {
+	background: color-mix(in srgb, var(--app-bg) 70%, transparent);
+}
+
+@media (min-width: 42rem) {
+	.library-book {
+		width: min(100% - 2 * var(--app-u2), var(--app-max-width));
+		height: auto;
+		max-height: calc(100% - 2 * var(--app-u2));
+		margin: auto;
+		padding: var(--app-u3);
+		border: 1px solid var(--app-line);
+		border-radius: var(--app-radius);
+	}
+}
+
+.library-book__cover {
+	display: block;
+	width: auto;
+	max-width: 50%;
+	max-height: 40dvh;
+	border-radius: calc(var(--app-radius) / 2);
+}
+
+.library-book__meta {
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	text-transform: uppercase;
+	overflow-wrap: anywhere;
+}
+
+.library-book__title {
+	font-size: calc(var(--app-u1) * 1.25);
+	line-height: var(--app-line-height);
+	letter-spacing: -0.02em;
+	overflow-wrap: anywhere;
+}
+
+.library-book__fields {
+	display: grid;
+	gap: var(--app-gap);
+	margin-top: var(--app-u1);
+	padding-top: var(--app-u1);
+	border-top: 1px solid var(--app-line-soft);
+}
+
+.library-book__fields dt {
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	text-transform: uppercase;
+}
+
+.library-book__fields dd {
+	overflow-wrap: anywhere;
+}
+
+.library-book__actions {
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	text-transform: uppercase;
+}
