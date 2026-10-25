@@ -338,6 +338,11 @@ button.app-pill:disabled {
 
 .library-reading__date input {
 	flex: 1;
+}
+
+/* A field of a form, such as a read date or the title of a book to add */
+.library-reading__date input,
+.library-field :is(input:not([type="file"]), select) {
 	min-width: 0;
 	padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
 	border: 1px solid var(--app-line-soft);
@@ -347,14 +352,88 @@ button.app-pill:disabled {
 	font: inherit;
 }
 
-.library-reading__save {
+.library-field :is(input, select):disabled {
+	opacity: var(--app-control-opacity);
+}
+
+/* The pill that saves a form */
+.library-save {
 	color: var(--app-text);
 	border-color: var(--app-line);
 	background: var(--app-fill);
 }
 
-.library-reading__save:disabled {
+.library-save:disabled {
 	opacity: var(--app-control-opacity);
+}
+
+/* The form of a book to add: a field per line, its label above it */
+.library-add__form {
+	display: grid;
+	gap: var(--app-u1);
+}
+
+.library-field {
+	display: grid;
+	gap: var(--app-gap-small);
+	min-inline-size: 0;
+	border: 0;
+}
+
+.library-field :is(label, legend),
+.library-add__details summary {
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	text-transform: uppercase;
+}
+
+.library-field legend {
+	margin-bottom: var(--app-gap-small);
+}
+
+.library-field small {
+	color: var(--app-text-muted);
+	font-size: var(--app-font-small);
+}
+
+.library-add__cover {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: var(--app-u1);
+}
+
+.library-add__preview {
+	display: block;
+	width: auto;
+	height: var(--library-cover-height);
+	border-radius: calc(var(--app-radius) / 2);
+}
+
+.library-add__authors {
+	list-style: none;
+	display: grid;
+	gap: var(--app-gap);
+	margin-bottom: var(--app-gap);
+}
+
+.library-add__author {
+	display: flex;
+	align-items: center;
+	gap: var(--app-gap);
+}
+
+.library-add__author input {
+	flex: 1;
+}
+
+.library-add__details summary {
+	cursor: pointer;
+}
+
+.library-add__details .library-field {
+	margin-top: var(--app-u1);
 }
 
 /* The latest readings: a container, whose width is the one of the content */

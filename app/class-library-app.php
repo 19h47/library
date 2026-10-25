@@ -92,8 +92,9 @@ class Library_App {
 		[ $favicon_url ]    = Library::asset( 'app/favicon.svg' );
 		[ $touch_icon_url ] = Library::asset( 'app/apple-touch-icon.png' );
 		$labels             = get_post_type_object( 'book' )->labels;
-		$authors            = get_taxonomy( 'library-author' )->labels->name;
-		$languages          = get_taxonomy( 'library-language' )->labels->name;
+		$author_labels      = get_taxonomy( 'library-author' )->labels;
+		$publisher_labels   = get_taxonomy( 'library-publisher' )->labels;
+		$language_labels    = get_taxonomy( 'library-language' )->labels;
 		$ratings            = $this->get_ratings();
 		$views              = $this->get_views( $labels->name );
 

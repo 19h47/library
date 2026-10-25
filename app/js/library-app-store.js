@@ -4,7 +4,8 @@
  * Created in the head, before the first paint, so the document takes its theme from it.
  * The data come from the REST API through wp.apiFetch, which handles the root URL and the nonce;
  * the store turns the books into plain text once, so no brick parses what the API returns.
- * Each view loads its data the first time it shows. A book saved loads every view again, but the one shown.
+ * Each view loads its data the first time it shows. A book saved loads every view again, but the one shown;
+ * a book added loads them all again.
  *
  * @package    Library
  * @subpackage Library/app
@@ -235,6 +236,16 @@
 		return { loading: false, error: '' };
 	}
 
+	/** The form of a book to add, and its saving. */
+	function adding() {
+		return { open: false, loading: false, error: '' };
+	}
+
+	/** The names the form of a book to add suggests, as terms: authors and pseudonyms, publishers and collections, original languages. */
+	function terms() {
+		return { authors: [], publishers: [], languages: [], loading: false, loaded: false };
+	}
+
 	/**
 	 * The author open, under their real name: `books` all their book IDs, in order,
 	 * `items` the ones loaded so far, a page at a time; `completion` is an achievement.
@@ -247,7 +258,7 @@
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
 	 * `search` the books found, `diary` the readings, `idea` the reading idea, `author` the books of the author open, `book` the book open,
-	 * `saving` the saving of its reading.
+	 * `saving` the saving of its reading, `adding` the form of a book to add, `terms` the names it suggests.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
@@ -266,6 +277,8 @@
 				author: author(),
 				book: 0,
 				saving: saving(),
+				adding: adding(),
+				terms: terms(),
 			} );
 
 			darkQuery.addEventListener( 'change', ( { matches } ) => {
@@ -381,6 +394,50 @@
 
 		closeBook() {
 			this.set( ( state ) => ( state.book ? { ...state, book: 0, saving: saving() } : state ) );
+		}
+
+		/** Opens the form of a book to add; the names it suggests load the first time. */
+		openAdd() {
+			this.set( ( state ) => ( { ...state, adding: { ...adding(), open: true } } ) );
+
+			const { loaded, loading } = this.get().terms;
+
+			if ( ! loaded && ! loading ) {
+				this.#fetchTerms();
+			}
+		}
+
+		closeAdd() {
+			this.set( ( state ) => ( state.adding.open ? { ...state, adding: adding() } : state ) );
+		}
+
+		/**
+		 * Adds a book, the image of its cover uploaded first, then opens it, for its reading. Every view loads
+		 * again, so the book comes first among the books, and so do the names to suggest, with the ones it added.
+		 */
+		async addBook( { cover, ...book } ) {
+			this.#update( 'adding', () => ( { loading: true, error: '' } ) );
+
+			try {
+				let coverId = 0;
+
+				if ( cover ) {
+					const body = new FormData();
+
+					body.append( 'file', cover );
+					body.append( 'title', book.title );
+					coverId = ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
+				}
+
+				const { id } = await apiFetch( { path: '/library/v1/books', method: 'POST', data: { ...book, cover: coverId } } );
+
+				await this.#fetchBooks( [ id ] );
+				this.closeAdd();
+				this.#reloadAll();
+				this.openBook( id );
+			} catch ( error ) {
+				this.#update( 'adding', () => ( { loading: false, error: errorMessage( error ) } ) );
+			}
 		}
 
 		/**
@@ -511,6 +568,23 @@
 			if ( AUTHOR_VIEW === view ) {
 				this.#fetchAuthor();
 			}
+		}
+
+		/** After a book was added: the stats, every view and the names to suggest load again; the view shown at once. */
+		#reloadAll() {
+			const { view, author: current } = this.get();
+
+			this.set( ( state ) => ( {
+				...state,
+				search: pages(),
+				diary: pages(),
+				idea: idea(),
+				achievements: achievements(),
+				author: author( current.id ),
+				terms: terms(),
+			} ) );
+			this.#fetchStats();
+			this.#show( view, current.id );
 		}
 
 		/** Sets a part of the state, such as `search`, from its current value. */
@@ -764,6 +838,29 @@
 				this.#update( 'achievements', () => ( { earned, close, loading: false, loaded: true } ) );
 			} catch ( error ) {
 				this.#update( 'achievements', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+			}
+		}
+
+		/** Every author and pseudonym, publisher and collection, and original language: apiFetch loads all their pages. */
+		async #fetchTerms() {
+			this.#update( 'terms', () => ( { loading: true } ) );
+
+			try {
+				const taxonomies = [ 'library-author', 'library-publisher', 'library-language' ];
+				const [ authors, publishers, languages ] = await Promise.all(
+					taxonomies.map( ( taxonomy ) => apiFetch( { path: `/wp/v2/${ taxonomy }?per_page=-1&_fields=id,name,parent` } ) )
+				);
+				const toTerm = ( { id, name, parent } ) => ( { id, name: text( name ), parent } );
+
+				this.#update( 'terms', () => ( {
+					authors: authors.map( toTerm ),
+					publishers: publishers.map( toTerm ),
+					languages: languages.map( toTerm ),
+					loading: false,
+					loaded: true,
+				} ) );
+			} catch {
+				this.#update( 'terms', () => ( { loading: false } ) );
 			}
 		}
 
