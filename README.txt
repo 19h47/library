@@ -131,6 +131,7 @@ Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ra
 = 4.4.0 =
 * Reading app, in **Books > App**: the library on a phone, to add to the home screen. Search the books with the keywords of the books list and filter them by reading state; the diary of the readings by month; the reading idea of the week, and the next ones; the reading stats of the year and the achievements. A book opens in a dialog with its cover and details. Reading only for now.
 * REST API: `/wp-json/library/v1/books/readings` lists the readings, latest first, a book read again once per reading. `reading-stats` also returns `year_to_date`, the books read this year against the same date last year. Books have a `credits` field, the line shown under their title.
+* Fixed: the kind of the first reading idea of the week changed during the week when another kind emptied or filled, such as when the last book added in the last 30 days got older than that.
 
 = 4.3.1 =
 * Fixed: a keyword with a value in quotes, such as `series:"SAS"`, found no book in the books list, which receives the search with its quotes slashed. The links of the series and translators of the achievements, which quote their value, found none either.
