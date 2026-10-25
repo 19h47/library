@@ -528,7 +528,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * The link to the books list searched for a text, e.g. a series or a translator.
+	 * The link to the books list searched for a text, e.g. a series or a translator with a keyword.
 	 *
 	 * @param string           $search Search.
 	 * @param array<int,array> $books  Books found.
@@ -609,7 +609,7 @@ class Library_Achievements {
 
 			if ( 'series' === $kind ) {
 				$subject = $group[0]['series'];
-				$url     = self::search_url( $subject, $group );
+				$url     = self::search_url( Library_WP_Query::keyword_search( 'series', $subject ), $group );
 			} else {
 				$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
 				$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
@@ -1103,9 +1103,9 @@ class Library_Achievements {
 			$detail     = self::books_text( count( $books ) );
 
 			if ( $left <= 0 ) {
-				$earned[] = self::achievement( 'translator', '', $translator, $detail, self::search_url( $translator, $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
+				$earned[] = self::achievement( 'translator', '', $translator, $detail, self::search_url( Library_WP_Query::keyword_search( 'translator', $translator ), $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
-				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_url( $translator, $books ), '' ) + array(
+				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_url( Library_WP_Query::keyword_search( 'translator', $translator ), $books ), '' ) + array(
 					'done'  => count( $books ),
 					'total' => self::TRANSLATOR_BOOKS,
 				);
@@ -1256,7 +1256,7 @@ class Library_Achievements {
 				$translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::search_url( $translator, array_values( $languages ) ),
+				self::search_url( Library_WP_Query::keyword_search( 'translator', $translator ), array_values( $languages ) ),
 				array_values( $languages )[1]['read_date']
 			);
 		}
