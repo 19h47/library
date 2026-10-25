@@ -17,6 +17,9 @@
 
 	// The next page loads before the end of the list shows.
 	const LOAD_MARGIN_PX = 800;
+	// On the home: the covers of the latest books read, and the achievements close to be earned.
+	const LATEST_BOOKS = 12;
+	const CLOSE_ACHIEVEMENTS = 3;
 
 	const { lang } = document.documentElement;
 	const numberFormat = new Intl.NumberFormat( lang );
@@ -64,10 +67,18 @@
 		return parts.filter( Boolean ).join( ' · ' );
 	}
 
-	/** Sets the text of the [data-field] elements of `$root`; an empty one is hidden, with its [data-row]. */
+	/**
+	 * Sets the text of the [data-field] elements of `$root`; an empty one is hidden, with its [data-row].
+	 * A field the markup leaves out is skipped: a brick may show part of its fields, as on the home.
+	 */
 	function fill( $root, fields ) {
 		Object.entries( fields ).forEach( ( [ name, value ] ) => {
 			const $field = $root.querySelector( `[data-field="${ name }"]` );
+
+			if ( ! $field ) {
+				return;
+			}
+
 			const $row = $field.closest( '[data-row]' ) ?? $field;
 
 			$field.textContent = value;
@@ -119,12 +130,14 @@
 		}
 	}
 
-	/** Shows a cover, or hides the image when the book has none. */
-	function fillCover( $image, url ) {
-		$image.hidden = ! url;
+	/** Shows a cover at its size, known before it loads, or hides the image when the book has none. */
+	function fillCover( $image, cover ) {
+		$image.hidden = ! cover;
 
-		if ( url ) {
-			$image.src = url;
+		if ( cover ) {
+			$image.src = cover.url;
+			$image.width = cover.width;
+			$image.height = cover.height;
 		} else {
 			$image.removeAttribute( 'src' );
 		}
@@ -145,6 +158,19 @@
 	function fillBook( $item, book, state ) {
 		fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
 		fill( $item, { credits: book.credits, title: book.title, state } );
+	}
+
+	/** The cover of a book, which opens it; a book without cover shows its title instead. */
+	function renderCover( book ) {
+		const $item = clone( 'library-cover' );
+		const $image = $item.querySelector( '[data-field="cover"]' );
+
+		$item.dataset.id = book.id;
+		$image.alt = book.title;
+		fillCover( $image, book.cover );
+		fill( $item, { title: book.cover ? '' : book.title } );
+
+		return $item;
 	}
 
 	/** The card of a book, which opens it. */
@@ -179,16 +205,34 @@
 		);
 	}
 
-	/** Opens the book of a card clicked in `$root`. */
+	/** Opens the book of a card or a cover clicked in `$root`: the button of an element with the ID of a book. */
 	function openBooks( $root, signal ) {
 		$root.addEventListener(
 			'click',
 			( event ) => {
-				const $button = event.target.closest( '.library-item__button' );
+				const $book = event.target.closest( 'button' )?.closest( '[data-id]' );
 
-				if ( $button ) {
-					store.openBook( Number( $button.closest( '.library-item' ).dataset.id ) );
+				if ( $book && $root.contains( $book ) ) {
+					store.openBook( Number( $book.dataset.id ) );
 				}
+			},
+			{ signal }
+		);
+	}
+
+	/** Switches to the view of a link clicked in `$root`, without reloading; a new tab or window stays a link. */
+	function openViews( $root, signal ) {
+		$root.addEventListener(
+			'click',
+			( event ) => {
+				const $link = event.target.closest( 'a[data-view]' );
+
+				if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
+					return;
+				}
+
+				event.preventDefault();
+				store.setView( $link.dataset.view );
 			},
 			{ signal }
 		);
@@ -296,21 +340,7 @@
 		connect( signal ) {
 			const $links = [ ...this.querySelectorAll( 'a[data-view]' ) ];
 
-			$links.forEach( ( $link ) =>
-				$link.addEventListener(
-					'click',
-					( event ) => {
-						// A new tab or window stays a link.
-						if ( event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
-							return;
-						}
-
-						event.preventDefault();
-						store.setView( $link.dataset.view );
-					},
-					{ signal }
-				)
-			);
+			openViews( this, signal );
 
 			return [
 				store.select(
@@ -410,6 +440,69 @@
 		}
 	}
 	customElements.define( 'library-status', LibraryStatusElement );
+
+	/** The home: the books view without a query, above the books. */
+	class LibraryHomeElement extends Brick {
+		connect( signal ) {
+			openViews( this, signal );
+
+			return [
+				store.select(
+					( state ) => ! state.query.trim(),
+					( isHome ) => {
+						this.hidden = ! isHome;
+					}
+				),
+			];
+		}
+	}
+	customElements.define( 'library-home', LibraryHomeElement );
+
+	/** The covers of the latest books read, which open them; hidden until the diary has readings. */
+	class LibraryLatestElement extends Brick {
+		connect( signal ) {
+			const $list = this.querySelector( 'ul' );
+
+			openBooks( $list, signal );
+
+			return [
+				store.select(
+					( state ) => state.diary.items,
+					( readings ) => {
+						const { books } = store.get();
+						// A book read again shows once.
+						const ids = [ ...new Set( readings.map( ( reading ) => reading.id ) ) ].filter( ( id ) => id in books ).slice( 0, LATEST_BOOKS );
+
+						$list.replaceChildren( ...ids.map( ( id ) => renderCover( books[ id ] ) ) );
+						this.hidden = ! ids.length;
+					}
+				),
+			];
+		}
+	}
+	customElements.define( 'library-latest', LibraryLatestElement );
+
+	/** The achievements closest to be earned, with their progress; hidden when none is close. */
+	class LibraryCloseElement extends Brick {
+		connect( signal ) {
+			const $list = this.querySelector( 'ul' );
+
+			openAuthors( this, signal );
+
+			return [
+				store.select(
+					( state ) => state.achievements.close,
+					( close ) => {
+						$list.replaceChildren(
+							...close.slice( 0, CLOSE_ACHIEVEMENTS ).map( ( achievement, index ) => renderCloseAchievement( achievement, `library-close-${ index }` ) )
+						);
+						this.hidden = ! close.length;
+					}
+				),
+			];
+		}
+	}
+	customElements.define( 'library-close', LibraryCloseElement );
 
 	/** The books found, loading the next ones as the end of the list comes. */
 	class LibraryListElement extends Brick {
@@ -548,7 +641,7 @@
 	}
 	customElements.define( 'library-diary', LibraryDiaryElement );
 
-	/** The reading idea of the week, and the next one on demand. */
+	/** The reading idea of the week, and the next one on demand; hidden until it is loaded. */
 	class LibraryIdeaElement extends Brick {
 		connect( signal ) {
 			const $book = this.querySelector( '[data-field="book"]' );
@@ -564,6 +657,7 @@
 					( idea ) => {
 						const book = store.get().books[ idea.id ];
 
+						this.hidden = ! idea.loaded;
 						$next.disabled = idea.loading;
 						$next.hidden = idea.total < 2;
 						fill( this, { status: idea.error, reason: book ? idea.reason : '' } );

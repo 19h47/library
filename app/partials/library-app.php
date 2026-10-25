@@ -1,6 +1,6 @@
 <?php
 /**
- * The reading app page: the books, the diary, the reading idea, the achievements and the page of an author.
+ * The reading app page: the books with the home above them, the diary, the reading idea, the achievements and the page of an author.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -85,6 +85,37 @@
 							</label>
 						</library-read-filter>
 					</div>
+
+					<library-home>
+						<library-year class="library-year">
+							<p data-field="yearToDate"></p>
+							<p data-field="projection"></p>
+						</library-year>
+						<library-latest class="library-section" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Latest readings', 'library' ); ?>
+								<a class="library-title__link" href="<?php echo esc_url( $views['diary']['url'] ); ?>" data-view="diary"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+							</h3>
+							<ul class="library-covers"></ul>
+						</library-latest>
+						<library-idea class="library-section" hidden>
+							<h3 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
+							<p class="app-status" data-field="status" hidden></p>
+							<p class="library-idea__reason" data-field="reason"></p>
+							<ul class="app-list__items" data-field="book"></ul>
+							<p class="library-idea__actions">
+								<button class="app-pill" type="button"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+							</p>
+						</library-idea>
+						<library-close class="library-section" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Close to it', 'library' ); ?>
+								<a class="library-title__link" href="<?php echo esc_url( $views['achievements']['url'] ); ?>" data-view="achievements"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+							</h3>
+							<ul class="app-list__items"></ul>
+						</library-close>
+						<h3 class="library-title library-section"><?php echo esc_html( $labels->name ); ?></h3>
+					</library-home>
 
 					<library-status class="app-status" hidden></library-status>
 					<library-list>
@@ -275,6 +306,15 @@
 					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
 				>×</button>
+			</li>
+		</template>
+
+		<template id="library-cover">
+			<li class="library-cover">
+				<button class="library-cover__button" type="button">
+					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
+					<span class="library-cover__title" data-field="title"></span>
+				</button>
 			</li>
 		</template>
 

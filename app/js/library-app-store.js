@@ -19,6 +19,8 @@
 	// The views of the navigation; the page of an author is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements' ];
 	const AUTHOR_VIEW = 'author';
+	// The home, the books view without a query, shows the latest readings, the reading idea and the achievements close to be earned.
+	const HOME = [ 'diary', 'idea', 'achievements' ];
 	const PER_PAGE = 24;
 	// A search waits for a pause in the typing.
 	const SEARCH_DELAY = 250;
@@ -105,10 +107,11 @@
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
 	}
 
-	/** A book of the API as the app shows it: plain text, its read dates in order, its cover, its authors and its original languages. */
+	/** A book of the API as the app shows it: plain text, its read dates in order, its cover with its size, its authors and its original languages. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 		const sizes = media?.media_details?.sizes ?? {};
+		const size = sizes.medium ?? sizes.full;
 		const terms = ( item._embedded?.[ 'wp:term' ] ?? [] ).flat();
 
 		return {
@@ -119,7 +122,8 @@
 			title: text( item.title.rendered ),
 			credits: text( item.credits ),
 			status: item.status,
-			cover: ( sizes.medium ?? sizes.full )?.source_url ?? '',
+			// Its size gives the image its place before it loads.
+			cover: size ? { url: size.source_url, width: size.width, height: size.height } : null,
 			// As named on the book: a pseudonym opens the page of the author too.
 			authors: terms
 				.filter( ( term ) => 'library-author' === term.taxonomy )
@@ -175,6 +179,16 @@
 			// "", "yes" or "no": the search keyword read:.
 			read: [ 'yes', 'no' ].includes( saved?.read ) ? saved.read : '',
 		};
+	}
+
+	/** Goes to the top of a view opened, at once: the smooth scroll of the page is for its links, such as "Top". */
+	function scrollToTop() {
+		scrollTo( { top: 0, behavior: 'instant' } );
+	}
+
+	/** Whether the home shows: the books view, without a query. */
+	function isHome( state ) {
+		return 'books' === state.view && ! state.query.trim();
 	}
 
 	/** The search sent to the API: the query, and the read state as the keyword read:. */
@@ -273,7 +287,7 @@
 			this.#fetchStats();
 		}
 
-		/** Shows a view, with its URL in the history. */
+		/** Shows a view, at its top, with its URL in the history. */
 		setView( view ) {
 			if ( ! VIEWS.includes( view ) || view === this.get().view ) {
 				return;
@@ -290,6 +304,7 @@
 			url.searchParams.delete( 'author' );
 			history.pushState( null, '', url );
 			this.#show( view );
+			scrollToTop();
 		}
 
 		/** Opens the page of an author, at its top, with its URL in the history: the book open closes. */
@@ -308,11 +323,12 @@
 			url.searchParams.set( 'author', id );
 			history.pushState( null, '', url );
 			this.#show( AUTHOR_VIEW, id );
-			scrollTo( 0, 0 );
+			scrollToTop();
 		}
 
 		setQuery( query ) {
 			this.set( ( state ) => ( { ...state, query } ) );
+			this.#loadHome();
 
 			clearTimeout( this.#timeout );
 			this.#timeout = setTimeout( () => this.#fetchSearch(), SEARCH_DELAY );
@@ -432,7 +448,19 @@
 
 				return AUTHOR_VIEW !== view || id === state.author.id ? next : { ...next, author: author( id ) };
 			} );
+			this.#load( view );
+			this.#loadHome();
+		}
 
+		/** Loads what the home shows, when it shows. */
+		#loadHome() {
+			if ( isHome( this.get() ) ) {
+				HOME.forEach( ( view ) => this.#load( view ) );
+			}
+		}
+
+		/** Loads the data of a view, unless they are loaded or loading. */
+		#load( view ) {
 			const state = this.get();
 			const loaders = {
 				books: [ state.search, () => this.#fetchSearch() ],
@@ -451,17 +479,19 @@
 		/**
 		 * After the book `id` was saved: the stats, and the views but the one shown, load again. The list shown follows
 		 * the book where it is: the books found lose it when the search no longer finds it, the diary takes its readings
-		 * added or removed, the page of an author updates their reading; elsewhere its card follows it.
+		 * added or removed, the page of an author updates their reading, the home its readings and achievements;
+		 * elsewhere its card follows it.
 		 */
 		#reload( id ) {
 			const { view } = this.get();
+			const home = isHome( this.get() );
 
 			this.set( ( state ) => ( {
 				...state,
 				search: 'books' === view ? state.search : pages(),
-				diary: 'diary' === view ? state.diary : pages(),
-				idea: 'idea' === view ? state.idea : idea(),
-				achievements: achievements(),
+				diary: 'diary' === view || home ? state.diary : pages(),
+				idea: 'idea' === view || home ? state.idea : idea(),
+				achievements: home ? state.achievements : achievements(),
 				author: AUTHOR_VIEW === view ? state.author : author(),
 			} ) );
 			this.#fetchStats();
@@ -470,8 +500,12 @@
 				this.#refreshSearch( id );
 			}
 
-			if ( 'diary' === view ) {
+			if ( 'diary' === view || home ) {
 				this.#refreshDiary();
+			}
+
+			if ( home ) {
+				this.#fetchAchievements();
 			}
 
 			if ( AUTHOR_VIEW === view ) {
