@@ -61,6 +61,13 @@ class Library_Reading_Idea {
 	private const UNREAD_AUTHOR_BOOKS = 3;
 
 	/**
+	 * Years between two anniversaries suggested: 10, 20, 30… years.
+	 *
+	 * @var int
+	 */
+	private const ANNIVERSARY_YEARS = 10;
+
+	/**
 	 * Number of latest reads whose opposite is suggested.
 	 *
 	 * @var int
@@ -154,6 +161,8 @@ class Library_Reading_Idea {
 	 * This week's ideas: the kinds taken in turn, from a different one each week, each one shuffled the same way all week.
 	 *
 	 * A book comes once, with the reason of the first kind suggesting it.
+	 * The turn goes over all the kinds, empty ones included, so the kind of the week does not change
+	 * when another one empties or fills during the week.
 	 *
 	 * @return array<int,array{id:int,reason:string}>
 	 */
@@ -174,35 +183,28 @@ class Library_Reading_Idea {
 			$this->get_reread_ideas( $books ),
 			$this->get_pile_ideas( $to_read ),
 		);
-		$kinds   = array_values( array_filter( $kinds ) );
-		$ideas   = array();
-		$chosen  = array();
-
-		if ( ! $kinds ) {
-			return array();
-		}
-
-		$first = (int) wp_date( 'W' ) % count( $kinds );
-		$kinds = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
+		$first   = (int) wp_date( 'W' ) % count( $kinds );
+		$kinds   = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
 
 		foreach ( $kinds as &$kind ) {
 			usort( $kind, fn( array $a, array $b ) => strcmp( md5( $week . $a['id'] ), md5( $week . $b['id'] ) ) );
 		}
 		unset( $kind );
 
-		while ( array_filter( $kinds ) ) {
-			foreach ( $kinds as &$kind ) {
-				$idea = array_shift( $kind );
+		$rounds = max( array_map( 'count', $kinds ) );
+		$ideas  = array();
 
-				if ( $idea && ! isset( $chosen[ $idea['id'] ] ) ) {
-					$chosen[ $idea['id'] ] = true;
-					$ideas[]               = $idea;
+		for ( $round = 0; $round < $rounds; $round++ ) {
+			foreach ( $kinds as $kind ) {
+				$idea = $kind[ $round ] ?? null;
+
+				if ( $idea && ! isset( $ideas[ $idea['id'] ] ) ) {
+					$ideas[ $idea['id'] ] = $idea;
 				}
 			}
-			unset( $kind );
 		}
 
-		return $ideas;
+		return array_values( $ideas );
 	}
 
 	/**
@@ -551,7 +553,7 @@ class Library_Reading_Idea {
 		$month_day = substr( $date, 5 );
 		$years     = (int) wp_date( 'Y' ) - (int) self::year( $date );
 
-		if ( '01-01' === $month_day || ! str_starts_with( $month_day, wp_date( 'm' ) ) || $years < 10 || 0 !== $years % 10 ) {
+		if ( '01-01' === $month_day || ! str_starts_with( $month_day, wp_date( 'm' ) ) || $years < self::ANNIVERSARY_YEARS || 0 !== $years % self::ANNIVERSARY_YEARS ) {
 			return null;
 		}
 
@@ -726,12 +728,11 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_fresh_ideas( array $to_read ): array {
-		$now   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- Compared with post dates, in the site time zone.
-		$since = $now - self::FRESH_DAYS * DAY_IN_SECONDS;
+		$since = time() - self::FRESH_DAYS * DAY_IN_SECONDS;
 		$ideas = array();
 
 		foreach ( $to_read as $book ) {
-			$added = strtotime( $book['added'] );
+			$added = get_post_timestamp( $book['id'] );
 
 			if ( $added < $since ) {
 				continue;
@@ -742,7 +743,7 @@ class Library_Reading_Idea {
 				'reason' => sprintf(
 					/* translators: %s: time since the book was added, e.g. "12 days". */
 					__( 'Added %s ago.', 'library' ),
-					human_time_diff( $added, $now )
+					human_time_diff( $added )
 				),
 			);
 		}

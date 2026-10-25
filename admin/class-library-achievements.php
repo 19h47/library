@@ -1093,7 +1093,7 @@ class Library_Achievements {
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
 				$translators[ self::key( $translator ) ][] = $book;
-				$names[ self::key( $translator ) ] ??= $translator;
+				$names[ self::key( $translator ) ]       ??= $translator;
 			}
 		}
 

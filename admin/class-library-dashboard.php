@@ -67,7 +67,7 @@ class Library_Dashboard {
 	 * Enqueue the styles of the widgets, shared with the achievements page.
 	 */
 	public static function enqueue_style(): void {
-		[ $url, $version ] = Library_Admin::asset( 'css/library-dashboard.css' );
+		[ $url, $version ] = Library::asset( 'admin/css/library-dashboard.css' );
 
 		wp_enqueue_style( 'library-dashboard', $url, array(), $version );
 	}
@@ -179,7 +179,7 @@ class Library_Dashboard {
 		$sql = str_replace( array( '{books}', '{library}' ), array( self::BOOKS, self::LIBRARY ), $sql );
 		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
 
-		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets only.
+		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets and REST routes, run on demand.
 	}
 
 	/**

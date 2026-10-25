@@ -28,22 +28,6 @@ class Library_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
-
-	/**
-	 * URL and version of an admin asset.
-	 *
-	 * The version is the file modification time, so a changed file is never served from cache.
-	 *
-	 * @param string $path Path relative to the admin folder.
-	 * @return array{0:string,1:string}
-	 */
-	public static function asset( string $path ): array {
-		$url     = plugin_dir_url( __FILE__ ) . $path;
-		$version = (string) filemtime( plugin_dir_path( __FILE__ ) . $path );
-
-		return array( $url, $version );
-	}
-
 	/**
 	 * Enqueue the styles of the books, authors and publishers lists, and the books list scripts.
 	 *
@@ -58,7 +42,7 @@ class Library_Admin {
 			return;
 		}
 
-		[ $style_url, $style_version ] = self::asset( 'css/library-admin.css' );
+		[ $style_url, $style_version ] = Library::asset( 'admin/css/library-admin.css' );
 		wp_enqueue_style( 'library-admin', $style_url, array(), $style_version );
 
 		if ( 'edit-book' !== $screen->id ) {
@@ -66,7 +50,7 @@ class Library_Admin {
 		}
 
 		$read_handle                 = 'library-admin-read';
-		[ $read_url, $read_version ] = self::asset( 'js/library-admin-read.js' );
+		[ $read_url, $read_version ] = Library::asset( 'admin/js/library-admin-read.js' );
 		wp_enqueue_script( $read_handle, $read_url, array( 'wp-api-fetch' ), $read_version, true );
 		wp_localize_script(
 			$read_handle,
@@ -78,7 +62,7 @@ class Library_Admin {
 			)
 		);
 
-		[ $inline_edit_url, $inline_edit_version ] = self::asset( 'js/library-admin-inline-edit.js' );
+		[ $inline_edit_url, $inline_edit_version ] = Library::asset( 'admin/js/library-admin-inline-edit.js' );
 		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );
 		wp_localize_script(
 			'library-admin-inline-edit',
