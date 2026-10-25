@@ -37,9 +37,18 @@ class Library_Meta {
 	/**
 	 * HTML pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
 	 *
+	 * Browsers compile a pattern with the v flag, where a hyphen in a class is escaped: an invalid pattern checks nothing.
+	 *
 	 * @var string
 	 */
-	public const ISBN_PATTERN = '(?:(?=.{17}$)(97[89]|501)[ -](?:[0-9]+[ -]){2}[0-9]+[ -][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ -]){2}[0-9]+[ -][0-9Xx]|[0-9]{9}[0-9Xx])';
+	public const ISBN_PATTERN = '(?:(?=.{17}$)(97[89]|501)[ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])';
+
+	/**
+	 * HTML pattern of an ISSN, such as 1234-5678.
+	 *
+	 * @var string
+	 */
+	public const ISSN_PATTERN = '\\S{4}-\\S{4}';
 
 	/**
 	 * Book meta edited in quick edit.

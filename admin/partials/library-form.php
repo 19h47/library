@@ -84,7 +84,7 @@
 		<td>
 			<input
 				type="text"
-				pattern="[\S]{4}\-[\S]{4}"
+				pattern="<?php echo esc_attr( Library_Meta::ISSN_PATTERN ); ?>"
 				id="library-issn"
 				name="issn"
 				class="regular-text"
