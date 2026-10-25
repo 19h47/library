@@ -257,7 +257,7 @@
 	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
-	 * `search` the books found, `diary` the readings, `idea` the reading idea, `author` the books of the author open, `book` the book open,
+	 * `search` the books found, `diary` the readings by month, `idea` the reading idea, `author` the books of the author open, `book` the book open,
 	 * `saving` the saving of its reading, `adding` the form of a book to add, `terms` the names it suggests.
 	 */
 	class LibraryStore extends Store {
@@ -750,15 +750,18 @@
 			} catch {}
 		}
 
-		/** A page of the readings, latest first, with their books, and the totals of the diary. */
+		/** A page of the diary: whole months, latest first, each with its readings and their books; the totals count months. */
 		async #fetchReadings( page ) {
 			const response = await apiFetch( { path: `/library/v1/books/readings?page=${ page }`, parse: false } );
-			const readings = ( await response.json() ).map( ( { date, book } ) => ( { date, id: book } ) );
+			const months = ( await response.json() ).map( ( { month, readings } ) => ( {
+				month,
+				readings: readings.map( ( { date, book } ) => ( { date, id: book } ) ),
+			} ) );
 
-			await this.#fetchBooks( readings.map( ( reading ) => reading.id ) );
+			await this.#fetchBooks( months.flatMap( ( { readings } ) => readings.map( ( reading ) => reading.id ) ) );
 
 			return {
-				readings,
+				months,
 				total: Number( response.headers.get( 'X-WP-Total' ) ),
 				pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
 			};
@@ -769,10 +772,10 @@
 			this.#update( 'diary', () => ( { loading: true, error: '' } ) );
 
 			try {
-				const { readings, total, pages: last } = await this.#fetchReadings( page );
+				const { months, total, pages: last } = await this.#fetchReadings( page );
 
 				this.#update( 'diary', ( current ) => ( {
-					items: [ ...current.items, ...readings ],
+					items: [ ...current.items, ...months ],
 					total,
 					pages: last,
 					page,
@@ -800,7 +803,7 @@
 				const { total, pages: last } = loaded.at( -1 );
 
 				this.#update( 'diary', () => ( {
-					items: loaded.flatMap( ( { readings } ) => readings ),
+					items: loaded.flatMap( ( { months } ) => months ),
 					total,
 					pages: last,
 					page,

@@ -169,6 +169,9 @@ class Library_Dashboard {
 	/**
 	 * Run a SELECT on the books; "{books}" and "{library}" in the SQL stand for the BOOKS and LIBRARY conditions.
 	 *
+	 * "{readings}" stands for the readings: a table aliased "r" of a `book` and its read `date`, once per book and date,
+	 * kept or not. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one.
+	 *
 	 * @param string $sql  SQL, with placeholders for the arguments.
 	 * @param mixed  ...$args Values for the placeholders.
 	 * @return object[]
@@ -176,7 +179,12 @@ class Library_Dashboard {
 	public static function select( string $sql, mixed ...$args ): array {
 		global $wpdb;
 
-		$sql = str_replace( array( '{books}', '{library}' ), array( self::BOOKS, self::LIBRARY ), $sql );
+		$readings = "( SELECT DISTINCT m.post_id AS book, m.meta_value AS date
+			FROM {$wpdb->postmeta} AS m
+			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
+			WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books} ) AS r";
+		// The readings first: they hold the books condition.
+		$sql = str_replace( array( '{readings}', '{books}', '{library}' ), array( $readings, self::BOOKS, self::LIBRARY ), $sql );
 		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
 
 		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets and REST routes, run on demand.
@@ -185,7 +193,7 @@ class Library_Dashboard {
 	/**
 	 * Count books by the start of a meta value, e.g. "2024-05" (length 7) or "2024" (length 4) for a date.
 	 *
-	 * A book counts once per value: once per reading for the read dates.
+	 * A book counts once per value.
 	 *
 	 * @param string $meta_key Meta key.
 	 * @param int    $length   Number of characters to group by.
@@ -290,21 +298,16 @@ class Library_Dashboard {
 	 * @return array{year:int,this_year:int,last_year:int,projection:int|null}
 	 */
 	public static function get_year_to_date(): array {
-		global $wpdb;
-
 		$today          = new DateTimeImmutable( 'now', wp_timezone() );
 		$same_day       = $today->modify( '-1 year' );
 		$this_year_from = $today->format( 'Y-01-01' );
 		$last_year_from = $same_day->format( 'Y-01-01' );
 
 		[ $row ] = self::select(
-			"SELECT
-				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ), m.meta_value ) AS this_year,
-				COUNT( DISTINCT IF( m.meta_value BETWEEN %s AND %s, p.ID, NULL ), m.meta_value ) AS last_year
-			FROM {$wpdb->postmeta} AS m
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			WHERE m.meta_key = 'read_date'
-				AND {books}",
+			'SELECT
+				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS this_year,
+				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS last_year
+			FROM {readings}',
 			$this_year_from,
 			$today->format( 'Y-m-d' ),
 			$last_year_from,
@@ -336,11 +339,10 @@ class Library_Dashboard {
 		global $wpdb;
 
 		[ $row ] = self::select(
-			"SELECT SUM( n.meta_value ) AS pages, COUNT( DISTINCT p.ID, m.meta_value ) AS books
-			FROM ( SELECT DISTINCT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'read_date' AND meta_value >= %s ) AS m
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = p.ID AND n.meta_key = 'pages'
-			WHERE {books}",
+			"SELECT SUM( n.meta_value ) AS pages, COUNT(*) AS books
+			FROM {readings}
+			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = r.book AND n.meta_key = 'pages'
+			WHERE r.date >= %s",
 			wp_date( 'Y-01-01' )
 		);
 
@@ -363,7 +365,7 @@ class Library_Dashboard {
 		$books_by_year    = array();
 		$books_this_year  = array_fill( 1, 12, 0 );
 		$books_by_month   = array_fill( 1, 12, 0 );
-		$books_by_yearmon = $this->count_by_meta_start( 'read_date', 7 );
+		$books_by_yearmon = array_map( 'intval', wp_list_pluck( self::select( 'SELECT LEFT( r.date, 7 ) AS month, COUNT(*) AS readings FROM {readings} GROUP BY month ORDER BY month' ), 'readings', 'month' ) );
 
 		foreach ( $books_by_yearmon as $year_month => $books ) {
 			[ $year, $month ] = array_map( 'intval', explode( '-', $year_month ) );
@@ -475,12 +477,9 @@ class Library_Dashboard {
 		global $wpdb;
 
 		$rows = self::select(
-			"SELECT LEFT( d.meta_value, 4 ) AS year, AVG( r.meta_value ) AS average
-			FROM {$wpdb->postmeta} AS d
-			INNER JOIN {$wpdb->postmeta} AS r ON r.post_id = d.post_id AND r.meta_key = 'rating'
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = d.post_id
-			WHERE d.meta_key = 'read_date'
-				AND {books}
+			"SELECT LEFT( r.date, 4 ) AS year, AVG( n.meta_value ) AS average
+			FROM {readings}
+			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = r.book AND n.meta_key = 'rating'
 			GROUP BY year"
 		);
 
@@ -536,25 +535,13 @@ class Library_Dashboard {
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
 	private function get_recent_reads(): array {
-		global $wpdb;
-
-		$rows = self::select(
-			"SELECT DISTINCT p.ID, m.meta_value AS read_date
-			FROM {$wpdb->postmeta} AS m
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			WHERE m.meta_key = 'read_date'
-				AND m.meta_value != ''
-				AND {books}
-			ORDER BY m.meta_value DESC, p.ID DESC
-			LIMIT %d",
-			self::LIST_LENGTH
-		);
+		$rows = self::select( 'SELECT r.book, r.date FROM {readings} ORDER BY r.date DESC, r.book DESC LIMIT %d', self::LIST_LENGTH );
 
 		return array_map(
 			fn( object $row ) => array(
-				'name' => get_the_title( (int) $row->ID ),
-				'url'  => (string) get_edit_post_link( (int) $row->ID ),
-				'text' => date_i18n( get_option( 'date_format' ), strtotime( $row->read_date ) ),
+				'name' => get_the_title( (int) $row->book ),
+				'url'  => (string) get_edit_post_link( (int) $row->book ),
+				'text' => date_i18n( get_option( 'date_format' ), strtotime( $row->date ) ),
 			),
 			$rows
 		);

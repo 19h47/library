@@ -16,8 +16,9 @@ class LibraryLatestElement extends Brick {
 		return [
 			store.select(
 				( state ) => state.diary.items,
-				( readings ) => {
+				( months ) => {
 					const { books } = store.get();
+					const readings = months.flatMap( ( month ) => month.readings );
 					// A book read again shows once.
 					const ids = [ ...new Set( readings.map( ( reading ) => reading.id ) ) ].filter( ( id ) => id in books ).slice( 0, LATEST_BOOKS );
 

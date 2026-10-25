@@ -20,11 +20,11 @@ class LibraryDiaryElement extends Brick {
 			),
 			store.select(
 				( state ) => state.diary.items,
-				( readings ) => {
+				( months ) => {
 					const $cards = [ ...$months.querySelectorAll( '.library-item' ) ];
 					const $focused = $cards.find( ( $item ) => $item.contains( document.activeElement ) );
 
-					$months.replaceChildren( ...this.#renderMonths( readings ) );
+					$months.replaceChildren( ...this.#renderMonths( months ) );
 
 					if ( $focused ) {
 						this.#refocus( $focused, $cards.indexOf( $focused ) );
@@ -48,36 +48,29 @@ class LibraryDiaryElement extends Brick {
 		$card?.querySelector( '.library-item__button' ).focus();
 	}
 
-	/** A section per month; the count of the last one shows once its readings are all loaded. */
-	#renderMonths( readings ) {
-		const { books, diary } = store.get();
-		// A reading shows with its book only.
-		const months = Map.groupBy(
-			readings.filter( ( reading ) => reading.id in books ),
-			( reading ) => reading.date.slice( 0, 7 )
-		);
-		const complete = diary.page >= diary.pages;
+	/** A section per month, with the number of its readings: a page of the diary holds whole months. */
+	#renderMonths( months ) {
+		const { books } = store.get();
 
-		return [ ...months ].map( ( [ month, entries ], index ) => {
+		return months.map( ( { month, readings } ) => {
 			const $month = clone( 'library-month' );
-			const isLast = index === months.size - 1;
+			// A reading shows with its book only.
+			const shown = readings.filter( ( reading ) => reading.id in books );
 
-			fill( $month, {
-				month: formatDate( month ),
-				count: ! isLast || complete ? plural( entries.length, strings.books ) : '',
-			} );
-			$month.querySelector( 'ul' ).append(
-				...entries.map( ( { date, id } ) => {
-					const $item = renderBook( books[ id ], this.#state( books[ id ], date ) );
-
-					$item.dataset.date = date;
-
-					return $item;
-				} )
-			);
+			fill( $month, { month: formatDate( month ), count: plural( readings.length, strings.books ) } );
+			$month.querySelector( 'ul' ).append( ...shown.map( ( { date, id } ) => this.#renderReading( books[ id ], date ) ) );
 
 			return $month;
 		} );
+	}
+
+	/** The card of a reading: its book, and the date of the reading, which the card keeps for its line and its focus. */
+	#renderReading( book, date ) {
+		const $item = renderBook( book, this.#state( book, date ) );
+
+		$item.dataset.date = date;
+
+		return $item;
 	}
 
 	/** The line of a reading: its day, whether the book was read again then, its rating and whether it is kept. */

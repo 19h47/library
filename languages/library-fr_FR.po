@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-25T20:13:16+00:00\n"
+"POT-Creation-Date: 2026-10-25T21:03:24+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,7 +25,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: admin/class-library-dashboard.php:84 app/class-library-app.php:65
 #: app/class-library-app.php:167 app/class-library-app.php:168
-#: app/partials/library-app.php:35 app/partials/library-app.php:46
+#: app/partials/library-app.php:35 app/partials/library-app.php:52
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -48,7 +48,7 @@ msgstr "https://www.19h47.fr"
 #: admin/class-library-achievements.php:286
 #: admin/class-library-achievements.php:293
 #: admin/partials/library-achievements.php:20 app/class-library-app.php:122
-#: app/partials/library-app.php:166
+#: app/partials/library-app.php:172
 msgid "Achievements"
 msgstr "Succès"
 
@@ -75,7 +75,7 @@ msgstr "Succès cachés"
 #. translators: %s: number of books.
 #: admin/class-library-achievements.php:549
 #: admin/class-library-dashboard.php:222 admin/class-library-posts.php:500
-#: app/class-library-app.php:239 app/class-library-app.php:241
+#: app/class-library-app.php:253 app/class-library-app.php:255
 msgid "%s book"
 msgid_plural "%s books"
 msgstr[0] "%s livre"
@@ -470,13 +470,13 @@ msgstr "Tome 1 lu après un tome suivant"
 
 #. translators: %s: reading percentage.
 #: admin/class-library-admin.php:60 admin/class-library-posts.php:606
-#: app/class-library-app.php:260
+#: app/class-library-app.php:274
 msgid "%s%% read"
 msgstr "%s%% lu"
 
 #: admin/class-library-admin.php:72 admin/class-library-posts.php:77
-#: admin/class-library-posts.php:112 admin/class-library-taxonomies.php:439
-#: app/class-library-app.php:274 app/partials/library-app.php:243
+#: admin/class-library-posts.php:112 admin/class-library-taxonomies.php:442
+#: app/class-library-app.php:288 app/partials/library-app.php:249
 msgctxt "book status"
 msgid "Not kept"
 msgstr "Pas gardé"
@@ -563,19 +563,19 @@ msgstr "Répartition des notes"
 
 #: admin/class-library-dashboard.php:465 admin/class-library-posts.php:204
 #: admin/class-library-posts.php:366 admin/partials/library-form.php:229
-#: app/partials/library-app.php:233
+#: app/partials/library-app.php:239
 msgid "Rating"
 msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-library-dashboard.php:493 app/class-library-app.php:149
-#: app/class-library-app.php:270
+#: app/class-library-app.php:284
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:493 app/partials/library-app.php:235
+#: admin/class-library-dashboard.php:493 app/partials/library-app.php:241
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -623,23 +623,23 @@ msgid "Thumbnail"
 msgstr "Miniature"
 
 #: admin/class-library-posts.php:200 admin/partials/library-form.php:137
-#: app/partials/library-app.php:273 app/partials/library-app.php:356
+#: app/partials/library-app.php:279 app/partials/library-app.php:362
 msgid "Edition date"
 msgstr "Date d’édition"
 
 #: admin/class-library-posts.php:201 admin/class-library-posts.php:363
-#: admin/partials/library-form.php:62 app/partials/library-app.php:265
-#: app/partials/library-app.php:329
+#: admin/partials/library-form.php:62 app/partials/library-app.php:271
+#: app/partials/library-app.php:335
 msgid "ISBN"
 msgstr "ISBN"
 
 #: admin/class-library-posts.php:202 admin/partials/library-form.php:179
-#: app/class-library-app.php:271 app/partials/library-app.php:84
-#: app/partials/library-app.php:230
+#: app/class-library-app.php:285 app/partials/library-app.php:90
+#: app/partials/library-app.php:236
 msgid "Read"
 msgstr "Lu"
 
-#: admin/class-library-posts.php:203 app/partials/library-app.php:410
+#: admin/class-library-posts.php:203 app/partials/library-app.php:416
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -660,7 +660,7 @@ msgid "Rated"
 msgstr "Noté"
 
 #: admin/class-library-posts.php:364 admin/partials/library-form.php:118
-#: app/partials/library-app.php:269 app/partials/library-app.php:352
+#: app/partials/library-app.php:275 app/partials/library-app.php:358
 msgid "Pages"
 msgstr "Pages"
 
@@ -780,8 +780,8 @@ msgstr "Tableau trié par note."
 msgid "Loading percent read..."
 msgstr "Chargement du pourcentage lu..."
 
-#: admin/class-library-reading-idea.php:118 app/partials/library-app.php:104
-#: app/partials/library-app.php:139
+#: admin/class-library-reading-idea.php:118 app/partials/library-app.php:110
+#: app/partials/library-app.php:145
 msgid "Reading idea of the week"
 msgstr "Idée de lecture de la semaine"
 
@@ -933,15 +933,17 @@ msgstr "ID de l’image envoyée comme couverture."
 
 #: admin/class-library-rest-api.php:104
 msgid "Book meta, such as isbn, as the book form saves them."
-msgstr "Métadonnées du livre, comme isbn, comme le formulaire du livre les enregistre."
+msgstr ""
+"Métadonnées du livre, comme isbn, comme le formulaire du livre les "
+"enregistre."
 
 #: admin/class-library-rest-api.php:131
-msgid "Page of the readings."
-msgstr "Page des lectures."
+msgid "Page of the months."
+msgstr "Page des mois."
 
 #: admin/class-library-rest-api.php:137
-msgid "Number of readings per page."
-msgstr "Nombre de lectures par page."
+msgid "Number of months per page."
+msgstr "Nombre de mois par page."
 
 #: admin/class-library-rest-api.php:156
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
@@ -952,7 +954,7 @@ msgstr ""
 msgid "Term ID of the author, or of one of their pseudonyms."
 msgstr "ID du terme de l’auteur, ou de l’un de ses pseudonymes."
 
-#: admin/class-library-rest-api.php:350
+#: admin/class-library-rest-api.php:364
 #: admin/partials/library-dashboard-idea.php:22
 msgid "Every book has been read."
 msgstr "Tous les livres ont été lus."
@@ -1037,91 +1039,91 @@ msgstr "Les plus utilisés"
 msgid "&larr; Back to Authors"
 msgstr "&larr; Retour aux auteurs"
 
-#: admin/class-library-taxonomies.php:201
+#: admin/class-library-taxonomies.php:204
 msgctxt "library publishers general name"
 msgid "Publishers"
 msgstr "Éditeurs"
 
-#: admin/class-library-taxonomies.php:202
+#: admin/class-library-taxonomies.php:205
 msgctxt "library publishers singular name"
 msgid "Publisher"
 msgstr "Éditeur"
 
-#: admin/class-library-taxonomies.php:203
+#: admin/class-library-taxonomies.php:206
 msgid "Search Publishers"
 msgstr "Rechercher des éditeurs"
 
-#: admin/class-library-taxonomies.php:204
+#: admin/class-library-taxonomies.php:207
 msgid "All Publishers"
 msgstr "Tous les éditeurs"
 
-#: admin/class-library-taxonomies.php:205
+#: admin/class-library-taxonomies.php:208
 msgid "Popular Publishers"
 msgstr "Éditeurs populaires"
 
-#: admin/class-library-taxonomies.php:206
+#: admin/class-library-taxonomies.php:209
 msgid "Edit Publisher"
 msgstr "Modifier l'éditeur"
 
-#: admin/class-library-taxonomies.php:207
+#: admin/class-library-taxonomies.php:210
 msgid "View Publisher"
 msgstr "Voir l'éditeur"
 
-#: admin/class-library-taxonomies.php:208
+#: admin/class-library-taxonomies.php:211
 msgid "Update Publisher"
 msgstr "Mettre à jour l'éditeur"
 
-#: admin/class-library-taxonomies.php:209
+#: admin/class-library-taxonomies.php:212
 msgid "Add New Publisher"
 msgstr "Ajouter un éditeur"
 
-#: admin/class-library-taxonomies.php:210
+#: admin/class-library-taxonomies.php:213
 msgid "New Publisher Name"
 msgstr "Nom du nouvel éditeur"
 
-#: admin/class-library-taxonomies.php:211
+#: admin/class-library-taxonomies.php:214
 msgid "Add or remove publishers"
 msgstr "Ajouter ou supprimer des éditeurs"
 
-#: admin/class-library-taxonomies.php:212
+#: admin/class-library-taxonomies.php:215
 msgid "Choose from the most used publishers"
 msgstr "Choisir parmi les éditeurs les plus utilisés"
 
-#: admin/class-library-taxonomies.php:213
+#: admin/class-library-taxonomies.php:216
 msgid "No publishers found."
 msgstr "Aucun éditeur trouvé."
 
-#: admin/class-library-taxonomies.php:214
+#: admin/class-library-taxonomies.php:217
 msgid "No publishers"
 msgstr "Aucun éditeur"
 
-#: admin/class-library-taxonomies.php:215
+#: admin/class-library-taxonomies.php:218
 msgid "Publishers list navigation"
 msgstr "Navigation de la liste des éditeurs"
 
-#: admin/class-library-taxonomies.php:216
+#: admin/class-library-taxonomies.php:219
 msgid "Publishers list"
 msgstr "Liste des éditeurs"
 
 #. translators: Publisher heading when selecting from the most used terms.
-#: admin/class-library-taxonomies.php:218
+#: admin/class-library-taxonomies.php:221
 msgctxt "editor"
 msgid "Most Used"
 msgstr "Les plus utilisés"
 
-#: admin/class-library-taxonomies.php:219
+#: admin/class-library-taxonomies.php:222
 msgid "&larr; Back to Publishers"
 msgstr "&larr; Retour aux éditeurs"
 
-#: admin/class-library-taxonomies.php:220
+#: admin/class-library-taxonomies.php:223
 msgid "Parent Publisher"
 msgstr "Éditeur parent"
 
-#: admin/class-library-taxonomies.php:221
+#: admin/class-library-taxonomies.php:224
 msgid "Parent Publisher:"
 msgstr "Éditeur parent :"
 
-#: admin/class-library-taxonomies.php:222
+#: admin/class-library-taxonomies.php:225
 msgid ""
 "Pick the publisher of a collection, such as Gallimard for Folio. A publisher "
 "has none."
@@ -1129,138 +1131,138 @@ msgstr ""
 "Choisissez l’éditeur d’une collection, comme Gallimard pour Folio. Un "
 "éditeur n’en a pas."
 
-#: admin/class-library-taxonomies.php:255
+#: admin/class-library-taxonomies.php:258
 msgctxt "library languages general name"
 msgid "Original languages"
 msgstr "Langues d’origine"
 
-#: admin/class-library-taxonomies.php:256
+#: admin/class-library-taxonomies.php:259
 msgctxt "library languages singular name"
 msgid "Original language"
 msgstr "Langue d’origine"
 
-#: admin/class-library-taxonomies.php:257
+#: admin/class-library-taxonomies.php:260
 msgctxt "library languages menu name"
 msgid "Languages"
 msgstr "Langues"
 
-#: admin/class-library-taxonomies.php:258
+#: admin/class-library-taxonomies.php:261
 msgid "Search Languages"
 msgstr "Rechercher des langues"
 
-#: admin/class-library-taxonomies.php:259
+#: admin/class-library-taxonomies.php:262
 msgid "All Languages"
 msgstr "Toutes les langues"
 
-#: admin/class-library-taxonomies.php:260
+#: admin/class-library-taxonomies.php:263
 msgid "Edit Language"
 msgstr "Modifier la langue"
 
-#: admin/class-library-taxonomies.php:261
+#: admin/class-library-taxonomies.php:264
 msgid "View Language"
 msgstr "Voir la langue"
 
-#: admin/class-library-taxonomies.php:262
+#: admin/class-library-taxonomies.php:265
 msgid "Update Language"
 msgstr "Mettre à jour la langue"
 
-#: admin/class-library-taxonomies.php:263
+#: admin/class-library-taxonomies.php:266
 msgid "Add New Language"
 msgstr "Ajouter une langue"
 
-#: admin/class-library-taxonomies.php:264
+#: admin/class-library-taxonomies.php:267
 msgid "New Language Name"
 msgstr "Nom de la nouvelle langue"
 
-#: admin/class-library-taxonomies.php:265
+#: admin/class-library-taxonomies.php:268
 msgid "No languages found."
 msgstr "Aucune langue trouvée."
 
-#: admin/class-library-taxonomies.php:266
+#: admin/class-library-taxonomies.php:269
 msgid "No languages"
 msgstr "Aucune langue"
 
-#: admin/class-library-taxonomies.php:267
+#: admin/class-library-taxonomies.php:270
 msgid "Languages list navigation"
 msgstr "Navigation de la liste des langues"
 
-#: admin/class-library-taxonomies.php:268
+#: admin/class-library-taxonomies.php:271
 msgid "Languages list"
 msgstr "Liste des langues"
 
-#: admin/class-library-taxonomies.php:269
+#: admin/class-library-taxonomies.php:272
 msgid "&larr; Back to Languages"
 msgstr "&larr; Retour aux langues"
 
-#: admin/class-library-taxonomies.php:338
+#: admin/class-library-taxonomies.php:341
 msgid "Author added."
 msgstr "Auteur ajouté."
 
-#: admin/class-library-taxonomies.php:339
+#: admin/class-library-taxonomies.php:342
 msgid "Author deleted."
 msgstr "Auteur supprimé."
 
-#: admin/class-library-taxonomies.php:340
+#: admin/class-library-taxonomies.php:343
 msgid "Author updated."
 msgstr "Auteur mis à jour."
 
-#: admin/class-library-taxonomies.php:341
+#: admin/class-library-taxonomies.php:344
 msgid "Author not added."
 msgstr "Auteur non ajouté."
 
-#: admin/class-library-taxonomies.php:342
+#: admin/class-library-taxonomies.php:345
 msgid "Author not updated."
 msgstr "Auteur non mis à jour."
 
-#: admin/class-library-taxonomies.php:343
+#: admin/class-library-taxonomies.php:346
 msgid "Authors deleted."
 msgstr "Auteurs supprimés."
 
-#: admin/class-library-taxonomies.php:348
+#: admin/class-library-taxonomies.php:351
 msgid "Publisher added."
 msgstr "Éditeur ajouté."
 
-#: admin/class-library-taxonomies.php:349
+#: admin/class-library-taxonomies.php:352
 msgid "Publisher deleted."
 msgstr "Éditeur supprimé."
 
-#: admin/class-library-taxonomies.php:350
+#: admin/class-library-taxonomies.php:353
 msgid "Publisher updated."
 msgstr "Éditeur mis à jour."
 
-#: admin/class-library-taxonomies.php:351
+#: admin/class-library-taxonomies.php:354
 msgid "Publisher not added."
 msgstr "Éditeur non ajouté."
 
-#: admin/class-library-taxonomies.php:352
+#: admin/class-library-taxonomies.php:355
 msgid "Publisher not updated."
 msgstr "Éditeur non mis à jour."
 
-#: admin/class-library-taxonomies.php:353
+#: admin/class-library-taxonomies.php:356
 msgid "Publishers deleted."
 msgstr "Éditeurs supprimés."
 
-#: admin/class-library-taxonomies.php:358
+#: admin/class-library-taxonomies.php:361
 msgid "Language added."
 msgstr "Langue ajoutée."
 
-#: admin/class-library-taxonomies.php:359
+#: admin/class-library-taxonomies.php:362
 msgid "Language deleted."
 msgstr "Langue supprimée."
 
-#: admin/class-library-taxonomies.php:360
+#: admin/class-library-taxonomies.php:363
 msgid "Language updated."
 msgstr "Langue mise à jour."
 
-#: admin/class-library-taxonomies.php:361
+#: admin/class-library-taxonomies.php:364
 msgid "Language not added."
 msgstr "Langue non ajoutée."
 
-#: admin/class-library-taxonomies.php:362
+#: admin/class-library-taxonomies.php:365
 msgid "Language not updated."
 msgstr "Langue non mise à jour."
 
-#: admin/class-library-taxonomies.php:363
+#: admin/class-library-taxonomies.php:366
 msgid "Languages deleted."
 msgstr "Langues supprimées."
 
@@ -1324,7 +1326,7 @@ msgstr ""
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:21
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:56 app/class-library-app.php:268
+#: admin/partials/library-dashboard-idea.php:56 app/class-library-app.php:282
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
 
@@ -1344,7 +1346,7 @@ msgstr[1] "dont %s succès cachés"
 
 #: admin/partials/library-achievements.php:27
 #: admin/partials/library-dashboard-achievements.php:37
-#: app/partials/library-app.php:114 app/partials/library-app.php:159
+#: app/partials/library-app.php:120 app/partials/library-app.php:165
 msgid "Close to it"
 msgstr "En approche"
 
@@ -1391,12 +1393,12 @@ msgstr[0] "%s page"
 msgstr[1] "%s pages"
 
 #: admin/partials/library-dashboard-idea.php:38
-#: app/partials/library-app.php:306
+#: app/partials/library-app.php:312
 msgid "Add a cover"
 msgstr "Ajouter une couverture"
 
 #: admin/partials/library-dashboard-idea.php:51
-#: app/partials/library-app.php:109 app/partials/library-app.php:144
+#: app/partials/library-app.php:115 app/partials/library-app.php:150
 msgid "Another idea"
 msgstr "Une autre idée"
 
@@ -1427,19 +1429,19 @@ msgstr "Aucun livre noté pour l’instant."
 
 #. translators: 1: total books, 2: read books, 3: percent read.
 #: admin/partials/library-dashboard-reading.php:25
-#: app/class-library-app.php:262
+#: app/class-library-app.php:276
 msgid "%1$s books, %2$s read (%3$s%%)"
 msgstr "%1$s livres, %2$s lus (%3$s %%)"
 
 #. translators: 1: books read this year, 2: year, 3: books read by the same date last year.
 #: admin/partials/library-dashboard-reading.php:36
-#: app/class-library-app.php:264
+#: app/class-library-app.php:278
 msgid "%1$s read in %2$d, %3$s by this date last year"
 msgstr "%1$s lus en %2$d, %3$s à la même date l’an dernier"
 
 #. translators: %s: number of books expected by the end of the year.
 #: admin/partials/library-dashboard-reading.php:48
-#: app/class-library-app.php:266
+#: app/class-library-app.php:280
 msgid "About %s by the end of the year at this pace"
 msgstr "Environ %s d’ici la fin de l’année à ce rythme"
 
@@ -1455,7 +1457,7 @@ msgstr[1] "%1$s pages lues en %2$d, sur %3$s livres renseignés"
 msgid "View all books"
 msgstr "Voir tous les livres"
 
-#: admin/partials/library-form.php:21 app/partials/library-app.php:335
+#: admin/partials/library-form.php:21 app/partials/library-app.php:341
 msgid "Subtitle"
 msgstr "Sous-titre"
 
@@ -1467,28 +1469,28 @@ msgstr ""
 "Facultatif. Affiché après le titre, comme « Le Couteau : Réflexions suite à "
 "une tentative d’assassinat »."
 
-#: admin/partials/library-form.php:43 app/partials/library-app.php:339
+#: admin/partials/library-form.php:43 app/partials/library-app.php:345
 msgid "Series"
 msgstr "Série"
 
-#: admin/partials/library-form.php:54 app/partials/library-app.php:341
+#: admin/partials/library-form.php:54 app/partials/library-app.php:347
 msgid "Separate series with commas"
 msgstr "Séparez les séries par des virgules"
 
-#: admin/partials/library-form.php:81 app/partials/library-app.php:348
+#: admin/partials/library-form.php:81 app/partials/library-app.php:354
 msgid "ISSN"
 msgstr "ISSN"
 
-#: admin/partials/library-form.php:100 app/partials/library-app.php:344
+#: admin/partials/library-form.php:100 app/partials/library-app.php:350
 msgid "Volume Number"
 msgstr "Numéro de volume"
 
-#: admin/partials/library-form.php:155 app/partials/library-app.php:277
-#: app/partials/library-app.php:360
+#: admin/partials/library-form.php:155 app/partials/library-app.php:283
+#: app/partials/library-app.php:366
 msgid "First published"
 msgstr "Première parution"
 
-#: admin/partials/library-form.php:170 app/partials/library-app.php:370
+#: admin/partials/library-form.php:170 app/partials/library-app.php:376
 msgid ""
 "Optional. When the work first came out, whatever the edition: a year, a year "
 "and month, or a date, such as 1929, 1929-11 or 1929-11-08."
@@ -1498,7 +1500,7 @@ msgstr ""
 "1929-11 ou 1929-11-08."
 
 #: admin/partials/library-form.php:197 admin/partials/library-form.php:201
-#: app/partials/library-app.php:247
+#: app/partials/library-app.php:253
 msgid "Read dates"
 msgstr "Dates de lecture"
 
@@ -1526,12 +1528,12 @@ msgstr ""
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 
-#: admin/partials/library-form.php:251 app/partials/library-app.php:281
-#: app/partials/library-app.php:373
+#: admin/partials/library-form.php:251 app/partials/library-app.php:287
+#: app/partials/library-app.php:379
 msgid "Translators"
 msgstr "Traducteurs"
 
-#: admin/partials/library-form.php:262 app/partials/library-app.php:375
+#: admin/partials/library-form.php:262 app/partials/library-app.php:381
 msgid "Separate translators with commas"
 msgstr "Séparez les traducteurs par des virgules"
 
@@ -1548,114 +1550,114 @@ msgid "Idea"
 msgstr "Idée"
 
 #. translators: %s: number of books read, after the number of books of an author.
-#: app/class-library-app.php:245 app/class-library-app.php:247
+#: app/class-library-app.php:259 app/class-library-app.php:261
 msgid "%s read"
 msgid_plural "%s read"
 msgstr[0] "%s lu"
 msgstr[1] "%s lus"
 
 #. translators: %s: list of the pseudonyms of an author.
-#: app/class-library-app.php:251 app/class-library-app.php:253
+#: app/class-library-app.php:265 app/class-library-app.php:267
 msgid "Pseudonym: %s"
 msgid_plural "Pseudonyms: %s"
 msgstr[0] "Pseudonyme : %s"
 msgstr[1] "Pseudonymes : %s"
 
 #. translators: %s: year a book first came out.
-#: app/class-library-app.php:256
+#: app/class-library-app.php:270
 msgid "First published in %s"
 msgstr "Paru en %s"
 
 #. translators: %s: average rating of the books of an author, e.g. 7.5.
-#: app/class-library-app.php:258
+#: app/class-library-app.php:272
 msgid "%s/10 on average"
 msgstr "%s/10 en moyenne"
 
-#: app/class-library-app.php:272
+#: app/class-library-app.php:286
 msgid "Read again"
 msgstr "Relu"
 
-#: app/class-library-app.php:273 app/partials/library-app.php:85
+#: app/class-library-app.php:287 app/partials/library-app.php:91
 msgid "To read"
 msgstr "À lire"
 
-#: app/class-library-app.php:275 app/partials/library-app.php:78
+#: app/class-library-app.php:289 app/partials/library-app.php:84
 msgid "Loading…"
 msgstr "Chargement…"
 
-#: app/class-library-app.php:276
+#: app/class-library-app.php:290
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
-#: app/class-library-app.php:277
+#: app/class-library-app.php:291
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#: app/partials/library-app.php:69
+#: app/partials/library-app.php:75
 msgid "Search the library"
 msgstr "Rechercher dans la bibliothèque"
 
-#: app/partials/library-app.php:73
+#: app/partials/library-app.php:79
 msgid "Title, author, series, ISBN…"
 msgstr "Titre, auteur, série, ISBN…"
 
-#: app/partials/library-app.php:81
+#: app/partials/library-app.php:87
 msgid "Reading state"
 msgstr "État de lecture"
 
-#: app/partials/library-app.php:98
+#: app/partials/library-app.php:104
 msgid "Latest readings"
 msgstr "Dernières lectures"
 
-#: app/partials/library-app.php:191
+#: app/partials/library-app.php:197
 msgid "Top"
 msgstr "Haut"
 
-#: app/partials/library-app.php:205 app/partials/library-app.php:206
+#: app/partials/library-app.php:211 app/partials/library-app.php:212
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: app/partials/library-app.php:211
+#: app/partials/library-app.php:217
 msgid "Dark theme"
 msgstr "Thème sombre"
 
-#: app/partials/library-app.php:212
+#: app/partials/library-app.php:218
 msgid "Light or dark theme"
 msgstr "Thème clair ou sombre"
 
-#: app/partials/library-app.php:220 app/partials/library-app.php:298
+#: app/partials/library-app.php:226 app/partials/library-app.php:304
 msgid "Close"
 msgstr "Fermer"
 
-#: app/partials/library-app.php:250
+#: app/partials/library-app.php:256
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
-#: app/partials/library-app.php:255 app/partials/library-app.php:386
+#: app/partials/library-app.php:261 app/partials/library-app.php:392
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:310
+#: app/partials/library-app.php:316
 msgid "Title"
 msgstr "Titre"
 
-#: app/partials/library-app.php:317
+#: app/partials/library-app.php:323
 msgid "Add an author"
 msgstr "Ajouter un auteur"
 
-#: app/partials/library-app.php:325
+#: app/partials/library-app.php:331
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:333
+#: app/partials/library-app.php:339
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:415 app/partials/library-app.php:416
+#: app/partials/library-app.php:421 app/partials/library-app.php:422
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/partials/library-app.php:437 app/partials/library-app.php:438
+#: app/partials/library-app.php:443 app/partials/library-app.php:444
 msgid "Remove this author"
 msgstr "Retirer cet auteur"
 

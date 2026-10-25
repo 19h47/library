@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 4.6.0\n"
+"Project-Id-Version: Library 5.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T20:49:24+00:00\n"
+"POT-Creation-Date: 2026-10-25T21:12:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -70,7 +70,7 @@ msgstr ""
 
 #. translators: %s: number of books.
 #: admin/class-library-achievements.php:549
-#: admin/class-library-dashboard.php:222
+#: admin/class-library-dashboard.php:230
 #: admin/class-library-posts.php:500
 #: app/class-library-app.php:253
 #: app/class-library-app.php:255
@@ -511,7 +511,7 @@ msgstr ""
 msgid "Most present original languages"
 msgstr ""
 
-#: admin/class-library-dashboard.php:255
+#: admin/class-library-dashboard.php:263
 #: admin/class-library-posts.php:413
 #: admin/class-library-posts.php:415
 #: admin/class-library-posts.php:451
@@ -519,55 +519,55 @@ msgid "Books"
 msgstr ""
 
 #. translators: 1: year, month or rating, 2: number of books, e.g. "2022 (71 books)".
-#: admin/class-library-dashboard.php:257
+#: admin/class-library-dashboard.php:265
 msgid "Most: %1$s (%2$s)"
 msgstr ""
 
-#: admin/class-library-dashboard.php:395
+#: admin/class-library-dashboard.php:397
 msgid "Books read by year"
 msgstr ""
 
-#: admin/class-library-dashboard.php:395
-#: admin/class-library-dashboard.php:502
+#: admin/class-library-dashboard.php:397
+#: admin/class-library-dashboard.php:501
 msgid "Year"
 msgstr ""
 
 #. translators: %d: year.
-#: admin/class-library-dashboard.php:397
+#: admin/class-library-dashboard.php:399
 msgid "Books read in %d by month"
 msgstr ""
 
 #. translators: %d: year.
-#: admin/class-library-dashboard.php:397
-#: admin/class-library-dashboard.php:398
+#: admin/class-library-dashboard.php:399
+#: admin/class-library-dashboard.php:400
 msgid "Month"
 msgstr ""
 
-#: admin/class-library-dashboard.php:398
+#: admin/class-library-dashboard.php:400
 msgid "Reading distribution by month"
 msgstr ""
 
-#: admin/class-library-dashboard.php:417
+#: admin/class-library-dashboard.php:419
 msgid "Edition year distribution"
 msgstr ""
 
-#: admin/class-library-dashboard.php:417
+#: admin/class-library-dashboard.php:419
 msgid "Edition year"
 msgstr ""
 
-#: admin/class-library-dashboard.php:434
+#: admin/class-library-dashboard.php:436
 msgid "Edition year distribution (by decade)"
 msgstr ""
 
-#: admin/class-library-dashboard.php:434
+#: admin/class-library-dashboard.php:436
 msgid "Edition years"
 msgstr ""
 
-#: admin/class-library-dashboard.php:465
+#: admin/class-library-dashboard.php:467
 msgid "Rating distribution"
 msgstr ""
 
-#: admin/class-library-dashboard.php:465
+#: admin/class-library-dashboard.php:467
 #: admin/class-library-posts.php:204
 #: admin/class-library-posts.php:366
 #: admin/partials/library-form.php:229
@@ -577,33 +577,33 @@ msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:493
+#: admin/class-library-dashboard.php:492
 #: app/class-library-app.php:149
 #: app/class-library-app.php:284
 msgid "%s/10"
 msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:493
+#: admin/class-library-dashboard.php:492
 #: app/partials/library-app.php:241
 msgid "No rating"
 msgstr ""
 
-#: admin/class-library-dashboard.php:501
+#: admin/class-library-dashboard.php:500
 msgid "Average rating by year read"
 msgstr ""
 
-#: admin/class-library-dashboard.php:503
+#: admin/class-library-dashboard.php:502
 msgid "Average rating"
 msgstr ""
 
 #. translators: 1: year, 2: average rating, e.g. "2011 (8.1/10)".
-#: admin/class-library-dashboard.php:505
+#: admin/class-library-dashboard.php:504
 msgid "Best: %1$s (%2$s)"
 msgstr ""
 
 #. translators: 1: number of books, 2: number of books read.
-#: admin/class-library-dashboard.php:572
+#: admin/class-library-dashboard.php:559
 msgid "%1$s book, %2$s read"
 msgid_plural "%1$s books, %2$s read"
 msgstr[0] ""
@@ -935,11 +935,11 @@ msgid "Book meta, such as isbn, as the book form saves them."
 msgstr ""
 
 #: admin/class-library-rest-api.php:131
-msgid "Page of the readings."
+msgid "Page of the months."
 msgstr ""
 
 #: admin/class-library-rest-api.php:137
-msgid "Number of readings per page."
+msgid "Number of months per page."
 msgstr ""
 
 #: admin/class-library-rest-api.php:156
@@ -950,7 +950,7 @@ msgstr ""
 msgid "Term ID of the author, or of one of their pseudonyms."
 msgstr ""
 
-#: admin/class-library-rest-api.php:349
+#: admin/class-library-rest-api.php:361
 #: admin/partials/library-dashboard-idea.php:22
 msgid "Every book has been read."
 msgstr ""

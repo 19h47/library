@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: a book added, reading stats, readings, reading idea, achievements, authors and the credits of a book.
+ * REST API: a book added, reading stats, readings by month, reading idea, achievements, authors and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -128,17 +128,17 @@ class Library_Rest_API {
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 				'args'                => array(
 					'page'     => array(
-						'description' => __( 'Page of the readings.', 'library' ),
+						'description' => __( 'Page of the months.', 'library' ),
 						'type'        => 'integer',
 						'minimum'     => 1,
 						'default'     => 1,
 					),
 					'per_page' => array(
-						'description' => __( 'Number of readings per page.', 'library' ),
+						'description' => __( 'Number of months per page.', 'library' ),
 						'type'        => 'integer',
 						'minimum'     => 1,
-						'maximum'     => 100,
-						'default'     => 30,
+						'maximum'     => 12,
+						'default'     => 3,
 					),
 				),
 			),
@@ -245,36 +245,48 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * The readings, latest first: one per read date, so a book read again comes once per reading, kept or not.
+	 * The readings by month, latest first: one per read date, so a book read again comes once per reading, kept or not.
 	 *
-	 * The book of each reading is linked, and embeddable with _embed; the totals are in the X-WP-Total and X-WP-TotalPages headers.
+	 * A page holds whole months, so a month never goes on in the next one; the totals in the X-WP-Total and
+	 * X-WP-TotalPages headers count months. Each month links its books, embeddable with _embed.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function get_readings( WP_REST_Request $request ): WP_REST_Response {
-		global $wpdb;
-
 		$per_page = $request['per_page'];
-		$readings = "FROM {$wpdb->postmeta} AS m INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books}";
-		$total    = (int) Library_Dashboard::select( "SELECT COUNT( DISTINCT m.post_id, m.meta_value ) AS total $readings" )[0]->total;
-		$rows     = Library_Dashboard::select( "SELECT DISTINCT m.post_id, m.meta_value $readings ORDER BY m.meta_value DESC, m.post_id DESC LIMIT %d OFFSET %d", $per_page, ( $request['page'] - 1 ) * $per_page );
+		$total    = (int) Library_Dashboard::select( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
+		$months   = wp_list_pluck( Library_Dashboard::select( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
+		$rows     = $months ? Library_Dashboard::select(
+			'SELECT r.book, r.date FROM {readings} WHERE LEFT( r.date, 7 ) IN ( ' . implode( ', ', array_fill( 0, count( $months ), '%s' ) ) . ' ) ORDER BY r.date DESC, r.book DESC',
+			...$months
+		) : array();
+		$by_month = array_fill_keys( $months, array() );
+
+		foreach ( $rows as $row ) {
+			$by_month[ substr( $row->date, 0, 7 ) ][] = array(
+				'date' => $row->date,
+				'book' => (int) $row->book,
+			);
+		}
 
 		$response = rest_ensure_response(
 			array_map(
-				fn( object $row ) => array(
-					'date'   => $row->meta_value,
-					'book'   => (int) $row->post_id,
-					'_links' => array(
-						'book' => array(
-							array(
-								'href'       => rest_url( 'wp/v2/books/' . $row->post_id ),
+				fn( string $month, array $month_readings ) => array(
+					'month'    => $month,
+					'readings' => $month_readings,
+					'_links'   => array(
+						'book' => array_map(
+							fn( int $book_id ) => array(
+								'href'       => rest_url( 'wp/v2/books/' . $book_id ),
 								'embeddable' => true,
 							),
+							array_values( array_unique( array_column( $month_readings, 'book' ) ) )
 						),
 					),
 				),
-				$rows
+				array_keys( $by_month ),
+				$by_month
 			)
 		);
 
