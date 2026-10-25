@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 4.6.0
+Stable tag: 5.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -112,7 +112,7 @@ Check the collection instead of its publisher in the Publishers box of the book;
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `pages`, `edition_date` (`Y-m-d`), `read_date` (an array of `Y-m-d` dates, one per reading), `published_date` (`Y`, `Y-m` or `Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`; a collection is a publisher with a `parent`. Each book also has `credits`, the line shown under its title: authors · publisher, collection · edition year. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, and `year_to_date`: the books read this year, by the same date last year and expected by the end of the year, to users who can edit posts. `/wp-json/library/v1/books/readings` returns the readings, latest first, a book read again once per reading, to the same users: `page` and `per_page` (30 by default, 100 at most), the totals in the `X-WP-Total` and `X-WP-TotalPages` headers, `_embed` adds the books. `/wp-json/library/v1/books/reading-idea` returns the reading idea of the week with its reason, to the same users: `?position=1` gives the next idea, `_embed` adds the book. `/wp-json/library/v1/authors/<id>` returns an author under their real name, the ID of a pseudonym giving the author it belongs to, to the same users: their pseudonyms, the IDs of their books in the order they first came out, the number read, the average rating and the completion their books count for. `POST /wp-json/library/v1/books` adds a book as the book form does, to users who can publish posts: its `title`, the names of its `authors`, its `publisher` and `collection`, a name not found added, the term ID of its original `language`, the ID of an image uploaded as its `cover`, and its `meta`. Books not kept have the `library-not-kept` status: list them with `?status=library-not-kept` as a user who can edit posts.
+Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `pages`, `edition_date` (`Y-m-d`), `read_date` (an array of `Y-m-d` dates, one per reading), `published_date` (`Y`, `Y-m` or `Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`; a collection is a publisher with a `parent`. Each book also has `credits`, the line shown under its title: authors · publisher, collection · edition year. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, and `year_to_date`: the books read this year, by the same date last year and expected by the end of the year, to users who can edit posts. `/wp-json/library/v1/books/readings` returns the readings by month, latest first, to the same users: each month with its readings, a book read again once per reading. A page holds whole months: `page` and `per_page` (3 by default, 12 at most) count months, and so do the totals in the `X-WP-Total` and `X-WP-TotalPages` headers; `_embed` adds the books of each month. `/wp-json/library/v1/books/reading-idea` returns the reading idea of the week with its reason, to the same users: `?position=1` gives the next idea, `_embed` adds the book. `/wp-json/library/v1/authors/<id>` returns an author under their real name, the ID of a pseudonym giving the author it belongs to, to the same users: their pseudonyms, the IDs of their books in the order they first came out, the number read, the average rating and the completion their books count for. `POST /wp-json/library/v1/books` adds a book as the book form does, to users who can publish posts: its `title`, the names of its `authors`, its `publisher` and `collection`, a name not found added, the term ID of its original `language`, the ID of an image uploaded as its `cover`, and its `meta`. Books not kept have the `library-not-kept` status: list them with `?status=library-not-kept` as a user who can edit posts.
 
 = How do I log a book I read but did not keep? =
 
@@ -127,6 +127,11 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 5.0.0 =
+* Changed: `/wp-json/library/v1/books/readings` returns the readings by month, latest first: each month with its readings, a page holding whole months. `page`, `per_page` (3 by default, 12 at most) and the totals in the headers count months; `_embed` adds the books of each month.
+* Reading app: the diary shows the number of books of every month at once, a month that goes on in the next page included.
+* The reading stats of the dashboard and the readings of the REST API count the readings with one definition: a reading stored twice can no longer count twice, as it could in the average rating by year read.
 
 = 4.6.0 =
 * Reading app: a book is added by hand, from the + at the top: a photo of its cover, its title, its authors, publisher and collection, suggested among those of the library or added, its ISBN and more details. It then opens, for its reading.
