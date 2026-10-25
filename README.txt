@@ -76,6 +76,10 @@ Yes. The post type rewrite slug is `books` by default. Use the `library_post_typ
 
 No. The plugin only provides the post type, taxonomies, and admin UI. Use your theme, blocks, or custom templates to display books on the front end.
 
+= Can several readers share the library? =
+
+No, the plugin has one reader per site. The read state, read dates, rating and “Not kept” status belong to the book, not to a user: every user of the site sees and changes the same readings, and the dashboard, the reading idea and the achievements count them all. Each reader keeps their library on their own site.
+
 = Why is no update offered? =
 
 Updates come from the GitHub releases, see Updates above. No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder. Versions before 1.0.0 also blocked plugin updates: install 1.0.0 by hand once, later versions update as usual.
