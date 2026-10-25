@@ -2,7 +2,7 @@
  * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
  *
  * The views and their navigation, the book cards with their cover, the reading idea,
- * the stats and the achievements, and the dialog of a book.
+ * the stats and the achievements, the page of an author, and the dialog of a book.
  */
 
 :root {
@@ -251,4 +251,26 @@ button.app-pill:disabled {
 	font-family: var(--app-font-ui);
 	font-size: var(--app-font-small);
 	text-transform: uppercase;
+}
+
+/* The page of an author: their names and their reading, then the completion their books count for, then their books */
+.library-author {
+	display: grid;
+	gap: var(--app-gap-small);
+	margin-bottom: var(--app-u2);
+}
+
+.library-author__name {
+	font-size: calc(var(--app-u1) * 1.25);
+	line-height: var(--app-line-height);
+	letter-spacing: -0.02em;
+	overflow-wrap: anywhere;
+}
+
+.library-author p {
+	color: var(--app-text-muted);
+}
+
+.library-author__completion {
+	margin-bottom: var(--app-u2);
 }

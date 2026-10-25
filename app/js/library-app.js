@@ -13,7 +13,7 @@
 
 	const { store } = window;
 	const { sprintf } = window.wp.i18n;
-	const { strings, editUrl, notKept } = window.libraryApp;
+	const { strings, editUrl, authorUrl, notKept } = window.libraryApp;
 
 	// The next page loads before the end of the list shows.
 	const LOAD_MARGIN_PX = 800;
@@ -55,6 +55,11 @@
 		return [ formatRating( book.rating ), notKept === book.status && strings.notKept ];
 	}
 
+	/** Whether a book is read, its rating, and whether it is kept. */
+	function formatState( book ) {
+		return join( [ book.read ? strings.read : strings.toRead, ...formatDetails( book ) ] );
+	}
+
 	function join( parts ) {
 		return parts.filter( Boolean ).join( ' · ' );
 	}
@@ -81,6 +86,37 @@
 		$link.href = url;
 		$link.textContent = $field.textContent;
 		$field.replaceChildren( $link );
+	}
+
+	/** A link to the page of an author, which the app opens without reloading. */
+	function authorLink( id, name ) {
+		const $link = document.createElement( 'a' );
+
+		$link.href = authorUrl + id;
+		$link.dataset.author = id;
+		$link.textContent = name;
+
+		return $link;
+	}
+
+	/** Turns the names of authors in `$field` into links to their pages, listed as the language lists them. */
+	function linkAuthors( $field, authors ) {
+		const $links = authors.map( ( author ) => authorLink( author.id, author.name ) );
+
+		$field.replaceChildren(
+			...listFormat
+				.formatToParts( authors.map( ( author ) => author.name ) )
+				.map( ( part ) => ( 'element' === part.type ? $links.shift() : part.value ) )
+		);
+	}
+
+	/** Links the subject of an achievement: to the page of its author, else to the books list. */
+	function linkAchievement( $field, achievement ) {
+		if ( achievement.author && $field.textContent ) {
+			$field.replaceChildren( authorLink( achievement.author, $field.textContent ) );
+		} else {
+			link( $field, achievement.url );
+		}
 	}
 
 	/** Shows a cover, or hides the image when the book has none. */
@@ -122,6 +158,62 @@
 			},
 			{ signal }
 		);
+	}
+
+	/** Opens the page of an author whose link is clicked in `$root`; a new tab or window stays a link. */
+	function openAuthors( $root, signal ) {
+		$root.addEventListener(
+			'click',
+			( event ) => {
+				const $link = event.target.closest( 'a[data-author]' );
+
+				if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
+					return;
+				}
+
+				event.preventDefault();
+				store.openAuthor( Number( $link.dataset.author ) );
+			},
+			{ signal }
+		);
+	}
+
+	/** An achievement earned: its title, its subject, its detail and date, as on the Achievements page. */
+	function renderAchievement( achievement ) {
+		const $item = clone( 'library-achievement' );
+
+		fill( $item, {
+			title: achievement.title,
+			subject: achievement.subject,
+			meta: join( [ achievement.detail, achievement.date && formatDate( achievement.date ) ] ),
+		} );
+		linkAchievement( $item.querySelector( '[data-field="subject"]' ), achievement );
+
+		return $item;
+	}
+
+	/** An achievement close to be earned: its subject, or else its title, and its progress, which the element `id` labels. */
+	function renderCloseAchievement( achievement, id ) {
+		const $item = clone( 'library-achievement-close' );
+		const $name = $item.querySelector( '[data-field="name"]' );
+		const $progress = $item.querySelector( 'progress' );
+		const hasSubject = '' !== achievement.subject;
+		const done = formatNumber( achievement.done );
+		const total = formatNumber( achievement.total );
+
+		fill( $item, {
+			name: hasSubject ? achievement.subject : achievement.title,
+			meta: join( [ hasSubject && achievement.title, achievement.detail ] ),
+			count: `${ done } / ${ total }`,
+		} );
+		$name.id = id;
+		linkAchievement( $name, achievement );
+		$progress.max = achievement.total;
+		$progress.value = achievement.done;
+		$progress.setAttribute( 'aria-labelledby', $name.id );
+		$progress.setAttribute( 'aria-valuetext', sprintf( strings.progress, done, total ) );
+
+		return $item;
 	}
 
 	/**
@@ -311,7 +403,7 @@
 							...ids.slice( start ).map( ( id ) => {
 								const book = books[ id ];
 
-								return renderBook( book, join( [ book.read ? strings.read : strings.toRead, ...formatDetails( book ) ] ) );
+								return renderBook( book, formatState( book ) );
 							} )
 						);
 						this.#ids = ids;
@@ -401,7 +493,7 @@
 						$next.hidden = idea.total < 2;
 						fill( this, { status: idea.error, reason: book ? idea.reason : '' } );
 						$book.replaceChildren(
-							...( book ? [ renderBook( book, join( [ book.read ? strings.read : strings.toRead, ...formatDetails( book ) ] ) ) ] : [] )
+							...( book ? [ renderBook( book, formatState( book ) ) ] : [] )
 						);
 					}
 				),
@@ -433,9 +525,11 @@
 
 	/** The achievements close to be earned, with their progress, then the ones earned, latest first. */
 	class LibraryAchievementsElement extends Brick {
-		connect() {
+		connect( signal ) {
 			const $close = this.querySelector( '[data-list="close"]' );
 			const $earned = this.querySelector( '[data-list="earned"]' );
+
+			openAuthors( this, signal );
 
 			return [
 				store.select(
@@ -446,52 +540,96 @@
 							closeCount: close.length ? formatNumber( close.length ) : '',
 							earnedCount: earned.length ? formatNumber( earned.length ) : '',
 						} );
-						$close.replaceChildren( ...close.map( ( achievement, index ) => this.#renderClose( achievement, index ) ) );
-						$earned.replaceChildren( ...earned.map( ( achievement ) => this.#renderEarned( achievement ) ) );
+						$close.replaceChildren(
+							...close.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-achievement-close-${ index }` ) )
+						);
+						$earned.replaceChildren( ...earned.map( renderAchievement ) );
 					}
 				),
 			];
 		}
-
-		/** Its title, its subject, its detail and date, as on the Achievements page. */
-		#renderEarned( achievement ) {
-			const $item = clone( 'library-achievement' );
-
-			fill( $item, {
-				title: achievement.title,
-				subject: achievement.subject,
-				meta: join( [ achievement.detail, achievement.date && formatDate( achievement.date ) ] ),
-			} );
-			link( $item.querySelector( '[data-field="subject"]' ), achievement.url );
-
-			return $item;
-		}
-
-		/** Its subject, or else its title, and its progress, as on the Achievements page. */
-		#renderClose( achievement, index ) {
-			const $item = clone( 'library-achievement-close' );
-			const $name = $item.querySelector( '[data-field="name"]' );
-			const $progress = $item.querySelector( 'progress' );
-			const hasSubject = '' !== achievement.subject;
-			const done = formatNumber( achievement.done );
-			const total = formatNumber( achievement.total );
-
-			fill( $item, {
-				name: hasSubject ? achievement.subject : achievement.title,
-				meta: join( [ hasSubject && achievement.title, achievement.detail ] ),
-				count: `${ done } / ${ total }`,
-			} );
-			$name.id = `library-achievement-close-${ index }`;
-			link( $name, achievement.url );
-			$progress.max = achievement.total;
-			$progress.value = achievement.done;
-			$progress.setAttribute( 'aria-labelledby', $name.id );
-			$progress.setAttribute( 'aria-valuetext', sprintf( strings.progress, done, total ) );
-
-			return $item;
-		}
 	}
 	customElements.define( 'library-achievements', LibraryAchievementsElement );
+
+	/**
+	 * The page of an author: their names, their reading and the completion their books count for,
+	 * then their books, in the order they first came out, loading as the end of the list comes.
+	 */
+	class LibraryAuthorElement extends Brick {
+		#id = 0;
+		#ids = [];
+
+		connect( signal ) {
+			const $completion = this.querySelector( '[data-list="completion"]' );
+			const $items = this.querySelector( '[data-list="books"]' );
+			const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreAuthorBooks() );
+
+			openBooks( $items, signal );
+
+			return [
+				store.select(
+					( state ) => state.author,
+					( author ) => {
+						const pseudonyms = strings.pseudonyms[ pluralRules.select( author.pseudonyms.length ) ] ?? strings.pseudonyms.other;
+						const rating = author.rating && sprintf( strings.averageRating, formatNumber( author.rating ) );
+
+						fill( this, {
+							status: author.error || ( author.loaded && ! author.total ? strings.noBooks : '' ),
+							name: author.name,
+							pseudonyms: author.pseudonyms.length ? sprintf( pseudonyms, listFormat.format( author.pseudonyms ) ) : '',
+							summary: author.name ? join( [ plural( author.total, strings.books ), plural( author.read, strings.booksRead ), rating ] ) : '',
+						} );
+					}
+				),
+				store.select(
+					( state ) => state.author.completion,
+					( completion ) => {
+						$completion.hidden = ! completion;
+
+						if ( ! completion ) {
+							$completion.replaceChildren();
+							return;
+						}
+
+						// The page is the author's: their completion links nowhere.
+						const achievement = { ...completion, url: '', author: 0 };
+
+						$completion.replaceChildren(
+							'total' in achievement ? renderCloseAchievement( achievement, 'library-author-completion' ) : renderAchievement( achievement )
+						);
+					}
+				),
+				store.select(
+					( state ) => state.author.items,
+					( ids ) => {
+						const { books, author } = store.get();
+						// A next page adds to the list, another author starts it again.
+						const start = author.id === this.#id ? this.#ids.length : 0;
+
+						if ( ! start ) {
+							$items.replaceChildren();
+						}
+
+						$items.append(
+							...ids
+								.slice( start )
+								.filter( ( id ) => id in books )
+								.map( ( id ) => {
+									const book = books[ id ];
+									const published = book.published_date && sprintf( strings.publishedIn, book.published_date.slice( 0, 4 ) );
+
+									return renderBook( book, join( [ published, formatState( book ) ] ) );
+								} )
+						);
+						this.#id = author.id;
+						this.#ids = ids;
+						observe();
+					}
+				),
+			];
+		}
+	}
+	customElements.define( 'library-author', LibraryAuthorElement );
 
 	/** The book open, in a modal dialog; closing it, with its button or Escape, closes the book. */
 	class LibraryBookElement extends Brick {
@@ -499,6 +637,7 @@
 			const $dialog = this.querySelector( 'dialog' );
 
 			$dialog.addEventListener( 'close', () => store.closeBook(), { signal } );
+			openAuthors( $dialog, signal );
 
 			return [
 				store.select(
@@ -530,6 +669,7 @@
 				credits: book.credits,
 				title: book.title,
 				status: notKept === book.status ? strings.notKept : '',
+				authors: listFormat.format( book.authors.map( ( author ) => author.name ) ),
 				read,
 				rating: formatRating( book.rating ),
 				isbn: book.isbn,
@@ -539,6 +679,7 @@
 				translators: book.translators,
 				languages: listFormat.format( book.languages ),
 			} );
+			linkAuthors( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
 			$dialog.querySelector( '[data-field="edit"]' ).href = editUrl + book.id;
 		}
 	}

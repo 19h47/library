@@ -1,6 +1,6 @@
 <?php
 /**
- * The reading app page: the books, the diary, the reading idea and the achievements.
+ * The reading app page: the books, the diary, the reading idea, the achievements and the page of an author.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -15,6 +15,7 @@
  * @var string                                        $favicon_url    URL of the icon.
  * @var string                                        $touch_icon_url URL of the home screen icon of an iPhone, which takes no SVG.
  * @var object                                        $labels         Labels of the book post type.
+ * @var string                                        $authors        Name of the authors taxonomy.
  * @var string                                        $languages      Name of the original languages taxonomy.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
@@ -135,6 +136,20 @@
 						</section>
 					</library-achievements>
 				</library-view>
+
+				<library-view name="author" <?php echo Library_App::AUTHOR_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-author>
+						<p class="app-status" data-field="status" hidden></p>
+						<header class="library-author">
+							<h2 class="library-author__name" data-field="name"></h2>
+							<p data-field="pseudonyms"></p>
+							<p data-field="summary"></p>
+						</header>
+						<ul class="app-list__items library-author__completion" data-list="completion" hidden></ul>
+						<ul class="app-list__items" data-list="books"></ul>
+						<div class="library-list__more"></div>
+					</library-author>
+				</library-view>
 			</div>
 
 			<footer class="app-footer">
@@ -168,6 +183,10 @@
 				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
 				<p class="library-book__meta" data-field="status"></p>
 				<dl class="library-book__fields">
+					<div data-row="authors">
+						<dt><?php echo esc_html( $authors ); ?></dt>
+						<dd data-field="authors"></dd>
+					</div>
 					<div data-row="read">
 						<dt><?php esc_html_e( 'Read', 'library' ); ?></dt>
 						<dd data-field="read"></dd>

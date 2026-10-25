@@ -587,6 +587,22 @@ class Library_Achievements {
 	}
 
 	/**
+	 * The completion the books of an author count for, however many are left; none when they are too few.
+	 *
+	 * @param int $author_id Term ID of the author, under their real name.
+	 * @return array|null
+	 */
+	public function get_author_completion( int $author_id ): ?array {
+		foreach ( self::get_completion_groups( Library_Books::all() ) as $kinds ) {
+			if ( isset( $kinds['author'][ $author_id ] ) ) {
+				return self::completion( $kinds );
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Series, authors and collections with enough books to be completed, keyed by their books, then by kind.
 	 *
 	 * The same books count once: for their series, else for their authors together, else for their collection.
@@ -631,7 +647,8 @@ class Library_Achievements {
 	/**
 	 * The completion of the same books, for their first kind: earned once they are all read, else close, with the books read and their total.
 	 *
-	 * Authors with the same books are named together.
+	 * Authors with the same books are named together; the completion of an author gives the term ID of the first one,
+	 * whose page the reading app opens.
 	 *
 	 * @param array<string,array<int|string,array<int,array>>> $kinds Groups of the same books, by kind, then by key.
 	 * @return array
@@ -648,6 +665,7 @@ class Library_Achievements {
 		$total  = count( $group );
 		$read   = array_filter( $group, fn( array $book ) => $book['read'] );
 		$left   = $total - count( $read );
+		$author = 'author' === $kind ? array( 'author' => (int) $key ) : array();
 
 		if ( 'series' === $kind ) {
 			$subject = $group[0]['series'];
@@ -660,7 +678,7 @@ class Library_Achievements {
 		}
 
 		if ( 0 === $left ) {
-			return self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
+			return self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) ) + $author;
 		}
 
 		$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
@@ -677,7 +695,7 @@ class Library_Achievements {
 			),
 			$url,
 			''
-		) + array(
+		) + $author + array(
 			'done'  => count( $read ),
 			'total' => $total,
 		);
