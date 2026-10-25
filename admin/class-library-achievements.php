@@ -552,12 +552,49 @@ class Library_Achievements {
 	/**
 	 * Series, authors and collections read in full, one achievement for each kind, and those with few books left.
 	 *
-	 * The same books count once: for their series, else for their authors together, else for their collection.
-	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
 	 */
 	private function get_completions( array $books ): array {
+		$earned = array();
+		$close  = array();
+
+		foreach ( self::get_completion_groups( $books ) as $kinds ) {
+			$completion = self::completion( $kinds );
+
+			if ( ! isset( $completion['total'] ) ) {
+				$earned[ $completion['kind'] ][] = $completion;
+			} elseif ( $completion['total'] - $completion['done'] <= self::CLOSE_BOOKS ) {
+				$close[] = $completion;
+			}
+		}
+
+		$level_titles = array(
+			/* translators: %s: number of series read in full. */
+			'series'     => fn( int $count ) => sprintf( _n( '%s series finished', '%s series finished', $count, 'library' ), number_format_i18n( $count ) ),
+			/* translators: %s: number of authors read in full. */
+			'author'     => fn( int $count ) => sprintf( _n( '%s complete author', '%s complete authors', $count, 'library' ), number_format_i18n( $count ) ),
+			/* translators: %s: number of collections read in full. */
+			'collection' => fn( int $count ) => sprintf( _n( '%s collection finished', '%s collections finished', $count, 'library' ), number_format_i18n( $count ) ),
+		);
+		$levels       = array();
+
+		foreach ( $earned as $kind => $kind_earned ) {
+			$levels = array_merge( $levels, self::level( $kind_earned, $level_titles[ $kind ] ) );
+		}
+
+		return array( $levels, $close );
+	}
+
+	/**
+	 * Series, authors and collections with enough books to be completed, keyed by their books, then by kind.
+	 *
+	 * The same books count once: for their series, else for their authors together, else for their collection.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<string,array<string,array<int|string,array<int,array>>>>
+	 */
+	private static function get_completion_groups( array $books ): array {
 		$groups = array(
 			'series'     => array(),
 			'author'     => array(),
@@ -578,85 +615,72 @@ class Library_Achievements {
 			}
 		}
 
-		// Groups keyed by their books, then by kind.
 		$completions = array();
 
 		foreach ( $groups as $kind => $kind_groups ) {
 			foreach ( $kind_groups as $key => $group ) {
-				$left = count( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
-
-				if ( count( $group ) >= self::COMPLETION_BOOKS[ $kind ] && $left <= self::CLOSE_BOOKS ) {
+				if ( count( $group ) >= self::COMPLETION_BOOKS[ $kind ] ) {
 					$completions[ implode( ',', array_column( $group, 'id' ) ) ][ $kind ][ $key ] = $group;
 				}
 			}
 		}
 
+		return $completions;
+	}
+
+	/**
+	 * The completion of the same books, for their first kind: earned once they are all read, else close, with the books read and their total.
+	 *
+	 * Authors with the same books are named together.
+	 *
+	 * @param array<string,array<int|string,array<int,array>>> $kinds Groups of the same books, by kind, then by key.
+	 * @return array
+	 */
+	private static function completion( array $kinds ): array {
 		$titles = array(
 			'author'     => __( 'Complete author', 'library' ),
 			'series'     => __( 'Series finished', 'library' ),
 			'collection' => __( 'Collection finished', 'library' ),
 		);
-		$earned = array();
-		$close  = array();
+		$kind   = (string) array_key_first( $kinds );
+		$key    = array_key_first( $kinds[ $kind ] );
+		$group  = $kinds[ $kind ][ $key ];
+		$total  = count( $group );
+		$read   = array_filter( $group, fn( array $book ) => $book['read'] );
+		$left   = $total - count( $read );
 
-		foreach ( $completions as $kinds ) {
-			$kind  = (string) array_key_first( $kinds );
-			$key   = array_key_first( $kinds[ $kind ] );
-			$group = $kinds[ $kind ][ $key ];
-			$total = count( $group );
-			$read  = array_filter( $group, fn( array $book ) => $book['read'] );
-			$left  = $total - count( $read );
-
-			if ( 'series' === $kind ) {
-				$subject = $group[0]['series'];
-				$url     = self::search_url( Library_WP_Query::keyword_search( 'series', $subject ), $group );
-			} else {
-				$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
-				$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
-				$subject  = wp_sprintf( '%l', wp_list_pluck( array_filter( $terms, fn( $term ) => $term instanceof WP_Term ), 'name' ) );
-				$url      = self::term_url( $taxonomy, (int) $key, $group );
-			}
-
-			if ( 0 === $left ) {
-				$earned[ $kind ][] = self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
-				continue;
-			}
-
-			$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
-
-			$close[] = self::achievement(
-				$kind,
-				$titles[ $kind ],
-				$subject,
-				sprintf(
-					/* translators: 1: number of books left, 2: title of a book left. */
-					_n( '%1$s book left: %2$s', '%1$s books left, such as %2$s', $left, 'library' ),
-					number_format_i18n( $left ),
-					$next['full_title']
-				),
-				$url,
-				''
-			) + array(
-				'done'  => count( $read ),
-				'total' => $total,
-			);
+		if ( 'series' === $kind ) {
+			$subject = $group[0]['series'];
+			$url     = self::search_url( Library_WP_Query::keyword_search( 'series', $subject ), $group );
+		} else {
+			$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
+			$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
+			$subject  = wp_sprintf( '%l', wp_list_pluck( array_filter( $terms, fn( $term ) => $term instanceof WP_Term ), 'name' ) );
+			$url      = self::term_url( $taxonomy, (int) $key, $group );
 		}
 
-		$level_titles = array(
-			/* translators: %s: number of series read in full. */
-			'series'     => fn( int $count ) => sprintf( _n( '%s series finished', '%s series finished', $count, 'library' ), number_format_i18n( $count ) ),
-			/* translators: %s: number of authors read in full. */
-			'author'     => fn( int $count ) => sprintf( _n( '%s complete author', '%s complete authors', $count, 'library' ), number_format_i18n( $count ) ),
-			/* translators: %s: number of collections read in full. */
-			'collection' => fn( int $count ) => sprintf( _n( '%s collection finished', '%s collections finished', $count, 'library' ), number_format_i18n( $count ) ),
+		if ( 0 === $left ) {
+			return self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $url, self::last_read_date( $read ) );
+		}
+
+		$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
+
+		return self::achievement(
+			$kind,
+			$titles[ $kind ],
+			$subject,
+			sprintf(
+				/* translators: 1: number of books left, 2: title of a book left. */
+				_n( '%1$s book left: %2$s', '%1$s books left, such as %2$s', $left, 'library' ),
+				number_format_i18n( $left ),
+				$next['full_title']
+			),
+			$url,
+			''
+		) + array(
+			'done'  => count( $read ),
+			'total' => $total,
 		);
-		$levels       = array();
-
-		foreach ( $earned as $kind => $kind_earned ) {
-			$levels = array_merge( $levels, self::level( $kind_earned, $level_titles[ $kind ] ) );
-		}
-
-		return array( $levels, $close );
 	}
 
 	/**
