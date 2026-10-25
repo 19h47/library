@@ -6,7 +6,7 @@
  * @since      2.2.0
  *
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  */
 
 /**
@@ -14,7 +14,7 @@
  *
  * @since      2.2.0
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Books {
@@ -25,6 +25,15 @@ class Library_Books {
 	 * @var array<int,array>|null
 	 */
 	private static ?array $books = null;
+
+	/**
+	 * Statuses of the books: every one but the trash, kept or not.
+	 *
+	 * @return string[]
+	 */
+	public static function statuses(): array {
+		return array_values( array_diff( get_post_stati(), array( 'trash', 'auto-draft' ) ) );
+	}
 
 	/**
 	 * All the books, kept or not.
@@ -44,7 +53,7 @@ class Library_Books {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'book',
-				'post_status' => array_diff( get_post_stati(), array( 'trash', 'auto-draft' ) ),
+				'post_status' => self::statuses(),
 				'numberposts' => -1,
 			)
 		);

@@ -67,7 +67,7 @@ class Library_Dashboard {
 	 * Enqueue the styles of the widgets, shared with the achievements page.
 	 */
 	public static function enqueue_style(): void {
-		[ $url, $version ] = Library_Admin::asset( 'css/library-dashboard.css' );
+		[ $url, $version ] = Library::asset( 'admin/css/library-dashboard.css' );
 
 		wp_enqueue_style( 'library-dashboard', $url, array(), $version );
 	}
