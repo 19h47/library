@@ -422,19 +422,14 @@ library-latest {
 	overflow-wrap: anywhere;
 }
 
-/* The bar at the bottom, as wide as the viewport: the covers of the latest readings, out to its edges, pass under it */
+/*
+ * The bar at the bottom: its background goes across the viewport, as the covers of the latest readings
+ * pass under it out to its edges; its line stays as wide as the content. The shadow spreads the background,
+ * the clip keeps it to the height of the bar.
+ */
 @media screen {
 	.app-footer {
-		isolation: isolate;
-	}
-
-	.app-footer::before {
-		content: "";
-		position: absolute;
-		z-index: -1;
-		/* Over the border of the bar, then from an edge of the content to the one of the viewport */
-		inset: -1px calc(50% - 50vw) 0;
-		border-top: 1px solid var(--app-line-soft);
-		background: var(--app-bg);
+		box-shadow: 0 0 0 100vmax var(--app-bg);
+		clip-path: inset(0 -100vmax);
 	}
 }
