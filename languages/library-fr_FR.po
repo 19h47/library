@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-25T07:57:23+00:00\n"
+"POT-Creation-Date: 2026-10-25T08:12:11+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1221,43 +1221,43 @@ msgstr "Langue non mise à jour."
 msgid "Languages deleted."
 msgstr "Langues supprimées."
 
-#: admin/class-library-wp-query.php:177
+#: admin/class-library-wp-query.php:178
 msgid "the series, by its exact name"
 msgstr "la série, par son nom exact"
 
-#: admin/class-library-wp-query.php:178
+#: admin/class-library-wp-query.php:179
 msgid "an author, with their pseudonyms"
 msgstr "un auteur, avec ses pseudonymes"
 
-#: admin/class-library-wp-query.php:179
+#: admin/class-library-wp-query.php:180
 msgid "a publisher, with its collections"
 msgstr "un éditeur, avec ses collections"
 
-#: admin/class-library-wp-query.php:180
+#: admin/class-library-wp-query.php:181
 msgid "a translator"
 msgstr "un traducteur"
 
-#: admin/class-library-wp-query.php:181
+#: admin/class-library-wp-query.php:182
 msgid "the original language, by its code or the start of its name"
 msgstr "la langue originale, par son code ou le début de son nom"
 
-#: admin/class-library-wp-query.php:182
+#: admin/class-library-wp-query.php:183
 msgid "the ISBN, with or without hyphens"
 msgstr "l’ISBN, avec ou sans tirets"
 
-#: admin/class-library-wp-query.php:183
+#: admin/class-library-wp-query.php:184
 msgid "read or not, or read in a year or a month, rereads included"
 msgstr "lu ou non, ou lu une année ou un mois, relectures comprises"
 
-#: admin/class-library-wp-query.php:184
+#: admin/class-library-wp-query.php:185
 msgid "rated 9 or more; a half point with a dot: 8.5"
 msgstr "noté 9 ou plus ; un demi-point avec un point : 8.5"
 
-#: admin/class-library-wp-query.php:196
+#: admin/class-library-wp-query.php:197
 msgid "Search"
 msgstr "Recherche"
 
-#: admin/class-library-wp-query.php:198
+#: admin/class-library-wp-query.php:199
 msgid ""
 "The search finds the text in the title, subtitle, series, ISBN, ISSN, volume "
 "number, translators, authors, publishers, collections and original "
@@ -1268,7 +1268,7 @@ msgstr ""
 "collections et les langues originales. Les mots-clés la limitent à un champ :"
 
 #. translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces.
-#: admin/class-library-wp-query.php:202
+#: admin/class-library-wp-query.php:203
 msgid ""
 "Keywords add up, with the rest of the search: %1$s. A comma gives a choice, "
 "%2$s, a hyphen excludes, %3$s, and quotes keep the spaces of a value, %4$s."
