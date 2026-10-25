@@ -62,7 +62,8 @@ class Library_WP_Query {
 	 * @return void
 	 */
 	public function parse_keywords( WP_Query $query ): void {
-		$search = (string) $query->get( 's' );
+		// The search of the books list comes slashed from the request; core only unslashes it when it searches.
+		$search = stripslashes( (string) $query->get( 's' ) );
 
 		if ( '' === $search || ! in_array( 'book', (array) $query->get( 'post_type' ), true ) ) {
 			return;
@@ -98,7 +99,7 @@ class Library_WP_Query {
 			return;
 		}
 
-		$query->set( 's', trim( (string) preg_replace( '/\s+/', ' ', (string) $text ) ) );
+		$query->set( 's', wp_slash( trim( (string) preg_replace( '/\s+/', ' ', (string) $text ) ) ) );
 		$query->set( 'library_keywords', $keywords );
 		$query->set( 'library_search', $search );
 	}
