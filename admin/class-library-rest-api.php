@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: reading stats, readings, reading idea, achievements, authors and the credits of a book.
+ * REST API: a book added, reading stats, readings, reading idea, achievements, authors and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -57,6 +57,58 @@ class Library_Rest_API {
 	 * @return void
 	 */
 	public function register_rest_routes() {
+		register_rest_route(
+			'library/v1',
+			'books',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'add_book' ),
+				'permission_callback' => fn() => current_user_can( get_post_type_object( 'book' )->cap->publish_posts ),
+				'args'                => array(
+					'title'      => array(
+						'description'       => __( 'Title of the book.', 'library' ),
+						'type'              => 'string',
+						'required'          => true,
+						'pattern'           => '\\S',
+						// A sanitize callback leaves out the check against the schema, unless it is asked for.
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'authors'    => array(
+						'description' => __( 'Names of the authors or pseudonyms; a name not found adds an author.', 'library' ),
+						'type'        => 'array',
+						'items'       => array( 'type' => 'string' ),
+						'default'     => array(),
+					),
+					'publisher'  => array(
+						'description' => __( 'Name of the publisher; a name not found adds a publisher.', 'library' ),
+						'type'        => 'string',
+						'default'     => '',
+					),
+					'collection' => array(
+						'description' => __( 'Name of the collection, under the publisher; a name not found adds a collection.', 'library' ),
+						'type'        => 'string',
+						'default'     => '',
+					),
+					'language'   => array(
+						'description' => __( 'Term ID of the original language.', 'library' ),
+						'type'        => 'integer',
+						'default'     => 0,
+					),
+					'cover'      => array(
+						'description' => __( 'ID of the image uploaded as the cover.', 'library' ),
+						'type'        => 'integer',
+						'default'     => 0,
+					),
+					'meta'       => array(
+						'description' => __( 'Book meta, such as isbn, as the book form saves them.', 'library' ),
+						'type'        => 'object',
+						'default'     => array(),
+					),
+				),
+			),
+		);
+
 		register_rest_route(
 			'library/v1',
 			'books/reading-stats',
@@ -136,6 +188,60 @@ class Library_Rest_API {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Add a book, as the book form does: the names of its authors go through their tag box rule, its slug is built
+	 * from its title and ISBN, its meta are saved by Library_Meta. A book in a collection has the collection only,
+	 * its publisher being the parent; the cover becomes an image of the book.
+	 *
+	 * The book is linked, and embeddable with _embed.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function add_book( WP_REST_Request $request ) {
+		// The names first, so that a book is never left half added.
+		$authors       = Library_Taxonomies::sanitize_author_names( 'library-author', implode( ',', $request['authors'] ) );
+		$publisher_id  = Library_Taxonomies::get_term_id( 'library-publisher', $request['publisher'] );
+		$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library-publisher', $request['collection'], $publisher_id ) : 0;
+		$publishers    = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
+		$meta          = (array) $request['meta'];
+		// The slug comes from the fields of the form the post is saved with, such as the ISBN.
+		$post = array(
+			'post_type'   => 'book',
+			'post_status' => 'publish',
+			'post_title'  => $request['title'],
+		) + array_intersect_key( $meta, array_flip( array( 'isbn', 'issn', 'volume_number' ) ) );
+
+		$book_id = wp_insert_post( wp_slash( $post ), true );
+
+		if ( is_wp_error( $book_id ) ) {
+			return $book_id;
+		}
+
+		Library_Meta::save( $book_id, $meta );
+		wp_set_object_terms( $book_id, $authors, 'library-author' );
+		wp_set_object_terms( $book_id, $publishers, 'library-publisher' );
+		wp_set_object_terms( $book_id, array_filter( array( $request['language'] ) ), 'library-language' );
+
+		$cover_id = $request['cover'];
+
+		if ( $cover_id && wp_attachment_is_image( $cover_id ) && current_user_can( 'edit_post', $cover_id ) ) {
+			wp_update_post(
+				array(
+					'ID'          => $cover_id,
+					'post_parent' => $book_id,
+				)
+			);
+			set_post_thumbnail( $book_id, $cover_id );
+		}
+
+		$response = rest_ensure_response( array( 'id' => $book_id ) );
+		$response->set_status( 201 );
+		$response->add_link( 'book', rest_url( 'wp/v2/books/' . $book_id ), array( 'embeddable' => true ) );
+
+		return $response;
 	}
 
 	/**

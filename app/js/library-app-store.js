@@ -4,7 +4,8 @@
  * Created in the head, before the first paint, so the document takes its theme from it.
  * The data come from the REST API through wp.apiFetch, which handles the root URL and the nonce;
  * the store turns the books into plain text once, so no brick parses what the API returns.
- * Each view loads its data the first time it shows. A book saved loads every view again, but the one shown.
+ * Each view loads its data the first time it shows. A book saved loads every view again, but the one shown;
+ * a book added loads them all again.
  *
  * @package    Library
  * @subpackage Library/app
@@ -14,7 +15,7 @@
 	'use strict';
 
 	const STORAGE_KEY = 'library-app';
-	// Kept between visits. The query, the view and the author open are in the URL only, as ?q=, ?view= and ?author=.
+	// Kept between visits. The query, the view, the author and the book open are in the URL only, as ?q=, ?view=, ?author= and ?book=.
 	const SAVED = [ 'theme', 'themeChosen', 'read' ];
 	// The views of the navigation; the page of an author is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements' ];
@@ -144,15 +145,15 @@
 		const view = new URL( url ).searchParams.get( 'view' );
 
 		if ( AUTHOR_VIEW === view ) {
-			return authorOf( url ) ? view : 'books';
+			return idOf( url, 'author' ) ? view : 'books';
 		}
 
 		return VIEWS.includes( view ) ? view : 'books';
 	}
 
-	/** The author of a URL, as a term ID, or 0. */
-	function authorOf( url ) {
-		const id = Number( new URL( url ).searchParams.get( 'author' ) );
+	/** The ID a URL gives as `name`, such as the author of ?author= or the book of ?book=, or 0. */
+	function idOf( url, name ) {
+		const id = Number( new URL( url ).searchParams.get( name ) );
 
 		return Number.isInteger( id ) && id > 0 ? id : 0;
 	}
@@ -235,6 +236,16 @@
 		return { loading: false, error: '' };
 	}
 
+	/** The form of a book to add, and its saving. */
+	function adding() {
+		return { open: false, loading: false, error: '' };
+	}
+
+	/** The names the form of a book to add suggests, as terms: authors and pseudonyms, publishers and collections, original languages. */
+	function terms() {
+		return { authors: [], publishers: [], languages: [], loading: false, loaded: false };
+	}
+
 	/**
 	 * The author open, under their real name: `books` all their book IDs, in order,
 	 * `items` the ones loaded so far, a page at a time; `completion` is an achievement.
@@ -247,7 +258,7 @@
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
 	 * `search` the books found, `diary` the readings, `idea` the reading idea, `author` the books of the author open, `book` the book open,
-	 * `saving` the saving of its reading.
+	 * `saving` the saving of its reading, `adding` the form of a book to add, `terms` the names it suggests.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
@@ -266,6 +277,8 @@
 				author: author(),
 				book: 0,
 				saving: saving(),
+				adding: adding(),
+				terms: terms(),
 			} );
 
 			darkQuery.addEventListener( 'change', ( { matches } ) => {
@@ -274,8 +287,11 @@
 				);
 			} );
 
-			// Back and forward between the views.
-			addEventListener( 'popstate', () => this.#show( viewOf( location.href ), authorOf( location.href ) ) );
+			// Back and forward between the views; they open and close the book too.
+			addEventListener( 'popstate', () => {
+				this.#show( viewOf( location.href ), idOf( location.href, 'author' ) );
+				this.#showBook( idOf( location.href, 'book' ) );
+			} );
 
 			this.subscribe( ( state, previous ) => {
 				if ( [ ...SAVED, 'query' ].some( ( key ) => state[ key ] !== previous[ key ] ) ) {
@@ -283,7 +299,8 @@
 				}
 			} );
 
-			this.#show( this.get().view, authorOf( location.href ) );
+			this.#show( this.get().view, idOf( location.href, 'author' ) );
+			this.#showBook( idOf( location.href, 'book' ) );
 			this.#fetchStats();
 		}
 
@@ -302,25 +319,30 @@
 			}
 
 			url.searchParams.delete( 'author' );
+			url.searchParams.delete( 'book' );
 			history.pushState( null, '', url );
 			this.#show( view );
 			scrollToTop();
 		}
 
-		/** Opens the page of an author, at its top, with its URL in the history: the book open closes. */
+		/**
+		 * Opens the page of an author, at its top, with its URL in the history. The book open closes, its URL
+		 * staying in the history: going back opens it again. On the page of the author already, it just closes.
+		 */
 		openAuthor( id ) {
 			const { view, author: current } = this.get();
 
-			this.closeBook();
-
 			if ( AUTHOR_VIEW === view && id === current.id ) {
+				this.closeBook();
 				return;
 			}
 
 			const url = new URL( location.href );
 
+			this.#hideBook();
 			url.searchParams.set( 'view', AUTHOR_VIEW );
 			url.searchParams.set( 'author', id );
+			url.searchParams.delete( 'book' );
 			history.pushState( null, '', url );
 			this.#show( AUTHOR_VIEW, id );
 			scrollToTop();
@@ -375,12 +397,84 @@
 			}
 		}
 
+		/** Opens a book, with its URL in the history: going back closes it. */
 		openBook( id ) {
-			this.set( ( state ) => ( id in state.books ? { ...state, book: id, saving: saving() } : state ) );
+			const { books, book } = this.get();
+
+			if ( ! ( id in books ) || id === book ) {
+				return;
+			}
+
+			const url = new URL( location.href );
+
+			url.searchParams.set( 'book', id );
+			history.pushState( { book: id }, '', url );
+			this.set( ( state ) => ( { ...state, book: id, saving: saving() } ) );
 		}
 
+		/** Closes the book open: back in the history when it was opened there, else its URL loses it, so that the app stays. */
 		closeBook() {
-			this.set( ( state ) => ( state.book ? { ...state, book: 0, saving: saving() } : state ) );
+			const { book } = this.get();
+
+			if ( ! book ) {
+				return;
+			}
+
+			this.#hideBook();
+
+			if ( book === history.state?.book ) {
+				history.back();
+				return;
+			}
+
+			const url = new URL( location.href );
+
+			url.searchParams.delete( 'book' );
+			history.replaceState( history.state, '', url );
+		}
+
+		/** Opens the form of a book to add; the names it suggests load the first time. */
+		openAdd() {
+			this.set( ( state ) => ( { ...state, adding: { ...adding(), open: true } } ) );
+
+			const { loaded, loading } = this.get().terms;
+
+			if ( ! loaded && ! loading ) {
+				this.#fetchTerms();
+			}
+		}
+
+		closeAdd() {
+			this.set( ( state ) => ( state.adding.open ? { ...state, adding: adding() } : state ) );
+		}
+
+		/**
+		 * Adds a book, the image of its cover uploaded first, then opens it, for its reading. Every view loads
+		 * again, so the book comes first among the books, and so do the names to suggest, with the ones it added.
+		 */
+		async addBook( { cover, ...book } ) {
+			this.#update( 'adding', () => ( { loading: true, error: '' } ) );
+
+			try {
+				let coverId = 0;
+
+				if ( cover ) {
+					const body = new FormData();
+
+					body.append( 'file', cover );
+					body.append( 'title', book.title );
+					coverId = ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
+				}
+
+				const { id } = await apiFetch( { path: '/library/v1/books', method: 'POST', data: { ...book, cover: coverId } } );
+
+				await this.#fetchBooks( [ id ] );
+				this.closeAdd();
+				this.#reloadAll();
+				this.openBook( id );
+			} catch ( error ) {
+				this.#update( 'adding', () => ( { loading: false, error: errorMessage( error ) } ) );
+			}
 		}
 
 		/**
@@ -439,6 +533,30 @@
 				theme: 'dark' === state.theme ? 'light' : 'dark',
 				themeChosen: true,
 			} ) );
+		}
+
+		/** The book open closes, the history left as it is. */
+		#hideBook() {
+			this.set( ( state ) => ( state.book ? { ...state, book: 0, saving: saving() } : state ) );
+		}
+
+		/** Shows the book `id` of the URL, loaded first when it is not yet; 0 closes the book open. */
+		async #showBook( id ) {
+			if ( ! id ) {
+				this.#hideBook();
+				return;
+			}
+
+			try {
+				await this.#fetchBooks( [ id ] );
+			} catch {
+				return;
+			}
+
+			// The URL may have changed meanwhile, and a book not found does not open.
+			if ( id === idOf( location.href, 'book' ) && id in this.get().books ) {
+				this.set( ( state ) => ( { ...state, book: id, saving: saving() } ) );
+			}
 		}
 
 		/** Shows a view, and loads its data the first time; the page of an author starts again for another author `id`. */
@@ -511,6 +629,23 @@
 			if ( AUTHOR_VIEW === view ) {
 				this.#fetchAuthor();
 			}
+		}
+
+		/** After a book was added: the stats, every view and the names to suggest load again; the view shown at once. */
+		#reloadAll() {
+			const { view, author: current } = this.get();
+
+			this.set( ( state ) => ( {
+				...state,
+				search: pages(),
+				diary: pages(),
+				idea: idea(),
+				achievements: achievements(),
+				author: author( current.id ),
+				terms: terms(),
+			} ) );
+			this.#fetchStats();
+			this.#show( view, current.id );
 		}
 
 		/** Sets a part of the state, such as `search`, from its current value. */
@@ -764,6 +899,29 @@
 				this.#update( 'achievements', () => ( { earned, close, loading: false, loaded: true } ) );
 			} catch ( error ) {
 				this.#update( 'achievements', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+			}
+		}
+
+		/** Every author and pseudonym, publisher and collection, and original language: apiFetch loads all their pages. */
+		async #fetchTerms() {
+			this.#update( 'terms', () => ( { loading: true } ) );
+
+			try {
+				const taxonomies = [ 'library-author', 'library-publisher', 'library-language' ];
+				const [ authors, publishers, languages ] = await Promise.all(
+					taxonomies.map( ( taxonomy ) => apiFetch( { path: `/wp/v2/${ taxonomy }?per_page=-1&_fields=id,name,parent` } ) )
+				);
+				const toTerm = ( { id, name, parent } ) => ( { id, name: text( name ), parent } );
+
+				this.#update( 'terms', () => ( {
+					authors: authors.map( toTerm ),
+					publishers: publishers.map( toTerm ),
+					languages: languages.map( toTerm ),
+					loading: false,
+					loaded: true,
+				} ) );
+			} catch {
+				this.#update( 'terms', () => ( { loading: false } ) );
 			}
 		}
 

@@ -92,8 +92,9 @@ class Library_App {
 		[ $favicon_url ]    = Library::asset( 'app/favicon.svg' );
 		[ $touch_icon_url ] = Library::asset( 'app/apple-touch-icon.png' );
 		$labels             = get_post_type_object( 'book' )->labels;
-		$authors            = get_taxonomy( 'library-author' )->labels->name;
-		$languages          = get_taxonomy( 'library-language' )->labels->name;
+		$author_labels      = get_taxonomy( 'library-author' )->labels;
+		$publisher_labels   = get_taxonomy( 'library-publisher' )->labels;
+		$language_labels    = get_taxonomy( 'library-language' )->labels;
 		$ratings            = $this->get_ratings();
 		$views              = $this->get_views( $labels->name );
 
@@ -192,6 +193,8 @@ class Library_App {
 	 * Register the styles and scripts the page prints: the store in the head, before the first paint, the bricks after the markup.
 	 *
 	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
+	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
+	 * all, so that the import map gives them all, with versioned URLs that an update loads again.
 	 *
 	 * @return void
 	 */
@@ -206,8 +209,20 @@ class Library_App {
 		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch' ), $store_version, false );
 		wp_localize_script( 'library-app-store', 'libraryApp', $this->get_config() );
 
-		[ $script_url, $script_version ] = Library::asset( 'app/js/library-app.js' );
-		wp_register_script( 'library-app', $script_url, array( 'library-app-store', 'wp-i18n' ), $script_version, true );
+		$shared = array();
+
+		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/lib/*.js' ) as $file ) {
+			$name              = basename( $file, '.js' );
+			[ $url, $version ] = Library::asset( "app/js/lib/$name.js" );
+			$shared[]          = "library-app/$name";
+			wp_register_script_module( "library-app/$name", $url, array(), $version );
+		}
+
+		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' ) as $file ) {
+			$name              = basename( $file, '.js' );
+			[ $url, $version ] = Library::asset( "app/js/bricks/$name.js" );
+			wp_enqueue_script_module( "library-app/$name", $url, $shared, $version );
+		}
 	}
 
 	/**

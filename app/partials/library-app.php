@@ -1,6 +1,7 @@
 <?php
 /**
- * The reading app page: the books with the home above them, the diary, the reading idea, the achievements and the page of an author.
+ * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the page of an author,
+ * and the forms of a book open and of a book to add.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -15,8 +16,9 @@
  * @var string                                        $favicon_url    URL of the icon.
  * @var string                                        $touch_icon_url URL of the home screen icon of an iPhone, which takes no SVG.
  * @var object                                        $labels         Labels of the book post type.
- * @var string                                        $authors        Name of the authors taxonomy.
- * @var string                                        $languages      Name of the original languages taxonomy.
+ * @var object                                        $author_labels    Labels of the authors taxonomy.
+ * @var object                                        $publisher_labels Labels of the publishers taxonomy.
+ * @var object                                        $language_labels  Labels of the original languages taxonomy.
  * @var array<string,string>                          $ratings        Ratings a book can take, by value, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
@@ -35,7 +37,13 @@
 		<link rel="icon" type="image/svg+xml" href="<?php echo esc_url( $favicon_url ); ?>">
 		<link rel="apple-touch-icon" href="<?php echo esc_url( $touch_icon_url ); ?>">
 		<?php wp_print_styles( 'library-app' ); ?>
-		<?php wp_print_scripts( 'library-app-store' ); ?>
+		<?php wp_print_scripts( array( 'library-app-store', 'wp-i18n' ) ); ?>
+		<?php
+		// The bricks are script modules, run once the page is read: the import map first, then the modules and their preloads.
+		wp_script_modules()->print_import_map();
+		wp_script_modules()->print_enqueued_script_modules();
+		wp_script_modules()->print_script_module_preloads();
+		?>
 	</head>
 	<body>
 		<main class="app-page" id="top">
@@ -191,6 +199,13 @@
 		</main>
 
 		<div class="app-toolbar">
+			<library-add-toggle>
+				<button
+					type="button"
+					aria-label="<?php echo esc_attr( $labels->add_new_item ); ?>"
+					title="<?php echo esc_attr( $labels->add_new_item ); ?>"
+				>+</button>
+			</library-add-toggle>
 			<a
 				href="<?php echo esc_url( admin_url() ); ?>"
 				aria-label="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
@@ -243,13 +258,13 @@
 						</fieldset>
 						<p class="app-status" data-field="error" role="alert" hidden></p>
 						<p>
-							<button class="app-pill library-reading__save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+							<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
 						</p>
 					</form>
 				</library-reading>
 				<dl class="library-book__fields">
 					<div data-row="authors">
-						<dt><?php echo esc_html( $authors ); ?></dt>
+						<dt><?php echo esc_html( $author_labels->name ); ?></dt>
 						<dd data-field="authors"></dd>
 					</div>
 					<div data-row="isbn">
@@ -273,7 +288,7 @@
 						<dd data-field="translators"></dd>
 					</div>
 					<div data-row="languages">
-						<dt><?php echo esc_html( $languages ); ?></dt>
+						<dt><?php echo esc_html( $language_labels->name ); ?></dt>
 						<dd data-field="languages"></dd>
 					</div>
 				</dl>
@@ -282,6 +297,106 @@
 				</p>
 			</dialog>
 		</library-book>
+
+		<library-add>
+			<dialog class="library-book library-add" aria-labelledby="library-add-heading">
+				<form class="app-toolbar" method="dialog">
+					<button type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+				</form>
+				<h2 class="library-book__title" id="library-add-heading"><?php echo esc_html( $labels->add_new_item ); ?></h2>
+				<form class="library-add__form">
+					<div class="library-add__cover">
+						<img class="library-add__preview" alt="" hidden>
+						<label class="app-pill">
+							<input class="sr-only" type="file" name="cover" accept="image/*">
+							<?php esc_html_e( 'Add a cover', 'library' ); ?>
+						</label>
+					</div>
+					<p class="library-field">
+						<label for="library-add-title"><?php esc_html_e( 'Title', 'library' ); ?></label>
+						<input id="library-add-title" name="title" required autocomplete="off">
+					</p>
+					<fieldset class="library-field">
+						<legend><?php echo esc_html( $author_labels->name ); ?></legend>
+						<ul class="library-add__authors" data-list="authors"></ul>
+						<p>
+							<button class="app-pill" type="button" data-action="add-author"><?php esc_html_e( 'Add an author', 'library' ); ?></button>
+						</p>
+					</fieldset>
+					<p class="library-field">
+						<label for="library-add-publisher"><?php echo esc_html( $publisher_labels->singular_name ); ?></label>
+						<input id="library-add-publisher" name="publisher" list="library-add-publishers" autocomplete="off">
+					</p>
+					<p class="library-field">
+						<label for="library-add-collection"><?php esc_html_e( 'Collection', 'library' ); ?></label>
+						<input id="library-add-collection" name="collection" list="library-add-collections" autocomplete="off" disabled>
+					</p>
+					<p class="library-field">
+						<label for="library-add-isbn"><?php esc_html_e( 'ISBN', 'library' ); ?></label>
+						<input id="library-add-isbn" name="isbn" data-meta pattern="<?php echo esc_attr( Library_Meta::ISBN_PATTERN ); ?>" inputmode="numeric" autocomplete="off">
+					</p>
+					<details class="library-add__details">
+						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
+						<p class="library-field">
+							<label for="library-add-subtitle"><?php esc_html_e( 'Subtitle', 'library' ); ?></label>
+							<input id="library-add-subtitle" name="subtitle" data-meta autocomplete="off">
+						</p>
+						<p class="library-field">
+							<label for="library-add-series"><?php esc_html_e( 'Series', 'library' ); ?></label>
+							<input id="library-add-series" name="series" data-meta autocomplete="off" aria-describedby="library-add-series-description">
+							<small id="library-add-series-description"><?php esc_html_e( 'Separate series with commas', 'library' ); ?></small>
+						</p>
+						<p class="library-field">
+							<label for="library-add-volume-number"><?php esc_html_e( 'Volume Number', 'library' ); ?></label>
+							<input id="library-add-volume-number" name="volume_number" data-meta autocomplete="off">
+						</p>
+						<p class="library-field">
+							<label for="library-add-issn"><?php esc_html_e( 'ISSN', 'library' ); ?></label>
+							<input id="library-add-issn" name="issn" data-meta pattern="<?php echo esc_attr( Library_Meta::ISSN_PATTERN ); ?>" autocomplete="off">
+						</p>
+						<p class="library-field">
+							<label for="library-add-pages"><?php esc_html_e( 'Pages', 'library' ); ?></label>
+							<input id="library-add-pages" name="pages" data-meta type="number" min="1" inputmode="numeric">
+						</p>
+						<p class="library-field">
+							<label for="library-add-edition-date"><?php esc_html_e( 'Edition date', 'library' ); ?></label>
+							<input id="library-add-edition-date" name="edition_date" data-meta type="date">
+						</p>
+						<p class="library-field">
+							<label for="library-add-published-date"><?php esc_html_e( 'First published', 'library' ); ?></label>
+							<input
+								id="library-add-published-date"
+								name="published_date"
+								data-meta
+								inputmode="numeric"
+								pattern="\d{4}(-\d{2}(-\d{2})?)?"
+								autocomplete="off"
+								aria-describedby="library-add-published-date-description"
+							>
+							<small id="library-add-published-date-description"><?php esc_html_e( 'Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ); ?></small>
+						</p>
+						<p class="library-field">
+							<label for="library-add-translators"><?php esc_html_e( 'Translators', 'library' ); ?></label>
+							<input id="library-add-translators" name="translators" data-meta autocomplete="off" aria-describedby="library-add-translators-description">
+							<small id="library-add-translators-description"><?php esc_html_e( 'Separate translators with commas', 'library' ); ?></small>
+						</p>
+						<p class="library-field">
+							<label for="library-add-language"><?php echo esc_html( $language_labels->singular_name ); ?></label>
+							<select id="library-add-language" name="language">
+								<option value=""><?php echo esc_html( $language_labels->no_terms ); ?></option>
+							</select>
+						</p>
+					</details>
+					<p class="app-status" data-field="error" role="alert" hidden></p>
+					<p>
+						<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+					</p>
+				</form>
+				<datalist id="library-add-authors"></datalist>
+				<datalist id="library-add-publishers"></datalist>
+				<datalist id="library-add-collections"></datalist>
+			</dialog>
+		</library-add>
 
 		<template id="library-item">
 			<li class="app-item library-item">
@@ -318,6 +433,19 @@
 			</li>
 		</template>
 
+		<template id="library-add-author">
+			<li class="library-add__author">
+				<input name="author" list="library-add-authors" autocomplete="off" aria-label="<?php echo esc_attr( $author_labels->singular_name ); ?>">
+				<button
+					class="app-pill"
+					type="button"
+					data-action="remove"
+					aria-label="<?php esc_attr_e( 'Remove this author', 'library' ); ?>"
+					title="<?php esc_attr_e( 'Remove this author', 'library' ); ?>"
+				>×</button>
+			</li>
+		</template>
+
 		<template id="library-month">
 			<section class="library-section">
 				<h2 class="library-title">
@@ -347,6 +475,5 @@
 			</li>
 		</template>
 
-		<?php wp_print_scripts( 'library-app' ); ?>
 	</body>
 </html>

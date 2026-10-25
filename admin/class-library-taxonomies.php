@@ -142,6 +142,9 @@ class Library_Taxonomies {
 	 * @return int[]
 	 */
 	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+		// The helpers of the tag box are admin ones: a book added through the REST API needs them too.
+		require_once ABSPATH . 'wp-admin/includes/post.php';
+
 		if ( is_array( $terms ) ) {
 			return taxonomy_meta_box_sanitize_cb_checkboxes( $taxonomy, $terms );
 		}
@@ -164,6 +167,32 @@ class Library_Taxonomies {
 		return $term_ids;
 	}
 
+
+	/**
+	 * The term of a name under a parent, such as a collection under its publisher: the existing one, else a new one.
+	 *
+	 * The names of authors go through sanitize_author_names() instead, as in their tag box.
+	 *
+	 * @param string $taxonomy  Taxonomy name.
+	 * @param string $name      Name of the term.
+	 * @param int    $parent_id ID of its parent, 0 for a top-level term.
+	 * @return int Term ID, or 0 for an empty name or a term that could not be added.
+	 */
+	public static function get_term_id( string $taxonomy, string $name, int $parent_id = 0 ): int {
+		$name = trim( $name );
+
+		if ( '' === $name ) {
+			return 0;
+		}
+
+		$term = term_exists( $name, $taxonomy, $parent_id );
+
+		if ( ! $term ) {
+			$term = wp_insert_term( $name, $taxonomy, array( 'parent' => $parent_id ) );
+		}
+
+		return is_array( $term ) ? (int) $term['term_id'] : 0;
+	}
 
 	/**
 	 * Register publisher
