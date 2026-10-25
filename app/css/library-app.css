@@ -116,6 +116,7 @@ button.app-pill:disabled {
 	display: block;
 	width: var(--library-cover-width);
 	height: auto;
+	border: 1px solid var(--app-line-soft);
 	border-radius: calc(var(--app-radius) / 2);
 }
 
@@ -227,8 +228,10 @@ button.app-pill:disabled {
 .library-book__cover {
 	display: block;
 	width: auto;
-	max-width: 50%;
+	height: auto;
+	max-width: 100%;
 	max-height: 40dvh;
+	border: 1px solid var(--app-line-soft);
 	border-radius: calc(var(--app-radius) / 2);
 }
 
@@ -408,6 +411,7 @@ button.app-pill:disabled {
 	display: block;
 	width: auto;
 	height: var(--library-cover-height);
+	border: 1px solid var(--app-line-soft);
 	border-radius: calc(var(--app-radius) / 2);
 }
 
@@ -484,6 +488,7 @@ library-latest {
 	display: block;
 	width: auto;
 	height: var(--library-cover-height);
+	border: 1px solid var(--app-line-soft);
 	border-radius: calc(var(--app-radius) / 2);
 }
 
