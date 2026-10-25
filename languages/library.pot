@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T20:49:24+00:00\n"
+"POT-Creation-Date: 2026-10-25T21:03:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: library\n"
@@ -935,11 +935,11 @@ msgid "Book meta, such as isbn, as the book form saves them."
 msgstr ""
 
 #: admin/class-library-rest-api.php:131
-msgid "Page of the readings."
+msgid "Page of the months."
 msgstr ""
 
 #: admin/class-library-rest-api.php:137
-msgid "Number of readings per page."
+msgid "Number of months per page."
 msgstr ""
 
 #: admin/class-library-rest-api.php:156
@@ -950,7 +950,7 @@ msgstr ""
 msgid "Term ID of the author, or of one of their pseudonyms."
 msgstr ""
 
-#: admin/class-library-rest-api.php:349
+#: admin/class-library-rest-api.php:364
 #: admin/partials/library-dashboard-idea.php:22
 msgid "Every book has been read."
 msgstr ""
