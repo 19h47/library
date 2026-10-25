@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 4.3.0
+Stable tag: 4.3.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,9 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 4.3.1 =
+* Fixed: a keyword with a value in quotes, such as `series:"SAS"`, found no book in the books list, which receives the search with its quotes slashed. The links of the series and translators of the achievements, which quote their value, found none either.
 
 = 4.3.0 =
 * Search keywords: `series:`, `author:`, `publisher:`, `translator:`, `language:`, `isbn:`, `read:` and `rating:` narrow a book search to a field, such as `series:SAS` for the books of the series SAS only. They add up with the rest of the search; a comma gives a choice, a hyphen excludes and quotes keep the spaces of a value. The Help tab of the books list explains them.
