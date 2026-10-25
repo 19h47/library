@@ -2,7 +2,7 @@
  * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
  *
  * The views and their navigation, the book cards with their cover, the reading idea,
- * the stats and the achievements, the page of an author, and the dialog of a book.
+ * the stats and the achievements, the page of an author, and the dialog of a book with its reading.
  */
 
 :root {
@@ -273,4 +273,67 @@ button.app-pill:disabled {
 
 .library-author__completion {
 	margin-bottom: var(--app-u2);
+}
+
+/* The reading of the book open: its pills, its read dates when it is read, and the button that saves them */
+.library-reading {
+	display: grid;
+	gap: var(--app-u1);
+	margin-top: var(--app-u1);
+	padding-top: var(--app-u1);
+	border-top: 1px solid var(--app-line-soft);
+}
+
+.library-reading__pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-gap);
+}
+
+.library-reading__dates {
+	display: grid;
+	gap: var(--app-gap);
+	min-inline-size: 0;
+	border: 0;
+}
+
+.library-reading__dates legend {
+	margin-bottom: var(--app-gap);
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	text-transform: uppercase;
+}
+
+.library-reading__dates ul {
+	list-style: none;
+	display: grid;
+	gap: var(--app-gap);
+}
+
+.library-reading__date {
+	display: flex;
+	align-items: center;
+	gap: var(--app-gap);
+}
+
+.library-reading__date input {
+	flex: 1;
+	min-width: 0;
+	padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
+	border: 1px solid var(--app-line-soft);
+	border-radius: var(--app-radius);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+}
+
+.library-reading__save {
+	color: var(--app-text);
+	border-color: var(--app-line);
+	background: var(--app-fill);
+}
+
+.library-reading__save:disabled {
+	opacity: var(--app-control-opacity);
 }

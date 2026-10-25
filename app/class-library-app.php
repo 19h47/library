@@ -94,6 +94,7 @@ class Library_App {
 		$labels             = get_post_type_object( 'book' )->labels;
 		$authors            = get_taxonomy( 'library-author' )->labels->name;
 		$languages          = get_taxonomy( 'library-language' )->labels->name;
+		$ratings            = $this->get_ratings();
 		$views              = $this->get_views( $labels->name );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
@@ -129,6 +130,25 @@ class Library_App {
 		}
 
 		return $views;
+	}
+
+	/**
+	 * Ratings a book can take, by value, with their label: the ones its meta is registered with, from 1 to 10 by half points.
+	 *
+	 * @return array<string,string>
+	 */
+	private function get_ratings(): array {
+		$schema  = get_registered_meta_keys( 'post', 'book' )['rating']['show_in_rest']['schema'];
+		$ratings = array();
+
+		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
+			$decimals = fmod( $rating, 1 ) ? 1 : 0;
+
+			/* translators: %s: rating, e.g. 7.5. */
+			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), number_format_i18n( $rating, $decimals ) );
+		}
+
+		return $ratings;
 	}
 
 	/**
@@ -250,8 +270,6 @@ class Library_App {
 				'read'          => __( 'Read', 'library' ),
 				'readAgain'     => __( 'Read again', 'library' ),
 				'toRead'        => __( 'To read', 'library' ),
-				'yes'           => __( 'Yes', 'library' ),
-				'no'            => __( 'No', 'library' ),
 				'notKept'       => _x( 'Not kept', 'book status', 'library' ),
 				'loading'       => __( 'Loading…', 'library' ),
 				'noBooks'       => __( 'No book found.', 'library' ),

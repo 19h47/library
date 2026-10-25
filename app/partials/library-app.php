@@ -17,6 +17,7 @@
  * @var object                                        $labels         Labels of the book post type.
  * @var string                                        $authors        Name of the authors taxonomy.
  * @var string                                        $languages      Name of the original languages taxonomy.
+ * @var array<string,string>                          $ratings        Ratings a book can take, by value, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
  */
@@ -181,19 +182,44 @@
 				<img class="library-book__cover" data-field="cover" alt="" hidden>
 				<p class="library-book__meta" data-field="credits"></p>
 				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
-				<p class="library-book__meta" data-field="status"></p>
+				<library-reading>
+					<form class="library-reading">
+						<div class="library-reading__pills">
+							<label class="app-pill">
+								<input type="checkbox" name="read">
+								<?php esc_html_e( 'Read', 'library' ); ?>
+							</label>
+							<label class="app-pill">
+								<span class="sr-only"><?php esc_html_e( 'Rating', 'library' ); ?></span>
+								<select name="rating">
+									<option value=""><?php esc_html_e( 'No rating', 'library' ); ?></option>
+									<?php foreach ( $ratings as $value => $label ) : ?>
+										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</label>
+							<label class="app-pill">
+								<input type="checkbox" name="not_kept">
+								<?php echo esc_html_x( 'Not kept', 'book status', 'library' ); ?>
+							</label>
+						</div>
+						<fieldset class="library-reading__dates" hidden disabled>
+							<legend><?php esc_html_e( 'Read dates', 'library' ); ?></legend>
+							<ul></ul>
+							<p>
+								<button class="app-pill" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
+							</p>
+						</fieldset>
+						<p class="app-status" data-field="error" role="alert" hidden></p>
+						<p>
+							<button class="app-pill library-reading__save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+						</p>
+					</form>
+				</library-reading>
 				<dl class="library-book__fields">
 					<div data-row="authors">
 						<dt><?php echo esc_html( $authors ); ?></dt>
 						<dd data-field="authors"></dd>
-					</div>
-					<div data-row="read">
-						<dt><?php esc_html_e( 'Read', 'library' ); ?></dt>
-						<dd data-field="read"></dd>
-					</div>
-					<div data-row="rating">
-						<dt><?php esc_html_e( 'Rating', 'library' ); ?></dt>
-						<dd data-field="rating"></dd>
 					</div>
 					<div data-row="isbn">
 						<dt><?php esc_html_e( 'ISBN', 'library' ); ?></dt>
@@ -236,6 +262,19 @@
 					</h3>
 					<p class="app-item__meta" data-field="state"></p>
 				</div>
+			</li>
+		</template>
+
+		<template id="library-read-date">
+			<li class="library-reading__date">
+				<input type="date" name="read_date" required aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+				<button
+					class="app-pill"
+					type="button"
+					data-action="remove"
+					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
+					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
+				>×</button>
 			</li>
 		</template>
 

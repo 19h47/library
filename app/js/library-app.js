@@ -134,15 +134,49 @@
 		return document.getElementById( id ).content.firstElementChild.cloneNode( true );
 	}
 
-	/** The card of a book, which opens it; `state` is the line under its title. */
+	/** Today on the device, as a read date: Y-m-d. */
+	function today() {
+		const now = new Date();
+
+		return [ now.getFullYear(), now.getMonth() + 1, now.getDate() ].map( ( part ) => part.toString().padStart( 2, '0' ) ).join( '-' );
+	}
+
+	/** Fills the card of a book; `state` is the line under its title. */
+	function fillBook( $item, book, state ) {
+		fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+		fill( $item, { credits: book.credits, title: book.title, state } );
+	}
+
+	/** The card of a book, which opens it. */
 	function renderBook( book, state ) {
 		const $item = clone( 'library-item' );
 
 		$item.dataset.id = book.id;
-		fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-		fill( $item, { credits: book.credits, title: book.title, state } );
+		fillBook( $item, book, state );
 
 		return $item;
+	}
+
+	/**
+	 * Fills again the cards of `$root` whose book changed, such as a book saved; `stateOf` gives the line
+	 * of a card. Returns the unsubscribe function.
+	 */
+	function followBooks( $root, stateOf ) {
+		let previous = store.get().books;
+
+		return store.select(
+			( state ) => state.books,
+			( books ) => {
+				$root.querySelectorAll( '.library-item' ).forEach( ( $item ) => {
+					const book = books[ $item.dataset.id ];
+
+					if ( book !== previous[ $item.dataset.id ] ) {
+						fillBook( $item, book, stateOf( book, $item ) );
+					}
+				} );
+				previous = books;
+			}
+		);
 	}
 
 	/** Opens the book of a card clicked in `$root`. */
@@ -377,7 +411,7 @@
 	}
 	customElements.define( 'library-status', LibraryStatusElement );
 
-	/** The books found, loading the next page as the end of the list comes. */
+	/** The books found, loading the next ones as the end of the list comes. */
 	class LibraryListElement extends Brick {
 		#ids = [];
 
@@ -388,29 +422,43 @@
 			openBooks( $items, signal );
 
 			return [
+				followBooks( $items, formatState ),
 				store.select(
 					( state ) => state.search.items,
 					( ids ) => {
 						const { books } = store.get();
-						// A next page adds to the list, a new search starts it again.
-						const start = this.#ids.length && ids[ 0 ] === this.#ids[ 0 ] ? this.#ids.length : 0;
+						const found = new Set( ids );
+						const kept = this.#ids.filter( ( id ) => found.has( id ) );
+						// The list goes on from the books still found: a book no longer found leaves it, the next ones add to it.
+						const goesOn = kept.every( ( id, index ) => id === ids[ index ] );
 
-						if ( ! start ) {
+						if ( goesOn ) {
+							$items.querySelectorAll( '.library-item' ).forEach( ( $item ) => {
+								if ( ! found.has( Number( $item.dataset.id ) ) ) {
+									this.#remove( $item );
+								}
+							} );
+						} else {
 							$items.replaceChildren();
 						}
 
-						$items.append(
-							...ids.slice( start ).map( ( id ) => {
-								const book = books[ id ];
-
-								return renderBook( book, formatState( book ) );
-							} )
-						);
+						$items.append( ...ids.slice( goesOn ? kept.length : 0 ).map( ( id ) => renderBook( books[ id ], formatState( books[ id ] ) ) ) );
 						this.#ids = ids;
 						observe();
 					}
 				),
 			];
+		}
+
+		/** Removes a card; the focus it holds, back from the book closed, goes to the next card, or else the previous one. */
+		#remove( $item ) {
+			const $sibling = $item.nextElementSibling ?? $item.previousElementSibling;
+
+			if ( $item.contains( document.activeElement ) ) {
+				$sibling?.querySelector( '.library-item__button' ).focus();
+			}
+
+			$item.remove();
 		}
 	}
 	customElements.define( 'library-list', LibraryListElement );
@@ -424,6 +472,7 @@
 			openBooks( $months, signal );
 
 			return [
+				followBooks( $months, ( book, $item ) => this.#state( book, $item.dataset.date ) ),
 				store.select(
 					( { diary } ) => diary.error || ( diary.loaded && ! diary.total ? strings.noBooks : '' ),
 					( message ) => fill( this, { status: message } )
@@ -431,11 +480,31 @@
 				store.select(
 					( state ) => state.diary.items,
 					( readings ) => {
+						const $cards = [ ...$months.querySelectorAll( '.library-item' ) ];
+						const $focused = $cards.find( ( $item ) => $item.contains( document.activeElement ) );
+
 						$months.replaceChildren( ...this.#renderMonths( readings ) );
+
+						if ( $focused ) {
+							this.#refocus( $focused, $cards.indexOf( $focused ) );
+						}
+
 						observe();
 					}
 				),
 			];
+		}
+
+		/**
+		 * Gives the focus back to the reading of the card `$focused` once the months are drawn again, as the next page comes
+		 * or a book saved changes its readings; a reading removed leaves it to the one at its place.
+		 */
+		#refocus( $focused, index ) {
+			const { id, date } = $focused.dataset;
+			const $cards = [ ...this.querySelectorAll( '.library-item' ) ];
+			const $card = $cards.find( ( $item ) => id === $item.dataset.id && date === $item.dataset.date ) ?? $cards[ Math.min( index, $cards.length - 1 ) ];
+
+			$card?.querySelector( '.library-item__button' ).focus();
 		}
 
 		/** A section per month; the count of the last one shows once its readings are all loaded. */
@@ -458,18 +527,23 @@
 				} );
 				$month.querySelector( 'ul' ).append(
 					...entries.map( ( { date, id } ) => {
-						const book = books[ id ];
-						const isFirstReading = date === [ ...book.read_date ].sort()[ 0 ];
+						const $item = renderBook( books[ id ], this.#state( books[ id ], date ) );
 
-						return renderBook(
-							book,
-							join( [ formatDate( date, dayFormat ), ! isFirstReading && strings.readAgain, ...formatDetails( book ) ] )
-						);
+						$item.dataset.date = date;
+
+						return $item;
 					} )
 				);
 
 				return $month;
 			} );
+		}
+
+		/** The line of a reading: its day, whether the book was read again then, its rating and whether it is kept. */
+		#state( book, date ) {
+			const isFirstReading = date === book.read_date[ 0 ];
+
+			return join( [ formatDate( date, dayFormat ), ! isFirstReading && strings.readAgain, ...formatDetails( book ) ] );
 		}
 	}
 	customElements.define( 'library-diary', LibraryDiaryElement );
@@ -484,6 +558,7 @@
 			$next.addEventListener( 'click', () => store.nextIdea(), { signal } );
 
 			return [
+				followBooks( $book, formatState ),
 				store.select(
 					( state ) => state.idea,
 					( idea ) => {
@@ -567,6 +642,7 @@
 			openBooks( $items, signal );
 
 			return [
+				followBooks( $items, ( book ) => this.#state( book ) ),
 				store.select(
 					( state ) => state.author,
 					( author ) => {
@@ -614,12 +690,7 @@
 							...ids
 								.slice( start )
 								.filter( ( id ) => id in books )
-								.map( ( id ) => {
-									const book = books[ id ];
-									const published = book.published_date && sprintf( strings.publishedIn, book.published_date.slice( 0, 4 ) );
-
-									return renderBook( book, join( [ published, formatState( book ) ] ) );
-								} )
+								.map( ( id ) => renderBook( books[ id ], this.#state( books[ id ] ) ) )
 						);
 						this.#id = author.id;
 						this.#ids = ids;
@@ -627,6 +698,13 @@
 					}
 				),
 			];
+		}
+
+		/** The line of a book: the year it first came out, as the list follows it, then its state. */
+		#state( book ) {
+			const published = book.published_date && sprintf( strings.publishedIn, book.published_date.slice( 0, 4 ) );
+
+			return join( [ published, formatState( book ) ] );
 		}
 	}
 	customElements.define( 'library-author', LibraryAuthorElement );
@@ -657,21 +735,11 @@
 		}
 
 		#render( $dialog, book ) {
-			const readDates = book.read_date ?? [];
-			let read = book.read ? strings.yes : strings.no;
-
-			if ( book.read && readDates.length ) {
-				read = listFormat.format( readDates.map( ( date ) => formatDate( date ) ) );
-			}
-
 			fillCover( $dialog.querySelector( '[data-field="cover"]' ), book.cover );
 			fill( $dialog, {
 				credits: book.credits,
 				title: book.title,
-				status: notKept === book.status ? strings.notKept : '',
 				authors: listFormat.format( book.authors.map( ( author ) => author.name ) ),
-				read,
-				rating: formatRating( book.rating ),
 				isbn: book.isbn,
 				pages: book.pages ? formatNumber( book.pages ) : '',
 				edition_date: book.edition_date ? formatDate( book.edition_date ) : '',
@@ -684,6 +752,109 @@
 		}
 	}
 	customElements.define( 'library-book', LibraryBookElement );
+
+	/**
+	 * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is kept.
+	 * Saving closes the book; closing it drops what was not saved.
+	 */
+	class LibraryReadingElement extends Brick {
+		connect( signal ) {
+			const $form = this.querySelector( 'form' );
+			const { read: $read, rating: $rating, not_kept: $notKept } = $form.elements;
+			const $dates = this.querySelector( '.library-reading__dates' );
+			const $list = $dates.querySelector( 'ul' );
+			const $add = $dates.querySelector( '[data-action="add"]' );
+			const $submit = $form.querySelector( '[type="submit"]' );
+
+			const addDate = ( date ) => {
+				const $item = clone( 'library-read-date' );
+				const $input = $item.querySelector( 'input' );
+
+				$input.value = date;
+				$input.max = today();
+				$list.append( $item );
+
+				return $input;
+			};
+
+			// Unread, the book has no read dates: they are left out of the form.
+			const showDates = () => {
+				$dates.disabled = ! $read.checked;
+				$dates.hidden = ! $read.checked;
+			};
+
+			$read.addEventListener(
+				'change',
+				() => {
+					// Read today, unless a date is there already.
+					if ( $read.checked && ! $list.children.length ) {
+						addDate( today() );
+					}
+
+					showDates();
+				},
+				{ signal }
+			);
+
+			$add.addEventListener( 'click', () => addDate( today() ).focus(), { signal } );
+
+			$list.addEventListener(
+				'click',
+				( event ) => {
+					const $remove = event.target.closest( '[data-action="remove"]' );
+
+					if ( $remove ) {
+						$remove.closest( 'li' ).remove();
+						$add.focus();
+					}
+				},
+				{ signal }
+			);
+
+			$form.addEventListener(
+				'submit',
+				( event ) => {
+					const data = new FormData( $form );
+					const rating = data.get( 'rating' );
+
+					event.preventDefault();
+					store.saveBook( {
+						read: data.has( 'read' ),
+						readDates: data.getAll( 'read_date' ),
+						rating: rating ? Number( rating ) : null,
+						kept: ! data.has( 'not_kept' ),
+					} );
+				},
+				{ signal }
+			);
+
+			return [
+				store.select(
+					( state ) => state.books[ state.book ] ?? null,
+					( book ) => {
+						if ( ! book ) {
+							return;
+						}
+
+						$read.checked = book.read;
+						$list.replaceChildren();
+						book.read_date.forEach( ( date ) => addDate( date ) );
+						showDates();
+						$rating.value = ( book.rating || '' ).toString();
+						$notKept.checked = notKept === book.status;
+					}
+				),
+				store.select(
+					( state ) => state.saving,
+					( saving ) => {
+						$submit.disabled = saving.loading;
+						fill( this, { error: saving.error } );
+					}
+				),
+			];
+		}
+	}
+	customElements.define( 'library-reading', LibraryReadingElement );
 
 	class LibraryProgressElement extends Brick {
 		connect() {
