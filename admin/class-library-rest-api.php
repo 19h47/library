@@ -254,22 +254,19 @@ class Library_Rest_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_readings( WP_REST_Request $request ): WP_REST_Response {
-		global $wpdb;
-
 		$per_page = $request['per_page'];
-		$readings = "FROM {$wpdb->postmeta} AS m INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books}";
-		$total    = (int) Library_Dashboard::select( "SELECT COUNT( DISTINCT LEFT( m.meta_value, 7 ) ) AS total $readings" )[0]->total;
-		$months   = wp_list_pluck( Library_Dashboard::select( "SELECT DISTINCT LEFT( m.meta_value, 7 ) AS month $readings ORDER BY month DESC LIMIT %d OFFSET %d", $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
+		$total    = (int) Library_Dashboard::select( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
+		$months   = wp_list_pluck( Library_Dashboard::select( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
 		$rows     = $months ? Library_Dashboard::select(
-			"SELECT DISTINCT m.post_id, m.meta_value $readings AND LEFT( m.meta_value, 7 ) IN ( " . implode( ', ', array_fill( 0, count( $months ), '%s' ) ) . ' ) ORDER BY m.meta_value DESC, m.post_id DESC',
+			'SELECT r.book, r.date FROM {readings} WHERE LEFT( r.date, 7 ) IN ( ' . implode( ', ', array_fill( 0, count( $months ), '%s' ) ) . ' ) ORDER BY r.date DESC, r.book DESC',
 			...$months
 		) : array();
 		$by_month = array_fill_keys( $months, array() );
 
 		foreach ( $rows as $row ) {
-			$by_month[ substr( $row->meta_value, 0, 7 ) ][] = array(
-				'date' => $row->meta_value,
-				'book' => (int) $row->post_id,
+			$by_month[ substr( $row->date, 0, 7 ) ][] = array(
+				'date' => $row->date,
+				'book' => (int) $row->book,
 			);
 		}
 
