@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 4.2.0
+Stable tag: 4.3.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,7 +26,7 @@ Library adds a **Book** custom post type and three taxonomies (**Authors**, **Pu
 * **Reading state** – A book is read or not, and has a read date per reading: a book read again keeps the date of each reading. The read dates are optional. Setting a read date marks the book as read and marking it as unread clears its dates; marking it as read without a date in the form or the books list sets today.
 * **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
 * **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date (the latest one, with the number of readings of a book read again) and rating; the Publishers column shows the publisher of a collection. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, latest read date and rating.
-* **Search** – Book searches also match the subtitle, series, ISBN, ISSN, volume number, translators, authors, publishers, collections and original languages. A real name finds the books of its pseudonyms, a publisher the books of its collections.
+* **Search** – Book searches also match the subtitle, series, ISBN, ISSN, volume number, translators, authors, publishers, collections and original languages. A real name finds the books of its pseudonyms, a publisher the books of its collections. Keywords narrow a search to a field: `series:SAS` (the exact name), `author:`, `publisher:`, `translator:`, `language:` (code or start of the name), `isbn:` (with or without hyphens), `read:yes`, `read:no`, `read:2024` or `read:2024-05`, and `rating:9` (9 or more), listed in the Help tab of the books list.
 * **Dashboard** – Six widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
     * **Reading** – Books read, this year against the same date last year (a book read again counts once per reading here and in the charts), the number expected by the end of the year, the pages read this year over the books with their number of pages, and books read by year and by month.
     * **Ratings** – Number of rated books, average, distribution and average rating by year read.
@@ -88,6 +88,10 @@ The “Read” checkbox, in the books list or the Information box, is the readin
 
 In the Information box, fill in the empty field under the read dates: each date is a reading, and a field emptied removes its reading. The books list shows the latest one, with the number of readings; quick edit changes the latest one. A book read again counts once per reading in the Reading widget, and is no longer suggested to read again until 10 years after its latest reading.
 
+= How do I search a series or an author only? =
+
+With a keyword followed by a colon and the value: `series:SAS` finds the books of the series SAS only, not every title with “sas”. The other keywords are `author:`, `publisher:`, `translator:`, `language:`, `isbn:`, `read:` (`yes`, `no`, a year or a month, rereads included) and `rating:` (9 for 9 or more, 8.5 with a dot). Keywords add up, with the rest of the search: `series:SAS Malko`. A comma gives a choice, `language:it,ja`; a hyphen excludes, `publisher:Gallimard -publisher:Folio`; quotes keep the spaces of a value, `series:"Le Cycle de Dune"`. A word followed by a colon that is not a keyword stays in the search. Keywords also work in the REST API, `?search=series:SAS`.
+
 = How do I handle pseudonyms? =
 
 Add the pseudonym as a child of the author's real name in **Books > Authors**. Filtering the books list by the real name then includes the books signed with the pseudonym, and the Library dashboard widget counts them for the real name.
@@ -113,6 +117,10 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, which keeps its position, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 4.3.0 =
+* Search keywords: `series:`, `author:`, `publisher:`, `translator:`, `language:`, `isbn:`, `read:` and `rating:` narrow a book search to a field, such as `series:SAS` for the books of the series SAS only. They add up with the rest of the search; a comma gives a choice, a hyphen excludes and quotes keep the spaces of a value. The Help tab of the books list explains them.
+* Achievements: the links of the series and the translators search with a keyword, so they lead to their books only.
 
 = 4.2.0 =
 * Achievements: books read and pages read are one achievement each, at the highest number reached, instead of one per number. The next number shows among those close to be earned, with its progress, such as 825 / 1,000 books read; for the pages, once a book read has its number of pages.
