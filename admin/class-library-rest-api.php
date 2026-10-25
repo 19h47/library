@@ -134,8 +134,8 @@ class Library_Rest_API {
 
 		$per_page = $request['per_page'];
 		$readings = "FROM {$wpdb->postmeta} AS m INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books}";
-		$total    = (int) Library_Dashboard::select( "SELECT COUNT(*) AS total $readings" )[0]->total;
-		$rows     = Library_Dashboard::select( "SELECT m.post_id, m.meta_value $readings ORDER BY m.meta_value DESC, m.meta_id DESC LIMIT %d OFFSET %d", $per_page, ( $request['page'] - 1 ) * $per_page );
+		$total    = (int) Library_Dashboard::select( "SELECT COUNT( DISTINCT m.post_id, m.meta_value ) AS total $readings" )[0]->total;
+		$rows     = Library_Dashboard::select( "SELECT DISTINCT m.post_id, m.meta_value $readings ORDER BY m.meta_value DESC, m.post_id DESC LIMIT %d OFFSET %d", $per_page, ( $request['page'] - 1 ) * $per_page );
 
 		$response = rest_ensure_response(
 			array_map(
