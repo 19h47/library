@@ -1,14 +1,18 @@
 /**
  * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
  *
- * The views and their navigation, the book cards with their cover, the reading idea,
- * the stats and the achievements, and the dialog of a book.
+ * The views and their navigation, the home, the book cards with their cover, the reading idea,
+ * the stats and the achievements, the page of an author, and the dialog of a book with its reading.
  */
 
 :root {
 	/* A card with its cover, until it renders */
 	--app-item-size: 10rem;
 	--library-cover-width: calc(var(--app-u3) * var(--app-phi));
+	/* A cover in the row of the latest readings */
+	--library-cover-height: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
+	/* Room for the focus outline in a box that scrolls */
+	--library-focus-room: calc(var(--app-focus-outline-offset) * 2);
 }
 
 /* The views, as pills; the current one stands out */
@@ -33,7 +37,12 @@
 	background: var(--app-fill);
 }
 
-library-view {
+/* Custom elements are inline: these hold blocks */
+library-view,
+library-home,
+library-latest,
+library-idea,
+library-close {
 	display: block;
 }
 
@@ -48,6 +57,16 @@ library-view {
 	gap: var(--app-gap);
 	margin-bottom: var(--app-u1);
 	font-size: var(--app-u1);
+}
+
+/* A link at the end of a title, to the view it sums up */
+.library-title__link {
+	margin-inline-start: auto;
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	font-weight: normal;
+	text-transform: uppercase;
 }
 
 .library-title__count {
@@ -251,4 +270,166 @@ button.app-pill:disabled {
 	font-family: var(--app-font-ui);
 	font-size: var(--app-font-small);
 	text-transform: uppercase;
+}
+
+/* The page of an author: their names and their reading, then the completion their books count for, then their books */
+.library-author {
+	display: grid;
+	gap: var(--app-gap-small);
+	margin-bottom: var(--app-u2);
+}
+
+.library-author__name {
+	font-size: calc(var(--app-u1) * 1.25);
+	line-height: var(--app-line-height);
+	letter-spacing: -0.02em;
+	overflow-wrap: anywhere;
+}
+
+.library-author p {
+	color: var(--app-text-muted);
+}
+
+.library-author__completion {
+	margin-bottom: var(--app-u2);
+}
+
+/* The reading of the book open: its pills, its read dates when it is read, and the button that saves them */
+.library-reading {
+	display: grid;
+	gap: var(--app-u1);
+	margin-top: var(--app-u1);
+	padding-top: var(--app-u1);
+	border-top: 1px solid var(--app-line-soft);
+}
+
+.library-reading__pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-gap);
+}
+
+.library-reading__dates {
+	display: grid;
+	gap: var(--app-gap);
+	min-inline-size: 0;
+	border: 0;
+}
+
+.library-reading__dates legend {
+	margin-bottom: var(--app-gap);
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	text-transform: uppercase;
+}
+
+.library-reading__dates ul {
+	list-style: none;
+	display: grid;
+	gap: var(--app-gap);
+}
+
+.library-reading__date {
+	display: flex;
+	align-items: center;
+	gap: var(--app-gap);
+}
+
+.library-reading__date input {
+	flex: 1;
+	min-width: 0;
+	padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
+	border: 1px solid var(--app-line-soft);
+	border-radius: var(--app-radius);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+}
+
+.library-reading__save {
+	color: var(--app-text);
+	border-color: var(--app-line);
+	background: var(--app-fill);
+}
+
+.library-reading__save:disabled {
+	opacity: var(--app-control-opacity);
+}
+
+/* The latest readings: a container, whose width is the one of the content */
+library-latest {
+	container-type: inline-size;
+}
+
+/*
+ * The covers of the latest readings, in a row that scrolls sideways across the viewport:
+ * the first cover starts where the content does, the last one ends where it does.
+ */
+.library-covers {
+	/*
+	 * From an edge of the content to the one of the viewport: the page is centered, and has no scrollbar.
+	 * A length rather than a percentage, which scroll-padding would take from the row itself.
+	 */
+	--library-bleed: calc(50vw - 50cqi);
+
+	list-style: none;
+	display: flex;
+	gap: var(--app-gap);
+	margin-block: calc(-1 * var(--library-focus-room));
+	margin-inline: calc(-1 * var(--library-bleed));
+	padding-block: var(--library-focus-room);
+	padding-inline: var(--library-bleed);
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-padding-inline-start: var(--library-bleed);
+	scrollbar-width: none;
+}
+
+.library-cover {
+	flex: none;
+	scroll-snap-align: start;
+}
+
+.library-cover__button {
+	display: block;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.library-cover__image {
+	display: block;
+	width: auto;
+	height: var(--library-cover-height);
+	border-radius: calc(var(--app-radius) / 2);
+}
+
+/* A book without cover: its title from its start, in a frame of the size of a cover */
+.library-cover__title {
+	display: block;
+	width: calc(var(--library-cover-height) / var(--app-phi));
+	height: var(--library-cover-height);
+	padding: var(--app-gap);
+	border: 1px solid var(--app-line-soft);
+	border-radius: calc(var(--app-radius) / 2);
+	font-size: var(--app-font-small);
+	text-align: start;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
+/*
+ * The bar at the bottom: its background goes across the viewport, as the covers of the latest readings
+ * pass under it out to its edges; its line stays as wide as the content. The shadow spreads the background,
+ * the clip keeps it to the height of the bar.
+ */
+@media screen {
+	.app-footer {
+		box-shadow: 0 0 0 100vmax var(--app-bg);
+		clip-path: inset(0 -100vmax);
+	}
 }

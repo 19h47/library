@@ -1,6 +1,6 @@
 <?php
 /**
- * The reading app page: the books, the diary, the reading idea and the achievements.
+ * The reading app page: the books with the home above them, the diary, the reading idea, the achievements and the page of an author.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -15,7 +15,9 @@
  * @var string                                        $favicon_url    URL of the icon.
  * @var string                                        $touch_icon_url URL of the home screen icon of an iPhone, which takes no SVG.
  * @var object                                        $labels         Labels of the book post type.
+ * @var string                                        $authors        Name of the authors taxonomy.
  * @var string                                        $languages      Name of the original languages taxonomy.
+ * @var array<string,string>                          $ratings        Ratings a book can take, by value, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
  */
@@ -84,6 +86,37 @@
 						</library-read-filter>
 					</div>
 
+					<library-home>
+						<library-year class="library-year">
+							<p data-field="yearToDate"></p>
+							<p data-field="projection"></p>
+						</library-year>
+						<library-latest class="library-section" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Latest readings', 'library' ); ?>
+								<a class="library-title__link" href="<?php echo esc_url( $views['diary']['url'] ); ?>" data-view="diary"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+							</h3>
+							<ul class="library-covers"></ul>
+						</library-latest>
+						<library-idea class="library-section" hidden>
+							<h3 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
+							<p class="app-status" data-field="status" hidden></p>
+							<p class="library-idea__reason" data-field="reason"></p>
+							<ul class="app-list__items" data-field="book"></ul>
+							<p class="library-idea__actions">
+								<button class="app-pill" type="button"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+							</p>
+						</library-idea>
+						<library-close class="library-section" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Close to it', 'library' ); ?>
+								<a class="library-title__link" href="<?php echo esc_url( $views['achievements']['url'] ); ?>" data-view="achievements"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+							</h3>
+							<ul class="app-list__items"></ul>
+						</library-close>
+						<h3 class="library-title library-section"><?php echo esc_html( $labels->name ); ?></h3>
+					</library-home>
+
 					<library-status class="app-status" hidden></library-status>
 					<library-list>
 						<ul class="app-list__items"></ul>
@@ -135,6 +168,20 @@
 						</section>
 					</library-achievements>
 				</library-view>
+
+				<library-view name="author" <?php echo Library_App::AUTHOR_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-author>
+						<p class="app-status" data-field="status" hidden></p>
+						<header class="library-author">
+							<h2 class="library-author__name" data-field="name"></h2>
+							<p data-field="pseudonyms"></p>
+							<p data-field="summary"></p>
+						</header>
+						<ul class="app-list__items library-author__completion" data-list="completion" hidden></ul>
+						<ul class="app-list__items" data-list="books"></ul>
+						<div class="library-list__more"></div>
+					</library-author>
+				</library-view>
 			</div>
 
 			<footer class="app-footer">
@@ -166,15 +213,44 @@
 				<img class="library-book__cover" data-field="cover" alt="" hidden>
 				<p class="library-book__meta" data-field="credits"></p>
 				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
-				<p class="library-book__meta" data-field="status"></p>
+				<library-reading>
+					<form class="library-reading">
+						<div class="library-reading__pills">
+							<label class="app-pill">
+								<input type="checkbox" name="read">
+								<?php esc_html_e( 'Read', 'library' ); ?>
+							</label>
+							<label class="app-pill">
+								<span class="sr-only"><?php esc_html_e( 'Rating', 'library' ); ?></span>
+								<select name="rating">
+									<option value=""><?php esc_html_e( 'No rating', 'library' ); ?></option>
+									<?php foreach ( $ratings as $value => $label ) : ?>
+										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</label>
+							<label class="app-pill">
+								<input type="checkbox" name="not_kept">
+								<?php echo esc_html_x( 'Not kept', 'book status', 'library' ); ?>
+							</label>
+						</div>
+						<fieldset class="library-reading__dates" hidden disabled>
+							<legend><?php esc_html_e( 'Read dates', 'library' ); ?></legend>
+							<ul></ul>
+							<p>
+								<button class="app-pill" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
+							</p>
+						</fieldset>
+						<p class="app-status" data-field="error" role="alert" hidden></p>
+						<p>
+							<button class="app-pill library-reading__save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+						</p>
+					</form>
+				</library-reading>
 				<dl class="library-book__fields">
-					<div data-row="read">
-						<dt><?php esc_html_e( 'Read', 'library' ); ?></dt>
-						<dd data-field="read"></dd>
-					</div>
-					<div data-row="rating">
-						<dt><?php esc_html_e( 'Rating', 'library' ); ?></dt>
-						<dd data-field="rating"></dd>
+					<div data-row="authors">
+						<dt><?php echo esc_html( $authors ); ?></dt>
+						<dd data-field="authors"></dd>
 					</div>
 					<div data-row="isbn">
 						<dt><?php esc_html_e( 'ISBN', 'library' ); ?></dt>
@@ -217,6 +293,28 @@
 					</h3>
 					<p class="app-item__meta" data-field="state"></p>
 				</div>
+			</li>
+		</template>
+
+		<template id="library-read-date">
+			<li class="library-reading__date">
+				<input type="date" name="read_date" required aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+				<button
+					class="app-pill"
+					type="button"
+					data-action="remove"
+					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
+					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
+				>×</button>
+			</li>
+		</template>
+
+		<template id="library-cover">
+			<li class="library-cover">
+				<button class="library-cover__button" type="button">
+					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
+					<span class="library-cover__title" data-field="title"></span>
+				</button>
 			</li>
 		</template>
 

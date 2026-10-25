@@ -4,7 +4,7 @@
  * Created in the head, before the first paint, so the document takes its theme from it.
  * The data come from the REST API through wp.apiFetch, which handles the root URL and the nonce;
  * the store turns the books into plain text once, so no brick parses what the API returns.
- * Each view loads its data the first time it shows.
+ * Each view loads its data the first time it shows. A book saved loads every view again, but the one shown.
  *
  * @package    Library
  * @subpackage Library/app
@@ -14,9 +14,13 @@
 	'use strict';
 
 	const STORAGE_KEY = 'library-app';
-	// Kept between visits. The query and the view are in the URL only, as ?q= and ?view=.
+	// Kept between visits. The query, the view and the author open are in the URL only, as ?q=, ?view= and ?author=.
 	const SAVED = [ 'theme', 'themeChosen', 'read' ];
+	// The views of the navigation; the page of an author is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements' ];
+	const AUTHOR_VIEW = 'author';
+	// The home, the books view without a query, shows the latest readings, the reading idea and the achievements close to be earned.
+	const HOME = [ 'diary', 'idea', 'achievements' ];
 	const PER_PAGE = 24;
 	// A search waits for a pause in the typing.
 	const SEARCH_DELAY = 250;
@@ -103,19 +107,27 @@
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
 	}
 
-	/** A book of the API as the app shows it: plain text, its cover and its original languages. */
+	/** A book of the API as the app shows it: plain text, its read dates in order, its cover with its size, its authors and its original languages. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 		const sizes = media?.media_details?.sizes ?? {};
+		const size = sizes.medium ?? sizes.full;
 		const terms = ( item._embedded?.[ 'wp:term' ] ?? [] ).flat();
 
 		return {
 			...item.meta,
+			// A date stored empty comes back as null.
+			read_date: [ ...new Set( item.meta.read_date.filter( Boolean ) ) ].sort(),
 			id: item.id,
 			title: text( item.title.rendered ),
 			credits: text( item.credits ),
 			status: item.status,
-			cover: ( sizes.medium ?? sizes.full )?.source_url ?? '',
+			// Its size gives the image its place before it loads.
+			cover: size ? { url: size.source_url, width: size.width, height: size.height } : null,
+			// As named on the book: a pseudonym opens the page of the author too.
+			authors: terms
+				.filter( ( term ) => 'library-author' === term.taxonomy )
+				.map( ( term ) => ( { id: term.id, name: text( term.name ) } ) ),
 			languages: terms
 				.filter( ( term ) => 'library-language' === term.taxonomy )
 				.map( ( term ) => text( term.name ) ),
@@ -127,11 +139,22 @@
 		return error?.message ?? config.strings.error;
 	}
 
-	/** The view of a URL, the books by default. */
+	/** The view of a URL, the books by default; the page of an author needs an author. */
 	function viewOf( url ) {
 		const view = new URL( url ).searchParams.get( 'view' );
 
+		if ( AUTHOR_VIEW === view ) {
+			return authorOf( url ) ? view : 'books';
+		}
+
 		return VIEWS.includes( view ) ? view : 'books';
+	}
+
+	/** The author of a URL, as a term ID, or 0. */
+	function authorOf( url ) {
+		const id = Number( new URL( url ).searchParams.get( 'author' ) );
+
+		return Number.isInteger( id ) && id > 0 ? id : 0;
 	}
 
 	/** What localStorage and the URL hold, checked: anything else falls back. */
@@ -156,6 +179,21 @@
 			// "", "yes" or "no": the search keyword read:.
 			read: [ 'yes', 'no' ].includes( saved?.read ) ? saved.read : '',
 		};
+	}
+
+	/** Goes to the top of a view opened, at once: the smooth scroll of the page is for its links, such as "Top". */
+	function scrollToTop() {
+		scrollTo( { top: 0, behavior: 'instant' } );
+	}
+
+	/** Whether the home shows: the books view, without a query. */
+	function isHome( state ) {
+		return 'books' === state.view && ! state.query.trim();
+	}
+
+	/** The search sent to the API: the query, and the read state as the keyword read:. */
+	function searchOf( { query, read } ) {
+		return [ query.trim(), read && `read:${ read }` ].filter( Boolean ).join( ' ' );
 	}
 
 	/** SAVED goes to localStorage, the query to the URL. */
@@ -184,14 +222,37 @@
 		return { items, total: 0, page: 0, pages: 0, loading: false, loaded: false, error: '' };
 	}
 
+	function idea() {
+		return { id: 0, reason: '', position: 0, total: 0, loading: false, loaded: false, error: '' };
+	}
+
+	function achievements() {
+		return { earned: [], close: [], loading: false, loaded: false, error: '' };
+	}
+
+	/** The saving of the book open. */
+	function saving() {
+		return { loading: false, error: '' };
+	}
+
+	/**
+	 * The author open, under their real name: `books` all their book IDs, in order,
+	 * `items` the ones loaded so far, a page at a time; `completion` is an achievement.
+	 */
+	function author( id = 0 ) {
+		return { ...pages(), id, name: '', pseudonyms: [], books: [], read: 0, rating: null, completion: null };
+	}
+
 	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
-	 * `search` the books found, `diary` the readings, `idea` the reading idea, `book` the book open.
+	 * `search` the books found, `diary` the readings, `idea` the reading idea, `author` the books of the author open, `book` the book open,
+	 * `saving` the saving of its reading.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
 		#controller = null;
+		#authorController = null;
 
 		constructor() {
 			super( {
@@ -199,10 +260,12 @@
 				books: {},
 				search: pages(),
 				diary: pages(),
-				idea: { id: 0, reason: '', position: 0, total: 0, loading: false, loaded: false, error: '' },
-				achievements: { earned: [], close: [], loading: false, loaded: false, error: '' },
+				idea: idea(),
+				achievements: achievements(),
 				stats: null,
+				author: author(),
 				book: 0,
+				saving: saving(),
 			} );
 
 			darkQuery.addEventListener( 'change', ( { matches } ) => {
@@ -212,7 +275,7 @@
 			} );
 
 			// Back and forward between the views.
-			addEventListener( 'popstate', () => this.#show( viewOf( location.href ) ) );
+			addEventListener( 'popstate', () => this.#show( viewOf( location.href ), authorOf( location.href ) ) );
 
 			this.subscribe( ( state, previous ) => {
 				if ( [ ...SAVED, 'query' ].some( ( key ) => state[ key ] !== previous[ key ] ) ) {
@@ -220,11 +283,11 @@
 				}
 			} );
 
-			this.#show( this.get().view );
+			this.#show( this.get().view, authorOf( location.href ) );
 			this.#fetchStats();
 		}
 
-		/** Shows a view, with its URL in the history. */
+		/** Shows a view, at its top, with its URL in the history. */
 		setView( view ) {
 			if ( ! VIEWS.includes( view ) || view === this.get().view ) {
 				return;
@@ -238,28 +301,59 @@
 				url.searchParams.set( 'view', view );
 			}
 
+			url.searchParams.delete( 'author' );
 			history.pushState( null, '', url );
 			this.#show( view );
+			scrollToTop();
+		}
+
+		/** Opens the page of an author, at its top, with its URL in the history: the book open closes. */
+		openAuthor( id ) {
+			const { view, author: current } = this.get();
+
+			this.closeBook();
+
+			if ( AUTHOR_VIEW === view && id === current.id ) {
+				return;
+			}
+
+			const url = new URL( location.href );
+
+			url.searchParams.set( 'view', AUTHOR_VIEW );
+			url.searchParams.set( 'author', id );
+			history.pushState( null, '', url );
+			this.#show( AUTHOR_VIEW, id );
+			scrollToTop();
 		}
 
 		setQuery( query ) {
 			this.set( ( state ) => ( { ...state, query } ) );
+			this.#loadHome();
 
 			clearTimeout( this.#timeout );
-			this.#timeout = setTimeout( () => this.#fetchSearch( 1 ), SEARCH_DELAY );
+			this.#timeout = setTimeout( () => this.#fetchSearch(), SEARCH_DELAY );
 		}
 
 		setRead( read ) {
 			this.set( ( state ) => ( { ...state, read } ) );
-			this.#fetchSearch( 1 );
+			this.#fetchSearch();
 		}
 
-		/** The next page of the search, unless one is loading or none is left. */
+		/** The next books of the search, unless some are loading or none is left. */
 		loadMoreBooks() {
-			const { loading, page, pages: last } = this.get().search;
+			const { loading, items, total } = this.get().search;
+
+			if ( ! loading && items.length < total ) {
+				this.#fetchSearch( items.length );
+			}
+		}
+
+		/** The next page of the books of the author, unless one is loading or none is left. */
+		loadMoreAuthorBooks() {
+			const { loading, page, pages: last } = this.get().author;
 
 			if ( ! loading && page < last ) {
-				this.#fetchSearch( page + 1 );
+				this.#fetchAuthorBooks( page + 1 );
 			}
 		}
 
@@ -282,11 +376,61 @@
 		}
 
 		openBook( id ) {
-			this.set( ( state ) => ( id in state.books ? { ...state, book: id } : state ) );
+			this.set( ( state ) => ( id in state.books ? { ...state, book: id, saving: saving() } : state ) );
 		}
 
 		closeBook() {
-			this.set( ( state ) => ( state.book ? { ...state, book: 0 } : state ) );
+			this.set( ( state ) => ( state.book ? { ...state, book: 0, saving: saving() } : state ) );
+		}
+
+		/**
+		 * Saves the reading of the book open, then closes it. Only what changed is sent, so a value the form
+		 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
+		 */
+		async saveBook( { read, readDates, rating, kept } ) {
+			const { book: id, books } = this.get();
+			const book = books[ id ];
+			const dates = [ ...new Set( readDates ) ].sort();
+			const isKept = config.notKept !== book.status;
+			const meta = {};
+			let status = book.status;
+
+			// Kept again, a book not kept is published, as with the "Not kept" box of the book form.
+			if ( kept !== isKept ) {
+				status = kept ? 'publish' : config.notKept;
+			}
+
+			if ( read !== book.read ) {
+				meta.read = read;
+			}
+
+			if ( read && dates.join() !== book.read_date.join() ) {
+				meta.read_date = dates;
+			}
+
+			if ( rating !== ( book.rating || null ) ) {
+				meta.rating = rating;
+			}
+
+			if ( ! Object.keys( meta ).length && status === book.status ) {
+				this.closeBook();
+				return;
+			}
+
+			const params = new URLSearchParams( BOOK_QUERY );
+			const data = status === book.status ? { meta } : { meta, status };
+
+			this.#update( 'saving', () => ( { loading: true, error: '' } ) );
+
+			try {
+				const item = await apiFetch( { path: `/wp/v2/books/${ id }?${ params }`, method: 'POST', data } );
+
+				this.#addBooks( [ item ] );
+				this.closeBook();
+				this.#reload( id );
+			} catch ( error ) {
+				this.#update( 'saving', () => ( { loading: false, error: errorMessage( error ) } ) );
+			}
 		}
 
 		toggleTheme() {
@@ -297,21 +441,75 @@
 			} ) );
 		}
 
-		/** Shows a view, and loads its data the first time. */
-		#show( view ) {
-			this.set( ( state ) => ( state.view === view ? state : { ...state, view } ) );
+		/** Shows a view, and loads its data the first time; the page of an author starts again for another author `id`. */
+		#show( view, id = 0 ) {
+			this.set( ( state ) => {
+				const next = state.view === view ? state : { ...state, view };
 
+				return AUTHOR_VIEW !== view || id === state.author.id ? next : { ...next, author: author( id ) };
+			} );
+			this.#load( view );
+			this.#loadHome();
+		}
+
+		/** Loads what the home shows, when it shows. */
+		#loadHome() {
+			if ( isHome( this.get() ) ) {
+				HOME.forEach( ( view ) => this.#load( view ) );
+			}
+		}
+
+		/** Loads the data of a view, unless they are loaded or loading. */
+		#load( view ) {
 			const state = this.get();
 			const loaders = {
-				books: [ state.search, () => this.#fetchSearch( 1 ) ],
+				books: [ state.search, () => this.#fetchSearch() ],
 				diary: [ state.diary, () => this.#fetchDiary( 1 ) ],
 				idea: [ state.idea, () => this.#fetchIdea( 0 ) ],
 				achievements: [ state.achievements, () => this.#fetchAchievements() ],
+				[ AUTHOR_VIEW ]: [ state.author, () => this.#fetchAuthor() ],
 			};
 			const [ data, fetchData ] = loaders[ view ];
 
 			if ( ! data.loaded && ! data.loading ) {
 				fetchData();
+			}
+		}
+
+		/**
+		 * After the book `id` was saved: the stats, and the views but the one shown, load again. The list shown follows
+		 * the book where it is: the books found lose it when the search no longer finds it, the diary takes its readings
+		 * added or removed, the page of an author updates their reading, the home its readings and achievements;
+		 * elsewhere its card follows it.
+		 */
+		#reload( id ) {
+			const { view } = this.get();
+			const home = isHome( this.get() );
+
+			this.set( ( state ) => ( {
+				...state,
+				search: 'books' === view ? state.search : pages(),
+				diary: 'diary' === view || home ? state.diary : pages(),
+				idea: 'idea' === view || home ? state.idea : idea(),
+				achievements: home ? state.achievements : achievements(),
+				author: AUTHOR_VIEW === view ? state.author : author(),
+			} ) );
+			this.#fetchStats();
+
+			if ( 'books' === view ) {
+				this.#refreshSearch( id );
+			}
+
+			if ( 'diary' === view || home ) {
+				this.#refreshDiary();
+			}
+
+			if ( home ) {
+				this.#fetchAchievements();
+			}
+
+			if ( AUTHOR_VIEW === view ) {
+				this.#fetchAuthor();
 			}
 		}
 
@@ -351,20 +549,22 @@
 			this.#addBooks( await apiFetch( { path: `/wp/v2/books?${ params }`, signal } ) );
 		}
 
-		/** A page of the search; the first one replaces the books found, the next ones add to them. A new search cancels the one running. */
-		async #fetchSearch( page ) {
+		/**
+		 * The books of the search from `offset`: from 0 they replace the books found, from further they add to them.
+		 * An offset rather than a page, as a book may have left the list. A new search cancels the one running.
+		 */
+		async #fetchSearch( offset = 0 ) {
 			clearTimeout( this.#timeout );
 			this.#controller?.abort();
 			this.#controller = new AbortController();
 
 			const { signal } = this.#controller;
-			const { query, read } = this.get();
-			const search = [ query.trim(), read && `read:${ read }` ].filter( Boolean ).join( ' ' );
+			const search = searchOf( this.get() );
 			const params = new URLSearchParams( {
 				...BOOK_QUERY,
 				status: config.statuses,
 				per_page: PER_PAGE,
-				page,
+				offset,
 			} );
 
 			if ( search ) {
@@ -378,10 +578,8 @@
 				const ids = this.#addBooks( await response.json() );
 
 				this.#update( 'search', ( current ) => ( {
-					items: 1 === page ? ids : [ ...current.items, ...ids ],
+					items: offset ? [ ...current.items, ...ids ] : ids,
 					total: Number( response.headers.get( 'X-WP-Total' ) ),
-					pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
-					page,
 					loading: false,
 					loaded: true,
 				} ) );
@@ -392,20 +590,56 @@
 			}
 		}
 
-		/** A page of the readings, latest first, with their books. */
+		/** Takes the book `id` out of the books found when the search no longer finds it, such as a book read with the filter "To read". */
+		async #refreshSearch( id ) {
+			const search = searchOf( this.get() );
+
+			// Every book is found without a search.
+			if ( ! search ) {
+				return;
+			}
+
+			const params = new URLSearchParams( { search, status: config.statuses, include: id, _fields: 'id' } );
+
+			try {
+				const found = await apiFetch( { path: `/wp/v2/books?${ params }` } );
+				// Another search may have replaced the books found meanwhile.
+				const isListed = search === searchOf( this.get() ) && this.get().search.items.includes( id );
+
+				if ( ! found.length && isListed ) {
+					this.#update( 'search', ( current ) => ( {
+						items: current.items.filter( ( item ) => item !== id ),
+						total: current.total - 1,
+					} ) );
+				}
+			} catch {}
+		}
+
+		/** A page of the readings, latest first, with their books, and the totals of the diary. */
+		async #fetchReadings( page ) {
+			const response = await apiFetch( { path: `/library/v1/books/readings?page=${ page }`, parse: false } );
+			const readings = ( await response.json() ).map( ( { date, book } ) => ( { date, id: book } ) );
+
+			await this.#fetchBooks( readings.map( ( reading ) => reading.id ) );
+
+			return {
+				readings,
+				total: Number( response.headers.get( 'X-WP-Total' ) ),
+				pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
+			};
+		}
+
+		/** The next page of the diary. */
 		async #fetchDiary( page ) {
 			this.#update( 'diary', () => ( { loading: true, error: '' } ) );
 
 			try {
-				const response = await apiFetch( { path: `/library/v1/books/readings?page=${ page }`, parse: false } );
-				const readings = ( await response.json() ).map( ( { date, book } ) => ( { date, id: book } ) );
-
-				await this.#fetchBooks( readings.map( ( reading ) => reading.id ) );
+				const { readings, total, pages: last } = await this.#fetchReadings( page );
 
 				this.#update( 'diary', ( current ) => ( {
 					items: [ ...current.items, ...readings ],
-					total: Number( response.headers.get( 'X-WP-Total' ) ),
-					pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
+					total,
+					pages: last,
 					page,
 					loading: false,
 					loaded: true,
@@ -413,6 +647,30 @@
 			} catch ( error ) {
 				this.#update( 'diary', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 			}
+		}
+
+		/**
+		 * The pages of the diary loaded so far, again, as a book was saved: its readings added or removed take their
+		 * place, and the next page follows on.
+		 */
+		async #refreshDiary() {
+			const { page } = this.get().diary;
+
+			if ( ! page ) {
+				return;
+			}
+
+			try {
+				const loaded = await Promise.all( Array.from( { length: page }, ( value, index ) => this.#fetchReadings( index + 1 ) ) );
+				const { total, pages: last } = loaded.at( -1 );
+
+				this.#update( 'diary', () => ( {
+					items: loaded.flatMap( ( { readings } ) => readings ),
+					total,
+					pages: last,
+					page,
+				} ) );
+			} catch {}
 		}
 
 		/** The idea at `position` in the week's list, with its book. */
@@ -434,6 +692,66 @@
 				} ) );
 			} catch ( error ) {
 				this.#update( 'idea', () => ( { id: 0, loading: false, loaded: true, error: errorMessage( error ) } ) );
+			}
+		}
+
+		/** The author open, then the first page of their books, unless it is loaded already. Another author cancels the one loading. */
+		async #fetchAuthor() {
+			this.#authorController?.abort();
+			this.#authorController = new AbortController();
+
+			const { signal } = this.#authorController;
+
+			this.#update( 'author', () => ( { loading: true, error: '' } ) );
+
+			try {
+				const data = await apiFetch( { path: `/library/v1/authors/${ this.get().author.id }`, signal } );
+
+				this.#update( 'author', () => ( {
+					name: text( data.name ),
+					pseudonyms: data.pseudonyms.map( text ),
+					books: data.books,
+					read: data.read,
+					rating: data.rating,
+					completion: data.completion,
+					total: data.books.length,
+					pages: Math.ceil( data.books.length / PER_PAGE ),
+					loading: false,
+					loaded: true,
+				} ) );
+			} catch ( error ) {
+				if ( 'AbortError' !== error?.name ) {
+					this.#update( 'author', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+				}
+
+				return;
+			}
+
+			if ( ! this.get().author.page ) {
+				await this.#fetchAuthorBooks( 1 );
+			}
+		}
+
+		/** A page of the books of the author open, from their IDs. */
+		async #fetchAuthorBooks( page ) {
+			const { signal } = this.#authorController;
+			const ids = this.get().author.books.slice( ( page - 1 ) * PER_PAGE, page * PER_PAGE );
+
+			this.#update( 'author', () => ( { loading: true, error: '' } ) );
+
+			try {
+				await this.#fetchBooks( ids, signal );
+
+				this.#update( 'author', ( current ) => ( {
+					items: [ ...current.items, ...ids ],
+					page,
+					loading: false,
+					loaded: true,
+				} ) );
+			} catch ( error ) {
+				if ( 'AbortError' !== error?.name ) {
+					this.#update( 'author', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+				}
 			}
 		}
 

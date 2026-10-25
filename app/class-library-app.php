@@ -30,6 +30,13 @@ class Library_App {
 	public const SLUG = 'library';
 
 	/**
+	 * View of the page of an author, opened from a book or an achievement rather than from the navigation.
+	 *
+	 * @var string
+	 */
+	public const AUTHOR_VIEW = 'author';
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -85,12 +92,16 @@ class Library_App {
 		[ $favicon_url ]    = Library::asset( 'app/favicon.svg' );
 		[ $touch_icon_url ] = Library::asset( 'app/apple-touch-icon.png' );
 		$labels             = get_post_type_object( 'book' )->labels;
+		$authors            = get_taxonomy( 'library-author' )->labels->name;
 		$languages          = get_taxonomy( 'library-language' )->labels->name;
+		$ratings            = $this->get_ratings();
 		$views              = $this->get_views( $labels->name );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
-		$view = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
-		$view = isset( $views[ $view ] ) ? $view : 'books';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
+		$view   = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
+		$author = absint( $_GET['author'] ?? 0 );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$view = isset( $views[ $view ] ) || ( self::AUTHOR_VIEW === $view && $author ) ? $view : 'books';
 
 		require LIBRARY_DIR_PATH . 'app/partials/library-app.php';
 		exit;
@@ -119,6 +130,25 @@ class Library_App {
 		}
 
 		return $views;
+	}
+
+	/**
+	 * Ratings a book can take, by value, with their label: the ones its meta is registered with, from 1 to 10 by half points.
+	 *
+	 * @return array<string,string>
+	 */
+	private function get_ratings(): array {
+		$schema  = get_registered_meta_keys( 'post', 'book' )['rating']['show_in_rest']['schema'];
+		$ratings = array();
+
+		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
+			$decimals = fmod( $rating, 1 ) ? 1 : 0;
+
+			/* translators: %s: rating, e.g. 7.5. */
+			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), number_format_i18n( $rating, $decimals ) );
+		}
+
+		return $ratings;
 	}
 
 	/**
@@ -193,41 +223,57 @@ class Library_App {
 		[ $favicon_dark_url ] = Library::asset( 'app/favicon-dark.svg' );
 
 		return array(
-			'statuses' => implode( ',', Library_Books::statuses() ),
-			'notKept'  => Library_Posts::NOT_KEPT,
-			'editUrl'  => admin_url( 'post.php?action=edit&post=' ),
-			'icons'    => array(
+			'statuses'  => implode( ',', Library_Books::statuses() ),
+			'notKept'   => Library_Posts::NOT_KEPT,
+			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
+			// add_query_arg() drops the "=" of an empty value.
+			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::url() ) . '&author=',
+			'icons'     => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,
 			),
-			'strings'  => array(
-				'books'       => array(
+			'strings'   => array(
+				'books'         => array(
 					/* translators: %s: number of books. */
 					'one'   => _n( '%s book', '%s books', 1, 'library' ),
 					/* translators: %s: number of books. */
 					'other' => _n( '%s book', '%s books', 2, 'library' ),
 				),
+				'booksRead'     => array(
+					/* translators: %s: number of books read, after the number of books of an author. */
+					'one'   => _n( '%s read', '%s read', 1, 'library' ),
+					/* translators: %s: number of books read, after the number of books of an author. */
+					'other' => _n( '%s read', '%s read', 2, 'library' ),
+				),
+				'pseudonyms'    => array(
+					/* translators: %s: list of the pseudonyms of an author. */
+					'one'   => _n( 'Pseudonym: %s', 'Pseudonyms: %s', 1, 'library' ),
+					/* translators: %s: list of the pseudonyms of an author. */
+					'other' => _n( 'Pseudonym: %s', 'Pseudonyms: %s', 2, 'library' ),
+				),
+				/* translators: %s: year a book first came out. */
+				'publishedIn'   => __( 'First published in %s', 'library' ),
+				/* translators: %s: average rating of the books of an author, e.g. 7.5. */
+				'averageRating' => __( '%s/10 on average', 'library' ),
 				/* translators: %s: reading percentage. */
-				'readPercent' => __( '%s%% read', 'library' ),
+				'readPercent'   => __( '%s%% read', 'library' ),
 				/* translators: 1: total books, 2: read books, 3: percent read. */
-				'summary'     => __( '%1$s books, %2$s read (%3$s%%)', 'library' ),
+				'summary'       => __( '%1$s books, %2$s read (%3$s%%)', 'library' ),
 				/* translators: 1: books read this year, 2: year, 3: books read by the same date last year. */
-				'yearToDate'  => __( '%1$s read in %2$d, %3$s by this date last year', 'library' ),
+				'yearToDate'    => __( '%1$s read in %2$d, %3$s by this date last year', 'library' ),
 				/* translators: %s: number of books expected by the end of the year. */
-				'projection'  => __( 'About %s by the end of the year at this pace', 'library' ),
+				'projection'    => __( 'About %s by the end of the year at this pace', 'library' ),
 				/* translators: 1: number done, 2: total, e.g. "13 of 14". */
-				'progress'    => __( '%1$s of %2$s', 'library' ),
+				'progress'      => __( '%1$s of %2$s', 'library' ),
 				/* translators: %s: rating, e.g. 7.5. */
-				'rating'      => __( '%s/10', 'library' ),
-				'read'        => __( 'Read', 'library' ),
-				'readAgain'   => __( 'Read again', 'library' ),
-				'toRead'      => __( 'To read', 'library' ),
-				'yes'         => __( 'Yes', 'library' ),
-				'no'          => __( 'No', 'library' ),
-				'notKept'     => _x( 'Not kept', 'book status', 'library' ),
-				'loading'     => __( 'Loading…', 'library' ),
-				'noBooks'     => __( 'No book found.', 'library' ),
-				'error'       => __( 'The books could not be loaded.', 'library' ),
+				'rating'        => __( '%s/10', 'library' ),
+				'read'          => __( 'Read', 'library' ),
+				'readAgain'     => __( 'Read again', 'library' ),
+				'toRead'        => __( 'To read', 'library' ),
+				'notKept'       => _x( 'Not kept', 'book status', 'library' ),
+				'loading'       => __( 'Loading…', 'library' ),
+				'noBooks'       => __( 'No book found.', 'library' ),
+				'error'         => __( 'The books could not be loaded.', 'library' ),
 			),
 		);
 	}

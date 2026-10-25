@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: reading stats, readings, reading idea, achievements and the credits of a book.
+ * REST API: reading stats, readings, reading idea, achievements, authors and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -119,6 +119,23 @@ class Library_Rest_API {
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 			),
 		);
+
+		register_rest_route(
+			'library/v1',
+			'authors/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_author' ),
+				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'args'                => array(
+					'id' => array(
+						'description' => __( 'Term ID of the author, or of one of their pseudonyms.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
+				),
+			),
+		);
 	}
 
 	/**
@@ -159,6 +176,58 @@ class Library_Rest_API {
 		$response->header( 'X-WP-TotalPages', (string) (int) ceil( $total / $per_page ) );
 
 		return $response;
+	}
+
+	/**
+	 * An author under their real name, with their pseudonyms, their books and their reading: the books read,
+	 * the average rating and the completion their books count for.
+	 *
+	 * The books are those of the author and of their pseudonyms, kept or not, as the achievements count them,
+	 * as IDs of the core API: in the order they first came out, then by title, those without date last.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_author( WP_REST_Request $request ) {
+		$term   = get_term( $request['id'], 'library-author' );
+		$author = $term instanceof WP_Term && $term->parent ? get_term( $term->parent, 'library-author' ) : $term;
+
+		if ( ! $author instanceof WP_Term ) {
+			return new WP_Error( 'library_no_author', get_taxonomy( 'library-author' )->labels->not_found, array( 'status' => 404 ) );
+		}
+
+		$books      = array_filter( Library_Books::all(), fn( array $book ) => in_array( $author->term_id, $book['author_ids'], true ) );
+		$ratings    = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
+		$pseudonyms = get_terms(
+			array(
+				'taxonomy'   => 'library-author',
+				'parent'     => $author->term_id,
+				'hide_empty' => false,
+				'fields'     => 'names',
+			)
+		);
+		$first_date = fn( array $book ) => '' !== $book['published_date'] ? $book['published_date'] : $book['edition_date'];
+
+		usort(
+			$books,
+			function ( array $a, array $b ) use ( $first_date ): int {
+				$order = array( '' === $first_date( $a ), $first_date( $a ) ) <=> array( '' === $first_date( $b ), $first_date( $b ) );
+
+				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );
+			}
+		);
+
+		return rest_ensure_response(
+			array(
+				'id'         => $author->term_id,
+				'name'       => $author->name,
+				'pseudonyms' => is_array( $pseudonyms ) ? $pseudonyms : array(),
+				'books'      => array_column( $books, 'id' ),
+				'read'       => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'rating'     => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
+				'completion' => ( new Library_Achievements() )->get_author_completion( $author->term_id ),
+			)
+		);
 	}
 
 	/**
