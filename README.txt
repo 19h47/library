@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.1.1
+Stable tag: 6.1.2
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,6 +85,10 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
 
 == Changelog ==
+
+= 6.1.2 =
+* Reading app: a book not kept shows a tag on its card, in a tinted grey, in the books list, the diary, the page of an author and the reading idea, instead of the words at the end of its line.
+* A shorter readme; the release steps are in RELEASING.md, outside the plugin archive. The date of a book comes from one method. Nothing else changes for the reader.
 
 = 6.1.1 =
 * What the admin and the reading app share is in `includes/`, the book post type, its taxonomies, the reading idea and the achievements included, and the screens of the admin in `admin/`: the books list, the terms lists, the edit screen of a book, the reading idea widget and the achievements page. Nothing changes for the reader.
