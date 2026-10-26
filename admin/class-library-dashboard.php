@@ -10,7 +10,7 @@
  */
 
 /**
- * Adds one dashboard widget per topic: reading, ratings, reading pile and collection.
+ * Adds one dashboard widget per topic: reading, ratings, reading pile and collection, and the number of books to "At a Glance".
  *
  * Each widget can be hidden, moved and collapsed like any other dashboard widget.
  *
@@ -36,6 +36,7 @@ class Library_Dashboard {
 	public function hooks(): void {
 		add_action( 'wp_dashboard_setup', array( $this, 'register_widgets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
 	}
 
 	/**
@@ -617,5 +618,35 @@ class Library_Dashboard {
 		);
 
 		return (int) $row->books;
+	}
+
+	/**
+	 * Add the number of published books to the "At a Glance" dashboard widget.
+	 *
+	 * @param string[] $items Items.
+	 * @return string[]
+	 */
+	public function at_a_glance( array $items ): array {
+		$count = (int) wp_count_posts( 'book' )->publish;
+
+		if ( ! $count ) {
+			return $items;
+		}
+
+		$text = Library_Books::books_text( $count );
+
+		if ( ! current_user_can( get_post_type_object( 'book' )->cap->edit_posts ) ) {
+			$items[] = sprintf( '<span class="book-count">%s</span>', esc_html( $text ) );
+
+			return $items;
+		}
+
+		$items[] = sprintf(
+			'<a class="book-count" href="%1$s">%2$s</a>',
+			esc_url( admin_url( 'edit.php?post_type=book' ) ),
+			esc_html( $text )
+		);
+
+		return $items;
 	}
 }

@@ -6,7 +6,7 @@
  * @since      1.0.0
  *
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  */
 
 /**
@@ -14,7 +14,7 @@
  *
  * @since      1.0.0
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Taxonomies {
@@ -27,29 +27,14 @@ class Library_Taxonomies {
 	public const TAXONOMIES = array( 'library-author', 'library-publisher', 'library-language' );
 
 	/**
-	 * Books not kept by term ID, with the pseudonyms counted for their real name.
-	 *
-	 * @var array<int,int>|null
-	 */
-	private ?array $not_kept_counts = null;
-
-	/**
 	 * Register hooks.
 	 *
 	 * @return void
 	 */
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register' ) );
-		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
 		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
-		add_filter( 'post_column_taxonomy_links', array( $this, 'column_term_links' ), 10, 3 );
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
-		add_action( 'add_meta_boxes_book', array( $this, 'register_author_box' ) );
-
-		foreach ( self::TAXONOMIES as $taxonomy ) {
-			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_not_kept_column' ) );
-			add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'render_not_kept_column' ), 10, 3 );
-		}
 	}
 
 	/**
@@ -63,7 +48,6 @@ class Library_Taxonomies {
 		$this->register_publisher();
 		$this->register_language();
 	}
-
 
 	/**
 	 * Register author
@@ -114,21 +98,6 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Give the authors tag box the id of a tag box.
-	 *
-	 * Core names the box of a hierarchical taxonomy "library-authordiv", and only starts the tag box
-	 * script when a box id starts with "tagsdiv-": otherwise the tag box stays empty.
-	 *
-	 * @return void
-	 */
-	public function register_author_box(): void {
-		$taxonomy = get_taxonomy( 'library-author' );
-
-		remove_meta_box( 'library-authordiv', 'book', 'side' );
-		add_meta_box( 'tagsdiv-library-author', $taxonomy->labels->name, $taxonomy->meta_box_cb, 'book', 'side', 'core', array( 'taxonomy' => 'library-author' ) );
-	}
-
-	/**
 	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
 	 *
 	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
@@ -163,7 +132,6 @@ class Library_Taxonomies {
 
 		return $term_ids;
 	}
-
 
 	/**
 	 * The term of a name under a parent, such as a collection under its publisher: the existing one, else a new one.
@@ -238,7 +206,6 @@ class Library_Taxonomies {
 		register_taxonomy( 'library-publisher', 'book', $args );
 	}
 
-
 	/**
 	 * Register original language
 	 *
@@ -303,7 +270,6 @@ class Library_Taxonomies {
 		return $data;
 	}
 
-
 	/**
 	 * Collections of a book, i.e. its publishers that have a parent.
 	 *
@@ -314,93 +280,6 @@ class Library_Taxonomies {
 		$terms = get_the_terms( $book_id, 'library-publisher' );
 
 		return array_values( wp_list_filter( is_array( $terms ) ? $terms : array(), array( 'parent' => 0 ), 'NOT' ) );
-	}
-
-
-	/**
-	 * Messages
-	 *
-	 * @param array $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
-	 *
-	 * @see https://developer.wordpress.org/reference/hooks/term_updated_messages/
-	 *
-	 * @return $message
-	 */
-	public function messages( array $messages ): array {
-		$messages['library-author'] = array(
-			0 => '',
-			1 => __( 'Author added.', 'library' ),
-			2 => __( 'Author deleted.', 'library' ),
-			3 => __( 'Author updated.', 'library' ),
-			4 => __( 'Author not added.', 'library' ),
-			5 => __( 'Author not updated.', 'library' ),
-			6 => __( 'Authors deleted.', 'library' ),
-		);
-
-		$messages['library-publisher'] = array(
-			0 => '',
-			1 => __( 'Publisher added.', 'library' ),
-			2 => __( 'Publisher deleted.', 'library' ),
-			3 => __( 'Publisher updated.', 'library' ),
-			4 => __( 'Publisher not added.', 'library' ),
-			5 => __( 'Publisher not updated.', 'library' ),
-			6 => __( 'Publishers deleted.', 'library' ),
-		);
-
-		$messages['library-language'] = array(
-			0 => '',
-			1 => __( 'Language added.', 'library' ),
-			2 => __( 'Language deleted.', 'library' ),
-			3 => __( 'Language updated.', 'library' ),
-			4 => __( 'Language not added.', 'library' ),
-			5 => __( 'Language not updated.', 'library' ),
-			6 => __( 'Languages deleted.', 'library' ),
-		);
-
-		return $messages;
-	}
-
-
-	/**
-	 * Links of the authors, publishers and languages columns of the books list.
-	 *
-	 * A collection shows as its publisher, once. The links keep the status of the current view:
-	 * core links to the "All" view, which leaves out the books not kept, so from their view they listed nothing.
-	 *
-	 * @param string[]  $term_links Term links.
-	 * @param string    $taxonomy   Taxonomy.
-	 * @param WP_Term[] $terms      Terms.
-	 * @return string[]
-	 */
-	public function column_term_links( array $term_links, string $taxonomy, array $terms ): array {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view filter.
-		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
-
-		if ( ! in_array( $taxonomy, self::TAXONOMIES, true ) ) {
-			return $term_links;
-		}
-
-		if ( 'library-publisher' === $taxonomy ) {
-			$terms = self::get_top_terms( $terms );
-		} elseif ( '' === $status ) {
-			return $term_links;
-		}
-
-		return array_map(
-			function ( WP_Term $term ) use ( $taxonomy, $status ) {
-				$query_args = array_filter(
-					array(
-						'post_type'   => 'book',
-						'post_status' => $status,
-						$taxonomy     => $term->slug,
-					)
-				);
-				$url        = add_query_arg( $query_args, admin_url( 'edit.php' ) );
-
-				return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $term->name ) );
-			},
-			$terms
-		);
 	}
 
 	/**
@@ -421,85 +300,6 @@ class Library_Taxonomies {
 		}
 
 		return array_values( $top_terms );
-	}
-
-	/**
-	 * Add a "Not kept" column after the count, which only counts the published books.
-	 *
-	 * @param string[] $columns Columns.
-	 * @return string[]
-	 */
-	public function add_not_kept_column( array $columns ): array {
-		$columns['library_not_kept'] = _x( 'Not kept', 'book status', 'library' );
-
-		return $columns;
-	}
-
-	/**
-	 * Number of books not kept of a term, linked to their view.
-	 *
-	 * @param string $content     Column content.
-	 * @param string $column_name Column name.
-	 * @param int    $term_id     Term ID.
-	 * @return string
-	 */
-	public function render_not_kept_column( string $content, string $column_name, int $term_id ): string {
-		if ( 'library_not_kept' !== $column_name ) {
-			return $content;
-		}
-
-		$books = $this->get_not_kept_counts()[ $term_id ] ?? 0;
-		$term  = get_term( $term_id );
-
-		if ( ! $books || ! $term instanceof WP_Term ) {
-			return number_format_i18n( $books );
-		}
-
-		$url = add_query_arg(
-			array(
-				'post_type'     => 'book',
-				'post_status'   => Library_Posts::NOT_KEPT,
-				$term->taxonomy => $term->slug,
-			),
-			admin_url( 'edit.php' )
-		);
-
-		return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( number_format_i18n( $books ) ) );
-	}
-
-	/**
-	 * Count the books not kept of every term in one query; a real name also counts its pseudonyms' books.
-	 *
-	 * @return array<int,int>
-	 */
-	private function get_not_kept_counts(): array {
-		if ( null !== $this->not_kept_counts ) {
-			return $this->not_kept_counts;
-		}
-
-		global $wpdb;
-
-		$this->not_kept_counts = array();
-
-		// Each term, then each real name over itself and its pseudonyms, which overrides its own count.
-		foreach ( array( 'tt.term_id', 'COALESCE( NULLIF( tt.parent, 0 ), tt.term_id )' ) as $group ) {
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $group is one of the two constant expressions above.
-			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
-				$wpdb->prepare(
-					"SELECT $group AS term_id, COUNT( DISTINCT p.ID ) AS books
-					FROM {$wpdb->term_relationships} AS tr
-					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
-					INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'book' AND p.post_status = %s
-					GROUP BY 1",
-					Library_Posts::NOT_KEPT
-				)
-			);
-			// phpcs:enable
-
-			$this->not_kept_counts = array_replace( $this->not_kept_counts, array_map( 'intval', wp_list_pluck( $rows, 'books', 'term_id' ) ) );
-		}
-
-		return $this->not_kept_counts;
 	}
 
 	/**

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $name_id = 'library-achievement-close-' . $index;
 $name    = '' !== $achievement['subject'] ? $achievement['subject'] : $achievement['title'];
 $meta    = array_filter( array( '' !== $achievement['subject'] ? $achievement['title'] : '', $achievement['detail'] ) );
-$url     = Library_Achievements::url( $achievement );
+$url     = Library_Achievements_Page::url( $achievement );
 
 /* translators: 1: number done, 2: total, e.g. "13 of 14". */
 $progress_text = sprintf( __( '%1$s of %2$s', 'library' ), number_format_i18n( $achievement['done'] ), number_format_i18n( $achievement['total'] ) );

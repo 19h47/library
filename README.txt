@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.1.0
+Stable tag: 6.1.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -127,6 +127,9 @@ Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states
 Since 1.0.0 it is split into four widgets: Reading, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
 
 == Changelog ==
+
+= 6.1.1 =
+* What the admin and the reading app share is in `includes/`, the book post type, its taxonomies, the reading idea and the achievements included, and the screens of the admin in `admin/`: the books list, the terms lists, the edit screen of a book, the reading idea widget and the achievements page. Nothing changes for the reader.
 
 = 6.1.0 =
 * Reading app: the page of an author gives the pages of their books, read or not, those with a number of pages; nothing when none has one. `/wp-json/library/v1/authors/<id>` gives them as `pages`.
