@@ -1,4 +1,4 @@
-import { sprintf, store, strings } from 'library-app/app';
+import { __, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatNumber } from 'library-app/format';
 
@@ -9,7 +9,8 @@ class LibraryProgressElement extends Brick {
 			store.select(
 				( state ) => state.stats?.percent,
 				( percent ) => {
-					this.textContent = undefined === percent ? '' : sprintf( strings.readPercent, formatNumber( percent ) );
+					/* translators: %s: reading percentage. */
+					this.textContent = undefined === percent ? '' : sprintf( __( '%s%% read', 'library' ), formatNumber( percent ) );
 				}
 			),
 		];

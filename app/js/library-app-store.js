@@ -27,6 +27,7 @@
 	const SEARCH_DELAY = 250;
 
 	const { apiFetch } = window.wp;
+	const { __ } = window.wp.i18n;
 	const config = window.libraryApp;
 	const $root = document.documentElement;
 	const $themeColor = document.querySelector( 'meta[name="theme-color"]' );
@@ -137,7 +138,7 @@
 
 	/** The message of a failed request: the one of the API, or a generic one. */
 	function errorMessage( error ) {
-		return error?.message ?? config.strings.error;
+		return error?.message ?? __( 'The books could not be loaded.', 'library' );
 	}
 
 	/** The view of a URL, the books by default; the page of an author needs an author. */

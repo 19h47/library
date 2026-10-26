@@ -5,7 +5,7 @@
  * @subpackage Library/app
  */
 
-import { authorUrl, bookUrl, searchUrl, sprintf, strings } from 'library-app/app';
+import { __, authorUrl, bookUrl, searchUrl, sprintf } from 'library-app/app';
 import { formatDate, formatNumber, join, listFormat } from 'library-app/format';
 
 /**
@@ -157,7 +157,8 @@ export function renderCloseAchievement( achievement, id ) {
 	$progress.max = achievement.total;
 	$progress.value = achievement.done;
 	$progress.setAttribute( 'aria-labelledby', $name.id );
-	$progress.setAttribute( 'aria-valuetext', sprintf( strings.progress, done, total ) );
+	/* translators: 1: number done, 2: total, e.g. "13 of 14". */
+	$progress.setAttribute( 'aria-valuetext', sprintf( __( '%1$s of %2$s', 'library' ), done, total ) );
 
 	return $item;
 }

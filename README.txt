@@ -37,7 +37,7 @@ Library adds a **Book** custom post type and three taxonomies (**Authors**, **Pu
 * **Reading app** – The library on a phone, in **Books > App**: a full-screen page to add to the home screen. The books, searched with the keywords of the books list and filtered by reading state, under a home while the search is empty: the books read this year, the covers of the latest readings, the reading idea of the week and the achievements closest to be earned. The diary, the readings by month, a book read again once per reading; the reading idea of the week, and the next ones; the reading stats of the year and the achievements, those close to it with their progress; the page of an author, opened from a book or an achievement: their books in the order they first came out, the books read, the average rating and their progress to complete them. A book opens with its cover and details, at a URL of its own, and its reading is edited there: read, read dates, rating and not kept; a link edits the rest in the admin. A book is added from the + at the top: a photo of its cover, its title, its authors, publisher and collection, suggested among those of the library or added, its ISBN and more details. In the language of your profile, light or dark theme.
 * **REST API** – Books, authors, publishers and original languages in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta` and the line shown under the title in `credits`. `/wp-json/library/v1/books/reading-stats` returns the reading stats, `/wp-json/library/v1/books/readings` the readings, latest first, `/wp-json/library/v1/books/reading-idea` the reading idea of the week and `/wp-json/library/v1/books/achievements` the achievements, to users who can edit posts.
 * **Updates** – From the GitHub releases, see below.
-* **Translatable** – French translation included (Domain Path: `/languages`).
+* **Translatable** – French translation included (Domain Path: `/languages`): the strings of the scripts are in JSON files, which WordPress gives them.
 
 = Technical =
 
@@ -131,6 +131,7 @@ Since 1.0.0 it is split into four widgets: Reading, Ratings, Reading pile and Li
 = 6.0.0 =
 * Changed: in `/wp-json/library/v1/books/achievements`, each achievement gives its `target`, what its subject leads to: a book, a search, an author or a collection, instead of `url`, a link of the admin, and `author`. The admin and the reading app build their own links from it.
 * Reading app: the subject of an achievement opens in the app, a book in its dialog, an author on their page, a series or a translator as a search of the books, read or not, instead of the books list or the edit screen of the admin. A collection stays unlinked for now.
+* The scripts of the books list and of the reading app take their strings from the translations of WordPress, JSON files made with `wp i18n make-json`, instead of strings passed by the server; a plural follows the rules of the language.
 * The Reading widget takes the ID `library_dashboard_reading`: it goes back once to its default place on the dashboard, move it again where you want it.
 * The book post type, its taxonomies and the achievements lose arguments, labels and links that WordPress never used or showed, such as the WPGraphQL arguments of the taxonomies.
 

@@ -1,6 +1,6 @@
-import { store, strings } from 'library-app/app';
+import { __, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { dayFormat, formatDate, formatDetails, join, plural } from 'library-app/format';
+import { dayFormat, formatBooks, formatDate, formatDetails, join } from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';
 import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 
@@ -15,7 +15,7 @@ class LibraryDiaryElement extends Brick {
 		return [
 			followBooks( $months, ( book, $item ) => this.#state( book, $item.dataset.date ) ),
 			store.select(
-				( { diary } ) => diary.error || ( diary.loaded && ! diary.total ? strings.noBooks : '' ),
+				( { diary } ) => diary.error || ( diary.loaded && ! diary.total ? __( 'No book found.', 'library' ) : '' ),
 				( message ) => fill( this, { status: message } )
 			),
 			store.select(
@@ -57,7 +57,7 @@ class LibraryDiaryElement extends Brick {
 			// A reading shows with its book only.
 			const shown = readings.filter( ( reading ) => reading.id in books );
 
-			fill( $month, { month: formatDate( month ), count: plural( readings.length, strings.books ) } );
+			fill( $month, { month: formatDate( month ), count: formatBooks( readings.length ) } );
 			$month.querySelector( 'ul' ).append( ...shown.map( ( { date, id } ) => this.#renderReading( books[ id ], date ) ) );
 
 			return $month;
@@ -77,7 +77,7 @@ class LibraryDiaryElement extends Brick {
 	#state( book, date ) {
 		const isFirstReading = date === book.read_date[ 0 ];
 
-		return join( [ formatDate( date, dayFormat ), ! isFirstReading && strings.readAgain, ...formatDetails( book ) ] );
+		return join( [ formatDate( date, dayFormat ), ! isFirstReading && __( 'Read again', 'library' ), ...formatDetails( book ) ] );
 	}
 }
 customElements.define( 'library-diary', LibraryDiaryElement );
