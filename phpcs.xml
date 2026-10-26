@@ -2,23 +2,20 @@
 <ruleset name="Library-Standards">
     <description>WordPress standards for the Library plugin.</description>
 
+    <file>.</file>
+
+    <arg name="extensions" value="php" />
+
+    <exclude-pattern>*/languages/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
     <rule ref="WordPress" />
 
     <rule ref="WordPress.WP.I18n">
         <properties>
-            <property name="text_domain" type="array" value="library" />
+            <property name="text_domain" type="array">
+                <element value="library" />
+            </property>
         </properties>
-    </rule>
-
-    <exclude-pattern>*/node_modules/*</exclude-pattern>
-    <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>*/dist/*</exclude-pattern>
-
-    <rule ref="WordPress.Files.FileName">
-        <properties>
-            <property name="strict_class_file_names" value="false" />
-        </properties>
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
     </rule>
 </ruleset>
