@@ -32,13 +32,17 @@ class Library {
 		'includes/class-library-stats.php',
 		'includes/class-library-wp-query.php',
 		'includes/class-library-rest-api.php',
+		'includes/class-library-posts.php',
+		'includes/class-library-taxonomies.php',
+		'includes/class-library-reading-idea.php',
+		'includes/class-library-achievements.php',
 		'admin/class-library-admin.php',
 		'admin/class-library-metaboxes.php',
-		'admin/class-library-posts.php',
+		'admin/class-library-books-list.php',
+		'admin/class-library-terms-list.php',
 		'admin/class-library-dashboard.php',
-		'admin/class-library-reading-idea.php',
-		'admin/class-library-achievements.php',
-		'admin/class-library-taxonomies.php',
+		'admin/class-library-reading-idea-widget.php',
+		'admin/class-library-achievements-page.php',
 		'app/class-library-app.php',
 	);
 
@@ -73,13 +77,15 @@ class Library {
 		( new Library_Posts() )->hooks();
 		( new Library_Taxonomies() )->hooks();
 		( new Library_Meta() )->hooks();
-		( new Library_Metaboxes() )->hooks();
 		( new Library_WP_Query() )->hooks();
 		( new Library_Rest_API() )->hooks();
 		( new Library_Admin() )->hooks();
+		( new Library_Metaboxes() )->hooks();
+		( new Library_Books_List() )->hooks();
+		( new Library_Terms_List() )->hooks();
 		( new Library_Dashboard() )->hooks();
-		( new Library_Reading_Idea() )->hooks();
-		( new Library_Achievements() )->hooks();
+		( new Library_Reading_Idea_Widget() )->hooks();
+		( new Library_Achievements_Page() )->hooks();
 		( new Library_App() )->hooks();
 		( new Library_Updater( $plugin_file ) )->hooks();
 	}

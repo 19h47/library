@@ -128,6 +128,9 @@ Since 1.0.0 it is split into four widgets: Reading, Ratings, Reading pile and Li
 
 == Changelog ==
 
+= 6.1.1 =
+* What the admin and the reading app share is in `includes/`, the book post type, its taxonomies, the reading idea and the achievements included, and the screens of the admin in `admin/`: the books list, the terms lists, the edit screen of a book, the reading idea widget and the achievements page. Nothing changes for the reader.
+
 = 6.1.0 =
 * Reading app: the page of an author gives the pages of their books, read or not, those with a number of pages; nothing when none has one. `/wp-json/library/v1/authors/<id>` gives them as `pages`.
 

@@ -12,12 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$meta = array_filter( array( $achievement['detail'], Library_Achievements::date( $achievement ) ) );
-$url  = Library_Achievements::url( $achievement );
+$meta = array_filter( array( $achievement['detail'], Library_Achievements_Page::date( $achievement ) ) );
+$url  = Library_Achievements_Page::url( $achievement );
 ?>
 
 <li class="library-achievement<?php echo $achievement['easter_egg'] ? ' library-achievement--easter-egg' : ''; ?>">
-	<span class="library-achievement-icon dashicons <?php echo esc_attr( Library_Achievements::icon( $achievement['kind'] ) ); ?>" aria-hidden="true"></span>
+	<span class="library-achievement-icon dashicons <?php echo esc_attr( Library_Achievements_Page::icon( $achievement['kind'] ) ); ?>" aria-hidden="true"></span>
 	<span class="library-achievement-text">
 		<span class="library-achievement-title"><?php echo esc_html( $achievement['title'] ); ?></span>
 		<?php if ( '' !== $achievement['subject'] ) : ?>
