@@ -28,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'LIBRARY_FILE', __FILE__ );
 define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
 
 add_action(

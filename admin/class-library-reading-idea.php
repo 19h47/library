@@ -249,19 +249,6 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * A rating or an average as text, with one decimal unless it is round: "9", "8,5".
-	 *
-	 * @param float $rating Rating, out of 10.
-	 * @return string
-	 */
-	private static function rating( float $rating ): string {
-		$rating   = round( $rating, 1 );
-		$decimals = floor( $rating ) === $rating ? 0 : 1;
-
-		return number_format_i18n( $rating, $decimals );
-	}
-
-	/**
 	 * The next volume of each series with at least one volume read.
 	 *
 	 * @param array<int,array> $books   All the books.
@@ -393,7 +380,7 @@ class Library_Reading_Idea {
 			$to_read,
 			'authors',
 			function ( string $author, array $stats ) use ( $dormant_year ): string {
-				$average   = self::rating( $stats['average'] );
+				$average   = Library_Books::rating_text( $stats['average'] );
 				$rated     = number_format_i18n( $stats['rated'] );
 				$last_year = self::year( $stats['last_read'] );
 
@@ -481,7 +468,7 @@ class Library_Reading_Idea {
 				/* translators: 1: translator, 2: average rating, 3: number of books rated. */
 				__( 'Translated by %1$s: %2$s/10 on average over %3$s books rated.', 'library' ),
 				$translator,
-				self::rating( $stats['average'] ),
+				Library_Books::rating_text( $stats['average'] ),
 				number_format_i18n( $stats['rated'] )
 			)
 		);
@@ -503,7 +490,7 @@ class Library_Reading_Idea {
 				/* translators: 1: collection, e.g. "Folio", 2: average rating, 3: number of books rated. */
 				__( 'In %1$s: %2$s/10 on average over %3$s books rated.', 'library' ),
 				$collection,
-				self::rating( $stats['average'] ),
+				Library_Books::rating_text( $stats['average'] ),
 				number_format_i18n( $stats['rated'] )
 			)
 		);
@@ -693,7 +680,7 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_short_ideas( array $to_read ): array {
-		$pace = Library_Dashboard::get_year_to_date();
+		$pace = Library_Stats::get_year_to_date();
 
 		if ( $pace['this_year'] >= $pace['last_year'] ) {
 			return array();
@@ -773,7 +760,7 @@ class Library_Reading_Idea {
 				'reason' => sprintf(
 					/* translators: 1: rating, 2: year read. */
 					__( 'Rated %1$s/10, read in %2$s: read it again?', 'library' ),
-					self::rating( $book['rating'] ),
+					Library_Books::rating_text( $book['rating'] ),
 					$read_year
 				),
 			);

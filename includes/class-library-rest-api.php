@@ -6,7 +6,7 @@
  * @since      1.0.0
  *
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  */
 
 /**
@@ -14,7 +14,7 @@
  *
  * @since      1.0.0
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Rest_API {
@@ -114,7 +114,7 @@ class Library_Rest_API {
 			'books/reading-stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => fn() => rest_ensure_response( Library_Posts::get_reading_stats() + array( 'year_to_date' => Library_Dashboard::get_year_to_date() ) ),
+				'callback'            => fn() => rest_ensure_response( Library_Stats::get_reading_stats() + array( 'year_to_date' => Library_Stats::get_year_to_date() ) ),
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 			),
 		);
@@ -255,9 +255,9 @@ class Library_Rest_API {
 	 */
 	public function get_readings( WP_REST_Request $request ): WP_REST_Response {
 		$per_page = $request['per_page'];
-		$total    = (int) Library_Dashboard::select( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
-		$months   = wp_list_pluck( Library_Dashboard::select( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
-		$rows     = $months ? Library_Dashboard::select(
+		$total    = (int) Library_Stats::select( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
+		$months   = wp_list_pluck( Library_Stats::select( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
+		$rows     = $months ? Library_Stats::select(
 			'SELECT r.book, r.date FROM {readings} WHERE LEFT( r.date, 7 ) IN ( ' . implode( ', ', array_fill( 0, count( $months ), '%s' ) ) . ' ) ORDER BY r.date DESC, r.book DESC',
 			...$months
 		) : array();
@@ -308,7 +308,7 @@ class Library_Rest_API {
 	 */
 	public function get_author( WP_REST_Request $request ) {
 		$term   = get_term( $request['id'], 'library-author' );
-		$author = $term instanceof WP_Term && $term->parent ? get_term( $term->parent, 'library-author' ) : $term;
+		$author = $term instanceof WP_Term ? current( Library_Taxonomies::get_top_terms( array( $term ) ) ) : null;
 
 		if ( ! $author instanceof WP_Term ) {
 			return new WP_Error( 'library_no_author', get_taxonomy( 'library-author' )->labels->not_found, array( 'status' => 404 ) );
@@ -324,12 +324,11 @@ class Library_Rest_API {
 				'fields'     => 'names',
 			)
 		);
-		$first_date = fn( array $book ) => '' !== $book['published_date'] ? $book['published_date'] : $book['edition_date'];
 
 		usort(
 			$books,
-			function ( array $a, array $b ) use ( $first_date ): int {
-				$order = array( '' === $first_date( $a ), $first_date( $a ) ) <=> array( '' === $first_date( $b ), $first_date( $b ) );
+			function ( array $a, array $b ): int {
+				$order = array( '' === $a['first_date'], $a['first_date'] ) <=> array( '' === $b['first_date'], $b['first_date'] );
 
 				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );
 			}

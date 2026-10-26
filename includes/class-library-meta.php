@@ -6,7 +6,7 @@
  * @since      1.0.0
  *
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  */
 
 /**
@@ -15,7 +15,7 @@
  *
  * @since      1.0.0
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Meta {

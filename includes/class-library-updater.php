@@ -102,7 +102,7 @@ class Library_Updater {
 			return $result;
 		}
 
-		$plugin_data = get_plugin_data( LIBRARY_DIR_PATH . 'library.php', false, false );
+		$plugin_data = get_plugin_data( LIBRARY_FILE, false, false );
 		$readme      = $release['readme'] ?? '';
 		$sections    = Library_Readme::sections( $readme );
 
@@ -227,7 +227,7 @@ class Library_Updater {
 	 * @return string
 	 */
 	private function asset_url( string $file ): string {
-		return plugin_dir_url( LIBRARY_DIR_PATH . 'library.php' ) . 'assets/' . $file;
+		return Library::asset( "assets/$file" )[0];
 	}
 
 	/**
@@ -236,7 +236,7 @@ class Library_Updater {
 	 * @return string
 	 */
 	private function repository(): string {
-		$update_uri = get_file_data( LIBRARY_DIR_PATH . 'library.php', array( 'update_uri' => 'Update URI' ) )['update_uri'];
+		$update_uri = get_file_data( LIBRARY_FILE, array( 'update_uri' => 'Update URI' ) )['update_uri'];
 
 		return trim( (string) wp_parse_url( $update_uri, PHP_URL_PATH ), '/' );
 	}

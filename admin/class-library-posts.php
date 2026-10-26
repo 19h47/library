@@ -490,8 +490,7 @@ class Library_Posts {
 			return $items;
 		}
 
-		/* translators: %s: number of books. */
-		$text = sprintf( _n( '%s book', '%s books', $count, 'library' ), number_format_i18n( $count ) );
+		$text = Library_Books::books_text( $count );
 
 		if ( ! current_user_can( get_post_type_object( 'book' )->cap->edit_posts ) ) {
 			$items[] = sprintf( '<span class="book-count">%s</span>', esc_html( $text ) );
@@ -594,7 +593,7 @@ class Library_Posts {
 	 * @return array
 	 */
 	public function add_list_table_views( array $views ): array {
-		$stats = self::get_reading_stats();
+		$stats = Library_Stats::get_reading_stats();
 
 		/* translators: %s: reading percentage. */
 		$label = sprintf( __( '%s%% read', 'library' ), number_format_i18n( $stats['percent'] ) );
@@ -606,39 +605,5 @@ class Library_Posts {
 		);
 
 		return $views;
-	}
-
-	/**
-	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts and books not kept.
-	 *
-	 * @return array{read:int,total:int,percent:int}
-	 */
-	public static function get_reading_stats(): array {
-		$counts = (array) wp_count_posts( 'book' );
-		unset( $counts['trash'], $counts['auto-draft'], $counts[ self::NOT_KEPT ] );
-
-		$total = (int) array_sum( $counts );
-
-		// The list table sort filters must not alter this count.
-		$read_query = new WP_Query(
-			array(
-				'post_type'        => 'book',
-				'post_status'      => 'any',
-				'posts_per_page'   => 1,
-				'fields'           => 'ids',
-				'suppress_filters' => true,
-				'meta_key'         => 'read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
-				'meta_value'       => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
-			)
-		);
-
-		$read    = (int) $read_query->found_posts;
-		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
-
-		return array(
-			'read'    => $read,
-			'total'   => $total,
-			'percent' => $percent,
-		);
 	}
 }

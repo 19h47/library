@@ -588,17 +588,6 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Number of books as text.
-	 *
-	 * @param int $books Number of books.
-	 * @return string
-	 */
-	private static function books_text( int $books ): string {
-		/* translators: %s: number of books. */
-		return sprintf( _n( '%s book', '%s books', $books, 'library' ), number_format_i18n( $books ) );
-	}
-
-	/**
 	 * Series, authors and collections read in full, one achievement for each kind, and those with few books left.
 	 *
 	 * @param array<int,array> $books All the books.
@@ -725,7 +714,7 @@ class Library_Achievements {
 		}
 
 		if ( 0 === $left ) {
-			return self::achievement( $kind, $titles[ $kind ], $subject, self::books_text( $total ), $target, self::last_read_date( $read ) );
+			return self::achievement( $kind, $titles[ $kind ], $subject, Library_Books::books_text( $total ), $target, self::last_read_date( $read ) );
 		}
 
 		$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
@@ -935,7 +924,7 @@ class Library_Achievements {
 				"record-$kind",
 				$period['title'],
 				date_i18n( $period['format'], strtotime( str_pad( $record, 10, '-01', STR_PAD_RIGHT ) ) ),
-				self::books_text( $best ),
+				Library_Books::books_text( $best ),
 				null,
 				$by_period[ $record ][ $former ]['read_date']
 			);
@@ -1033,15 +1022,13 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Year a work first came out: its date first published, or else its edition date.
+	 * Year a work first came out.
 	 *
 	 * @param array $book Book.
 	 * @return int|null
 	 */
 	private static function first_year( array $book ): ?int {
-		$date = '' !== $book['published_date'] ? $book['published_date'] : $book['edition_date'];
-
-		return '' !== $date ? (int) substr( $date, 0, 4 ) : null;
+		return '' !== $book['first_date'] ? (int) substr( $book['first_date'], 0, 4 ) : null;
 	}
 
 	/**
@@ -1060,7 +1047,7 @@ class Library_Achievements {
 
 		$book = end( $books );
 		/* translators: 1: what the books did, e.g. "Read on 29 February", 2: number of books, e.g. "3 books". */
-		$detail = count( $books ) > 1 ? sprintf( __( '%1$s (%2$s)', 'library' ), $description, self::books_text( count( $books ) ) ) : $description;
+		$detail = count( $books ) > 1 ? sprintf( __( '%1$s (%2$s)', 'library' ), $description, Library_Books::books_text( count( $books ) ) ) : $description;
 
 		return array(
 			self::achievement(
@@ -1189,7 +1176,7 @@ class Library_Achievements {
 		foreach ( $translators as $key => $books ) {
 			$translator = $names[ $key ];
 			$left       = self::TRANSLATOR_BOOKS - count( $books );
-			$detail     = self::books_text( count( $books ) );
+			$detail     = Library_Books::books_text( count( $books ) );
 
 			if ( $left <= 0 ) {
 				$earned[] = self::achievement( 'translator', '', $translator, $detail, self::search_target( Library_WP_Query::keyword_search( 'translator', $translator ), $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );

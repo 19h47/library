@@ -143,10 +143,8 @@ class Library_App {
 		$ratings = array();
 
 		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
-			$decimals = fmod( $rating, 1 ) ? 1 : 0;
-
 			/* translators: %s: rating, e.g. 7.5. */
-			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), number_format_i18n( $rating, $decimals ) );
+			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::rating_text( $rating ) );
 		}
 
 		return $ratings;
