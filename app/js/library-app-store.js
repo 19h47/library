@@ -27,6 +27,7 @@
 	const SEARCH_DELAY = 250;
 
 	const { apiFetch } = window.wp;
+	const { __ } = window.wp.i18n;
 	const config = window.libraryApp;
 	const $root = document.documentElement;
 	const $themeColor = document.querySelector( 'meta[name="theme-color"]' );
@@ -137,7 +138,7 @@
 
 	/** The message of a failed request: the one of the API, or a generic one. */
 	function errorMessage( error ) {
-		return error?.message ?? config.strings.error;
+		return error?.message ?? __( 'The books could not be loaded.', 'library' );
 	}
 
 	/** The view of a URL, the books by default; the page of an author needs an author. */
@@ -361,6 +362,17 @@
 			this.#fetchSearch();
 		}
 
+		/**
+		 * Shows the books a search finds, read or not, at the top of the books view, such as the books of a series
+		 * from an achievement. The view comes first, so that the query goes to its URL.
+		 */
+		searchBooks( query ) {
+			this.setView( 'books' );
+			this.set( ( state ) => ( { ...state, query, read: '' } ) );
+			this.#fetchSearch();
+			scrollToTop();
+		}
+
 		/** The next books of the search, unless some are loading or none is left. */
 		loadMoreBooks() {
 			const { loading, items, total } = this.get().search;
@@ -397,8 +409,17 @@
 			}
 		}
 
-		/** Opens a book, with its URL in the history: going back closes it. */
-		openBook( id ) {
+		/**
+		 * Opens a book, loaded first when it is not yet, such as the book of an achievement,
+		 * with its URL in the history: going back closes it.
+		 */
+		async openBook( id ) {
+			try {
+				await this.#fetchBooks( [ id ] );
+			} catch {
+				return;
+			}
+
 			const { books, book } = this.get();
 
 			if ( ! ( id in books ) || id === book ) {

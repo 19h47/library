@@ -2,7 +2,7 @@ import { store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatNumber } from 'library-app/format';
 import { fill, renderAchievement, renderCloseAchievement } from 'library-app/render';
-import { openAuthors } from 'library-app/behaviors';
+import { openLinks } from 'library-app/behaviors';
 
 /** The achievements close to be earned, with their progress, then the ones earned, latest first. */
 class LibraryAchievementsElement extends Brick {
@@ -10,7 +10,7 @@ class LibraryAchievementsElement extends Brick {
 		const $close = this.querySelector( '[data-list="close"]' );
 		const $earned = this.querySelector( '[data-list="earned"]' );
 
-		openAuthors( this, signal );
+		openLinks( this, signal );
 
 		return [
 			store.select(

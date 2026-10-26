@@ -1,18 +1,17 @@
 /**
- * Formats of the bricks: numbers, dates, plurals and lists in the language of the page, and the line of a book.
+ * Formats of the bricks: numbers, dates, books and lists in the language of the page, and the line of a book.
  *
  * @package    Library
  * @subpackage Library/app
  */
 
-import { notKept, sprintf, strings } from 'library-app/app';
+import { __, _n, _x, notKept, sprintf } from 'library-app/app';
 
 const { lang } = document.documentElement;
 const numberFormat = new Intl.NumberFormat( lang );
 const dateFormat = new Intl.DateTimeFormat( lang, { dateStyle: 'long' } );
 const monthFormat = new Intl.DateTimeFormat( lang, { year: 'numeric', month: 'long' } );
 
-export const pluralRules = new Intl.PluralRules( lang );
 export const dayFormat = new Intl.DateTimeFormat( lang, { day: 'numeric', month: 'long' } );
 export const listFormat = new Intl.ListFormat( lang, { type: 'unit' } );
 
@@ -20,9 +19,10 @@ export function formatNumber( number ) {
 	return numberFormat.format( number );
 }
 
-/** The form of `forms` for `number`, with its number: in French, 0 takes the singular too. */
-export function plural( number, forms ) {
-	return sprintf( forms[ pluralRules.select( number ) ] ?? forms.other, formatNumber( number ) );
+/** A number of books: "12 books". */
+export function formatBooks( books ) {
+	/* translators: %s: number of books. */
+	return sprintf( _n( '%s book', '%s books', books, 'library' ), formatNumber( books ) );
 }
 
 /** A date of the API: "2024-05-12", or "1929-11" and "1929" for a date first published. */
@@ -37,17 +37,18 @@ export function formatDate( date, format = dateFormat ) {
 }
 
 function formatRating( rating ) {
-	return rating ? sprintf( strings.rating, formatNumber( rating ) ) : '';
+	/* translators: %s: rating, e.g. 7.5. */
+	return rating ? sprintf( __( '%s/10', 'library' ), formatNumber( rating ) ) : '';
 }
 
 /** Its rating, and whether it is kept: the end of the state of a book. */
 export function formatDetails( book ) {
-	return [ formatRating( book.rating ), notKept === book.status && strings.notKept ];
+	return [ formatRating( book.rating ), notKept === book.status && _x( 'Not kept', 'book status', 'library' ) ];
 }
 
 /** Whether a book is read, its rating, and whether it is kept. */
 export function formatState( book ) {
-	return join( [ book.read ? strings.read : strings.toRead, ...formatDetails( book ) ] );
+	return join( [ book.read ? __( 'Read', 'library' ) : __( 'To read', 'library' ), ...formatDetails( book ) ] );
 }
 
 export function join( parts ) {

@@ -22,20 +22,6 @@
 class Library_Dashboard {
 
 	/**
-	 * SQL condition on the posts table aliased "p": all books, kept or not, for the reading stats.
-	 *
-	 * @var string
-	 */
-	public const BOOKS = "p.post_type = 'book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )";
-
-	/**
-	 * SQL condition on the posts table aliased "p": the books in the library, i.e. kept.
-	 *
-	 * @var string
-	 */
-	private const LIBRARY = self::BOOKS . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
-
-	/**
 	 * Number of entries in the rankings and the recent reads.
 	 *
 	 * @var int
@@ -74,11 +60,9 @@ class Library_Dashboard {
 
 	/**
 	 * Register the dashboard widgets.
-	 *
-	 * The reading widget keeps the ID of the former single widget, and so its position.
 	 */
 	public function register_widgets(): void {
-		wp_add_dashboard_widget( 'library_dashboard_overview', __( 'Reading', 'library' ), array( $this, 'render_reading' ) );
+		wp_add_dashboard_widget( 'library_dashboard_reading', __( 'Reading', 'library' ), array( $this, 'render_reading' ) );
 		wp_add_dashboard_widget( 'library_dashboard_ratings', __( 'Ratings', 'library' ), array( $this, 'render_ratings' ) );
 		wp_add_dashboard_widget( 'library_dashboard_pile', __( 'Reading pile', 'library' ), array( $this, 'render_pile' ) );
 		wp_add_dashboard_widget( 'library_dashboard_collection', __( 'Library', 'library' ), array( $this, 'render_collection' ) );
@@ -88,8 +72,8 @@ class Library_Dashboard {
 	 * Reading widget: books read, this year against last year, charts by year and month.
 	 */
 	public function render_reading(): void {
-		$stats        = Library_Posts::get_reading_stats();
-		$year_to_date = self::get_year_to_date();
+		$stats        = Library_Stats::get_reading_stats();
+		$year_to_date = Library_Stats::get_year_to_date();
 		$pages_read   = $this->get_pages_this_year();
 		$charts       = $this->get_reading_charts();
 
@@ -121,7 +105,7 @@ class Library_Dashboard {
 	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and edition years.
 	 */
 	public function render_collection(): void {
-		$stats    = Library_Posts::get_reading_stats();
+		$stats    = Library_Stats::get_reading_stats();
 		$rankings = array(
 			array(
 				'title' => __( 'Most present authors', 'library' ),
@@ -167,30 +151,6 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Run a SELECT on the books; "{books}" and "{library}" in the SQL stand for the BOOKS and LIBRARY conditions.
-	 *
-	 * "{readings}" stands for the readings: a table aliased "r" of a `book` and its read `date`, once per book and date,
-	 * kept or not. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one.
-	 *
-	 * @param string $sql  SQL, with placeholders for the arguments.
-	 * @param mixed  ...$args Values for the placeholders.
-	 * @return object[]
-	 */
-	public static function select( string $sql, mixed ...$args ): array {
-		global $wpdb;
-
-		$readings = "( SELECT DISTINCT m.post_id AS book, m.meta_value AS date
-			FROM {$wpdb->postmeta} AS m
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books} ) AS r";
-		// The readings first: they hold the books condition.
-		$sql = str_replace( array( '{readings}', '{books}', '{library}' ), array( $readings, self::BOOKS, self::LIBRARY ), $sql );
-		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
-
-		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets and REST routes, run on demand.
-	}
-
-	/**
 	 * Count books by the start of a meta value, e.g. "2024-05" (length 7) or "2024" (length 4) for a date.
 	 *
 	 * A book counts once per value.
@@ -203,7 +163,7 @@ class Library_Dashboard {
 	private function count_by_meta_start( string $meta_key, int $length, string $scope = '{books}' ): array {
 		global $wpdb;
 
-		$rows = self::select(
+		$rows = Library_Stats::select(
 			"SELECT LEFT( m.meta_value, %d ) AS value_start, COUNT( DISTINCT p.ID, m.meta_value ) AS books
 			FROM {$wpdb->postmeta} AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
@@ -217,17 +177,6 @@ class Library_Dashboard {
 		);
 
 		return array_map( 'intval', wp_list_pluck( $rows, 'books', 'value_start' ) );
-	}
-
-	/**
-	 * "12 books".
-	 *
-	 * @param int $books Number of books.
-	 * @return string
-	 */
-	private static function books_text( int $books ): string {
-		/* translators: %s: number of books. */
-		return sprintf( _n( '%s book', '%s books', $books, 'library' ), number_format_i18n( $books ) );
 	}
 
 	/**
@@ -292,44 +241,6 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Books read this year and by the same date last year, and the number expected by the end of the year;
-	 * a book read again counts once per reading.
-	 *
-	 * @return array{year:int,this_year:int,last_year:int,projection:int|null}
-	 */
-	public static function get_year_to_date(): array {
-		$today          = new DateTimeImmutable( 'now', wp_timezone() );
-		$same_day       = $today->modify( '-1 year' );
-		$this_year_from = $today->format( 'Y-01-01' );
-		$last_year_from = $same_day->format( 'Y-01-01' );
-
-		[ $row ] = self::select(
-			'SELECT
-				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS this_year,
-				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS last_year
-			FROM {readings}',
-			$this_year_from,
-			$today->format( 'Y-m-d' ),
-			$last_year_from,
-			$same_day->format( 'Y-m-d' )
-		);
-
-		$this_year    = (int) $row->this_year;
-		$day_of_year  = (int) $today->format( 'z' ) + 1;
-		$days_in_year = 365 + (int) $today->format( 'L' );
-
-		// A month of readings is the least to project a whole year from.
-		$projection = $day_of_year >= 31 ? (int) round( $this_year * $days_in_year / $day_of_year ) : null;
-
-		return array(
-			'year'       => (int) $today->format( 'Y' ),
-			'this_year'  => $this_year,
-			'last_year'  => (int) $row->last_year,
-			'projection' => $projection,
-		);
-	}
-
-	/**
 	 * Pages read this year, over the books read this year with their number of pages;
 	 * a book read again counts once per reading.
 	 *
@@ -338,7 +249,7 @@ class Library_Dashboard {
 	private function get_pages_this_year(): array {
 		global $wpdb;
 
-		[ $row ] = self::select(
+		[ $row ] = Library_Stats::select(
 			"SELECT SUM( n.meta_value ) AS pages, COUNT(*) AS books
 			FROM {readings}
 			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = r.book AND n.meta_key = 'pages'
@@ -365,7 +276,7 @@ class Library_Dashboard {
 		$books_by_year    = array();
 		$books_this_year  = array_fill( 1, 12, 0 );
 		$books_by_month   = array_fill( 1, 12, 0 );
-		$books_by_yearmon = array_map( 'intval', wp_list_pluck( self::select( 'SELECT LEFT( r.date, 7 ) AS month, COUNT(*) AS readings FROM {readings} GROUP BY month ORDER BY month' ), 'readings', 'month' ) );
+		$books_by_yearmon = array_map( 'intval', wp_list_pluck( Library_Stats::select( 'SELECT LEFT( r.date, 7 ) AS month, COUNT(*) AS readings FROM {readings} GROUP BY month ORDER BY month' ), 'readings', 'month' ) );
 
 		foreach ( $books_by_yearmon as $year_month => $books ) {
 			[ $year, $month ] = array_map( 'intval', explode( '-', $year_month ) );
@@ -379,7 +290,7 @@ class Library_Dashboard {
 		}
 
 		$year_items = array_map(
-			fn( int $year ) => self::item( self::year_label( $year ), (string) $year, $books_by_year[ $year ] ?? 0, self::books_text( $books_by_year[ $year ] ?? 0 ) ),
+			fn( int $year ) => self::item( self::year_label( $year ), (string) $year, $books_by_year[ $year ] ?? 0, Library_Books::books_text( $books_by_year[ $year ] ?? 0 ) ),
 			self::reading_years( $books_by_year )
 		);
 
@@ -388,7 +299,7 @@ class Library_Dashboard {
 				mb_strtoupper( mb_substr( $wp_locale->get_month( $month ), 0, 1 ) ),
 				$wp_locale->get_month( $month ),
 				$books[ $month ],
-				self::books_text( $books[ $month ] )
+				Library_Books::books_text( $books[ $month ] )
 			),
 			range( 1, 12 )
 		);
@@ -413,7 +324,7 @@ class Library_Dashboard {
 			$items = array();
 
 			foreach ( $books_by_year as $year => $books ) {
-				$items[] = self::item( (string) $year, (string) $year, $books, self::books_text( $books ) );
+				$items[] = self::item( (string) $year, (string) $year, $books, Library_Books::books_text( $books ) );
 			}
 
 			return self::books_chart( __( 'Edition year distribution', 'library' ), __( 'Edition year', 'library' ), $items );
@@ -430,7 +341,7 @@ class Library_Dashboard {
 		$items = array();
 
 		foreach ( $books_by_decade as $decade => $books ) {
-			$items[] = self::item( (string) $decade, sprintf( '%d–%d', $decade, $decade + 9 ), $books, self::books_text( $books ) );
+			$items[] = self::item( (string) $decade, sprintf( '%d–%d', $decade, $decade + 9 ), $books, Library_Books::books_text( $books ) );
 		}
 
 		return self::books_chart( __( 'Edition year distribution (by decade)', 'library' ), __( 'Edition years', 'library' ), $items );
@@ -457,7 +368,7 @@ class Library_Dashboard {
 		}
 
 		$items = array_map(
-			fn( int $point ) => self::item( (string) $point, $point . '/10', $books_by_point[ $point ], self::books_text( $books_by_point[ $point ] ) ),
+			fn( int $point ) => self::item( (string) $point, $point . '/10', $books_by_point[ $point ], Library_Books::books_text( $books_by_point[ $point ] ) ),
 			range( 1, 10 )
 		);
 
@@ -476,7 +387,7 @@ class Library_Dashboard {
 	private function get_average_rating_chart(): array {
 		global $wpdb;
 
-		$rows = self::select(
+		$rows = Library_Stats::select(
 			"SELECT LEFT( r.date, 4 ) AS year, AVG( n.meta_value ) AS average
 			FROM {readings}
 			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = r.book AND n.meta_key = 'rating'
@@ -515,7 +426,7 @@ class Library_Dashboard {
 	private function get_oldest_unread_book(): ?WP_Post {
 		global $wpdb;
 
-		$rows = self::select(
+		$rows = Library_Stats::select(
 			"SELECT p.ID
 			FROM {$wpdb->posts} AS p
 			INNER JOIN {$wpdb->postmeta} AS d ON d.post_id = p.ID AND d.meta_key = 'edition_date' AND d.meta_value != ''
@@ -535,7 +446,7 @@ class Library_Dashboard {
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
 	private function get_recent_reads(): array {
-		$rows = self::select( 'SELECT r.book, r.date FROM {readings} ORDER BY r.date DESC, r.book DESC LIMIT %d', self::LIST_LENGTH );
+		$rows = Library_Stats::select( 'SELECT r.book, r.date FROM {readings} ORDER BY r.date DESC, r.book DESC LIMIT %d', self::LIST_LENGTH );
 
 		return array_map(
 			fn( object $row ) => array(
@@ -571,7 +482,7 @@ class Library_Dashboard {
 	private function get_top_terms( string $taxonomy ): array {
 		global $wpdb;
 
-		$rows = self::select(
+		$rows = Library_Stats::select(
 			"SELECT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
@@ -596,7 +507,7 @@ class Library_Dashboard {
 	private function get_top_collections(): array {
 		global $wpdb;
 
-		$rows = self::select(
+		$rows = Library_Stats::select(
 			"SELECT tt.term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library-publisher' AND tt.parent != 0
@@ -656,7 +567,7 @@ class Library_Dashboard {
 	private function count_unread_books(): int {
 		global $wpdb;
 
-		[ $row ] = self::select(
+		[ $row ] = Library_Stats::select(
 			"SELECT COUNT( DISTINCT p.ID ) AS books
 			FROM {$wpdb->posts} AS p
 			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
@@ -676,7 +587,7 @@ class Library_Dashboard {
 	private function count_terms( string $taxonomy ): int {
 		global $wpdb;
 
-		[ $row ] = self::select(
+		[ $row ] = Library_Stats::select(
 			"SELECT COUNT( DISTINCT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) ) AS terms
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
@@ -696,7 +607,7 @@ class Library_Dashboard {
 	private function count_translated_books(): int {
 		global $wpdb;
 
-		[ $row ] = self::select(
+		[ $row ] = Library_Stats::select(
 			"SELECT COUNT( DISTINCT p.ID ) AS books
 			FROM {$wpdb->postmeta} AS t
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = t.post_id

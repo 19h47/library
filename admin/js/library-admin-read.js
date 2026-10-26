@@ -1,7 +1,7 @@
 /**
  * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
- * Uses wp.apiFetch, which handles the REST root and nonce, and libraryAdminRead (readPercentFormat, today).
+ * Uses wp.apiFetch, which handles the REST root and nonce, wp.i18n, and libraryAdminRead (today).
  * Checking a book without a read date sets it to today; unchecking it clears its read dates.
  *
  * @package    Library
@@ -12,7 +12,8 @@
 	'use strict';
 
 	const { apiFetch }     = window.wp;
-	const config           = window.libraryAdminRead ?? {};
+	const { __, sprintf }  = window.wp.i18n;
+	const config           = window.libraryAdminRead;
 	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
 	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
 
@@ -21,9 +22,8 @@
 	}
 
 	const updatePercent = ( percent ) => {
-		const format = config.readPercentFormat ?? '%s% read';
-
-		readPercentageEl.textContent = format.replace( '%s', percent.toLocaleString() );
+		/* translators: %s: reading percentage. */
+		readPercentageEl.textContent = sprintf( __( '%s%% read', 'library' ), percent.toLocaleString() );
 	};
 
 	// Quick edit reads the inline data, so it must follow the date the server kept.
@@ -54,7 +54,7 @@
 		}
 
 		checkbox.disabled = true;
-		readPercentageEl.textContent = readPercentageEl.dataset.loadingText ?? '…';
+		readPercentageEl.textContent = readPercentageEl.dataset.loadingText;
 
 		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
 		const meta       = { read: checkbox.checked };

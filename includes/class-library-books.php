@@ -1,6 +1,6 @@
 <?php
 /**
- * Books data shared by the reading idea and the achievements, and how a book is named.
+ * Books data shared by the reading idea, the achievements and the REST API, and how a book, a number of books and a rating are said.
  *
  * @link       https://github.com/19h47/library
  * @since      2.2.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Loads all the books once per request, with their meta and terms, and names a book the same way everywhere.
+ * Loads all the books once per request, with their meta and terms, and says a book, a number of books and a rating the same way everywhere.
  *
  * @since      2.2.0
  * @package    Library
@@ -40,10 +40,11 @@ class Library_Books {
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
 	 * Authors are counted for their real name. The read dates go from the first reading to the latest.
+	 * The date a work first came out is its date first published, or else its edition date.
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,first_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
 	 */
 	public static function all(): array {
 		if ( null !== self::$books ) {
@@ -61,13 +62,16 @@ class Library_Books {
 		self::$books = array();
 
 		foreach ( $posts as $post ) {
-			$volume      = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'volume_number', true ), $match ) ? (int) $match[0] : null;
-			$series      = (string) get_post_meta( $post->ID, 'series', true );
-			$rating      = get_post_meta( $post->ID, 'rating', true );
-			$pages       = (int) get_post_meta( $post->ID, 'pages', true );
-			$authors     = self::get_real_authors( $post->ID );
-			$collections = Library_Taxonomies::get_collections( $post->ID );
-			$languages   = get_the_terms( $post->ID, 'library-language' );
+			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'volume_number', true ), $match ) ? (int) $match[0] : null;
+			$series         = (string) get_post_meta( $post->ID, 'series', true );
+			$rating         = get_post_meta( $post->ID, 'rating', true );
+			$pages          = (int) get_post_meta( $post->ID, 'pages', true );
+			$edition_date   = (string) get_post_meta( $post->ID, 'edition_date', true );
+			$published_date = (string) get_post_meta( $post->ID, 'published_date', true );
+			$author_terms   = get_the_terms( $post->ID, 'library-author' );
+			$authors        = Library_Taxonomies::get_top_terms( is_array( $author_terms ) ? $author_terms : array() );
+			$collections    = Library_Taxonomies::get_collections( $post->ID );
+			$languages      = get_the_terms( $post->ID, 'library-language' );
 
 			if ( '' === $series && null !== $volume ) {
 				$series = $post->post_title;
@@ -84,8 +88,9 @@ class Library_Books {
 				'read_dates'     => Library_Meta::get_read_dates( $post->ID ),
 				'rating'         => '' !== $rating ? (float) $rating : null,
 				'pages'          => $pages ? $pages : null,
-				'edition_date'   => (string) get_post_meta( $post->ID, 'edition_date', true ),
-				'published_date' => (string) get_post_meta( $post->ID, 'published_date', true ),
+				'edition_date'   => $edition_date,
+				'published_date' => $published_date,
+				'first_date'     => '' !== $published_date ? $published_date : $edition_date,
 				'added'          => $post->post_date,
 				'authors'        => wp_list_pluck( $authors, 'name' ),
 				'author_ids'     => wp_list_pluck( $authors, 'term_id' ),
@@ -153,7 +158,7 @@ class Library_Books {
 		$terms      = get_the_terms( $book_id, 'library-publisher' );
 		$publishers = array();
 
-		foreach ( Library_Taxonomies::get_publishers( is_array( $terms ) ? $terms : array() ) as $publisher ) {
+		foreach ( Library_Taxonomies::get_top_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
 			$collections  = wp_list_filter( Library_Taxonomies::get_collections( $book_id ), array( 'parent' => $publisher->term_id ) );
 			$publishers[] = implode( ', ', array( $publisher->name, ...wp_list_pluck( $collections, 'name' ) ) );
 		}
@@ -168,24 +173,27 @@ class Library_Books {
 	}
 
 	/**
-	 * Authors of a book, a pseudonym counted for its real name, each one once.
+	 * A number of books as text: "12 books".
 	 *
-	 * @param int $book_id Book ID.
-	 * @return WP_Term[]
+	 * @param int $books Number of books.
+	 * @return string
 	 */
-	private static function get_real_authors( int $book_id ): array {
-		$terms   = get_the_terms( $book_id, 'library-author' );
-		$authors = array();
+	public static function books_text( int $books ): string {
+		/* translators: %s: number of books. */
+		return sprintf( _n( '%s book', '%s books', $books, 'library' ), number_format_i18n( $books ) );
+	}
 
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$author = $term->parent ? get_term( $term->parent, 'library-author' ) : $term;
+	/**
+	 * A rating or an average as text, with one decimal unless it is round: "9", "8,5".
+	 *
+	 * @param float $rating Rating, out of 10.
+	 * @return string
+	 */
+	public static function rating_text( float $rating ): string {
+		$rating   = round( $rating, 1 );
+		$decimals = floor( $rating ) === $rating ? 0 : 1;
 
-			if ( $author instanceof WP_Term ) {
-				$authors[ $author->term_id ] = $author;
-			}
-		}
-
-		return array_values( $authors );
+		return number_format_i18n( $rating, $decimals );
 	}
 
 	/**

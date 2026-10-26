@@ -5,7 +5,7 @@
  * @package Library
  * @subpackage Library/admin/partials
  *
- * @var array{kind:string,title:string,subject:string,detail:string,url:string,date:string,easter_egg:bool} $achievement
+ * @var array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool} $achievement
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $meta = array_filter( array( $achievement['detail'], Library_Achievements::date( $achievement ) ) );
+$url  = Library_Achievements::url( $achievement );
 ?>
 
 <li class="library-achievement<?php echo $achievement['easter_egg'] ? ' library-achievement--easter-egg' : ''; ?>">
@@ -21,8 +22,8 @@ $meta = array_filter( array( $achievement['detail'], Library_Achievements::date(
 		<span class="library-achievement-title"><?php echo esc_html( $achievement['title'] ); ?></span>
 		<?php if ( '' !== $achievement['subject'] ) : ?>
 			<span class="library-achievement-subject">
-				<?php if ( '' !== $achievement['url'] ) : ?>
-					<a href="<?php echo esc_url( $achievement['url'] ); ?>"><?php echo esc_html( $achievement['subject'] ); ?></a>
+				<?php if ( '' !== $url ) : ?>
+					<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $achievement['subject'] ); ?></a>
 				<?php else : ?>
 					<?php echo esc_html( $achievement['subject'] ); ?>
 				<?php endif; ?>

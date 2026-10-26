@@ -2,7 +2,7 @@
 	content: "\f330";
 }
 
-#library_dashboard_overview .inside,
+#library_dashboard_reading .inside,
 #library_dashboard_ratings .inside,
 #library_dashboard_pile .inside,
 #library_dashboard_collection .inside,
@@ -17,12 +17,6 @@
 
 .library-dashboard-header {
 	margin-bottom: 10px;
-}
-
-.library-dashboard-period {
-	margin: 0;
-	color: #646970;
-	font-size: 12px;
 }
 
 .library-dashboard-primary {
@@ -260,8 +254,7 @@
 }
 
 .library-achievements-badges,
-.library-achievements-close,
-.library-achievements-list {
+.library-achievements-close {
 	margin: 0 0 14px;
 	padding: 0 2px;
 	list-style: none;

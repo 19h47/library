@@ -51,16 +51,9 @@ class Library_Admin {
 
 		$read_handle                 = 'library-admin-read';
 		[ $read_url, $read_version ] = Library::asset( 'admin/js/library-admin-read.js' );
-		wp_enqueue_script( $read_handle, $read_url, array( 'wp-api-fetch' ), $read_version, true );
-		wp_localize_script(
-			$read_handle,
-			'libraryAdminRead',
-			array(
-				/* translators: %s: reading percentage. */
-				'readPercentFormat' => str_replace( '%%', '%', __( '%s%% read', 'library' ) ),
-				'today'             => current_time( 'Y-m-d' ),
-			)
-		);
+		wp_enqueue_script( $read_handle, $read_url, array( 'wp-api-fetch', 'wp-i18n' ), $read_version, true );
+		wp_set_script_translations( $read_handle, 'library', LIBRARY_DIR_PATH . 'languages' );
+		wp_localize_script( $read_handle, 'libraryAdminRead', array( 'today' => current_time( 'Y-m-d' ) ) );
 
 		[ $inline_edit_url, $inline_edit_version ] = Library::asset( 'admin/js/library-admin-inline-edit.js' );
 		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );
@@ -69,7 +62,7 @@ class Library_Admin {
 			'libraryInlineEdit',
 			array(
 				'notKeptStatus' => Library_Posts::NOT_KEPT,
-				'notKeptLabel'  => _x( 'Not kept', 'book status', 'library' ),
+				'notKeptLabel'  => get_post_status_object( Library_Posts::NOT_KEPT )->label,
 			)
 		);
 	}

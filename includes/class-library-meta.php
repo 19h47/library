@@ -6,7 +6,7 @@
  * @since      1.0.0
  *
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  */
 
 /**
@@ -15,7 +15,7 @@
  *
  * @since      1.0.0
  * @package    Library
- * @subpackage Library/admin
+ * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  */
 class Library_Meta {
@@ -35,20 +35,20 @@ class Library_Meta {
 	private const DATE_KEYS = array( 'edition_date', 'read_date' );
 
 	/**
-	 * HTML pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
+	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
 	 *
-	 * Browsers compile a pattern with the v flag, where a hyphen in a class is escaped: an invalid pattern checks nothing.
+	 * Browsers compile the pattern of an input with the v flag, where a hyphen in a class is escaped: an invalid pattern checks nothing.
 	 *
 	 * @var string
 	 */
-	public const ISBN_PATTERN = '(?:(?=.{17}$)(97[89]|501)[ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])';
+	private const ISBN_PATTERN = '^(?:(?=.{17}$)(97[89]|501)[ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
 
 	/**
-	 * HTML pattern of an ISSN, such as 1234-5678.
+	 * Pattern of an ISSN, such as 1234-5678.
 	 *
 	 * @var string
 	 */
-	public const ISSN_PATTERN = '\\S{4}-\\S{4}';
+	private const ISSN_PATTERN = '^\\S{4}-\\S{4}$';
 
 	/**
 	 * Book meta edited in quick edit.
@@ -80,19 +80,48 @@ class Library_Meta {
 	}
 
 	/**
-	 * Register book meta.
+	 * Register book meta, with the label, the description and the schema that the forms of the admin and of the reading app
+	 * take their fields from.
 	 *
 	 * @return void
 	 */
 	public function register(): void {
+		$labels       = array(
+			'subtitle'       => __( 'Subtitle', 'library' ),
+			'series'         => __( 'Series', 'library' ),
+			'isbn'           => __( 'ISBN', 'library' ),
+			'issn'           => __( 'ISSN', 'library' ),
+			'volume_number'  => __( 'Volume Number', 'library' ),
+			'translators'    => __( 'Translators', 'library' ),
+			'edition_date'   => __( 'Edition date', 'library' ),
+			'read_date'      => __( 'Read dates', 'library' ),
+			'published_date' => __( 'First published', 'library' ),
+			'pages'          => __( 'Pages', 'library' ),
+			'rating'         => __( 'Rating', 'library' ),
+			'read'           => __( 'Read', 'library' ),
+		);
+		$descriptions = array(
+			'subtitle'       => __( 'Optional. Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
+			'series'         => __( 'Separate series with commas', 'library' ),
+			'translators'    => __( 'Separate translators with commas', 'library' ),
+			'published_date' => __( 'Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'rating'         => __( 'Rating from 1 to 10.', 'library' ),
+		);
+		$patterns     = array(
+			'isbn' => self::ISBN_PATTERN,
+			'issn' => self::ISSN_PATTERN,
+		);
+
 		foreach ( self::TEXT_KEYS as $key ) {
 			register_post_meta(
 				'book',
 				$key,
 				array(
 					'type'              => 'string',
+					'label'             => $labels[ $key ],
+					'description'       => $descriptions[ $key ] ?? '',
 					'single'            => true,
-					'show_in_rest'      => true,
+					'show_in_rest'      => isset( $patterns[ $key ] ) ? array( 'schema' => array( 'pattern' => $patterns[ $key ] ) ) : true,
 					'sanitize_callback' => 'sanitize_text_field',
 				)
 			);
@@ -104,9 +133,13 @@ class Library_Meta {
 				$key,
 				array(
 					'type'              => 'string',
+					'label'             => $labels[ $key ],
 					'single'            => 'read_date' !== $key,
 					'show_in_rest'      => array(
-						'schema' => array( 'pattern' => '^\d{4}-\d{2}-\d{2}$' ),
+						'schema' => array(
+							'pattern' => '^\d{4}-\d{2}-\d{2}$',
+							'format'  => 'date',
+						),
 					),
 					'sanitize_callback' => array( self::class, 'sanitize_date' ),
 				)
@@ -119,6 +152,8 @@ class Library_Meta {
 			'published_date',
 			array(
 				'type'              => 'string',
+				'label'             => $labels['published_date'],
+				'description'       => $descriptions['published_date'],
 				'single'            => true,
 				'show_in_rest'      => array(
 					'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
@@ -132,6 +167,7 @@ class Library_Meta {
 			'pages',
 			array(
 				'type'              => 'integer',
+				'label'             => $labels['pages'],
 				'single'            => true,
 				'show_in_rest'      => array(
 					'schema' => array( 'minimum' => 1 ),
@@ -145,6 +181,8 @@ class Library_Meta {
 			'rating',
 			array(
 				'type'              => 'number',
+				'label'             => $labels['rating'],
+				'description'       => $descriptions['rating'],
 				'single'            => true,
 				'show_in_rest'      => array(
 					'schema' => array(
@@ -162,11 +200,70 @@ class Library_Meta {
 			'read',
 			array(
 				'type'              => 'boolean',
+				'label'             => $labels['read'],
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			)
 		);
+	}
+
+	/**
+	 * Label of a book meta, as registered.
+	 *
+	 * @param string $key Meta key.
+	 * @return string
+	 */
+	public static function label( string $key ): string {
+		return get_registered_meta_keys( 'post', 'book' )[ $key ]['label'];
+	}
+
+	/**
+	 * Description of a book meta, as registered, or empty.
+	 *
+	 * @param string $key Meta key.
+	 * @return string
+	 */
+	public static function description( string $key ): string {
+		return get_registered_meta_keys( 'post', 'book' )[ $key ]['description'];
+	}
+
+	/**
+	 * The input of a book meta, as its registration says: a checkbox for a boolean, a number with its minimum, maximum
+	 * and step, a date, or a text with its pattern, anchored in the schema and anchored already by HTML.
+	 *
+	 * @param string $key        Meta key.
+	 * @param array  $attributes More attributes, such as its ID or value, or ones that replace those of the registration;
+	 *                           true gives an attribute without value, null leaves it out.
+	 * @return string HTML.
+	 */
+	public static function input( string $key, array $attributes = array() ): string {
+		$meta   = get_registered_meta_keys( 'post', 'book' )[ $key ];
+		$schema = $meta['show_in_rest']['schema'] ?? array();
+		$type   = match ( true ) {
+			'boolean' === $meta['type'] => 'checkbox',
+			in_array( $meta['type'], array( 'integer', 'number' ), true ) => 'number',
+			'date' === ( $schema['format'] ?? '' ) => 'date',
+			default => 'text',
+		};
+		$input = new WP_HTML_Tag_Processor( '<input>' );
+
+		$attributes += array(
+			'type'    => $type,
+			'name'    => $key,
+			'pattern' => 'text' === $type && isset( $schema['pattern'] ) ? trim( $schema['pattern'], '^$' ) : null,
+			'min'     => $schema['minimum'] ?? null,
+			'max'     => $schema['maximum'] ?? null,
+			'step'    => $schema['multipleOf'] ?? null,
+		);
+
+		$input->next_tag();
+
+		foreach ( array_filter( $attributes, fn( $value ) => null !== $value ) as $name => $value ) {
+			$input->set_attribute( $name, is_bool( $value ) ? $value : (string) $value );
+		}
+
+		return $input->get_updated_html();
 	}
 
 	/**

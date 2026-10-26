@@ -28,16 +28,17 @@ class Library {
 		'includes/class-library-readme.php',
 		'includes/class-library-updater.php',
 		'includes/class-library-books.php',
+		'includes/class-library-meta.php',
+		'includes/class-library-stats.php',
+		'includes/class-library-wp-query.php',
+		'includes/class-library-rest-api.php',
 		'admin/class-library-admin.php',
-		'admin/class-library-meta.php',
 		'admin/class-library-metaboxes.php',
-		'admin/class-library-rest-api.php',
 		'admin/class-library-posts.php',
 		'admin/class-library-dashboard.php',
 		'admin/class-library-reading-idea.php',
 		'admin/class-library-achievements.php',
 		'admin/class-library-taxonomies.php',
-		'admin/class-library-wp-query.php',
 		'app/class-library-app.php',
 	);
 
@@ -50,7 +51,7 @@ class Library {
 	 * @return array{0:string,1:string}
 	 */
 	public static function asset( string $path ): array {
-		$url     = plugins_url( $path, LIBRARY_DIR_PATH . 'library.php' );
+		$url     = plugins_url( $path, LIBRARY_FILE );
 		$version = (string) filemtime( LIBRARY_DIR_PATH . $path );
 
 		return array( $url, $version );
@@ -67,7 +68,7 @@ class Library {
 			require_once LIBRARY_DIR_PATH . $file;
 		}
 
-		$plugin_file = plugin_basename( LIBRARY_DIR_PATH . 'library.php' );
+		$plugin_file = plugin_basename( LIBRARY_FILE );
 
 		( new Library_Posts() )->hooks();
 		( new Library_Taxonomies() )->hooks();

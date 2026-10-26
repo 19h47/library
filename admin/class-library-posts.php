@@ -197,11 +197,12 @@ class Library_Posts {
 
 		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
 
-		$columns['edition_date'] = __( 'Edition date', 'library' );
-		$columns['isbn']         = __( 'ISBN', 'library' );
-		$columns['read']         = __( 'Read', 'library' );
-		$columns['read_date']    = __( 'Read date', 'library' );
-		$columns['rating']       = __( 'Rating', 'library' );
+		$columns['edition_date'] = Library_Meta::label( 'edition_date' );
+		$columns['isbn']         = Library_Meta::label( 'isbn' );
+		$columns['read']         = Library_Meta::label( 'read' );
+		// The latest one.
+		$columns['read_date'] = __( 'Read date', 'library' );
+		$columns['rating']    = Library_Meta::label( 'rating' );
 
 		return $columns;
 	}
@@ -353,25 +354,15 @@ class Library_Posts {
 			return;
 		}
 
-		$fields = array(
-			'isbn'      => sprintf( '<input type="text" name="isbn" pattern="%s">', esc_attr( Library_Meta::ISBN_PATTERN ) ),
-			'pages'     => '<input type="number" name="pages" min="1">',
-			'read_date' => '<input type="date" name="read_date">',
-			'rating'    => '<input type="number" name="rating" min="1" max="10" step="0.5">',
-		);
-		$labels = array(
-			'isbn'      => __( 'ISBN', 'library' ),
-			'pages'     => __( 'Pages', 'library' ),
-			'read_date' => __( 'Last read date', 'library' ),
-			'rating'    => __( 'Rating', 'library' ),
-		);
+		// Quick edit edits the latest reading.
+		$labels = array( 'read_date' => __( 'Last read date', 'library' ) );
 		?>
 		<fieldset class="inline-edit-col-right">
 			<div class="inline-edit-col">
-				<?php foreach ( $fields as $key => $input ) : ?>
+				<?php foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
-						<span class="title"><?php echo esc_html( $labels[ $key ] ); ?></span>
-						<span class="input-text-wrap"><?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, attributes escaped above. ?></span>
+						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Library_Meta::label( $key ) ); ?></span>
+						<span class="input-text-wrap"><?php echo Library_Meta::input( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>
@@ -415,14 +406,11 @@ class Library_Posts {
 			'menu_name'             => __( 'Books', 'library' ),
 			'name_admin_bar'        => __( 'Book', 'library' ),
 			'archives'              => __( 'Book Archives', 'library' ),
-			'attributes'            => __( 'Item Attributes', 'library' ),
-			'parent_item_colon'     => __( 'Parent Book:', 'library' ),
 			'all_items'             => __( 'All books', 'library' ),
 			'add_new_item'          => __( 'Add New Book', 'library' ),
 			'add_new'               => __( 'Add New', 'library' ),
 			'new_item'              => __( 'New Book', 'library' ),
 			'edit_item'             => __( 'Edit book', 'library' ),
-			'update_item'           => __( 'Update book', 'library' ),
 			'view_item'             => __( 'View Book', 'library' ),
 			'view_items'            => __( 'View Books', 'library' ),
 			'search_items'          => __( 'Search Book', 'library' ),
@@ -439,8 +427,7 @@ class Library_Posts {
 			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
 		);
 
-		$supports   = array( 'title', 'thumbnail', 'custom-fields' );
-		$taxonomies = array( 'library-author', 'library-publisher' );
+		$supports = array( 'title', 'thumbnail', 'custom-fields' );
 
 		$rewrite = array(
 			'slug'       => 'books',
@@ -449,10 +436,8 @@ class Library_Posts {
 
 		$args = array(
 			'label'               => __( 'Books', 'library' ),
-			'description'         => __( 'Book description', 'library' ),
 			'labels'              => $labels,
 			'supports'            => $supports,
-			'taxonomies'          => $taxonomies,
 			'hierarchical'        => false,
 			'public'              => true,
 			'show_ui'             => true,
@@ -496,8 +481,7 @@ class Library_Posts {
 			return $items;
 		}
 
-		/* translators: %s: number of books. */
-		$text = sprintf( _n( '%s book', '%s books', $count, 'library' ), number_format_i18n( $count ) );
+		$text = Library_Books::books_text( $count );
 
 		if ( ! current_user_can( get_post_type_object( 'book' )->cap->edit_posts ) ) {
 			$items[] = sprintf( '<span class="book-count">%s</span>', esc_html( $text ) );
@@ -600,7 +584,7 @@ class Library_Posts {
 	 * @return array
 	 */
 	public function add_list_table_views( array $views ): array {
-		$stats = self::get_reading_stats();
+		$stats = Library_Stats::get_reading_stats();
 
 		/* translators: %s: reading percentage. */
 		$label = sprintf( __( '%s%% read', 'library' ), number_format_i18n( $stats['percent'] ) );
@@ -612,39 +596,5 @@ class Library_Posts {
 		);
 
 		return $views;
-	}
-
-	/**
-	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts and books not kept.
-	 *
-	 * @return array{read:int,total:int,percent:int}
-	 */
-	public static function get_reading_stats(): array {
-		$counts = (array) wp_count_posts( 'book' );
-		unset( $counts['trash'], $counts['auto-draft'], $counts[ self::NOT_KEPT ] );
-
-		$total = (int) array_sum( $counts );
-
-		// The list table sort filters must not alter this count.
-		$read_query = new WP_Query(
-			array(
-				'post_type'        => 'book',
-				'post_status'      => 'any',
-				'posts_per_page'   => 1,
-				'fields'           => 'ids',
-				'suppress_filters' => true,
-				'meta_key'         => 'read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
-				'meta_value'       => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
-			)
-		);
-
-		$read    = (int) $read_query->found_posts;
-		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
-
-		return array(
-			'read'    => $read,
-			'total'   => $total,
-			'percent' => $percent,
-		);
 	}
 }

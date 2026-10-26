@@ -2,7 +2,7 @@ import { editUrl, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatDate, formatNumber, listFormat } from 'library-app/format';
 import { fill, fillCover, linkAuthors } from 'library-app/render';
-import { openAuthors } from 'library-app/behaviors';
+import { openLinks } from 'library-app/behaviors';
 
 /** The book open, in a modal dialog; closing it, with its button or Escape, closes the book. */
 class LibraryBookElement extends Brick {
@@ -10,7 +10,7 @@ class LibraryBookElement extends Brick {
 		const $dialog = this.querySelector( 'dialog' );
 
 		$dialog.addEventListener( 'close', () => store.closeBook(), { signal } );
-		openAuthors( $dialog, signal );
+		openLinks( $dialog, signal );
 
 		return [
 			store.select(

@@ -1,6 +1,6 @@
-import { store, strings } from 'library-app/app';
+import { __, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { plural } from 'library-app/format';
+import { formatBooks } from 'library-app/format';
 
 /** The number of books found. */
 class LibraryCountElement extends Brick {
@@ -9,7 +9,7 @@ class LibraryCountElement extends Brick {
 			store.select(
 				( { search } ) => ( search.loaded ? search.total : null ),
 				( total ) => {
-					this.textContent = null === total ? strings.loading : plural( total, strings.books );
+					this.textContent = null === total ? __( 'Loading…', 'library' ) : formatBooks( total );
 				}
 			),
 		];

@@ -105,12 +105,9 @@ class Library_Taxonomies {
 			'show_in_quick_edit'   => true,
 			'show_admin_column'    => true,
 			'show_in_rest'         => true,
-			'show_in_graphql'      => true,
 			// The tag box lets authors be typed rather than picked from a checklist.
 			'meta_box_cb'          => 'post_tags_meta_box',
 			'meta_box_sanitize_cb' => array( self::class, 'sanitize_author_names' ),
-			'graphql_single_name'  => 'author',
-			'graphql_plural_name'  => 'authors',
 		);
 
 		register_taxonomy( 'library-author', 'book', $args );
@@ -226,19 +223,16 @@ class Library_Taxonomies {
 		);
 
 		$args = array(
-			'labels'              => $labels,
-			'hierarchical'        => true, // Parent = publisher, children = collections, shown as a tree in the core checklist box.
-			'public'              => true,
-			'publicly_queryable'  => true,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
-			'show_in_nav_menus'   => true,
-			'show_in_quick_edit'  => true,
-			'show_admin_column'   => true,
-			'show_in_rest'        => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'publisher',
-			'graphql_plural_name' => 'publishers',
+			'labels'             => $labels,
+			'hierarchical'       => true, // Parent = publisher, children = collections, shown as a tree in the core checklist box.
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'show_in_nav_menus'  => true,
+			'show_in_quick_edit' => true,
+			'show_admin_column'  => true,
+			'show_in_rest'       => true,
 		);
 
 		register_taxonomy( 'library-publisher', 'book', $args );
@@ -273,19 +267,16 @@ class Library_Taxonomies {
 		);
 
 		$args = array(
-			'labels'              => $labels,
-			'hierarchical'        => true, // For the checklist box, in quick and bulk edit too.
-			'public'              => true,
-			'publicly_queryable'  => true,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
-			'show_in_nav_menus'   => true,
-			'show_in_quick_edit'  => true,
-			'show_admin_column'   => true,
-			'show_in_rest'        => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'language',
-			'graphql_plural_name' => 'languages',
+			'labels'             => $labels,
+			'hierarchical'       => true, // For the checklist box, in quick and bulk edit too.
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'show_in_nav_menus'  => true,
+			'show_in_quick_edit' => true,
+			'show_admin_column'  => true,
+			'show_in_rest'       => true,
 		);
 
 		register_taxonomy( 'library-language', 'book', $args );
@@ -390,7 +381,7 @@ class Library_Taxonomies {
 		}
 
 		if ( 'library-publisher' === $taxonomy ) {
-			$terms = self::get_publishers( $terms );
+			$terms = self::get_top_terms( $terms );
 		} elseif ( '' === $status ) {
 			return $term_links;
 		}
@@ -413,23 +404,23 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Publishers of publisher terms: a collection stands for its parent, each publisher once.
+	 * Terms as they count, each one once: a pseudonym for its real name, a collection for its publisher, i.e. their parent.
 	 *
-	 * @param WP_Term[] $terms Publisher terms.
+	 * @param WP_Term[] $terms Terms of a taxonomy.
 	 * @return WP_Term[]
 	 */
-	public static function get_publishers( array $terms ): array {
-		$publishers = array();
+	public static function get_top_terms( array $terms ): array {
+		$top_terms = array();
 
 		foreach ( $terms as $term ) {
-			$publisher = $term->parent ? get_term( $term->parent, 'library-publisher' ) : $term;
+			$top_term = $term->parent ? get_term( $term->parent, $term->taxonomy ) : $term;
 
-			if ( $publisher instanceof WP_Term ) {
-				$publishers[ $publisher->term_id ] = $publisher;
+			if ( $top_term instanceof WP_Term ) {
+				$top_terms[ $top_term->term_id ] = $top_term;
 			}
 		}
 
-		return array_values( $publishers );
+		return array_values( $top_terms );
 	}
 
 	/**

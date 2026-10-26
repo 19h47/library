@@ -143,10 +143,8 @@ class Library_App {
 		$ratings = array();
 
 		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
-			$decimals = fmod( $rating, 1 ) ? 1 : 0;
-
 			/* translators: %s: rating, e.g. 7.5. */
-			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), number_format_i18n( $rating, $decimals ) );
+			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::rating_text( $rating ) );
 		}
 
 		return $ratings;
@@ -194,7 +192,8 @@ class Library_App {
 	 *
 	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
 	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
-	 * all, so that the import map gives them all, with versioned URLs that an update loads again.
+	 * all, so that the import map gives them all, with versioned URLs that an update loads again. WordPress gives the store
+	 * and each module their translations.
 	 *
 	 * @return void
 	 */
@@ -206,7 +205,8 @@ class Library_App {
 		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
 
 		[ $store_url, $store_version ] = Library::asset( 'app/js/library-app-store.js' );
-		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch' ), $store_version, false );
+		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch', 'wp-i18n' ), $store_version, false );
+		wp_set_script_translations( 'library-app-store', 'library', LIBRARY_DIR_PATH . 'languages' );
 		wp_localize_script( 'library-app-store', 'libraryApp', $this->get_config() );
 
 		$shared = array();
@@ -216,20 +216,20 @@ class Library_App {
 			[ $url, $version ] = Library::asset( "app/js/lib/$name.js" );
 			$shared[]          = "library-app/$name";
 			wp_register_script_module( "library-app/$name", $url, array(), $version );
+			wp_set_script_module_translations( "library-app/$name", 'library', LIBRARY_DIR_PATH . 'languages' );
 		}
 
 		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' ) as $file ) {
 			$name              = basename( $file, '.js' );
 			[ $url, $version ] = Library::asset( "app/js/bricks/$name.js" );
 			wp_enqueue_script_module( "library-app/$name", $url, $shared, $version );
+			wp_set_script_module_translations( "library-app/$name", 'library', LIBRARY_DIR_PATH . 'languages' );
 		}
 	}
 
 	/**
-	 * What the scripts need from the server: the statuses to list, the URLs and the strings built in JavaScript.
-	 *
-	 * A string with placeholders is formatted with wp.i18n.sprintf. A plural is given in its two forms,
-	 * picked with Intl.PluralRules: "one" also takes 0 in French.
+	 * What the scripts need from the server: the statuses to list and the URLs. Their strings are translated by WordPress,
+	 * from the JSON files of the languages folder.
 	 *
 	 * @return array
 	 */
@@ -243,52 +243,11 @@ class Library_App {
 			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
 			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::url() ) . '&author=',
+			'bookUrl'   => self::url() . '&book=',
+			'searchUrl' => self::url() . '&q=',
 			'icons'     => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,
-			),
-			'strings'   => array(
-				'books'         => array(
-					/* translators: %s: number of books. */
-					'one'   => _n( '%s book', '%s books', 1, 'library' ),
-					/* translators: %s: number of books. */
-					'other' => _n( '%s book', '%s books', 2, 'library' ),
-				),
-				'booksRead'     => array(
-					/* translators: %s: number of books read, after the number of books of an author. */
-					'one'   => _n( '%s read', '%s read', 1, 'library' ),
-					/* translators: %s: number of books read, after the number of books of an author. */
-					'other' => _n( '%s read', '%s read', 2, 'library' ),
-				),
-				'pseudonyms'    => array(
-					/* translators: %s: list of the pseudonyms of an author. */
-					'one'   => _n( 'Pseudonym: %s', 'Pseudonyms: %s', 1, 'library' ),
-					/* translators: %s: list of the pseudonyms of an author. */
-					'other' => _n( 'Pseudonym: %s', 'Pseudonyms: %s', 2, 'library' ),
-				),
-				/* translators: %s: year a book first came out. */
-				'publishedIn'   => __( 'First published in %s', 'library' ),
-				/* translators: %s: average rating of the books of an author, e.g. 7.5. */
-				'averageRating' => __( '%s/10 on average', 'library' ),
-				/* translators: %s: reading percentage. */
-				'readPercent'   => __( '%s%% read', 'library' ),
-				/* translators: 1: total books, 2: read books, 3: percent read. */
-				'summary'       => __( '%1$s books, %2$s read (%3$s%%)', 'library' ),
-				/* translators: 1: books read this year, 2: year, 3: books read by the same date last year. */
-				'yearToDate'    => __( '%1$s read in %2$d, %3$s by this date last year', 'library' ),
-				/* translators: %s: number of books expected by the end of the year. */
-				'projection'    => __( 'About %s by the end of the year at this pace', 'library' ),
-				/* translators: 1: number done, 2: total, e.g. "13 of 14". */
-				'progress'      => __( '%1$s of %2$s', 'library' ),
-				/* translators: %s: rating, e.g. 7.5. */
-				'rating'        => __( '%s/10', 'library' ),
-				'read'          => __( 'Read', 'library' ),
-				'readAgain'     => __( 'Read again', 'library' ),
-				'toRead'        => __( 'To read', 'library' ),
-				'notKept'       => _x( 'Not kept', 'book status', 'library' ),
-				'loading'       => __( 'Loading…', 'library' ),
-				'noBooks'       => __( 'No book found.', 'library' ),
-				'error'         => __( 'The books could not be loaded.', 'library' ),
 			),
 		);
 	}

@@ -5,7 +5,7 @@
  * @subpackage Library/app
  */
 
-import { authorUrl, sprintf, strings } from 'library-app/app';
+import { __, authorUrl, bookUrl, searchUrl, sprintf } from 'library-app/app';
 import { formatDate, formatNumber, join, listFormat } from 'library-app/format';
 
 /**
@@ -27,28 +27,20 @@ export function fill( $root, fields ) {
 	} );
 }
 
-/** Turns the text of `$field` into a link, when there is a URL. */
-function link( $field, url ) {
-	if ( ! url || ! $field.textContent ) {
-		return;
-	}
-
+/** A link the app follows without reloading, as its data say: to the page of an author, a book, or the books a search finds. */
+function link( href, data, text ) {
 	const $link = document.createElement( 'a' );
 
-	$link.href = url;
-	$link.textContent = $field.textContent;
-	$field.replaceChildren( $link );
-}
-
-/** A link to the page of an author, which the app opens without reloading. */
-function authorLink( id, name ) {
-	const $link = document.createElement( 'a' );
-
-	$link.href = authorUrl + id;
-	$link.dataset.author = id;
-	$link.textContent = name;
+	$link.href = href;
+	Object.assign( $link.dataset, data );
+	$link.textContent = text;
 
 	return $link;
+}
+
+/** A link to the page of an author. */
+function authorLink( id, name ) {
+	return link( authorUrl + id, { author: id }, name );
 }
 
 /** Turns the names of authors in `$field` into links to their pages, listed as the language lists them. */
@@ -62,12 +54,20 @@ export function linkAuthors( $field, authors ) {
 	);
 }
 
-/** Links the subject of an achievement: to the page of its author, else to the books list. */
-function linkAchievement( $field, achievement ) {
-	if ( achievement.author && $field.textContent ) {
-		$field.replaceChildren( authorLink( achievement.author, $field.textContent ) );
-	} else {
-		link( $field, achievement.url );
+/**
+ * Links the subject of an achievement to what it leads to in the app: its book, the page of its author, or the books
+ * its search finds. A collection stays as it is: the keyword publisher: would also find the collections named like it.
+ */
+function linkAchievement( $field, { target } ) {
+	const text = $field.textContent;
+	const links = {
+		book: () => link( bookUrl + target.id, { book: target.id }, text ),
+		author: () => authorLink( target.id, text ),
+		search: () => link( searchUrl + encodeURIComponent( target.search ), { search: target.search }, text ),
+	};
+
+	if ( text && target?.type in links ) {
+		$field.replaceChildren( links[ target.type ]() );
 	}
 }
 
@@ -157,7 +157,8 @@ export function renderCloseAchievement( achievement, id ) {
 	$progress.max = achievement.total;
 	$progress.value = achievement.done;
 	$progress.setAttribute( 'aria-labelledby', $name.id );
-	$progress.setAttribute( 'aria-valuetext', sprintf( strings.progress, done, total ) );
+	/* translators: 1: number done, 2: total, e.g. "13 of 14". */
+	$progress.setAttribute( 'aria-valuetext', sprintf( __( '%1$s of %2$s', 'library' ), done, total ) );
 
 	return $item;
 }

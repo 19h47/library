@@ -1,6 +1,6 @@
-import { sprintf, store, strings } from 'library-app/app';
+import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { formatNumber, formatState, join, listFormat, plural, pluralRules } from 'library-app/format';
+import { formatBooks, formatNumber, formatState, join, listFormat } from 'library-app/format';
 import { fill, renderAchievement, renderBook, renderCloseAchievement } from 'library-app/render';
 import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 
@@ -24,14 +24,21 @@ class LibraryAuthorElement extends Brick {
 			store.select(
 				( state ) => state.author,
 				( author ) => {
-					const pseudonyms = strings.pseudonyms[ pluralRules.select( author.pseudonyms.length ) ] ?? strings.pseudonyms.other;
-					const rating = author.rating && sprintf( strings.averageRating, formatNumber( author.rating ) );
+					const pseudonyms = sprintf(
+						/* translators: %s: list of the pseudonyms of an author. */
+						_n( 'Pseudonym: %s', 'Pseudonyms: %s', author.pseudonyms.length, 'library' ),
+						listFormat.format( author.pseudonyms )
+					);
+					/* translators: %s: number of books read, after the number of books of an author. */
+					const read = sprintf( _n( '%s read', '%s read', author.read, 'library' ), formatNumber( author.read ) );
+					/* translators: %s: average rating of the books of an author, e.g. 7.5. */
+					const rating = author.rating && sprintf( __( '%s/10 on average', 'library' ), formatNumber( author.rating ) );
 
 					fill( this, {
-						status: author.error || ( author.loaded && ! author.total ? strings.noBooks : '' ),
+						status: author.error || ( author.loaded && ! author.total ? __( 'No book found.', 'library' ) : '' ),
 						name: author.name,
-						pseudonyms: author.pseudonyms.length ? sprintf( pseudonyms, listFormat.format( author.pseudonyms ) ) : '',
-						summary: author.name ? join( [ plural( author.total, strings.books ), plural( author.read, strings.booksRead ), rating ] ) : '',
+						pseudonyms: author.pseudonyms.length ? pseudonyms : '',
+						summary: author.name ? join( [ formatBooks( author.total ), read, rating ] ) : '',
 					} );
 				}
 			),
@@ -46,7 +53,7 @@ class LibraryAuthorElement extends Brick {
 					}
 
 					// The page is the author's: their completion links nowhere.
-					const achievement = { ...completion, url: '', author: 0 };
+					const achievement = { ...completion, target: null };
 
 					$completion.replaceChildren(
 						'total' in achievement ? renderCloseAchievement( achievement, 'library-author-completion' ) : renderAchievement( achievement )
@@ -80,7 +87,8 @@ class LibraryAuthorElement extends Brick {
 
 	/** The line of a book: the year it first came out, as the list follows it, then its state. */
 	#state( book ) {
-		const published = book.published_date && sprintf( strings.publishedIn, book.published_date.slice( 0, 4 ) );
+		/* translators: %s: year a book first came out. */
+		const published = book.published_date && sprintf( __( 'First published in %s', 'library' ), book.published_date.slice( 0, 4 ) );
 
 		return join( [ published, formatState( book ) ] );
 	}
