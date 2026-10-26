@@ -233,11 +233,11 @@
 					<form class="library-reading">
 						<div class="library-reading__pills">
 							<label class="app-pill">
-								<input type="checkbox" name="read">
-								<?php esc_html_e( 'Read', 'library' ); ?>
+								<?php echo Library_Meta::input( 'read' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+								<?php echo esc_html( Library_Meta::label( 'read' ) ); ?>
 							</label>
 							<label class="app-pill">
-								<span class="sr-only"><?php esc_html_e( 'Rating', 'library' ); ?></span>
+								<span class="sr-only"><?php echo esc_html( Library_Meta::label( 'rating' ) ); ?></span>
 								<select name="rating">
 									<option value=""><?php esc_html_e( 'No rating', 'library' ); ?></option>
 									<?php foreach ( $ratings as $value => $label ) : ?>
@@ -251,7 +251,7 @@
 							</label>
 						</div>
 						<fieldset class="library-reading__dates" hidden disabled>
-							<legend><?php esc_html_e( 'Read dates', 'library' ); ?></legend>
+							<legend><?php echo esc_html( Library_Meta::label( 'read_date' ) ); ?></legend>
 							<ul></ul>
 							<p>
 								<button class="app-pill" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
@@ -269,23 +269,23 @@
 						<dd data-field="authors"></dd>
 					</div>
 					<div data-row="isbn">
-						<dt><?php esc_html_e( 'ISBN', 'library' ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::label( 'isbn' ) ); ?></dt>
 						<dd data-field="isbn"></dd>
 					</div>
 					<div data-row="pages">
-						<dt><?php esc_html_e( 'Pages', 'library' ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::label( 'pages' ) ); ?></dt>
 						<dd data-field="pages"></dd>
 					</div>
 					<div data-row="edition_date">
-						<dt><?php esc_html_e( 'Edition date', 'library' ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::label( 'edition_date' ) ); ?></dt>
 						<dd data-field="edition_date"></dd>
 					</div>
 					<div data-row="published_date">
-						<dt><?php esc_html_e( 'First published', 'library' ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::label( 'published_date' ) ); ?></dt>
 						<dd data-field="published_date"></dd>
 					</div>
 					<div data-row="translators">
-						<dt><?php esc_html_e( 'Translators', 'library' ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::label( 'translators' ) ); ?></dt>
 						<dd data-field="translators"></dd>
 					</div>
 					<div data-row="languages">
@@ -332,55 +332,20 @@
 						<label for="library-add-collection"><?php esc_html_e( 'Collection', 'library' ); ?></label>
 						<input id="library-add-collection" name="collection" list="library-add-collections" autocomplete="off" disabled>
 					</p>
-					<p class="library-field">
-						<label for="library-add-isbn"><?php esc_html_e( 'ISBN', 'library' ); ?></label>
-						<input id="library-add-isbn" name="isbn" data-meta pattern="<?php echo esc_attr( Library_Meta::ISBN_PATTERN ); ?>" inputmode="numeric" autocomplete="off">
-					</p>
+					<?php
+					$key        = 'isbn';
+					$attributes = array( 'inputmode' => 'numeric' );
+					require __DIR__ . '/library-field.php';
+					?>
 					<details class="library-add__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
-						<p class="library-field">
-							<label for="library-add-subtitle"><?php esc_html_e( 'Subtitle', 'library' ); ?></label>
-							<input id="library-add-subtitle" name="subtitle" data-meta autocomplete="off">
-						</p>
-						<p class="library-field">
-							<label for="library-add-series"><?php esc_html_e( 'Series', 'library' ); ?></label>
-							<input id="library-add-series" name="series" data-meta autocomplete="off" aria-describedby="library-add-series-description">
-							<small id="library-add-series-description"><?php esc_html_e( 'Separate series with commas', 'library' ); ?></small>
-						</p>
-						<p class="library-field">
-							<label for="library-add-volume-number"><?php esc_html_e( 'Volume Number', 'library' ); ?></label>
-							<input id="library-add-volume-number" name="volume_number" data-meta autocomplete="off">
-						</p>
-						<p class="library-field">
-							<label for="library-add-issn"><?php esc_html_e( 'ISSN', 'library' ); ?></label>
-							<input id="library-add-issn" name="issn" data-meta pattern="<?php echo esc_attr( Library_Meta::ISSN_PATTERN ); ?>" autocomplete="off">
-						</p>
-						<p class="library-field">
-							<label for="library-add-pages"><?php esc_html_e( 'Pages', 'library' ); ?></label>
-							<input id="library-add-pages" name="pages" data-meta type="number" min="1" inputmode="numeric">
-						</p>
-						<p class="library-field">
-							<label for="library-add-edition-date"><?php esc_html_e( 'Edition date', 'library' ); ?></label>
-							<input id="library-add-edition-date" name="edition_date" data-meta type="date">
-						</p>
-						<p class="library-field">
-							<label for="library-add-published-date"><?php esc_html_e( 'First published', 'library' ); ?></label>
-							<input
-								id="library-add-published-date"
-								name="published_date"
-								data-meta
-								inputmode="numeric"
-								pattern="\d{4}(-\d{2}(-\d{2})?)?"
-								autocomplete="off"
-								aria-describedby="library-add-published-date-description"
-							>
-							<small id="library-add-published-date-description"><?php esc_html_e( 'Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ); ?></small>
-						</p>
-						<p class="library-field">
-							<label for="library-add-translators"><?php esc_html_e( 'Translators', 'library' ); ?></label>
-							<input id="library-add-translators" name="translators" data-meta autocomplete="off" aria-describedby="library-add-translators-description">
-							<small id="library-add-translators-description"><?php esc_html_e( 'Separate translators with commas', 'library' ); ?></small>
-						</p>
+						<?php
+						foreach ( array( 'subtitle', 'series', 'volume_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
+							// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
+							$attributes = 'pages' === $key ? array( 'inputmode' => 'numeric' ) : array();
+							include __DIR__ . '/library-field.php';
+						}
+						?>
 						<p class="library-field">
 							<label for="library-add-language"><?php echo esc_html( $language_labels->singular_name ); ?></label>
 							<select id="library-add-language" name="language">
@@ -414,7 +379,17 @@
 
 		<template id="library-read-date">
 			<li class="library-reading__date">
-				<input type="date" name="read_date" required aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+				<?php
+				$input = Library_Meta::input(
+					'read_date',
+					array(
+						'required'   => true,
+						'aria-label' => __( 'Read date', 'library' ),
+					)
+				);
+
+				echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+				?>
 				<button
 					class="app-pill"
 					type="button"

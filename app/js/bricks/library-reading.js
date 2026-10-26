@@ -1,7 +1,8 @@
 import { notKept, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
-import { clone, fill } from 'library-app/render';
+import { fill } from 'library-app/render';
+import { inputList } from 'library-app/behaviors';
 
 /**
  * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is kept.
@@ -16,16 +17,17 @@ class LibraryReadingElement extends Brick {
 		const $add = $dates.querySelector( '[data-action="add"]' );
 		const $submit = $form.querySelector( '[type="submit"]' );
 
-		const addDate = ( date ) => {
-			const $item = clone( 'library-read-date' );
-			const $input = $item.querySelector( 'input' );
-
-			$input.value = date;
-			$input.max = today();
-			$list.append( $item );
-
-			return $input;
-		};
+		// A reading is today, unless changed, and never later.
+		const addDate = inputList( {
+			$list,
+			$add,
+			id: 'library-read-date',
+			signal,
+			value: today,
+			setup: ( $input ) => {
+				$input.max = today();
+			},
+		} );
 
 		// Unread, the book has no read dates: they are left out of the form.
 		const showDates = () => {
@@ -38,25 +40,10 @@ class LibraryReadingElement extends Brick {
 			() => {
 				// Read today, unless a date is there already.
 				if ( $read.checked && ! $list.children.length ) {
-					addDate( today() );
+					addDate();
 				}
 
 				showDates();
-			},
-			{ signal }
-		);
-
-		$add.addEventListener( 'click', () => addDate( today() ).focus(), { signal } );
-
-		$list.addEventListener(
-			'click',
-			( event ) => {
-				const $remove = event.target.closest( '[data-action="remove"]' );
-
-				if ( $remove ) {
-					$remove.closest( 'li' ).remove();
-					$add.focus();
-				}
 			},
 			{ signal }
 		);

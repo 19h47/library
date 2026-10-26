@@ -1,6 +1,7 @@
 import { store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { clone, fill, fillCover } from 'library-app/render';
+import { fill, fillCover } from 'library-app/render';
+import { inputList } from 'library-app/behaviors';
 
 /** Options of a datalist or a select, such as the names to suggest. */
 function renderOptions( terms, value = ( term ) => term.name ) {
@@ -30,13 +31,7 @@ class LibraryAddElement extends Brick {
 			collections: this.querySelector( '#library-add-collections' ),
 		};
 
-		const addAuthor = () => {
-			const $item = clone( 'library-add-author' );
-
-			$authors.append( $item );
-
-			return $item.querySelector( 'input' );
-		};
+		const addAuthor = inputList( { $list: $authors, $add: $addAuthor, id: 'library-add-author', signal } );
 
 		// The collections of the publisher typed, when the library has it; a collection needs a publisher.
 		const suggestCollections = () => {
@@ -55,22 +50,8 @@ class LibraryAddElement extends Brick {
 		};
 
 		$dialog.addEventListener( 'close', () => store.closeAdd(), { signal } );
-		$addAuthor.addEventListener( 'click', () => addAuthor().focus(), { signal } );
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
 		$cover.addEventListener( 'change', () => showCover( $cover.files[ 0 ] ), { signal } );
-
-		$authors.addEventListener(
-			'click',
-			( event ) => {
-				const $remove = event.target.closest( '[data-action="remove"]' );
-
-				if ( $remove ) {
-					$remove.closest( 'li' ).remove();
-					$addAuthor.focus();
-				}
-			},
-			{ signal }
-		);
 
 		$form.addEventListener(
 			'submit',

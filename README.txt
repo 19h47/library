@@ -132,6 +132,8 @@ Since 1.0.0 it is split into four widgets: Reading, Ratings, Reading pile and Li
 * Changed: in `/wp-json/library/v1/books/achievements`, each achievement gives its `target`, what its subject leads to: a book, a search, an author or a collection, instead of `url`, a link of the admin, and `author`. The admin and the reading app build their own links from it.
 * Reading app: the subject of an achievement opens in the app, a book in its dialog, an author on their page, a series or a translator as a search of the books, read or not, instead of the books list or the edit screen of the admin. A collection stays unlinked for now.
 * The scripts of the books list and of the reading app take their strings from the translations of WordPress, JSON files made with `wp i18n make-json`, instead of strings passed by the server; a plural follows the rules of the language.
+* The fields of a book, in the Information box, quick edit and the form of the reading app, take their label, description and constraints from the registration of the book meta: the REST API describes them too, with their `title` and `description`, and checks the ISBN and the ISSN with the pattern of the forms. The form of the reading app shows the description of the subtitle.
+* Fixed: the date first published of a book to add in the reading app took no hyphen on an iPhone, whose numeric keyboard has none.
 * The Reading widget takes the ID `library_dashboard_reading`: it goes back once to its default place on the dashboard, move it again where you want it.
 * The book post type, its taxonomies and the achievements lose arguments, labels and links that WordPress never used or showed, such as the WPGraphQL arguments of the taxonomies.
 

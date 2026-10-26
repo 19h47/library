@@ -197,11 +197,12 @@ class Library_Posts {
 
 		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
 
-		$columns['edition_date'] = __( 'Edition date', 'library' );
-		$columns['isbn']         = __( 'ISBN', 'library' );
-		$columns['read']         = __( 'Read', 'library' );
-		$columns['read_date']    = __( 'Read date', 'library' );
-		$columns['rating']       = __( 'Rating', 'library' );
+		$columns['edition_date'] = Library_Meta::label( 'edition_date' );
+		$columns['isbn']         = Library_Meta::label( 'isbn' );
+		$columns['read']         = Library_Meta::label( 'read' );
+		// The latest one.
+		$columns['read_date'] = __( 'Read date', 'library' );
+		$columns['rating']    = Library_Meta::label( 'rating' );
 
 		return $columns;
 	}
@@ -353,25 +354,15 @@ class Library_Posts {
 			return;
 		}
 
-		$fields = array(
-			'isbn'      => sprintf( '<input type="text" name="isbn" pattern="%s">', esc_attr( Library_Meta::ISBN_PATTERN ) ),
-			'pages'     => '<input type="number" name="pages" min="1">',
-			'read_date' => '<input type="date" name="read_date">',
-			'rating'    => '<input type="number" name="rating" min="1" max="10" step="0.5">',
-		);
-		$labels = array(
-			'isbn'      => __( 'ISBN', 'library' ),
-			'pages'     => __( 'Pages', 'library' ),
-			'read_date' => __( 'Last read date', 'library' ),
-			'rating'    => __( 'Rating', 'library' ),
-		);
+		// Quick edit edits the latest reading.
+		$labels = array( 'read_date' => __( 'Last read date', 'library' ) );
 		?>
 		<fieldset class="inline-edit-col-right">
 			<div class="inline-edit-col">
-				<?php foreach ( $fields as $key => $input ) : ?>
+				<?php foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
-						<span class="title"><?php echo esc_html( $labels[ $key ] ); ?></span>
-						<span class="input-text-wrap"><?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, attributes escaped above. ?></span>
+						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Library_Meta::label( $key ) ); ?></span>
+						<span class="input-text-wrap"><?php echo Library_Meta::input( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>
