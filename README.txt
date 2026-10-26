@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.4.0
+Stable tag: 6.5.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
+* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
 * **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its ISO 639 code and named in the site language.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
@@ -49,7 +49,7 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating and not kept; **Edit book** edits the rest, its cover and excerpt included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating and not kept; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form.
 
 = Can several readers share the library? =
 
@@ -83,10 +83,15 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
 * `GET /wp-json/library/v1/authors/<id>` – an author, their pseudonyms, their description, their books in the order they first came out and their reading.
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
-* `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title and excerpt as typed, its authors, publisher and collection by name, its original language and its meta, to users who can edit it.
+* `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its authors, publisher and collection by name, its original language and its meta, to users who can edit it.
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.5.0 =
+* Reading app: a book has notes, its content: shown under its excerpt in the book open, written in its form under the excerpt.
+* Admin: the edit screen of a book has the content editor, and stays the classic one.
+* REST API: `POST /wp-json/library/v1/books` and `POST /wp-json/library/v1/books/<id>` take a `content`, which `GET /wp-json/library/v1/books/<id>` gives as typed.
 
 = 6.4.0 =
 * Reading app: **Edit book** edits a book in the app, in the form that adds one, opened over the book: its cover, title, excerpt, authors, publisher and collection, ISBN and more details. Only what changed is saved, and the book then shows its new values; a link leads to the admin for the rest.
