@@ -330,7 +330,9 @@ class Library_Rest_API {
 		usort(
 			$books,
 			function ( array $a, array $b ): int {
-				$order = array( '' === $a['first_date'], $a['first_date'] ) <=> array( '' === $b['first_date'], $b['first_date'] );
+				$a_date = Library_Books::date( $a );
+				$b_date = Library_Books::date( $b );
+				$order  = array( '' === $a_date, $a_date ) <=> array( '' === $b_date, $b_date );
 
 				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );
 			}

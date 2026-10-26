@@ -40,11 +40,10 @@ class Library_Books {
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
 	 * Authors are counted for their real name. The read dates go from the first reading to the latest.
-	 * The date a work first came out is its date first published, or else its edition date.
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,first_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
 	 */
 	public static function all(): array {
 		if ( null !== self::$books ) {
@@ -90,7 +89,6 @@ class Library_Books {
 				'pages'          => $pages ? $pages : null,
 				'edition_date'   => $edition_date,
 				'published_date' => $published_date,
-				'first_date'     => '' !== $published_date ? $published_date : $edition_date,
 				'added'          => $post->post_date,
 				'authors'        => wp_list_pluck( $authors, 'name' ),
 				'author_ids'     => wp_list_pluck( $authors, 'term_id' ),
@@ -102,6 +100,16 @@ class Library_Books {
 		}
 
 		return self::$books;
+	}
+
+	/**
+	 * Date of a book: when the work first came out, or else its edition date.
+	 *
+	 * @param array $book Book, from all().
+	 * @return string
+	 */
+	public static function date( array $book ): string {
+		return '' !== $book['published_date'] ? $book['published_date'] : $book['edition_date'];
 	}
 
 	/**

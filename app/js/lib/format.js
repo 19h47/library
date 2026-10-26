@@ -36,19 +36,19 @@ export function formatDate( date, format = dateFormat ) {
 	return month ? monthFormat.format( new Date( Number( year ), Number( month ) - 1 ) ) : year;
 }
 
-function formatRating( rating ) {
+export function formatRating( rating ) {
 	/* translators: %s: rating, e.g. 7.5. */
 	return rating ? sprintf( __( '%s/10', 'library' ), formatNumber( rating ) ) : '';
 }
 
-/** Its rating, and whether it is kept: the end of the state of a book. */
-export function formatDetails( book ) {
-	return [ formatRating( book.rating ), notKept === book.status && _x( 'Not kept', 'book status', 'library' ) ];
+/** Whether a book is kept: shown only when it is not. */
+export function formatStatus( book ) {
+	return notKept === book.status ? _x( 'Not kept', 'book status', 'library' ) : '';
 }
 
-/** Whether a book is read, its rating, and whether it is kept. */
+/** Whether a book is read, and its rating. */
 export function formatState( book ) {
-	return join( [ book.read ? __( 'Read', 'library' ) : __( 'To read', 'library' ), ...formatDetails( book ) ] );
+	return join( [ book.read ? __( 'Read', 'library' ) : __( 'To read', 'library' ), formatRating( book.rating ) ] );
 }
 
 export function join( parts ) {

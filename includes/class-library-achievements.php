@@ -876,7 +876,9 @@ class Library_Achievements {
 	 * @return int|null
 	 */
 	private static function first_year( array $book ): ?int {
-		return '' !== $book['first_date'] ? (int) substr( $book['first_date'], 0, 4 ) : null;
+		$date = Library_Books::date( $book );
+
+		return '' !== $date ? (int) substr( $date, 0, 4 ) : null;
 	}
 
 	/**

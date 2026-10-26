@@ -5,128 +5,90 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.1.1
+Stable tag: 6.1.2
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Manage a book library with a custom post type, authors, publishers and original languages taxonomies, book metadata (ISBN, series, reading status, rating) and a reading dashboard.
+Catalogue your books and log your readings: authors, publishers, original languages, ratings, a reading dashboard, achievements and a phone app.
 
 == Description ==
 
-Library adds a **Book** custom post type and three taxonomies (**Authors**, **Publishers** and **Original languages**) so you can catalogue and organize your books from the WordPress admin.
+Library adds a **Book** post type and three taxonomies, **Authors**, **Publishers** and **Original languages**, to catalogue your books and log your readings from the WordPress admin, or from your phone.
 
 = Features =
 
-* **Book post type** – Title, featured image (cover) and archive at `/books/`. Book titles show their series, volume and subtitle, the same way everywhere: “Series, vol. 3: Title: Subtitle”, in French “Série, t. 3 : Titre : Sous-titre”. A volume typed “Tome 08” shows as “vol. 8”, a number alone as “no. 8”. The post date is the date the book was added to the library.
-* **Authors taxonomy** – Hierarchical: a real name as parent, pseudonyms as children. Filtering by an author includes their pseudonyms.
-* **Publishers taxonomy** – Hierarchical: a publisher as parent, its collections as children, such as Folio at Gallimard. A book gets its collection, or its publisher when it has none. Filtering by a publisher includes its collections.
-* **Original languages taxonomy** – The language a book was written in, picked in a checklist, in quick and bulk edit too. A language is identified by its ISO 639 code, its slug (“it”, “ja”, “fr”): add one by typing its code and it is named in the site language (“Italien” in French, with the PHP intl extension). With a translator, the book was read in translation; without, in its original language.
-* **Information metabox** – Subtitle, series, ISBN, ISSN, volume number, number of pages, edition date and date first published, read state and read dates, rating from 1 to 10 by half points and translators. The edition date is when this edition came out; the optional date first published is when the work first came out, whatever the edition, and may be a year alone or a year and month, such as 1929 or 1929-11. Authors are edited in a tag box, with autocomplete; publishers and collections in a checklist shown as a tree.
-* **Reading state** – A book is read or not, and has a read date per reading: a book read again keeps the date of each reading. The read dates are optional. Setting a read date marks the book as read and marking it as unread clears its dates; marking it as read without a date in the form or the books list sets today.
-* **Books not kept** – A book read but not kept (borrowed, given away…) gets the “Not kept” status: it is left out of the “All” view, the site and the library stats, has its own view in the books list, and counts in the reading stats.
-* **Books list** – Columns for the cover (with the rating), edition date, ISBN, read state, read date (the latest one, with the number of readings of a book read again) and rating; the Publishers column shows the publisher of a collection. Sorted by edition date by default, or by rating; books without them come last. The “Read” checkbox saves at once and updates the reading percentage shown above the list. Quick edit covers the ISBN, number of pages, latest read date and rating.
-* **Search** – Book searches also match the subtitle, series, ISBN, ISSN, volume number, translators, authors, publishers, collections and original languages. A real name finds the books of its pseudonyms, a publisher the books of its collections. Keywords narrow a search to a field: `series:SAS` (the exact name), `author:`, `publisher:`, `translator:`, `language:` (code or start of the name), `isbn:` (with or without hyphens), `read:yes`, `read:no`, `read:2024` or `read:2024-05`, and `rating:9` (9 or more), listed in the Help tab of the books list.
-* **Dashboard** – Six widgets, each one can be hidden, moved or collapsed like any dashboard widget. Each chart has a data table for screen readers. The “At a Glance” widget shows the number of books.
-    * **Reading** – Books read, this year against the same date last year (a book read again counts once per reading here and in the charts), the number expected by the end of the year, the pages read this year over the books with their number of pages, and books read by year and by month.
-    * **Ratings** – Number of rated books, average, distribution and average rating by year read.
-    * **Reading pile** – Books to read, kept or not, the oldest one by edition date and the latest reads.
-    * **Library** – Books, authors and publishers (pseudonyms and collections counted for their parent), share of translated books, number of original languages, the authors, publishers, collections and original languages with the most books, and edition years.
-    * **Reading idea of the week** – A book, kept or not, with its cover, or a link to add one, its credits (authors, publisher and collection, edition year) and number of pages, and why it is suggested: the next volume of a series in progress; a book by an author, a translator or in a collection rated 8 or more on average, an author long unread being named so; an author with three books or more and none read; a work or an edition whose anniversary falls this month; the opposite of the six latest reads (translated or not, volume of a series or not) or a decade first published with nothing read; a short book when behind last year's pace; a book added in the last 30 days; a book rated 9 or more and last read 10 years ago or more, to read again; or the rest of the reading pile, with the year it was added. A volume of a series is only suggested when it is the first one not read yet. The idea changes every week, as does the kind of the first one; “Another idea” moves to the next one.
-    * **Achievements** – Computed from the books, so a completion is lost when a book to read joins it and comes back once it is read; books not kept count. The number of authors (3 books or more), series (2 or more) and collections (3 or more) read in full, of collections of 10 books or more read by half or more, and of translators with 10 books read, each one a single achievement whose level is that number; 100, 250, 500… books read and 10,000, 25,000… pages read (one achievement each, at the highest number reached, and the next number with its progress among those close to it, pages once a book read has its number of pages), the record year and month, 6 months in a row or more with a reading, a book read again (one achievement whose level is the most times a book was read again: once, twice…), books read the year they came out, a work read a century after it first came out, the oldest book of the pile read, a book read from each decade of the 20th century, 5, 10, 20 and 30 original languages read, a book read in its original language (without translator, in another language than the one of your profile: a language with the slug “fr” is yours in French), 5 original languages read in a month and 3 in a week, a translator read from two languages or more, and a few easter eggs to find. Each one is dated by the reading that earned it. A book read again counts once, by its first reading, in those that count books, and once per reading in those about readings over time: pages, records, months in a row, languages in a month or a week, and the easter eggs about days and habits. The widget, in the colors of the admin color scheme, shows the latest ones as badges, those close to it (2 books left or fewer, and the next number of books and pages read) with their progress, and all of them; the REST route gives what is done and the total, books or pages, for those close to it.
-* **Reading app** – The library on a phone, in **Books > App**: a full-screen page to add to the home screen. The books, searched with the keywords of the books list and filtered by reading state, under a home while the search is empty: the books read this year, the covers of the latest readings, the reading idea of the week and the achievements closest to be earned. The diary, the readings by month, a book read again once per reading; the reading idea of the week, and the next ones; the reading stats of the year and the achievements, those close to it with their progress; the page of an author, opened from a book or an achievement: their books in the order they first came out, the books read, the average rating, the pages of their books and their progress to complete them. A book opens with its cover and details, at a URL of its own, and its reading is edited there: read, read dates, rating and not kept; a link edits the rest in the admin. A book is added from the + at the top: a photo of its cover, its title, its authors, publisher and collection, suggested among those of the library or added, its ISBN and more details. In the language of your profile, light or dark theme.
-* **REST API** – Books, authors, publishers and original languages in the core REST API (`/wp-json/wp/v2/books`, etc.), with the book meta under `meta` and the line shown under the title in `credits`. `/wp-json/library/v1/books/reading-stats` returns the reading stats, `/wp-json/library/v1/books/readings` the readings, latest first, `/wp-json/library/v1/books/reading-idea` the reading idea of the week and `/wp-json/library/v1/books/achievements` the achievements, to users who can edit posts.
-* **Updates** – From the GitHub releases, see below.
-* **Translatable** – French translation included (Domain Path: `/languages`): the strings of the scripts are in JSON files, which WordPress gives them.
+* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
+* **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its ISO 639 code and named in the site language.
+* **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count.
+* **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
+* **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
+* **Reading idea of the week** – A book to read, and why: the next volume of a series in progress, an author rated well, an anniversary, a short book to catch up… “Another idea” moves to the next one.
+* **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
+* **Reading app** – The library on a phone, in **Books > App**: the search, the diary of the readings, the reading idea, the stats of the year, the achievements and the page of each author. The reading of a book is edited there, and a book is added with a photo of its cover.
+* **REST API** – Books and their taxonomies in the core REST API, and routes of their own for the reading stats, the readings, the reading idea, the achievements and the authors: see the FAQ.
+* **Translatable** – French translation included.
 
 = Technical =
 
-* Registers the `book` post type with `show_in_rest`; books are edited in the classic screen, as the type has no editor
-* Registers the `library-author`, `library-publisher` and `library-language` taxonomies and the book meta (`register_post_meta`)
-* Loads the text domain at `init`
-* No shortcodes or front-end templates included; use your theme or blocks to display books
-* The reading app is an admin page rendered full screen, before the admin header, that reads the REST API; its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header; its bricks are script modules, one per custom element, which import the modules they share through the import map of WordPress, without a build
+* Registers the `book` post type, edited in the classic screen, the `library-author`, `library-publisher` and `library-language` taxonomies and the book meta, all in the REST API.
+* No shortcodes or front-end templates: display books with your theme or blocks.
+* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header.
 
 == Installation ==
 
-1. Upload the `library` folder to `/wp-content/plugins/` or install via the WordPress plugin installer.
+1. Upload the `library` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** screen.
-3. Use **Books** in the admin menu to add and manage books, authors, and publishers.
-
-= Optional =
-
-* Add translations in `wp-content/plugins/library/languages/` (e.g. `library-fr_FR.po` / `.mo`) or use a translation plugin.
+3. Use **Books** in the admin menu to add and manage books, authors and publishers.
 
 = Updates =
 
-The plugin updates from the latest release of [19h47/library](https://github.com/19h47/library/releases), like any other plugin in **Dashboard > Updates**. The `Update URI` header routes the check to GitHub instead of WordPress.org.
-
-To publish a release:
-
-1. Bump `Version` in `library.php` and `Stable tag` in this file.
-2. Commit, push, then create the release: `gh release create v1.0.0 --notes "…"`. The tag may start with `v`. The plugin details show this file as it is in the release: description, installation, FAQ and changelog.
-
-No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder.
+The plugin updates from the latest release of [19h47/library](https://github.com/19h47/library/releases), like any other plugin in **Dashboard > Updates**. No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder. To publish a release, see `RELEASING.md`.
 
 == Frequently Asked Questions ==
 
-= Can I change the book slug? =
-
-Yes. The post type rewrite slug is `books` by default. Use the `library_post_type_args` filter to override the `rewrite` argument.
-
-= Does the plugin include a front-end display? =
-
-No. The plugin only provides the post type, taxonomies, and admin UI. Use your theme, blocks, or custom templates to display books on the front end.
-
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen, like an app, and keeps the login of the site: when the login expires, it goes through the login page and back. The dialog of a book edits its reading: read, read dates, rating and not kept. To edit the rest, follow **Edit book**, which opens the admin. To add a book, tap the **+** at the top: take a photo of its cover or pick one, fill in its title and the rest, then save; the book opens, for its reading.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating and not kept; **Edit book** opens the admin for the rest. The **+** at the top adds a book.
 
 = Can several readers share the library? =
 
-No, the plugin has one reader per site. The read state, read dates, rating and “Not kept” status belong to the book, not to a user: every user of the site sees and changes the same readings, and the dashboard, the reading idea and the achievements count them all. Each reader keeps their library on their own site.
-
-= Why is no update offered? =
-
-Updates come from the GitHub releases, see Updates above. No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder. Versions before 1.0.0 also blocked plugin updates: install 1.0.0 by hand once, later versions update as usual.
-
-= How is a book marked as read? =
-
-The “Read” checkbox, in the books list or the Information box, is the reading state; the read dates are optional. Setting a read date marks the book as read and marking it as unread clears its dates, wherever the change comes from. Marking a book as read without a date in the Information box, the books list or the reading app sets today; the REST API and imports can save a book read without a date.
+No, the plugin has one reader per site. The readings, ratings and “Not kept” status belong to the book, not to a user: every user of the site sees and changes the same ones. Each reader keeps their library on their own site.
 
 = How do I log a book read again? =
 
-In the Information box, fill in the empty field under the read dates: each date is a reading, and a field emptied removes its reading. The books list shows the latest one, with the number of readings; quick edit changes the latest one. A book read again counts once per reading in the Reading widget, and is no longer suggested to read again until 10 years after its latest reading.
+In the Information box, fill in the empty field under the read dates: each date is a reading, and a field emptied removes its reading. A book read again counts once per reading in the reading stats, and once, by its first reading, in the achievements that count books.
 
-= How do I search a series or an author only? =
+= How do I add a pseudonym or a collection? =
 
-With a keyword followed by a colon and the value: `series:SAS` finds the books of the series SAS only, not every title with “sas”. The other keywords are `author:`, `publisher:`, `translator:`, `language:`, `isbn:`, `read:` (`yes`, `no`, a year or a month, rereads included) and `rating:` (9 for 9 or more, 8.5 with a dot). Keywords add up, with the rest of the search: `series:SAS Malko`. A comma gives a choice, `language:it,ja`; a hyphen excludes, `publisher:Gallimard -publisher:Folio`; quotes keep the spaces of a value, `series:"Le Cycle de Dune"`. A word followed by a colon that is not a keyword stays in the search. Keywords also work in the REST API, `?search=series:SAS`.
-
-= How do I handle pseudonyms? =
-
-Add the pseudonym as a child of the author's real name in **Books > Authors**. Filtering the books list by the real name then includes the books signed with the pseudonym, and the Library dashboard widget counts them for the real name.
-
-= How do I add a collection? =
-
-Check the collection instead of its publisher in the Publishers box of the book; a new one is added there with **Add New Publisher**, picking its publisher as parent, or in **Books > Publishers**. Filtering the books list by the publisher then includes the books of the collection, and the Library dashboard widget counts them for the publisher.
-
-= How do I get book data from the REST API? =
-
-Books are at `/wp-json/wp/v2/books`, with the book fields under `meta`: `series`, `isbn`, `issn`, `volume_number`, `translators`, `pages`, `edition_date` (`Y-m-d`), `read_date` (an array of `Y-m-d` dates, one per reading), `published_date` (`Y`, `Y-m` or `Y-m-d`), `rating` (1 to 10 by half points) and `read`. Authors and publishers are at `/wp-json/wp/v2/library-author` and `/wp-json/wp/v2/library-publisher`; a collection is a publisher with a `parent`. Each book also has `credits`, the line shown under its title: authors · publisher, collection · edition year. `/wp-json/library/v1/books/reading-stats` returns the number of books, of books read and the percentage, and `year_to_date`: the books read this year, by the same date last year and expected by the end of the year, to users who can edit posts. `/wp-json/library/v1/books/readings` returns the readings by month, latest first, to the same users: each month with its readings, a book read again once per reading. A page holds whole months: `page` and `per_page` (3 by default, 12 at most) count months, and so do the totals in the `X-WP-Total` and `X-WP-TotalPages` headers; `_embed` adds the books of each month. `/wp-json/library/v1/books/reading-idea` returns the reading idea of the week with its reason, to the same users: `?position=1` gives the next idea, `_embed` adds the book. `/wp-json/library/v1/books/achievements` returns the achievements earned, latest first, and those close to it with what is done and the total, to the same users; each one gives its `target`, what its subject leads to: `{ "type": "book", "id" }`, `{ "type": "search", "search", "not_kept" }` or `{ "type": "author" | "collection", "id", "not_kept" }`, where `not_kept` tells whether none of its books is kept, or `null`. `/wp-json/library/v1/authors/<id>` returns an author under their real name, the ID of a pseudonym giving the author it belongs to, to the same users: their pseudonyms, the IDs of their books in the order they first came out, the number read, the average rating, the `pages` of their books with a number of pages (0 when none has one) and the completion their books count for. `POST /wp-json/library/v1/books` adds a book as the book form does, to users who can publish posts: its `title`, the names of its `authors`, its `publisher` and `collection`, a name not found added, the term ID of its original `language`, the ID of an image uploaded as its `cover`, and its `meta`. Books not kept have the `library-not-kept` status: list them with `?status=library-not-kept` as a user who can edit posts.
-
-= How do I log a book I read but did not keep? =
-
-Add it as any book and check **Not kept** in the Publish box, under the status, or pick the “Not kept” status in quick or bulk edit. The book is then hidden from the “All” view of the books list, the site and the Library widget, but its reading and rating count in the Reading and Ratings widgets. Find these books in the “Not kept” view of the books list. The count of an author or publisher only includes the books kept; their books not kept are in the “Not kept” column of **Books > Authors** and **Books > Publishers**.
+Add the pseudonym as a child of the author's real name in **Books > Authors**, and the collection as a child of its publisher in **Books > Publishers** or with **Add New Publisher** in the Publishers box of a book. Check the collection, not its publisher, on the book. The books list and the dashboard count them for their parent.
 
 = Can I import books from a WordPress export? =
 
-Yes, with **Tools > Import > WordPress**. Read dates, ratings and reading states are saved as they are in the file. Install the plugin first, so that statuses like “Not kept” are known. The importer only adds books: it skips a book that already exists (same title and date) and never updates it; complete existing books through the REST API instead.
+Yes, with **Tools > Import > WordPress**, once the plugin is active, so that statuses like “Not kept” are known. The importer only adds books: it skips a book that already exists (same title and date) and never updates it.
 
-= Where is the former dashboard widget? =
+= Can I change the book slug? =
 
-Since 1.0.0 it is split into four widgets: Reading, Ratings, Reading pile and Library. Hide the ones you do not need in **Screen Options** on the dashboard.
+Yes. The post type rewrite slug is `books` by default: use the `library_post_type_args` filter to override the `rewrite` argument.
+
+= How do I get book data from the REST API? =
+
+Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/library-author`, `library-publisher` and `library-language`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, and the search keywords work too: `?search=series:SAS`.
+
+The routes of the plugin, to users who can edit posts:
+
+* `GET /wp-json/library/v1/books/reading-stats` – books, books read, and this year against last year.
+* `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months, `_embed` adds the books.
+* `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
+* `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
+* `GET /wp-json/library/v1/authors/<id>` – an author, their pseudonyms, their books in the order they first came out and their reading.
+* `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
 
 == Changelog ==
+
+= 6.1.2 =
+* Reading app: a book not kept shows a tag on its card, in a tinted grey, in the books list, the diary, the page of an author and the reading idea, instead of the words at the end of its line.
+* A shorter readme; the release steps are in RELEASING.md, outside the plugin archive. The date of a book comes from one method. Nothing else changes for the reader.
 
 = 6.1.1 =
 * What the admin and the reading app share is in `includes/`, the book post type, its taxonomies, the reading idea and the achievements included, and the screens of the admin in `admin/`: the books list, the terms lists, the edit screen of a book, the reading idea widget and the achievements page. Nothing changes for the reader.
@@ -295,14 +257,3 @@ Since 1.0.0 it is split into four widgets: Reading, Ratings, Reading pile and Li
 * Custom list table columns and quick edit.
 * REST API support.
 * Translation-ready.
-
-== Upgrade Notice ==
-
-= 2.0.0 =
-The `date_published` book meta is renamed `edition_date`: rename it in the database with the command in the changelog. The `book_editions` book meta is removed: its collections become children of their publisher in the Publishers taxonomy. Update the code that reads them.
-
-= 1.0.0 =
-Closes a REST route that let anyone read or update any site option: update now. Requires WordPress 7.1 and PHP 8.2. The `read` REST field is replaced by `meta.read`. Delete the unused `reading_percentage` option. Install this version by hand: earlier versions block plugin updates.
-
-= 0.0.0 =
-Initial release of Library.
