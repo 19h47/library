@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.3.1
+Stable tag: 6.3.2
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,6 +85,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
 
 == Changelog ==
+
+= 6.3.2 =
+* Reading app: the summary on a card is half a step of the scale below its title, instead of the size of the lines in capitals around it, at which a sentence in lowercase reads as small print.
 
 = 6.3.1 =
 * Reading app: the summary on a card is a size below its title, in the type of its other lines, and shows more of itself in its three lines.
