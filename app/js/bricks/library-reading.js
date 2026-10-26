@@ -55,7 +55,7 @@ class LibraryReadingElement extends Brick {
 				const rating = data.get( 'rating' );
 
 				event.preventDefault();
-				store.saveBook( {
+				store.saveReading( {
 					read: data.has( 'read' ),
 					readDates: data.getAll( 'read_date' ),
 					rating: rating ? Number( rating ) : null,

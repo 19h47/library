@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: a book added, reading stats, readings by month, reading idea, achievements, authors and the credits of a book.
+ * REST API: a book added or edited, reading stats, readings by month, reading idea, achievements, authors and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -64,47 +64,33 @@ class Library_Rest_API {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'add_book' ),
 				'permission_callback' => fn() => current_user_can( get_post_type_object( 'book' )->cap->publish_posts ),
-				'args'                => array(
-					'title'      => array(
-						'description'       => __( 'Title of the book.', 'library' ),
-						'type'              => 'string',
-						'required'          => true,
-						'pattern'           => '\\S',
-						// A sanitize callback leaves out the check against the schema, unless it is asked for.
-						'validate_callback' => 'rest_validate_request_arg',
-						'sanitize_callback' => 'sanitize_text_field',
+				'args'                => $this->get_book_args( true ),
+			),
+		);
+
+		$can_edit_book = fn( WP_REST_Request $request ) => current_user_can( 'edit_post', $request['id'] );
+
+		register_rest_route(
+			'library/v1',
+			'books/(?P<id>\d+)',
+			array(
+				'args' => array(
+					'id' => array(
+						'description'       => __( 'ID of the book.', 'library' ),
+						'type'              => 'integer',
+						'validate_callback' => fn( $id ) => 'book' === get_post_type( (int) $id ),
 					),
-					'authors'    => array(
-						'description' => __( 'Names of the authors or pseudonyms; a name not found adds an author.', 'library' ),
-						'type'        => 'array',
-						'items'       => array( 'type' => 'string' ),
-						'default'     => array(),
-					),
-					'publisher'  => array(
-						'description' => __( 'Name of the publisher; a name not found adds a publisher.', 'library' ),
-						'type'        => 'string',
-						'default'     => '',
-					),
-					'collection' => array(
-						'description' => __( 'Name of the collection, under the publisher; a name not found adds a collection.', 'library' ),
-						'type'        => 'string',
-						'default'     => '',
-					),
-					'language'   => array(
-						'description' => __( 'Term ID of the original language.', 'library' ),
-						'type'        => 'integer',
-						'default'     => 0,
-					),
-					'cover'      => array(
-						'description' => __( 'ID of the image uploaded as the cover.', 'library' ),
-						'type'        => 'integer',
-						'default'     => 0,
-					),
-					'meta'       => array(
-						'description' => __( 'Book meta, such as isbn, as the book form saves them.', 'library' ),
-						'type'        => 'object',
-						'default'     => array(),
-					),
+				),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_book' ),
+					'permission_callback' => $can_edit_book,
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'edit_book' ),
+					'permission_callback' => $can_edit_book,
+					'args'                => $this->get_book_args( false ),
 				),
 			),
 		);
@@ -191,9 +177,71 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * Add a book, as the book form does: the names of its authors go through their tag box rule, its slug is built
-	 * from its title and ISBN, its meta are saved by Library_Meta. A book in a collection has the collection only,
-	 * its publisher being the parent; the cover becomes an image of the book.
+	 * Arguments of a book as its form sends them: adding a book takes them all, with their defaults, and needs a title;
+	 * editing a book takes the ones sent, and leaves the others as they are.
+	 *
+	 * @param bool $adding Whether the book is added.
+	 * @return array
+	 */
+	private function get_book_args( bool $adding ): array {
+		$args = array(
+			'title'      => array(
+				'description'       => __( 'Title of the book.', 'library' ),
+				'type'              => 'string',
+				'required'          => true,
+				'pattern'           => '\\S',
+				// A sanitize callback leaves out the check against the schema, unless it is asked for.
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'excerpt'    => array(
+				'description' => __( 'Summary of the book in a few words, its excerpt.', 'library' ),
+				'type'        => 'string',
+				'default'     => '',
+			),
+			'authors'    => array(
+				'description' => __( 'Names of the authors or pseudonyms; a name not found adds an author.', 'library' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'string' ),
+				'default'     => array(),
+			),
+			'publisher'  => array(
+				'description' => __( 'Name of the publisher; a name not found adds a publisher.', 'library' ),
+				'type'        => 'string',
+				'default'     => '',
+			),
+			'collection' => array(
+				'description' => __( 'Name of the collection, under the publisher and sent with it; a name not found adds a collection.', 'library' ),
+				'type'        => 'string',
+				'default'     => '',
+			),
+			'language'   => array(
+				'description' => __( 'Term ID of the original language.', 'library' ),
+				'type'        => 'integer',
+				'default'     => 0,
+			),
+			'cover'      => array(
+				'description' => __( 'ID of the image uploaded as the cover, 0 for none.', 'library' ),
+				'type'        => 'integer',
+				'default'     => 0,
+			),
+			'meta'       => array(
+				'description' => __( 'Book meta, such as isbn, as the book form saves them.', 'library' ),
+				'type'        => 'object',
+				'default'     => array(),
+			),
+		);
+
+		if ( $adding ) {
+			return $args;
+		}
+
+		return array_map( fn( array $arg ) => array_diff_key( $arg, array_flip( array( 'required', 'default' ) ) ), $args );
+	}
+
+	/**
+	 * Add a book, as the book form does: its post, whose slug is built from its title and ISBN, then its meta, terms
+	 * and cover, as save_book() saves them.
 	 *
 	 * The book is linked, and embeddable with _embed.
 	 *
@@ -202,17 +250,13 @@ class Library_Rest_API {
 	 */
 	public function add_book( WP_REST_Request $request ) {
 		// The names first, so that a book is never left half added.
-		$authors       = Library_Taxonomies::sanitize_author_names( 'library-author', implode( ',', $request['authors'] ) );
-		$publisher_id  = Library_Taxonomies::get_term_id( 'library-publisher', $request['publisher'] );
-		$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library-publisher', $request['collection'], $publisher_id ) : 0;
-		$publishers    = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
-		$meta          = (array) $request['meta'];
-		// The slug comes from the fields of the form the post is saved with, such as the ISBN.
-		$post = array(
-			'post_type'   => 'book',
-			'post_status' => 'publish',
-			'post_title'  => $request['title'],
-		) + array_intersect_key( $meta, array_flip( array( 'isbn', 'issn', 'volume_number' ) ) );
+		$terms = $this->get_terms( $request );
+		$post  = array(
+			'post_type'    => 'book',
+			'post_status'  => 'publish',
+			'post_title'   => $request['title'],
+			'post_excerpt' => $request['excerpt'],
+		) + $this->get_slug_fields( 0, (array) $request['meta'] );
 
 		$book_id = wp_insert_post( wp_slash( $post ), true );
 
@@ -220,14 +264,162 @@ class Library_Rest_API {
 			return $book_id;
 		}
 
-		Library_Meta::save( $book_id, $meta );
-		wp_set_object_terms( $book_id, $authors, 'library-author' );
-		wp_set_object_terms( $book_id, $publishers, 'library-publisher' );
-		wp_set_object_terms( $book_id, array_filter( array( $request['language'] ) ), 'library-language' );
+		$this->save_book( $book_id, $request, $terms );
+
+		$response = $this->get_book_response( $book_id );
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
+	/**
+	 * A book as its form edits it, as the route that edits it takes it back: its title and excerpt as typed, the names of
+	 * its authors as the book gives them, its publisher and collection, its original language and its meta.
+	 *
+	 * The form edits one publisher and one collection: a book given more gives its first collection, or else publisher.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public function get_book( WP_REST_Request $request ): WP_REST_Response {
+		$book       = get_post( $request['id'] );
+		$collection = current( Library_Taxonomies::get_collections( $book->ID ) );
+		$publishers = get_the_terms( $book, 'library-publisher' );
+		$publisher  = $collection ? get_term( $collection->parent, 'library-publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
+		$languages  = wp_get_post_terms( $book->ID, 'library-language', array( 'fields' => 'ids' ) );
+		$meta       = array();
+
+		// The read dates are the reading of the book, which its own form edits.
+		foreach ( array_diff( Library_Meta::KEYS, array( 'read_date' ) ) as $key ) {
+			$meta[ $key ] = get_post_meta( $book->ID, $key, true );
+		}
+
+		return rest_ensure_response(
+			array(
+				'id'         => $book->ID,
+				'title'      => $book->post_title,
+				'excerpt'    => $book->post_excerpt,
+				'authors'    => wp_get_post_terms( $book->ID, 'library-author', array( 'fields' => 'names' ) ),
+				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
+				'collection' => $collection ? $collection->name : '',
+				'language'   => (int) current( $languages ),
+				'meta'       => $meta,
+			)
+		);
+	}
+
+	/**
+	 * Edit a book, as the book form does: only what is sent changes. Its post first, whose slug follows its title and
+	 * ISBN as in the book form, then its meta, terms and cover, as save_book() saves them.
+	 *
+	 * The book is linked, and embeddable with _embed.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function edit_book( WP_REST_Request $request ) {
+		$book_id = $request['id'];
+		// The names first, so that a book is never left half edited.
+		$terms = $this->get_terms( $request );
+		$post  = array( 'ID' => $book_id ) + $this->get_slug_fields( $book_id, (array) $request['meta'] );
+
+		if ( $request->has_param( 'title' ) ) {
+			$post['post_title'] = $request['title'];
+		}
+
+		if ( $request->has_param( 'excerpt' ) ) {
+			$post['post_excerpt'] = $request['excerpt'];
+		}
+
+		$updated = wp_update_post( wp_slash( $post ), true );
+
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+
+		$this->save_book( $book_id, $request, $terms );
+
+		return $this->get_book_response( $book_id );
+	}
+
+	/**
+	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its authors through the rule
+	 * of their tag box, its collection, or else its publisher, and its original language. A name not found adds a term.
+	 *
+	 * A collection is under its publisher, and goes with it: a book in a collection has the collection only.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return array<string,int[]>
+	 */
+	private function get_terms( WP_REST_Request $request ): array {
+		$terms = array();
+
+		if ( $request->has_param( 'authors' ) ) {
+			$terms['library-author'] = Library_Taxonomies::sanitize_author_names( 'library-author', implode( ',', $request['authors'] ) );
+		}
+
+		if ( $request->has_param( 'publisher' ) ) {
+			$publisher_id  = Library_Taxonomies::get_term_id( 'library-publisher', $request['publisher'] );
+			$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library-publisher', (string) $request['collection'], $publisher_id ) : 0;
+
+			$terms['library-publisher'] = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
+		}
+
+		if ( $request->has_param( 'language' ) ) {
+			$terms['library-language'] = array_filter( array( $request['language'] ) );
+		}
+
+		return $terms;
+	}
+
+	/**
+	 * Fields the slug of a book is built from, which Library_Posts::slug() reads with its post: the ISBN, the ISSN and the
+	 * volume number sent, or else those of the book.
+	 *
+	 * @param int   $book_id Book ID, 0 for a book to add.
+	 * @param array $meta    Book meta sent.
+	 * @return array<string,string>
+	 */
+	private function get_slug_fields( int $book_id, array $meta ): array {
+		$fields = array();
+
+		foreach ( array( 'isbn', 'issn', 'volume_number' ) as $key ) {
+			$fields[ $key ] = $meta[ $key ] ?? (string) get_post_meta( $book_id, $key, true );
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Save what is sent for a book, after its post: its meta through Library_Meta, its terms, and its cover, which becomes
+	 * an image of the book; a cover of 0 removes it.
+	 *
+	 * @param int             $book_id Book ID.
+	 * @param WP_REST_Request $request Request.
+	 * @param array           $terms   Term IDs by taxonomy, from get_terms().
+	 * @return void
+	 */
+	private function save_book( int $book_id, WP_REST_Request $request, array $terms ): void {
+		if ( $request->has_param( 'meta' ) ) {
+			Library_Meta::save( $book_id, (array) $request['meta'] );
+		}
+
+		foreach ( $terms as $taxonomy => $term_ids ) {
+			wp_set_object_terms( $book_id, $term_ids, $taxonomy );
+		}
+
+		if ( ! $request->has_param( 'cover' ) ) {
+			return;
+		}
 
 		$cover_id = $request['cover'];
 
-		if ( $cover_id && wp_attachment_is_image( $cover_id ) && current_user_can( 'edit_post', $cover_id ) ) {
+		if ( ! $cover_id ) {
+			delete_post_thumbnail( $book_id );
+			return;
+		}
+
+		if ( wp_attachment_is_image( $cover_id ) && current_user_can( 'edit_post', $cover_id ) ) {
 			wp_update_post(
 				array(
 					'ID'          => $cover_id,
@@ -236,9 +428,16 @@ class Library_Rest_API {
 			);
 			set_post_thumbnail( $book_id, $cover_id );
 		}
+	}
 
+	/**
+	 * The response of a book added or edited: its ID, the book linked, and embeddable with _embed.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return WP_REST_Response
+	 */
+	private function get_book_response( int $book_id ): WP_REST_Response {
 		$response = rest_ensure_response( array( 'id' => $book_id ) );
-		$response->set_status( 201 );
 		$response->add_link( 'book', rest_url( 'wp/v2/books/' . $book_id ), array( 'embeddable' => true ) );
 
 		return $response;

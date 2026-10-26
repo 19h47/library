@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.3.2\n"
+"Project-Id-Version: Library 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T13:50:12+00:00\n"
+"POT-Creation-Date: 2026-10-26T14:02:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -78,7 +78,7 @@ msgid "Thumbnail"
 msgstr ""
 
 #: admin/class-library-books-list.php:56
-#: app/partials/library-app.php:386
+#: app/partials/library-app.php:399
 msgid "Read date"
 msgstr ""
 
@@ -422,7 +422,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:369
+#: includes/class-library-rest-api.php:568
 msgid "Every book has been read."
 msgstr ""
 
@@ -436,7 +436,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:38
-#: app/partials/library-app.php:308
 msgid "Add a cover"
 msgstr ""
 
@@ -593,33 +592,49 @@ msgid "Add a reading"
 msgstr ""
 
 #: app/partials/library-app.php:265
-#: app/partials/library-app.php:353
+#: app/partials/library-app.php:363
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:312
+#: app/partials/library-app.php:313
+msgid "Choose a cover"
+msgstr ""
+
+#: app/partials/library-app.php:315
+msgid "Remove the cover"
+msgstr ""
+
+#: app/partials/library-app.php:318
 msgid "Title"
 msgstr ""
 
-#: app/partials/library-app.php:319
+#: app/partials/library-app.php:322
+msgid "Excerpt"
+msgstr ""
+
+#: app/partials/library-app.php:329
 msgid "Add an author"
 msgstr ""
 
-#: app/partials/library-app.php:327
+#: app/partials/library-app.php:337
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:336
+#: app/partials/library-app.php:346
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:396
-#: app/partials/library-app.php:397
+#: app/partials/library-app.php:367
+msgid "Edit in the dashboard"
+msgstr ""
+
+#: app/partials/library-app.php:409
+#: app/partials/library-app.php:410
 msgid "Remove this reading"
 msgstr ""
 
-#: app/partials/library-app.php:418
-#: app/partials/library-app.php:419
+#: app/partials/library-app.php:431
+#: app/partials/library-app.php:432
 msgid "Remove this author"
 msgstr ""
 
@@ -1344,48 +1359,56 @@ msgstr ""
 msgid "Credits of the book, to show under its title: authors · publisher, collection · edition year."
 msgstr ""
 
-#: includes/class-library-rest-api.php:69
-msgid "Title of the book."
+#: includes/class-library-rest-api.php:79
+msgid "ID of the book."
 msgstr ""
 
-#: includes/class-library-rest-api.php:78
-msgid "Names of the authors or pseudonyms; a name not found adds an author."
-msgstr ""
-
-#: includes/class-library-rest-api.php:84
-msgid "Name of the publisher; a name not found adds a publisher."
-msgstr ""
-
-#: includes/class-library-rest-api.php:89
-msgid "Name of the collection, under the publisher; a name not found adds a collection."
-msgstr ""
-
-#: includes/class-library-rest-api.php:94
-msgid "Term ID of the original language."
-msgstr ""
-
-#: includes/class-library-rest-api.php:99
-msgid "ID of the image uploaded as the cover."
-msgstr ""
-
-#: includes/class-library-rest-api.php:104
-msgid "Book meta, such as isbn, as the book form saves them."
-msgstr ""
-
-#: includes/class-library-rest-api.php:131
+#: includes/class-library-rest-api.php:117
 msgid "Page of the months."
 msgstr ""
 
-#: includes/class-library-rest-api.php:137
+#: includes/class-library-rest-api.php:123
 msgid "Number of months per page."
 msgstr ""
 
-#: includes/class-library-rest-api.php:156
+#: includes/class-library-rest-api.php:142
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
 msgstr ""
 
-#: includes/class-library-rest-api.php:184
+#: includes/class-library-rest-api.php:170
 msgid "Term ID of the author, or of one of their pseudonyms."
+msgstr ""
+
+#: includes/class-library-rest-api.php:189
+msgid "Title of the book."
+msgstr ""
+
+#: includes/class-library-rest-api.php:198
+msgid "Summary of the book in a few words, its excerpt."
+msgstr ""
+
+#: includes/class-library-rest-api.php:203
+msgid "Names of the authors or pseudonyms; a name not found adds an author."
+msgstr ""
+
+#: includes/class-library-rest-api.php:209
+msgid "Name of the publisher; a name not found adds a publisher."
+msgstr ""
+
+#: includes/class-library-rest-api.php:214
+msgid "Name of the collection, under the publisher and sent with it; a name not found adds a collection."
+msgstr ""
+
+#: includes/class-library-rest-api.php:219
+msgid "Term ID of the original language."
+msgstr ""
+
+#: includes/class-library-rest-api.php:224
+msgid "ID of the image uploaded as the cover, 0 for none."
+msgstr ""
+
+#: includes/class-library-rest-api.php:229
+msgid "Book meta, such as isbn, as the book form saves them."
 msgstr ""
 
 #: includes/class-library-taxonomies.php:59
@@ -1698,7 +1721,7 @@ msgid "No book found."
 msgstr ""
 
 #. translators: %s: year a book first came out.
-#: app/js/bricks/library-author.js:98
+#: app/js/bricks/library-author.js:99
 #, js-format
 msgid "First published in %s"
 msgstr ""
@@ -1727,6 +1750,6 @@ msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr ""
 
-#: app/js/library-app-store.js:143
+#: app/js/library-app-store.js:153
 msgid "The books could not be loaded."
 msgstr ""
