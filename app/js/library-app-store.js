@@ -252,10 +252,10 @@
 	/**
 	 * The author open, under their real name: `books` all their book IDs, in order,
 	 * `items` the ones loaded so far, a page at a time; `bookPages` the pages of their books,
-	 * as `pages` counts the pages of the list; `completion` is an achievement.
+	 * as `pages` counts the pages of the list; `completion` is an achievement; `description` is HTML.
 	 */
 	function author( id = 0 ) {
-		return { ...pages(), id, name: '', pseudonyms: [], books: [], read: 0, rating: null, bookPages: 0, completion: null };
+		return { ...pages(), id, name: '', pseudonyms: [], description: '', books: [], read: 0, rating: null, bookPages: 0, completion: null };
 	}
 
 	/**
@@ -872,6 +872,7 @@
 				this.#update( 'author', () => ( {
 					name: text( data.name ),
 					pseudonyms: data.pseudonyms.map( text ),
+					description: data.description,
 					books: data.books,
 					read: data.read,
 					rating: data.rating,

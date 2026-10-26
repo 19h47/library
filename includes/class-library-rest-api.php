@@ -297,8 +297,11 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * An author under their real name, with their pseudonyms, their books and their reading: the books read,
+	 * An author under their real name, with their pseudonyms, their description, their books and their reading: the books read,
 	 * the average rating, the pages of their books and the completion their books count for.
+	 *
+	 * The description is the one of the term, as a theme shows it: its paragraphs and line breaks become HTML,
+	 * among the few tags core keeps when it saves a description.
 	 *
 	 * The pages add up those of the books with a number of pages, read or not, each book once: 0 when none has one.
 	 *
@@ -340,14 +343,15 @@ class Library_Rest_API {
 
 		return rest_ensure_response(
 			array(
-				'id'         => $author->term_id,
-				'name'       => $author->name,
-				'pseudonyms' => is_array( $pseudonyms ) ? $pseudonyms : array(),
-				'books'      => array_column( $books, 'id' ),
-				'read'       => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
-				'rating'     => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
-				'pages'      => array_sum( array_column( $books, 'pages' ) ),
-				'completion' => ( new Library_Achievements() )->get_author_completion( $author->term_id ),
+				'id'          => $author->term_id,
+				'name'        => $author->name,
+				'pseudonyms'  => is_array( $pseudonyms ) ? $pseudonyms : array(),
+				'description' => term_description( $author ),
+				'books'       => array_column( $books, 'id' ),
+				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
+				'pages'       => array_sum( array_column( $books, 'pages' ) ),
+				'completion'  => ( new Library_Achievements() )->get_author_completion( $author->term_id ),
 			)
 		);
 	}

@@ -184,6 +184,7 @@
 						<header class="library-author">
 							<h2 class="library-author__name" data-field="name"></h2>
 							<p data-field="pseudonyms"></p>
+							<div class="library-author__description" data-html="description" hidden></div>
 							<p data-field="summary"></p>
 						</header>
 						<ul class="app-list__items library-author__completion" data-list="completion" hidden></ul>
