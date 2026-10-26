@@ -1,6 +1,6 @@
 <?php
 /**
- * Edit screen of a book: the information metabox, the "Not kept" box and the authors tag box.
+ * Edit screen of a book, the classic one: the information metabox, the "Not kept" box and the authors tag box.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -30,6 +30,19 @@ class Library_Metaboxes {
 		add_action( 'save_post_book', array( $this, 'save_metabox' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'render_not_kept' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'not_kept' ), 10, 2 );
+		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor' ), 10, 2 );
+	}
+
+	/**
+	 * Keep the classic edit screen for books: the block editor has no publish box for the "Not kept" box,
+	 * and its notes stay text in paragraphs, which the reading app edits as typed.
+	 *
+	 * @param bool   $use_block_editor Whether the post type uses the block editor.
+	 * @param string $post_type        Post type.
+	 * @return bool
+	 */
+	public function use_block_editor( bool $use_block_editor, string $post_type ): bool {
+		return 'book' === $post_type ? false : $use_block_editor;
 	}
 
 	/**

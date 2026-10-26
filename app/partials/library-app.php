@@ -230,8 +230,9 @@
 				<img class="library-book__cover" data-field="cover" alt="" hidden>
 				<p class="library-book__meta" data-field="credits"></p>
 				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
-				<p class="library-book__translation" data-field="translation"></p>
 				<p class="library-book__excerpt" data-field="excerpt"></p>
+				<div class="library-book__content" data-html="content" hidden></div>
+				<p class="library-book__translation" data-field="translation"></p>
 				<library-reading>
 					<form class="library-reading">
 						<div class="library-reading__pills">
@@ -321,6 +322,10 @@
 					<p class="library-field">
 						<label for="library-edit-excerpt"><?php esc_html_e( 'Excerpt', 'library' ); ?></label>
 						<textarea id="library-edit-excerpt" name="excerpt" rows="3"></textarea>
+					</p>
+					<p class="library-field">
+						<label for="library-edit-content"><?php esc_html_e( 'Notes', 'library' ); ?></label>
+						<textarea id="library-edit-content" name="content" rows="3"></textarea>
 					</p>
 					<fieldset class="library-field">
 						<legend><?php echo esc_html( $author_labels->name ); ?></legend>

@@ -38,7 +38,7 @@
 	// The fields of a book the app reads, and its cover and terms.
 	const BOOK_QUERY = {
 		_embed: 'wp:featuredmedia,wp:term',
-		_fields: 'id,title,excerpt,credits,status,meta,_links,_embedded',
+		_fields: 'id,title,excerpt,content,credits,status,meta,_links,_embedded',
 	};
 
 	/** Observable state: the part of @agencecinq/store used here. */
@@ -109,7 +109,7 @@
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
 	}
 
-	/** A book of the API as the app shows it: plain text, its read dates in order, its cover with its size, its authors and its original languages. */
+	/** A book of the API as the app shows it: plain text but its notes, its read dates in order, its cover with its size, its authors and its original languages. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 		const details = media?.media_details;
@@ -125,6 +125,8 @@
 			id: item.id,
 			title: text( item.title.rendered ),
 			excerpt: text( item.excerpt.rendered ),
+			// HTML as the API renders it: its paragraphs and links.
+			content: item.content.rendered,
 			credits: text( item.credits ),
 			status: item.status,
 			// Its size gives the image its place before it loads.
