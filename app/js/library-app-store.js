@@ -249,10 +249,11 @@
 
 	/**
 	 * The author open, under their real name: `books` all their book IDs, in order,
-	 * `items` the ones loaded so far, a page at a time; `completion` is an achievement.
+	 * `items` the ones loaded so far, a page at a time; `bookPages` the pages of their books,
+	 * as `pages` counts the pages of the list; `completion` is an achievement.
 	 */
 	function author( id = 0 ) {
-		return { ...pages(), id, name: '', pseudonyms: [], books: [], read: 0, rating: null, completion: null };
+		return { ...pages(), id, name: '', pseudonyms: [], books: [], read: 0, rating: null, bookPages: 0, completion: null };
 	}
 
 	/**
@@ -872,6 +873,7 @@
 					books: data.books,
 					read: data.read,
 					rating: data.rating,
+					bookPages: data.pages,
 					completion: data.completion,
 					total: data.books.length,
 					pages: Math.ceil( data.books.length / PER_PAGE ),

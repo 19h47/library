@@ -5,7 +5,7 @@ import { fill, renderAchievement, renderBook, renderCloseAchievement } from 'lib
 import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 
 /**
- * The page of an author: their names, their reading and the completion their books count for,
+ * The page of an author: their names, their reading, the pages of their books and the completion their books count for,
  * then their books, in the order they first came out, loading as the end of the list comes.
  */
 class LibraryAuthorElement extends Brick {
@@ -33,12 +33,14 @@ class LibraryAuthorElement extends Brick {
 					const read = sprintf( _n( '%s read', '%s read', author.read, 'library' ), formatNumber( author.read ) );
 					/* translators: %s: average rating of the books of an author, e.g. 7.5. */
 					const rating = author.rating && sprintf( __( '%s/10 on average', 'library' ), formatNumber( author.rating ) );
+					/* translators: %s: number of pages. */
+					const bookPages = author.bookPages && sprintf( _n( '%s page', '%s pages', author.bookPages, 'library' ), formatNumber( author.bookPages ) );
 
 					fill( this, {
 						status: author.error || ( author.loaded && ! author.total ? __( 'No book found.', 'library' ) : '' ),
 						name: author.name,
 						pseudonyms: author.pseudonyms.length ? pseudonyms : '',
-						summary: author.name ? join( [ formatBooks( author.total ), read, rating ] ) : '',
+						summary: author.name ? join( [ formatBooks( author.total ), read, rating, bookPages ] ) : '',
 					} );
 				}
 			),
