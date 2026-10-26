@@ -74,11 +74,9 @@ class Library_Dashboard {
 
 	/**
 	 * Register the dashboard widgets.
-	 *
-	 * The reading widget keeps the ID of the former single widget, and so its position.
 	 */
 	public function register_widgets(): void {
-		wp_add_dashboard_widget( 'library_dashboard_overview', __( 'Reading', 'library' ), array( $this, 'render_reading' ) );
+		wp_add_dashboard_widget( 'library_dashboard_reading', __( 'Reading', 'library' ), array( $this, 'render_reading' ) );
 		wp_add_dashboard_widget( 'library_dashboard_ratings', __( 'Ratings', 'library' ), array( $this, 'render_ratings' ) );
 		wp_add_dashboard_widget( 'library_dashboard_pile', __( 'Reading pile', 'library' ), array( $this, 'render_pile' ) );
 		wp_add_dashboard_widget( 'library_dashboard_collection', __( 'Library', 'library' ), array( $this, 'render_collection' ) );

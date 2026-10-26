@@ -676,14 +676,6 @@ msgstr "Livre"
 msgid "Book Archives"
 msgstr "Archives des livres"
 
-#: admin/class-library-posts.php:418
-msgid "Item Attributes"
-msgstr "Attributs de l'élément"
-
-#: admin/class-library-posts.php:419
-msgid "Parent Book:"
-msgstr "Livre parent :"
-
 #: admin/class-library-posts.php:420
 msgid "All books"
 msgstr "Tous les livres"
@@ -703,10 +695,6 @@ msgstr "Nouveau livre"
 #: admin/class-library-posts.php:424
 msgid "Edit book"
 msgstr "Modifier le livre"
-
-#: admin/class-library-posts.php:425
-msgid "Update book"
-msgstr "Mettre à jour le livre"
 
 #: admin/class-library-posts.php:426
 msgid "View Book"
@@ -763,10 +751,6 @@ msgstr "Navigation de la liste des livres"
 #: admin/class-library-posts.php:439
 msgid "Filtrer books list"
 msgstr "Filtrer la liste des livres"
-
-#: admin/class-library-posts.php:452
-msgid "Book description"
-msgstr "Description du livre"
 
 #: admin/class-library-posts.php:535
 msgid "Table ordered by edition date."

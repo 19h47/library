@@ -415,14 +415,11 @@ class Library_Posts {
 			'menu_name'             => __( 'Books', 'library' ),
 			'name_admin_bar'        => __( 'Book', 'library' ),
 			'archives'              => __( 'Book Archives', 'library' ),
-			'attributes'            => __( 'Item Attributes', 'library' ),
-			'parent_item_colon'     => __( 'Parent Book:', 'library' ),
 			'all_items'             => __( 'All books', 'library' ),
 			'add_new_item'          => __( 'Add New Book', 'library' ),
 			'add_new'               => __( 'Add New', 'library' ),
 			'new_item'              => __( 'New Book', 'library' ),
 			'edit_item'             => __( 'Edit book', 'library' ),
-			'update_item'           => __( 'Update book', 'library' ),
 			'view_item'             => __( 'View Book', 'library' ),
 			'view_items'            => __( 'View Books', 'library' ),
 			'search_items'          => __( 'Search Book', 'library' ),
@@ -439,8 +436,7 @@ class Library_Posts {
 			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
 		);
 
-		$supports   = array( 'title', 'thumbnail', 'custom-fields' );
-		$taxonomies = array( 'library-author', 'library-publisher' );
+		$supports = array( 'title', 'thumbnail', 'custom-fields' );
 
 		$rewrite = array(
 			'slug'       => 'books',
@@ -449,10 +445,8 @@ class Library_Posts {
 
 		$args = array(
 			'label'               => __( 'Books', 'library' ),
-			'description'         => __( 'Book description', 'library' ),
 			'labels'              => $labels,
 			'supports'            => $supports,
-			'taxonomies'          => $taxonomies,
 			'hierarchical'        => false,
 			'public'              => true,
 			'show_ui'             => true,

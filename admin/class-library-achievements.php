@@ -792,7 +792,7 @@ class Library_Achievements {
 					$title( $milestone ),
 					'',
 					$reads[ $milestone - 1 ]['full_title'],
-					(string) get_edit_post_link( $reads[ $milestone - 1 ]['id'], 'raw' ),
+					'',
 					$reads[ $milestone - 1 ]['read_date']
 				),
 			);
@@ -825,7 +825,7 @@ class Library_Achievements {
 						$title( array_shift( $milestones ) ),
 						'',
 						$book['full_title'],
-						(string) get_edit_post_link( $book['id'], 'raw' ),
+						'',
 						$book['read_date']
 					),
 				);
@@ -1189,7 +1189,7 @@ class Library_Achievements {
 						sprintf( __( '%s original languages', 'library' ), number_format_i18n( array_shift( $milestones ) ) ),
 						'',
 						$book['full_title'],
-						(string) get_edit_post_link( $book['id'], 'raw' ),
+						'',
 						$book['read_date']
 					);
 				}

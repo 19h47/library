@@ -12,7 +12,7 @@
 	'use strict';
 
 	const { apiFetch }     = window.wp;
-	const config           = window.libraryAdminRead ?? {};
+	const config           = window.libraryAdminRead;
 	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
 	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
 
@@ -21,9 +21,7 @@
 	}
 
 	const updatePercent = ( percent ) => {
-		const format = config.readPercentFormat ?? '%s% read';
-
-		readPercentageEl.textContent = format.replace( '%s', percent.toLocaleString() );
+		readPercentageEl.textContent = config.readPercentFormat.replace( '%s', percent.toLocaleString() );
 	};
 
 	// Quick edit reads the inline data, so it must follow the date the server kept.
@@ -54,7 +52,7 @@
 		}
 
 		checkbox.disabled = true;
-		readPercentageEl.textContent = readPercentageEl.dataset.loadingText ?? '…';
+		readPercentageEl.textContent = readPercentageEl.dataset.loadingText;
 
 		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
 		const meta       = { read: checkbox.checked };
