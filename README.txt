@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.1.2
+Stable tag: 6.1.3
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,6 +85,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
 
 == Changelog ==
+
+= 6.1.3 =
+* Fixed: Reading app: a cover the server made no size of, as an AVIF on a server that cannot resize it, did not show; the image itself shows.
 
 = 6.1.2 =
 * Reading app: a book not kept shows a tag on its card, in a tinted grey, in the books list, the diary, the page of an author and the reading idea, instead of the words at the end of its line.

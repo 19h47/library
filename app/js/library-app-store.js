@@ -112,8 +112,10 @@
 	/** A book of the API as the app shows it: plain text, its read dates in order, its cover with its size, its authors and its original languages. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
-		const sizes = media?.media_details?.sizes ?? {};
-		const size = sizes.medium ?? sizes.full;
+		const details = media?.media_details;
+		// The image itself when the server made no size of it, as for an AVIF it cannot resize: the API then gives no full size either.
+		const original = media?.source_url && { source_url: media.source_url, width: details.width, height: details.height };
+		const size = details?.sizes?.medium ?? original;
 		const terms = ( item._embedded?.[ 'wp:term' ] ?? [] ).flat();
 
 		return {
