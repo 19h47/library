@@ -150,7 +150,8 @@ class Library_Posts {
 			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
 		);
 
-		$supports = array( 'title', 'thumbnail', 'custom-fields' );
+		// The excerpt is a summary of the book in a few words.
+		$supports = array( 'title', 'excerpt', 'thumbnail', 'custom-fields' );
 
 		$rewrite = array(
 			'slug'       => 'books',

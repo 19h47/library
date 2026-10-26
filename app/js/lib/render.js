@@ -98,7 +98,7 @@ export function clone( id ) {
 /** Fills the card of a book; `state` is the line under its title, followed by the tag of a book not kept. */
 export function fillBook( $item, book, state ) {
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-	fill( $item, { credits: book.credits, title: book.title, state, status: formatStatus( book ) } );
+	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, status: formatStatus( book ) } );
 }
 
 /** The cover of a book, which opens it; a book without cover shows its title instead. */

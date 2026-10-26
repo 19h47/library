@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.2.0
+Stable tag: 6.3.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
+* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
 * **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its ISO 639 code and named in the site language.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
@@ -85,6 +85,10 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
 
 == Changelog ==
+
+= 6.3.0 =
+* Reading app: a book has a summary in a few words, its excerpt, written in the Excerpt box of the book (shown from the Screen Options when hidden): cut to three lines on its card, whole in the book open.
+* Reading app: the description of an author breathes, with a line between its paragraphs and some space around it.
 
 = 6.2.0 =
 * Reading app: the page of an author shows their description, written in the Description field of the author, its paragraphs and line breaks kept, with the few tags WordPress keeps, such as italics and links. `/wp-json/library/v1/authors/<id>` gives it as `description`.

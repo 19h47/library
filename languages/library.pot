@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.2.0\n"
+"Project-Id-Version: Library 6.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T10:34:09+00:00\n"
+"POT-Creation-Date: 2026-10-26T10:53:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -78,7 +78,7 @@ msgid "Thumbnail"
 msgstr ""
 
 #: admin/class-library-books-list.php:56
-#: app/partials/library-app.php:384
+#: app/partials/library-app.php:386
 msgid "Read date"
 msgstr ""
 
@@ -155,7 +155,7 @@ msgstr ""
 #: admin/class-library-dashboard.php:213
 #: includes/class-library-posts.php:127
 #: includes/class-library-posts.php:129
-#: includes/class-library-posts.php:161
+#: includes/class-library-posts.php:162
 msgid "Books"
 msgstr ""
 
@@ -226,7 +226,7 @@ msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #: admin/class-library-dashboard.php:404
-#: app/partials/library-app.php:244
+#: app/partials/library-app.php:245
 msgid "No rating"
 msgstr ""
 
@@ -258,7 +258,7 @@ msgstr ""
 
 #: admin/class-library-metaboxes.php:120
 #: admin/class-library-terms-list.php:93
-#: app/partials/library-app.php:252
+#: app/partials/library-app.php:253
 #: includes/class-library-posts.php:67
 #: app/js/lib/format.js:81
 msgctxt "book status"
@@ -436,7 +436,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:38
-#: app/partials/library-app.php:307
+#: app/partials/library-app.php:308
 msgid "Add a cover"
 msgstr ""
 
@@ -584,42 +584,42 @@ msgid "Light or dark theme"
 msgstr ""
 
 #: app/partials/library-app.php:228
-#: app/partials/library-app.php:299
+#: app/partials/library-app.php:300
 msgid "Close"
 msgstr ""
 
-#: app/partials/library-app.php:259
+#: app/partials/library-app.php:260
 msgid "Add a reading"
 msgstr ""
 
-#: app/partials/library-app.php:264
-#: app/partials/library-app.php:352
+#: app/partials/library-app.php:265
+#: app/partials/library-app.php:353
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:311
+#: app/partials/library-app.php:312
 msgid "Title"
 msgstr ""
 
-#: app/partials/library-app.php:318
+#: app/partials/library-app.php:319
 msgid "Add an author"
 msgstr ""
 
-#: app/partials/library-app.php:326
+#: app/partials/library-app.php:327
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:335
+#: app/partials/library-app.php:336
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:394
-#: app/partials/library-app.php:395
+#: app/partials/library-app.php:396
+#: app/partials/library-app.php:397
 msgid "Remove this reading"
 msgstr ""
 
-#: app/partials/library-app.php:416
-#: app/partials/library-app.php:417
+#: app/partials/library-app.php:418
+#: app/partials/library-app.php:419
 msgid "Remove this author"
 msgstr ""
 
@@ -1727,6 +1727,6 @@ msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr ""
 
-#: app/js/library-app-store.js:142
+#: app/js/library-app-store.js:143
 msgid "The books could not be loaded."
 msgstr ""
