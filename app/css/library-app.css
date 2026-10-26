@@ -278,6 +278,12 @@ button.app-pill:disabled {
 	color: var(--app-text-muted);
 }
 
+.library-book__content {
+	display: grid;
+	gap: var(--app-u1);
+	overflow-wrap: anywhere;
+}
+
 .library-book__fields {
 	display: grid;
 	gap: var(--app-gap);
@@ -393,7 +399,7 @@ button.app-pill:disabled {
 	opacity: var(--app-control-opacity);
 }
 
-/* The excerpt grows with its text */
+/* The excerpt and the notes grow with their text */
 .library-field textarea {
 	field-sizing: content;
 }

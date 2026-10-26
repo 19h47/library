@@ -35,6 +35,8 @@ class LibraryBookElement extends Brick {
 	}
 
 	#render( $dialog, book ) {
+		const $content = $dialog.querySelector( '[data-html="content"]' );
+
 		fillCover( $dialog.querySelector( '[data-field="cover"]' ), book.cover );
 		fill( $dialog, {
 			credits: book.credits,
@@ -48,6 +50,9 @@ class LibraryBookElement extends Brick {
 			published_date: book.published_date ? formatDate( book.published_date ) : '',
 		} );
 		linkAuthors( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
+		// HTML as the API renders it, from the notes of the book.
+		$content.innerHTML = book.content;
+		$content.hidden = ! book.content;
 	}
 }
 customElements.define( 'library-book', LibraryBookElement );

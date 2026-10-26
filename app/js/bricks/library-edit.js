@@ -10,7 +10,7 @@ function renderOptions( terms, value = ( term ) => term.name ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * Its cover, title, excerpt, authors, publisher and collection, ISBN, and more details. The names typed are suggested
+ * Its cover, title, excerpt, notes, authors, publisher and collection, ISBN, and more details. The names typed are suggested
  * among those of the library, the collections among those of the publisher; a name not found is added.
  * Closing the form drops it.
  */
@@ -23,7 +23,7 @@ class LibraryEditElement extends Brick {
 		const $dialog = this.querySelector( 'dialog' );
 		const $heading = this.querySelector( '#library-edit-heading' );
 		const $form = this.querySelector( '.library-edit__form' );
-		const { title: $title, excerpt: $excerpt, publisher: $publisher, collection: $collection, language: $language, cover: $cover } = $form.elements;
+		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, cover: $cover } = $form.elements;
 		// The fields of the meta are named after them.
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
 		const $authors = this.querySelector( '[data-list="authors"]' );
@@ -87,6 +87,7 @@ class LibraryEditElement extends Brick {
 				const book = {
 					title: data.get( 'title' ),
 					excerpt: $excerpt.value,
+					content: $content.value,
 					authors: data.getAll( 'author' ).map( ( name ) => name.trim() ).filter( Boolean ),
 					publisher: data.get( 'publisher' ),
 					collection: data.get( 'collection' ) ?? '',
@@ -132,6 +133,7 @@ class LibraryEditElement extends Brick {
 					if ( book ) {
 						$title.value = book.title;
 						$excerpt.value = book.excerpt;
+						$content.value = book.content;
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$language.value = ( book.language || '' ).toString();

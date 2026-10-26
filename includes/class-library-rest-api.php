@@ -199,6 +199,11 @@ class Library_Rest_API {
 				'type'        => 'string',
 				'default'     => '',
 			),
+			'content'    => array(
+				'description' => __( 'Notes on the book, its content.', 'library' ),
+				'type'        => 'string',
+				'default'     => '',
+			),
 			'authors'    => array(
 				'description' => __( 'Names of the authors or pseudonyms; a name not found adds an author.', 'library' ),
 				'type'        => 'array',
@@ -256,6 +261,7 @@ class Library_Rest_API {
 			'post_status'  => 'publish',
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
+			'post_content' => $request['content'],
 		) + $this->get_slug_fields( 0, (array) $request['meta'] );
 
 		$book_id = wp_insert_post( wp_slash( $post ), true );
@@ -273,7 +279,7 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * A book as its form edits it, as the route that edits it takes it back: its title and excerpt as typed, the names of
+	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
 	 * its authors as the book gives them, its publisher and collection, its original language and its meta.
 	 *
 	 * The form edits one publisher and one collection: a book given more gives its first collection, or else publisher.
@@ -299,6 +305,7 @@ class Library_Rest_API {
 				'id'         => $book->ID,
 				'title'      => $book->post_title,
 				'excerpt'    => $book->post_excerpt,
+				'content'    => $book->post_content,
 				'authors'    => wp_get_post_terms( $book->ID, 'library-author', array( 'fields' => 'names' ) ),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? $collection->name : '',
@@ -329,6 +336,10 @@ class Library_Rest_API {
 
 		if ( $request->has_param( 'excerpt' ) ) {
 			$post['post_excerpt'] = $request['excerpt'];
+		}
+
+		if ( $request->has_param( 'content' ) ) {
+			$post['post_content'] = $request['content'];
 		}
 
 		$updated = wp_update_post( wp_slash( $post ), true );
