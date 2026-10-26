@@ -243,6 +243,8 @@ class Library_App {
 			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
 			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::url() ) . '&author=',
+			'bookUrl'   => self::url() . '&book=',
+			'searchUrl' => self::url() . '&q=',
 			'icons'     => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,

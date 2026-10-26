@@ -46,7 +46,7 @@ class LibraryAuthorElement extends Brick {
 					}
 
 					// The page is the author's: their completion links nowhere.
-					const achievement = { ...completion, url: '', author: 0 };
+					const achievement = { ...completion, target: null };
 
 					$completion.replaceChildren(
 						'total' in achievement ? renderCloseAchievement( achievement, 'library-author-completion' ) : renderAchievement( achievement )

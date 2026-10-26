@@ -8,4 +8,4 @@
 
 export const { store } = window;
 export const { sprintf } = window.wp.i18n;
-export const { strings, editUrl, authorUrl, notKept } = window.libraryApp;
+export const { strings, editUrl, authorUrl, bookUrl, searchUrl, notKept } = window.libraryApp;

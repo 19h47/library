@@ -361,6 +361,17 @@
 			this.#fetchSearch();
 		}
 
+		/**
+		 * Shows the books a search finds, read or not, at the top of the books view, such as the books of a series
+		 * from an achievement. The view comes first, so that the query goes to its URL.
+		 */
+		searchBooks( query ) {
+			this.setView( 'books' );
+			this.set( ( state ) => ( { ...state, query, read: '' } ) );
+			this.#fetchSearch();
+			scrollToTop();
+		}
+
 		/** The next books of the search, unless some are loading or none is left. */
 		loadMoreBooks() {
 			const { loading, items, total } = this.get().search;
@@ -397,8 +408,17 @@
 			}
 		}
 
-		/** Opens a book, with its URL in the history: going back closes it. */
-		openBook( id ) {
+		/**
+		 * Opens a book, loaded first when it is not yet, such as the book of an achievement,
+		 * with its URL in the history: going back closes it.
+		 */
+		async openBook( id ) {
+			try {
+				await this.#fetchBooks( [ id ] );
+			} catch {
+				return;
+			}
+
 			const { books, book } = this.get();
 
 			if ( ! ( id in books ) || id === book ) {

@@ -1,5 +1,5 @@
 /**
- * What bricks share: a book, a view or an author opened on a click, the cards following the books,
+ * What bricks share: a book, a view, an author or a search opened on a click, the cards following the books,
  * the next page as the end of a list comes.
  *
  * @package    Library
@@ -67,19 +67,31 @@ export function openViews( $root, signal ) {
 	);
 }
 
-/** Opens the page of an author whose link is clicked in `$root`; a new tab or window stays a link. */
-export function openAuthors( $root, signal ) {
+/**
+ * Follows the links clicked in `$root` without reloading: to the page of an author, to a book, or to the books
+ * a search finds. A new tab or window stays a link.
+ */
+export function openLinks( $root, signal ) {
 	$root.addEventListener(
 		'click',
 		( event ) => {
-			const $link = event.target.closest( 'a[data-author]' );
+			const $link = event.target.closest( 'a[data-author], a[data-book], a[data-search]' );
 
 			if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
 				return;
 			}
 
+			const { author, book, search } = $link.dataset;
+
 			event.preventDefault();
-			store.openAuthor( Number( $link.dataset.author ) );
+
+			if ( author ) {
+				store.openAuthor( Number( author ) );
+			} else if ( book ) {
+				store.openBook( Number( book ) );
+			} else {
+				store.searchBooks( search );
+			}
 		},
 		{ signal }
 	);
