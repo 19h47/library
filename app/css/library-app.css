@@ -141,6 +141,8 @@ button.app-pill:disabled {
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 3;
 	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
 }
 
 .library-item__button {
