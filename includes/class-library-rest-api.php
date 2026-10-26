@@ -298,7 +298,9 @@ class Library_Rest_API {
 
 	/**
 	 * An author under their real name, with their pseudonyms, their books and their reading: the books read,
-	 * the average rating and the completion their books count for.
+	 * the average rating, the pages of their books and the completion their books count for.
+	 *
+	 * The pages add up those of the books with a number of pages, read or not, each book once: 0 when none has one.
 	 *
 	 * The books are those of the author and of their pseudonyms, kept or not, as the achievements count them,
 	 * as IDs of the core API: in the order they first came out, then by title, those without date last.
@@ -342,6 +344,7 @@ class Library_Rest_API {
 				'books'      => array_column( $books, 'id' ),
 				'read'       => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
 				'rating'     => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
+				'pages'      => array_sum( array_column( $books, 'pages' ) ),
 				'completion' => ( new Library_Achievements() )->get_author_completion( $author->term_id ),
 			)
 		);

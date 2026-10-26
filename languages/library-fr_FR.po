@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-26T07:56:20+00:00\n"
+"POT-Creation-Date: 2026-10-26T08:08:03+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1289,12 +1289,13 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:360
+#: includes/class-library-rest-api.php:363
 msgid "Every book has been read."
 msgstr "Tous les livres ont été lus."
 
 #. translators: %s: number of pages.
 #: admin/partials/library-dashboard-idea.php:28
+#: app/js/bricks/library-author.js:37
 #, php-format
 msgid "%s page"
 msgid_plural "%s pages"
@@ -1721,13 +1722,13 @@ msgstr[1] "%s lus"
 msgid "%s/10 on average"
 msgstr "%s/10 en moyenne"
 
-#: app/js/bricks/library-author.js:38 app/js/bricks/library-diary.js:18
+#: app/js/bricks/library-author.js:40 app/js/bricks/library-diary.js:18
 #: app/js/bricks/library-status.js:9
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
 #. translators: %s: year a book first came out.
-#: app/js/bricks/library-author.js:91
+#: app/js/bricks/library-author.js:93
 msgid "First published in %s"
 msgstr "Paru en %s"
 
