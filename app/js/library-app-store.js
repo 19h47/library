@@ -38,7 +38,7 @@
 	// The fields of a book the app reads, and its cover and terms.
 	const BOOK_QUERY = {
 		_embed: 'wp:featuredmedia,wp:term',
-		_fields: 'id,title,credits,status,meta,_links,_embedded',
+		_fields: 'id,title,excerpt,credits,status,meta,_links,_embedded',
 	};
 
 	/** Observable state: the part of @agencecinq/store used here. */
@@ -124,6 +124,7 @@
 			read_date: [ ...new Set( item.meta.read_date.filter( Boolean ) ) ].sort(),
 			id: item.id,
 			title: text( item.title.rendered ),
+			excerpt: text( item.excerpt.rendered ),
 			credits: text( item.credits ),
 			status: item.status,
 			// Its size gives the image its place before it loads.

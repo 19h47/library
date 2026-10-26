@@ -134,6 +134,15 @@ button.app-pill:disabled {
 	overflow-wrap: anywhere;
 }
 
+/* Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box */
+.library-item__excerpt {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	color: var(--app-text-muted);
+}
+
 .library-item__button {
 	padding: 0;
 	border: 0;
@@ -261,7 +270,8 @@ button.app-pill:disabled {
 	overflow-wrap: anywhere;
 }
 
-.library-book__translation {
+.library-book__translation,
+.library-book__excerpt {
 	color: var(--app-text-muted);
 }
 

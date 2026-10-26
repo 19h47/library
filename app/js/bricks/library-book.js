@@ -35,6 +35,7 @@ class LibraryBookElement extends Brick {
 			credits: book.credits,
 			title: book.title,
 			translation: formatTranslation( book ),
+			excerpt: book.excerpt,
 			authors: listFormat.format( book.authors.map( ( author ) => author.name ) ),
 			isbn: book.isbn,
 			pages: book.pages ? formatNumber( book.pages ) : '',

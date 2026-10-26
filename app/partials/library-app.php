@@ -231,6 +231,7 @@
 				<p class="library-book__meta" data-field="credits"></p>
 				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
 				<p class="library-book__translation" data-field="translation"></p>
+				<p class="library-book__excerpt" data-field="excerpt"></p>
 				<library-reading>
 					<form class="library-reading">
 						<div class="library-reading__pills">
@@ -366,6 +367,7 @@
 					<h3 class="library-item__title">
 						<button class="library-item__button" type="button" data-field="title"></button>
 					</h3>
+					<p class="library-item__excerpt" data-field="excerpt" hidden></p>
 					<p class="app-item__meta">
 						<span data-field="state"></span>
 						<span class="library-item__status" data-field="status" hidden></span>
