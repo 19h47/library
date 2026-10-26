@@ -230,6 +230,7 @@
 				<img class="library-book__cover" data-field="cover" alt="" hidden>
 				<p class="library-book__meta" data-field="credits"></p>
 				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
+				<p class="library-book__translation" data-field="translation"></p>
 				<library-reading>
 					<form class="library-reading">
 						<div class="library-reading__pills">
@@ -284,14 +285,6 @@
 					<div data-row="published_date">
 						<dt><?php echo esc_html( Library_Meta::label( 'published_date' ) ); ?></dt>
 						<dd data-field="published_date"></dd>
-					</div>
-					<div data-row="translators">
-						<dt><?php echo esc_html( Library_Meta::label( 'translators' ) ); ?></dt>
-						<dd data-field="translators"></dd>
-					</div>
-					<div data-row="languages">
-						<dt><?php echo esc_html( $language_labels->name ); ?></dt>
-						<dd data-field="languages"></dd>
 					</div>
 				</dl>
 				<p class="library-book__actions">

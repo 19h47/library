@@ -1,6 +1,6 @@
 import { editUrl, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { formatDate, formatNumber, listFormat } from 'library-app/format';
+import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
 import { fill, fillCover, linkAuthors } from 'library-app/render';
 import { openLinks } from 'library-app/behaviors';
 
@@ -34,13 +34,12 @@ class LibraryBookElement extends Brick {
 		fill( $dialog, {
 			credits: book.credits,
 			title: book.title,
+			translation: formatTranslation( book ),
 			authors: listFormat.format( book.authors.map( ( author ) => author.name ) ),
 			isbn: book.isbn,
 			pages: book.pages ? formatNumber( book.pages ) : '',
 			edition_date: book.edition_date ? formatDate( book.edition_date ) : '',
 			published_date: book.published_date ? formatDate( book.published_date ) : '',
-			translators: book.translators,
-			languages: listFormat.format( book.languages ),
 		} );
 		linkAuthors( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
 		$dialog.querySelector( '[data-field="edit"]' ).href = editUrl + book.id;

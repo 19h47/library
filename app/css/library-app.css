@@ -261,6 +261,10 @@ button.app-pill:disabled {
 	overflow-wrap: anywhere;
 }
 
+.library-book__translation {
+	color: var(--app-text-muted);
+}
+
 .library-book__fields {
 	display: grid;
 	gap: var(--app-gap);

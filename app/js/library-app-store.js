@@ -132,9 +132,8 @@
 			authors: terms
 				.filter( ( term ) => 'library-author' === term.taxonomy )
 				.map( ( term ) => ( { id: term.id, name: text( term.name ) } ) ),
-			languages: terms
-				.filter( ( term ) => 'library-language' === term.taxonomy )
-				.map( ( term ) => text( term.name ) ),
+			// As their ISO 639 codes, the slugs of their terms: the app names them in a sentence.
+			languages: terms.filter( ( term ) => 'library-language' === term.taxonomy ).map( ( term ) => term.slug ),
 		};
 	}
 
