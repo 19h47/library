@@ -5,14 +5,15 @@ import { fill, renderAchievement, renderBook, renderCloseAchievement } from 'lib
 import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 
 /**
- * The page of an author: their names, their reading, the pages of their books and the completion their books count for,
- * then their books, in the order they first came out, loading as the end of the list comes.
+ * The page of an author: their names, their description, their reading, the pages of their books and the completion
+ * their books count for, then their books, in the order they first came out, loading as the end of the list comes.
  */
 class LibraryAuthorElement extends Brick {
 	#id = 0;
 	#ids = [];
 
 	connect( signal ) {
+		const $description = this.querySelector( '[data-html="description"]' );
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreAuthorBooks() );
@@ -42,6 +43,10 @@ class LibraryAuthorElement extends Brick {
 						pseudonyms: author.pseudonyms.length ? pseudonyms : '',
 						summary: author.name ? join( [ formatBooks( author.total ), read, rating, bookPages ] ) : '',
 					} );
+
+					// HTML as the API renders it, among the few tags core keeps when it saves a description.
+					$description.innerHTML = author.description;
+					$description.hidden = ! author.description;
 				}
 			),
 			store.select(

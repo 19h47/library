@@ -12,6 +12,10 @@ const numberFormat = new Intl.NumberFormat( lang );
 const dateFormat = new Intl.DateTimeFormat( lang, { dateStyle: 'long' } );
 const monthFormat = new Intl.DateTimeFormat( lang, { year: 'numeric', month: 'long' } );
 
+const andFormat = new Intl.ListFormat( lang );
+const languageNames = new Intl.DisplayNames( lang, { type: 'language' } );
+const { language: pageLanguage } = new Intl.Locale( lang );
+
 export const dayFormat = new Intl.DateTimeFormat( lang, { day: 'numeric', month: 'long' } );
 export const listFormat = new Intl.ListFormat( lang, { type: 'unit' } );
 
@@ -39,6 +43,37 @@ export function formatDate( date, format = dateFormat ) {
 export function formatRating( rating ) {
 	/* translators: %s: rating, e.g. 7.5. */
 	return rating ? sprintf( __( '%s/10', 'library' ), formatNumber( rating ) ) : '';
+}
+
+/**
+ * Who translated a book, and from which of its original languages: "Translated from Italian by A and B". A book without
+ * translator is read in its original language, and says nothing. The article before the language may depend on its
+ * first letter, as the "de l'" and "du" of French: each string is translated for a vowel and for a consonant.
+ */
+export function formatTranslation( book ) {
+	const translators = book.translators
+		.split( ',' )
+		.map( ( translator ) => translator.trim() )
+		.filter( Boolean );
+
+	if ( ! translators.length ) {
+		return '';
+	}
+
+	const languages = book.languages.filter( ( code ) => code !== pageLanguage ).map( ( code ) => languageNames.of( code ) );
+
+	if ( ! languages.length ) {
+		/* translators: %s: list of the translators of a book. */
+		return sprintf( __( 'Translated by %s', 'library' ), andFormat.format( translators ) );
+	}
+
+	const format = /^[aeiou]/i.test( languages[ 0 ].normalize( 'NFD' ) )
+		? /* translators: 1: original languages of a book, the first starting with a vowel, e.g. Italian; 2: list of its translators. */
+		  _x( 'Translated from %1$s by %2$s', 'language starting with a vowel', 'library' )
+		: /* translators: 1: original languages of a book, the first starting with a consonant, e.g. Japanese; 2: list of its translators. */
+		  _x( 'Translated from %1$s by %2$s', 'language starting with a consonant', 'library' );
+
+	return sprintf( format, andFormat.format( languages ), andFormat.format( translators ) );
 }
 
 /** Whether a book is kept: shown only when it is not. */

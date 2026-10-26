@@ -261,6 +261,10 @@ button.app-pill:disabled {
 	overflow-wrap: anywhere;
 }
 
+.library-book__translation {
+	color: var(--app-text-muted);
+}
+
 .library-book__fields {
 	display: grid;
 	gap: var(--app-gap);
@@ -300,8 +304,13 @@ button.app-pill:disabled {
 	overflow-wrap: anywhere;
 }
 
-.library-author p {
+.library-author > p {
 	color: var(--app-text-muted);
+}
+
+.library-author__description {
+	display: grid;
+	gap: var(--app-gap-small);
 }
 
 .library-author__completion {
