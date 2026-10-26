@@ -142,7 +142,8 @@ button.app-pill:disabled {
 	-webkit-line-clamp: 3;
 	color: var(--app-text-muted);
 	font-family: var(--app-font-ui);
-	font-size: var(--app-font-small);
+	/* Half a step of the scale below the title: at the size of the lines in capitals, a sentence in lowercase reads as small print */
+	font-size: calc(var(--app-u1) / sqrt(var(--app-phi)));
 }
 
 .library-item__button {
