@@ -310,7 +310,8 @@ button.app-pill:disabled {
 
 .library-author__description {
 	display: grid;
-	gap: var(--app-gap-small);
+	gap: var(--app-u1);
+	margin-block: var(--app-gap);
 }
 
 .library-author__completion {
