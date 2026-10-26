@@ -4,8 +4,8 @@
  * Created in the head, before the first paint, so the document takes its theme from it.
  * The data come from the REST API through wp.apiFetch, which handles the root URL and the nonce;
  * the store turns the books into plain text once, so no brick parses what the API returns.
- * Each view loads its data the first time it shows. A book saved loads every view again, but the one shown;
- * a book added loads them all again.
+ * Each view loads its data the first time it shows. A book saved, its reading or its form, loads every view again,
+ * but the one shown; a book added loads them all again.
  *
  * @package    Library
  * @subpackage Library/app
@@ -138,6 +138,16 @@
 		};
 	}
 
+	/** A book of the API as its form edits it: the names of its terms in plain text, the rest as typed. */
+	function toForm( item ) {
+		return {
+			...item,
+			authors: item.authors.map( text ),
+			publisher: text( item.publisher ),
+			collection: text( item.collection ),
+		};
+	}
+
 	/** The message of a failed request: the one of the API, or a generic one. */
 	function errorMessage( error ) {
 		return error?.message ?? __( 'The books could not be loaded.', 'library' );
@@ -234,17 +244,17 @@
 		return { earned: [], close: [], loading: false, loaded: false, error: '' };
 	}
 
-	/** The saving of the book open. */
+	/** The saving of the reading of the book open. */
 	function saving() {
 		return { loading: false, error: '' };
 	}
 
-	/** The form of a book to add, and its saving. */
-	function adding() {
-		return { open: false, loading: false, error: '' };
+	/** The form of a book, to add one or to edit the book `id`, whose values it holds as `book`, and its saving. */
+	function editing( id = 0, book = null ) {
+		return { id, book, open: false, loading: false, error: '' };
 	}
 
-	/** The names the form of a book to add suggests, as terms: authors and pseudonyms, publishers and collections, original languages. */
+	/** The names the form of a book suggests, as terms: authors and pseudonyms, publishers and collections, original languages. */
 	function terms() {
 		return { authors: [], publishers: [], languages: [], loading: false, loaded: false };
 	}
@@ -262,7 +272,7 @@
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
 	 * `search` the books found, `diary` the readings by month, `idea` the reading idea, `author` the books of the author open, `book` the book open,
-	 * `saving` the saving of its reading, `adding` the form of a book to add, `terms` the names it suggests.
+	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
@@ -281,7 +291,7 @@
 				author: author(),
 				book: 0,
 				saving: saving(),
-				adding: adding(),
+				editing: editing(),
 				terms: terms(),
 			} );
 
@@ -457,9 +467,23 @@
 			history.replaceState( history.state, '', url );
 		}
 
-		/** Opens the form of a book to add; the names it suggests load the first time. */
-		openAdd() {
-			this.set( ( state ) => ( { ...state, adding: { ...adding(), open: true } } ) );
+		/**
+		 * Opens the form of a book: of the book `id`, its values loaded first, or of a book to add, empty.
+		 * The names it suggests load the first time.
+		 */
+		async openEdit( id = 0 ) {
+			let book = null;
+			let error = '';
+
+			if ( id ) {
+				try {
+					book = toForm( await apiFetch( { path: `/library/v1/books/${ id }` } ) );
+				} catch ( fetchError ) {
+					error = errorMessage( fetchError );
+				}
+			}
+
+			this.set( ( state ) => ( { ...state, editing: { ...editing( id, book ), open: true, error } } ) );
 
 			const { loaded, loading } = this.get().terms;
 
@@ -468,8 +492,8 @@
 			}
 		}
 
-		closeAdd() {
-			this.set( ( state ) => ( state.adding.open ? { ...state, adding: adding() } : state ) );
+		closeEdit() {
+			this.set( ( state ) => ( state.editing.open ? { ...state, editing: editing() } : state ) );
 		}
 
 		/**
@@ -477,27 +501,67 @@
 		 * again, so the book comes first among the books, and so do the names to suggest, with the ones it added.
 		 */
 		async addBook( { cover, ...book } ) {
-			this.#update( 'adding', () => ( { loading: true, error: '' } ) );
+			this.#update( 'editing', () => ( { loading: true, error: '' } ) );
 
 			try {
-				let coverId = 0;
-
-				if ( cover ) {
-					const body = new FormData();
-
-					body.append( 'file', cover );
-					body.append( 'title', book.title );
-					coverId = ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
-				}
-
+				const coverId = cover ? await this.#uploadCover( cover, book.title ) : 0;
 				const { id } = await apiFetch( { path: '/library/v1/books', method: 'POST', data: { ...book, cover: coverId } } );
 
 				await this.#fetchBooks( [ id ] );
-				this.closeAdd();
+				this.closeEdit();
 				this.#reloadAll();
 				this.openBook( id );
 			} catch ( error ) {
-				this.#update( 'adding', () => ( { loading: false, error: errorMessage( error ) } ) );
+				this.#update( 'editing', () => ( { loading: false, error: errorMessage( error ) } ) );
+			}
+		}
+
+		/**
+		 * Saves the form of the book open, which then shows its new values. Only what changed is sent: the publisher
+		 * with its collection, the meta one by one; a photo picked is uploaded first, a cover removed is sent as 0.
+		 * The views load again as after a reading, and so do the names to suggest, with the ones it added.
+		 */
+		async editBook( { cover, coverRemoved, meta, ...values } ) {
+			const { books, editing: form } = this.get();
+			const { id, book } = form;
+			const changes = Object.fromEntries(
+				Object.entries( values ).filter( ( [ key, value ] ) => value.toString() !== book[ key ].toString() )
+			);
+			const changedMeta = Object.fromEntries( Object.entries( meta ).filter( ( [ key, value ] ) => value !== book.meta[ key ] ) );
+
+			// A collection is under its publisher: they go together.
+			if ( 'publisher' in changes || 'collection' in changes ) {
+				changes.publisher = values.publisher;
+				changes.collection = values.collection;
+			}
+
+			if ( Object.keys( changedMeta ).length ) {
+				changes.meta = changedMeta;
+			}
+
+			if ( coverRemoved && ! cover && books[ id ].cover ) {
+				changes.cover = 0;
+			}
+
+			if ( ! cover && ! Object.keys( changes ).length ) {
+				this.closeEdit();
+				return;
+			}
+
+			this.#update( 'editing', () => ( { loading: true, error: '' } ) );
+
+			try {
+				if ( cover ) {
+					changes.cover = await this.#uploadCover( cover, values.title );
+				}
+
+				await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: changes } );
+				this.#addBooks( [ await apiFetch( { path: `/wp/v2/books/${ id }?${ new URLSearchParams( BOOK_QUERY ) }` } ) ] );
+				// The form closes on the book; the names to suggest load again the next time it opens.
+				this.set( ( state ) => ( { ...state, editing: editing(), terms: terms() } ) );
+				this.#reload( id );
+			} catch ( error ) {
+				this.#update( 'editing', () => ( { loading: false, error: errorMessage( error ) } ) );
 			}
 		}
 
@@ -505,7 +569,7 @@
 		 * Saves the reading of the book open, then closes it. Only what changed is sent, so a value the form
 		 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
 		 */
-		async saveBook( { read, readDates, rating, kept } ) {
+		async saveReading( { read, readDates, rating, kept } ) {
 			const { book: id, books } = this.get();
 			const book = books[ id ];
 			const dates = [ ...new Set( readDates ) ].sort();
@@ -557,6 +621,16 @@
 				theme: 'dark' === state.theme ? 'light' : 'dark',
 				themeChosen: true,
 			} ) );
+		}
+
+		/** Uploads the photo of a cover, titled after its book, and returns the ID of its image. */
+		async #uploadCover( file, title ) {
+			const body = new FormData();
+
+			body.append( 'file', file );
+			body.append( 'title', title );
+
+			return ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
 		}
 
 		/** The book open closes, the history left as it is. */
@@ -621,8 +695,8 @@
 		/**
 		 * After the book `id` was saved: the stats, and the views but the one shown, load again. The list shown follows
 		 * the book where it is: the books found lose it when the search no longer finds it, the diary takes its readings
-		 * added or removed, the page of an author updates their reading, the home its readings and achievements;
-		 * elsewhere its card follows it.
+		 * added or removed, the page of an author updates their books and their reading, the achievements load again,
+		 * and the home its readings and achievements; elsewhere its card follows it.
 		 */
 		#reload( id ) {
 			const { view } = this.get();
@@ -633,7 +707,7 @@
 				search: 'books' === view ? state.search : pages(),
 				diary: 'diary' === view || home ? state.diary : pages(),
 				idea: 'idea' === view || home ? state.idea : idea(),
-				achievements: home ? state.achievements : achievements(),
+				achievements: 'achievements' === view || home ? state.achievements : achievements(),
 				author: AUTHOR_VIEW === view ? state.author : author(),
 			} ) );
 			this.#fetchStats();
@@ -646,7 +720,7 @@
 				this.#refreshDiary();
 			}
 
-			if ( home ) {
+			if ( 'achievements' === view || home ) {
 				this.#fetchAchievements();
 			}
 
@@ -869,7 +943,9 @@
 			try {
 				const data = await apiFetch( { path: `/library/v1/authors/${ this.get().author.id }`, signal } );
 
-				this.#update( 'author', () => ( {
+				this.#update( 'author', ( current ) => ( {
+					// A book saved without the author leaves their books.
+					items: current.items.filter( ( book ) => data.books.includes( book ) ),
 					name: text( data.name ),
 					pseudonyms: data.pseudonyms.map( text ),
 					description: data.description,

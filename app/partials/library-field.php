@@ -1,6 +1,6 @@
 <?php
 /**
- * A field of the form of a book to add: the label, the input and the description of a book meta, as registered.
+ * A field of the form of a book: the label, the input and the description of a book meta, as registered.
  *
  * @link       https://github.com/19h47/library
  * @since      6.0.0
@@ -12,7 +12,7 @@
  * @var array  $attributes More attributes of the input, such as its inputmode.
  */
 
-$field_id    = 'library-add-' . str_replace( '_', '-', $key );
+$field_id    = 'library-edit-' . str_replace( '_', '-', $key );
 $description = Library_Meta::description( $key );
 ?>
 <p class="library-field">

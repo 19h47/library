@@ -1,15 +1,20 @@
-import { editUrl, store } from 'library-app/app';
+import { store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
 import { fill, fillCover, linkAuthors } from 'library-app/render';
 import { openLinks } from 'library-app/behaviors';
 
-/** The book open, in a modal dialog; closing it, with its button or Escape, closes the book. */
+/**
+ * The book open, in a modal dialog; closing it, with its button or Escape, closes the book.
+ * Its button Edit book opens the form of the book over it.
+ */
 class LibraryBookElement extends Brick {
 	connect( signal ) {
 		const $dialog = this.querySelector( 'dialog' );
+		const $edit = $dialog.querySelector( '[data-action="edit"]' );
 
 		$dialog.addEventListener( 'close', () => store.closeBook(), { signal } );
+		$edit.addEventListener( 'click', () => store.openEdit( store.get().book ), { signal } );
 		openLinks( $dialog, signal );
 
 		return [
@@ -43,7 +48,6 @@ class LibraryBookElement extends Brick {
 			published_date: book.published_date ? formatDate( book.published_date ) : '',
 		} );
 		linkAuthors( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
-		$dialog.querySelector( '[data-field="edit"]' ).href = editUrl + book.id;
 	}
 }
 customElements.define( 'library-book', LibraryBookElement );

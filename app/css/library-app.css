@@ -377,9 +377,9 @@ button.app-pill:disabled {
 	flex: 1;
 }
 
-/* A field of a form, such as a read date or the title of a book to add */
+/* A field of a form, such as a read date or the title of a book */
 .library-reading__date input,
-.library-field :is(input:not([type="file"]), select) {
+.library-field :is(input:not([type="file"]), select, textarea) {
 	min-width: 0;
 	padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
 	border: 1px solid var(--app-line-soft);
@@ -393,6 +393,11 @@ button.app-pill:disabled {
 	opacity: var(--app-control-opacity);
 }
 
+/* The excerpt grows with its text */
+.library-field textarea {
+	field-sizing: content;
+}
+
 /* The pill that saves a form */
 .library-save {
 	color: var(--app-text);
@@ -404,8 +409,8 @@ button.app-pill:disabled {
 	opacity: var(--app-control-opacity);
 }
 
-/* The form of a book to add: a field per line, its label above it */
-.library-add__form {
+/* The form of a book, to add or edit: a field per line, its label above it */
+.library-edit__form {
 	display: grid;
 	gap: var(--app-u1);
 }
@@ -418,7 +423,7 @@ button.app-pill:disabled {
 }
 
 .library-field :is(label, legend),
-.library-add__details summary {
+.library-edit__details summary {
 	color: var(--app-text-muted);
 	font-family: var(--app-font-ui);
 	font-size: var(--app-font-small);
@@ -434,14 +439,14 @@ button.app-pill:disabled {
 	font-size: var(--app-font-small);
 }
 
-.library-add__cover {
+.library-edit__cover {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: end;
 	gap: var(--app-u1);
 }
 
-.library-add__preview {
+.library-edit__preview {
 	display: block;
 	width: auto;
 	height: var(--library-cover-height);
@@ -449,28 +454,28 @@ button.app-pill:disabled {
 	border-radius: calc(var(--app-radius) / 2);
 }
 
-.library-add__authors {
+.library-edit__authors {
 	list-style: none;
 	display: grid;
 	gap: var(--app-gap);
 	margin-bottom: var(--app-gap);
 }
 
-.library-add__author {
+.library-edit__author {
 	display: flex;
 	align-items: center;
 	gap: var(--app-gap);
 }
 
-.library-add__author input {
+.library-edit__author input {
 	flex: 1;
 }
 
-.library-add__details summary {
+.library-edit__details summary {
 	cursor: pointer;
 }
 
-.library-add__details .library-field {
+.library-edit__details .library-field {
 	margin-top: var(--app-u1);
 }
 

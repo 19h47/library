@@ -71,8 +71,9 @@ class LibraryAuthorElement extends Brick {
 				( state ) => state.author.items,
 				( ids ) => {
 					const { books, author } = store.get();
-					// A next page adds to the list, another author starts it again.
-					const start = author.id === this.#id ? this.#ids.length : 0;
+					// A next page adds to the list; another author, or a book that left their books, starts it again.
+					const isNextPage = author.id === this.#id && this.#ids.every( ( id, index ) => id === ids[ index ] );
+					const start = isNextPage ? this.#ids.length : 0;
 
 					if ( ! start ) {
 						$items.replaceChildren();

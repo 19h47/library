@@ -1,7 +1,7 @@
 <?php
 /**
  * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the page of an author,
- * and the forms of a book open and of a book to add.
+ * the book open with the form of its reading, and the form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -289,50 +289,60 @@
 					</div>
 				</dl>
 				<p class="library-book__actions">
-					<a data-field="edit" href=""><?php echo esc_html( $labels->edit_item ); ?></a>
+					<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
 				</p>
 			</dialog>
 		</library-book>
 
-		<library-add>
-			<dialog class="library-book library-add" aria-labelledby="library-add-heading">
+		<library-edit>
+			<dialog class="library-book library-edit" aria-labelledby="library-edit-heading">
 				<form class="app-toolbar" method="dialog">
 					<button type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 				</form>
-				<h2 class="library-book__title" id="library-add-heading"><?php echo esc_html( $labels->add_new_item ); ?></h2>
-				<form class="library-add__form">
-					<div class="library-add__cover">
-						<img class="library-add__preview" alt="" hidden>
+				<h2
+					class="library-book__title"
+					id="library-edit-heading"
+					data-add="<?php echo esc_attr( $labels->add_new_item ); ?>"
+					data-edit="<?php echo esc_attr( $labels->edit_item ); ?>"
+				></h2>
+				<form class="library-edit__form">
+					<div class="library-edit__cover">
+						<img class="library-edit__preview" alt="" hidden>
 						<label class="app-pill">
 							<input class="sr-only" type="file" name="cover" accept="image/*">
-							<?php esc_html_e( 'Add a cover', 'library' ); ?>
+							<?php esc_html_e( 'Choose a cover', 'library' ); ?>
 						</label>
+						<button class="app-pill" type="button" data-action="remove-cover" hidden><?php esc_html_e( 'Remove the cover', 'library' ); ?></button>
 					</div>
 					<p class="library-field">
-						<label for="library-add-title"><?php esc_html_e( 'Title', 'library' ); ?></label>
-						<input id="library-add-title" name="title" required autocomplete="off">
+						<label for="library-edit-title"><?php esc_html_e( 'Title', 'library' ); ?></label>
+						<input id="library-edit-title" name="title" required autocomplete="off">
+					</p>
+					<p class="library-field">
+						<label for="library-edit-excerpt"><?php esc_html_e( 'Excerpt', 'library' ); ?></label>
+						<textarea id="library-edit-excerpt" name="excerpt" rows="3"></textarea>
 					</p>
 					<fieldset class="library-field">
 						<legend><?php echo esc_html( $author_labels->name ); ?></legend>
-						<ul class="library-add__authors" data-list="authors"></ul>
+						<ul class="library-edit__authors" data-list="authors"></ul>
 						<p>
 							<button class="app-pill" type="button" data-action="add-author"><?php esc_html_e( 'Add an author', 'library' ); ?></button>
 						</p>
 					</fieldset>
 					<p class="library-field">
-						<label for="library-add-publisher"><?php echo esc_html( $publisher_labels->singular_name ); ?></label>
-						<input id="library-add-publisher" name="publisher" list="library-add-publishers" autocomplete="off">
+						<label for="library-edit-publisher"><?php echo esc_html( $publisher_labels->singular_name ); ?></label>
+						<input id="library-edit-publisher" name="publisher" list="library-edit-publishers" autocomplete="off">
 					</p>
 					<p class="library-field">
-						<label for="library-add-collection"><?php esc_html_e( 'Collection', 'library' ); ?></label>
-						<input id="library-add-collection" name="collection" list="library-add-collections" autocomplete="off" disabled>
+						<label for="library-edit-collection"><?php esc_html_e( 'Collection', 'library' ); ?></label>
+						<input id="library-edit-collection" name="collection" list="library-edit-collections" autocomplete="off" disabled>
 					</p>
 					<?php
 					$key        = 'isbn';
 					$attributes = array( 'inputmode' => 'numeric' );
 					require __DIR__ . '/library-field.php';
 					?>
-					<details class="library-add__details">
+					<details class="library-edit__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
 						foreach ( array( 'subtitle', 'series', 'volume_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
@@ -342,8 +352,8 @@
 						}
 						?>
 						<p class="library-field">
-							<label for="library-add-language"><?php echo esc_html( $language_labels->singular_name ); ?></label>
-							<select id="library-add-language" name="language">
+							<label for="library-edit-language"><?php echo esc_html( $language_labels->singular_name ); ?></label>
+							<select id="library-edit-language" name="language">
 								<option value=""><?php echo esc_html( $language_labels->no_terms ); ?></option>
 							</select>
 						</p>
@@ -353,11 +363,14 @@
 						<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
-				<datalist id="library-add-authors"></datalist>
-				<datalist id="library-add-publishers"></datalist>
-				<datalist id="library-add-collections"></datalist>
+				<p class="library-book__actions" hidden>
+					<a data-link="admin" href=""><?php esc_html_e( 'Edit in the dashboard', 'library' ); ?></a>
+				</p>
+				<datalist id="library-edit-authors"></datalist>
+				<datalist id="library-edit-publishers"></datalist>
+				<datalist id="library-edit-collections"></datalist>
 			</dialog>
-		</library-add>
+		</library-edit>
 
 		<template id="library-item">
 			<li class="app-item library-item">
@@ -408,9 +421,9 @@
 			</li>
 		</template>
 
-		<template id="library-add-author">
-			<li class="library-add__author">
-				<input name="author" list="library-add-authors" autocomplete="off" aria-label="<?php echo esc_attr( $author_labels->singular_name ); ?>">
+		<template id="library-edit-author">
+			<li class="library-edit__author">
+				<input name="author" list="library-edit-authors" autocomplete="off" aria-label="<?php echo esc_attr( $author_labels->singular_name ); ?>">
 				<button
 					class="app-pill"
 					type="button"
