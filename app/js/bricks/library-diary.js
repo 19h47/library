@@ -1,6 +1,6 @@
 import { __, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { dayFormat, formatBooks, formatDate, formatDetails, join } from 'library-app/format';
+import { dayFormat, formatBooks, formatDate, formatRating, join } from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';
 import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 
@@ -73,11 +73,11 @@ class LibraryDiaryElement extends Brick {
 		return $item;
 	}
 
-	/** The line of a reading: its day, whether the book was read again then, its rating and whether it is kept. */
+	/** The line of a reading: its day, whether the book was read again then, and its rating. */
 	#state( book, date ) {
 		const isFirstReading = date === book.read_date[ 0 ];
 
-		return join( [ formatDate( date, dayFormat ), ! isFirstReading && __( 'Read again', 'library' ), ...formatDetails( book ) ] );
+		return join( [ formatDate( date, dayFormat ), ! isFirstReading && __( 'Read again', 'library' ), formatRating( book.rating ) ] );
 	}
 }
 customElements.define( 'library-diary', LibraryDiaryElement );

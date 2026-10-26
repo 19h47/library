@@ -372,7 +372,10 @@
 					<h3 class="library-item__title">
 						<button class="library-item__button" type="button" data-field="title"></button>
 					</h3>
-					<p class="app-item__meta" data-field="state"></p>
+					<p class="app-item__meta">
+						<span data-field="state"></span>
+						<span class="library-item__status" data-field="status" hidden></span>
+					</p>
 				</div>
 			</li>
 		</template>
