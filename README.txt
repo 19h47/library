@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.6.0
+Stable tag: 6.6.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,7 +49,7 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and kept, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, to buy from the **To buy** view.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, to buy from the **To buy** view.
 
 = Can several readers share the library? =
 
@@ -87,6 +87,12 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.6.1 =
+* Reading app: the views scroll sideways in one row, as the latest readings, rather than wrapping onto a second line; the current one shows whole.
+* The first choice of the “Library” menu, “Kept”, is now “In the library”.
+* Reading app: in the book open, the lines above its reading and its fields are centered between what they separate.
+* French: non-breaking spaces before colons, semicolons, question marks and percent signs, inside quotation marks, and between a number and its unit, such as “3 tomes” or “t. 3”.
 
 = 6.6.0 =
 * New “To buy” status for the books not in the library yet: hidden from the “All” view, the site and the library stats, and left out of the reading pile. A book bought is added the day it leaves the books to buy.
