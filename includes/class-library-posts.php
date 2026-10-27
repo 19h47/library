@@ -1,6 +1,6 @@
 <?php
 /**
- * Book post type and the "Not kept" status, and how a book is titled and slugged.
+ * Book post type and the "Not kept" and "To buy" statuses, and how a book is titled, slugged and dated.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Registers the book post type and the "Not kept" status, shared by the admin, the reading app and the site.
+ * Registers the book post type and the "Not kept" and "To buy" statuses, shared by the admin, the reading app and the site.
  *
  * @since      1.0.0
  * @package    Library
@@ -27,6 +27,13 @@ class Library_Posts {
 	public const NOT_KEPT = 'library-not-kept';
 
 	/**
+	 * Status of the books not in the library yet, to buy: hidden from the books list and the site, left out of the reading pile.
+	 *
+	 * @var string
+	 */
+	public const TO_BUY = 'library-to-buy';
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -34,9 +41,10 @@ class Library_Posts {
 	public function hooks(): void {
 		add_action( 'after_setup_theme', array( $this, 'add_thumbnail_support' ), 11 );
 		add_action( 'init', array( $this, 'register_post_type' ) );
-		add_action( 'init', array( $this, 'register_post_status' ) );
-		// After the status of the post is known, which the "Not kept" box may change.
+		add_action( 'init', array( $this, 'register_post_statuses' ) );
+		// After the status of the post is known, which the "Library" menu of the publish box may change.
 		add_filter( 'wp_insert_post_data', array( $this, 'slug' ), 11, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'bought' ), 11, 2 );
 		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
 	}
 
@@ -53,27 +61,74 @@ class Library_Posts {
 	}
 
 	/**
-	 * Register the status of the books read but not kept.
+	 * Register the statuses of the books read but not kept, and of the books to buy.
 	 *
 	 * Core then leaves them out of the "All" view, its count, the site and search,
-	 * and lists them in their own view of the books list.
+	 * and lists them in their own views of the books list.
 	 *
 	 * @return void
 	 */
-	public function register_post_status(): void {
+	public function register_post_statuses(): void {
+		$args = array(
+			'public'                    => false,
+			'protected'                 => true,
+			'exclude_from_search'       => true,
+			'show_in_admin_all_list'    => false,
+			'show_in_admin_status_list' => true,
+		);
+
 		register_post_status(
 			self::NOT_KEPT,
 			array(
-				'label'                     => _x( 'Not kept', 'book status', 'library' ),
+				'label'       => _x( 'Not kept', 'book status', 'library' ),
 				/* translators: %s: number of books. */
-				'label_count'               => _n_noop( 'Not kept <span class="count">(%s)</span>', 'Not kept <span class="count">(%s)</span>', 'library' ),
-				'public'                    => false,
-				'protected'                 => true,
-				'exclude_from_search'       => true,
-				'show_in_admin_all_list'    => false,
-				'show_in_admin_status_list' => true,
-			)
+				'label_count' => _n_noop( 'Not kept <span class="count">(%s)</span>', 'Not kept <span class="count">(%s)</span>', 'library' ),
+			) + $args
 		);
+
+		register_post_status(
+			self::TO_BUY,
+			array(
+				'label'       => _x( 'To buy', 'book status', 'library' ),
+				/* translators: %s: number of books. */
+				'label_count' => _n_noop( 'To buy <span class="count">(%s)</span>', 'To buy <span class="count">(%s)</span>', 'library' ),
+			) + $args
+		);
+	}
+
+	/**
+	 * Statuses the forms of a book offer, with their label: kept, i.e. published, not kept, or to buy.
+	 *
+	 * A book in another status, such as a draft, shows as kept, and stays in it unless another one is chosen.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_statuses(): array {
+		return array(
+			'publish'      => _x( 'Kept', 'book status', 'library' ),
+			self::NOT_KEPT => _x( 'Not kept', 'book status', 'library' ),
+			self::TO_BUY   => _x( 'To buy', 'book status', 'library' ),
+		);
+	}
+
+	/**
+	 * Date a book leaving the books to buy from today: its post date is the date it was added to the library.
+	 *
+	 * @param array $data    Slashed post data about to be saved.
+	 * @param array $postarr Slashed submitted data.
+	 * @return array
+	 */
+	public function bought( array $data, array $postarr ): array {
+		$post_id = (int) ( $postarr['ID'] ?? 0 );
+
+		if ( 'book' !== $data['post_type'] || ! $post_id || self::TO_BUY !== get_post_status( $post_id ) || in_array( $data['post_status'], array( self::TO_BUY, 'trash' ), true ) ) {
+			return $data;
+		}
+
+		$data['post_date']     = current_time( 'mysql' );
+		$data['post_date_gmt'] = current_time( 'mysql', true );
+
+		return $data;
 	}
 
 	/**

@@ -10,13 +10,14 @@
  */
 
 /**
- * Suggests a book to read each week, among all the books, kept or not.
+ * Suggests a book to read each week, among the books at hand, kept or not, and now and then a book to buy.
  *
  * Ideas alternate between kinds, each one with its reason drawn from the data: the next volume of
  * a series in progress, a book by an author, a translator or in a collection rated well, an author
  * never read despite many books, an anniversary of the work or the edition, the opposite of the latest reads, a short
- * book to catch up on last year, a book just added, a book rated well long ago to read again, and the
- * rest of the reading pile. A volume of a series is only suggested when it is the first one not read yet.
+ * book to catch up on last year, a book just added, a book rated well long ago to read again, the
+ * rest of the reading pile, and a book to buy that comes next. A volume of a series is only suggested when it is the
+ * first one not read yet, to buy or not.
  *
  * @since      1.1.0
  * @package    Library
@@ -143,6 +144,7 @@ class Library_Reading_Idea {
 			$this->get_fresh_ideas( $to_read ),
 			$this->get_reread_ideas( $books ),
 			$this->get_pile_ideas( $to_read ),
+			$this->get_to_buy_ideas( $books ),
 		);
 		$first   = (int) wp_date( 'W' ) % count( $kinds );
 		$kinds   = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
@@ -169,12 +171,22 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * The books not read yet that can be read now: a volume of a series only when it is the first one not read yet.
+	 * The books not read yet that can be read now: at hand, i.e. not to buy, and the next ones.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array>
 	 */
 	private static function get_books_to_read( array $books ): array {
+		return array_filter( self::get_next_books( $books ), fn( array $book ) => Library_Posts::TO_BUY !== $book['status'] );
+	}
+
+	/**
+	 * The books not read yet that come next: a volume of a series only when it is the first one not read yet, to buy or not.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<int,array>
+	 */
+	private static function get_next_books( array $books ): array {
 		$first_volumes = array();
 
 		foreach ( $books as $book ) {
@@ -217,25 +229,8 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_series_ideas( array $books, array $to_read ): array {
-		$read_by_series = array();
-
-		foreach ( $books as $book ) {
-			if ( ! $book['read'] || null === $book['volume'] ) {
-				continue;
-			}
-
-			$read = $read_by_series[ $book['series'] ] ?? array(
-				'volumes'   => 0,
-				'last_read' => '',
-			);
-
-			$read_by_series[ $book['series'] ] = array(
-				'volumes'   => $read['volumes'] + 1,
-				'last_read' => max( $read['last_read'], self::last_read_date( $book ) ),
-			);
-		}
-
-		$ideas = array();
+		$read_by_series = self::get_read_by_series( $books );
+		$ideas          = array();
 
 		foreach ( $to_read as $book ) {
 			$read = $read_by_series[ $book['series'] ] ?? null;
@@ -267,6 +262,34 @@ class Library_Reading_Idea {
 		}
 
 		return $ideas;
+	}
+
+	/**
+	 * The volumes read of each series with at least one, and the date of the last one read.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<string,array{volumes:int,last_read:string}>
+	 */
+	private static function get_read_by_series( array $books ): array {
+		$read_by_series = array();
+
+		foreach ( $books as $book ) {
+			if ( ! $book['read'] || null === $book['volume'] ) {
+				continue;
+			}
+
+			$read = $read_by_series[ $book['series'] ] ?? array(
+				'volumes'   => 0,
+				'last_read' => '',
+			);
+
+			$read_by_series[ $book['series'] ] = array(
+				'volumes'   => $read['volumes'] + 1,
+				'last_read' => max( $read['last_read'], self::last_read_date( $book ) ),
+			);
+		}
+
+		return $read_by_series;
 	}
 
 	/**
@@ -368,7 +391,7 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * Books to read by the authors with many books and none read.
+	 * Books to read by the authors with many books at hand and none read.
 	 *
 	 * @param array<int,array> $books   All the books.
 	 * @param array<int,array> $to_read Books to read.
@@ -380,7 +403,9 @@ class Library_Reading_Idea {
 
 		foreach ( $books as $book ) {
 			foreach ( $book['authors'] as $author ) {
-				$books_by_author[ $author ] = ( $books_by_author[ $author ] ?? 0 ) + 1;
+				if ( Library_Posts::TO_BUY !== $book['status'] ) {
+					$books_by_author[ $author ] = ( $books_by_author[ $author ] ?? 0 ) + 1;
+				}
 
 				if ( $book['read'] ) {
 					$read_authors[ $author ] = true;
@@ -754,5 +779,50 @@ class Library_Reading_Idea {
 		}
 
 		return $ideas;
+	}
+
+	/**
+	 * Books to buy that come next: the next volume of a series with a volume read, else a book by an author rated well.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<int,array{id:int,reason:string}>
+	 */
+	private function get_to_buy_ideas( array $books ): array {
+		$to_buy         = array_filter( self::get_next_books( $books ), fn( array $book ) => Library_Posts::TO_BUY === $book['status'] );
+		$read_by_series = self::get_read_by_series( $books );
+		$ideas          = array();
+
+		foreach ( $to_buy as $book ) {
+			$read = $read_by_series[ $book['series'] ] ?? null;
+
+			if ( ! $read || null === $book['volume'] ) {
+				continue;
+			}
+
+			$ideas[ $book['id'] ] = array(
+				'id'     => $book['id'],
+				'reason' => sprintf(
+					/* translators: 1: series, 2: number of volumes read. */
+					_n( 'To buy, next in %1$s: you have read %2$s volume.', 'To buy, next in %1$s: you have read %2$s volumes.', $read['volumes'], 'library' ),
+					$book['series'],
+					number_format_i18n( $read['volumes'] )
+				),
+			);
+		}
+
+		$author_ideas = self::get_rated_well_ideas(
+			$books,
+			$to_buy,
+			'authors',
+			fn( string $author, array $stats ): string => sprintf(
+				/* translators: 1: author, 2: average rating, 3: number of books rated. */
+				__( 'To buy, by %1$s: you gave them %2$s/10 on average over %3$s books.', 'library' ),
+				$author,
+				Library_Books::rating_text( $stats['average'] ),
+				number_format_i18n( $stats['rated'] )
+			)
+		);
+
+		return array_values( $ideas + array_column( $author_ideas, null, 'id' ) );
 	}
 }

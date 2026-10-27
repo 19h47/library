@@ -1,17 +1,17 @@
-import { notKept, store } from 'library-app/app';
+import { notKept, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
 import { fill } from 'library-app/render';
 import { inputList } from 'library-app/behaviors';
 
 /**
- * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is kept.
+ * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is kept, not kept or to buy.
  * Saving closes the book; closing it drops what was not saved.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
 		const $form = this.querySelector( 'form' );
-		const { read: $read, rating: $rating, not_kept: $notKept } = $form.elements;
+		const { read: $read, rating: $rating, status: $status } = $form.elements;
 		const $dates = this.querySelector( '.library-reading__dates' );
 		const $list = $dates.querySelector( 'ul' );
 		const $add = $dates.querySelector( '[data-action="add"]' );
@@ -59,7 +59,7 @@ class LibraryReadingElement extends Brick {
 					read: data.has( 'read' ),
 					readDates: data.getAll( 'read_date' ),
 					rating: rating ? Number( rating ) : null,
-					kept: ! data.has( 'not_kept' ),
+					status: data.get( 'status' ),
 				} );
 			},
 			{ signal }
@@ -78,7 +78,8 @@ class LibraryReadingElement extends Brick {
 					book.read_date.forEach( ( date ) => addDate( date ) );
 					showDates();
 					$rating.value = ( book.rating || '' ).toString();
-					$notKept.checked = notKept === book.status;
+					// A book in another status, such as a draft, shows as kept.
+					$status.value = [ notKept, toBuy ].includes( book.status ) ? book.status : 'publish';
 				}
 			),
 			store.select(

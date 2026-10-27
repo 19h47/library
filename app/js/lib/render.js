@@ -95,7 +95,7 @@ export function clone( id ) {
 	return document.getElementById( id ).content.firstElementChild.cloneNode( true );
 }
 
-/** Fills the card of a book; `state` is the line under its title, followed by the tag of a book not kept. */
+/** Fills the card of a book; `state` is the line under its title, followed by the tag of a book not kept or to buy. */
 export function fillBook( $item, book, state ) {
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
 	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, status: formatStatus( book ) } );

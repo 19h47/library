@@ -96,6 +96,7 @@ class Library_App {
 		$publisher_labels   = get_taxonomy( 'library-publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library-language' )->labels;
 		$ratings            = $this->get_ratings();
+		$statuses           = Library_Posts::get_statuses();
 		$views              = $this->get_views( $labels->name );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
@@ -120,6 +121,7 @@ class Library_App {
 			'diary'        => __( 'Diary', 'library' ),
 			'idea'         => __( 'Idea', 'library' ),
 			'achievements' => __( 'Achievements', 'library' ),
+			'to-buy'       => __( 'To buy', 'library' ),
 		);
 		$views  = array();
 
@@ -240,6 +242,7 @@ class Library_App {
 		return array(
 			'statuses'  => implode( ',', Library_Books::statuses() ),
 			'notKept'   => Library_Posts::NOT_KEPT,
+			'toBuy'     => Library_Posts::TO_BUY,
 			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
 			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::url() ) . '&author=',

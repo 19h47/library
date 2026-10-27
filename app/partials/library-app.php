@@ -1,7 +1,7 @@
 <?php
 /**
- * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the page of an author,
- * the book open with the form of its reading, and the form of a book, to add or edit.
+ * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the books to buy,
+ * the page of an author, the book open with the form of its reading, and the form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -20,6 +20,7 @@
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
  * @var object                                        $language_labels  Labels of the original languages taxonomy.
  * @var array<string,string>                          $ratings        Ratings a book can take, by value, with their label.
+ * @var array<string,string>                          $statuses       Statuses the forms of a book offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
  */
@@ -178,6 +179,18 @@
 					</library-achievements>
 				</library-view>
 
+				<library-view name="to-buy" <?php echo 'to-buy' === $view ? '' : 'hidden'; ?>>
+					<h2 class="library-title">
+						<?php echo esc_html( $views['to-buy']['label'] ); ?>
+						<library-count class="library-title__count" list="toBuy"></library-count>
+					</h2>
+					<library-status class="app-status" list="toBuy" hidden></library-status>
+					<library-list list="toBuy">
+						<ul class="app-list__items"></ul>
+						<div class="library-list__more"></div>
+					</library-list>
+				</library-view>
+
 				<library-view name="author" <?php echo Library_App::AUTHOR_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-author>
 						<p class="app-status" data-field="status" hidden></p>
@@ -250,8 +263,12 @@
 								</select>
 							</label>
 							<label class="app-pill">
-								<input type="checkbox" name="not_kept">
-								<?php echo esc_html_x( 'Not kept', 'book status', 'library' ); ?>
+								<span class="sr-only"><?php esc_html_e( 'Library', 'library' ); ?></span>
+								<select name="status">
+									<?php foreach ( $statuses as $value => $label ) : ?>
+										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+									<?php endforeach; ?>
+								</select>
 							</label>
 						</div>
 						<fieldset class="library-reading__dates" hidden disabled>
@@ -347,6 +364,14 @@
 					$attributes = array( 'inputmode' => 'numeric' );
 					require __DIR__ . '/library-field.php';
 					?>
+					<p class="library-field">
+						<label for="library-edit-status"><?php esc_html_e( 'Library', 'library' ); ?></label>
+						<select id="library-edit-status" name="status">
+							<?php foreach ( $statuses as $value => $label ) : ?>
+								<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</p>
 					<details class="library-edit__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php

@@ -18,7 +18,7 @@
 	// Kept between visits. The query, the view, the author and the book open are in the URL only, as ?q=, ?view=, ?author= and ?book=.
 	const SAVED = [ 'theme', 'themeChosen', 'read' ];
 	// The views of the navigation; the page of an author is another one, opened from a book or an achievement.
-	const VIEWS = [ 'books', 'diary', 'idea', 'achievements' ];
+	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
 	const AUTHOR_VIEW = 'author';
 	// The home, the books view without a query, shows the latest readings, the reading idea and the achievements close to be earned.
 	const HOME = [ 'diary', 'idea', 'achievements' ];
@@ -212,6 +212,21 @@
 		return [ query.trim(), read && `read:${ read }` ].filter( Boolean ).join( ' ' );
 	}
 
+	/**
+	 * What a list asks the API for: `search` the books the search finds, but the books to buy for the books to read,
+	 * which are not at hand; `toBuy` the books to buy.
+	 */
+	function queryOf( list, state ) {
+		if ( 'toBuy' === list ) {
+			return { status: config.toBuy };
+		}
+
+		const search = searchOf( state );
+		const status = 'no' === state.read ? config.statuses.split( ',' ).filter( ( item ) => config.toBuy !== item ).join() : config.statuses;
+
+		return search ? { search, status } : { status };
+	}
+
 	/** SAVED goes to localStorage, the query to the URL. */
 	function save( state ) {
 		try {
@@ -273,12 +288,14 @@
 	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
-	 * `search` the books found, `diary` the readings by month, `idea` the reading idea, `author` the books of the author open, `book` the book open,
+	 * `search` the books found, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
+	 * `author` the books of the author open, `book` the book open,
 	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
-		#controller = null;
+		// The request of each list running, `search` or `toBuy`: another one cancels it.
+		#controllers = {};
 		#authorController = null;
 
 		constructor() {
@@ -289,6 +306,7 @@
 				diary: pages(),
 				idea: idea(),
 				achievements: achievements(),
+				toBuy: pages(),
 				stats: null,
 				author: author(),
 				book: 0,
@@ -369,12 +387,12 @@
 			this.#loadHome();
 
 			clearTimeout( this.#timeout );
-			this.#timeout = setTimeout( () => this.#fetchSearch(), SEARCH_DELAY );
+			this.#timeout = setTimeout( () => this.#fetchList( 'search' ), SEARCH_DELAY );
 		}
 
 		setRead( read ) {
 			this.set( ( state ) => ( { ...state, read } ) );
-			this.#fetchSearch();
+			this.#fetchList( 'search' );
 		}
 
 		/**
@@ -384,16 +402,16 @@
 		searchBooks( query ) {
 			this.setView( 'books' );
 			this.set( ( state ) => ( { ...state, query, read: '' } ) );
-			this.#fetchSearch();
+			this.#fetchList( 'search' );
 			scrollToTop();
 		}
 
-		/** The next books of the search, unless some are loading or none is left. */
-		loadMoreBooks() {
-			const { loading, items, total } = this.get().search;
+		/** The next books of a list, `search` or `toBuy`, unless some are loading or none is left. */
+		loadMoreBooks( list ) {
+			const { loading, items, total } = this.get()[ list ];
 
 			if ( ! loading && items.length < total ) {
-				this.#fetchSearch( items.length );
+				this.#fetchList( list, items.length );
 			}
 		}
 
@@ -571,18 +589,15 @@
 		 * Saves the reading of the book open, then closes it. Only what changed is sent, so a value the form
 		 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
 		 */
-		async saveReading( { read, readDates, rating, kept } ) {
+		async saveReading( { read, readDates, rating, status: chosen } ) {
 			const { book: id, books } = this.get();
 			const book = books[ id ];
 			const dates = [ ...new Set( readDates ) ].sort();
-			const isKept = config.notKept !== book.status;
+			// As in the "Library" menu of the book form, a book in another status than not kept or to buy, such as a draft,
+			// shows as kept, and stays in it unless another one is chosen.
+			const shown = [ config.notKept, config.toBuy ].includes( book.status ) ? book.status : 'publish';
+			const status = chosen === shown ? book.status : chosen;
 			const meta = {};
-			let status = book.status;
-
-			// Kept again, a book not kept is published, as with the "Not kept" box of the book form.
-			if ( kept !== isKept ) {
-				status = kept ? 'publish' : config.notKept;
-			}
 
 			if ( read !== book.read ) {
 				meta.read = read;
@@ -681,10 +696,11 @@
 		#load( view ) {
 			const state = this.get();
 			const loaders = {
-				books: [ state.search, () => this.#fetchSearch() ],
+				books: [ state.search, () => this.#fetchList( 'search' ) ],
 				diary: [ state.diary, () => this.#fetchDiary( 1 ) ],
 				idea: [ state.idea, () => this.#fetchIdea( 0 ) ],
 				achievements: [ state.achievements, () => this.#fetchAchievements() ],
+				'to-buy': [ state.toBuy, () => this.#fetchList( 'toBuy' ) ],
 				[ AUTHOR_VIEW ]: [ state.author, () => this.#fetchAuthor() ],
 			};
 			const [ data, fetchData ] = loaders[ view ];
@@ -696,9 +712,9 @@
 
 		/**
 		 * After the book `id` was saved: the stats, and the views but the one shown, load again. The list shown follows
-		 * the book where it is: the books found lose it when the search no longer finds it, the diary takes its readings
-		 * added or removed, the page of an author updates their books and their reading, the achievements load again,
-		 * and the home its readings and achievements; elsewhere its card follows it.
+		 * the book where it is: the books found lose it when the search no longer finds it, the books to buy when it is
+		 * bought, the diary takes its readings added or removed, the page of an author updates their books and their reading,
+		 * the achievements load again, and the home its readings and achievements; elsewhere its card follows it.
 		 */
 		#reload( id ) {
 			const { view } = this.get();
@@ -707,6 +723,7 @@
 			this.set( ( state ) => ( {
 				...state,
 				search: 'books' === view ? state.search : pages(),
+				toBuy: 'to-buy' === view ? state.toBuy : pages(),
 				diary: 'diary' === view || home ? state.diary : pages(),
 				idea: 'idea' === view || home ? state.idea : idea(),
 				achievements: 'achievements' === view || home ? state.achievements : achievements(),
@@ -715,7 +732,11 @@
 			this.#fetchStats();
 
 			if ( 'books' === view ) {
-				this.#refreshSearch( id );
+				this.#refreshList( 'search', id );
+			}
+
+			if ( 'to-buy' === view ) {
+				this.#refreshList( 'toBuy', id );
 			}
 
 			if ( 'diary' === view || home ) {
@@ -741,6 +762,7 @@
 				diary: pages(),
 				idea: idea(),
 				achievements: achievements(),
+				toBuy: pages(),
 				author: author( current.id ),
 				terms: terms(),
 			} ) );
@@ -785,34 +807,33 @@
 		}
 
 		/**
-		 * The books of the search from `offset`: from 0 they replace the books found, from further they add to them.
-		 * An offset rather than a page, as a book may have left the list. A new search cancels the one running.
+		 * The books of a list from `offset`, `search` or `toBuy`: from 0 they replace the books of the list, from further they
+		 * add to them. An offset rather than a page, as a book may have left the list. A new request of the list cancels the
+		 * one running; for the search, it cancels the one waiting for a pause in the typing.
 		 */
-		async #fetchSearch( offset = 0 ) {
-			clearTimeout( this.#timeout );
-			this.#controller?.abort();
-			this.#controller = new AbortController();
+		async #fetchList( list, offset = 0 ) {
+			if ( 'search' === list ) {
+				clearTimeout( this.#timeout );
+			}
 
-			const { signal } = this.#controller;
-			const search = searchOf( this.get() );
+			this.#controllers[ list ]?.abort();
+			this.#controllers[ list ] = new AbortController();
+
+			const { signal } = this.#controllers[ list ];
 			const params = new URLSearchParams( {
 				...BOOK_QUERY,
-				status: config.statuses,
+				...queryOf( list, this.get() ),
 				per_page: PER_PAGE,
 				offset,
 			} );
 
-			if ( search ) {
-				params.set( 'search', search );
-			}
-
-			this.#update( 'search', () => ( { loading: true, error: '' } ) );
+			this.#update( list, () => ( { loading: true, error: '' } ) );
 
 			try {
 				const response = await apiFetch( { path: `/wp/v2/books?${ params }`, parse: false, signal } );
 				const ids = this.#addBooks( await response.json() );
 
-				this.#update( 'search', ( current ) => ( {
+				this.#update( list, ( current ) => ( {
 					items: offset ? [ ...current.items, ...ids ] : ids,
 					total: Number( response.headers.get( 'X-WP-Total' ) ),
 					loading: false,
@@ -820,29 +841,32 @@
 				} ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( 'search', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( list, () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 			}
 		}
 
-		/** Takes the book `id` out of the books found when the search no longer finds it, such as a book read with the filter "To read". */
-		async #refreshSearch( id ) {
-			const search = searchOf( this.get() );
+		/**
+		 * Takes the book `id` out of a list when it no longer finds it, such as a book read with the filter "To read",
+		 * or a book to buy bought.
+		 */
+		async #refreshList( list, id ) {
+			const query = queryOf( list, this.get() );
 
 			// Every book is found without a search.
-			if ( ! search ) {
+			if ( 'search' === list && ! query.search ) {
 				return;
 			}
 
-			const params = new URLSearchParams( { search, status: config.statuses, include: id, _fields: 'id' } );
+			const params = new URLSearchParams( { ...query, include: id, _fields: 'id' } );
 
 			try {
 				const found = await apiFetch( { path: `/wp/v2/books?${ params }` } );
 				// Another search may have replaced the books found meanwhile.
-				const isListed = search === searchOf( this.get() ) && this.get().search.items.includes( id );
+				const isListed = query.search === queryOf( list, this.get() ).search && this.get()[ list ].items.includes( id );
 
 				if ( ! found.length && isListed ) {
-					this.#update( 'search', ( current ) => ( {
+					this.#update( list, ( current ) => ( {
 						items: current.items.filter( ( item ) => item !== id ),
 						total: current.total - 1,
 					} ) );

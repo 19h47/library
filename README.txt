@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.5.0
+Stable tag: 6.6.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -20,12 +20,12 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 * **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
 * **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its ISO 639 code and named in the site language.
-* **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count.
+* **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
-* **Reading idea of the week** – A book to read, and why: the next volume of a series in progress, an author rated well, an anniversary, a short book to catch up… “Another idea” moves to the next one.
+* **Reading idea of the week** – A book to read, and why: the next volume of a series in progress, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the search, the diary of the readings, the reading idea, the stats of the year, the achievements and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
+* **Reading app** – The library on a phone, in **Books > App**: the search, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the authors: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -49,11 +49,11 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating and not kept; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and kept, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, to buy from the **To buy** view.
 
 = Can several readers share the library? =
 
-No, the plugin has one reader per site. The readings, ratings and “Not kept” status belong to the book, not to a user: every user of the site sees and changes the same ones. Each reader keeps their library on their own site.
+No, the plugin has one reader per site. The readings, ratings and statuses like “Not kept” belong to the book, not to a user: every user of the site sees and changes the same ones. Each reader keeps their library on their own site.
 
 = How do I log a book read again? =
 
@@ -73,7 +73,7 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/library-author`, `library-publisher` and `library-language`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, and the search keywords work too: `?search=series:SAS`.
+Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/library-author`, `library-publisher` and `library-language`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`.
 
 The routes of the plugin, to users who can edit posts:
 
@@ -82,11 +82,19 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
 * `GET /wp-json/library/v1/authors/<id>` – an author, their pseudonyms, their description, their books in the order they first came out and their reading.
-* `POST /wp-json/library/v1/books` – adds a book as the book form does, to users who can publish posts.
+* `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
 * `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its authors, publisher and collection by name, its original language and its meta, to users who can edit it.
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.6.0 =
+* New “To buy” status for the books not in the library yet: hidden from the “All” view, the site and the library stats, and left out of the reading pile. A book bought is added the day it leaves the books to buy.
+* Admin: the “Library” menu of the Publish box sets a book kept, not kept or to buy, instead of the “Not kept” checkbox; quick and bulk edit offer both statuses.
+* Reading app: the **To buy** view lists the books to buy, and its **+** adds one there; the book open is kept, not kept or to buy, and the “To read” filter leaves out the books to buy.
+* Reading idea: now and then a book to buy, the next volume of a series in progress or a book by an author rated well.
+* Achievements: a book to buy counts as a book to read in a series, an author or a collection, which then lacks it, but not on the pile.
+* REST API: `POST /wp-json/library/v1/books` takes a `status`.
 
 = 6.5.0 =
 * Reading app: a book has notes, its content: shown under its excerpt in the book open, written in its form under the excerpt.

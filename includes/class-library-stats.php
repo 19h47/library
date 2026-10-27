@@ -27,14 +27,21 @@ class Library_Stats {
 	private const BOOKS = "p.post_type = 'book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )";
 
 	/**
+	 * SQL condition on the posts table aliased "p": the books at hand, kept or not, but not those to buy, for the reading pile.
+	 *
+	 * @var string
+	 */
+	private const AT_HAND = self::BOOKS . " AND p.post_status != '" . Library_Posts::TO_BUY . "'";
+
+	/**
 	 * SQL condition on the posts table aliased "p": the books in the library, i.e. kept.
 	 *
 	 * @var string
 	 */
-	private const LIBRARY = self::BOOKS . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
+	private const LIBRARY = self::AT_HAND . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
 
 	/**
-	 * Run a SELECT on the books; "{books}" and "{library}" in the SQL stand for the BOOKS and LIBRARY conditions.
+	 * Run a SELECT on the books; "{books}", "{at_hand}" and "{library}" in the SQL stand for the BOOKS, AT_HAND and LIBRARY conditions.
 	 *
 	 * "{readings}" stands for the readings: a table aliased "r" of a `book` and its read `date`, once per book and date,
 	 * kept or not. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one.
@@ -51,20 +58,20 @@ class Library_Stats {
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
 			WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books} ) AS r";
 		// The readings first: they hold the books condition.
-		$sql = str_replace( array( '{readings}', '{books}', '{library}' ), array( $readings, self::BOOKS, self::LIBRARY ), $sql );
+		$sql = str_replace( array( '{readings}', '{books}', '{at_hand}', '{library}' ), array( $readings, self::BOOKS, self::AT_HAND, self::LIBRARY ), $sql );
 		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
 
 		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets and REST routes, run on demand.
 	}
 
 	/**
-	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts and books not kept.
+	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts, books not kept and books to buy.
 	 *
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
 		$counts = (array) wp_count_posts( 'book' );
-		unset( $counts['trash'], $counts['auto-draft'], $counts[ Library_Posts::NOT_KEPT ] );
+		unset( $counts['trash'], $counts['auto-draft'], $counts[ Library_Posts::NOT_KEPT ], $counts[ Library_Posts::TO_BUY ] );
 
 		$total = (int) array_sum( $counts );
 

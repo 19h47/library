@@ -178,7 +178,8 @@ class Library_Rest_API {
 
 	/**
 	 * Arguments of a book as its form sends them: adding a book takes them all, with their defaults, and needs a title;
-	 * editing a book takes the ones sent, and leaves the others as they are.
+	 * editing a book takes the ones sent, and leaves the others as they are. Its status is chosen when it is added,
+	 * then with its reading.
 	 *
 	 * @param bool $adding Whether the book is added.
 	 * @return array
@@ -238,7 +239,14 @@ class Library_Rest_API {
 		);
 
 		if ( $adding ) {
-			return $args;
+			return $args + array(
+				'status' => array(
+					'description' => __( 'Status of the book: kept, i.e. published, not kept or to buy.', 'library' ),
+					'type'        => 'string',
+					'enum'        => array_keys( Library_Posts::get_statuses() ),
+					'default'     => 'publish',
+				),
+			);
 		}
 
 		return array_map( fn( array $arg ) => array_diff_key( $arg, array_flip( array( 'required', 'default' ) ) ), $args );
@@ -258,7 +266,7 @@ class Library_Rest_API {
 		$terms = $this->get_terms( $request );
 		$post  = array(
 			'post_type'    => 'book',
-			'post_status'  => 'publish',
+			'post_status'  => $request['status'],
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
 			'post_content' => $request['content'],
