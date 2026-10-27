@@ -17,14 +17,7 @@
 	--library-status: light-dark(oklch(54% 0.07 45), oklch(76% 0.06 45));
 }
 
-/* The views, as pills; the current one stands out */
-.library-nav {
-	list-style: none;
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--app-gap);
-}
-
+/* The views, as pills in a row that scrolls sideways, as the latest readings; the current one stands out */
 .library-nav a {
 	text-decoration: none;
 }
@@ -40,6 +33,7 @@
 }
 
 /* Custom elements are inline: these hold blocks */
+library-nav,
 library-view,
 library-home,
 library-latest,
@@ -287,7 +281,6 @@ button.app-pill:disabled {
 .library-book__fields {
 	display: grid;
 	gap: var(--app-gap);
-	margin-top: var(--app-u1);
 	padding-top: var(--app-u1);
 	border-top: 1px solid var(--app-line-soft);
 }
@@ -341,7 +334,6 @@ button.app-pill:disabled {
 .library-reading {
 	display: grid;
 	gap: var(--app-u1);
-	margin-top: var(--app-u1);
 	padding-top: var(--app-u1);
 	border-top: 1px solid var(--app-line-soft);
 }
@@ -485,15 +477,17 @@ button.app-pill:disabled {
 	margin-top: var(--app-u1);
 }
 
-/* The latest readings: a container, whose width is the one of the content */
+/* The views and the latest readings: containers, whose width is the one of the content */
+library-nav,
 library-latest {
 	container-type: inline-size;
 }
 
 /*
- * The covers of the latest readings, in a row that scrolls sideways across the viewport:
- * the first cover starts where the content does, the last one ends where it does.
+ * The views and the covers of the latest readings, in a row that scrolls sideways across the viewport:
+ * the first item starts where the content does, the last one ends where it does.
  */
+.library-nav,
 .library-covers {
 	/*
 	 * From an edge of the content to the one of the viewport: the page is centered, and has no scrollbar.
@@ -514,6 +508,7 @@ library-latest {
 	scrollbar-width: none;
 }
 
+.library-nav li,
 .library-cover {
 	flex: none;
 	scroll-snap-align: start;

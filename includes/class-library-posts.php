@@ -97,15 +97,15 @@ class Library_Posts {
 	}
 
 	/**
-	 * Statuses the forms of a book offer, with their label: kept, i.e. published, not kept, or to buy.
+	 * Statuses the forms of a book offer, with their label: in the library, i.e. published, not kept, or to buy.
 	 *
-	 * A book in another status, such as a draft, shows as kept, and stays in it unless another one is chosen.
+	 * A book in another status, such as a draft, shows as in the library, and stays in it unless another one is chosen.
 	 *
 	 * @return array<string,string>
 	 */
 	public static function get_statuses(): array {
 		return array(
-			'publish'      => _x( 'Kept', 'book status', 'library' ),
+			'publish'      => _x( 'In the library', 'book status', 'library' ),
 			self::NOT_KEPT => _x( 'Not kept', 'book status', 'library' ),
 			self::TO_BUY   => _x( 'To buy', 'book status', 'library' ),
 		);

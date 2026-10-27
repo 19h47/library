@@ -5,7 +5,7 @@ import { fill } from 'library-app/render';
 import { inputList } from 'library-app/behaviors';
 
 /**
- * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is kept, not kept or to buy.
+ * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is in the library, not kept or to buy.
  * Saving closes the book; closing it drops what was not saved.
  */
 class LibraryReadingElement extends Brick {
@@ -78,7 +78,7 @@ class LibraryReadingElement extends Brick {
 					book.read_date.forEach( ( date ) => addDate( date ) );
 					showDates();
 					$rating.value = ( book.rating || '' ).toString();
-					// A book in another status, such as a draft, shows as kept.
+					// A book in another status, such as a draft, shows as in the library.
 					$status.value = [ notKept, toBuy ].includes( book.status ) ? book.status : 'publish';
 				}
 			),

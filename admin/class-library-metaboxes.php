@@ -108,7 +108,7 @@ class Library_Metaboxes {
 	}
 
 	/**
-	 * Render the "Library" menu in the publish box, under the status: kept, not kept or to buy.
+	 * Render the "Library" menu in the publish box, under the status: in the library, not kept or to buy.
 	 *
 	 * The status menu of the publish box only offers core statuses and has no filter.
 	 *
@@ -141,7 +141,7 @@ class Library_Metaboxes {
 	/**
 	 * Apply the "Library" menu of the publish box to the book status.
 	 *
-	 * The menu decides over the status menu and the button pressed; kept publishes a book not kept or to buy.
+	 * The menu decides over the status menu and the button pressed; in the library publishes a book not kept or to buy.
 	 *
 	 * @param array $data    Slashed post data to insert.
 	 * @param array $postarr Slashed submitted data, with the form fields.
