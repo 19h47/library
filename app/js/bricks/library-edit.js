@@ -1,4 +1,4 @@
-import { editUrl, store } from 'library-app/app';
+import { editUrl, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
 import { inputList } from 'library-app/behaviors';
@@ -10,7 +10,8 @@ function renderOptions( terms, value = ( term ) => term.name ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * Its cover, title, excerpt, notes, authors, publisher and collection, ISBN, and more details. The names typed are suggested
+ * Its cover, title, excerpt, notes, authors, publisher and collection, ISBN, its status when it is added, to buy from the
+ * books to buy (the reading of a book changes it after), and more details. The names typed are suggested
  * among those of the library, the collections among those of the publisher; a name not found is added.
  * Closing the form drops it.
  */
@@ -23,7 +24,7 @@ class LibraryEditElement extends Brick {
 		const $dialog = this.querySelector( 'dialog' );
 		const $heading = this.querySelector( '#library-edit-heading' );
 		const $form = this.querySelector( '.library-edit__form' );
-		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, cover: $cover } = $form.elements;
+		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, cover: $cover, status: $status } = $form.elements;
 		// The fields of the meta are named after them.
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
 		const $authors = this.querySelector( '[data-list="authors"]' );
@@ -100,7 +101,7 @@ class LibraryEditElement extends Brick {
 				if ( store.get().editing.id ) {
 					store.editBook( { ...book, cover, coverRemoved: this.#removed } );
 				} else {
-					store.addBook( { ...book, cover } );
+					store.addBook( { ...book, cover, status: $status.value } );
 				}
 			},
 			{ signal }
@@ -123,6 +124,9 @@ class LibraryEditElement extends Brick {
 					$heading.textContent = id ? $heading.dataset.edit : $heading.dataset.add;
 					$admin.href = editUrl + id;
 					$admin.parentElement.hidden = ! id;
+					$status.disabled = Boolean( id );
+					$status.parentElement.hidden = Boolean( id );
+					$status.value = 'to-buy' === store.get().view ? toBuy : 'publish';
 					$authors.replaceChildren();
 					book?.authors.forEach( ( name ) => addAuthor( name ) );
 

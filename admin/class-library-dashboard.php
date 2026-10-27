@@ -420,7 +420,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * The unread book with the oldest edition date.
+	 * The unread book at hand with the oldest edition date.
 	 *
 	 * @return WP_Post|null
 	 */
@@ -433,7 +433,7 @@ class Library_Dashboard {
 			INNER JOIN {$wpdb->postmeta} AS d ON d.post_id = p.ID AND d.meta_key = 'edition_date' AND d.meta_value != ''
 			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
 			WHERE r.post_id IS NULL
-				AND {books}
+				AND {at_hand}
 			ORDER BY d.meta_value ASC
 			LIMIT 1"
 		);
@@ -561,7 +561,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Number of books not read yet, kept or not.
+	 * Number of books not read yet, kept or not, but not those to buy.
 	 *
 	 * @return int
 	 */
@@ -573,7 +573,7 @@ class Library_Dashboard {
 			FROM {$wpdb->posts} AS p
 			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
 			WHERE r.post_id IS NULL
-				AND {books}"
+				AND {at_hand}"
 		);
 
 		return (int) $row->books;

@@ -61,8 +61,7 @@ class Library_Admin {
 			'library-admin-inline-edit',
 			'libraryInlineEdit',
 			array(
-				'notKeptStatus' => Library_Posts::NOT_KEPT,
-				'notKeptLabel'  => get_post_status_object( Library_Posts::NOT_KEPT )->label,
+				'statuses' => array_diff_key( Library_Posts::get_statuses(), array( 'publish' => true ) ),
 			)
 		);
 	}

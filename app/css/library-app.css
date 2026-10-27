@@ -13,8 +13,8 @@
 	--library-cover-height: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
 	/* Room for the focus outline in a box that scrolls */
 	--library-focus-room: calc(var(--app-focus-outline-offset) * 2);
-	/* A tinted grey, the one color of the app: a book not kept; 4.5:1 on its tag in both themes */
-	--library-not-kept: light-dark(oklch(54% 0.07 45), oklch(76% 0.06 45));
+	/* A tinted grey, the one color of the app: a book not in the library, not kept or to buy; 4.5:1 on its tag in both themes */
+	--library-status: light-dark(oklch(54% 0.07 45), oklch(76% 0.06 45));
 }
 
 /* The views, as pills; the current one stands out */
@@ -166,13 +166,13 @@ button.app-pill:disabled {
 	outline: none;
 }
 
-/* A book not kept: a tag after the line of its state */
+/* A book not kept or to buy: a tag after the line of its state */
 .library-item__status {
 	padding-inline: 0.4em;
 	border: 1px solid color-mix(in oklab, currentColor 40%, transparent);
 	border-radius: calc(var(--app-radius) / 4);
 	background: color-mix(in oklab, currentColor 10%, transparent);
-	color: var(--library-not-kept);
+	color: var(--library-status);
 }
 
 .library-idea__reason {

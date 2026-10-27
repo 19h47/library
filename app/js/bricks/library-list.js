@@ -4,20 +4,21 @@ import { formatState } from 'library-app/format';
 import { renderBook } from 'library-app/render';
 import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 
-/** The books found, loading the next ones as the end of the list comes. */
+/** The books of a list, those found or the one its `list` attribute names, such as `toBuy`, loading the next ones as the end of the list comes. */
 class LibraryListElement extends Brick {
 	#ids = [];
 
 	connect( signal ) {
+		const list = this.getAttribute( 'list' ) ?? 'search';
 		const $items = this.querySelector( '.app-list__items' );
-		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreBooks() );
+		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreBooks( list ) );
 
 		openBooks( $items, signal );
 
 		return [
 			followBooks( $items, formatState ),
 			store.select(
-				( state ) => state.search.items,
+				( state ) => state[ list ].items,
 				( ids ) => {
 					const { books } = store.get();
 					const found = new Set( ids );

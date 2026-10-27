@@ -27,7 +27,7 @@ class Library_Books {
 	private static ?array $books = null;
 
 	/**
-	 * Statuses of the books: every one but the trash, kept or not.
+	 * Statuses of the books: every one but the trash, kept, not kept or to buy.
 	 *
 	 * @return string[]
 	 */
@@ -36,7 +36,7 @@ class Library_Books {
 	}
 
 	/**
-	 * All the books, kept or not.
+	 * All the books, kept, not kept or to buy.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
 	 * Authors are counted for their real name. The read dates go from the first reading to the latest.

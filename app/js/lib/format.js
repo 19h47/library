@@ -5,7 +5,7 @@
  * @subpackage Library/app
  */
 
-import { __, _n, _x, notKept, sprintf } from 'library-app/app';
+import { __, _n, _x, notKept, sprintf, toBuy } from 'library-app/app';
 
 const { lang } = document.documentElement;
 const numberFormat = new Intl.NumberFormat( lang );
@@ -76,14 +76,21 @@ export function formatTranslation( book ) {
 	return sprintf( format, andFormat.format( languages ), andFormat.format( translators ) );
 }
 
-/** Whether a book is kept: shown only when it is not. */
+/** Whether a book is kept: shown only when it is not, not kept or to buy. */
 export function formatStatus( book ) {
-	return notKept === book.status ? _x( 'Not kept', 'book status', 'library' ) : '';
+	const labels = {
+		[ notKept ]: _x( 'Not kept', 'book status', 'library' ),
+		[ toBuy ]: _x( 'To buy', 'book status', 'library' ),
+	};
+
+	return labels[ book.status ] ?? '';
 }
 
-/** Whether a book is read, and its rating. */
+/** Whether a book is read, or to read unless it is to buy, and its rating. */
 export function formatState( book ) {
-	return join( [ book.read ? __( 'Read', 'library' ) : __( 'To read', 'library' ), formatRating( book.rating ) ] );
+	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
+
+	return join( [ book.read ? __( 'Read', 'library' ) : toRead, formatRating( book.rating ) ] );
 }
 
 export function join( parts ) {

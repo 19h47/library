@@ -17,7 +17,8 @@
  * more), milestones (books and pages read, record year and month, months in a row, a book read
  * again, whose level is the most times a book was read again), discoveries
  * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
- * and translators, and easter eggs. Books not kept count, since they are read. Completions and translators
+ * and translators, and easter eggs. Books not kept count, since they are read; books to buy count as books
+ * to read in a completion, which lacks them, but are not on the pile. Completions and translators
  * are one achievement each, whose level is the number of subjects that earned it. An achievement is dated
  * by the reading that earned it, when it has a date. Achievements that count books take their first
  * reading; those about readings over time count a book read again once per reading.
@@ -948,7 +949,7 @@ class Library_Achievements {
 
 		usort( $by_added, fn( array $a, array $b ) => strcmp( $a['added'], $b['added'] ) );
 
-		// The latest date by which each book added so far was read; a book to read is never read.
+		// The latest date by which each book added so far was read; a book to read is never read, a book to buy is not on the pile.
 		$read_by = array();
 		$latest  = '';
 		$added   = '';
@@ -961,7 +962,10 @@ class Library_Achievements {
 			}
 
 			$read_by[ $book['id'] ] = $latest;
-			$pending                = max( $pending, $book['read'] ? $book['read_date'] : '9999-12-31' );
+
+			if ( $book['read'] || Library_Posts::TO_BUY !== $book['status'] ) {
+				$pending = max( $pending, $book['read'] ? $book['read_date'] : '9999-12-31' );
+			}
 		}
 
 		return array_values( array_filter( $dated, fn( array $book ) => $read_by[ $book['id'] ] <= $book['read_date'] ) );

@@ -9,4 +9,4 @@
 
 export const { store } = window;
 export const { __, _n, _x, sprintf } = window.wp.i18n;
-export const { editUrl, authorUrl, bookUrl, searchUrl, notKept } = window.libraryApp;
+export const { editUrl, authorUrl, bookUrl, searchUrl, notKept, toBuy } = window.libraryApp;
