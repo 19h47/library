@@ -132,7 +132,11 @@ class Library_Posts {
 	}
 
 	/**
-	 * Build the slug from the title and the ISBN, or the ISSN and volume number.
+	 * Build the slug from the title and the ISBN, or the ISSN and volume number, or else from the title alone: an ISBN
+	 * removed leaves the slug too.
+	 *
+	 * Only the forms of a book send its ISBN, even empty: any other save, such as moving it to the trash, keeps the slug.
+	 * Quick edit sends neither the ISSN nor the volume number, which are then those of the book.
 	 *
 	 * Runs before the post is written, so no second update is needed.
 	 *
@@ -141,30 +145,32 @@ class Library_Posts {
 	 * @return array
 	 */
 	public function slug( array $data, array $postarr ): array {
-		if ( 'book' !== $data['post_type'] ) {
+		if ( 'book' !== $data['post_type'] || ! isset( $postarr['isbn'] ) ) {
 			return $data;
 		}
 
-		$fields = array_map(
-			fn( string $key ) => sanitize_text_field( wp_unslash( $postarr[ $key ] ?? '' ) ),
-			array(
-				'title'         => 'post_title',
-				'isbn'          => 'isbn',
-				'issn'          => 'issn',
-				'volume_number' => 'volume_number',
-			)
-		);
+		$post_id = (int) ( $postarr['ID'] ?? 0 );
+		$title   = sanitize_text_field( wp_unslash( $postarr['post_title'] ?? '' ) );
+		$fields  = array();
+
+		foreach ( array( 'isbn', 'issn', 'volume_number' ) as $key ) {
+			$fields[ $key ] = sanitize_text_field( isset( $postarr[ $key ] ) ? wp_unslash( $postarr[ $key ] ) : (string) get_post_meta( $post_id, $key, true ) );
+		}
 
 		if ( $fields['issn'] && $fields['volume_number'] ) {
-			$parts = array( $fields['title'], $fields['issn'], $fields['volume_number'] );
+			$parts = array( $title, $fields['issn'], $fields['volume_number'] );
 		} elseif ( $fields['isbn'] ) {
-			$parts = array( $fields['title'], $fields['isbn'] );
+			$parts = array( $title, $fields['isbn'] );
 		} else {
-			return $data;
+			$parts = array( $title );
 		}
 
-		$slug    = sanitize_title( implode( '-', $parts ) );
-		$post_id = (int) ( $postarr['ID'] ?? 0 );
+		$slug = sanitize_title( implode( '-', $parts ) );
+
+		// Without a title nor an identifier, the slug core gives the book.
+		if ( '' === $slug ) {
+			return $data;
+		}
 
 		$data['post_name'] = wp_unique_post_slug( $slug, $post_id, $data['post_status'], 'book', $data['post_parent'] );
 
