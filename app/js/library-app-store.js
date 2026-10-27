@@ -594,7 +594,7 @@
 			const book = books[ id ];
 			const dates = [ ...new Set( readDates ) ].sort();
 			// As in the "Library" menu of the book form, a book in another status than not kept or to buy, such as a draft,
-			// shows as kept, and stays in it unless another one is chosen.
+			// shows as in the library, and stays in it unless another one is chosen.
 			const shown = [ config.notKept, config.toBuy ].includes( book.status ) ? book.status : 'publish';
 			const status = chosen === shown ? book.status : chosen;
 			const meta = {};

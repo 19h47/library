@@ -241,7 +241,7 @@ class Library_Rest_API {
 		if ( $adding ) {
 			return $args + array(
 				'status' => array(
-					'description' => __( 'Status of the book: kept, i.e. published, not kept or to buy.', 'library' ),
+					'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
 					'type'        => 'string',
 					'enum'        => array_keys( Library_Posts::get_statuses() ),
 					'default'     => 'publish',
