@@ -15,7 +15,7 @@ class LibraryDiaryElement extends Brick {
 		return [
 			followBooks( $months, ( book, $item ) => this.#state( book, $item.dataset.date ) ),
 			store.select(
-				( { diary } ) => diary.error || ( diary.loaded && ! diary.total ? __( 'No book found.', 'library' ) : '' ),
+				( { diary } ) => diary.error || ( diary.loaded && ! diary.total ? __( 'No readings yet.', 'library' ) : '' ),
 				( message ) => fill( this, { status: message } )
 			),
 			store.select(
