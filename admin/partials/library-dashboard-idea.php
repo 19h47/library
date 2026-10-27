@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <div class="library-dashboard-widget">
 	<?php if ( ! $idea || ! $book ) : ?>
-		<p class="library-dashboard-secondary"><?php esc_html_e( 'Every book has been read.', 'library' ); ?></p>
+		<p class="library-dashboard-secondary"><?php esc_html_e( 'No book to read.', 'library' ); ?></p>
 	<?php else : ?>
 		<?php
 		$edit_url   = (string) get_edit_post_link( $book->ID );

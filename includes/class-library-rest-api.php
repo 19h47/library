@@ -584,7 +584,7 @@ class Library_Rest_API {
 		$idea = ( new Library_Reading_Idea() )->get_idea( $request['position'] );
 
 		if ( ! $idea ) {
-			return new WP_Error( 'library_no_idea', __( 'Every book has been read.', 'library' ), array( 'status' => 404 ) );
+			return new WP_Error( 'library_no_idea', __( 'No book to read.', 'library' ), array( 'status' => 404 ) );
 		}
 
 		$response = rest_ensure_response( $idea );

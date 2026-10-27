@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.6.1
+Stable tag: 6.6.2
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.6.2 =
+* Fixed: with no book to read, the reading idea says “No book to read.” rather than “Every book has been read.”, and the diary without readings says “No readings yet.”
 
 = 6.6.1 =
 * Reading app: the views scroll sideways in one row, as the latest readings, rather than wrapping onto a second line; the current one shows whole.
