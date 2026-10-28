@@ -167,7 +167,7 @@ $sizes = array(
 		<h3 class="library-title">Controls</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.app-pill</code>: a link, the current one, buttons, a checkbox, a select, a count; <code>.library-save</code></figcaption>
+				<figcaption><code>.app-pill</code>: a link, the current one, buttons, a checkbox with <code>pill-checkbox</code>, a select with <code>pill-select</code>, a count; <code>.library-save</code></figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<a class="app-pill" href="#top">A link</a>
 					<a class="app-pill" href="#top" aria-current="page">The current one</a>
