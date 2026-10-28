@@ -469,6 +469,7 @@ button.app-pill:disabled {
 	display: flex;
 	align-items: center;
 	gap: var(--app-gap);
+	min-width: 0;
 }
 
 .library-edit__author input {
