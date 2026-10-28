@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision ab3300f.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 7e71b38.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix().
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
@@ -167,11 +167,12 @@ a {
   margin: var(--app-u2) 0 var(--app-u3);
 }
 
-.app-search {
+/* The search has a line of its own among the controls; its field looks the same anywhere */
+.app-controls > .app-search {
   flex: 1 1 100%;
 }
 
-.app-controls input[type="search"] {
+.app-search input[type="search"] {
   width: 100%;
   padding: calc(var(--app-u1) / 1.15) calc(var(--app-u1) / 1.05);
   border-radius: var(--app-radius);
@@ -181,15 +182,19 @@ a {
   font: inherit;
 }
 
-.app-controls input[type="search"]::placeholder {
+.app-search input[type="search"]::placeholder {
   color: var(--app-text-muted);
 }
 
 .app-pill {
+  /* Named, for the select a pill holds to take it */
+  --app-pill-padding-block: calc(var(--app-u1) / 1.35);
+  --app-pill-padding-inline: calc(var(--app-u1) / 1.1);
+
   display: inline-flex;
   align-items: center;
   gap: var(--app-gap);
-  padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
+  padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
   border-radius: 999px;
   border: 1px solid var(--app-line-soft);
   color: var(--app-text-muted);
@@ -226,10 +231,22 @@ label.app-pill:hover {
   accent-color: var(--app-text);
 }
 
-/* A form control does not inherit the case: the value reads like the rest of the pill */
+/*
+ * The select reaches the edges of its pill, with the padding of the pill: a click anywhere on the pill opens it,
+ * rather than only focusing it. It draws its own chevron, as Safari keeps a native select to the size of its text:
+ * each arm a line at 45° in a box taller than it, so that the point falls inside and the arms meet in it.
+ * A form control does not inherit the case: the value reads like the rest of the pill.
+ */
 .app-pill select {
+  appearance: none;
+  margin: calc(-1 * var(--app-pill-padding-block)) calc(-1 * var(--app-pill-padding-inline));
+  padding: var(--app-pill-padding-block) calc(var(--app-pill-padding-inline) + 1.25em) var(--app-pill-padding-block) var(--app-pill-padding-inline);
   border: none;
-  background: transparent;
+  background:
+    linear-gradient(45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
+      right calc(var(--app-pill-padding-inline) + 0.4em) center / 0.4em calc(0.4em + 4px) no-repeat,
+    linear-gradient(-45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
+      right var(--app-pill-padding-inline) center / 0.4em calc(0.4em + 4px) no-repeat;
   color: inherit;
   font: inherit;
   text-transform: inherit;
@@ -260,10 +277,17 @@ label.app-pill:hover {
   contain-intrinsic-size: auto var(--app-item-size);
   display: grid;
   gap: var(--app-gap-small);
-  padding: var(--app-u2);
+  /* On a phone, a step below: the width goes to the text */
+  padding: var(--app-u1);
   border: 1px solid var(--app-line-soft);
   border-radius: var(--app-radius);
   overflow: hidden;
+}
+
+@media (min-width: 42rem) {
+  .app-item {
+    padding: var(--app-u2);
+  }
 }
 
 .app-item__meta {
