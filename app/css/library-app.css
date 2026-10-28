@@ -58,8 +58,12 @@ library-styleguide {
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: var(--app-gap);
-	margin-bottom: var(--app-u1);
 	font-size: var(--app-u1);
+}
+
+/* A title heads what follows it: the view, the section or the brick that holds them spaces them */
+:is(library-view, library-home, library-idea, library-styleguide, .library-section) > .library-title {
+	margin-bottom: var(--app-u1);
 }
 
 /* A link at the end of a title, to the view it sums up */
@@ -187,6 +191,10 @@ button.app-pill:disabled {
 .library-year {
 	display: grid;
 	gap: var(--app-gap-small);
+}
+
+/* The year opens the home and the achievements: they space it from what follows */
+:is(library-home, library-view) > .library-year {
 	margin-bottom: var(--app-u3);
 }
 
@@ -313,6 +321,10 @@ button.app-pill:disabled {
 .library-author {
 	display: grid;
 	gap: var(--app-gap-small);
+}
+
+/* The page of an author spaces their names and their reading from what follows */
+library-author > .library-author {
 	margin-bottom: var(--app-u2);
 }
 
