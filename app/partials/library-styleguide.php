@@ -3,8 +3,9 @@
  * The styleguide: the tokens and the components of the app, for development, opened by searching "styleguide".
  *
  * Each component shows with its own markup alone, in a frame: one that needs its place in the app to look right
- * shows it here. The [data-sample] lists are filled by library-styleguide, with the functions
- * the app renders with. Written in English, as code is: nothing here is translated.
+ * shows it here. The components of PHP render with Library::component(), as in the app; the [data-sample] lists are
+ * filled by library-styleguide, with the functions the app renders with. Written in English, as code is: nothing here
+ * is translated, but what the components add, such as the mark of a required field.
  *
  * @link       https://github.com/19h47/library
  * @since      6.8.0
@@ -107,21 +108,39 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-author</code></figcaption>
+				<figcaption><code>.library-author</code>, with <code>__description</code></figcaption>
 				<div class="library-styleguide__frame">
 					<header class="library-author">
 						<h4 class="library-author__name">An Author</h4>
 						<p>Also known as A Pseudonym</p>
+						<div class="library-author__description">
+							<p>Their description, as written in the admin.</p>
+							<p>A second paragraph, with <em>a word in italics</em>.</p>
+						</div>
 						<p>12 books, 8 read, rated 7.5/10 on average</p>
 					</header>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-book__*</code>, the book open</figcaption>
+				<figcaption><code>.library-idea__reason</code>, <code>.library-idea__actions</code></figcaption>
+				<div class="library-styleguide__frame">
+					<p class="library-idea__reason">Added 2 weeks ago.</p>
+					<p class="library-idea__actions">
+						<button class="app-pill" type="button">Another idea</button>
+					</p>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-book__*</code>, the book open: its cover, its meta line, its title, its excerpt, its notes, its translation, its fields, its actions</figcaption>
 				<div class="library-styleguide__frame library-styleguide__stack">
+					<img class="library-book__cover" alt="" hidden>
 					<p class="library-book__meta">An Author · A Publisher, A Collection · 2024</p>
 					<h4 class="library-book__title">The title of a book</h4>
 					<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
+					<div class="library-book__content">
+						<p>Its notes, written in its form.</p>
+						<p>A second paragraph.</p>
+					</div>
 					<p class="library-book__translation">Translated from Italian by A Translator</p>
 					<dl class="library-book__fields">
 						<div>
@@ -133,6 +152,12 @@ $sizes = array(
 							<dd>320</dd>
 						</div>
 					</dl>
+					<p class="library-book__actions">
+						<button class="app-pill" type="button">Edit book</button>
+					</p>
+					<p class="library-book__actions">
+						<a href="#top">Edit in the dashboard</a>
+					</p>
 				</div>
 			</figure>
 		</div>
@@ -142,24 +167,42 @@ $sizes = array(
 		<h3 class="library-title">Controls</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.app-pill</code>: a link, buttons, a checkbox, a select, a count; <code>.library-save</code></figcaption>
+				<figcaption><code>.app-pill</code>: a link, the current one, buttons, a checkbox, a select, a count; <code>.library-save</code></figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<a class="app-pill" href="#top">A link</a>
+					<a class="app-pill" href="#top" aria-current="page">The current one</a>
 					<button class="app-pill" type="button">A button</button>
 					<button class="app-pill" type="button" disabled>Disabled</button>
-					<label class="app-pill" for="library-styleguide-pill-checkbox">
-						<input id="library-styleguide-pill-checkbox" type="checkbox">
-						A checkbox
-					</label>
-					<label class="app-pill" for="library-styleguide-pill-select">
-						<span class="sr-only">A choice</span>
-						<select id="library-styleguide-pill-select">
-							<option>A select</option>
-							<option>Another choice, longer</option>
-						</select>
-					</label>
+					<?php
+					Library::component(
+						'pill-checkbox',
+						array(
+							'id'    => 'library-styleguide-pill-checkbox',
+							'label' => 'A checkbox',
+						)
+					);
+					Library::component(
+						'pill-select',
+						array(
+							'id'      => 'library-styleguide-pill-select',
+							'label'   => 'A choice',
+							'options' => array(
+								'a' => 'A select',
+								'b' => 'Another choice, longer',
+							),
+						)
+					);
+					?>
 					<p class="app-pill">A count <strong>12</strong></p>
 					<button class="app-pill library-save" type="button">Save</button>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.app-control</code>, the controls of a toolbar</figcaption>
+				<div class="library-styleguide__frame library-styleguide__row">
+					<button class="app-control" type="button" aria-label="Add">+</button>
+					<a class="app-control" href="#top" aria-label="Home">⌂&#xFE0E;</a>
+					<button class="app-control" type="button" aria-label="Close">×</button>
 				</div>
 			</figure>
 			<figure>
@@ -171,25 +214,56 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.app-controls</code>: the search on its own line, the pills under it</figcaption>
+				<div class="library-styleguide__frame">
+					<div class="app-controls">
+						<div class="app-search">
+							<input type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
+						</div>
+						<p class="app-pill">12 books</p>
+						<?php
+						Library::component(
+							'pill-select',
+							array(
+								'id'      => 'library-styleguide-controls-select',
+								'label'   => 'A filter',
+								'options' => array( '' => 'All books' ),
+							)
+						);
+						?>
+					</div>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-reading__pills</code></figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-reading__pills">
-						<label class="app-pill" for="library-styleguide-read">
-							<input id="library-styleguide-read" type="checkbox" checked>
-							Read
-						</label>
-						<label class="app-pill" for="library-styleguide-rating">
-							<span class="sr-only">Rating</span>
-							<select id="library-styleguide-rating">
-								<option>8/10</option>
-							</select>
-						</label>
-						<label class="app-pill" for="library-styleguide-status">
-							<span class="sr-only">Library</span>
-							<select id="library-styleguide-status">
-								<option>In the library</option>
-							</select>
-						</label>
+						<?php
+						Library::component(
+							'pill-checkbox',
+							array(
+								'id'      => 'library-styleguide-read',
+								'label'   => 'Read',
+								'control' => '<input type="checkbox" checked>',
+							)
+						);
+						Library::component(
+							'pill-select',
+							array(
+								'id'      => 'library-styleguide-rating',
+								'label'   => 'Rating',
+								'options' => array( '8' => '8/10' ),
+							)
+						);
+						Library::component(
+							'pill-select',
+							array(
+								'id'      => 'library-styleguide-status',
+								'label'   => 'Library',
+								'options' => array( 'publish' => 'In the library' ),
+							)
+						);
+						?>
 					</div>
 				</div>
 			</figure>
@@ -246,41 +320,70 @@ with its line breaks.</p>
 		<h3 class="library-title">Forms</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-field</code>: a text, a description, a select, a textarea, disabled</figcaption>
+				<figcaption><code>field</code>: a text with a description, a select, a textarea, disabled</figcaption>
 				<div class="library-styleguide__frame library-styleguide__stack">
-					<p class="library-field">
-						<label for="library-styleguide-text">A text</label>
-						<input id="library-styleguide-text" aria-describedby="library-styleguide-text-description">
-						<small id="library-styleguide-text-description">Its description, under it.</small>
-					</p>
-					<p class="library-field">
-						<label for="library-styleguide-select">A select</label>
-						<select id="library-styleguide-select">
-							<option>A choice</option>
-						</select>
-					</p>
-					<p class="library-field">
-						<label for="library-styleguide-textarea">A textarea</label>
-						<textarea id="library-styleguide-textarea" rows="3">It grows with its text.</textarea>
-					</p>
-					<p class="library-field">
-						<label for="library-styleguide-disabled">Disabled</label>
-						<input id="library-styleguide-disabled" disabled>
-					</p>
+					<?php
+					Library::component(
+						'field',
+						array(
+							'id'          => 'library-styleguide-text',
+							'label'       => 'A text',
+							'description' => 'Its description, under it.',
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'      => 'library-styleguide-select',
+							'label'   => 'A select',
+							'control' => Library::select( array( 'a' => 'A choice' ) ),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-styleguide-textarea',
+							'label'      => 'A textarea, growing with its text',
+							'control'    => '<textarea></textarea>',
+							'attributes' => array( 'rows' => 3 ),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-styleguide-disabled',
+							'label'      => 'Disabled',
+							'attributes' => array( 'disabled' => true ),
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-field</code>: required, in error with <code>.library-error</code>; pointed at and focused, live</figcaption>
+				<figcaption><code>field</code>: required, in error with <code>.library-error</code>; pointed at and focused, live</figcaption>
 				<div class="library-styleguide__frame library-styleguide__stack">
-					<p class="library-field">
-						<label for="library-styleguide-required">A field (required)</label>
-						<input id="library-styleguide-required" required>
-					</p>
-					<p class="library-field">
-						<label for="library-styleguide-invalid">A field in error</label>
-						<input id="library-styleguide-invalid" value="978-2" aria-describedby="library-styleguide-invalid-description" data-error="Its message, the one of the browser.">
-						<small id="library-styleguide-invalid-description">Its description, under its message.</small>
-					</p>
+					<?php
+					Library::component(
+						'field',
+						array(
+							'id'       => 'library-styleguide-required',
+							'label'    => 'A field',
+							'required' => true,
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'          => 'library-styleguide-invalid',
+							'label'       => 'A field in error',
+							'description' => 'Its description, under its message.',
+							'attributes'  => array(
+								'value'      => '978-2',
+								'data-error' => 'Its message, the one of the browser.',
+							),
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
@@ -290,27 +393,52 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-edit__authors</code>, a list of inputs</figcaption>
+				<figcaption><code>image-field</code>, with an image</figcaption>
 				<div class="library-styleguide__frame">
-					<fieldset class="library-field">
-						<legend>Authors</legend>
-						<ul class="library-edit__authors" data-sample="authors"></ul>
-						<p>
-							<button class="app-pill" type="button">Add an author</button>
-						</p>
-					</fieldset>
+					<?php
+					Library::component(
+						'image-field',
+						array(
+							'id'     => 'library-styleguide-cover',
+							'name'   => 'cover',
+							'label'  => 'Choose a cover',
+							'remove' => 'Remove the cover',
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-reading__dates</code>, the second one in error</figcaption>
+				<figcaption><code>input-list</code>, the authors of a book</figcaption>
 				<div class="library-styleguide__frame">
-					<fieldset class="library-reading__dates">
-						<legend>Read dates (required)</legend>
-						<ul data-sample="dates"></ul>
-						<p>
-							<button class="app-pill" type="button">Add a reading</button>
-						</p>
-					</fieldset>
+					<?php
+					Library::component(
+						'input-list',
+						array(
+							'legend' => 'Authors',
+							'add'    => 'Add an author',
+							'action' => 'add-author',
+							'list'   => array( 'data-sample' => 'authors' ),
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>input-list</code>, the read dates of a book, required, the second one in error</figcaption>
+				<div class="library-styleguide__frame">
+					<?php
+					Library::component(
+						'input-list',
+						array(
+							'legend'   => 'Read dates',
+							'required' => true,
+							'add'      => 'Add a reading',
+							'action'   => 'add',
+							'list'     => array( 'data-sample' => 'dates' ),
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
@@ -318,10 +446,15 @@ with its line breaks.</p>
 				<div class="library-styleguide__frame">
 					<details class="library-edit__details">
 						<summary>More details</summary>
-						<p class="library-field">
-							<label for="library-styleguide-detail">A field</label>
-							<input id="library-styleguide-detail">
-						</p>
+						<?php
+						Library::component(
+							'field',
+							array(
+								'id'    => 'library-styleguide-detail',
+								'label' => 'A field',
+							)
+						);
+						?>
 					</details>
 				</div>
 			</figure>

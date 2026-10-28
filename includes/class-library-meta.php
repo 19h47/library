@@ -248,24 +248,18 @@ class Library_Meta {
 			'date' === ( $schema['format'] ?? '' ) => 'date',
 			default => 'text',
 		};
-		$input = new WP_HTML_Tag_Processor( '<input>' );
 
-		$attributes += array(
-			'type'    => $type,
-			'name'    => $key,
-			'pattern' => 'text' === $type && isset( $schema['pattern'] ) ? trim( $schema['pattern'], '^$' ) : null,
-			'min'     => $schema['minimum'] ?? null,
-			'max'     => $schema['maximum'] ?? null,
-			'step'    => $schema['multipleOf'] ?? null,
+		return Library::control(
+			'<input>',
+			$attributes + array(
+				'type'    => $type,
+				'name'    => $key,
+				'pattern' => 'text' === $type && isset( $schema['pattern'] ) ? trim( $schema['pattern'], '^$' ) : null,
+				'min'     => $schema['minimum'] ?? null,
+				'max'     => $schema['maximum'] ?? null,
+				'step'    => $schema['multipleOf'] ?? null,
+			)
 		);
-
-		$input->next_tag();
-
-		foreach ( array_filter( $attributes, fn( $value ) => null !== $value ) as $name => $value ) {
-			$input->set_attribute( $name, is_bool( $value ) ? $value : (string) $value );
-		}
-
-		return $input->get_updated_html();
 	}
 
 	/**

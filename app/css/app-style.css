@@ -4,10 +4,11 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 5bfc240.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 2cc86a9.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
+ * A component carries no margin of its own: the place that holds it spaces it, with a gap or a margin.
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
  * Custom properties and classes are prefixed "app-".
  */
@@ -158,10 +159,22 @@ select {
   }
 }
 
+/* The content spaces its parts: a step under the header, a step and a half under the controls, a gap under a status */
+.app-content > .app-header {
+  margin-bottom: var(--app-u2);
+}
+
+.app-content > .app-controls {
+  margin-bottom: var(--app-u3);
+}
+
+.app-content > .app-status {
+  margin-bottom: var(--app-gap);
+}
+
 .app-header {
   display: grid;
   gap: var(--app-gap);
-  margin-bottom: var(--app-u2);
 }
 
 /* The title of the page: large text on a phone, half a step above --app-u2 beyond; its line is as high as the toolbar */
@@ -188,7 +201,6 @@ select {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--app-gap);
-  margin: var(--app-u2) 0 var(--app-u3);
 }
 
 /* The search has a line of its own among the controls; its field looks the same anywhere */
@@ -220,11 +232,13 @@ select {
   align-items: center;
   gap: var(--app-gap);
   padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
-  border-radius: 999px;
+  border-radius: calc(infinity * 1px);
   border: 1px solid var(--app-line-soft);
   color: var(--app-text-muted);
   font-family: var(--app-font-ui);
   font-size: var(--app-font-small);
+  /* A button does not inherit it: the lines of every pill on the scale */
+  line-height: var(--app-line-height);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -243,13 +257,40 @@ select {
   color: var(--app-text);
 }
 
-label.app-pill {
+/* A pill that acts, the label of a control, a button or a link: pointed at, it takes the color of the text and a firmer line */
+:is(label, button, a).app-pill {
   cursor: pointer;
+}
+
+:is(label, button, a).app-pill:hover {
+  color: var(--app-text);
+  border-color: var(--app-line);
+}
+
+label.app-pill {
   user-select: none;
 }
 
-label.app-pill:hover {
+button.app-pill {
+  background: transparent;
+}
+
+/* A link needs no underline in a pill, which shows it acts */
+a.app-pill {
+  text-decoration: none;
+}
+
+/* The pill of the current page, in a navigation, stands out */
+.app-pill[aria-current="page"] {
   color: var(--app-text);
+  border-color: var(--app-line);
+  background: var(--app-fill);
+}
+
+/* A button at work, such as one that saves, waits */
+button.app-pill:disabled {
+  cursor: progress;
+  opacity: var(--app-control-opacity);
 }
 
 /* A checkbox as high as the text of its pill, rather than the size of the browser */
@@ -281,7 +322,6 @@ label.app-pill:hover {
 
 .app-status {
   display: block;
-  margin-bottom: var(--app-gap);
   padding: var(--app-u2);
   border: 1px solid var(--app-line-soft);
   border-radius: var(--app-radius);
@@ -362,7 +402,7 @@ label.app-pill:hover {
   font-variant-numeric: tabular-nums;
 }
 
-/* Toolbar: fixed controls, top-right corner */
+/* Toolbar: fixed controls, top-right corner; a control, a square button or link of an icon, faded at rest */
 
 .app-toolbar {
   position: fixed;
@@ -373,7 +413,7 @@ label.app-pill:hover {
   gap: var(--app-control-gap);
 }
 
-.app-toolbar :is(a, button) {
+.app-control {
   width: var(--app-control-size);
   height: var(--app-control-size);
   border: 1px solid var(--app-line);
@@ -384,6 +424,7 @@ label.app-pill:hover {
   /* Buttons don't inherit the page font, links do: set it for both */
   font-family: var(--app-font-ui);
   font-size: var(--app-u1);
+  line-height: var(--app-line-height);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -392,8 +433,8 @@ label.app-pill:hover {
   transition: opacity var(--app-transition-1);
 }
 
-.app-toolbar :is(a, button):hover,
-.app-toolbar :is(a, button):focus-visible {
+.app-control:hover,
+.app-control:focus-visible {
   opacity: 1;
 }
 

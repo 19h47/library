@@ -29,7 +29,7 @@ class LibraryEditElement extends Brick {
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
 		const $authors = this.querySelector( '[data-list="authors"]' );
 		const $addAuthor = this.querySelector( '[data-action="add-author"]' );
-		const $preview = this.querySelector( '.library-edit__preview' );
+		const $preview = this.querySelector( '.library-image-field__preview' );
 		const $removeCover = this.querySelector( '[data-action="remove-cover"]' );
 		const $details = this.querySelector( '.library-edit__details' );
 		const $admin = this.querySelector( '[data-link="admin"]' );

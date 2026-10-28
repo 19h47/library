@@ -29,21 +29,6 @@
 	hyphens: auto;
 }
 
-/* The views, as pills in a row that scrolls sideways, as the latest readings; the current one stands out */
-.library-nav a {
-	text-decoration: none;
-}
-
-.library-nav a:hover,
-.library-nav a[aria-current="page"] {
-	color: var(--app-text);
-	border-color: var(--app-line);
-}
-
-.library-nav a[aria-current="page"] {
-	background: var(--app-fill);
-}
-
 /* Custom elements are inline: these hold blocks */
 library-nav,
 library-view,
@@ -53,6 +38,16 @@ library-idea,
 library-close,
 library-styleguide {
 	display: block;
+}
+
+/* A view spaces its controls from what they act on, as the content of the page does */
+library-view > .app-controls {
+	margin-bottom: var(--app-u3);
+}
+
+/* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
+:is(library-view, library-idea, library-diary, library-achievements, library-author) > .app-status {
+	margin-bottom: var(--app-gap);
 }
 
 .library-section + .library-section {
@@ -88,22 +83,6 @@ library-styleguide {
 	font-size: var(--app-font-small);
 	font-weight: normal;
 	text-transform: uppercase;
-}
-
-/* A pill that is a button */
-button.app-pill {
-	background: transparent;
-	cursor: pointer;
-}
-
-button.app-pill:hover {
-	color: var(--app-text);
-	border-color: var(--app-line);
-}
-
-button.app-pill:disabled {
-	cursor: progress;
-	opacity: var(--app-control-opacity);
 }
 
 /* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
@@ -370,40 +349,41 @@ library-author > .library-author {
 	gap: var(--app-gap);
 }
 
-.library-reading__dates {
+/*
+ * A list of inputs, such as the authors of a book or its read dates: its legend above it as the label of a field, then
+ * its rows and the button that adds one, a gap apart. A row holds its input and the control that removes it.
+ */
+.library-input-list {
 	display: grid;
 	gap: var(--app-gap);
 	min-inline-size: 0;
 	border: 0;
 }
 
-.library-reading__dates legend {
-	margin-bottom: var(--app-gap);
-	color: var(--app-text-muted);
-	font-family: var(--app-font-ui);
-	font-size: var(--app-font-small);
-	text-transform: uppercase;
+.library-input-list legend {
+	margin-bottom: var(--app-gap-small);
 }
 
-.library-reading__dates ul {
+.library-input-list__items {
 	list-style: none;
 	display: grid;
 	gap: var(--app-gap);
 }
 
-.library-reading__date {
+.library-input-list__item {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--app-gap);
+	min-width: 0;
 }
 
-.library-reading__date input {
+.library-input-list__item input {
 	flex: 1;
 }
 
 /* A field of a form, such as a read date or the title of a book */
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea) {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select, textarea) {
 	/* As a pill or the search, in em of its text */
 	--library-field-padding-inline: 1em;
 	--app-select-padding-inline: var(--library-field-padding-inline);
@@ -419,20 +399,20 @@ library-author > .library-author {
 }
 
 /* A field of text ends with its padding; a select, with its chevron after it */
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), textarea) {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), textarea) {
 	padding-inline-end: var(--library-field-padding-inline);
 }
 
 /* Pointed at, its border is firmer; in error, it takes the color of an error, its message under it; out of use, it fades */
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea):hover:not(:disabled, [aria-invalid="true"]) {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select, textarea):hover:not(:disabled, [aria-invalid="true"]) {
 	border-color: var(--app-line);
 }
 
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea)[aria-invalid="true"] {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select, textarea)[aria-invalid="true"] {
 	border-color: var(--library-error);
 }
 
-:is(.library-reading__date, .library-field) :is(input, select, textarea):disabled {
+:is(.library-field, .library-input-list__item) :is(input, select, textarea):disabled {
 	opacity: var(--app-control-opacity);
 }
 
@@ -442,8 +422,8 @@ library-author > .library-author {
 	font-size: var(--app-font-small);
 }
 
-/* In a row of a list, such as a read date, it takes a line of its own */
-:is(.library-reading__date, .library-edit__author) > .library-error {
+/* In a row of a list of inputs, such as a read date, it takes a line of its own */
+.library-input-list__item > .library-error {
 	flex-basis: 100%;
 }
 
@@ -479,7 +459,8 @@ library-author > .library-author {
 	border: 0;
 }
 
-.library-field :is(label, legend),
+.library-field label,
+.library-input-list legend,
 .library-edit__details summary {
 	color: var(--app-text-muted);
 	font-family: var(--app-font-ui);
@@ -487,47 +468,24 @@ library-author > .library-author {
 	text-transform: uppercase;
 }
 
-.library-field legend {
-	margin-bottom: var(--app-gap-small);
-}
-
 .library-field small {
 	color: var(--app-text-muted);
 	font-size: var(--app-font-small);
 }
 
-.library-edit__cover {
+.library-image-field {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: end;
 	gap: var(--app-u1);
 }
 
-.library-edit__preview {
+.library-image-field__preview {
 	display: block;
 	width: auto;
 	height: var(--library-cover-height);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--library-radius-small);
-}
-
-.library-edit__authors {
-	list-style: none;
-	display: grid;
-	gap: var(--app-gap);
-	margin-bottom: var(--app-gap);
-}
-
-.library-edit__author {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--app-gap);
-	min-width: 0;
-}
-
-.library-edit__author input {
-	flex: 1;
 }
 
 .library-edit__details summary {

@@ -85,14 +85,20 @@
 						</library-search>
 						<library-count class="app-pill" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						<library-read-filter>
-							<label class="app-pill" for="library-read-filter">
-								<span class="sr-only"><?php esc_html_e( 'Reading state', 'library' ); ?></span>
-								<select id="library-read-filter">
-									<option value=""><?php echo esc_html( $labels->all_items ); ?></option>
-									<option value="yes"><?php esc_html_e( 'Read', 'library' ); ?></option>
-									<option value="no"><?php esc_html_e( 'To read', 'library' ); ?></option>
-								</select>
-							</label>
+							<?php
+							Library::component(
+								'pill-select',
+								array(
+									'id'      => 'library-read-filter',
+									'label'   => __( 'Reading state', 'library' ),
+									'options' => array(
+										''    => $labels->all_items,
+										'yes' => __( 'Read', 'library' ),
+										'no'  => __( 'To read', 'library' ),
+									),
+								)
+							);
+							?>
 						</library-read-filter>
 					</div>
 
@@ -220,18 +226,21 @@
 		<div class="app-toolbar">
 			<library-add-toggle>
 				<button
+					class="app-control"
 					type="button"
 					aria-label="<?php echo esc_attr( $labels->add_new_item ); ?>"
 					title="<?php echo esc_attr( $labels->add_new_item ); ?>"
 				>+</button>
 			</library-add-toggle>
 			<a
+				class="app-control"
 				href="<?php echo esc_url( admin_url() ); ?>"
 				aria-label="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
 				title="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
 			>⌂&#xFE0E;</a>
 			<library-theme-toggle>
 				<button
+					class="app-control"
 					type="button"
 					aria-label="<?php esc_attr_e( 'Dark theme', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Light or dark theme', 'library' ); ?>"
@@ -242,7 +251,7 @@
 		<library-book>
 			<dialog class="library-book" aria-labelledby="library-book-title">
 				<form class="app-toolbar" method="dialog">
-					<button type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 				</form>
 				<img class="library-book__cover" data-field="cover" alt="" hidden>
 				<p class="library-book__meta" data-field="credits"></p>
@@ -253,40 +262,51 @@
 				<library-reading>
 					<form class="library-reading">
 						<div class="library-reading__pills">
-							<label class="app-pill" for="library-reading-read">
-								<?php echo Library_Meta::input( 'read', array( 'id' => 'library-reading-read' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
-								<?php echo esc_html( Library_Meta::label( 'read' ) ); ?>
-							</label>
-							<label class="app-pill" for="library-reading-rating">
-								<span class="sr-only"><?php echo esc_html( Library_Meta::label( 'rating' ) ); ?></span>
-								<select id="library-reading-rating" name="rating">
-									<option value=""><?php esc_html_e( 'No rating', 'library' ); ?></option>
-									<?php foreach ( $rating_choices as $value => $label ) : ?>
-										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</label>
-							<label class="app-pill" for="library-reading-status">
-								<span class="sr-only"><?php esc_html_e( 'Library', 'library' ); ?></span>
-								<select id="library-reading-status" name="status">
-									<?php foreach ( $status_choices as $value => $label ) : ?>
-										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</label>
+							<?php
+							Library::component(
+								'pill-checkbox',
+								array(
+									'id'      => 'library-reading-read',
+									'label'   => Library_Meta::label( 'read' ),
+									'control' => Library_Meta::input( 'read' ),
+								)
+							);
+							Library::component(
+								'pill-select',
+								array(
+									'id'         => 'library-reading-rating',
+									'label'      => Library_Meta::label( 'rating' ),
+									'options'    => array( '' => __( 'No rating', 'library' ) ) + $rating_choices,
+									'attributes' => array( 'name' => 'rating' ),
+								)
+							);
+							Library::component(
+								'pill-select',
+								array(
+									'id'         => 'library-reading-status',
+									'label'      => __( 'Library', 'library' ),
+									'options'    => $status_choices,
+									'attributes' => array( 'name' => 'status' ),
+								)
+							);
+							?>
 						</div>
-						<fieldset class="library-reading__dates" hidden disabled>
-							<legend>
-								<?php
-								/* translators: %s: label of fields that must be filled in, e.g. Read dates. */
-								echo esc_html( sprintf( _x( '%s (required)', 'several fields', 'library' ), Library_Meta::label( 'read_date' ) ) );
-								?>
-							</legend>
-							<ul></ul>
-							<p>
-								<button class="app-pill" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
-							</p>
-						</fieldset>
+						<?php
+						Library::component(
+							'input-list',
+							array(
+								'class'      => 'library-reading__dates',
+								'legend'     => Library_Meta::label( 'read_date' ),
+								'required'   => true,
+								'add'        => __( 'Add a reading', 'library' ),
+								'action'     => 'add',
+								'attributes' => array(
+									'hidden'   => true,
+									'disabled' => true,
+								),
+							)
+						);
+						?>
 						<p class="app-status" data-field="error" role="alert" hidden></p>
 						<p>
 							<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
@@ -324,7 +344,7 @@
 		<library-edit>
 			<dialog class="library-book library-edit" aria-labelledby="library-edit-heading">
 				<form class="app-toolbar" method="dialog">
-					<button type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 				</form>
 				<h2
 					class="library-book__title"
@@ -333,74 +353,127 @@
 					data-edit="<?php echo esc_attr( $labels->edit_item ); ?>"
 				></h2>
 				<form class="library-edit__form">
-					<div class="library-edit__cover">
-						<img class="library-edit__preview" alt="" hidden>
-						<label class="app-pill" for="library-edit-cover">
-							<input class="sr-only" id="library-edit-cover" type="file" name="cover" accept="image/*">
-							<?php esc_html_e( 'Choose a cover', 'library' ); ?>
-						</label>
-						<button class="app-pill" type="button" data-action="remove-cover" hidden><?php esc_html_e( 'Remove the cover', 'library' ); ?></button>
-					</div>
-					<p class="library-field">
-						<label for="library-edit-title">
-							<?php
-							/* translators: %s: label of a field that must be filled in, e.g. Title. */
-							echo esc_html( sprintf( _x( '%s (required)', 'one field', 'library' ), __( 'Title', 'library' ) ) );
-							?>
-						</label>
-						<input id="library-edit-title" name="title" required autocomplete="off">
-					</p>
-					<p class="library-field">
-						<label for="library-edit-excerpt"><?php esc_html_e( 'Excerpt', 'library' ); ?></label>
-						<textarea id="library-edit-excerpt" name="excerpt" rows="3"></textarea>
-					</p>
-					<p class="library-field">
-						<label for="library-edit-content"><?php esc_html_e( 'Notes', 'library' ); ?></label>
-						<textarea id="library-edit-content" name="content" rows="3"></textarea>
-					</p>
-					<fieldset class="library-field">
-						<legend><?php echo esc_html( $author_labels->name ); ?></legend>
-						<ul class="library-edit__authors" data-list="authors"></ul>
-						<p>
-							<button class="app-pill" type="button" data-action="add-author"><?php esc_html_e( 'Add an author', 'library' ); ?></button>
-						</p>
-					</fieldset>
-					<p class="library-field">
-						<label for="library-edit-publisher"><?php echo esc_html( $publisher_labels->singular_name ); ?></label>
-						<input id="library-edit-publisher" name="publisher" list="library-edit-publishers" autocomplete="off">
-					</p>
-					<p class="library-field">
-						<label for="library-edit-collection"><?php esc_html_e( 'Collection', 'library' ); ?></label>
-						<input id="library-edit-collection" name="collection" list="library-edit-collections" autocomplete="off" disabled>
-					</p>
 					<?php
-					$key        = 'isbn';
-					$attributes = array( 'inputmode' => 'numeric' );
-					require __DIR__ . '/library-form-field.php';
+					Library::component(
+						'image-field',
+						array(
+							'id'     => 'library-edit-cover',
+							'name'   => 'cover',
+							'label'  => __( 'Choose a cover', 'library' ),
+							'remove' => __( 'Remove the cover', 'library' ),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-edit-title',
+							'label'      => __( 'Title', 'library' ),
+							'required'   => true,
+							'attributes' => array(
+								'name'         => 'title',
+								'autocomplete' => 'off',
+							),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-edit-excerpt',
+							'label'      => __( 'Excerpt', 'library' ),
+							'control'    => '<textarea></textarea>',
+							'attributes' => array(
+								'name' => 'excerpt',
+								'rows' => 3,
+							),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-edit-content',
+							'label'      => __( 'Notes', 'library' ),
+							'control'    => '<textarea></textarea>',
+							'attributes' => array(
+								'name' => 'content',
+								'rows' => 3,
+							),
+						)
+					);
+					Library::component(
+						'input-list',
+						array(
+							'legend' => $author_labels->name,
+							'add'    => __( 'Add an author', 'library' ),
+							'action' => 'add-author',
+							'list'   => array( 'data-list' => 'authors' ),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-edit-publisher',
+							'label'      => $publisher_labels->singular_name,
+							'attributes' => array(
+								'name'         => 'publisher',
+								'list'         => 'library-edit-publishers',
+								'autocomplete' => 'off',
+							),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-edit-collection',
+							'label'      => __( 'Collection', 'library' ),
+							'attributes' => array(
+								'name'         => 'collection',
+								'list'         => 'library-edit-collections',
+								'autocomplete' => 'off',
+								'disabled'     => true,
+							),
+						)
+					);
+					Library::component(
+						'meta-field',
+						array(
+							'key'        => 'isbn',
+							'attributes' => array( 'inputmode' => 'numeric' ),
+						)
+					);
+					Library::component(
+						'field',
+						array(
+							'id'         => 'library-edit-status',
+							'label'      => __( 'Library', 'library' ),
+							'control'    => Library::select( $status_choices ),
+							'attributes' => array( 'name' => 'status' ),
+						)
+					);
 					?>
-					<p class="library-field">
-						<label for="library-edit-status"><?php esc_html_e( 'Library', 'library' ); ?></label>
-						<select id="library-edit-status" name="status">
-							<?php foreach ( $status_choices as $value => $label ) : ?>
-								<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
-							<?php endforeach; ?>
-						</select>
-					</p>
 					<details class="library-edit__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
 						foreach ( array( 'subtitle', 'series', 'volume_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
-							// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
-							$attributes = 'pages' === $key ? array( 'inputmode' => 'numeric' ) : array();
-							include __DIR__ . '/library-form-field.php';
+							Library::component(
+								'meta-field',
+								array(
+									'key'        => $key,
+									// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
+									'attributes' => 'pages' === $key ? array( 'inputmode' => 'numeric' ) : array(),
+								)
+							);
 						}
+
+						Library::component(
+							'field',
+							array(
+								'id'         => 'library-edit-language',
+								'label'      => $language_labels->singular_name,
+								'control'    => Library::select( array( '' => $language_labels->no_terms ) ),
+								'attributes' => array( 'name' => 'language' ),
+							)
+						);
 						?>
-						<p class="library-field">
-							<label for="library-edit-language"><?php echo esc_html( $language_labels->singular_name ); ?></label>
-							<select id="library-edit-language" name="language">
-								<option value=""><?php echo esc_html( $language_labels->no_terms ); ?></option>
-							</select>
-						</p>
 					</details>
 					<p class="app-status" data-field="error" role="alert" hidden></p>
 					<p>
@@ -434,7 +507,7 @@
 		</template>
 
 		<template id="library-read-date">
-			<li class="library-reading__date">
+			<li class="library-input-list__item">
 				<?php
 				$input = Library_Meta::input(
 					'read_date',
@@ -447,7 +520,7 @@
 				echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 				?>
 				<button
-					class="app-pill"
+					class="app-control"
 					type="button"
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
@@ -468,10 +541,10 @@
 		</template>
 
 		<template id="library-edit-author">
-			<li class="library-edit__author">
+			<li class="library-input-list__item">
 				<input name="author" list="library-edit-authors" autocomplete="off" aria-label="<?php echo esc_attr( $author_labels->singular_name ); ?>">
 				<button
-					class="app-pill"
+					class="app-control"
 					type="button"
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this author', 'library' ); ?>"
