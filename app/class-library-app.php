@@ -156,11 +156,12 @@ class Library_App {
 	 * Render the web app manifest, which makes the app installable.
 	 *
 	 * The page links it with crossorigin="use-credentials": it is behind the login, like the app.
+	 * Its icons are the dark ones: the home screen icon of a web app does not follow the system theme.
 	 *
 	 * @return void
 	 */
 	private function render_manifest(): void {
-		[ $icon_url ]       = Library::asset( 'app/favicon.svg' );
+		[ $icon_url ]       = Library::asset( 'app/favicon-dark.svg' );
 		[ $touch_icon_url ] = Library::asset( 'app/apple-touch-icon.png' );
 
 		$manifest = array(

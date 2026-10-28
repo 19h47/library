@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.6.3
+Stable tag: 6.7.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,11 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.7.0 =
+* Reading app: its icon, on the home screen of a phone and in the browser tab, is the book of the Books menu, grey on dark; in the tab, it follows the theme.
+* The books list names the view of the published books “In the library”, as the “Library” menu does, rather than “Published”.
+* French: the books not kept are “De passage” and the books to buy “Envie” (“Envies” in the app), rather than “Pas gardé” and “À acheter”.
 
 = 6.6.3 =
 * Fixed: removing the ISBN of a book removes it from its slug, which is then its title alone. The slug of a book without an ISBN or an ISSN now follows its title, as the slug of the others does.

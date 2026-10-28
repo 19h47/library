@@ -10,7 +10,8 @@
  */
 
 /**
- * Adds the book columns to the books list, sorts it, edits books in quick edit and shows the read percentage.
+ * Adds the book columns to the books list, sorts it, edits books in quick edit, names the view of the books in the library
+ * and shows the read percentage.
  *
  * @since      6.1.1
  * @package    Library
@@ -34,6 +35,7 @@ class Library_Books_List {
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
 		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
+		add_action( 'current_screen', array( $this, 'label_published_view' ) );
 	}
 
 	/**
@@ -317,6 +319,23 @@ class Library_Books_List {
 		);
 
 		return $views;
+	}
+
+	/**
+	 * Name the view of the published books after their status in the forms of a book: in the library.
+	 *
+	 * The publish status belongs to core, which shares it with the posts and the pages: its label changes on the books list only.
+	 *
+	 * @param WP_Screen $screen Current screen.
+	 * @return void
+	 */
+	public function label_published_view( WP_Screen $screen ): void {
+		if ( 'edit-book' !== $screen->id ) {
+			return;
+		}
+
+		/* translators: %s: number of books. */
+		get_post_status_object( 'publish' )->label_count = _n_noop( 'In the library <span class="count">(%s)</span>', 'In the library <span class="count">(%s)</span>', 'library' );
 	}
 
 	/**
