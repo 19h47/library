@@ -101,10 +101,12 @@ class Library_Meta {
 			'read'           => __( 'Read', 'library' ),
 		);
 		$descriptions = array(
-			'subtitle'       => __( 'Optional. Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
+			'subtitle'       => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
+			'isbn'           => __( '10 or 13 digits, with or without hyphens, such as 978-2-07-036024-5.', 'library' ),
+			'issn'           => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
 			'series'         => __( 'Separate series with commas', 'library' ),
 			'translators'    => __( 'Separate translators with commas', 'library' ),
-			'published_date' => __( 'Optional. When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'published_date' => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
 			'rating'         => __( 'Rating from 1 to 10.', 'library' ),
 		);
 		$patterns     = array(

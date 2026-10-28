@@ -1,6 +1,6 @@
 /**
  * What bricks share: a book, a view, an author or a search opened on a click, the cards following the books,
- * the next page as the end of a list comes, a list of inputs to add and remove.
+ * the next page as the end of a list comes, a list of inputs to add and remove, the errors of a form at its fields.
  *
  * @package    Library
  * @subpackage Library/app
@@ -11,6 +11,10 @@ import { clone, fillBook } from 'library-app/render';
 
 // The next page loads before the end of the list shows.
 const LOAD_MARGIN_PX = 800;
+
+// The message of each field in error, numbered across the forms for their IDs.
+const errorMessages = new WeakMap();
+let errorCount = 0;
 
 /**
  * Fills again the cards of `$root` whose book changed, such as a book saved; `stateOf` gives the line
@@ -153,4 +157,104 @@ export function inputList( { $list, $add, id, signal, value = () => '', setup = 
 	);
 
 	return add;
+}
+
+/** The IDs that describe `$field`, the one of its error message first when it shows. */
+function describe( $field, $message, isShown ) {
+	const ids = ( $field.getAttribute( 'aria-describedby' ) ?? '' ).split( ' ' ).filter( ( id ) => id && id !== $message.id );
+	const describedBy = ( isShown ? [ $message.id, ...ids ] : ids ).join( ' ' );
+
+	if ( describedBy ) {
+		$field.setAttribute( 'aria-describedby', describedBy );
+	} else {
+		$field.removeAttribute( 'aria-describedby' );
+	}
+}
+
+/**
+ * Shows that `$field` is in error: it says so (aria-invalid), and its `message`, the one of the browser unless given,
+ * shows under it and describes it; in a row of a list, such as a read date, under the row.
+ */
+export function showError( $field, message = $field.validationMessage ) {
+	let $message = errorMessages.get( $field );
+
+	if ( ! $message ) {
+		$message = document.createElement( 'span' );
+		$message.className = 'library-error';
+		$message.id = `library-error-${ ++errorCount }`;
+		errorMessages.set( $field, $message );
+	}
+
+	$message.textContent = message;
+
+	const $row = $field.closest( 'li' );
+
+	if ( $row ) {
+		$row.append( $message );
+	} else {
+		$field.after( $message );
+	}
+
+	$field.setAttribute( 'aria-invalid', 'true' );
+	describe( $field, $message, true );
+}
+
+/** Clears the error of `$field`, its message gone. */
+export function clearError( $field ) {
+	const $message = errorMessages.get( $field );
+
+	$field.removeAttribute( 'aria-invalid' );
+
+	if ( $message ) {
+		$message.remove();
+		describe( $field, $message, false );
+	}
+}
+
+/**
+ * Shows at its fields what the browser finds wrong with `$form` when it is sent, rather than in a bubble on the first one:
+ * the details that hold a field in error open, the first one takes the focus. A field changed loses its error once valid.
+ * Returns the function that clears the errors, for a form filled again.
+ */
+export function showErrors( $form, signal ) {
+	let focused = false;
+
+	// The browser tells each field in error, one after the other, as the form is sent.
+	$form.addEventListener(
+		'invalid',
+		( event ) => {
+			event.preventDefault();
+			showError( event.target );
+			event.target.closest( 'details' )?.setAttribute( 'open', '' );
+
+			if ( ! focused ) {
+				focused = true;
+				event.target.focus();
+				setTimeout( () => {
+					focused = false;
+				} );
+			}
+		},
+		{ capture: true, signal }
+	);
+
+	$form.addEventListener(
+		'input',
+		( event ) => {
+			const $field = event.target;
+
+			if ( 'true' !== $field.getAttribute( 'aria-invalid' ) ) {
+				return;
+			}
+
+			if ( $field.validity.valid ) {
+				clearError( $field );
+			} else {
+				showError( $field );
+			}
+		},
+		{ signal }
+	);
+
+	return () => $form.querySelectorAll( '[aria-invalid="true"]' ).forEach( clearError );
 }

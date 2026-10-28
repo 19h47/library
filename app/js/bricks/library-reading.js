@@ -2,7 +2,7 @@ import { notKept, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
 import { fill } from 'library-app/render';
-import { inputList } from 'library-app/behaviors';
+import { inputList, showErrors } from 'library-app/behaviors';
 
 /**
  * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is in the library, not kept or to buy.
@@ -28,6 +28,8 @@ class LibraryReadingElement extends Brick {
 				$input.max = today();
 			},
 		} );
+
+		const clearErrors = showErrors( $form, signal );
 
 		// Unread, the book has no read dates: they are left out of the form.
 		const showDates = () => {
@@ -73,6 +75,7 @@ class LibraryReadingElement extends Brick {
 						return;
 					}
 
+					clearErrors();
 					$read.checked = book.read;
 					$list.replaceChildren();
 					book.read_date.forEach( ( date ) => addDate( date ) );

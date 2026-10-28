@@ -2,6 +2,7 @@ import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, formatState, join } from 'library-app/format';
 import { clone, fill, renderAchievement, renderBook, renderCloseAchievement, renderCover } from 'library-app/render';
+import { showError } from 'library-app/behaviors';
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
 const COVER = {
@@ -54,10 +55,23 @@ class LibraryStyleguideElement extends Brick {
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
 			authors: () => [ 'An Author', '' ].map( ( name ) => this.#renderInput( 'library-edit-author', name ) ),
-			dates: () => [ '2026-10-28', '2024-05-12' ].map( ( date ) => this.#renderInput( 'library-read-date', date ) ),
+			dates: () => [ '2026-10-28', '2126-10-28' ].map( ( date ) => this.#renderInput( 'library-read-date', date ) ),
 		};
 
 		Object.entries( samples ).forEach( ( [ name, render ] ) => this.querySelector( `[data-sample="${ name }"]` ).replaceChildren( ...render() ) );
+
+		// The fields in error show as the forms show theirs.
+		const $invalid = this.querySelector( '[data-error]' );
+
+		showError( $invalid, $invalid.dataset.error );
+		showError( this.querySelector( '[data-sample="dates"] li:last-child input' ), 'A date later than today, as the browser says it.' );
+
+		// The size each sample of text takes, at this width.
+		this.querySelectorAll( '.library-styleguide__sizes li' ).forEach( ( $item ) => {
+			const size = parseFloat( getComputedStyle( $item.querySelector( '.library-styleguide__size' ) ).fontSize );
+
+			$item.querySelector( '[data-size]' ).textContent = `${ Math.round( size * 10 ) / 10 } px`;
+		} );
 
 		return [];
 	}

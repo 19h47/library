@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-28T07:25:15+00:00\n"
+"POT-Creation-Date: 2026-10-28T11:12:44+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,10 +24,10 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php admin/class-library-dashboard.php:69
-#: admin/class-library-metaboxes.php:128 app/class-library-app.php:65
-#: app/class-library-app.php:168 app/class-library-app.php:169
+#: admin/class-library-metaboxes.php:128 app/class-library-app.php:72
+#: app/class-library-app.php:175 app/class-library-app.php:176
 #: app/partials/library-app.php:36 app/partials/library-app.php:54
-#: app/partials/library-app.php:266 app/partials/library-app.php:368
+#: app/partials/library-app.php:270 app/partials/library-app.php:382
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -53,7 +53,7 @@ msgstr "https://www.19h47.fr"
 
 #: admin/class-library-achievements-page.php:51
 #: admin/class-library-achievements-page.php:58
-#: admin/partials/library-achievements.php:20 app/class-library-app.php:123
+#: admin/partials/library-achievements.php:20 app/class-library-app.php:130
 #: app/partials/library-app.php:174
 msgid "Achievements"
 msgstr "Succès"
@@ -82,7 +82,7 @@ msgstr "Succès cachés"
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-books-list.php:58 app/partials/library-app.php:429
+#: admin/class-library-books-list.php:58 app/partials/library-app.php:443
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -117,18 +117,18 @@ msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
 #. translators: %s: reading percentage.
-#: admin/class-library-books-list.php:313 admin/js/library-admin-read.js:26
+#: admin/class-library-books-list.php:315 admin/js/library-admin-read.js:26
 #: app/js/bricks/library-progress.js:13
 #, php-format
 msgid "%s%% read"
 msgstr "%s %% lu"
 
-#: admin/class-library-books-list.php:317
+#: admin/class-library-books-list.php:319
 msgid "Loading percent read..."
 msgstr "Chargement du pourcentage lu..."
 
 #. translators: %s: number of books.
-#: admin/class-library-books-list.php:338
+#: admin/class-library-books-list.php:340
 #, php-format
 msgid "In the library <span class=\"count\">(%s)</span>"
 msgid_plural "In the library <span class=\"count\">(%s)</span>"
@@ -223,14 +223,14 @@ msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 app/class-library-app.php:149
+#: admin/class-library-dashboard.php:404 app/class-library-app.php:156
 #: app/js/lib/format.js:45
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 app/partials/library-app.php:259
+#: admin/class-library-dashboard.php:404 app/partials/library-app.php:263
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -528,19 +528,19 @@ msgstr ""
 "lecture, vider une date la retire. Saisir une date marque le livre comme "
 "lu ; le marquer comme lu sans date ajoute la date du jour."
 
-#: app/class-library-app.php:66
+#: app/class-library-app.php:73
 msgid "App"
 msgstr "Application"
 
-#: app/class-library-app.php:121
+#: app/class-library-app.php:128
 msgid "Diary"
 msgstr "Journal"
 
-#: app/class-library-app.php:122
+#: app/class-library-app.php:129
 msgid "Idea"
 msgstr "Idée"
 
-#: app/class-library-app.php:124
+#: app/class-library-app.php:131
 msgid "To buy"
 msgstr "Envies"
 
@@ -573,75 +573,90 @@ msgstr "À lire"
 msgid "Latest readings"
 msgstr "Dernières lectures"
 
-#: app/partials/library-app.php:212
+#: app/partials/library-app.php:216
 msgid "Top"
 msgstr "Haut"
 
-#: app/partials/library-app.php:226 app/partials/library-app.php:227
+#: app/partials/library-app.php:230 app/partials/library-app.php:231
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: app/partials/library-app.php:232
+#: app/partials/library-app.php:236
 msgid "Dark theme"
 msgstr "Thème sombre"
 
-#: app/partials/library-app.php:233
+#: app/partials/library-app.php:237
 msgid "Light or dark theme"
 msgstr "Thème clair ou sombre"
 
-#: app/partials/library-app.php:241 app/partials/library-app.php:318
+#: app/partials/library-app.php:245 app/partials/library-app.php:327
 msgid "Close"
 msgstr "Fermer"
 
-#: app/partials/library-app.php:278
+#. translators: %s: label of fields that must be filled in, e.g. Read dates.
+#: app/partials/library-app.php:282
+#, php-format
+msgctxt "several fields"
+msgid "%s (required)"
+msgstr "%s (obligatoires)"
+
+#: app/partials/library-app.php:287
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
-#: app/partials/library-app.php:283 app/partials/library-app.php:393
+#: app/partials/library-app.php:292 app/partials/library-app.php:407
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:331
+#: app/partials/library-app.php:340
 msgid "Choose a cover"
 msgstr "Choisir une couverture"
 
-#: app/partials/library-app.php:333
+#: app/partials/library-app.php:342
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:336
+#. translators: %s: label of a field that must be filled in, e.g. Title.
+#: app/partials/library-app.php:348
+#, php-format
+msgctxt "one field"
+msgid "%s (required)"
+msgstr "%s (obligatoire)"
+
+#. translators: %s: label of a field that must be filled in, e.g. Title.
+#: app/partials/library-app.php:348
 msgid "Title"
 msgstr "Titre"
 
-#: app/partials/library-app.php:340
+#: app/partials/library-app.php:354
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:344
+#: app/partials/library-app.php:358
 msgid "Notes"
 msgstr "Notes"
 
-#: app/partials/library-app.php:351
+#: app/partials/library-app.php:365
 msgid "Add an author"
 msgstr "Ajouter un auteur"
 
-#: app/partials/library-app.php:359
+#: app/partials/library-app.php:373
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:376
+#: app/partials/library-app.php:390
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:397
+#: app/partials/library-app.php:411
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:439 app/partials/library-app.php:440
+#: app/partials/library-app.php:453 app/partials/library-app.php:454
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/partials/library-app.php:461 app/partials/library-app.php:462
+#: app/partials/library-app.php:475 app/partials/library-app.php:476
 msgid "Remove this author"
 msgstr "Retirer cet auteur"
 
@@ -1132,30 +1147,37 @@ msgstr "Pages"
 
 #: includes/class-library-meta.php:104
 msgid ""
-"Optional. Shown after the title, such as “The Knife: Meditations After an "
-"Attempted Murder”."
+"Shown after the title, such as “The Knife: Meditations After an Attempted "
+"Murder”."
 msgstr ""
-"Facultatif. Affiché après le titre, comme « Le Couteau : Réflexions suite à "
-"une tentative d’assassinat »."
+"Affiché après le titre, comme « Le Couteau : Réflexions suite à une "
+"tentative d’assassinat »."
 
 #: includes/class-library-meta.php:105
+msgid "10 or 13 digits, with or without hyphens, such as 978-2-07-036024-5."
+msgstr "10 ou 13 chiffres, avec ou sans tirets, comme 978-2-07-036024-5."
+
+#: includes/class-library-meta.php:106
+msgid "Two groups of four characters, such as 0395-2649."
+msgstr "Deux groupes de quatre caractères, comme 0395-2649."
+
+#: includes/class-library-meta.php:107
 msgid "Separate series with commas"
 msgstr "Séparez les séries par des virgules"
 
-#: includes/class-library-meta.php:106
+#: includes/class-library-meta.php:108
 msgid "Separate translators with commas"
 msgstr "Séparez les traducteurs par des virgules"
 
-#: includes/class-library-meta.php:107
+#: includes/class-library-meta.php:109
 msgid ""
-"Optional. When the work first came out, whatever the edition: a year, a year "
-"and month, or a date, such as 1929, 1929-11 or 1929-11-08."
+"When the work first came out, whatever the edition: a year, a year and "
+"month, or a date, such as 1929, 1929-11 or 1929-11-08."
 msgstr ""
-"Facultatif. Date de première parution de l’œuvre, quelle que soit "
-"l’édition : une année, une année et un mois, ou une date, comme 1929, "
-"1929-11 ou 1929-11-08."
+"Date de première parution de l’œuvre, quelle que soit l’édition : une "
+"année, une année et un mois, ou une date, comme 1929, 1929-11 ou 1929-11-08."
 
-#: includes/class-library-meta.php:108
+#: includes/class-library-meta.php:110
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 
@@ -1839,6 +1861,21 @@ msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr "Traduit du %1$s par %2$s"
 
-#: app/js/library-app-store.js:155
+#: app/js/library-app-store.js:157
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
+
+#~ msgid ""
+#~ "Optional. Shown after the title, such as “The Knife: Meditations After an "
+#~ "Attempted Murder”."
+#~ msgstr ""
+#~ "Facultatif. Affiché après le titre, comme « Le Couteau : Réflexions suite "
+#~ "à une tentative d’assassinat »."
+
+#~ msgid ""
+#~ "Optional. When the work first came out, whatever the edition: a year, a "
+#~ "year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
+#~ msgstr ""
+#~ "Facultatif. Date de première parution de l’œuvre, quelle que soit "
+#~ "l’édition : une année, une année et un mois, ou une date, comme 1929, "
+#~ "1929-11 ou 1929-11-08."

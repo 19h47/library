@@ -13,9 +13,16 @@
  * @subpackage Library/app/partials
  */
 
-$colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status' );
+$colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status', '--library-error', '--library-success', '--library-warning' );
 $steps  = array( '--app-u0', '--app-u1', '--app-u2', '--app-u3' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
+// The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
+$sizes = array(
+	array( 'var(--app-font-small)', 'var(--app-font-ui)', 'Pills, meta lines, labels, the excerpt of a card: half a step below the text' ),
+	array( 'var(--app-u1)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections' ),
+	array( 'var(--app-font-large)', 'var(--app-font-mono)', 'The year, the title of a book, the name of an author, the title of the page on a phone: half a step above' ),
+	array( 'calc(var(--app-u2) * sqrt(var(--app-phi)))', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
+);
 ?>
 <library-styleguide lang="en">
 	<h2 class="library-title">Styleguide</h2>
@@ -42,6 +49,17 @@ $fonts  = array( '--app-font-mono', '--app-font-ui' );
 						<li>
 							<span class="library-styleguide__step" style="--library-token: var(<?php echo esc_attr( $step ); ?>)"></span>
 							<code><?php echo esc_html( $step ); ?></code>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</figure>
+			<figure>
+				<figcaption>Sizes of the text, at this width, on lines of <code>--app-line-height</code> (φ)</figcaption>
+				<ul class="library-styleguide__sizes">
+					<?php foreach ( $sizes as list( $size, $family, $use ) ) : ?>
+						<li>
+							<span class="library-styleguide__size" style="--library-token: <?php echo esc_attr( $size ); ?>; --library-family: <?php echo esc_attr( $family ); ?>">Reading 2026</span>
+							<span class="library-styleguide__use"><code><?php echo esc_html( $size ); ?></code> · <span data-size></span> · <?php echo esc_html( $use ); ?></span>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -252,6 +270,26 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-field</code>: required, in error with <code>.library-error</code>; pointed at and focused, live</figcaption>
+				<div class="library-styleguide__frame library-styleguide__stack">
+					<p class="library-field">
+						<label for="library-styleguide-required">A field (required)</label>
+						<input id="library-styleguide-required" required>
+					</p>
+					<p class="library-field">
+						<label for="library-styleguide-invalid">A field in error</label>
+						<input id="library-styleguide-invalid" value="978-2" aria-describedby="library-styleguide-invalid-description" data-error="Its message, the one of the browser.">
+						<small id="library-styleguide-invalid-description">Its description, under its message.</small>
+					</p>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.app-status[role="alert"]</code>, an error of the server at the end of a form</figcaption>
+				<div class="library-styleguide__frame">
+					<p class="app-status" role="alert">The book could not be saved.</p>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-edit__authors</code>, a list of inputs</figcaption>
 				<div class="library-styleguide__frame">
 					<fieldset class="library-field">
@@ -264,10 +302,10 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-reading__dates</code></figcaption>
+				<figcaption><code>.library-reading__dates</code>, the second one in error</figcaption>
 				<div class="library-styleguide__frame">
 					<fieldset class="library-reading__dates">
-						<legend>Read dates</legend>
+						<legend>Read dates (required)</legend>
 						<ul data-sample="dates"></ul>
 						<p>
 							<button class="app-pill" type="button">Add a reading</button>

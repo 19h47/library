@@ -276,7 +276,12 @@
 							</label>
 						</div>
 						<fieldset class="library-reading__dates" hidden disabled>
-							<legend><?php echo esc_html( Library_Meta::label( 'read_date' ) ); ?></legend>
+							<legend>
+								<?php
+								/* translators: %s: label of fields that must be filled in, e.g. Read dates. */
+								echo esc_html( sprintf( _x( '%s (required)', 'several fields', 'library' ), Library_Meta::label( 'read_date' ) ) );
+								?>
+							</legend>
 							<ul></ul>
 							<p>
 								<button class="app-pill" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
@@ -337,7 +342,12 @@
 						<button class="app-pill" type="button" data-action="remove-cover" hidden><?php esc_html_e( 'Remove the cover', 'library' ); ?></button>
 					</div>
 					<p class="library-field">
-						<label for="library-edit-title"><?php esc_html_e( 'Title', 'library' ); ?></label>
+						<label for="library-edit-title">
+							<?php
+							/* translators: %s: label of a field that must be filled in, e.g. Title. */
+							echo esc_html( sprintf( _x( '%s (required)', 'one field', 'library' ), __( 'Title', 'library' ) ) );
+							?>
+						</label>
 						<input id="library-edit-title" name="title" required autocomplete="off">
 					</p>
 					<p class="library-field">
@@ -450,7 +460,9 @@
 			<li class="library-cover">
 				<button class="library-cover__button" type="button">
 					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover__title" data-field="title"></span>
+					<span class="library-cover__frame" data-row="title">
+						<span class="library-cover__title" data-field="title"></span>
+					</span>
 				</button>
 			</li>
 		</template>

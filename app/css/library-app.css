@@ -11,10 +11,16 @@
 	--library-cover-width: calc(var(--app-u3) * var(--app-phi));
 	/* A cover in the row of the latest readings */
 	--library-cover-height: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
+	/* The corners of a cover, half a step and a step under the ones of a card */
+	--library-radius-small: calc(var(--app-radius) / var(--app-phi) / sqrt(var(--app-phi)));
 	/* Room for the focus outline in a box that scrolls */
 	--library-focus-room: calc(var(--app-focus-outline-offset) * 2);
 	/* A tinted grey, the one color of the app: a book not in the library, not kept or to buy; 4.5:1 on its tag in both themes */
 	--library-status: light-dark(oklch(54% 0.07 45), oklch(76% 0.06 45));
+	/* The colors of a state, as low in chroma, at least 4.5:1 on the background and on their tint in both themes */
+	--library-error: light-dark(oklch(52% 0.12 27), oklch(76% 0.1 25));
+	--library-success: light-dark(oklch(52% 0.09 150), oklch(76% 0.08 150));
+	--library-warning: light-dark(oklch(52% 0.09 85), oklch(76% 0.09 88));
 }
 
 /* The title leaves room for the three controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
@@ -97,6 +103,7 @@ button.app-pill:hover {
 
 button.app-pill:disabled {
 	cursor: progress;
+	opacity: var(--app-control-opacity);
 }
 
 /* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
@@ -124,7 +131,7 @@ button.app-pill:disabled {
 	width: var(--library-cover-width);
 	height: auto;
 	border: 1px solid var(--app-line-soft);
-	border-radius: calc(var(--app-radius) / 2);
+	border-radius: var(--library-radius-small);
 }
 
 .library-item__body {
@@ -147,8 +154,8 @@ button.app-pill:disabled {
 	-webkit-line-clamp: 3;
 	color: var(--app-text-muted);
 	font-family: var(--app-font-ui);
-	/* Half a step of the scale below the title: at the size of the lines in capitals, a sentence in lowercase reads as small print */
-	font-size: calc(var(--app-u1) / sqrt(var(--app-phi)));
+	/* Small text, half a step below the title */
+	font-size: var(--app-font-small);
 }
 
 .library-item__button {
@@ -173,9 +180,9 @@ button.app-pill:disabled {
 
 /* A book not kept or to buy: a tag after the line of its state */
 .library-item__status {
-	padding-inline: 0.4em;
+	padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
 	border: 1px solid color-mix(in oklab, currentColor 40%, transparent);
-	border-radius: calc(var(--app-radius) / 4);
+	border-radius: calc(var(--app-radius) / var(--app-phi) / var(--app-phi) / var(--app-phi));
 	background: color-mix(in oklab, currentColor 10%, transparent);
 	color: var(--library-status);
 }
@@ -199,7 +206,7 @@ button.app-pill:disabled {
 }
 
 .library-year p:first-child {
-	font-size: calc(var(--app-u1) * 1.25);
+	font-size: var(--app-font-large);
 }
 
 .library-year p + p {
@@ -262,9 +269,9 @@ button.app-pill:disabled {
 	width: auto;
 	height: auto;
 	max-width: 100%;
-	max-height: 40dvh;
+	max-height: calc(100dvh / var(--app-phi) / var(--app-phi));
 	border: 1px solid var(--app-line-soft);
-	border-radius: calc(var(--app-radius) / 2);
+	border-radius: var(--library-radius-small);
 }
 
 .library-book__meta {
@@ -276,7 +283,7 @@ button.app-pill:disabled {
 }
 
 .library-book__title {
-	font-size: calc(var(--app-u1) * 1.25);
+	font-size: var(--app-font-large);
 	line-height: var(--app-line-height);
 	letter-spacing: -0.02em;
 	overflow-wrap: anywhere;
@@ -329,7 +336,7 @@ library-author > .library-author {
 }
 
 .library-author__name {
-	font-size: calc(var(--app-u1) * 1.25);
+	font-size: var(--app-font-large);
 	line-height: var(--app-line-height);
 	letter-spacing: -0.02em;
 	overflow-wrap: anywhere;
@@ -386,6 +393,7 @@ library-author > .library-author {
 
 .library-reading__date {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--app-gap);
 }
@@ -395,19 +403,55 @@ library-author > .library-author {
 }
 
 /* A field of a form, such as a read date or the title of a book */
-.library-reading__date input,
-.library-field :is(input:not([type="file"]), select, textarea) {
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea) {
+	/* As a pill or the search, in em of its text */
+	--library-field-padding-inline: 1em;
+	--app-select-padding-inline: var(--library-field-padding-inline);
+
 	min-width: 0;
-	padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
+	padding-block: calc(1em / sqrt(var(--app-phi)));
+	padding-inline-start: var(--library-field-padding-inline);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--app-radius);
-	background: transparent;
+	background-color: transparent;
 	color: inherit;
 	font: inherit;
 }
 
-.library-field :is(input, select):disabled {
+/* A field of text ends with its padding; a select, with its chevron after it */
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), textarea) {
+	padding-inline-end: var(--library-field-padding-inline);
+}
+
+/* Pointed at, its border is firmer; in error, it takes the color of an error, its message under it; out of use, it fades */
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea):hover:not(:disabled, [aria-invalid="true"]) {
+	border-color: var(--app-line);
+}
+
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea)[aria-invalid="true"] {
+	border-color: var(--library-error);
+}
+
+:is(.library-reading__date, .library-field) :is(input, select, textarea):disabled {
 	opacity: var(--app-control-opacity);
+}
+
+/* The message of a field in error, under it, as its description */
+.library-error {
+	color: var(--library-error);
+	font-size: var(--app-font-small);
+}
+
+/* In a row of a list, such as a read date, it takes a line of its own */
+:is(.library-reading__date, .library-edit__author) > .library-error {
+	flex-basis: 100%;
+}
+
+/* An error of the server, at the end of a form: in the color of an error, on its tint */
+.app-status[role="alert"] {
+	border-color: color-mix(in oklab, var(--library-error) 40%, transparent);
+	background: color-mix(in oklab, var(--library-error) 10%, transparent);
+	color: var(--library-error);
 }
 
 /* The excerpt and the notes grow with their text */
@@ -420,10 +464,6 @@ library-author > .library-author {
 	color: var(--app-text);
 	border-color: var(--app-line);
 	background: var(--app-fill);
-}
-
-.library-save:disabled {
-	opacity: var(--app-control-opacity);
 }
 
 /* The form of a book, to add or edit: a field per line, its label above it */
@@ -468,7 +508,7 @@ library-author > .library-author {
 	width: auto;
 	height: var(--library-cover-height);
 	border: 1px solid var(--app-line-soft);
-	border-radius: calc(var(--app-radius) / 2);
+	border-radius: var(--library-radius-small);
 }
 
 .library-edit__authors {
@@ -480,6 +520,7 @@ library-author > .library-author {
 
 .library-edit__author {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--app-gap);
 	min-width: 0;
@@ -549,21 +590,33 @@ library-latest {
 	width: auto;
 	height: var(--library-cover-height);
 	border: 1px solid var(--app-line-soft);
-	border-radius: calc(var(--app-radius) / 2);
+	border-radius: var(--library-radius-small);
 }
 
-/* A book without cover: its title from its start, in a frame of the size of a cover */
-.library-cover__title {
+/* A book without cover: its title from its start, in a frame of the size of a cover, a golden rectangle */
+.library-cover__frame {
 	display: block;
 	width: calc(var(--library-cover-height) / var(--app-phi));
 	height: var(--library-cover-height);
 	padding: var(--app-gap);
 	border: 1px solid var(--app-line-soft);
-	border-radius: calc(var(--app-radius) / 2);
+	border-radius: var(--library-radius-small);
 	font-size: var(--app-font-small);
 	text-align: start;
+}
+
+/*
+ * Four lines of the title fill the frame: a longer one ends in an ellipsis, its words broken with hyphens. Its height is
+ * the one of its lines, as Safari still draws the lines after the ellipsis in a higher box. Unprefixed line-clamp is
+ * in no stable browser yet: the prefixed one needs its box.
+ */
+.library-cover__title {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
 	overflow: hidden;
 	overflow-wrap: anywhere;
+	hyphens: auto;
 }
 
 /* The styleguide: the tokens, then the components, each in a frame */
@@ -615,7 +668,7 @@ library-latest {
 .library-styleguide__tokens {
 	list-style: none;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--library-cover-height) * var(--app-phi) * sqrt(var(--app-phi)))), 1fr));
 	gap: var(--app-gap);
 }
 
@@ -630,7 +683,7 @@ library-latest {
 	width: var(--app-u3);
 	height: var(--app-u3);
 	border: 1px solid var(--app-line);
-	border-radius: calc(var(--app-radius) / 2);
+	border-radius: var(--library-radius-small);
 	background: var(--library-token);
 }
 
@@ -644,6 +697,27 @@ library-latest {
 .library-styleguide__font {
 	font-family: var(--library-token);
 	font-size: var(--app-u2);
+}
+
+/* The sizes of the text, one under the other: a sample, then its size and what it sets */
+.library-styleguide__sizes {
+	list-style: none;
+	display: grid;
+	gap: var(--app-u1);
+}
+
+.library-styleguide__size {
+	display: block;
+	font-family: var(--library-family);
+	font-size: var(--library-token);
+}
+
+.library-styleguide__use {
+	display: block;
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	overflow-wrap: anywhere;
 }
 
 /*
