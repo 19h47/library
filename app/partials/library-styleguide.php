@@ -198,10 +198,12 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-control</code>, the controls of a toolbar</figcaption>
+				<figcaption><code>.app-control</code>, the controls of a toolbar: add, home, the theme in light then in dark, close</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="app-control" type="button" aria-label="Add">+</button>
 					<a class="app-control" href="#top" aria-label="Home">⌂&#xFE0E;</a>
+					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false">☽&#xFE0E;</button>
+					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="true">☀&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Close">×</button>
 				</div>
 			</figure>
