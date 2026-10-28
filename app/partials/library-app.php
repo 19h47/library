@@ -220,18 +220,21 @@
 		<div class="app-toolbar">
 			<library-add-toggle>
 				<button
+					class="app-control"
 					type="button"
 					aria-label="<?php echo esc_attr( $labels->add_new_item ); ?>"
 					title="<?php echo esc_attr( $labels->add_new_item ); ?>"
 				>+</button>
 			</library-add-toggle>
 			<a
+				class="app-control"
 				href="<?php echo esc_url( admin_url() ); ?>"
 				aria-label="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
 				title="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
 			>⌂&#xFE0E;</a>
 			<library-theme-toggle>
 				<button
+					class="app-control"
 					type="button"
 					aria-label="<?php esc_attr_e( 'Dark theme', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Light or dark theme', 'library' ); ?>"
@@ -242,7 +245,7 @@
 		<library-book>
 			<dialog class="library-book" aria-labelledby="library-book-title">
 				<form class="app-toolbar" method="dialog">
-					<button type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 				</form>
 				<img class="library-book__cover" data-field="cover" alt="" hidden>
 				<p class="library-book__meta" data-field="credits"></p>
@@ -324,7 +327,7 @@
 		<library-edit>
 			<dialog class="library-book library-edit" aria-labelledby="library-edit-heading">
 				<form class="app-toolbar" method="dialog">
-					<button type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 				</form>
 				<h2
 					class="library-book__title"

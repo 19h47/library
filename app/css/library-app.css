@@ -29,21 +29,6 @@
 	hyphens: auto;
 }
 
-/* The views, as pills in a row that scrolls sideways, as the latest readings; the current one stands out */
-.library-nav a {
-	text-decoration: none;
-}
-
-.library-nav a:hover,
-.library-nav a[aria-current="page"] {
-	color: var(--app-text);
-	border-color: var(--app-line);
-}
-
-.library-nav a[aria-current="page"] {
-	background: var(--app-fill);
-}
-
 /* Custom elements are inline: these hold blocks */
 library-nav,
 library-view,
@@ -53,6 +38,16 @@ library-idea,
 library-close,
 library-styleguide {
 	display: block;
+}
+
+/* A view spaces its controls from what they act on, as the content of the page does */
+library-view > .app-controls {
+	margin-bottom: var(--app-u3);
+}
+
+/* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
+:is(library-view, library-idea, library-diary, library-achievements, library-author) > .app-status {
+	margin-bottom: var(--app-gap);
 }
 
 .library-section + .library-section {
@@ -88,22 +83,6 @@ library-styleguide {
 	font-size: var(--app-font-small);
 	font-weight: normal;
 	text-transform: uppercase;
-}
-
-/* A pill that is a button */
-button.app-pill {
-	background: transparent;
-	cursor: pointer;
-}
-
-button.app-pill:hover {
-	color: var(--app-text);
-	border-color: var(--app-line);
-}
-
-button.app-pill:disabled {
-	cursor: progress;
-	opacity: var(--app-control-opacity);
 }
 
 /* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
