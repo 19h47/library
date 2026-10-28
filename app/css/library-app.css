@@ -17,6 +17,12 @@
 	--library-status: light-dark(oklch(54% 0.07 45), oklch(76% 0.06 45));
 }
 
+/* The title leaves room for the three controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
+.app-header h1 {
+	margin-inline-end: calc(3 * var(--app-control-size) + 2 * var(--app-control-gap));
+	hyphens: auto;
+}
+
 /* The views, as pills in a row that scrolls sideways, as the latest readings; the current one stands out */
 .library-nav a {
 	text-decoration: none;
