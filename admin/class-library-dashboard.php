@@ -95,7 +95,7 @@ class Library_Dashboard {
 	 * Reading pile widget: books to read, kept or not, the oldest one and the latest reads.
 	 */
 	public function render_pile(): void {
-		$to_read      = $this->count_unread_books();
+		$to_read      = Library_Stats::count_unread_books();
 		$oldest       = $this->get_oldest_unread_book();
 		$recent_reads = $this->get_recent_reads();
 
@@ -576,25 +576,6 @@ class Library_Dashboard {
 		}
 
 		return $items;
-	}
-
-	/**
-	 * Number of books not read yet, kept or not, but not those to buy.
-	 *
-	 * @return int
-	 */
-	private function count_unread_books(): int {
-		global $wpdb;
-
-		[ $row ] = Library_Stats::select(
-			"SELECT COUNT( DISTINCT p.ID ) AS books
-			FROM {$wpdb->posts} AS p
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
-			WHERE r.post_id IS NULL
-				AND {at_hand}"
-		);
-
-		return (int) $row->books;
 	}
 
 	/**

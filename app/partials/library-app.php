@@ -20,7 +20,7 @@
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
  * @var object                                        $language_labels  Labels of the original languages taxonomy.
  * @var array<string,string>                          $rating_choices Ratings a book can take, by value, with their label.
- * @var array<string,string>                          $status_choices Statuses the forms of a book offer, with their label.
+ * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the books offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
  */
@@ -100,12 +100,25 @@
 							);
 							?>
 						</library-read-filter>
+						<library-status-filter>
+							<?php
+							Library::component(
+								'pill-select',
+								array(
+									'id'      => 'library-status-filter',
+									'label'   => __( 'Library', 'library' ),
+									'options' => array( '' => _x( 'Everywhere', 'books of any status', 'library' ) ) + $status_choices,
+								)
+							);
+							?>
+						</library-status-filter>
 					</div>
 
 					<library-home>
 						<library-year class="library-year">
 							<p data-field="yearToDate"></p>
 							<p data-field="projection"></p>
+							<p data-field="toRead"></p>
 						</library-year>
 						<library-latest class="library-section" hidden>
 							<h3 class="library-title">
@@ -165,6 +178,7 @@
 						<p data-field="summary"></p>
 						<p data-field="yearToDate"></p>
 						<p data-field="projection"></p>
+						<p data-field="toRead"></p>
 					</library-year>
 					<library-achievements>
 						<p class="app-status" data-field="status" hidden></p>

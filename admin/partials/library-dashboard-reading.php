@@ -6,7 +6,7 @@
  * @subpackage Library/admin/partials
  *
  * @var array{read:int,total:int,percent:int}                                $stats
- * @var array{year:int,this_year:int,last_year:int,projection:int|null}     $year_to_date
+ * @var array{year:int,this_year:int,last_year:int,projection:int|null,to_read:int,all_read_in:int|null} $year_to_date
  * @var array{pages:int,books:int}                                           $pages_read
  * @var array<int,array>                                                     $charts
  */
@@ -47,6 +47,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 					/* translators: %s: number of books expected by the end of the year. */
 					esc_html__( 'About %s by the end of the year at this pace', 'library' ),
 					esc_html( number_format_i18n( $year_to_date['projection'] ) )
+				);
+				?>
+			</p>
+		<?php endif; ?>
+		<?php if ( null !== $year_to_date['all_read_in'] ) : ?>
+			<p class="library-dashboard-secondary">
+				<?php
+				printf(
+					/* translators: 1: number of books to read, 2: year they would all be read in. */
+					esc_html( _n( '%1$s book to read, read in %2$d at this pace', '%1$s books to read, all read in %2$d at this pace', $year_to_date['to_read'], 'library' ) ),
+					esc_html( number_format_i18n( $year_to_date['to_read'] ) ),
+					(int) $year_to_date['all_read_in']
 				);
 				?>
 			</p>

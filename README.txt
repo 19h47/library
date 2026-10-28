@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.11.1
+Stable tag: 6.12.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the search, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
+* **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state and by status, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the authors: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -49,7 +49,7 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, to buy from the **To buy** view.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, with the status of the books shown: to buy from the **To buy** view, or the status the books are filtered by.
 
 = Can several readers share the library? =
 
@@ -77,7 +77,7 @@ Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described b
 
 The routes of the plugin, to users who can edit posts:
 
-* `GET /wp-json/library/v1/books/reading-stats` – books, books read, and this year against last year.
+* `GET /wp-json/library/v1/books/reading-stats` – books, books read, this year against last year, and the books to read with the year they would all be read in at this pace.
 * `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months, `_embed` adds the books.
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
@@ -87,6 +87,11 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.12.0 =
+* Reading app: the books are filtered by status too, beside their reading state: everywhere, in the library, not kept or to buy. “To read” leaves out the books to buy only everywhere, a status chosen wins; the **+** adds a book with the status filtered.
+* Reading app and dashboard: the stats of the year say when the books to read would all be read at this pace, such as “571 books to read, all read in 2031 at this pace”.
+* REST API: `year_to_date` of `reading-stats` also returns `to_read`, the books to read, and `all_read_in`, the year they would all be read in at this pace.
 
 = 6.11.1 =
 * Code only: the components of the reading app move from `app/partials/components` to `app/components`, beside `app/partials`, which keeps the pieces of the page; the styleguide names every component it shows.

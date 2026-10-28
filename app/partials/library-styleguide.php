@@ -104,6 +104,7 @@ $sizes = array(
 					<div class="library-year">
 						<p>103 read in 2026, 75 by this date last year</p>
 						<p>About 125 by the end of the year at this pace</p>
+						<p>571 books to read, all read in 2031 at this pace</p>
 					</div>
 				</div>
 			</figure>
