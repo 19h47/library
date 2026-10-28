@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-27T21:04:39+00:00\n"
+"POT-Creation-Date: 2026-10-28T07:25:15+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,7 +25,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: library.php admin/class-library-dashboard.php:69
 #: admin/class-library-metaboxes.php:128 app/class-library-app.php:65
-#: app/class-library-app.php:167 app/class-library-app.php:168
+#: app/class-library-app.php:168 app/class-library-app.php:169
 #: app/partials/library-app.php:36 app/partials/library-app.php:54
 #: app/partials/library-app.php:266 app/partials/library-app.php:368
 msgid "Library"
@@ -78,54 +78,62 @@ msgstr "Langues et traducteurs"
 msgid "Easter eggs"
 msgstr "Succès cachés"
 
-#: admin/class-library-books-list.php:50
+#: admin/class-library-books-list.php:52
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-books-list.php:56 app/partials/library-app.php:429
+#: admin/class-library-books-list.php:58 app/partials/library-app.php:429
 msgid "Read date"
 msgstr "Date de lecture"
 
 #. translators: %s: book title.
-#: admin/class-library-books-list.php:78
+#: admin/class-library-books-list.php:80
 #, php-format
 msgid "Read: %s"
 msgstr "Lu : %s"
 
 #. translators: %s: number of readings of a book.
-#: admin/class-library-books-list.php:117
+#: admin/class-library-books-list.php:119
 #, php-format
 msgid "%s reading"
 msgid_plural "%s readings"
 msgstr[0] "%s lecture"
 msgstr[1] "%s lectures"
 
-#: admin/class-library-books-list.php:131
+#: admin/class-library-books-list.php:133
 msgid "Rated"
 msgstr "Noté"
 
-#: admin/class-library-books-list.php:210
+#: admin/class-library-books-list.php:212
 msgid "Last read date"
 msgstr "Dernière lecture"
 
-#: admin/class-library-books-list.php:256
+#: admin/class-library-books-list.php:258
 msgid "Table ordered by edition date."
 msgstr "Tableau trié par date d’édition."
 
-#: admin/class-library-books-list.php:257
+#: admin/class-library-books-list.php:259
 msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
 #. translators: %s: reading percentage.
-#: admin/class-library-books-list.php:311 admin/js/library-admin-read.js:26
+#: admin/class-library-books-list.php:313 admin/js/library-admin-read.js:26
 #: app/js/bricks/library-progress.js:13
 #, php-format
 msgid "%s%% read"
 msgstr "%s %% lu"
 
-#: admin/class-library-books-list.php:315
+#: admin/class-library-books-list.php:317
 msgid "Loading percent read..."
 msgstr "Chargement du pourcentage lu..."
+
+#. translators: %s: number of books.
+#: admin/class-library-books-list.php:338
+#, php-format
+msgid "In the library <span class=\"count\">(%s)</span>"
+msgid_plural "In the library <span class=\"count\">(%s)</span>"
+msgstr[0] "Dans la bibliothèque <span class=\"count\">(%s)</span>"
+msgstr[1] "Dans la bibliothèque <span class=\"count\">(%s)</span>"
 
 #: admin/class-library-dashboard.php:66
 msgid "Reading"
@@ -155,8 +163,8 @@ msgstr "Collections les plus présentes"
 msgid "Most present original languages"
 msgstr "Langues d’origine les plus présentes"
 
-#: admin/class-library-dashboard.php:213 includes/class-library-posts.php:182
-#: includes/class-library-posts.php:184 includes/class-library-posts.php:217
+#: admin/class-library-dashboard.php:213 includes/class-library-posts.php:188
+#: includes/class-library-posts.php:190 includes/class-library-posts.php:223
 msgid "Books"
 msgstr "Livres"
 
@@ -257,7 +265,7 @@ msgid ""
 "Not kept: read but not in my library. To buy: not in my library yet. Both "
 "are hidden from the books list and the site."
 msgstr ""
-"Pas gardé : lu mais pas dans ma bibliothèque. À acheter : pas encore dans ma "
+"De passage : lu mais pas dans ma bibliothèque. Envie : pas encore dans ma "
 "bibliothèque. Les deux sont masqués de la liste des livres et du site."
 
 #: admin/class-library-reading-idea-widget.php:42
@@ -341,7 +349,7 @@ msgstr "Langues supprimées."
 #: includes/class-library-posts.php:109 app/js/lib/format.js:82
 msgctxt "book status"
 msgid "Not kept"
-msgstr "Pas gardé"
+msgstr "De passage"
 
 #. translators: 1: number done, 2: total, e.g. "13 of 14".
 #. translators: 1: position of the idea, 2: number of ideas.
@@ -534,7 +542,7 @@ msgstr "Idée"
 
 #: app/class-library-app.php:124
 msgid "To buy"
-msgstr "À acheter"
+msgstr "Envies"
 
 #: app/partials/library-app.php:77
 msgid "Search the library"
@@ -999,7 +1007,7 @@ msgstr "Celui qui est parti"
 #: includes/class-library-achievements.php:1463
 #, php-format
 msgid "Not kept, rated %s or more"
-msgstr "Pas gardé, noté %s ou plus"
+msgstr "De passage, noté %s ou plus"
 
 #: includes/class-library-achievements.php:1468
 msgid "Mouthful"
@@ -1156,109 +1164,109 @@ msgstr "Note de 1 à 10."
 #, php-format
 msgid "Not kept <span class=\"count\">(%s)</span>"
 msgid_plural "Not kept <span class=\"count\">(%s)</span>"
-msgstr[0] "Pas gardé <span class=\"count\">(%s)</span>"
-msgstr[1] "Pas gardés <span class=\"count\">(%s)</span>"
+msgstr[0] "De passage <span class=\"count\">(%s)</span>"
+msgstr[1] "De passage <span class=\"count\">(%s)</span>"
 
 #: includes/class-library-posts.php:92 includes/class-library-posts.php:110
 #: app/js/lib/format.js:83
 msgctxt "book status"
 msgid "To buy"
-msgstr "À acheter"
+msgstr "Envie"
 
 #. translators: %s: number of books.
 #: includes/class-library-posts.php:94
 #, php-format
 msgid "To buy <span class=\"count\">(%s)</span>"
 msgid_plural "To buy <span class=\"count\">(%s)</span>"
-msgstr[0] "À acheter <span class=\"count\">(%s)</span>"
-msgstr[1] "À acheter <span class=\"count\">(%s)</span>"
+msgstr[0] "Envie <span class=\"count\">(%s)</span>"
+msgstr[1] "Envies <span class=\"count\">(%s)</span>"
 
 #: includes/class-library-posts.php:108
 msgctxt "book status"
 msgid "In the library"
 msgstr "Dans la bibliothèque"
 
-#: includes/class-library-posts.php:183 includes/class-library-posts.php:185
+#: includes/class-library-posts.php:189 includes/class-library-posts.php:191
 msgid "Book"
 msgstr "Livre"
 
-#: includes/class-library-posts.php:186
+#: includes/class-library-posts.php:192
 msgid "Book Archives"
 msgstr "Archives des livres"
 
-#: includes/class-library-posts.php:187
+#: includes/class-library-posts.php:193
 msgid "All books"
 msgstr "Tous les livres"
 
-#: includes/class-library-posts.php:188
+#: includes/class-library-posts.php:194
 msgid "Add New Book"
 msgstr "Ajouter un livre"
 
-#: includes/class-library-posts.php:189
+#: includes/class-library-posts.php:195
 msgid "Add New"
 msgstr "Ajouter"
 
-#: includes/class-library-posts.php:190
+#: includes/class-library-posts.php:196
 msgid "New Book"
 msgstr "Nouveau livre"
 
-#: includes/class-library-posts.php:191
+#: includes/class-library-posts.php:197
 msgid "Edit book"
 msgstr "Modifier le livre"
 
-#: includes/class-library-posts.php:192
+#: includes/class-library-posts.php:198
 msgid "View Book"
 msgstr "Voir le livre"
 
-#: includes/class-library-posts.php:193
+#: includes/class-library-posts.php:199
 msgid "View Books"
 msgstr "Voir les livres"
 
-#: includes/class-library-posts.php:194
+#: includes/class-library-posts.php:200
 msgid "Search Book"
 msgstr "Rechercher un livre"
 
-#: includes/class-library-posts.php:195
+#: includes/class-library-posts.php:201
 msgid "Not found"
 msgstr "Introuvable"
 
-#: includes/class-library-posts.php:196
+#: includes/class-library-posts.php:202
 msgid "Not found in Trash"
 msgstr "Introuvable dans la corbeille"
 
-#: includes/class-library-posts.php:197
+#: includes/class-library-posts.php:203
 msgid "Featured Image"
 msgstr "Image à la une"
 
-#: includes/class-library-posts.php:198
+#: includes/class-library-posts.php:204
 msgid "Set featured image"
 msgstr "Définir l'image à la une"
 
-#: includes/class-library-posts.php:199
+#: includes/class-library-posts.php:205
 msgid "Remove featured image"
 msgstr "Supprimer l'image à la une"
 
-#: includes/class-library-posts.php:200
+#: includes/class-library-posts.php:206
 msgid "Use as featured image"
 msgstr "Utiliser comme image à la une"
 
-#: includes/class-library-posts.php:201
+#: includes/class-library-posts.php:207
 msgid "Insert into book"
 msgstr "Insérer dans le livre"
 
-#: includes/class-library-posts.php:202
+#: includes/class-library-posts.php:208
 msgid "Updloaded to this book"
 msgstr "Envoyé vers ce livre"
 
-#: includes/class-library-posts.php:203
+#: includes/class-library-posts.php:209
 msgid "Books list"
 msgstr "Liste des livres"
 
-#: includes/class-library-posts.php:204
+#: includes/class-library-posts.php:210
 msgid "Books list navigation"
 msgstr "Navigation de la liste des livres"
 
-#: includes/class-library-posts.php:205
+#: includes/class-library-posts.php:211
 msgid "Filtrer books list"
 msgstr "Filtrer la liste des livres"
 
@@ -1382,7 +1390,7 @@ msgstr "Noté %1$s/10, lu en %2$s : le relire ?"
 
 #: includes/class-library-reading-idea.php:769
 msgid "Not kept, still to read: borrowed?"
-msgstr "Pas gardé et pas encore lu : emprunté ?"
+msgstr "De passage et pas encore lu : emprunté ?"
 
 #. translators: %s: year the book was added.
 #: includes/class-library-reading-idea.php:772
@@ -1395,14 +1403,15 @@ msgstr "En attente sur la pile à lire depuis %s."
 #, php-format
 msgid "To buy, next in %1$s: you have read %2$s volume."
 msgid_plural "To buy, next in %1$s: you have read %2$s volumes."
-msgstr[0] "À acheter, la suite de %1$s : tu en as lu %2$s tome."
-msgstr[1] "À acheter, la suite de %1$s : tu en as lu %2$s tomes."
+msgstr[0] "Envie de la suite de %1$s : tu en as lu %2$s tome."
+msgstr[1] "Envie de la suite de %1$s : tu en as lu %2$s tomes."
 
 #. translators: 1: author, 2: average rating, 3: number of books rated.
 #: includes/class-library-reading-idea.php:819
 #, php-format
 msgid "To buy, by %1$s: you gave them %2$s/10 on average over %3$s books."
-msgstr "À acheter, de %1$s : tu lui as mis %2$s/10 en moyenne sur %3$s livres."
+msgstr ""
+"Envie d’un livre de %1$s : tu lui as mis %2$s/10 en moyenne sur %3$s livres."
 
 #: includes/class-library-rest-api.php:44
 msgid ""
@@ -1477,7 +1486,9 @@ msgstr ""
 
 #: includes/class-library-rest-api.php:244
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
-msgstr "Statut du livre : dans la bibliothèque, c’est-à-dire publié, pas gardé ou à acheter."
+msgstr ""
+"Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
+"envie."
 
 #: includes/class-library-taxonomies.php:59
 msgctxt "library authors general name"
