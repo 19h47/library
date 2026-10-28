@@ -460,7 +460,9 @@
 			<li class="library-cover">
 				<button class="library-cover__button" type="button">
 					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover__title" data-field="title"></span>
+					<span class="library-cover__frame" data-row="title">
+						<span class="library-cover__title" data-field="title"></span>
+					</span>
 				</button>
 			</li>
 		</template>

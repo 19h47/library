@@ -593,8 +593,8 @@ library-latest {
 	border-radius: var(--library-radius-small);
 }
 
-/* A book without cover: its title from its start, in a frame of the size of a cover */
-.library-cover__title {
+/* A book without cover: its title from its start, in a frame of the size of a cover, a golden rectangle */
+.library-cover__frame {
 	display: block;
 	width: calc(var(--library-cover-height) / var(--app-phi));
 	height: var(--library-cover-height);
@@ -603,8 +603,20 @@ library-latest {
 	border-radius: var(--library-radius-small);
 	font-size: var(--app-font-small);
 	text-align: start;
+}
+
+/*
+ * Four lines of the title fill the frame: a longer one ends in an ellipsis, its words broken with hyphens. Its height is
+ * the one of its lines, as Safari still draws the lines after the ellipsis in a higher box. Unprefixed line-clamp is
+ * in no stable browser yet: the prefixed one needs its box.
+ */
+.library-cover__title {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
 	overflow: hidden;
 	overflow-wrap: anywhere;
+	hyphens: auto;
 }
 
 /* The styleguide: the tokens, then the components, each in a frame */
