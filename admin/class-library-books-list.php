@@ -290,9 +290,11 @@ class Library_Books_List {
 
 		$order = 'ASC' === strtoupper( $query->get( 'order' ) ) ? 'ASC' : 'DESC';
 
-		// One row per book, even with the meta saved twice.
-		$clauses['join']   .= $wpdb->prepare( " LEFT JOIN ( SELECT post_id, MAX( meta_value ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID", $orderby );
-		$clauses['orderby'] = "library_sort.meta_value IS NULL, {$values[ $orderby ]} $order, {$wpdb->posts}.post_title ASC";
+		// One row per book, even with the meta saved twice. The values and the titles are sorted on their first 191 characters,
+		// more than a date, a rating or a title needs: MySQL 5.7 writes on disk a temporary table with a TEXT column.
+		// The ID comes last, for the books of the same date and title to keep their place from one page to the next.
+		$clauses['join']   .= $wpdb->prepare( " LEFT JOIN ( SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID", $orderby );
+		$clauses['orderby'] = "library_sort.meta_value IS NULL, {$values[ $orderby ]} $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
 
 		return $clauses;
 	}
