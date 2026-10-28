@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-28T15:16:55+00:00\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wt\n"
+"POT-Creation-Date: 2026-10-28T16:32:05+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,7 +27,8 @@ msgstr ""
 #: admin/class-library-metaboxes.php:128 app/class-library-app.php:72
 #: app/class-library-app.php:175 app/class-library-app.php:176
 #: app/partials/library-app.php:36 app/partials/library-app.php:54
-#: app/partials/library-app.php:287 app/partials/library-app.php:447
+#: app/partials/library-app.php:109 app/partials/library-app.php:299
+#: app/partials/library-app.php:459
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -54,7 +55,7 @@ msgstr "https://www.19h47.fr"
 #: admin/class-library-achievements-page.php:51
 #: admin/class-library-achievements-page.php:58
 #: admin/partials/library-achievements.php:20 app/class-library-app.php:130
-#: app/partials/library-app.php:180
+#: app/partials/library-app.php:192
 msgid "Achievements"
 msgstr "Succès"
 
@@ -82,7 +83,7 @@ msgstr "Succès cachés"
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-books-list.php:58 app/partials/library-app.php:516
+#: admin/class-library-books-list.php:58 app/partials/library-app.php:528
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -230,7 +231,7 @@ msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 app/partials/library-app.php:279
+#: admin/class-library-dashboard.php:404 app/partials/library-app.php:291
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -269,7 +270,7 @@ msgstr ""
 "bibliothèque. Les deux sont masqués de la liste des livres et du site."
 
 #: admin/class-library-reading-idea-widget.php:42
-#: app/partials/library-app.php:118 app/partials/library-app.php:153
+#: app/partials/library-app.php:130 app/partials/library-app.php:165
 msgid "Reading idea of the week"
 msgstr "Idée de lecture de la semaine"
 
@@ -378,7 +379,7 @@ msgstr[1] "dont %s succès cachés"
 
 #: admin/partials/library-achievements.php:27
 #: admin/partials/library-dashboard-achievements.php:37
-#: app/partials/library-app.php:128 app/partials/library-app.php:173
+#: app/partials/library-app.php:140 app/partials/library-app.php:185
 msgid "Close to it"
 msgstr "En approche"
 
@@ -441,7 +442,7 @@ msgid "Add a cover"
 msgstr "Ajouter une couverture"
 
 #: admin/partials/library-dashboard-idea.php:51
-#: app/partials/library-app.php:123 app/partials/library-app.php:158
+#: app/partials/library-app.php:135 app/partials/library-app.php:170
 msgid "Another idea"
 msgstr "Une autre idée"
 
@@ -583,79 +584,84 @@ msgstr "Lu"
 msgid "To read"
 msgstr "À lire"
 
-#: app/partials/library-app.php:112
+#: app/partials/library-app.php:110
+msgctxt "books of any status"
+msgid "Everywhere"
+msgstr "Partout"
+
+#: app/partials/library-app.php:124
 msgid "Latest readings"
 msgstr "Dernières lectures"
 
-#: app/partials/library-app.php:222
+#: app/partials/library-app.php:234
 msgid "Top"
 msgstr "Haut"
 
-#: app/partials/library-app.php:238 app/partials/library-app.php:239
+#: app/partials/library-app.php:250 app/partials/library-app.php:251
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: app/partials/library-app.php:245
+#: app/partials/library-app.php:257
 msgid "Dark theme"
 msgstr "Thème sombre"
 
-#: app/partials/library-app.php:246
+#: app/partials/library-app.php:258
 msgid "Light or dark theme"
 msgstr "Thème clair ou sombre"
 
-#: app/partials/library-app.php:254 app/partials/library-app.php:347
+#: app/partials/library-app.php:266 app/partials/library-app.php:359
 msgid "Close"
 msgstr "Fermer"
 
-#: app/partials/library-app.php:301
+#: app/partials/library-app.php:313
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
-#: app/partials/library-app.php:312 app/partials/library-app.php:480
+#: app/partials/library-app.php:324 app/partials/library-app.php:492
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:362
+#: app/partials/library-app.php:374
 msgid "Choose a cover"
 msgstr "Choisir une couverture"
 
-#: app/partials/library-app.php:363
+#: app/partials/library-app.php:375
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:370
+#: app/partials/library-app.php:382
 msgid "Title"
 msgstr "Titre"
 
-#: app/partials/library-app.php:382
+#: app/partials/library-app.php:394
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:394
+#: app/partials/library-app.php:406
 msgid "Notes"
 msgstr "Notes"
 
-#: app/partials/library-app.php:406
+#: app/partials/library-app.php:418
 msgid "Add an author"
 msgstr "Ajouter un auteur"
 
-#: app/partials/library-app.php:427
+#: app/partials/library-app.php:439
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:454
+#: app/partials/library-app.php:466
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:484
+#: app/partials/library-app.php:496
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:526 app/partials/library-app.php:527
+#: app/partials/library-app.php:538 app/partials/library-app.php:539
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/partials/library-app.php:550 app/partials/library-app.php:551
+#: app/partials/library-app.php:562 app/partials/library-app.php:563
 msgid "Remove this author"
 msgstr "Retirer cet auteur"
 

@@ -10,8 +10,8 @@ function renderOptions( terms, value = ( term ) => term.name ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * Its cover, title, excerpt, notes, authors, publisher and collection, ISBN, its status when it is added, to buy from the
- * books to buy (the reading of a book changes it after), and more details. The names typed are suggested
+ * Its cover, title, excerpt, notes, authors, publisher and collection, ISBN, its status when it is added, the one of the
+ * list shown (the reading of a book changes it after), and more details. The names typed are suggested
  * among those of the library, the collections among those of the publisher; a name not found is added.
  * Closing the form drops it.
  */
@@ -117,7 +117,10 @@ class LibraryEditElement extends Brick {
 						return;
 					}
 
-					const { id, book } = store.get().editing;
+					const { editing, view, status } = store.get();
+					const { id, book } = editing;
+					// A book added joins the list shown: to buy from the books to buy, of the status chosen from the books.
+					const listedStatus = { books: status, 'to-buy': toBuy }[ view ];
 
 					// The form opens on the values of the book, or empty, its details folded unless they hold some.
 					$form.reset();
@@ -128,7 +131,7 @@ class LibraryEditElement extends Brick {
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
-					$status.value = 'to-buy' === store.get().view ? toBuy : 'publish';
+					$status.value = listedStatus || 'publish';
 					$authors.replaceChildren();
 					book?.authors.forEach( ( name ) => addAuthor( name ) );
 
