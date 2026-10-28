@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 7e71b38.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 1ea1c5f.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix().
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
@@ -113,6 +113,21 @@ a {
 :focus-visible {
   outline: var(--app-focus-outline);
   outline-offset: var(--app-focus-outline-offset);
+}
+
+/*
+ * A select draws its own chevron, the same in every browser, as Safari keeps a native select to the size of its text:
+ * each arm a line at 45° in a box taller than it, so that the point falls inside and the arms meet in it. The chevron
+ * stands at the end, within the inline padding the place of the select gives it in --app-select-padding-inline.
+ */
+select {
+  appearance: none;
+  padding-inline-end: calc(var(--app-select-padding-inline, 0px) + 1.25em);
+  background:
+    linear-gradient(45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
+      right calc(var(--app-select-padding-inline, 0px) + 0.4em) center / 0.4em calc(0.4em + 4px) no-repeat,
+    linear-gradient(-45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
+      right var(--app-select-padding-inline, 0px) center / 0.4em calc(0.4em + 4px) no-repeat;
 }
 
 /* Page: one column, the footer at the bottom */
@@ -233,20 +248,15 @@ label.app-pill:hover {
 
 /*
  * The select reaches the edges of its pill, with the padding of the pill: a click anywhere on the pill opens it,
- * rather than only focusing it. It draws its own chevron, as Safari keeps a native select to the size of its text:
- * each arm a line at 45° in a box taller than it, so that the point falls inside and the arms meet in it.
- * A form control does not inherit the case: the value reads like the rest of the pill.
+ * rather than only focusing it. A form control does not inherit the case: the value reads like the rest of the pill.
  */
 .app-pill select {
-  appearance: none;
+  --app-select-padding-inline: var(--app-pill-padding-inline);
+
   margin: calc(-1 * var(--app-pill-padding-block)) calc(-1 * var(--app-pill-padding-inline));
-  padding: var(--app-pill-padding-block) calc(var(--app-pill-padding-inline) + 1.25em) var(--app-pill-padding-block) var(--app-pill-padding-inline);
+  padding-block: var(--app-pill-padding-block);
+  padding-inline-start: var(--app-pill-padding-inline);
   border: none;
-  background:
-    linear-gradient(45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
-      right calc(var(--app-pill-padding-inline) + 0.4em) center / 0.4em calc(0.4em + 4px) no-repeat,
-    linear-gradient(-45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
-      right var(--app-pill-padding-inline) center / 0.4em calc(0.4em + 4px) no-repeat;
   color: inherit;
   font: inherit;
   text-transform: inherit;

@@ -1,7 +1,7 @@
 import { editUrl, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
-import { inputList } from 'library-app/behaviors';
+import { inputList, showErrors } from 'library-app/behaviors';
 
 /** Options of a datalist or a select, such as the names to suggest. */
 function renderOptions( terms, value = ( term ) => term.name ) {
@@ -41,6 +41,7 @@ class LibraryEditElement extends Brick {
 		};
 
 		const addAuthor = inputList( { $list: $authors, $add: $addAuthor, id: 'library-edit-author', signal } );
+		const clearErrors = showErrors( $form, signal );
 
 		// The collections of the publisher typed, when the library has it; a collection needs a publisher.
 		const suggestCollections = () => {
@@ -120,6 +121,7 @@ class LibraryEditElement extends Brick {
 
 					// The form opens on the values of the book, or empty, its details folded unless they hold some.
 					$form.reset();
+					clearErrors();
 					this.#removed = false;
 					$heading.textContent = id ? $heading.dataset.edit : $heading.dataset.add;
 					$admin.href = editUrl + id;

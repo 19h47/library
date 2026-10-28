@@ -15,6 +15,10 @@
 	--library-focus-room: calc(var(--app-focus-outline-offset) * 2);
 	/* A tinted grey, the one color of the app: a book not in the library, not kept or to buy; 4.5:1 on its tag in both themes */
 	--library-status: light-dark(oklch(54% 0.07 45), oklch(76% 0.06 45));
+	/* The colors of a state, as low in chroma, at least 4.5:1 on the background and on their tint in both themes */
+	--library-error: light-dark(oklch(52% 0.12 27), oklch(76% 0.1 25));
+	--library-success: light-dark(oklch(52% 0.09 150), oklch(76% 0.08 150));
+	--library-warning: light-dark(oklch(52% 0.09 85), oklch(76% 0.09 88));
 }
 
 /* The title leaves room for the three controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
@@ -97,6 +101,7 @@ button.app-pill:hover {
 
 button.app-pill:disabled {
 	cursor: progress;
+	opacity: var(--app-control-opacity);
 }
 
 /* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
@@ -386,6 +391,7 @@ library-author > .library-author {
 
 .library-reading__date {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--app-gap);
 }
@@ -395,19 +401,54 @@ library-author > .library-author {
 }
 
 /* A field of a form, such as a read date or the title of a book */
-.library-reading__date input,
-.library-field :is(input:not([type="file"]), select, textarea) {
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea) {
+	--library-field-padding-inline: calc(var(--app-u1) / 1.1);
+	--app-select-padding-inline: var(--library-field-padding-inline);
+
 	min-width: 0;
-	padding: calc(var(--app-u1) / 1.35) calc(var(--app-u1) / 1.1);
+	padding-block: calc(var(--app-u1) / 1.35);
+	padding-inline-start: var(--library-field-padding-inline);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--app-radius);
-	background: transparent;
+	background-color: transparent;
 	color: inherit;
 	font: inherit;
 }
 
-.library-field :is(input, select):disabled {
+/* A field of text ends with its padding; a select, with its chevron after it */
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), textarea) {
+	padding-inline-end: var(--library-field-padding-inline);
+}
+
+/* Pointed at, its border is firmer; in error, it takes the color of an error, its message under it; out of use, it fades */
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea):hover:not(:disabled, [aria-invalid="true"]) {
+	border-color: var(--app-line);
+}
+
+:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea)[aria-invalid="true"] {
+	border-color: var(--library-error);
+}
+
+:is(.library-reading__date, .library-field) :is(input, select, textarea):disabled {
 	opacity: var(--app-control-opacity);
+}
+
+/* The message of a field in error, under it, as its description */
+.library-error {
+	color: var(--library-error);
+	font-size: var(--app-font-small);
+}
+
+/* In a row of a list, such as a read date, it takes a line of its own */
+:is(.library-reading__date, .library-edit__author) > .library-error {
+	flex-basis: 100%;
+}
+
+/* An error of the server, at the end of a form: in the color of an error, on its tint */
+.app-status[role="alert"] {
+	border-color: color-mix(in oklab, var(--library-error) 40%, transparent);
+	background: color-mix(in oklab, var(--library-error) 10%, transparent);
+	color: var(--library-error);
 }
 
 /* The excerpt and the notes grow with their text */
@@ -420,10 +461,6 @@ library-author > .library-author {
 	color: var(--app-text);
 	border-color: var(--app-line);
 	background: var(--app-fill);
-}
-
-.library-save:disabled {
-	opacity: var(--app-control-opacity);
 }
 
 /* The form of a book, to add or edit: a field per line, its label above it */
@@ -480,6 +517,7 @@ library-author > .library-author {
 
 .library-edit__author {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--app-gap);
 	min-width: 0;

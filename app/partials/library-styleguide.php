@@ -13,7 +13,7 @@
  * @subpackage Library/app/partials
  */
 
-$colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status' );
+$colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status', '--library-error', '--library-success', '--library-warning' );
 $steps  = array( '--app-u0', '--app-u1', '--app-u2', '--app-u3' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
 ?>
@@ -252,6 +252,26 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-field</code>: required, in error with <code>.library-error</code>; pointed at and focused, live</figcaption>
+				<div class="library-styleguide__frame library-styleguide__stack">
+					<p class="library-field">
+						<label for="library-styleguide-required">A field (required)</label>
+						<input id="library-styleguide-required" required>
+					</p>
+					<p class="library-field">
+						<label for="library-styleguide-invalid">A field in error</label>
+						<input id="library-styleguide-invalid" value="978-2" aria-describedby="library-styleguide-invalid-description" data-error="Its message, the one of the browser.">
+						<small id="library-styleguide-invalid-description">Its description, under its message.</small>
+					</p>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.app-status[role="alert"]</code>, an error of the server at the end of a form</figcaption>
+				<div class="library-styleguide__frame">
+					<p class="app-status" role="alert">The book could not be saved.</p>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-edit__authors</code>, a list of inputs</figcaption>
 				<div class="library-styleguide__frame">
 					<fieldset class="library-field">
@@ -264,10 +284,10 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-reading__dates</code></figcaption>
+				<figcaption><code>.library-reading__dates</code>, the second one in error</figcaption>
 				<div class="library-styleguide__frame">
 					<fieldset class="library-reading__dates">
-						<legend>Read dates</legend>
+						<legend>Read dates (required)</legend>
 						<ul data-sample="dates"></ul>
 						<p>
 							<button class="app-pill" type="button">Add a reading</button>
