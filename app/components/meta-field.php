@@ -3,10 +3,10 @@
  * A field of a book meta in the form of a book: its label, its input and its description, as registered.
  *
  * @link       https://github.com/19h47/library
- * @since      6.0.0
+ * @since      6.10.0
  *
  * @package    Library
- * @subpackage Library/app/partials/components
+ * @subpackage Library/app/components
  *
  * @var array{key: string, attributes?: array<string, string|bool|null>} $args
  */

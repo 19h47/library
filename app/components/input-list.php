@@ -8,7 +8,7 @@
  * @since      6.10.0
  *
  * @package    Library
- * @subpackage Library/app/partials/components
+ * @subpackage Library/app/components
  *
  * @var array{class?: string, legend: string, required?: bool, add: string, action: string, list?: array<string, string|bool|null>, attributes?: array<string, string|bool|null>} $args
  */

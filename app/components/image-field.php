@@ -7,7 +7,7 @@
  * @since      6.10.0
  *
  * @package    Library
- * @subpackage Library/app/partials/components
+ * @subpackage Library/app/components
  *
  * @var array{id: string, name: string, label: string, remove: string} $args
  */
