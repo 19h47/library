@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.7.2
+Stable tag: 6.7.3
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.7.3 =
+* Code only: each name says what it holds, the same way from the server to the reading app. Nothing changes on screen.
 
 = 6.7.2 =
 * The books list sorts by edition date or rating without temporary tables on disk on MySQL 5.7, and the books of the same date and title keep their order from one page to the next.
