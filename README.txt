@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.11.0
+Stable tag: 6.11.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.11.1 =
+* Code only: the components of the reading app move from `app/partials/components` to `app/components`, beside `app/partials`, which keeps the pieces of the page; the styleguide names every component it shows.
 
 = 6.11.0 =
 * Reading app: every field of one line, the search too, is as high as the controls and the pills beside it, 41.9 px rather than 53; the date field was higher still. Its text stays at 16 px.
