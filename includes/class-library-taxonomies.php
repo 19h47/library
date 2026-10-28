@@ -34,6 +34,7 @@ class Library_Taxonomies {
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_filter( 'get_terms_args', array( $this, 'count_children' ), 10, 2 );
+		add_filter( 'pre_insert_term', array( $this, 'require_language_code' ), 10, 3 );
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 	}
 
@@ -247,6 +248,31 @@ class Library_Taxonomies {
 		);
 
 		register_taxonomy( 'library-language', 'book', $args );
+	}
+
+	/**
+	 * Refuse a new language whose slug, given or made from its name, is not an ISO 639 code: the app names a language
+	 * from its code, and an invalid one, such as "norvegien" for a language typed as "Norvégien", stops it.
+	 *
+	 * @param string|WP_Error      $term     Name of the term, or the error of an earlier filter.
+	 * @param string               $taxonomy Taxonomy slug.
+	 * @param array<string, mixed> $args     Arguments of the term, its slug among them.
+	 * @return string|WP_Error
+	 */
+	public function require_language_code( $term, string $taxonomy, array $args ) {
+		if ( 'library-language' !== $taxonomy || is_wp_error( $term ) ) {
+			return $term;
+		}
+
+		$code = sanitize_title( empty( $args['slug'] ) ? $term : $args['slug'] );
+
+		if ( preg_match( '/^[a-z]{2,3}$/', $code ) ) {
+			return $term;
+		}
+
+		$message = __( 'A language is its ISO 639 code: type it as its name or as its slug, such as no for Norwegian.', 'library' );
+
+		return new WP_Error( 'library_language_code', $message, array( 'status' => 400 ) );
 	}
 
 	/**

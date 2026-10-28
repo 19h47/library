@@ -11,7 +11,14 @@
  * @var array{id: string, label: string, control?: string, attributes?: array<string, string|bool|null>} $args
  */
 
-$checkbox = Library::control( $args['control'] ?? '<input type="checkbox">', ( $args['attributes'] ?? array() ) + array( 'id' => $args['id'] ) );
+$args     = wp_parse_args(
+	$args,
+	array(
+		'control'    => '<input type="checkbox">',
+		'attributes' => array(),
+	)
+);
+$checkbox = Library::control( $args['control'], $args['attributes'] + array( 'id' => $args['id'] ) );
 ?>
 <label class="app-pill" for="<?php echo esc_attr( $args['id'] ); ?>">
 	<?php echo $checkbox; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>

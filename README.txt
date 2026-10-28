@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.10.0
+Stable tag: 6.11.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,7 +19,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 = Features =
 
 * **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”.
-* **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its ISO 639 code and named in the site language.
+* **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its ISO 639 code, as its name or its slug, and named in the site language: a language typed otherwise is refused.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
@@ -87,6 +87,12 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.11.0 =
+* Reading app: every field of one line, the search too, is as high as the controls and the pills beside it, 41.9 px rather than 53; the date field was higher still. Its text stays at 16 px.
+* Reading app: the styleguide shows the control of the theme, in light and in dark.
+* Fixed: a language typed by its name, such as “Norvégien”, got a slug that is no code, “norvegien”, and a book in that language would not open in the reading app. A new language is now refused unless its name or its slug is its ISO 639 code; fix the slug of such a language under Books > Languages.
+* Code only: the components of the app set their defaults with `wp_parse_args()`.
 
 = 6.10.0 =
 * Reading app: the control that removes an author or a read date is a square, as the one that closes a dialog, rather than a pill stretched into an oval; the two lists of inputs look the same.

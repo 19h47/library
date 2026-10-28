@@ -11,6 +11,8 @@
  * @var array{key: string, attributes?: array<string, string|bool|null>} $args
  */
 
+$args = wp_parse_args( $args, array( 'attributes' => array() ) );
+
 Library::component(
 	'field',
 	array(
@@ -19,7 +21,7 @@ Library::component(
 		'description' => Library_Meta::description( $args['key'] ),
 		'control'     => Library_Meta::input(
 			$args['key'],
-			( $args['attributes'] ?? array() ) + array(
+			$args['attributes'] + array(
 				'data-meta'    => true,
 				'autocomplete' => 'off',
 			)

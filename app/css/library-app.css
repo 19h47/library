@@ -389,13 +389,17 @@ library-author > .library-author {
 	--app-select-padding-inline: var(--library-field-padding-inline);
 
 	min-width: 0;
-	padding-block: calc(1em / sqrt(var(--app-phi)));
 	padding-inline-start: var(--library-field-padding-inline);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--app-radius);
 	background-color: transparent;
 	color: inherit;
 	font: inherit;
+}
+
+/* A field of one line is as high as a control, its text centered in it, as the search */
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select) {
+	block-size: var(--app-control-size);
 }
 
 /* A field of text ends with its padding; a select, with its chevron after it */
@@ -434,8 +438,9 @@ library-author > .library-author {
 	color: var(--library-error);
 }
 
-/* The excerpt and the notes grow with their text */
+/* The excerpt and the notes grow with their text, from their padding: half a step less above and below than on each side */
 .library-field textarea {
+	padding-block: calc(1em / sqrt(var(--app-phi)));
 	field-sizing: content;
 }
 
