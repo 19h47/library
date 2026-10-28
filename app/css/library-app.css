@@ -475,14 +475,14 @@ library-author > .library-author {
 	font-size: var(--app-font-small);
 }
 
-.library-edit__cover {
+.library-image-field {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: end;
 	gap: var(--app-u1);
 }
 
-.library-edit__preview {
+.library-image-field__preview {
 	display: block;
 	width: auto;
 	height: var(--library-cover-height);

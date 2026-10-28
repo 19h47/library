@@ -1,7 +1,7 @@
 import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, formatState, join } from 'library-app/format';
-import { clone, fill, renderAchievement, renderBook, renderCloseAchievement, renderCover } from 'library-app/render';
+import { clone, fill, fillCover, renderAchievement, renderBook, renderCloseAchievement, renderCover } from 'library-app/render';
 import { showError } from 'library-app/behaviors';
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
@@ -59,6 +59,11 @@ class LibraryStyleguideElement extends Brick {
 		};
 
 		Object.entries( samples ).forEach( ( [ name, render ] ) => this.querySelector( `[data-sample="${ name }"]` ).replaceChildren( ...render() ) );
+
+		// The cover of the book open and the one of its form, drawn as the others; the form can remove it.
+		fillCover( this.querySelector( '.library-book__cover' ), COVER );
+		fillCover( this.querySelector( '.library-image-field__preview' ), COVER );
+		this.querySelector( '.library-image-field [data-action]' ).hidden = false;
 
 		// The fields in error show as the forms show theirs.
 		const $invalid = this.querySelector( '[data-error]' );
