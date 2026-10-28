@@ -118,6 +118,7 @@
 						<library-year class="library-year">
 							<p data-field="yearToDate"></p>
 							<p data-field="projection"></p>
+							<p data-field="toRead"></p>
 						</library-year>
 						<library-latest class="library-section" hidden>
 							<h3 class="library-title">
@@ -177,6 +178,7 @@
 						<p data-field="summary"></p>
 						<p data-field="yearToDate"></p>
 						<p data-field="projection"></p>
+						<p data-field="toRead"></p>
 					</library-year>
 					<library-achievements>
 						<p class="app-status" data-field="status" hidden></p>

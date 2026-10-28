@@ -10,7 +10,7 @@
  */
 
 /**
- * Queries the books and their readings: the SQL definition of a reading, the books read, this year against last year.
+ * Queries the books and their readings: the SQL definition of a reading, the books read and to read, this year against last year.
  *
  * @since      6.0.0
  * @package    Library
@@ -99,12 +99,31 @@ class Library_Stats {
 	}
 
 	/**
-	 * Books read this year and by the same date last year, and the number expected by the end of the year;
-	 * a book read again counts once per reading.
+	 * Number of books not read yet, kept or not, but not those to buy: the reading pile.
+	 *
+	 * @return int
+	 */
+	public static function count_unread_books(): int {
+		global $wpdb;
+
+		[ $row ] = self::select(
+			"SELECT COUNT( DISTINCT p.ID ) AS books
+			FROM {$wpdb->posts} AS p
+			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
+			WHERE r.post_id IS NULL
+				AND {at_hand}"
+		);
+
+		return (int) $row->books;
+	}
+
+	/**
+	 * Books read this year and by the same date last year, the number expected by the end of the year, and the year
+	 * the books to read would all be read in; both at the pace of this year, a book read again counting once per reading.
 	 *
 	 * Kept for the request: the reading widget and the reading idea of the dashboard both ask for it.
 	 *
-	 * @return array{year:int,this_year:int,last_year:int,projection:int|null}
+	 * @return array{year:int,this_year:int,last_year:int,projection:int|null,to_read:int,all_read_in:int|null}
 	 */
 	public static function get_reading_year_to_date(): array {
 		static $year_to_date = null;
@@ -132,15 +151,25 @@ class Library_Stats {
 		$this_year    = (int) $row->this_year;
 		$day_of_year  = (int) $today->format( 'z' ) + 1;
 		$days_in_year = 365 + (int) $today->format( 'L' );
+		$to_read      = self::count_unread_books();
 
-		// A month of readings is the least to project a whole year from.
-		$projection = $day_of_year >= 31 ? (int) round( $this_year * $days_in_year / $day_of_year ) : null;
+		// A month of readings is the least to project from; without readings, the books to read are never read.
+		$has_pace    = $day_of_year >= 31;
+		$projection  = $has_pace ? (int) round( $this_year * $days_in_year / $day_of_year ) : null;
+		$all_read_in = null;
+
+		if ( $has_pace && $this_year && $to_read ) {
+			$days_left   = (int) ceil( $to_read * $day_of_year / $this_year );
+			$all_read_in = (int) $today->modify( "+$days_left days" )->format( 'Y' );
+		}
 
 		$year_to_date = array(
-			'year'       => (int) $today->format( 'Y' ),
-			'this_year'  => $this_year,
-			'last_year'  => (int) $row->last_year,
-			'projection' => $projection,
+			'year'        => (int) $today->format( 'Y' ),
+			'this_year'   => $this_year,
+			'last_year'   => (int) $row->last_year,
+			'projection'  => $projection,
+			'to_read'     => $to_read,
+			'all_read_in' => $all_read_in,
 		);
 
 		return $year_to_date;
