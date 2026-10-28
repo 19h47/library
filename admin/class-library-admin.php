@@ -61,7 +61,7 @@ class Library_Admin {
 			'library-admin-inline-edit',
 			'libraryInlineEdit',
 			array(
-				'statuses' => array_diff_key( Library_Posts::get_statuses(), array( 'publish' => true ) ),
+				'statusChoices' => array_diff_key( Library_Posts::get_status_choices(), array( 'publish' => true ) ),
 			)
 		);
 	}

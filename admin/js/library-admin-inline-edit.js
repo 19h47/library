@@ -14,11 +14,11 @@
 ( () => {
 	'use strict';
 
-	const { statuses } = window.libraryInlineEdit;
+	const { statusChoices } = window.libraryInlineEdit;
 	const originalEdit = inlineEditPost.edit;
 
 	document.querySelectorAll( '#inlineedit select[name="_status"]' ).forEach( ( select ) => {
-		Object.entries( statuses ).forEach( ( [ status, label ] ) => select.add( new Option( label, status ) ) );
+		Object.entries( statusChoices ).forEach( ( [ status, label ] ) => select.add( new Option( label, status ) ) );
 	} );
 
 	inlineEditPost.edit = function ( id, ...args ) {

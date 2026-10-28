@@ -32,7 +32,7 @@ class Library_Terms_List {
 	 * @return void
 	 */
 	public function hooks(): void {
-		add_filter( 'term_updated_messages', array( $this, 'messages' ) );
+		add_filter( 'term_updated_messages', array( $this, 'add_term_messages' ) );
 
 		foreach ( Library_Taxonomies::TAXONOMIES as $taxonomy ) {
 			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_not_kept_column' ) );
@@ -41,15 +41,15 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Messages
+	 * Add the messages shown when an author, a publisher or a language is added, updated or deleted.
 	 *
 	 * @param array $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/term_updated_messages/
 	 *
-	 * @return $message
+	 * @return array
 	 */
-	public function messages( array $messages ): array {
+	public function add_term_messages( array $messages ): array {
 		$messages['library-author'] = array(
 			0 => '',
 			1 => __( 'Author added.', 'library' ),

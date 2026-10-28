@@ -32,8 +32,8 @@ class Library_Taxonomies {
 	 * @return void
 	 */
 	public function hooks(): void {
-		add_action( 'init', array( $this, 'register' ) );
-		add_filter( 'get_terms_args', array( $this, 'get_terms_args' ), 10, 2 );
+		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_filter( 'get_terms_args', array( $this, 'count_children' ), 10, 2 );
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 	}
 
@@ -43,7 +43,7 @@ class Library_Taxonomies {
 	 * @since  1.0.0
 	 * @return void
 	 */
-	public function register(): void {
+	public function register_taxonomies(): void {
 		$this->register_author();
 		$this->register_publisher();
 		$this->register_language();
@@ -288,28 +288,28 @@ class Library_Taxonomies {
 	 * @param WP_Term[] $terms Terms of a taxonomy.
 	 * @return WP_Term[]
 	 */
-	public static function get_top_terms( array $terms ): array {
-		$top_terms = array();
+	public static function get_top_level_terms( array $terms ): array {
+		$top_level_terms = array();
 
 		foreach ( $terms as $term ) {
-			$top_term = $term->parent ? get_term( $term->parent, $term->taxonomy ) : $term;
+			$top_level_term = $term->parent ? get_term( $term->parent, $term->taxonomy ) : $term;
 
-			if ( $top_term instanceof WP_Term ) {
-				$top_terms[ $top_term->term_id ] = $top_term;
+			if ( $top_level_term instanceof WP_Term ) {
+				$top_level_terms[ $top_level_term->term_id ] = $top_level_term;
 			}
 		}
 
-		return array_values( $top_terms );
+		return array_values( $top_level_terms );
 	}
 
 	/**
 	 * Include children (pseudonyms, collections) in term counts.
 	 *
-	 * @param array    $args       Arguments passés à get_terms().
-	 * @param string[] $taxonomies Taxonomies demandées.
+	 * @param array    $args       Arguments of get_terms().
+	 * @param string[] $taxonomies Taxonomies queried.
 	 * @return array
 	 */
-	public function get_terms_args( array $args, array $taxonomies ): array {
+	public function count_children( array $args, array $taxonomies ): array {
 		// Counts only exist on full terms; padding other queries breaks the core cache.
 		if ( ! array_intersect( self::TAXONOMIES, $taxonomies ) || 'all' !== $args['fields'] ) {
 			return $args;

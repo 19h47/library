@@ -43,9 +43,9 @@ class Library_Posts {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_post_statuses' ) );
 		// After the status of the post is known, which the "Library" menu of the publish box may change.
-		add_filter( 'wp_insert_post_data', array( $this, 'slug' ), 11, 2 );
-		add_filter( 'wp_insert_post_data', array( $this, 'bought' ), 11, 2 );
-		add_filter( 'the_title', array( $this, 'title' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'build_slug' ), 11, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'date_bought' ), 11, 2 );
+		add_filter( 'the_title', array( $this, 'show_full_title' ), 10, 2 );
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Library_Posts {
 	 *
 	 * @return array<string,string>
 	 */
-	public static function get_statuses(): array {
+	public static function get_status_choices(): array {
 		return array(
 			'publish'      => _x( 'In the library', 'book status', 'library' ),
 			self::NOT_KEPT => _x( 'Not kept', 'book status', 'library' ),
@@ -118,7 +118,7 @@ class Library_Posts {
 	 * @param array $postarr Slashed submitted data.
 	 * @return array
 	 */
-	public function bought( array $data, array $postarr ): array {
+	public function date_bought( array $data, array $postarr ): array {
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
 
 		if ( 'book' !== $data['post_type'] || ! $post_id || self::TO_BUY !== get_post_status( $post_id ) || in_array( $data['post_status'], array( self::TO_BUY, 'trash' ), true ) ) {
@@ -144,7 +144,7 @@ class Library_Posts {
 	 * @param array $postarr Slashed submitted data, with the form fields.
 	 * @return array
 	 */
-	public function slug( array $data, array $postarr ): array {
+	public function build_slug( array $data, array $postarr ): array {
 		if ( 'book' !== $data['post_type'] || ! isset( $postarr['isbn'] ) ) {
 			return $data;
 		}
@@ -270,7 +270,7 @@ class Library_Posts {
 	 * @param int    $post_id The post ID; some callers of the_title omit it.
 	 * @return string
 	 */
-	public function title( string $title, int $post_id = 0 ): string {
+	public function show_full_title( string $title, int $post_id = 0 ): string {
 		if ( ! $post_id || 'book' !== get_post_type( $post_id ) ) {
 			return $title;
 		}

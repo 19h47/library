@@ -34,9 +34,9 @@ class Library_WP_Query {
 	 */
 	public function hooks(): void {
 		add_action( 'pre_get_posts', array( $this, 'parse_keywords' ) );
-		add_filter( 'posts_search', array( $this, 'search' ), 10, 2 );
+		add_filter( 'posts_search', array( $this, 'search_meta_and_terms' ), 10, 2 );
 		add_filter( 'posts_where', array( $this, 'search_keywords' ), 10, 2 );
-		add_filter( 'get_search_query', array( $this, 'get_search_query' ) );
+		add_filter( 'get_search_query', array( $this, 'show_typed_search' ) );
 		add_action( 'load-edit.php', array( $this, 'add_help_tab' ) );
 	}
 
@@ -112,7 +112,7 @@ class Library_WP_Query {
 	 * @param WP_Query $query  Query instance.
 	 * @return string
 	 */
-	public function search( string $search, WP_Query $query ): string {
+	public function search_meta_and_terms( string $search, WP_Query $query ): string {
 		$post_types = (array) $query->get( 'post_type' );
 
 		if ( '' === $search || ! in_array( 'book', $post_types, true ) ) {
@@ -156,7 +156,7 @@ class Library_WP_Query {
 	 * @param mixed $search Search query.
 	 * @return mixed
 	 */
-	public function get_search_query( $search ) {
+	public function show_typed_search( $search ) {
 		global $wp_query;
 
 		return $wp_query instanceof WP_Query ? $wp_query->get( 'library_search', $search ) : $search;

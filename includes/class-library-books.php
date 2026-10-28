@@ -68,7 +68,7 @@ class Library_Books {
 			$edition_date   = (string) get_post_meta( $post->ID, 'edition_date', true );
 			$published_date = (string) get_post_meta( $post->ID, 'published_date', true );
 			$author_terms   = get_the_terms( $post->ID, 'library-author' );
-			$authors        = Library_Taxonomies::get_top_terms( is_array( $author_terms ) ? $author_terms : array() );
+			$authors        = Library_Taxonomies::get_top_level_terms( is_array( $author_terms ) ? $author_terms : array() );
 			$collections    = Library_Taxonomies::get_collections( $post->ID );
 			$languages      = get_the_terms( $post->ID, 'library-language' );
 
@@ -166,7 +166,7 @@ class Library_Books {
 		$terms      = get_the_terms( $book_id, 'library-publisher' );
 		$publishers = array();
 
-		foreach ( Library_Taxonomies::get_top_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
+		foreach ( Library_Taxonomies::get_top_level_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
 			$collections  = wp_list_filter( Library_Taxonomies::get_collections( $book_id ), array( 'parent' => $publisher->term_id ) );
 			$publishers[] = implode( ', ', array( $publisher->name, ...wp_list_pluck( $collections, 'name' ) ) );
 		}

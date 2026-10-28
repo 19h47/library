@@ -217,7 +217,7 @@ class Library_Reading_Idea {
 	 * @param array $book Book.
 	 * @return string
 	 */
-	private static function last_read_date( array $book ): string {
+	private static function latest_read_date( array $book ): string {
 		return (string) end( $book['read_dates'] );
 	}
 
@@ -240,7 +240,7 @@ class Library_Reading_Idea {
 			}
 
 			$volumes = number_format_i18n( $read['volumes'] );
-			$reason  = '' === $read['last_read']
+			$reason  = '' === $read['latest_read']
 				? sprintf(
 					/* translators: 1: series, 2: number of volumes read. */
 					_n( 'Next in %1$s: you have read %2$s volume.', 'Next in %1$s: you have read %2$s volumes.', $read['volumes'], 'library' ),
@@ -252,7 +252,7 @@ class Library_Reading_Idea {
 					_n( 'Next in %1$s: you have read %2$s volume, in %3$s.', 'Next in %1$s: you have read %2$s volumes, the last one in %3$s.', $read['volumes'], 'library' ),
 					$book['series'],
 					$volumes,
-					self::year( $read['last_read'] )
+					self::year( $read['latest_read'] )
 				);
 
 			$ideas[] = array(
@@ -268,7 +268,7 @@ class Library_Reading_Idea {
 	 * The volumes read of each series with at least one, and the date of the last one read.
 	 *
 	 * @param array<int,array> $books All the books.
-	 * @return array<string,array{volumes:int,last_read:string}>
+	 * @return array<string,array{volumes:int,latest_read:string}>
 	 */
 	private static function get_read_by_series( array $books ): array {
 		$read_by_series = array();
@@ -279,13 +279,13 @@ class Library_Reading_Idea {
 			}
 
 			$read = $read_by_series[ $book['series'] ] ?? array(
-				'volumes'   => 0,
-				'last_read' => '',
+				'volumes'     => 0,
+				'latest_read' => '',
 			);
 
 			$read_by_series[ $book['series'] ] = array(
-				'volumes'   => $read['volumes'] + 1,
-				'last_read' => max( $read['last_read'], self::last_read_date( $book ) ),
+				'volumes'     => $read['volumes'] + 1,
+				'latest_read' => max( $read['latest_read'], self::latest_read_date( $book ) ),
 			);
 		}
 
@@ -298,12 +298,12 @@ class Library_Reading_Idea {
 	 * @param array<int,array> $books   All the books.
 	 * @param array<int,array> $to_read Books to read.
 	 * @param string           $field   Field listing the names: authors, translators or collections.
-	 * @param callable         $reason  Reason, from the name and its average, number of books rated and last read date.
+	 * @param callable         $reason  Reason, from the name and its average, number of books rated and latest read date.
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private static function get_rated_well_ideas( array $books, array $to_read, string $field, callable $reason ): array {
-		$ratings   = array();
-		$last_read = array();
+		$ratings     = array();
+		$latest_read = array();
 
 		foreach ( $books as $book ) {
 			foreach ( $book[ $field ] as $name ) {
@@ -311,7 +311,7 @@ class Library_Reading_Idea {
 					$ratings[ $name ][] = $book['rating'];
 				}
 
-				$last_read[ $name ] = max( $last_read[ $name ] ?? '', self::last_read_date( $book ) );
+				$latest_read[ $name ] = max( $latest_read[ $name ] ?? '', self::latest_read_date( $book ) );
 			}
 		}
 
@@ -323,9 +323,9 @@ class Library_Reading_Idea {
 
 			if ( $rated >= self::MIN_RATED && $average >= self::WELL_RATED ) {
 				$rated_well[ $name ] = array(
-					'average'   => $average,
-					'rated'     => $rated,
-					'last_read' => $last_read[ $name ],
+					'average'     => $average,
+					'rated'       => $rated,
+					'latest_read' => $latest_read[ $name ],
 				);
 			}
 		}
@@ -366,16 +366,16 @@ class Library_Reading_Idea {
 			function ( string $author, array $stats ) use ( $dormant_year ): string {
 				$average   = Library_Books::rating_text( $stats['average'] );
 				$rated     = number_format_i18n( $stats['rated'] );
-				$last_year = self::year( $stats['last_read'] );
+				$read_year = self::year( $stats['latest_read'] );
 
-				if ( '' !== $last_year && (int) $last_year <= $dormant_year ) {
+				if ( '' !== $read_year && (int) $read_year <= $dormant_year ) {
 					return sprintf(
 						/* translators: 1: author, 2: average rating, 3: number of books rated, 4: year of the last one read. */
 						__( 'You gave %1$s %2$s/10 on average over %3$s books, the last one read in %4$s.', 'library' ),
 						$author,
 						$average,
 						$rated,
-						$last_year
+						$read_year
 					);
 				}
 
@@ -666,7 +666,7 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_short_ideas( array $to_read ): array {
-		$pace = Library_Stats::get_year_to_date();
+		$pace = Library_Stats::get_reading_year_to_date();
 
 		if ( $pace['this_year'] >= $pace['last_year'] ) {
 			return array();
@@ -735,7 +735,7 @@ class Library_Reading_Idea {
 		$ideas       = array();
 
 		foreach ( $books as $book ) {
-			$read_year = self::year( self::last_read_date( $book ) );
+			$read_year = self::year( self::latest_read_date( $book ) );
 
 			if ( '' === $read_year || (int) $read_year > $latest_year || null === $book['rating'] || $book['rating'] < self::REREAD_RATING ) {
 				continue;

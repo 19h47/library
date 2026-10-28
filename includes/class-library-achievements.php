@@ -81,7 +81,7 @@ class Library_Achievements {
 	 *
 	 * @var int
 	 */
-	private const MONTH_STREAK = 6;
+	private const STREAK_MONTHS = 6;
 
 	/**
 	 * Number of books read translated by the same translator that counts.
@@ -123,7 +123,7 @@ class Library_Achievements {
 	 *
 	 * @var int
 	 */
-	private const DAILY_STREAK = 7;
+	private const SEVEN_DAYS_A_WEEK_DAYS = 7;
 
 	/**
 	 * Numbers of pages of the odd books: an error, the temperature at which paper burns, the answer.
@@ -165,7 +165,7 @@ class Library_Achievements {
 	 *
 	 * @var int
 	 */
-	private const ROSETTA_LANGUAGES = 3;
+	private const ROSETTA_STONE_LANGUAGES = 3;
 
 	/**
 	 * Number of centuries of works read the same month for the time machine.
@@ -186,14 +186,14 @@ class Library_Achievements {
 	 *
 	 * @var int
 	 */
-	private const LOVED_RATING = 9;
+	private const ONE_THAT_GOT_AWAY_RATING = 9;
 
 	/**
 	 * Number of characters from which a title is a mouthful.
 	 *
 	 * @var int
 	 */
-	private const LONG_TITLE = 60;
+	private const MOUTHFUL_CHARACTERS = 60;
 
 	/**
 	 * Kinds of achievement by family, in the order of the achievements page, with their dashicon.
@@ -271,7 +271,7 @@ class Library_Achievements {
 		[ $completions, $close ]             = $this->get_completions( $books );
 		[ $read, $close_read ]               = $this->get_read_milestones( $reads );
 		[ $pages, $close_pages ]             = $this->get_page_milestones( $readings );
-		[ $tour, $close_tour ]               = $this->get_decade_tour( $reads );
+		[ $decades, $close_decades ]         = $this->get_decades( $reads );
 		[ $translators, $close_translators ] = $this->get_translators( $reads );
 		[ $languages, $close_languages ]     = $this->get_language_milestones( $reads );
 
@@ -281,10 +281,10 @@ class Library_Achievements {
 			$read,
 			$pages,
 			$this->get_records( $readings ),
-			$this->get_month_streak( $readings ),
+			$this->get_streak( $readings ),
 			$this->get_rereads( $readings ),
 			$this->get_discoveries( $books, $reads ),
-			$tour,
+			$decades,
 			$translators,
 			$languages,
 			$this->get_language_feats( $reads, $readings ),
@@ -293,7 +293,7 @@ class Library_Achievements {
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
 
-		$close = array_merge( $close, $close_read, $close_pages, $close_tour, $close_translators, $close_languages );
+		$close = array_merge( $close, $close_read, $close_pages, $close_decades, $close_translators, $close_languages );
 
 		// Fewest left first, then the furthest along.
 		usort( $close, fn( array $a, array $b ) => array( $a['total'] - $a['done'], $b['done'] / $b['total'], $a['subject'] ) <=> array( $b['total'] - $b['done'], $a['done'] / $a['total'], $b['subject'] ) );
@@ -378,7 +378,7 @@ class Library_Achievements {
 	 * @param array<int,array> $books Books.
 	 * @return string
 	 */
-	private static function last_read_date( array $books ): string {
+	private static function latest_read_date( array $books ): string {
 		return (string) max( array_merge( array( '' ), array_column( $books, 'read_date' ) ) );
 	}
 
@@ -563,7 +563,7 @@ class Library_Achievements {
 		}
 
 		if ( 0 === $left ) {
-			return self::achievement( $kind, $titles[ $kind ], $subject, Library_Books::books_text( $total ), $target, self::last_read_date( $read ) );
+			return self::achievement( $kind, $titles[ $kind ], $subject, Library_Books::books_text( $total ), $target, self::latest_read_date( $read ) );
 		}
 
 		$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
@@ -788,7 +788,7 @@ class Library_Achievements {
 	 * @param array<int,array> $readings Readings, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_month_streak( array $readings ): array {
+	private function get_streak( array $readings ): array {
 		$months = array();
 
 		foreach ( $readings as $book ) {
@@ -809,7 +809,7 @@ class Library_Achievements {
 			}
 		}
 
-		if ( count( $longest ) < self::MONTH_STREAK ) {
+		if ( count( $longest ) < self::STREAK_MONTHS ) {
 			return array();
 		}
 
@@ -977,7 +977,7 @@ class Library_Achievements {
 	 * @param array<int,array> $reads Books read, in reading order.
 	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
 	 */
-	private function get_decade_tour( array $reads ): array {
+	private function get_decades( array $reads ): array {
 		$decades = array();
 
 		foreach ( $reads as $book ) {
@@ -993,7 +993,7 @@ class Library_Achievements {
 		$detail = sprintf( __( '%s decades of 10', 'library' ), number_format_i18n( count( $decades ) ) );
 
 		if ( 10 === count( $decades ) ) {
-			return array( array( self::achievement( 'decades', $title, '', $detail, null, self::last_read_date( $decades ) ) ), array() );
+			return array( array( self::achievement( 'decades', $title, '', $detail, null, self::latest_read_date( $decades ) ) ), array() );
 		}
 
 		if ( count( $decades ) >= self::CLOSE_DECADES ) {
@@ -1140,17 +1140,17 @@ class Library_Achievements {
 			);
 		}
 
-		$rosetta = self::latest_variety( $dated, fn( array $book ) => gmdate( 'o-W', strtotime( $book['read_date'] ) ), $languages, self::ROSETTA_LANGUAGES );
+		$rosetta_stone = self::latest_variety( $dated, fn( array $book ) => gmdate( 'o-W', strtotime( $book['read_date'] ) ), $languages, self::ROSETTA_STONE_LANGUAGES );
 
-		if ( $rosetta ) {
+		if ( $rosetta_stone ) {
 			$feats[] = self::achievement(
 				'rosetta-stone',
 				__( 'Rosetta Stone', 'library' ),
 				'',
 				/* translators: %s: number of original languages. */
-				sprintf( __( '%s original languages in a week', 'library' ), number_format_i18n( self::ROSETTA_LANGUAGES ) ),
+				sprintf( __( '%s original languages in a week', 'library' ), number_format_i18n( self::ROSETTA_STONE_LANGUAGES ) ),
 				null,
-				$rosetta['book']['read_date']
+				$rosetta_stone['book']['read_date']
 			);
 		}
 
@@ -1460,15 +1460,15 @@ class Library_Achievements {
 				'one-that-got-away',
 				__( 'The one that got away', 'library' ),
 				/* translators: %s: rating, out of 10. */
-				sprintf( __( 'Not kept, rated %s or more', 'library' ), number_format_i18n( self::LOVED_RATING ) ),
-				array_values( array_filter( $reads, fn( array $book ) => Library_Posts::NOT_KEPT === $book['status'] && $book['rating'] >= self::LOVED_RATING ) )
+				sprintf( __( 'Not kept, rated %s or more', 'library' ), number_format_i18n( self::ONE_THAT_GOT_AWAY_RATING ) ),
+				array_values( array_filter( $reads, fn( array $book ) => Library_Posts::NOT_KEPT === $book['status'] && $book['rating'] >= self::ONE_THAT_GOT_AWAY_RATING ) )
 			),
 			self::latest(
 				'mouthful',
 				__( 'Mouthful', 'library' ),
 				/* translators: %s: number of characters. */
-				sprintf( __( 'A title of %s characters or more', 'library' ), number_format_i18n( self::LONG_TITLE ) ),
-				array_values( array_filter( $reads, fn( array $book ) => mb_strlen( $book['title'] ) >= self::LONG_TITLE ) )
+				sprintf( __( 'A title of %s characters or more', 'library' ), number_format_i18n( self::MOUTHFUL_CHARACTERS ) ),
+				array_values( array_filter( $reads, fn( array $book ) => mb_strlen( $book['title'] ) >= self::MOUTHFUL_CHARACTERS ) )
 			),
 			$this->get_odd_pages( $reads, $dated ),
 			$this->get_splits( $dated ),
@@ -1476,7 +1476,7 @@ class Library_Achievements {
 			$this->get_time_machine( $dated ),
 			$this->get_twins( $dated ),
 			$this->get_marathon( $dated ),
-			$this->get_daily_streak( $dated ),
+			$this->get_seven_days_a_week( $dated ),
 			$this->get_hat_trick( $dated ),
 			$this->get_namesakes( $reads ),
 			$this->get_back_to_the_start( $dated_reads )
@@ -1516,7 +1516,7 @@ class Library_Achievements {
 	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
-	private function get_daily_streak( array $dated ): array {
+	private function get_seven_days_a_week( array $dated ): array {
 		$longest = array();
 		$run     = array();
 
@@ -1529,7 +1529,7 @@ class Library_Achievements {
 			}
 		}
 
-		if ( count( $longest ) < self::DAILY_STREAK ) {
+		if ( count( $longest ) < self::SEVEN_DAYS_A_WEEK_DAYS ) {
 			return array();
 		}
 

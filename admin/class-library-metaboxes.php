@@ -29,8 +29,8 @@ class Library_Metaboxes {
 		add_action( 'add_meta_boxes_book', array( $this, 'register_author_box' ) );
 		add_action( 'save_post_book', array( $this, 'save_metabox' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'render_status' ) );
-		add_filter( 'wp_insert_post_data', array( $this, 'status' ), 10, 2 );
-		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'save_status' ), 10, 2 );
+		add_filter( 'use_block_editor_for_post_type', array( $this, 'keep_classic_editor' ), 10, 2 );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class Library_Metaboxes {
 	 * @param string $post_type        Post type.
 	 * @return bool
 	 */
-	public function use_block_editor( bool $use_block_editor, string $post_type ): bool {
+	public function keep_classic_editor( bool $use_block_editor, string $post_type ): bool {
 		return 'book' === $post_type ? false : $use_block_editor;
 	}
 
@@ -120,14 +120,14 @@ class Library_Metaboxes {
 			return;
 		}
 
-		$statuses = Library_Posts::get_statuses();
-		$selected = isset( $statuses[ $post->post_status ] ) ? $post->post_status : 'publish';
+		$status_choices = Library_Posts::get_status_choices();
+		$selected       = isset( $status_choices[ $post->post_status ] ) ? $post->post_status : 'publish';
 		?>
 		<div class="misc-pub-section misc-pub-library-status">
 			<?php wp_nonce_field( 'library_status', 'library_status_nonce' ); ?>
 			<label for="library-status"><?php esc_html_e( 'Library', 'library' ); ?></label>
 			<select id="library-status" name="library_status" aria-describedby="library-status-description">
-				<?php foreach ( $statuses as $status => $label ) : ?>
+				<?php foreach ( $status_choices as $status => $label ) : ?>
 					<option value="<?php echo esc_attr( $status ); ?>" <?php selected( $status, $selected ); ?>><?php echo esc_html( $label ); ?></option>
 				<?php endforeach; ?>
 			</select>
@@ -147,7 +147,7 @@ class Library_Metaboxes {
 	 * @param array $postarr Slashed submitted data, with the form fields.
 	 * @return array
 	 */
-	public function status( array $data, array $postarr ): array {
+	public function save_status( array $data, array $postarr ): array {
 		$nonce = isset( $postarr['library_status_nonce'] ) ? sanitize_key( wp_unslash( $postarr['library_status_nonce'] ) ) : '';
 
 		if ( 'book' !== $data['post_type'] || ! wp_verify_nonce( $nonce, 'library_status' ) || in_array( $data['post_status'], array( 'trash', 'auto-draft' ), true ) ) {

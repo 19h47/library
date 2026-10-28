@@ -425,7 +425,7 @@
 		}
 
 		/** The next page of the diary, unless one is loading or none is left. */
-		loadMoreReadings() {
+		loadMoreDiary() {
 			const { loading, page, pages: last } = this.get().diary;
 
 			if ( ! loading && page < last ) {

@@ -19,8 +19,8 @@
  * @var object                                        $author_labels    Labels of the authors taxonomy.
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
  * @var object                                        $language_labels  Labels of the original languages taxonomy.
- * @var array<string,string>                          $ratings        Ratings a book can take, by value, with their label.
- * @var array<string,string>                          $statuses       Statuses the forms of a book offer, with their label.
+ * @var array<string,string>                          $rating_choices Ratings a book can take, by value, with their label.
+ * @var array<string,string>                          $status_choices Statuses the forms of a book offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
  */
@@ -257,7 +257,7 @@
 								<span class="sr-only"><?php echo esc_html( Library_Meta::label( 'rating' ) ); ?></span>
 								<select name="rating">
 									<option value=""><?php esc_html_e( 'No rating', 'library' ); ?></option>
-									<?php foreach ( $ratings as $value => $label ) : ?>
+									<?php foreach ( $rating_choices as $value => $label ) : ?>
 										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 									<?php endforeach; ?>
 								</select>
@@ -265,7 +265,7 @@
 							<label class="app-pill">
 								<span class="sr-only"><?php esc_html_e( 'Library', 'library' ); ?></span>
 								<select name="status">
-									<?php foreach ( $statuses as $value => $label ) : ?>
+									<?php foreach ( $status_choices as $value => $label ) : ?>
 										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 									<?php endforeach; ?>
 								</select>
@@ -362,12 +362,12 @@
 					<?php
 					$key        = 'isbn';
 					$attributes = array( 'inputmode' => 'numeric' );
-					require __DIR__ . '/library-field.php';
+					require __DIR__ . '/library-form-field.php';
 					?>
 					<p class="library-field">
 						<label for="library-edit-status"><?php esc_html_e( 'Library', 'library' ); ?></label>
 						<select id="library-edit-status" name="status">
-							<?php foreach ( $statuses as $value => $label ) : ?>
+							<?php foreach ( $status_choices as $value => $label ) : ?>
 								<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 							<?php endforeach; ?>
 						</select>
@@ -378,7 +378,7 @@
 						foreach ( array( 'subtitle', 'series', 'volume_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
 							// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
 							$attributes = 'pages' === $key ? array( 'inputmode' => 'numeric' ) : array();
-							include __DIR__ . '/library-field.php';
+							include __DIR__ . '/library-form-field.php';
 						}
 						?>
 						<p class="library-field">

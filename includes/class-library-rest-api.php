@@ -100,7 +100,7 @@ class Library_Rest_API {
 			'books/reading-stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => fn() => rest_ensure_response( Library_Stats::get_reading_stats() + array( 'year_to_date' => Library_Stats::get_year_to_date() ) ),
+				'callback'            => fn() => rest_ensure_response( Library_Stats::get_reading_stats() + array( 'year_to_date' => Library_Stats::get_reading_year_to_date() ) ),
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 			),
 		);
@@ -243,7 +243,7 @@ class Library_Rest_API {
 				'status' => array(
 					'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
 					'type'        => 'string',
-					'enum'        => array_keys( Library_Posts::get_statuses() ),
+					'enum'        => array_keys( Library_Posts::get_status_choices() ),
 					'default'     => 'publish',
 				),
 			);
@@ -531,7 +531,7 @@ class Library_Rest_API {
 	 */
 	public function get_author( WP_REST_Request $request ) {
 		$term   = get_term( $request['id'], 'library-author' );
-		$author = $term instanceof WP_Term ? current( Library_Taxonomies::get_top_terms( array( $term ) ) ) : null;
+		$author = $term instanceof WP_Term ? current( Library_Taxonomies::get_top_level_terms( array( $term ) ) ) : null;
 
 		if ( ! $author instanceof WP_Term ) {
 			return new WP_Error( 'library_no_author', get_taxonomy( 'library-author' )->labels->not_found, array( 'status' => 404 ) );
