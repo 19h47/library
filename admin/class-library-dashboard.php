@@ -475,6 +475,20 @@ class Library_Dashboard {
 	}
 
 	/**
+	 * The books read, as a table aliased "r" of their post_id, for the rankings to join on their books.
+	 *
+	 * Read at once, rather than looked for among all the meta of each book of a ranking: WordPress indexes the meta
+	 * by post or by key, not by both.
+	 *
+	 * @return string
+	 */
+	private static function read_books(): string {
+		global $wpdb;
+
+		return "( SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'read' AND meta_value = '1' ) AS r";
+	}
+
+	/**
 	 * Terms with the most books; pseudonyms count for their real name and collections for their publisher, i.e. their parent.
 	 *
 	 * @param string $taxonomy Taxonomy.
@@ -483,12 +497,14 @@ class Library_Dashboard {
 	private function get_top_terms( string $taxonomy ): array {
 		global $wpdb;
 
+		$read_books = self::read_books();
+
 		$rows = Library_Stats::select(
 			"SELECT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
+			LEFT JOIN {$read_books} ON r.post_id = p.ID
 			WHERE {library}
 			GROUP BY 1
 			ORDER BY books DESC, books_read DESC
@@ -508,12 +524,14 @@ class Library_Dashboard {
 	private function get_top_collections(): array {
 		global $wpdb;
 
+		$read_books = self::read_books();
+
 		$rows = Library_Stats::select(
 			"SELECT tt.term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library-publisher' AND tt.parent != 0
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
+			LEFT JOIN {$read_books} ON r.post_id = p.ID
 			WHERE {library}
 			GROUP BY tt.term_id
 			ORDER BY books DESC, books_read DESC
