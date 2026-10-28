@@ -15,11 +15,14 @@
  * @var array{id: string, label: string, required?: bool, description?: string, control?: string, attributes?: array<string, string|bool|null>} $args
  */
 
-$args += array(
-	'required'    => false,
-	'description' => '',
-	'control'     => '<input>',
-	'attributes'  => array(),
+$args = wp_parse_args(
+	$args,
+	array(
+		'required'    => false,
+		'description' => '',
+		'control'     => '<input>',
+		'attributes'  => array(),
+	)
 );
 
 $description_id = "{$args['id']}-description";
