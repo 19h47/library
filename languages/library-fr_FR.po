@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-28T15:07:18+00:00\n"
+"POT-Creation-Date: 2026-10-28T15:16:55+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -545,14 +545,14 @@ msgid "To buy"
 msgstr "Envies"
 
 #. translators: %s: label of a field that must be filled in, e.g. Title.
-#: app/partials/components/field.php:42
+#: app/components/field.php:42
 #, php-format
 msgctxt "one field"
 msgid "%s (required)"
 msgstr "%s (obligatoire)"
 
 #. translators: %s: label of fields that must be filled in, e.g. Read dates.
-#: app/partials/components/input-list.php:32
+#: app/components/input-list.php:32
 #, php-format
 msgctxt "several fields"
 msgid "%s (required)"

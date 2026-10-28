@@ -62,7 +62,7 @@ class Library {
 	}
 
 	/**
-	 * Print a component of the app, from app/partials/components, with its arguments in `$args`.
+	 * Print a component of the app, from app/components, with its arguments in `$args`.
 	 *
 	 * As load_template() does, without the variables of the query it brings: get_template_part() looks in the theme only.
 	 *
@@ -71,7 +71,7 @@ class Library {
 	 * @return void
 	 */
 	public static function component( string $name, array $args = array() ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Read by the component it includes.
-		require LIBRARY_DIR_PATH . "app/partials/components/$name.php";
+		require LIBRARY_DIR_PATH . "app/components/$name.php";
 	}
 
 	/**
