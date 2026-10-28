@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 2cc86a9.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 6eea6c0.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -47,7 +47,7 @@
   /* Size of an item off screen, until it renders: set it to the app's usual item */
   --app-item-size: 12rem;
 
-  /* Fixed controls, top-right corner */
+  /* A control, a field of one line or the square of an icon, such as the fixed ones at the top-right corner: a step high */
   --app-control-size: var(--app-u3);
   --app-control-gap: calc(var(--app-u0) / var(--app-phi));
   /* 1/φ ≈ 0.618: icons at rest keep a 3:1 contrast in both themes */
@@ -210,8 +210,9 @@ select {
 
 .app-search input[type="search"] {
   width: 100%;
-  /* As a field: its text on each side, half a step less above and below */
-  padding: calc(1em / sqrt(var(--app-phi))) 1em;
+  /* As a field: as high as a control, its text centered in it, and its text on each side */
+  block-size: var(--app-control-size);
+  padding: 0 1em;
   border-radius: var(--app-radius);
   border: 1px solid var(--app-line-soft);
   background: transparent;
