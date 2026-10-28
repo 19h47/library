@@ -85,9 +85,9 @@
 						</library-search>
 						<library-count class="app-pill" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						<library-read-filter>
-							<label class="app-pill">
+							<label class="app-pill" for="library-read-filter">
 								<span class="sr-only"><?php esc_html_e( 'Reading state', 'library' ); ?></span>
-								<select>
+								<select id="library-read-filter">
 									<option value=""><?php echo esc_html( $labels->all_items ); ?></option>
 									<option value="yes"><?php esc_html_e( 'Read', 'library' ); ?></option>
 									<option value="no"><?php esc_html_e( 'To read', 'library' ); ?></option>
@@ -249,22 +249,22 @@
 				<library-reading>
 					<form class="library-reading">
 						<div class="library-reading__pills">
-							<label class="app-pill">
-								<?php echo Library_Meta::input( 'read' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+							<label class="app-pill" for="library-reading-read">
+								<?php echo Library_Meta::input( 'read', array( 'id' => 'library-reading-read' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
 								<?php echo esc_html( Library_Meta::label( 'read' ) ); ?>
 							</label>
-							<label class="app-pill">
+							<label class="app-pill" for="library-reading-rating">
 								<span class="sr-only"><?php echo esc_html( Library_Meta::label( 'rating' ) ); ?></span>
-								<select name="rating">
+								<select id="library-reading-rating" name="rating">
 									<option value=""><?php esc_html_e( 'No rating', 'library' ); ?></option>
 									<?php foreach ( $rating_choices as $value => $label ) : ?>
 										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</label>
-							<label class="app-pill">
+							<label class="app-pill" for="library-reading-status">
 								<span class="sr-only"><?php esc_html_e( 'Library', 'library' ); ?></span>
-								<select name="status">
+								<select id="library-reading-status" name="status">
 									<?php foreach ( $status_choices as $value => $label ) : ?>
 										<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 									<?php endforeach; ?>
@@ -326,8 +326,8 @@
 				<form class="library-edit__form">
 					<div class="library-edit__cover">
 						<img class="library-edit__preview" alt="" hidden>
-						<label class="app-pill">
-							<input class="sr-only" type="file" name="cover" accept="image/*">
+						<label class="app-pill" for="library-edit-cover">
+							<input class="sr-only" id="library-edit-cover" type="file" name="cover" accept="image/*">
 							<?php esc_html_e( 'Choose a cover', 'library' ); ?>
 						</label>
 						<button class="app-pill" type="button" data-action="remove-cover" hidden><?php esc_html_e( 'Remove the cover', 'library' ); ?></button>
