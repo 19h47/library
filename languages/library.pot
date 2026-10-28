@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.7.1\n"
+"Project-Id-Version: Library 6.7.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-28T08:07:53+00:00\n"
+"POT-Creation-Date: 2026-10-28T08:21:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -116,19 +116,19 @@ msgid "Table ordered by rating."
 msgstr ""
 
 #. translators: %s: reading percentage.
-#: admin/class-library-books-list.php:313
+#: admin/class-library-books-list.php:315
 #: admin/js/library-admin-read.js:26
 #: app/js/bricks/library-progress.js:13
 #, php-format,js-format
 msgid "%s%% read"
 msgstr ""
 
-#: admin/class-library-books-list.php:317
+#: admin/class-library-books-list.php:319
 msgid "Loading percent read..."
 msgstr ""
 
 #. translators: %s: number of books.
-#: admin/class-library-books-list.php:338
+#: admin/class-library-books-list.php:340
 #, php-format
 msgid "In the library <span class=\"count\">(%s)</span>"
 msgid_plural "In the library <span class=\"count\">(%s)</span>"
