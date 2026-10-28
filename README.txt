@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.7.3
+Stable tag: 6.7.4
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,10 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.7.4 =
+* Fixed: on a narrow screen, the title of the app leaves room for the toolbar beside it. In French, “Bibliothèque” no longer runs under the add button at 320 pixels wide, nor when a reader widens the spacing of the text (WCAG 1.4.12, RGAA 10.12).
+* Fixed: on a narrow screen, the button that removes an author stays inside the form of a book.
 
 = 6.7.3 =
 * Code only: each name says what it holds, the same way from the server to the reading app. Nothing changes on screen.
