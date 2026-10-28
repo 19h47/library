@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.7.4
+Stable tag: 6.8.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -33,7 +33,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 * Registers the `book` post type, edited in the classic screen, the `library-author`, `library-publisher` and `library-language` taxonomies and the book meta, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
-* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header.
+* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
 
 == Installation ==
 
@@ -87,6 +87,13 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.8.0 =
+* Reading app: a styleguide, for development, opened by searching `styleguide`: the tokens of the app, then each of its components in a frame, with its own markup alone. In English, as code is.
+* Reading app: a click anywhere on a pill that holds a select opens it, rather than only focusing it on its edges; the select draws its own chevron, the same in every browser.
+* Reading app: on a phone, a card is padded one step less, to leave its width to the text.
+* Fixed: every label of a field of the app points to it with `for`, as RGAA 11.1.1 asks: the reading filter, the read state, rating and status of a book, and its cover.
+* Code only: a section title, the year and the header of an author take their spacing from what holds them, and the search field its look from itself. Nothing moves on screen.
 
 = 6.7.4 =
 * Fixed: on a narrow screen, the title of the app leaves room for the toolbar beside it. In French, “Bibliothèque” no longer runs under the add button at 320 pixels wide, nor when a reader widens the spacing of the text (WCAG 1.4.12, RGAA 10.12).
