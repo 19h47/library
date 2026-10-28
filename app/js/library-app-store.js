@@ -20,6 +20,8 @@
 	// The views of the navigation; the page of an author is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
 	const AUTHOR_VIEW = 'author';
+	// The components of the app, for development: a view out of the navigation, opened by searching its name.
+	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the latest readings, the reading idea and the achievements close to be earned.
 	const HOME = [ 'diary', 'idea', 'achievements' ];
 	const PER_PAGE = 24;
@@ -163,7 +165,12 @@
 			return idOf( url, 'author' ) ? view : 'books';
 		}
 
-		return VIEWS.includes( view ) ? view : 'books';
+		return isNamedView( view ) ? view : 'books';
+	}
+
+	/** Whether a view opens by its name alone: one of the navigation, or the styleguide. */
+	function isNamedView( view ) {
+		return VIEWS.includes( view ) || STYLEGUIDE_VIEW === view;
 	}
 
 	/** The ID a URL gives as `name`, such as the author of ?author= or the book of ?book=, or 0. */
@@ -340,7 +347,7 @@
 
 		/** Shows a view, at its top, with its URL in the history. */
 		setView( view ) {
-			if ( ! VIEWS.includes( view ) || view === this.get().view ) {
+			if ( ! isNamedView( view ) || view === this.get().view ) {
 				return;
 			}
 
@@ -382,7 +389,14 @@
 			scrollToTop();
 		}
 
+		/** The search of the books; the name of the styleguide opens it, the search left empty behind it. */
 		setQuery( query ) {
+			if ( STYLEGUIDE_VIEW === query.trim().toLowerCase() ) {
+				this.setQuery( '' );
+				this.setView( STYLEGUIDE_VIEW );
+				return;
+			}
+
 			this.set( ( state ) => ( { ...state, query } ) );
 			this.#loadHome();
 
@@ -692,8 +706,12 @@
 			}
 		}
 
-		/** Loads the data of a view, unless they are loaded or loading. */
+		/** Loads the data of a view, unless they are loaded or loading; the styleguide has none, its samples are written in it. */
 		#load( view ) {
+			if ( STYLEGUIDE_VIEW === view ) {
+				return;
+			}
+
 			const state = this.get();
 			const loaders = {
 				books: [ state.search, () => this.#fetchList( 'search' ) ],

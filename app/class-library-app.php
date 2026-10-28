@@ -37,6 +37,13 @@ class Library_App {
 	public const AUTHOR_VIEW = 'author';
 
 	/**
+	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
+	 *
+	 * @var string
+	 */
+	public const STYLEGUIDE_VIEW = 'styleguide';
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -103,7 +110,7 @@ class Library_App {
 		$view   = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
 		$author = absint( $_GET['author'] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( self::AUTHOR_VIEW === $view && $author ) ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( self::AUTHOR_VIEW === $view && $author ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
 		require LIBRARY_DIR_PATH . 'app/partials/library-app.php';
 		exit;

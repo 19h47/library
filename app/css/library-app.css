@@ -44,7 +44,8 @@ library-view,
 library-home,
 library-latest,
 library-idea,
-library-close {
+library-close,
+library-styleguide {
 	display: block;
 }
 
@@ -551,6 +552,86 @@ library-latest {
 	text-align: start;
 	overflow: hidden;
 	overflow-wrap: anywhere;
+}
+
+/* The styleguide: the tokens, then the components, each in a frame */
+.library-styleguide__intro {
+	margin-bottom: var(--app-u2);
+	color: var(--app-text-muted);
+}
+
+/* A frame keeps the width of the page: a component wider than it goes past its border, rather than widening the others */
+.library-styleguide__samples {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--app-u2);
+}
+
+.library-styleguide__samples figcaption {
+	margin-bottom: var(--app-gap);
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+}
+
+.library-styleguide__samples code {
+	font-family: var(--app-font-mono);
+	overflow-wrap: anywhere;
+}
+
+/* A frame around a component, to see its box */
+.library-styleguide__frame {
+	padding: var(--app-u1);
+	border: 1px dashed var(--app-line);
+	border-radius: var(--app-radius);
+}
+
+/* Components side by side, or one under the other, as the place that holds them in the app sets them */
+.library-styleguide__row {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: start;
+	gap: var(--app-gap);
+}
+
+.library-styleguide__stack {
+	display: grid;
+	gap: var(--app-u1);
+}
+
+.library-styleguide__tokens {
+	list-style: none;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+	gap: var(--app-gap);
+}
+
+.library-styleguide__tokens li {
+	display: flex;
+	align-items: center;
+	gap: var(--app-gap);
+}
+
+.library-styleguide__swatch {
+	flex: none;
+	width: var(--app-u3);
+	height: var(--app-u3);
+	border: 1px solid var(--app-line);
+	border-radius: calc(var(--app-radius) / 2);
+	background: var(--library-token);
+}
+
+.library-styleguide__step {
+	flex: none;
+	width: var(--library-token);
+	height: var(--app-u3);
+	background: var(--app-text);
+}
+
+.library-styleguide__font {
+	font-family: var(--library-token);
+	font-size: var(--app-u2);
 }
 
 /*

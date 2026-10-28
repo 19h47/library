@@ -1,7 +1,7 @@
 <?php
 /**
  * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the books to buy,
- * the page of an author, the book open with the form of its reading, and the form of a book, to add or edit.
+ * the page of an author, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -204,6 +204,10 @@
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-author>
+				</library-view>
+
+				<library-view name="styleguide" <?php echo Library_App::STYLEGUIDE_VIEW === $view ? '' : 'hidden'; ?>>
+					<?php require __DIR__ . '/library-styleguide.php'; ?>
 				</library-view>
 			</div>
 
