@@ -415,14 +415,10 @@ with its line breaks.</p>
 					Library::component(
 						'input-list',
 						array(
-							'class'  => 'library-field',
 							'legend' => 'Authors',
 							'add'    => 'Add an author',
 							'action' => 'add-author',
-							'list'   => array(
-								'class'       => 'library-edit__authors',
-								'data-sample' => 'authors',
-							),
+							'list'   => array( 'data-sample' => 'authors' ),
 						)
 					);
 					?>
@@ -435,7 +431,6 @@ with its line breaks.</p>
 					Library::component(
 						'input-list',
 						array(
-							'class'    => 'library-reading__dates',
 							'legend'   => 'Read dates',
 							'required' => true,
 							'add'      => 'Add a reading',

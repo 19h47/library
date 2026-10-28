@@ -349,40 +349,41 @@ library-author > .library-author {
 	gap: var(--app-gap);
 }
 
-.library-reading__dates {
+/*
+ * A list of inputs, such as the authors of a book or its read dates: its legend above it as the label of a field, then
+ * its rows and the button that adds one, a gap apart. A row holds its input and the control that removes it.
+ */
+.library-input-list {
 	display: grid;
 	gap: var(--app-gap);
 	min-inline-size: 0;
 	border: 0;
 }
 
-.library-reading__dates legend {
-	margin-bottom: var(--app-gap);
-	color: var(--app-text-muted);
-	font-family: var(--app-font-ui);
-	font-size: var(--app-font-small);
-	text-transform: uppercase;
+.library-input-list legend {
+	margin-bottom: var(--app-gap-small);
 }
 
-.library-reading__dates ul {
+.library-input-list__items {
 	list-style: none;
 	display: grid;
 	gap: var(--app-gap);
 }
 
-.library-reading__date {
+.library-input-list__item {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--app-gap);
+	min-width: 0;
 }
 
-.library-reading__date input {
+.library-input-list__item input {
 	flex: 1;
 }
 
 /* A field of a form, such as a read date or the title of a book */
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea) {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select, textarea) {
 	/* As a pill or the search, in em of its text */
 	--library-field-padding-inline: 1em;
 	--app-select-padding-inline: var(--library-field-padding-inline);
@@ -398,20 +399,20 @@ library-author > .library-author {
 }
 
 /* A field of text ends with its padding; a select, with its chevron after it */
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), textarea) {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), textarea) {
 	padding-inline-end: var(--library-field-padding-inline);
 }
 
 /* Pointed at, its border is firmer; in error, it takes the color of an error, its message under it; out of use, it fades */
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea):hover:not(:disabled, [aria-invalid="true"]) {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select, textarea):hover:not(:disabled, [aria-invalid="true"]) {
 	border-color: var(--app-line);
 }
 
-:is(.library-reading__date, .library-field) :is(input:not([type="file"]), select, textarea)[aria-invalid="true"] {
+:is(.library-field, .library-input-list__item) :is(input:not([type="file"]), select, textarea)[aria-invalid="true"] {
 	border-color: var(--library-error);
 }
 
-:is(.library-reading__date, .library-field) :is(input, select, textarea):disabled {
+:is(.library-field, .library-input-list__item) :is(input, select, textarea):disabled {
 	opacity: var(--app-control-opacity);
 }
 
@@ -421,8 +422,8 @@ library-author > .library-author {
 	font-size: var(--app-font-small);
 }
 
-/* In a row of a list, such as a read date, it takes a line of its own */
-:is(.library-reading__date, .library-edit__author) > .library-error {
+/* In a row of a list of inputs, such as a read date, it takes a line of its own */
+.library-input-list__item > .library-error {
 	flex-basis: 100%;
 }
 
@@ -458,16 +459,13 @@ library-author > .library-author {
 	border: 0;
 }
 
-.library-field :is(label, legend),
+.library-field label,
+.library-input-list legend,
 .library-edit__details summary {
 	color: var(--app-text-muted);
 	font-family: var(--app-font-ui);
 	font-size: var(--app-font-small);
 	text-transform: uppercase;
-}
-
-.library-field legend {
-	margin-bottom: var(--app-gap-small);
 }
 
 .library-field small {
@@ -488,25 +486,6 @@ library-author > .library-author {
 	height: var(--library-cover-height);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--library-radius-small);
-}
-
-.library-edit__authors {
-	list-style: none;
-	display: grid;
-	gap: var(--app-gap);
-	margin-bottom: var(--app-gap);
-}
-
-.library-edit__author {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--app-gap);
-	min-width: 0;
-}
-
-.library-edit__author input {
-	flex: 1;
 }
 
 .library-edit__details summary {

@@ -402,14 +402,10 @@
 					Library::component(
 						'input-list',
 						array(
-							'class'  => 'library-field',
 							'legend' => $author_labels->name,
 							'add'    => __( 'Add an author', 'library' ),
 							'action' => 'add-author',
-							'list'   => array(
-								'class'     => 'library-edit__authors',
-								'data-list' => 'authors',
-							),
+							'list'   => array( 'data-list' => 'authors' ),
 						)
 					);
 					Library::component(
@@ -511,7 +507,7 @@
 		</template>
 
 		<template id="library-read-date">
-			<li class="library-reading__date">
+			<li class="library-input-list__item">
 				<?php
 				$input = Library_Meta::input(
 					'read_date',
@@ -524,7 +520,7 @@
 				echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 				?>
 				<button
-					class="app-pill"
+					class="app-control"
 					type="button"
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
@@ -545,10 +541,10 @@
 		</template>
 
 		<template id="library-edit-author">
-			<li class="library-edit__author">
+			<li class="library-input-list__item">
 				<input name="author" list="library-edit-authors" autocomplete="off" aria-label="<?php echo esc_attr( $author_labels->singular_name ); ?>">
 				<button
-					class="app-pill"
+					class="app-control"
 					type="button"
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this author', 'library' ); ?>"
