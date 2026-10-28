@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.7.0
+Stable tag: 6.7.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,10 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.7.1 =
+* The dashboard counts the readings of the year once, rather than once for the reading widget and once for the reading idea.
+* The authors, publishers and collections with the most books, in the Library widget of the dashboard, show three times faster.
 
 = 6.7.0 =
 * Reading app: its icon, on the home screen of a phone and in the browser tab, is the book of the Books menu, grey on dark; in the tab, it follows the theme.

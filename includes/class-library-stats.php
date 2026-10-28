@@ -102,9 +102,17 @@ class Library_Stats {
 	 * Books read this year and by the same date last year, and the number expected by the end of the year;
 	 * a book read again counts once per reading.
 	 *
+	 * Kept for the request: the reading widget and the reading idea of the dashboard both ask for it.
+	 *
 	 * @return array{year:int,this_year:int,last_year:int,projection:int|null}
 	 */
 	public static function get_year_to_date(): array {
+		static $year_to_date = null;
+
+		if ( null !== $year_to_date ) {
+			return $year_to_date;
+		}
+
 		$today          = new DateTimeImmutable( 'now', wp_timezone() );
 		$same_day       = $today->modify( '-1 year' );
 		$this_year_from = $today->format( 'Y-01-01' );
@@ -128,11 +136,13 @@ class Library_Stats {
 		// A month of readings is the least to project a whole year from.
 		$projection = $day_of_year >= 31 ? (int) round( $this_year * $days_in_year / $day_of_year ) : null;
 
-		return array(
+		$year_to_date = array(
 			'year'       => (int) $today->format( 'Y' ),
 			'this_year'  => $this_year,
 			'last_year'  => (int) $row->last_year,
 			'projection' => $projection,
 		);
+
+		return $year_to_date;
 	}
 }
