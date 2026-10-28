@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.6.3\n"
+"Project-Id-Version: Library 6.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-27T21:15:58+00:00\n"
+"POT-Creation-Date: 2026-10-28T07:36:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -19,8 +19,8 @@ msgstr ""
 #: admin/class-library-dashboard.php:69
 #: admin/class-library-metaboxes.php:128
 #: app/class-library-app.php:65
-#: app/class-library-app.php:167
 #: app/class-library-app.php:168
+#: app/class-library-app.php:169
 #: app/partials/library-app.php:36
 #: app/partials/library-app.php:54
 #: app/partials/library-app.php:266
@@ -76,56 +76,64 @@ msgstr ""
 msgid "Easter eggs"
 msgstr ""
 
-#: admin/class-library-books-list.php:50
+#: admin/class-library-books-list.php:52
 msgid "Thumbnail"
 msgstr ""
 
-#: admin/class-library-books-list.php:56
+#: admin/class-library-books-list.php:58
 #: app/partials/library-app.php:429
 msgid "Read date"
 msgstr ""
 
 #. translators: %s: book title.
-#: admin/class-library-books-list.php:78
+#: admin/class-library-books-list.php:80
 #, php-format
 msgid "Read: %s"
 msgstr ""
 
 #. translators: %s: number of readings of a book.
-#: admin/class-library-books-list.php:117
+#: admin/class-library-books-list.php:119
 #, php-format
 msgid "%s reading"
 msgid_plural "%s readings"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/class-library-books-list.php:131
+#: admin/class-library-books-list.php:133
 msgid "Rated"
 msgstr ""
 
-#: admin/class-library-books-list.php:210
+#: admin/class-library-books-list.php:212
 msgid "Last read date"
 msgstr ""
 
-#: admin/class-library-books-list.php:256
+#: admin/class-library-books-list.php:258
 msgid "Table ordered by edition date."
 msgstr ""
 
-#: admin/class-library-books-list.php:257
+#: admin/class-library-books-list.php:259
 msgid "Table ordered by rating."
 msgstr ""
 
 #. translators: %s: reading percentage.
-#: admin/class-library-books-list.php:311
+#: admin/class-library-books-list.php:313
 #: admin/js/library-admin-read.js:26
 #: app/js/bricks/library-progress.js:13
 #, php-format,js-format
 msgid "%s%% read"
 msgstr ""
 
-#: admin/class-library-books-list.php:315
+#: admin/class-library-books-list.php:317
 msgid "Loading percent read..."
 msgstr ""
+
+#. translators: %s: number of books.
+#: admin/class-library-books-list.php:338
+#, php-format
+msgid "In the library <span class=\"count\">(%s)</span>"
+msgid_plural "In the library <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
 
 #: admin/class-library-dashboard.php:66
 msgid "Reading"
