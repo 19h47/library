@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.10.0\n"
+"Project-Id-Version: Library 6.11.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-28T15:03:04+00:00\n"
+"POT-Creation-Date: 2026-10-28T15:07:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -548,14 +548,14 @@ msgid "To buy"
 msgstr ""
 
 #. translators: %s: label of a field that must be filled in, e.g. Title.
-#: app/partials/components/field.php:39
+#: app/partials/components/field.php:42
 #, php-format
 msgctxt "one field"
 msgid "%s (required)"
 msgstr ""
 
 #. translators: %s: label of fields that must be filled in, e.g. Read dates.
-#: app/partials/components/input-list.php:23
+#: app/partials/components/input-list.php:32
 #, php-format
 msgctxt "several fields"
 msgid "%s (required)"
