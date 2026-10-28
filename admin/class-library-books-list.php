@@ -28,8 +28,8 @@ class Library_Books_List {
 	public function hooks(): void {
 		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
 		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
-		add_filter( 'post_column_taxonomy_links', array( $this, 'column_term_links' ), 10, 3 );
-		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'sortable_columns' ) );
+		add_filter( 'post_column_taxonomy_links', array( $this, 'link_column_terms' ), 10, 3 );
+		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'add_sortable_columns' ) );
 		add_filter( 'posts_clauses', array( $this, 'sort_by_meta' ), 10, 2 );
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
@@ -241,20 +241,20 @@ class Library_Books_List {
 		$values = wp_unslash( $_POST );
 
 		if ( isset( $values['read_date'] ) ) {
-			$values['read_date'] = Library_Meta::replace_last_read_date( $post_id, (string) $values['read_date'] );
+			$values['read_date'] = Library_Meta::replace_latest_read_date( $post_id, (string) $values['read_date'] );
 		}
 
 		Library_Meta::save( $post_id, $values );
 	}
 
 	/**
-	 * Sortable columns; the books list is sorted by edition date by default.
+	 * Add the sortable columns; the books list is sorted by edition date by default.
 	 *
 	 * @param array $sortable_columns Sortable columns.
 	 *
 	 * @return array
 	 */
-	public function sortable_columns( array $sortable_columns ): array {
+	public function add_sortable_columns( array $sortable_columns ): array {
 		$sortable_columns['edition_date'] = array( 'edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
 		$sortable_columns['rating']       = array( 'rating', true, '', __( 'Table ordered by rating.', 'library' ) );
 
@@ -351,7 +351,7 @@ class Library_Books_List {
 	 * @param WP_Term[] $terms      Terms.
 	 * @return string[]
 	 */
-	public function column_term_links( array $term_links, string $taxonomy, array $terms ): array {
+	public function link_column_terms( array $term_links, string $taxonomy, array $terms ): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view filter.
 		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
 
@@ -360,7 +360,7 @@ class Library_Books_List {
 		}
 
 		if ( 'library-publisher' === $taxonomy ) {
-			$terms = Library_Taxonomies::get_top_terms( $terms );
+			$terms = Library_Taxonomies::get_top_level_terms( $terms );
 		} elseif ( '' === $status ) {
 			return $term_links;
 		}

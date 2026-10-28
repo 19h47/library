@@ -43,7 +43,7 @@ class Library_Updater {
 	 */
 	public function hooks(): void {
 		add_filter( 'update_plugins_github.com', array( $this, 'check_update' ), 10, 3 );
-		add_filter( 'plugins_api', array( $this, 'plugin_information' ), 20, 3 );
+		add_filter( 'plugins_api', array( $this, 'get_plugin_information' ), 20, 3 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_source' ), 10, 4 );
 	}
 
@@ -91,7 +91,7 @@ class Library_Updater {
 	 * @param object             $args   Request arguments.
 	 * @return false|object|array
 	 */
-	public function plugin_information( $result, string $action, object $args ) {
+	public function get_plugin_information( $result, string $action, object $args ) {
 		if ( 'plugin_information' !== $action || ! isset( $args->slug ) || $this->slug() !== $args->slug ) {
 			return $result;
 		}

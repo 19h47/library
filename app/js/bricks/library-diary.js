@@ -8,7 +8,7 @@ import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 class LibraryDiaryElement extends Brick {
 	connect( signal ) {
 		const $months = this.querySelector( '.library-diary__months' );
-		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreReadings() );
+		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreDiary() );
 
 		openBooks( $months, signal );
 

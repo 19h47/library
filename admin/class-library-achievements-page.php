@@ -48,7 +48,7 @@ class Library_Achievements_Page {
 	 * Register the dashboard widget.
 	 */
 	public function register_widget(): void {
-		wp_add_dashboard_widget( 'library_dashboard_achievements', __( 'Achievements', 'library' ), array( $this, 'render' ) );
+		wp_add_dashboard_widget( 'library_dashboard_achievements', __( 'Achievements', 'library' ), array( $this, 'render_widget' ) );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Library_Achievements_Page {
 	/**
 	 * Render the widget: the latest achievements as badges, the closest with their progress, and a link to the page.
 	 */
-	public function render(): void {
+	public function render_widget(): void {
 		$achievements = ( new Library_Achievements() )->get_achievements();
 		$earned       = $achievements['earned'];
 		$latest       = array_slice( $earned, 0, self::LIST_LENGTH );

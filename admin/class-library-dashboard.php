@@ -36,7 +36,7 @@ class Library_Dashboard {
 	public function hooks(): void {
 		add_action( 'wp_dashboard_setup', array( $this, 'register_widgets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'dashboard_glance_items', array( $this, 'at_a_glance' ) );
+		add_filter( 'dashboard_glance_items', array( $this, 'add_books_at_a_glance' ) );
 	}
 
 	/**
@@ -74,11 +74,11 @@ class Library_Dashboard {
 	 */
 	public function render_reading(): void {
 		$stats        = Library_Stats::get_reading_stats();
-		$year_to_date = Library_Stats::get_year_to_date();
-		$pages_read   = $this->get_pages_this_year();
+		$year_to_date = Library_Stats::get_reading_year_to_date();
+		$pages_read   = $this->get_pages_read_this_year();
 		$charts       = $this->get_reading_charts();
 
-		$this->render( 'reading', compact( 'stats', 'year_to_date', 'pages_read', 'charts' ) );
+		$this->render_partial( 'reading', compact( 'stats', 'year_to_date', 'pages_read', 'charts' ) );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Library_Dashboard {
 		$ratings = $this->get_ratings();
 		$charts  = array( $ratings['chart'], $this->get_average_rating_chart() );
 
-		$this->render( 'ratings', compact( 'ratings', 'charts' ) );
+		$this->render_partial( 'ratings', compact( 'ratings', 'charts' ) );
 	}
 
 	/**
@@ -99,7 +99,7 @@ class Library_Dashboard {
 		$oldest       = $this->get_oldest_unread_book();
 		$recent_reads = $this->get_recent_reads();
 
-		$this->render( 'pile', compact( 'to_read', 'oldest', 'recent_reads' ) );
+		$this->render_partial( 'pile', compact( 'to_read', 'oldest', 'recent_reads' ) );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Library_Dashboard {
 		);
 		$charts   = array( $this->get_edition_chart() );
 
-		$this->render( 'collection', compact( 'counts', 'rankings', 'charts' ) );
+		$this->render_partial( 'collection', compact( 'counts', 'rankings', 'charts' ) );
 	}
 
 	/**
@@ -143,7 +143,7 @@ class Library_Dashboard {
 	 * @param string $widget Widget name, i.e. the partial suffix.
 	 * @param array  $data   Variables for the partial.
 	 */
-	private function render( string $widget, array $data ): void {
+	private function render_partial( string $widget, array $data ): void {
 		$data['charts'] = array_filter( $data['charts'] ?? array(), fn( array $chart ) => array_sum( array_column( $chart['items'], 'value' ) ) > 0 );
 
 		extract( $data ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Partial variables, built above.
@@ -247,7 +247,7 @@ class Library_Dashboard {
 	 *
 	 * @return array{pages:int,books:int}
 	 */
-	private function get_pages_this_year(): array {
+	private function get_pages_read_this_year(): array {
 		global $wpdb;
 
 		[ $row ] = Library_Stats::select(
@@ -644,7 +644,7 @@ class Library_Dashboard {
 	 * @param string[] $items Items.
 	 * @return string[]
 	 */
-	public function at_a_glance( array $items ): array {
+	public function add_books_at_a_glance( array $items ): array {
 		$count = (int) wp_count_posts( 'book' )->publish;
 
 		if ( ! $count ) {

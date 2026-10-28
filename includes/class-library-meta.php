@@ -73,7 +73,7 @@ class Library_Meta {
 	 * @return void
 	 */
 	public function hooks(): void {
-		add_action( 'init', array( $this, 'register' ) );
+		add_action( 'init', array( $this, 'register_meta' ) );
 		add_action( 'added_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
 		add_action( 'updated_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
 		add_action( 'deleted_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
@@ -85,7 +85,7 @@ class Library_Meta {
 	 *
 	 * @return void
 	 */
-	public function register(): void {
+	public function register_meta(): void {
 		$labels       = array(
 			'subtitle'       => __( 'Subtitle', 'library' ),
 			'series'         => __( 'Series', 'library' ),
@@ -317,7 +317,7 @@ class Library_Meta {
 	 * @param string $read_date Date of the latest reading, Y-m-d, or empty.
 	 * @return string[]
 	 */
-	public static function replace_last_read_date( int $post_id, string $read_date ): array {
+	public static function replace_latest_read_date( int $post_id, string $read_date ): array {
 		$read_dates = self::get_read_dates( $post_id );
 
 		array_pop( $read_dates );

@@ -106,7 +106,7 @@ class Library_Stats {
 	 *
 	 * @return array{year:int,this_year:int,last_year:int,projection:int|null}
 	 */
-	public static function get_year_to_date(): array {
+	public static function get_reading_year_to_date(): array {
 		static $year_to_date = null;
 
 		if ( null !== $year_to_date ) {

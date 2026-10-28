@@ -70,7 +70,7 @@ class Library_App {
 		);
 
 		if ( $hook ) {
-			add_action( "load-$hook", array( $this, 'render' ) );
+			add_action( "load-$hook", array( $this, 'render_page' ) );
 		}
 	}
 
@@ -79,7 +79,7 @@ class Library_App {
 	 *
 	 * @return void
 	 */
-	public function render(): void {
+	public function render_page(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads which file to serve, changes nothing.
 		if ( isset( $_GET['manifest'] ) ) {
 			$this->render_manifest();
@@ -95,8 +95,8 @@ class Library_App {
 		$author_labels      = get_taxonomy( 'library-author' )->labels;
 		$publisher_labels   = get_taxonomy( 'library-publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library-language' )->labels;
-		$ratings            = $this->get_ratings();
-		$statuses           = Library_Posts::get_statuses();
+		$rating_choices     = $this->get_rating_choices();
+		$status_choices     = Library_Posts::get_status_choices();
 		$views              = $this->get_views( $labels->name );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
@@ -140,7 +140,7 @@ class Library_App {
 	 *
 	 * @return array<string,string>
 	 */
-	private function get_ratings(): array {
+	private function get_rating_choices(): array {
 		$schema  = get_registered_meta_keys( 'post', 'book' )['rating']['show_in_rest']['schema'];
 		$ratings = array();
 
