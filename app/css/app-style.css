@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision ab3300f.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision c6af8ba.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix().
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
@@ -260,10 +260,17 @@ label.app-pill:hover {
   contain-intrinsic-size: auto var(--app-item-size);
   display: grid;
   gap: var(--app-gap-small);
-  padding: var(--app-u2);
+  /* On a phone, a step below: the width goes to the text */
+  padding: var(--app-u1);
   border: 1px solid var(--app-line-soft);
   border-radius: var(--app-radius);
   overflow: hidden;
+}
+
+@media (min-width: 42rem) {
+  .app-item {
+    padding: var(--app-u2);
+  }
 }
 
 .app-item__meta {
