@@ -66,6 +66,13 @@ class LibraryStyleguideElement extends Brick {
 		showError( $invalid, $invalid.dataset.error );
 		showError( this.querySelector( '[data-sample="dates"] li:last-child input' ), 'A date later than today, as the browser says it.' );
 
+		// The size each sample of text takes, at this width.
+		this.querySelectorAll( '.library-styleguide__sizes li' ).forEach( ( $item ) => {
+			const size = parseFloat( getComputedStyle( $item.querySelector( '.library-styleguide__size' ) ).fontSize );
+
+			$item.querySelector( '[data-size]' ).textContent = `${ Math.round( size * 10 ) / 10 } px`;
+		} );
+
 		return [];
 	}
 
