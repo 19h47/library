@@ -149,6 +149,17 @@ class Library_Books {
 	}
 
 	/**
+	 * Cycle of a series, the names before its last one: "Star Wars" for "Star Wars, Young Jedi Knights", empty for a series
+	 * without cycle.
+	 *
+	 * @param string $series Series, after its cycles.
+	 * @return string
+	 */
+	public static function cycle( string $series ): string {
+		return implode( ', ', array_slice( self::split( $series ), 0, -1 ) );
+	}
+
+	/**
 	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title: "City Hunter, vol. 3".

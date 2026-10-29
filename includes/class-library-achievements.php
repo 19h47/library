@@ -497,12 +497,9 @@ class Library_Achievements {
 	 * @return array<string,string>
 	 */
 	private static function get_series_and_cycles( string $series ): array {
-		$names             = Library_Books::split( $series );
 		$series_and_cycles = array();
 
-		for ( $count = count( $names ); $count > 0; $count-- ) {
-			$name = implode( ', ', array_slice( $names, 0, $count ) );
-
+		for ( $name = implode( ', ', Library_Books::split( $series ) ); '' !== $name; $name = Library_Books::cycle( $name ) ) {
 			$series_and_cycles[ self::key( $name ) ] = $name;
 		}
 
