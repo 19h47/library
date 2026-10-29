@@ -27,12 +27,13 @@ class Library_Books {
 	private static ?array $books = null;
 
 	/**
-	 * Statuses of the books: every one but the trash, kept, not kept or to buy.
+	 * Statuses of the books, those their forms offer: kept, not kept or to buy. A book of another status, such as a draft,
+	 * is left out until it is published.
 	 *
 	 * @return string[]
 	 */
 	public static function statuses(): array {
-		return array_values( array_diff( get_post_stati(), array( 'trash', 'auto-draft' ) ) );
+		return array_keys( Library_Posts::get_status_choices() );
 	}
 
 	/**

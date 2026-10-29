@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.17.0
+Stable tag: 6.17.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -88,6 +88,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.17.1 =
+* Fixed: a draft, pending or private book counted as a book in the library, in the stats, the dashboard, the achievements, the reading idea and the reading app. A book now counts only once in the library, not kept or to buy; until then, it stays in the books list of the admin.
 
 = 6.17.0 =
 * Reading app: a search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, so that the parts of a cycle follow one another, rather than latest added first. The REST API does the same when no `orderby` is given.
