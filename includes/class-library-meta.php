@@ -102,7 +102,7 @@ class Library_Meta {
 		);
 		$descriptions = array(
 			'subtitle'       => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
-			'isbn'           => __( '10 or 13 digits, with or without hyphens, such as 978-2-07-036024-5.', 'library' ),
+			'isbn'           => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6.', 'library' ),
 			'issn'           => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
 			'series'         => __( 'Separate series with commas', 'library' ),
 			'translators'    => __( 'Separate translators with commas', 'library' ),
@@ -113,6 +113,7 @@ class Library_Meta {
 			'isbn' => self::ISBN_PATTERN,
 			'issn' => self::ISSN_PATTERN,
 		);
+		$sanitizers   = array( 'isbn' => array( self::class, 'sanitize_isbn' ) );
 
 		foreach ( self::TEXT_KEYS as $key ) {
 			register_post_meta(
@@ -124,7 +125,7 @@ class Library_Meta {
 					'description'       => $descriptions[ $key ] ?? '',
 					'single'            => true,
 					'show_in_rest'      => isset( $patterns[ $key ] ) ? array( 'schema' => array( 'pattern' => $patterns[ $key ] ) ) : true,
-					'sanitize_callback' => 'sanitize_text_field',
+					'sanitize_callback' => $sanitizers[ $key ] ?? 'sanitize_text_field',
 				)
 			);
 		}
@@ -413,6 +414,20 @@ class Library_Meta {
 		foreach ( $read_dates as $read_date ) {
 			add_post_meta( $post_id, 'read_date', $read_date );
 		}
+	}
+
+	/**
+	 * Keep an ISBN with its hyphens where its parts end, such as 978-2-07-036024-6 typed 9782070360246; one that
+	 * Library_ISBN cannot place them in, such as one with a wrong check digit, as typed.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_isbn( $value ): string {
+		$value = sanitize_text_field( (string) $value );
+		$isbn  = Library_ISBN::hyphenate( $value );
+
+		return '' !== $isbn ? $isbn : $value;
 	}
 
 	/**

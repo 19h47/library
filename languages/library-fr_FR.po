@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-29T07:48:31+00:00\n"
+"POT-Creation-Date: 2026-10-29T08:24:42+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -164,8 +164,8 @@ msgstr "Collections les plus présentes"
 msgid "Most present original languages"
 msgstr "Langues d’origine les plus présentes"
 
-#: admin/class-library-dashboard.php:213 includes/class-library-posts.php:188
-#: includes/class-library-posts.php:190 includes/class-library-posts.php:223
+#: admin/class-library-dashboard.php:213 includes/class-library-posts.php:189
+#: includes/class-library-posts.php:191 includes/class-library-posts.php:224
 msgid "Books"
 msgstr "Livres"
 
@@ -224,14 +224,14 @@ msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:245
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:246
 #: app/js/lib/format.js:45
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:241
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:242
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -424,7 +424,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:587
+#: includes/class-library-rest-api.php:620
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -1168,8 +1168,12 @@ msgstr ""
 "tentative d’assassinat »."
 
 #: includes/class-library-meta.php:105
-msgid "10 or 13 digits, with or without hyphens, such as 978-2-07-036024-5."
-msgstr "10 ou 13 chiffres, avec ou sans tirets, comme 978-2-07-036024-5."
+msgid ""
+"10 or 13 digits, with or without hyphens, such as 9782070360246, which "
+"becomes 978-2-07-036024-6."
+msgstr ""
+"10 ou 13 chiffres, avec ou sans tirets, comme 9782070360246, qui devient "
+"978-2-07-036024-6."
 
 #: includes/class-library-meta.php:106
 msgid "Two groups of four characters, such as 0395-2649."
@@ -1222,87 +1226,87 @@ msgctxt "book status"
 msgid "In the library"
 msgstr "Dans la bibliothèque"
 
-#: includes/class-library-posts.php:189 includes/class-library-posts.php:191
+#: includes/class-library-posts.php:190 includes/class-library-posts.php:192
 msgid "Book"
 msgstr "Livre"
 
-#: includes/class-library-posts.php:192
+#: includes/class-library-posts.php:193
 msgid "Book Archives"
 msgstr "Archives des livres"
 
-#: includes/class-library-posts.php:193
+#: includes/class-library-posts.php:194
 msgid "All books"
 msgstr "Tous les livres"
 
-#: includes/class-library-posts.php:194
+#: includes/class-library-posts.php:195
 msgid "Add New Book"
 msgstr "Ajouter un livre"
 
-#: includes/class-library-posts.php:195
+#: includes/class-library-posts.php:196
 msgid "Add New"
 msgstr "Ajouter"
 
-#: includes/class-library-posts.php:196
+#: includes/class-library-posts.php:197
 msgid "New Book"
 msgstr "Nouveau livre"
 
-#: includes/class-library-posts.php:197
+#: includes/class-library-posts.php:198
 msgid "Edit book"
 msgstr "Modifier le livre"
 
-#: includes/class-library-posts.php:198
+#: includes/class-library-posts.php:199
 msgid "View Book"
 msgstr "Voir le livre"
 
-#: includes/class-library-posts.php:199
+#: includes/class-library-posts.php:200
 msgid "View Books"
 msgstr "Voir les livres"
 
-#: includes/class-library-posts.php:200
+#: includes/class-library-posts.php:201
 msgid "Search Book"
 msgstr "Rechercher un livre"
 
-#: includes/class-library-posts.php:201
+#: includes/class-library-posts.php:202
 msgid "Not found"
 msgstr "Introuvable"
 
-#: includes/class-library-posts.php:202
+#: includes/class-library-posts.php:203
 msgid "Not found in Trash"
 msgstr "Introuvable dans la corbeille"
 
-#: includes/class-library-posts.php:203
+#: includes/class-library-posts.php:204
 msgid "Featured Image"
 msgstr "Image à la une"
 
-#: includes/class-library-posts.php:204
+#: includes/class-library-posts.php:205
 msgid "Set featured image"
 msgstr "Définir l'image à la une"
 
-#: includes/class-library-posts.php:205
+#: includes/class-library-posts.php:206
 msgid "Remove featured image"
 msgstr "Supprimer l'image à la une"
 
-#: includes/class-library-posts.php:206
+#: includes/class-library-posts.php:207
 msgid "Use as featured image"
 msgstr "Utiliser comme image à la une"
 
-#: includes/class-library-posts.php:207
+#: includes/class-library-posts.php:208
 msgid "Insert into book"
 msgstr "Insérer dans le livre"
 
-#: includes/class-library-posts.php:208
+#: includes/class-library-posts.php:209
 msgid "Updloaded to this book"
 msgstr "Envoyé vers ce livre"
 
-#: includes/class-library-posts.php:209
+#: includes/class-library-posts.php:210
 msgid "Books list"
 msgstr "Liste des livres"
 
-#: includes/class-library-posts.php:210
+#: includes/class-library-posts.php:211
 msgid "Books list navigation"
 msgstr "Navigation de la liste des livres"
 
-#: includes/class-library-posts.php:211
+#: includes/class-library-posts.php:212
 msgid "Filtrer books list"
 msgstr "Filtrer la liste des livres"
 
@@ -1525,6 +1529,16 @@ msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 "Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
 "envie."
+
+#. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
+#: includes/class-library-rest-api.php:422
+#, php-format
+msgid ""
+"The last digit of the ISBN %s, its check digit, does not match the others: "
+"check them."
+msgstr ""
+"Le dernier chiffre de l’ISBN %s, sa clé de contrôle, ne correspond pas aux "
+"autres : vérifiez-les."
 
 #: includes/class-library-taxonomies.php:62
 msgctxt "library authors general name"
@@ -1767,7 +1781,8 @@ msgstr "&larr; Retour aux langues"
 msgid ""
 "%s is neither the name of a language nor its ISO 639 code, such as Norwegian "
 "or no."
-msgstr "%s n’est ni le nom d’une langue ni son code ISO 639, comme norvégien ou no."
+msgstr ""
+"%s n’est ni le nom d’une langue ni son code ISO 639, comme norvégien ou no."
 
 #. translators: %s: name of a language, e.g. Norvégien.
 #: includes/class-library-taxonomies.php:292
