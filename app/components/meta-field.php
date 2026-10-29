@@ -19,7 +19,7 @@ Library::component(
 		'id'          => 'library-edit-' . str_replace( '_', '-', $args['key'] ),
 		'label'       => Library_Meta::label( $args['key'] ),
 		'description' => Library_Meta::description( $args['key'] ),
-		'control'     => Library_Meta::input(
+		'control'     => Library_Meta::control(
 			$args['key'],
 			$args['attributes'] + array(
 				'data-meta'    => true,

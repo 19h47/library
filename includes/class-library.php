@@ -94,16 +94,18 @@ class Library {
 	}
 
 	/**
-	 * Markup of a select with its options.
+	 * Markup of a select with its options, the one of its value selected.
 	 *
 	 * @param array<string|int, string> $options Labels of the options, by value.
+	 * @param string|null               $value   Value of the option selected, or null for the first one.
 	 * @return string
 	 */
-	public static function select( array $options ): string {
+	public static function select( array $options, ?string $value = null ): string {
 		$markup = '';
 
-		foreach ( $options as $value => $label ) {
-			$markup .= sprintf( '<option value="%s">%s</option>', esc_attr( (string) $value ), esc_html( $label ) );
+		foreach ( $options as $option => $label ) {
+			$selected = null !== $value && (string) $option === $value ? ' selected' : '';
+			$markup  .= sprintf( '<option value="%s"%s>%s</option>', esc_attr( (string) $option ), $selected, esc_html( $label ) );
 		}
 
 		return "<select>$markup</select>";

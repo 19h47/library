@@ -123,14 +123,15 @@ class Library_Books_List {
 			case 'rating':
 				$rating = get_post_meta( $post_id, 'rating', true );
 
-				$output .= '' !== $rating ? esc_html( $rating ) . ' / 10' : '—';
+				$output .= '' !== $rating ? esc_html( Library_Books::rating_text( (float) $rating ) ) . ' / 10' : '—';
 
 				break;
 			case 'thumbnail':
 				$rating = get_post_meta( $post_id, 'rating', true );
 
 				if ( '' !== $rating ) {
-					$output .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating ) . '/10" aria-hidden="true">' . esc_html( $rating ) . '</span>';
+					$rating_text = Library_Books::rating_text( (float) $rating );
+					$output     .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_text ) . '/10" aria-hidden="true">' . esc_html( $rating_text ) . '</span>';
 				}
 
 				$output   .= '<span class="library-thumbnail-cell">';
@@ -216,7 +217,7 @@ class Library_Books_List {
 				<?php foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
 						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Library_Meta::label( $key ) ); ?></span>
-						<span class="input-text-wrap"><?php echo Library_Meta::input( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
+						<span class="input-text-wrap"><?php echo Library_Meta::control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>

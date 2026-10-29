@@ -1,10 +1,10 @@
 /**
- * App style: the base shared by 19h47's small apps (Tumblr, Messenger, SMS, Tweets, Typewriter, Library).
+ * App style: the base shared by 19h47's small apps (Tumblr, Messenger, SMS, Tweets, Typewriter, Library, Letterhead).
  *
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 6eea6c0.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 19d84b2.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -224,6 +224,16 @@ select {
   color: var(--app-text-muted);
 }
 
+/* The small text of the interface, a pill, the meta line of an item or the footer: muted, in capitals, half a step below the text */
+.app-pill,
+.app-item__meta,
+.app-footer {
+  color: var(--app-text-muted);
+  font-family: var(--app-font-ui);
+  font-size: var(--app-font-small);
+  text-transform: uppercase;
+}
+
 .app-pill {
   /* As a field, in em of its text; named, for the select a pill holds to take it */
   --app-pill-padding-block: calc(1em / sqrt(var(--app-phi)));
@@ -235,12 +245,8 @@ select {
   padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
   border-radius: calc(infinity * 1px);
   border: 1px solid var(--app-line-soft);
-  color: var(--app-text-muted);
-  font-family: var(--app-font-ui);
-  font-size: var(--app-font-small);
   /* A button does not inherit it: the lines of every pill on the scale */
   line-height: var(--app-line-height);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -281,8 +287,11 @@ a.app-pill {
   text-decoration: none;
 }
 
-/* The pill of the current page, in a navigation, stands out */
-.app-pill[aria-current="page"] {
+/*
+ * The pill of the current page, in a navigation, or of the main action of a form, such as the one that saves it,
+ * stands out: the main action weighs as much as the current page, over the transparent background of a button pill.
+ */
+:is(.app-pill[aria-current="page"], .app-pill--primary) {
   color: var(--app-text);
   border-color: var(--app-line);
   background: var(--app-fill);
@@ -362,10 +371,6 @@ button.app-pill:disabled {
   flex-wrap: wrap;
   gap: var(--app-gap-small) var(--app-gap);
   align-items: baseline;
-  color: var(--app-text-muted);
-  font-family: var(--app-font-ui);
-  font-size: var(--app-font-small);
-  text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
@@ -382,10 +387,6 @@ button.app-pill:disabled {
   padding-block: var(--app-u2);
   border-top: 1px solid var(--app-line-soft);
   background: var(--app-bg);
-  color: var(--app-text-muted);
-  font-family: var(--app-font-ui);
-  font-size: var(--app-font-small);
-  text-transform: uppercase;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-28T16:26:31+00:00\n"
+"POT-Creation-Date: 2026-10-29T07:48:31+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,10 +25,10 @@ msgstr ""
 #. Plugin Name of the plugin
 #: library.php admin/class-library-dashboard.php:69
 #: admin/class-library-metaboxes.php:128 app/class-library-app.php:72
-#: app/class-library-app.php:175 app/class-library-app.php:176
+#: app/class-library-app.php:158 app/class-library-app.php:159
 #: app/partials/library-app.php:36 app/partials/library-app.php:54
 #: app/partials/library-app.php:109 app/partials/library-app.php:301
-#: app/partials/library-app.php:461
+#: app/partials/library-app.php:456
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -83,7 +83,7 @@ msgstr "Succès cachés"
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-books-list.php:58 app/partials/library-app.php:530
+#: admin/class-library-books-list.php:58 app/partials/library-app.php:525
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -101,35 +101,35 @@ msgid_plural "%s readings"
 msgstr[0] "%s lecture"
 msgstr[1] "%s lectures"
 
-#: admin/class-library-books-list.php:133
+#: admin/class-library-books-list.php:134
 msgid "Rated"
 msgstr "Noté"
 
-#: admin/class-library-books-list.php:212
+#: admin/class-library-books-list.php:213
 msgid "Last read date"
 msgstr "Dernière lecture"
 
-#: admin/class-library-books-list.php:258
+#: admin/class-library-books-list.php:259
 msgid "Table ordered by edition date."
 msgstr "Tableau trié par date d’édition."
 
-#: admin/class-library-books-list.php:259
+#: admin/class-library-books-list.php:260
 msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
 #. translators: %s: reading percentage.
-#: admin/class-library-books-list.php:315 admin/js/library-admin-read.js:26
+#: admin/class-library-books-list.php:316 admin/js/library-admin-read.js:26
 #: app/js/bricks/library-progress.js:13
 #, php-format
 msgid "%s%% read"
 msgstr "%s %% lu"
 
-#: admin/class-library-books-list.php:319
+#: admin/class-library-books-list.php:320
 msgid "Loading percent read..."
 msgstr "Chargement du pourcentage lu..."
 
 #. translators: %s: number of books.
-#: admin/class-library-books-list.php:340
+#: admin/class-library-books-list.php:341
 #, php-format
 msgid "In the library <span class=\"count\">(%s)</span>"
 msgid_plural "In the library <span class=\"count\">(%s)</span>"
@@ -224,14 +224,14 @@ msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 app/class-library-app.php:156
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:245
 #: app/js/lib/format.js:45
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 app/partials/library-app.php:293
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:241
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -626,7 +626,7 @@ msgstr "Fermer"
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
-#: app/partials/library-app.php:326 app/partials/library-app.php:494
+#: app/partials/library-app.php:326 app/partials/library-app.php:489
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -658,19 +658,19 @@ msgstr "Ajouter un auteur"
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:468
+#: app/partials/library-app.php:463
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:498
+#: app/partials/library-app.php:493
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:540 app/partials/library-app.php:541
+#: app/partials/library-app.php:535 app/partials/library-app.php:536
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/partials/library-app.php:564 app/partials/library-app.php:565
+#: app/partials/library-app.php:559 app/partials/library-app.php:560
 msgid "Remove this author"
 msgstr "Retirer cet auteur"
 
@@ -1526,171 +1526,171 @@ msgstr ""
 "Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
 "envie."
 
-#: includes/class-library-taxonomies.php:60
+#: includes/class-library-taxonomies.php:62
 msgctxt "library authors general name"
 msgid "Authors"
 msgstr "Auteurs"
 
-#: includes/class-library-taxonomies.php:61
+#: includes/class-library-taxonomies.php:63
 msgctxt "library authors singular name"
 msgid "Author"
 msgstr "Auteur"
 
-#: includes/class-library-taxonomies.php:62
+#: includes/class-library-taxonomies.php:64
 msgid "Search Authors"
 msgstr "Rechercher des auteurs"
 
-#: includes/class-library-taxonomies.php:63
+#: includes/class-library-taxonomies.php:65
 msgid "All Authors"
 msgstr "Tous les auteurs"
 
-#: includes/class-library-taxonomies.php:64
+#: includes/class-library-taxonomies.php:66
 msgid "Popular Authors"
 msgstr "Auteurs populaires"
 
-#: includes/class-library-taxonomies.php:65
+#: includes/class-library-taxonomies.php:67
 msgid "Edit Author"
 msgstr "Modifier l'auteur"
 
-#: includes/class-library-taxonomies.php:66
+#: includes/class-library-taxonomies.php:68
 msgid "View Author"
 msgstr "Voir l'auteur"
 
-#: includes/class-library-taxonomies.php:67
+#: includes/class-library-taxonomies.php:69
 msgid "Update Author"
 msgstr "Mettre à jour l'auteur"
 
-#: includes/class-library-taxonomies.php:68
+#: includes/class-library-taxonomies.php:70
 msgid "Add New Author"
 msgstr "Ajouter un auteur"
 
-#: includes/class-library-taxonomies.php:69
+#: includes/class-library-taxonomies.php:71
 msgid "New Author Name"
 msgstr "Nom du nouvel auteur"
 
-#: includes/class-library-taxonomies.php:70
+#: includes/class-library-taxonomies.php:72
 msgid "Separate authors with commas"
 msgstr "Séparez les auteurs par des virgules"
 
-#: includes/class-library-taxonomies.php:71
+#: includes/class-library-taxonomies.php:73
 msgid "Add or remove authors"
 msgstr "Ajouter ou supprimer des auteurs"
 
-#: includes/class-library-taxonomies.php:72
+#: includes/class-library-taxonomies.php:74
 msgid "Choose from the most used authors"
 msgstr "Choisir parmi les auteurs les plus utilisés"
 
-#: includes/class-library-taxonomies.php:73
+#: includes/class-library-taxonomies.php:75
 msgid "No authors found."
 msgstr "Aucun auteur trouvé."
 
-#: includes/class-library-taxonomies.php:74
+#: includes/class-library-taxonomies.php:76
 msgid "No authors"
 msgstr "Aucun auteur"
 
-#: includes/class-library-taxonomies.php:75
+#: includes/class-library-taxonomies.php:77
 msgid "Authors list navigation"
 msgstr "Navigation de la liste des auteurs"
 
-#: includes/class-library-taxonomies.php:76
+#: includes/class-library-taxonomies.php:78
 msgid "Authors list"
 msgstr "Liste des auteurs"
 
 #. translators: Author heading when selecting from the most used terms.
-#: includes/class-library-taxonomies.php:78
+#: includes/class-library-taxonomies.php:80
 msgctxt "author"
 msgid "Most Used"
 msgstr "Les plus utilisés"
 
-#: includes/class-library-taxonomies.php:79
+#: includes/class-library-taxonomies.php:81
 msgid "&larr; Back to Authors"
 msgstr "&larr; Retour aux auteurs"
 
-#: includes/class-library-taxonomies.php:170
+#: includes/class-library-taxonomies.php:172
 msgctxt "library publishers general name"
 msgid "Publishers"
 msgstr "Éditeurs"
 
-#: includes/class-library-taxonomies.php:171
+#: includes/class-library-taxonomies.php:173
 msgctxt "library publishers singular name"
 msgid "Publisher"
 msgstr "Éditeur"
 
-#: includes/class-library-taxonomies.php:172
+#: includes/class-library-taxonomies.php:174
 msgid "Search Publishers"
 msgstr "Rechercher des éditeurs"
 
-#: includes/class-library-taxonomies.php:173
+#: includes/class-library-taxonomies.php:175
 msgid "All Publishers"
 msgstr "Tous les éditeurs"
 
-#: includes/class-library-taxonomies.php:174
+#: includes/class-library-taxonomies.php:176
 msgid "Popular Publishers"
 msgstr "Éditeurs populaires"
 
-#: includes/class-library-taxonomies.php:175
+#: includes/class-library-taxonomies.php:177
 msgid "Edit Publisher"
 msgstr "Modifier l'éditeur"
 
-#: includes/class-library-taxonomies.php:176
+#: includes/class-library-taxonomies.php:178
 msgid "View Publisher"
 msgstr "Voir l'éditeur"
 
-#: includes/class-library-taxonomies.php:177
+#: includes/class-library-taxonomies.php:179
 msgid "Update Publisher"
 msgstr "Mettre à jour l'éditeur"
 
-#: includes/class-library-taxonomies.php:178
+#: includes/class-library-taxonomies.php:180
 msgid "Add New Publisher"
 msgstr "Ajouter un éditeur"
 
-#: includes/class-library-taxonomies.php:179
+#: includes/class-library-taxonomies.php:181
 msgid "New Publisher Name"
 msgstr "Nom du nouvel éditeur"
 
-#: includes/class-library-taxonomies.php:180
+#: includes/class-library-taxonomies.php:182
 msgid "Add or remove publishers"
 msgstr "Ajouter ou supprimer des éditeurs"
 
-#: includes/class-library-taxonomies.php:181
+#: includes/class-library-taxonomies.php:183
 msgid "Choose from the most used publishers"
 msgstr "Choisir parmi les éditeurs les plus utilisés"
 
-#: includes/class-library-taxonomies.php:182
+#: includes/class-library-taxonomies.php:184
 msgid "No publishers found."
 msgstr "Aucun éditeur trouvé."
 
-#: includes/class-library-taxonomies.php:183
+#: includes/class-library-taxonomies.php:185
 msgid "No publishers"
 msgstr "Aucun éditeur"
 
-#: includes/class-library-taxonomies.php:184
+#: includes/class-library-taxonomies.php:186
 msgid "Publishers list navigation"
 msgstr "Navigation de la liste des éditeurs"
 
-#: includes/class-library-taxonomies.php:185
+#: includes/class-library-taxonomies.php:187
 msgid "Publishers list"
 msgstr "Liste des éditeurs"
 
 #. translators: Publisher heading when selecting from the most used terms.
-#: includes/class-library-taxonomies.php:187
+#: includes/class-library-taxonomies.php:189
 msgctxt "editor"
 msgid "Most Used"
 msgstr "Les plus utilisés"
 
-#: includes/class-library-taxonomies.php:188
+#: includes/class-library-taxonomies.php:190
 msgid "&larr; Back to Publishers"
 msgstr "&larr; Retour aux éditeurs"
 
-#: includes/class-library-taxonomies.php:189
+#: includes/class-library-taxonomies.php:191
 msgid "Parent Publisher"
 msgstr "Éditeur parent"
 
-#: includes/class-library-taxonomies.php:190
+#: includes/class-library-taxonomies.php:192
 msgid "Parent Publisher:"
 msgstr "Éditeur parent :"
 
-#: includes/class-library-taxonomies.php:191
+#: includes/class-library-taxonomies.php:193
 msgid ""
 "Pick the publisher of a collection, such as Gallimard for Folio. A publisher "
 "has none."
@@ -1698,76 +1698,82 @@ msgstr ""
 "Choisissez l’éditeur d’une collection, comme Gallimard pour Folio. Un "
 "éditeur n’en a pas."
 
-#: includes/class-library-taxonomies.php:220
+#: includes/class-library-taxonomies.php:222
 msgctxt "library languages general name"
 msgid "Original languages"
 msgstr "Langues d’origine"
 
-#: includes/class-library-taxonomies.php:221
+#: includes/class-library-taxonomies.php:223
 msgctxt "library languages singular name"
 msgid "Original language"
 msgstr "Langue d’origine"
 
-#: includes/class-library-taxonomies.php:222
+#: includes/class-library-taxonomies.php:224
 msgctxt "library languages menu name"
 msgid "Languages"
 msgstr "Langues"
 
-#: includes/class-library-taxonomies.php:223
+#: includes/class-library-taxonomies.php:225
 msgid "Search Languages"
 msgstr "Rechercher des langues"
 
-#: includes/class-library-taxonomies.php:224
+#: includes/class-library-taxonomies.php:226
 msgid "All Languages"
 msgstr "Toutes les langues"
 
-#: includes/class-library-taxonomies.php:225
+#: includes/class-library-taxonomies.php:227
 msgid "Edit Language"
 msgstr "Modifier la langue"
 
-#: includes/class-library-taxonomies.php:226
+#: includes/class-library-taxonomies.php:228
 msgid "View Language"
 msgstr "Voir la langue"
 
-#: includes/class-library-taxonomies.php:227
+#: includes/class-library-taxonomies.php:229
 msgid "Update Language"
 msgstr "Mettre à jour la langue"
 
-#: includes/class-library-taxonomies.php:228
+#: includes/class-library-taxonomies.php:230
 msgid "Add New Language"
 msgstr "Ajouter une langue"
 
-#: includes/class-library-taxonomies.php:229
+#: includes/class-library-taxonomies.php:231
 msgid "New Language Name"
 msgstr "Nom de la nouvelle langue"
 
-#: includes/class-library-taxonomies.php:230
+#: includes/class-library-taxonomies.php:232
 msgid "No languages found."
 msgstr "Aucune langue trouvée."
 
-#: includes/class-library-taxonomies.php:231
+#: includes/class-library-taxonomies.php:233
 msgid "No languages"
 msgstr "Aucune langue"
 
-#: includes/class-library-taxonomies.php:232
+#: includes/class-library-taxonomies.php:234
 msgid "Languages list navigation"
 msgstr "Navigation de la liste des langues"
 
-#: includes/class-library-taxonomies.php:233
+#: includes/class-library-taxonomies.php:235
 msgid "Languages list"
 msgstr "Liste des langues"
 
-#: includes/class-library-taxonomies.php:234
+#: includes/class-library-taxonomies.php:236
 msgid "&larr; Back to Languages"
 msgstr "&larr; Retour aux langues"
 
-#: includes/class-library-taxonomies.php:273
+#. translators: %s: name or slug typed for a language, e.g. Norvégien.
+#: includes/class-library-taxonomies.php:283
+#, php-format
 msgid ""
-"A language is its ISO 639 code: type it as its name or as its slug, such as "
-"no for Norwegian."
-msgstr ""
-"Une langue est son code ISO 639 : saisissez-le comme nom ou comme "
-"identifiant, par exemple no pour le norvégien."
+"%s is neither the name of a language nor its ISO 639 code, such as Norwegian "
+"or no."
+msgstr "%s n’est ni le nom d’une langue ni son code ISO 639, comme norvégien ou no."
+
+#. translators: %s: name of a language, e.g. Norvégien.
+#: includes/class-library-taxonomies.php:292
+#, php-format
+msgid "%s is already among the languages."
+msgstr "%s figure déjà parmi les langues."
 
 #: includes/class-library-updater.php:166
 msgid "Could not rename the update folder."

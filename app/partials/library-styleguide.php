@@ -168,7 +168,7 @@ $sizes = array(
 		<h3 class="library-title">Controls</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.app-pill</code>: a link, the current one, buttons, a checkbox with <code>pill-checkbox</code>, a select with <code>pill-select</code>, a count; <code>.library-save</code></figcaption>
+				<figcaption><code>.app-pill</code>: a link, the current one, buttons, a checkbox with <code>pill-checkbox</code>, a select with <code>pill-select</code>, a count; the main action of a form, <code>.app-pill--primary</code></figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<a class="app-pill" href="#top">A link</a>
 					<a class="app-pill" href="#top" aria-current="page">The current one</a>
@@ -195,7 +195,7 @@ $sizes = array(
 					);
 					?>
 					<p class="app-pill">A count <strong>12</strong></p>
-					<button class="app-pill library-save" type="button">Save</button>
+					<button class="app-pill app-pill--primary" type="button">Save</button>
 				</div>
 			</figure>
 			<figure>

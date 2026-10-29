@@ -19,7 +19,7 @@
  * @var object                                        $author_labels    Labels of the authors taxonomy.
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
  * @var object                                        $language_labels  Labels of the original languages taxonomy.
- * @var array<string,string>                          $rating_choices Ratings a book can take, by value, with their label.
+ * @var array<string,string>                          $rating_choices Ratings a form offers, by value, with their label, none first.
  * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the books offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
@@ -282,7 +282,7 @@
 								array(
 									'id'      => 'library-reading-read',
 									'label'   => Library_Meta::label( 'read' ),
-									'control' => Library_Meta::input( 'read' ),
+									'control' => Library_Meta::control( 'read' ),
 								)
 							);
 							Library::component(
@@ -290,7 +290,7 @@
 								array(
 									'id'         => 'library-reading-rating',
 									'label'      => Library_Meta::label( 'rating' ),
-									'options'    => array( '' => __( 'No rating', 'library' ) ) + $rating_choices,
+									'options'    => $rating_choices,
 									'attributes' => array( 'name' => 'rating' ),
 								)
 							);
@@ -323,7 +323,7 @@
 						?>
 						<p class="app-status" data-field="error" role="alert" hidden></p>
 						<p>
-							<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+							<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
 						</p>
 					</form>
 				</library-reading>
@@ -447,13 +447,8 @@
 							),
 						)
 					);
-					Library::component(
-						'meta-field',
-						array(
-							'key'        => 'isbn',
-							'attributes' => array( 'inputmode' => 'numeric' ),
-						)
-					);
+					// An ISBN takes hyphens, which a numeric keyboard may not have.
+					Library::component( 'meta-field', array( 'key' => 'isbn' ) );
 					Library::component(
 						'field',
 						array(
@@ -491,7 +486,7 @@
 					</details>
 					<p class="app-status" data-field="error" role="alert" hidden></p>
 					<p>
-						<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+						<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
 				<p class="library-book__actions" hidden>
@@ -523,7 +518,7 @@
 		<template id="library-read-date">
 			<li class="library-input-list__item">
 				<?php
-				$input = Library_Meta::input(
+				$control = Library_Meta::control(
 					'read_date',
 					array(
 						'required'   => true,
@@ -531,7 +526,7 @@
 					)
 				);
 
-				echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+				echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 				?>
 				<button
 					class="app-control"
