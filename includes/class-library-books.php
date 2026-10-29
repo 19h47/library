@@ -156,19 +156,26 @@ class Library_Books {
 	}
 
 	/**
-	 * Credits of a book, to show under its title: "Authors · Publisher, Collection · edition year".
+	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year".
 	 *
 	 * @param int $book_id Book ID.
 	 * @return string
 	 */
 	public static function credits( int $book_id ): string {
-		$authors    = get_the_terms( $book_id, 'library-author' );
-		$terms      = get_the_terms( $book_id, 'library-publisher' );
-		$publishers = array();
+		$authors           = get_the_terms( $book_id, 'library-author' );
+		$terms             = get_the_terms( $book_id, 'library-publisher' );
+		$collection_number = (string) get_post_meta( $book_id, 'collection_number', true );
+		$publishers        = array();
 
 		foreach ( Library_Taxonomies::get_top_level_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
 			$collections  = wp_list_filter( Library_Taxonomies::get_collections( $book_id ), array( 'parent' => $publisher->term_id ) );
 			$publishers[] = implode( ', ', array( $publisher->name, ...wp_list_pluck( $collections, 'name' ) ) );
+		}
+
+		// The number goes after the collection, the last one, as the volume after the series; none without a publisher.
+		if ( $publishers && '' !== $collection_number ) {
+			/* translators: %s: number of the book in its collection. */
+			$publishers[ array_key_last( $publishers ) ] .= ' ' . sprintf( __( 'no. %s', 'library' ), $collection_number );
 		}
 
 		$parts = array(
@@ -210,7 +217,7 @@ class Library_Books {
 	 * @param string $value Field value.
 	 * @return string[]
 	 */
-	private static function split( string $value ): array {
+	public static function split( string $value ): array {
 		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ), 'strlen' ) );
 	}
 }

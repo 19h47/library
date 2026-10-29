@@ -25,7 +25,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'translators' );
+	public const TEXT_KEYS = array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'collection_number', 'translators' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d; a book has one read date per reading.
@@ -88,27 +88,29 @@ class Library_Meta {
 	 */
 	public function register_meta(): void {
 		$labels       = array(
-			'subtitle'       => __( 'Subtitle', 'library' ),
-			'series'         => __( 'Series', 'library' ),
-			'isbn'           => __( 'ISBN', 'library' ),
-			'issn'           => __( 'ISSN', 'library' ),
-			'volume_number'  => __( 'Volume Number', 'library' ),
-			'translators'    => __( 'Translators', 'library' ),
-			'edition_date'   => __( 'Edition date', 'library' ),
-			'read_date'      => __( 'Read dates', 'library' ),
-			'published_date' => __( 'First published', 'library' ),
-			'pages'          => __( 'Pages', 'library' ),
-			'rating'         => __( 'Rating', 'library' ),
-			'read'           => __( 'Read', 'library' ),
+			'subtitle'          => __( 'Subtitle', 'library' ),
+			'series'            => __( 'Series', 'library' ),
+			'isbn'              => __( 'ISBN', 'library' ),
+			'issn'              => __( 'ISSN', 'library' ),
+			'volume_number'     => __( 'Volume Number', 'library' ),
+			'collection_number' => __( 'Collection Number', 'library' ),
+			'translators'       => __( 'Translators', 'library' ),
+			'edition_date'      => __( 'Edition date', 'library' ),
+			'read_date'         => __( 'Read dates', 'library' ),
+			'published_date'    => __( 'First published', 'library' ),
+			'pages'             => __( 'Pages', 'library' ),
+			'rating'            => __( 'Rating', 'library' ),
+			'read'              => __( 'Read', 'library' ),
 		);
 		$descriptions = array(
-			'subtitle'       => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
-			'isbn'           => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
-			'issn'           => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
-			'series'         => __( 'Separate series with commas', 'library' ),
-			'translators'    => __( 'Separate translators with commas', 'library' ),
-			'published_date' => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
-			'rating'         => __( 'Rating from 1 to 10.', 'library' ),
+			'subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
+			'isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
+			'issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
+			'series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
+			'collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
+			'translators'       => __( 'Separate translators with commas', 'library' ),
+			'published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'rating'            => __( 'Rating from 1 to 10.', 'library' ),
 		);
 		$patterns     = array(
 			'isbn' => self::ISBN_PATTERN,
