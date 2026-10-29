@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.14.0
+Stable tag: 6.15.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6.
+* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13.
 * **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
@@ -33,7 +33,7 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 * Registers the `book` post type, edited in the classic screen, the `library-author`, `library-publisher` and `library-language` taxonomies and the book meta, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
-* The hyphens of an ISBN come from `includes/isbn-ranges.json`, the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation) for every group, refreshed before each release with `php bin/update-isbn-ranges.php`. An ISBN of a range missing from it, or whose check digit is wrong, is kept as typed.
+* The hyphens of an ISBN come from `includes/isbn-ranges.json`, the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation) for every group, refreshed before each release with `php bin/update-isbn-ranges.php`. Another EAN-13 keeps its 13 digits; an ISBN of a range missing from it, or a code whose check digit is wrong, is kept as typed.
 * The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library::component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
 
 == Installation ==
@@ -88,6 +88,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.15.0 =
+* Books: a book without ISBN, such as an army book of Warhammer, takes the EAN-13 of its barcode in the ISBN field, saved as its 13 digits, such as 5011921988754, and its check digit checked as the one of an ISBN, itself an EAN-13 of the prefixes 978 and 979. The field took such a code from the prefix 501 only, with made-up hyphens.
 
 = 6.14.0 =
 * Books: an ISBN typed with or without hyphens is saved with them, where the International ISBN Agency places its parts, for every country and language: 9782070360246 becomes 978-2-07-036024-6, in the reading app, the book form, quick edit and the REST API; its slug follows. An ISBN of a range not known yet, or whose check digit is wrong, is kept as typed.

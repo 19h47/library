@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.14.0\n"
+"Project-Id-Version: Library 6.15.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-29T08:26:07+00:00\n"
+"POT-Creation-Date: 2026-10-29T09:44:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -223,14 +223,14 @@ msgid "Rating distribution"
 msgstr ""
 
 #: admin/class-library-dashboard.php:379
-#: includes/class-library-meta.php:100
+#: includes/class-library-meta.php:101
 msgid "Rating"
 msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-library-dashboard.php:404
-#: includes/class-library-meta.php:246
+#: includes/class-library-meta.php:247
 #: app/js/lib/format.js:45
 #, php-format,js-format
 msgid "%s/10"
@@ -238,7 +238,7 @@ msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #: admin/class-library-dashboard.php:404
-#: includes/class-library-meta.php:242
+#: includes/class-library-meta.php:243
 msgid "No rating"
 msgstr ""
 
@@ -589,7 +589,7 @@ msgid "Reading state"
 msgstr ""
 
 #: app/partials/library-app.php:96
-#: includes/class-library-meta.php:101
+#: includes/class-library-meta.php:102
 #: app/js/lib/format.js:93
 msgid "Read"
 msgstr ""
@@ -1131,71 +1131,71 @@ msgid_plural "%s books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-library-meta.php:90
+#: includes/class-library-meta.php:91
 msgid "Subtitle"
 msgstr ""
 
-#: includes/class-library-meta.php:91
+#: includes/class-library-meta.php:92
 msgid "Series"
 msgstr ""
 
-#: includes/class-library-meta.php:92
+#: includes/class-library-meta.php:93
 msgid "ISBN"
 msgstr ""
 
-#: includes/class-library-meta.php:93
+#: includes/class-library-meta.php:94
 msgid "ISSN"
 msgstr ""
 
-#: includes/class-library-meta.php:94
+#: includes/class-library-meta.php:95
 msgid "Volume Number"
 msgstr ""
 
-#: includes/class-library-meta.php:95
+#: includes/class-library-meta.php:96
 msgid "Translators"
 msgstr ""
 
-#: includes/class-library-meta.php:96
+#: includes/class-library-meta.php:97
 msgid "Edition date"
 msgstr ""
 
-#: includes/class-library-meta.php:97
+#: includes/class-library-meta.php:98
 msgid "Read dates"
 msgstr ""
 
-#: includes/class-library-meta.php:98
+#: includes/class-library-meta.php:99
 msgid "First published"
 msgstr ""
 
-#: includes/class-library-meta.php:99
+#: includes/class-library-meta.php:100
 msgid "Pages"
 msgstr ""
 
-#: includes/class-library-meta.php:104
+#: includes/class-library-meta.php:105
 msgid "Shown after the title, such as “The Knife: Meditations After an Attempted Murder”."
 msgstr ""
 
-#: includes/class-library-meta.php:105
-msgid "10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6."
-msgstr ""
-
 #: includes/class-library-meta.php:106
-msgid "Two groups of four characters, such as 0395-2649."
+msgid "10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode."
 msgstr ""
 
 #: includes/class-library-meta.php:107
-msgid "Separate series with commas"
+msgid "Two groups of four characters, such as 0395-2649."
 msgstr ""
 
 #: includes/class-library-meta.php:108
-msgid "Separate translators with commas"
+msgid "Separate series with commas"
 msgstr ""
 
 #: includes/class-library-meta.php:109
-msgid "When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
+msgid "Separate translators with commas"
 msgstr ""
 
 #: includes/class-library-meta.php:110
+msgid "When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
+msgstr ""
+
+#: includes/class-library-meta.php:111
 msgid "Rating from 1 to 10."
 msgstr ""
 
