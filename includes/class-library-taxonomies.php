@@ -36,6 +36,8 @@ class Library_Taxonomies {
 		add_filter( 'get_terms_args', array( $this, 'count_children' ), 10, 2 );
 		add_filter( 'pre_insert_term', array( $this, 'require_language_code' ), 10, 3 );
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
+		// Before core adds the languages typed in the box of a book, at 10.
+		add_action( 'wp_ajax_add-library-language', array( $this, 'explain_refused_language' ), 9 );
 	}
 
 	/**
@@ -251,8 +253,12 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Refuse a new language whose slug, given or made from its name, is not an ISO 639 code: the app names a language
-	 * from its code, and an invalid one, such as "norvegien" for a language typed as "Norvégien", stops it.
+	 * Give a new language its ISO 639 code as its slug, and refuse it without one: the app names a language from its
+	 * code, and an invalid one, such as "norvegien" for a language typed as "Norvégien", stops it.
+	 *
+	 * The code is its slug when given, else its name when it is one, else the one of its name, such as no for Norvégien
+	 * or Norwegian: the language is then added as its code, which name_language() names. A code already taken is
+	 * refused too, rather than made unique, such as it-2.
 	 *
 	 * @param string|WP_Error      $term     Name of the term, or the error of an earlier filter.
 	 * @param string               $taxonomy Taxonomy slug.
@@ -264,15 +270,85 @@ class Library_Taxonomies {
 			return $term;
 		}
 
-		$code = sanitize_title( empty( $args['slug'] ) ? $term : $args['slug'] );
+		$typed = empty( $args['slug'] ) ? $term : $args['slug'];
+		$code  = sanitize_title( $typed );
 
-		if ( preg_match( '/^[a-z]{2,3}$/', $code ) ) {
-			return $term;
+		if ( ! preg_match( '/^[a-z]{2,3}$/', $code ) ) {
+			$code = empty( $args['slug'] ) ? self::get_language_code( $term ) : '';
+			$term = $code;
 		}
 
-		$message = __( 'A language is its ISO 639 code: type it as its name or as its slug, such as no for Norwegian.', 'library' );
+		if ( '' === $code ) {
+			/* translators: %s: name or slug typed for a language, e.g. Norvégien. */
+			$message = sprintf( __( '%s is neither the name of a language nor its ISO 639 code, such as Norwegian or no.', 'library' ), $typed );
 
-		return new WP_Error( 'library_language_code', $message, array( 'status' => 400 ) );
+			return new WP_Error( 'library_language_code', $message, array( 'status' => 400 ) );
+		}
+
+		$existing = get_term_by( 'slug', $code, $taxonomy );
+
+		if ( $existing ) {
+			/* translators: %s: name of a language, e.g. Norvégien. */
+			return new WP_Error( 'term_exists', sprintf( __( '%s is already among the languages.', 'library' ), $existing->name ), $existing->term_id );
+		}
+
+		return $term;
+	}
+
+	/**
+	 * ISO 639 code of a language from its name, in the language of the user, of the site or in English, whatever its case
+	 * and accents, such as no for Norvégien, norvegien or Norwegian; empty when no language has that name.
+	 *
+	 * The names are the ones ICU holds, as the app names a language with them from its code.
+	 *
+	 * @param string $name Name of a language.
+	 * @return string
+	 */
+	private static function get_language_code( string $name ): string {
+		if ( ! class_exists( 'ResourceBundle' ) ) {
+			return '';
+		}
+
+		$name = remove_accents( mb_strtolower( trim( $name ) ) );
+
+		foreach ( array_unique( array( get_user_locale(), get_locale(), 'en' ) ) as $locale ) {
+			$languages = ResourceBundle::create( $locale, 'ICUDATA-lang' )?->get( 'Languages' ) ?? array();
+
+			foreach ( $languages as $code => $language ) {
+				if ( preg_match( '/^[a-z]{2,3}$/', $code ) && remove_accents( mb_strtolower( $language ) ) === $name ) {
+					return $code;
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Say why a language added from the box of a book is refused, such as a name no language has: core leaves a refused
+	 * term out of the box without a word. Its message shows under the box, as core shows its errors there.
+	 *
+	 * @return void
+	 */
+	public function explain_refused_language(): void {
+		check_ajax_referer( 'add-library-language', '_ajax_nonce-add-library-language' );
+
+		$names = explode( ',', sanitize_text_field( wp_unslash( $_POST['newlibrary-language'] ?? '' ) ) );
+
+		foreach ( $names as $name ) {
+			$term = '' !== sanitize_title( $name ) ? $this->require_language_code( trim( $name ), 'library-language', array() ) : $name;
+
+			if ( is_wp_error( $term ) ) {
+				$response = new WP_Ajax_Response(
+					array(
+						'what' => 'library-language',
+						'data' => $term,
+					)
+				);
+
+				$response->send();
+			}
+		}
 	}
 
 	/**
