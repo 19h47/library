@@ -30,7 +30,7 @@
 		<td>
 			<input type="hidden" name="read" value="0">
 			<?php
-			$input = Library_Meta::input(
+			$control = Library_Meta::control(
 				'read',
 				array(
 					'id'      => 'library-read',
@@ -39,7 +39,7 @@
 				)
 			);
 
-			echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+			echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 			?>
 		</td>
 	</tr>
@@ -60,7 +60,7 @@
 						?>
 					</label>
 					<?php
-					$input = Library_Meta::input(
+					$control = Library_Meta::control(
 						'read_date',
 						array(
 							'id'               => "library-read-date-$index",
@@ -71,7 +71,7 @@
 						)
 					);
 
-					echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+					echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 					?>
 					<br>
 				<?php endforeach; ?>

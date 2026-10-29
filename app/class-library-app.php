@@ -102,7 +102,7 @@ class Library_App {
 		$author_labels      = get_taxonomy( 'library-author' )->labels;
 		$publisher_labels   = get_taxonomy( 'library-publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library-language' )->labels;
-		$rating_choices     = $this->get_rating_choices();
+		$rating_choices     = Library_Meta::get_rating_choices();
 		$status_choices     = Library_Posts::get_status_choices();
 		$views              = $this->get_views( $labels->name );
 
@@ -140,23 +140,6 @@ class Library_App {
 		}
 
 		return $views;
-	}
-
-	/**
-	 * Ratings a book can take, by value, with their label: the ones its meta is registered with, from 1 to 10 by half points.
-	 *
-	 * @return array<string,string>
-	 */
-	private function get_rating_choices(): array {
-		$schema  = get_registered_meta_keys( 'post', 'book' )['rating']['show_in_rest']['schema'];
-		$ratings = array();
-
-		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
-			/* translators: %s: rating, e.g. 7.5. */
-			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::rating_text( $rating ) );
-		}
-
-		return $ratings;
 	}
 
 	/**

@@ -33,11 +33,11 @@
 		}
 
 		inlineData.querySelectorAll( '[class^="library_"]' ).forEach( ( value ) => {
-			const field = value.className.replace( 'library_', '' );
-			const input = editRow.querySelector( `input[name="${ field }"]` );
+			const field   = value.className.replace( 'library_', '' );
+			const control = editRow.querySelector( `[name="${ field }"]` );
 
-			if ( input ) {
-				input.value = value.textContent;
+			if ( control ) {
+				control.value = value.textContent;
 			}
 		} );
 	};

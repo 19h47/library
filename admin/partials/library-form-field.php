@@ -1,6 +1,6 @@
 <?php
 /**
- * A row of the book information metabox: the label, the input and the description of a book meta, as registered.
+ * A row of the book information metabox: the label, the control and the description of a book meta, as registered.
  *
  * @link       https://github.com/19h47/library
  * @since      6.0.0
@@ -18,10 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $field_id    = 'library-' . str_replace( '_', '-', $key );
 $description = Library_Meta::description( $key );
-$widths      = array(
+// The select of a rating keeps the width of its choices.
+$widths = array(
 	'subtitle' => 'large-text',
 	'pages'    => 'small-text',
-	'rating'   => 'small-text',
+	'rating'   => null,
 );
 ?>
 
@@ -31,17 +32,17 @@ $widths      = array(
 	</th>
 	<td>
 		<?php
-		$input = Library_Meta::input(
+		$control = Library_Meta::control(
 			$key,
 			array(
 				'id'               => $field_id,
-				'class'            => $widths[ $key ] ?? 'regular-text',
+				'class'            => array_key_exists( $key, $widths ) ? $widths[ $key ] : 'regular-text',
 				'value'            => (string) $values[ $key ],
 				'aria-describedby' => '' !== $description ? "$field_id-description" : null,
 			)
 		);
 
-		echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+		echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 		?>
 		<?php if ( '' !== $description ) : ?>
 			<p class="description" id="<?php echo esc_attr( "$field_id-description" ); ?>"><?php echo esc_html( $description ); ?></p>

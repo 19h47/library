@@ -231,15 +231,44 @@ class Library_Meta {
 	}
 
 	/**
-	 * The input of a book meta, as its registration says: a checkbox for a boolean, a number with its minimum, maximum
-	 * and step, a date, or a text with its pattern, anchored in the schema and anchored already by HTML.
+	 * Ratings a form offers, by value, with their label: none, then the ones the meta is registered with, from 1 to 10 by
+	 * half points.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_rating_choices(): array {
+		$schema  = get_registered_meta_keys( 'post', 'book' )['rating']['show_in_rest']['schema'];
+		$ratings = array( '' => __( 'No rating', 'library' ) );
+
+		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
+			/* translators: %s: rating, e.g. 7.5. */
+			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::rating_text( $rating ) );
+		}
+
+		return $ratings;
+	}
+
+	/**
+	 * The control of a book meta, as its registration says: a select of its choices for the rating, a checkbox for a
+	 * boolean, a number with its minimum, maximum and step, a date, or a text with its pattern, anchored in the schema
+	 * and anchored already by HTML.
+	 *
+	 * A rating is chosen rather than typed: a number field reads 7,5 as 75 in Chrome.
 	 *
 	 * @param string $key        Meta key.
 	 * @param array  $attributes More attributes, such as its ID or value, or ones that replace those of the registration;
 	 *                           true gives an attribute without value, null leaves it out.
 	 * @return string HTML.
 	 */
-	public static function input( string $key, array $attributes = array() ): string {
+	public static function control( string $key, array $attributes = array() ): string {
+		if ( 'rating' === $key ) {
+			$select = Library::select( self::get_rating_choices(), $attributes['value'] ?? null );
+
+			unset( $attributes['value'] );
+
+			return Library::control( $select, $attributes + array( 'name' => $key ) );
+		}
+
 		$meta   = get_registered_meta_keys( 'post', 'book' )[ $key ];
 		$schema = $meta['show_in_rest']['schema'] ?? array();
 		$type   = match ( true ) {
