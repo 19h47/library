@@ -33,6 +33,8 @@ class Library_Books_List {
 		add_filter( 'posts_clauses', array( $this, 'sort_by_meta' ), 10, 2 );
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
+		// Before core saves a quick edit, at 1.
+		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_mistyped_isbn' ), 0 );
 		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
 		add_action( 'current_screen', array( $this, 'label_published_view' ) );
@@ -223,6 +225,28 @@ class Library_Books_List {
 			</div>
 		</fieldset>
 		<?php
+	}
+
+	/**
+	 * Refuse the quick edit of a book whose ISBN is mistyped, as Library_Meta::check_isbn() tells, before core saves
+	 * anything: quick edit shows the message in its row, which stays open on the values typed.
+	 *
+	 * @return void
+	 */
+	public function refuse_mistyped_isbn(): void {
+		check_ajax_referer( 'inlineeditnonce', '_inline_edit' );
+
+		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
+
+		if ( 'book' !== get_post_type( $post_id ) || ! isset( $_POST['isbn'] ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		$error = Library_Meta::check_isbn( $post_id, sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) );
+
+		if ( $error ) {
+			wp_die( esc_html( $error->get_error_message() ) );
+		}
 	}
 
 	/**

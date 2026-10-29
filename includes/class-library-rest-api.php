@@ -262,7 +262,8 @@ class Library_Rest_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function add_book( WP_REST_Request $request ) {
-		$error = $this->check_isbn( 0, (array) $request['meta'] );
+		$meta  = (array) $request['meta'];
+		$error = Library_Meta::check_isbn( 0, (string) ( $meta['isbn'] ?? '' ) );
 
 		if ( $error ) {
 			return $error;
@@ -276,7 +277,7 @@ class Library_Rest_API {
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
 			'post_content' => $request['content'],
-		) + $this->get_slug_fields( 0, (array) $request['meta'] );
+		) + $this->get_slug_fields( 0, $meta );
 
 		$book_id = wp_insert_post( wp_slash( $post ), true );
 
@@ -340,7 +341,8 @@ class Library_Rest_API {
 	 */
 	public function edit_book( WP_REST_Request $request ) {
 		$book_id = $request['id'];
-		$error   = $this->check_isbn( $book_id, (array) $request['meta'] );
+		$meta    = (array) $request['meta'];
+		$error   = Library_Meta::check_isbn( $book_id, (string) ( $meta['isbn'] ?? '' ) );
 
 		if ( $error ) {
 			return $error;
@@ -348,7 +350,7 @@ class Library_Rest_API {
 
 		// The names first, so that a book is never left half edited.
 		$terms = $this->get_terms( $request );
-		$post  = array( 'ID' => $book_id ) + $this->get_slug_fields( $book_id, (array) $request['meta'] );
+		$post  = array( 'ID' => $book_id ) + $this->get_slug_fields( $book_id, $meta );
 
 		if ( $request->has_param( 'title' ) ) {
 			$post['post_title'] = $request['title'];
@@ -401,27 +403,6 @@ class Library_Rest_API {
 		}
 
 		return $terms;
-	}
-
-	/**
-	 * Refuse an ISBN typed with a mistake, which its check digit tells, such as two digits swapped: a new one, or one
-	 * that changes, so that a book saved with a wrong ISBN before can still be edited. Before anything is written.
-	 *
-	 * @param int   $book_id Book ID, 0 for a book to add.
-	 * @param array $meta    Book meta sent.
-	 * @return WP_Error|null
-	 */
-	private function check_isbn( int $book_id, array $meta ): ?WP_Error {
-		$isbn = (string) ( $meta['isbn'] ?? '' );
-
-		if ( ! Library_ISBN::has_wrong_check_digit( $isbn ) || get_post_meta( $book_id, 'isbn', true ) === $isbn ) {
-			return null;
-		}
-
-		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
-		$message = sprintf( __( 'The last digit of the ISBN %s, its check digit, does not match the others: check them.', 'library' ), $isbn );
-
-		return new WP_Error( 'library_isbn_check_digit', $message, array( 'status' => 400 ) );
 	}
 
 	/**

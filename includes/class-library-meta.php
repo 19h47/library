@@ -432,6 +432,26 @@ class Library_Meta {
 	}
 
 	/**
+	 * Refuse an ISBN typed with a mistake, which its check digit tells, such as two digits swapped: a new one, or one
+	 * that changes, so that a book saved with a wrong ISBN before can still be edited. The forms of a book, in the
+	 * reading app and the admin, check it before anything is written.
+	 *
+	 * @param int    $post_id Book ID, 0 for a book to add.
+	 * @param string $isbn    ISBN sent.
+	 * @return WP_Error|null
+	 */
+	public static function check_isbn( int $post_id, string $isbn ): ?WP_Error {
+		if ( ! Library_ISBN::has_wrong_check_digit( $isbn ) || get_post_meta( $post_id, 'isbn', true ) === $isbn ) {
+			return null;
+		}
+
+		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
+		$message = sprintf( __( 'The last digit of the ISBN %s, its check digit, does not match the others: check them.', 'library' ), $isbn );
+
+		return new WP_Error( 'library_isbn_check_digit', $message, array( 'status' => 400 ) );
+	}
+
+	/**
 	 * Keep a valid Y-m-d date, anything else becomes empty.
 	 *
 	 * @param mixed $value Raw value.

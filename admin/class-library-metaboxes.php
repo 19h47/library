@@ -27,6 +27,9 @@ class Library_Metaboxes {
 	public function hooks(): void {
 		add_action( 'add_meta_boxes_book', array( $this, 'add_metabox' ) );
 		add_action( 'add_meta_boxes_book', array( $this, 'register_author_box' ) );
+		add_action( 'admin_action_editpost', array( $this, 'refuse_mistyped_isbn' ) );
+		add_action( 'admin_notices', array( $this, 'show_refused_isbn' ) );
+		add_filter( 'removable_query_args', array( $this, 'remove_refused_isbn_arg' ) );
 		add_action( 'save_post_book', array( $this, 'save_metabox' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'render_status' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'save_status' ), 10, 2 );
@@ -105,6 +108,62 @@ class Library_Metaboxes {
 		$values = wp_unslash( $_POST );
 
 		Library_Meta::save( $post_id, $values );
+	}
+
+	/**
+	 * Keep the ISBN of a book when the one typed in its form is mistyped, as Library_Meta::check_isbn() tells, before
+	 * core writes the book: the rest of it is saved, its slug with the ISBN kept, and a notice says why.
+	 *
+	 * The ISBN sent is replaced by the one saved, which edit_post(), the slug and save_metabox() then read.
+	 *
+	 * @return void
+	 */
+	public function refuse_mistyped_isbn(): void {
+		$nonce   = isset( $_POST['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
+		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
+
+		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) || 'book' !== get_post_type( $post_id ) || ! isset( $_POST['isbn'] ) ) {
+			return;
+		}
+
+		$isbn = sanitize_text_field( wp_unslash( $_POST['isbn'] ) );
+
+		if ( ! Library_Meta::check_isbn( $post_id, $isbn ) ) {
+			return;
+		}
+
+		$_POST['isbn'] = wp_slash( (string) get_post_meta( $post_id, 'isbn', true ) );
+
+		add_filter( 'redirect_post_location', fn( string $location ): string => add_query_arg( 'library_refused_isbn', rawurlencode( $isbn ), $location ) );
+	}
+
+	/**
+	 * Say, on the screen of a book saved, that the ISBN typed in its form was not, and why.
+	 *
+	 * @return void
+	 */
+	public function show_refused_isbn(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
+		$isbn = isset( $_GET['library_refused_isbn'] ) ? sanitize_text_field( wp_unslash( $_GET['library_refused_isbn'] ) ) : '';
+
+		if ( '' === $isbn || 'book' !== get_current_screen()?->post_type ) {
+			return;
+		}
+
+		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
+		$message = sprintf( __( 'The ISBN %s was not saved, as its last digit, its check digit, does not match the others: check them.', 'library' ), $isbn );
+
+		wp_admin_notice( esc_html( $message ), array( 'type' => 'error' ) );
+	}
+
+	/**
+	 * Take the ISBN refused out of the address once its notice shows, as core does with its messages.
+	 *
+	 * @param string[] $args Query arguments removed.
+	 * @return string[]
+	 */
+	public function remove_refused_isbn_arg( array $args ): array {
+		return array( ...$args, 'library_refused_isbn' );
 	}
 
 	/**

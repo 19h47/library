@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-29T09:36:40+00:00\n"
+"POT-Creation-Date: 2026-10-29T10:16:26+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php admin/class-library-dashboard.php:69
-#: admin/class-library-metaboxes.php:128 app/class-library-app.php:72
+#: admin/class-library-metaboxes.php:187 app/class-library-app.php:72
 #: app/class-library-app.php:158 app/class-library-app.php:159
 #: app/partials/library-app.php:36 app/partials/library-app.php:54
 #: app/partials/library-app.php:109 app/partials/library-app.php:301
@@ -79,57 +79,57 @@ msgstr "Langues et traducteurs"
 msgid "Easter eggs"
 msgstr "Succès cachés"
 
-#: admin/class-library-books-list.php:52
+#: admin/class-library-books-list.php:54
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-books-list.php:58 app/partials/library-app.php:525
+#: admin/class-library-books-list.php:60 app/partials/library-app.php:525
 msgid "Read date"
 msgstr "Date de lecture"
 
 #. translators: %s: book title.
-#: admin/class-library-books-list.php:80
+#: admin/class-library-books-list.php:82
 #, php-format
 msgid "Read: %s"
 msgstr "Lu : %s"
 
 #. translators: %s: number of readings of a book.
-#: admin/class-library-books-list.php:119
+#: admin/class-library-books-list.php:121
 #, php-format
 msgid "%s reading"
 msgid_plural "%s readings"
 msgstr[0] "%s lecture"
 msgstr[1] "%s lectures"
 
-#: admin/class-library-books-list.php:134
+#: admin/class-library-books-list.php:136
 msgid "Rated"
 msgstr "Noté"
 
-#: admin/class-library-books-list.php:213
+#: admin/class-library-books-list.php:215
 msgid "Last read date"
 msgstr "Dernière lecture"
 
-#: admin/class-library-books-list.php:259
+#: admin/class-library-books-list.php:283
 msgid "Table ordered by edition date."
 msgstr "Tableau trié par date d’édition."
 
-#: admin/class-library-books-list.php:260
+#: admin/class-library-books-list.php:284
 msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
 #. translators: %s: reading percentage.
-#: admin/class-library-books-list.php:316 admin/js/library-admin-read.js:26
+#: admin/class-library-books-list.php:340 admin/js/library-admin-read.js:26
 #: app/js/bricks/library-progress.js:13
 #, php-format
 msgid "%s%% read"
 msgstr "%s %% lu"
 
-#: admin/class-library-books-list.php:320
+#: admin/class-library-books-list.php:344
 msgid "Loading percent read..."
 msgstr "Chargement du pourcentage lu..."
 
 #. translators: %s: number of books.
-#: admin/class-library-books-list.php:341
+#: admin/class-library-books-list.php:365
 #, php-format
 msgid "In the library <span class=\"count\">(%s)</span>"
 msgid_plural "In the library <span class=\"count\">(%s)</span>"
@@ -257,11 +257,21 @@ msgid_plural "%1$s books, %2$s read"
 msgstr[0] "%1$s livre, %2$s lu"
 msgstr[1] "%1$s livres, %2$s lus"
 
-#: admin/class-library-metaboxes.php:57
+#: admin/class-library-metaboxes.php:60
 msgid "Information"
 msgstr "Informations"
 
-#: admin/class-library-metaboxes.php:135
+#. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
+#: admin/class-library-metaboxes.php:154
+#, php-format
+msgid ""
+"The ISBN %s was not saved, as its last digit, its check digit, does not "
+"match the others: check them."
+msgstr ""
+"L’ISBN %s n’a pas été enregistré, car son dernier chiffre, sa clé de "
+"contrôle, ne correspond pas aux autres : vérifiez-les."
+
+#: admin/class-library-metaboxes.php:194
 msgid ""
 "Not kept: read but not in my library. To buy: not in my library yet. Both "
 "are hidden from the books list and the site."
@@ -424,7 +434,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:620
+#: includes/class-library-rest-api.php:601
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -1201,6 +1211,16 @@ msgstr ""
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 
+#. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
+#: includes/class-library-meta.php:449
+#, php-format
+msgid ""
+"The last digit of the ISBN %s, its check digit, does not match the others: "
+"check them."
+msgstr ""
+"Le dernier chiffre de l’ISBN %s, sa clé de contrôle, ne correspond pas aux "
+"autres : vérifiez-les."
+
 #. translators: %s: number of books.
 #: includes/class-library-posts.php:85
 #, php-format
@@ -1531,16 +1551,6 @@ msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 "Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
 "envie."
-
-#. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-library-rest-api.php:422
-#, php-format
-msgid ""
-"The last digit of the ISBN %s, its check digit, does not match the others: "
-"check them."
-msgstr ""
-"Le dernier chiffre de l’ISBN %s, sa clé de contrôle, ne correspond pas aux "
-"autres : vérifiez-les."
 
 #: includes/class-library-taxonomies.php:62
 msgctxt "library authors general name"
