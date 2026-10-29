@@ -20,11 +20,12 @@
 class Library_Stats {
 
 	/**
-	 * SQL condition on the posts table aliased "p": all books, kept or not, for the reading stats.
+	 * SQL condition on the posts table aliased "p": all books, kept or not, for the reading stats; "{statuses}" stands
+	 * for the statuses of the books, from Library_Books::statuses().
 	 *
 	 * @var string
 	 */
-	private const BOOKS = "p.post_type = 'book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )";
+	private const BOOKS = "p.post_type = 'book' AND p.post_status IN ( {statuses} )";
 
 	/**
 	 * SQL condition on the posts table aliased "p": the books at hand, kept or not, but not those to buy, for the reading pile.
@@ -57,29 +58,27 @@ class Library_Stats {
 			FROM {$wpdb->postmeta} AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
 			WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books} ) AS r";
-		// The readings first: they hold the books condition.
-		$sql = str_replace( array( '{readings}', '{books}', '{at_hand}', '{library}' ), array( $readings, self::BOOKS, self::AT_HAND, self::LIBRARY ), $sql );
+		$statuses = "'" . implode( "', '", Library_Books::statuses() ) . "'";
+		// The readings first: they hold the books condition; the statuses last: every condition holds them.
+		$sql = str_replace( array( '{readings}', '{books}', '{at_hand}', '{library}', '{statuses}' ), array( $readings, self::BOOKS, self::AT_HAND, self::LIBRARY, $statuses ), $sql );
 		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
 
 		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets and REST routes, run on demand.
 	}
 
 	/**
-	 * Reading stats: books read out of the books in the library, i.e. without trash, auto-drafts, books not kept and books to buy.
+	 * Reading stats: books read out of the books in the library, i.e. published.
 	 *
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
-		$counts = (array) wp_count_posts( 'book' );
-		unset( $counts['trash'], $counts['auto-draft'], $counts[ Library_Posts::NOT_KEPT ], $counts[ Library_Posts::TO_BUY ] );
-
-		$total = (int) array_sum( $counts );
+		$total = (int) wp_count_posts( 'book' )->publish;
 
 		// The list table sort filters must not alter this count.
 		$read_query = new WP_Query(
 			array(
 				'post_type'        => 'book',
-				'post_status'      => 'any',
+				'post_status'      => 'publish',
 				'posts_per_page'   => 1,
 				'fields'           => 'ids',
 				'suppress_filters' => true,
