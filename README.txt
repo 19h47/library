@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.15.1
+Stable tag: 6.16.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,13 +18,13 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13.
+* **Books** – Cover, subtitle, series and volume, number in its collection, ISBN, ISSN, number of pages, edition date and date first published, translators, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. The number in its collection follows the collection: “Pocket Science-fiction no. 5667”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13.
 * **Authors, publishers and languages** – Pseudonyms are children of an author's real name, collections children of their publisher: filtering by an author or a publisher includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
-* **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
+* **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
 * **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state and by status, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the authors: see the FAQ.
 * **Translatable** – French translation included.
@@ -88,6 +88,12 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.16.0 =
+* Books: a series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”, as the help of the field now says; the volume number goes with the series.
+* Achievements: a cycle is a series finished once the books of all its series are read, and each of its series still counts. The same books count once, for their series first: an author whose books are all in one cycle counts as that cycle, as Hergé counts as The Adventures of Tintin.
+* Search: `series:"Star Wars"` finds the books of its series too, at any depth. A cycle under another one, such as `series:"Advanced Dungeons & Dragons, Manuel des Joueurs"`, found none of its books.
+* Books: the number of a book in its collection, such as 5667 in Pocket Science-fiction, is typed in the book form and the reading app, found by the search and shown after its collection: “Pocket, Pocket Science-fiction no. 5667”.
 
 = 6.15.1 =
 * Fixed: the book form and quick edit of the admin saved a new or changed ISBN whose check digit is wrong, which the reading app refuses. Quick edit now refuses it with the reason; the book form saves the rest of the book, keeps the ISBN it had and says why.
