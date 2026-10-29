@@ -466,13 +466,6 @@ library-author > .library-author {
 	field-sizing: content;
 }
 
-/* The pill that saves a form */
-.library-save {
-	color: var(--app-text);
-	border-color: var(--app-line);
-	background: var(--app-fill);
-}
-
 /* A field of the form of a book, to add or edit: its label above it */
 .library-field {
 	display: grid;

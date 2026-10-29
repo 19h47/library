@@ -323,7 +323,7 @@
 						?>
 						<p class="app-status" data-field="error" role="alert" hidden></p>
 						<p>
-							<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+							<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
 						</p>
 					</form>
 				</library-reading>
@@ -486,7 +486,7 @@
 					</details>
 					<p class="app-status" data-field="error" role="alert" hidden></p>
 					<p>
-						<button class="app-pill library-save" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+						<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
 				<p class="library-book__actions" hidden>
