@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-29T15:35:45+00:00\n"
+"POT-Creation-Date: 2026-10-29T15:24:20+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -218,20 +218,20 @@ msgstr "Années d’édition"
 msgid "Rating distribution"
 msgstr "Répartition des notes"
 
-#: admin/class-library-dashboard.php:379 includes/class-library-meta.php:101
+#: admin/class-library-dashboard.php:379 includes/class-library-meta.php:102
 msgid "Rating"
 msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:247
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:249
 #: app/js/lib/format.js:45
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:243
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:245
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -594,7 +594,7 @@ msgstr "Chargement…"
 msgid "Reading state"
 msgstr "État de lecture"
 
-#: app/partials/library-app.php:96 includes/class-library-meta.php:102
+#: app/partials/library-app.php:96 includes/class-library-meta.php:103
 #: app/js/lib/format.js:93
 msgid "Read"
 msgstr "Lu"
@@ -1110,7 +1110,8 @@ msgid "vol. %s"
 msgstr "t. %s"
 
 #. translators: %s: volume number.
-#: includes/class-library-books.php:142
+#. translators: %s: number of the book in its collection.
+#: includes/class-library-books.php:142 includes/class-library-books.php:178
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
@@ -1122,7 +1123,7 @@ msgid "%1$s, %2$s"
 msgstr "%1$s, %2$s"
 
 #. translators: %s: number of books.
-#: includes/class-library-books.php:191 app/js/lib/format.js:29
+#: includes/class-library-books.php:198 app/js/lib/format.js:29
 #, php-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -1150,26 +1151,30 @@ msgid "Volume Number"
 msgstr "Numéro de volume"
 
 #: includes/class-library-meta.php:96
+msgid "Collection Number"
+msgstr "Numéro dans la collection"
+
+#: includes/class-library-meta.php:97
 msgid "Translators"
 msgstr "Traducteurs"
 
-#: includes/class-library-meta.php:97
+#: includes/class-library-meta.php:98
 msgid "Edition date"
 msgstr "Date d’édition"
 
-#: includes/class-library-meta.php:98
+#: includes/class-library-meta.php:99
 msgid "Read dates"
 msgstr "Dates de lecture"
 
-#: includes/class-library-meta.php:99
+#: includes/class-library-meta.php:100
 msgid "First published"
 msgstr "Première parution"
 
-#: includes/class-library-meta.php:100
+#: includes/class-library-meta.php:101
 msgid "Pages"
 msgstr "Pages"
 
-#: includes/class-library-meta.php:105
+#: includes/class-library-meta.php:106
 msgid ""
 "Shown after the title, such as “The Knife: Meditations After an Attempted "
 "Murder”."
@@ -1177,7 +1182,7 @@ msgstr ""
 "Affiché après le titre, comme « Le Couteau : Réflexions suite à une "
 "tentative d’assassinat »."
 
-#: includes/class-library-meta.php:106
+#: includes/class-library-meta.php:107
 msgid ""
 "10 or 13 digits, with or without hyphens, such as 9782070360246, which "
 "becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its "
@@ -1187,11 +1192,11 @@ msgstr ""
 "978-2-07-036024-6 ; pour un livre sans ISBN, les 13 chiffres de son code-"
 "barres."
 
-#: includes/class-library-meta.php:107
+#: includes/class-library-meta.php:108
 msgid "Two groups of four characters, such as 0395-2649."
 msgstr "Deux groupes de quatre caractères, comme 0395-2649."
 
-#: includes/class-library-meta.php:108
+#: includes/class-library-meta.php:109
 msgid ""
 "From the cycle, if any, to the series, separated with commas, such as “Star "
 "Wars, Young Jedi Knights”; the volume number goes with the series."
@@ -1199,11 +1204,16 @@ msgstr ""
 "Du cycle, s’il y en a un, à la série, séparés par des virgules, comme « Star "
 "Wars, Les Jeunes Chevaliers Jedi » ; le numéro de volume va avec la série."
 
-#: includes/class-library-meta.php:109
+#: includes/class-library-meta.php:110
+msgid "Shown after the collection, such as “Pocket Science-fiction no. 5667”."
+msgstr ""
+"Affiché après la collection, comme « Pocket Science-fiction n° 5667 »."
+
+#: includes/class-library-meta.php:111
 msgid "Separate translators with commas"
 msgstr "Séparez les traducteurs par des virgules"
 
-#: includes/class-library-meta.php:110
+#: includes/class-library-meta.php:112
 msgid ""
 "When the work first came out, whatever the edition: a year, a year and "
 "month, or a date, such as 1929, 1929-11 or 1929-11-08."
@@ -1211,12 +1221,12 @@ msgstr ""
 "Date de première parution de l’œuvre, quelle que soit l’édition : une année, "
 "une année et un mois, ou une date, comme 1929, 1929-11 ou 1929-11-08."
 
-#: includes/class-library-meta.php:111
+#: includes/class-library-meta.php:113
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-library-meta.php:449
+#: includes/class-library-meta.php:451
 #, php-format
 msgid ""
 "The last digit of the ISBN %s, its check digit, does not match the others: "
@@ -1849,12 +1859,13 @@ msgstr "Recherche"
 #: includes/class-library-wp-query.php:199
 msgid ""
 "The search finds the text in the title, subtitle, series, ISBN, ISSN, volume "
-"number, translators, authors, publishers, collections and original "
-"languages. Keywords narrow it to a field:"
+"number, collection number, translators, authors, publishers, collections and "
+"original languages. Keywords narrow it to a field:"
 msgstr ""
 "La recherche trouve le texte dans le titre, le sous-titre, la série, l’ISBN, "
-"l’ISSN, le numéro de tome, les traducteurs, les auteurs, les éditeurs, les "
-"collections et les langues originales. Les mots-clés la limitent à un champ :"
+"l’ISSN, le numéro de tome, le numéro dans la collection, les traducteurs, les "
+"auteurs, les éditeurs, les collections et les langues originales. Les mots-clés "
+"la limitent à un champ :"
 
 #. translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces.
 #: includes/class-library-wp-query.php:203
@@ -1923,6 +1934,16 @@ msgstr "Traduit du %1$s par %2$s"
 #: app/js/library-app-store.js:157
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
+
+#~ msgid ""
+#~ "The search finds the text in the title, subtitle, series, ISBN, ISSN, "
+#~ "volume number, translators, authors, publishers, collections and original "
+#~ "languages. Keywords narrow it to a field:"
+#~ msgstr ""
+#~ "La recherche trouve le texte dans le titre, le sous-titre, la série, "
+#~ "l’ISBN, l’ISSN, le numéro de tome, les traducteurs, les auteurs, les "
+#~ "éditeurs, les collections et les langues originales. Les mots-clés la "
+#~ "limitent à un champ :"
 
 #~ msgid "Separate series with commas"
 #~ msgstr "Séparez les séries par des virgules"

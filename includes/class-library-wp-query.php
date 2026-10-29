@@ -196,7 +196,7 @@ class Library_WP_Query {
 				'id'      => 'library-search',
 				'title'   => __( 'Search', 'library' ),
 				'content' =>
-					'<p>' . esc_html__( 'The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, translators, authors, publishers, collections and original languages. Keywords narrow it to a field:', 'library' ) . '</p>' .
+					'<p>' . esc_html__( 'The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, collection number, translators, authors, publishers, collections and original languages. Keywords narrow it to a field:', 'library' ) . '</p>' .
 					'<ul>' . $items . '</ul>' .
 					'<p>' . sprintf(
 						/* translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces. */

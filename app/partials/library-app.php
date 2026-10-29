@@ -462,7 +462,7 @@
 					<details class="library-edit__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'subtitle', 'series', 'volume_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
+						foreach ( array( 'subtitle', 'series', 'volume_number', 'collection_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
 							Library::component(
 								'meta-field',
 								array(

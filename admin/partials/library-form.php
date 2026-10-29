@@ -17,7 +17,7 @@
 <table class="form-table" role="presentation">
 
 	<?php
-	foreach ( array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'pages', 'edition_date', 'published_date' ) as $key ) {
+	foreach ( array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'collection_number', 'pages', 'edition_date', 'published_date' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
