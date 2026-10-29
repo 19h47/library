@@ -136,7 +136,8 @@ class Library_Posts {
 	 * removed leaves the slug too.
 	 *
 	 * Only the forms of a book send its ISBN, even empty: any other save, such as moving it to the trash, keeps the slug.
-	 * Quick edit sends neither the ISSN nor the volume number, which are then those of the book.
+	 * Quick edit sends neither the ISSN nor the volume number, which are then those of the book. The fields are taken as
+	 * they are saved, an ISBN with its hyphens.
 	 *
 	 * Runs before the post is written, so no second update is needed.
 	 *
@@ -154,7 +155,7 @@ class Library_Posts {
 		$fields  = array();
 
 		foreach ( array( 'isbn', 'issn', 'volume_number' ) as $key ) {
-			$fields[ $key ] = sanitize_text_field( isset( $postarr[ $key ] ) ? wp_unslash( $postarr[ $key ] ) : (string) get_post_meta( $post_id, $key, true ) );
+			$fields[ $key ] = sanitize_meta( $key, isset( $postarr[ $key ] ) ? wp_unslash( $postarr[ $key ] ) : (string) get_post_meta( $post_id, $key, true ), 'post', 'book' );
 		}
 
 		if ( $fields['issn'] && $fields['volume_number'] ) {

@@ -146,7 +146,7 @@ $sizes = array(
 					<dl class="library-book__fields">
 						<div>
 							<dt>ISBN</dt>
-							<dd>978-2-07-036024-5</dd>
+							<dd>978-2-07-036024-6</dd>
 						</div>
 						<div>
 							<dt>Pages</dt>

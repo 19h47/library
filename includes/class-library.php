@@ -28,6 +28,7 @@ class Library {
 		'includes/class-library-readme.php',
 		'includes/class-library-updater.php',
 		'includes/class-library-books.php',
+		'includes/class-library-isbn.php',
 		'includes/class-library-meta.php',
 		'includes/class-library-stats.php',
 		'includes/class-library-wp-query.php',
