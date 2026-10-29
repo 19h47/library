@@ -17,7 +17,7 @@
  * never read despite many books, an anniversary of the work or the edition, the opposite of the latest reads, a short
  * book to catch up on last year, a book just added, a book rated well long ago to read again, the
  * rest of the reading pile, and a book to buy that comes next. A volume of a series is only suggested when it is the
- * first one not read yet, to buy or not.
+ * first one not read yet, to buy or not; once a part of a cycle is read in full, the next part is the next of the cycle.
  *
  * @since      1.1.0
  * @package    Library
@@ -222,7 +222,7 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * The next volume of each series with at least one volume read.
+	 * The next volume of each series with at least one volume read, and the first one of the part of a cycle that comes next.
 	 *
 	 * @param array<int,array> $books   All the books.
 	 * @param array<int,array> $to_read Books to read.
@@ -230,27 +230,30 @@ class Library_Reading_Idea {
 	 */
 	private function get_series_ideas( array $books, array $to_read ): array {
 		$read_by_series = self::get_read_by_series( $books );
+		$next_parts     = self::get_next_parts( $books );
 		$ideas          = array();
 
 		foreach ( $to_read as $book ) {
-			$read = $read_by_series[ $book['series'] ] ?? null;
+			$read = $read_by_series[ $book['series'] ] ?? $next_parts[ $book['series'] ] ?? null;
 
 			if ( ! $read || null === $book['volume'] ) {
 				continue;
 			}
 
+			// The next part of a cycle is next in the cycle.
+			$series  = $next_parts[ $book['series'] ]['cycle'] ?? $book['series'];
 			$volumes = number_format_i18n( $read['volumes'] );
 			$reason  = '' === $read['latest_read']
 				? sprintf(
 					/* translators: 1: series, 2: number of volumes read. */
 					_n( 'Next in %1$s: you have read %2$s volume.', 'Next in %1$s: you have read %2$s volumes.', $read['volumes'], 'library' ),
-					$book['series'],
+					$series,
 					$volumes
 				)
 				: sprintf(
 					/* translators: 1: series, 2: number of volumes read, 3: year of the last one read. */
 					_n( 'Next in %1$s: you have read %2$s volume, in %3$s.', 'Next in %1$s: you have read %2$s volumes, the last one in %3$s.', $read['volumes'], 'library' ),
-					$book['series'],
+					$series,
 					$volumes,
 					self::year( $read['latest_read'] )
 				);
@@ -290,6 +293,46 @@ class Library_Reading_Idea {
 		}
 
 		return $read_by_series;
+	}
+
+	/**
+	 * The parts of cycles that come next, keyed by their series, with their cycle, the volumes read in it and the date of
+	 * the last one read: a part none of whose books is read, after a part read in full, in reading order.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @return array<string,array{cycle:string,volumes:int,latest_read:string}>
+	 */
+	private static function get_next_parts( array $books ): array {
+		$parts = array();
+
+		foreach ( Library_Books::in_reading_order( $books ) as $book ) {
+			$cycle = Library_Books::cycle( $book['series'] );
+
+			if ( '' !== $cycle ) {
+				$parts[ $cycle ][ $book['series'] ][] = $book;
+			}
+		}
+
+		$next_parts = array();
+
+		foreach ( $parts as $cycle => $cycle_parts ) {
+			// The volumes read in the cycle, counted as those of a series.
+			$cycle_books = array_map( fn( array $book ) => array( 'series' => $cycle ) + $book, array_merge( ...array_values( $cycle_parts ) ) );
+			$read        = self::get_read_by_series( $cycle_books )[ $cycle ] ?? null;
+			$before      = array();
+
+			foreach ( $cycle_parts as $series => $part ) {
+				$read_before = $before && ! in_array( false, array_column( $before, 'read' ), true );
+
+				if ( $read && $read_before && ! in_array( true, array_column( $part, 'read' ), true ) ) {
+					$next_parts[ $series ] = array( 'cycle' => $cycle ) + $read;
+				}
+
+				$before = $part;
+			}
+		}
+
+		return $next_parts;
 	}
 
 	/**

@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.16.0
+Stable tag: 6.17.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -23,9 +23,9 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
-* **Reading idea of the week** – A book to read, and why: the next volume of a series in progress, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
+* **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state and by status, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
+* **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state and by status, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each author. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the authors: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -74,7 +74,7 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/library-author`, `library-publisher` and `library-language`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`.
+Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/library-author`, `library-publisher` and `library-language`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given.
 
 The routes of the plugin, to users who can edit posts:
 
@@ -88,6 +88,10 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.17.0 =
+* Reading app: a search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, so that the parts of a cycle follow one another, rather than latest added first. The REST API does the same when no `orderby` is given.
+* Reading idea: once a part of a cycle is read in full, the first volume of the next part, in reading order, is suggested as the next one of the cycle: “Next in Les Seigneurs des runes: you have read 2 volumes”.
 
 = 6.16.0 =
 * Books: a series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”, as the help of the field now says; the volume number goes with the series.

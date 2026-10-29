@@ -113,6 +113,53 @@ class Library_Books {
 	}
 
 	/**
+	 * Books in reading order: in the order they first came out, a series at the date of its first book with its volumes in
+	 * their order, so that the parts of a cycle follow one another; those without date last, then by title.
+	 *
+	 * @param array<int,array> $books Books, from all().
+	 * @return array<int,array>
+	 */
+	public static function in_reading_order( array $books ): array {
+		$series_dates = array();
+
+		foreach ( $books as $book ) {
+			$date = self::date( $book );
+
+			if ( '' !== $book['series'] && '' !== $date ) {
+				$series_dates[ $book['series'] ] = min( $date, $series_dates[ $book['series'] ] ?? $date );
+			}
+		}
+
+		$place = function ( array $book ) use ( $series_dates ): array {
+			$date = '' !== $book['series'] ? $series_dates[ $book['series'] ] ?? '' : self::date( $book );
+
+			return array( '' === $date, $date, $book['series'], $book['volume'] ?? PHP_INT_MAX, self::date( $book ) );
+		};
+
+		usort(
+			$books,
+			function ( array $a, array $b ) use ( $place ): int {
+				$order = $place( $a ) <=> $place( $b );
+
+				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );
+			}
+		);
+
+		return $books;
+	}
+
+	/**
+	 * Cycle of a series, the names before its last one: "Star Wars" for "Star Wars, Young Jedi Knights", empty for a series
+	 * without cycle.
+	 *
+	 * @param string $series Series, after its cycles.
+	 * @return string
+	 */
+	public static function cycle( string $series ): string {
+		return implode( ', ', array_slice( self::split( $series ), 0, -1 ) );
+	}
+
+	/**
 	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title: "City Hunter, vol. 3".
