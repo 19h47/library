@@ -13,7 +13,7 @@
  * Achievements drawn from the books, computed on each view: nothing is stored, so a completion is lost
  * when a book to read joins it, and comes back once it is read.
  *
- * By family: completions (series, authors and collections read in full, collections read by half or
+ * By family: completions (series and their cycles, authors and collections read in full, collections read by half or
  * more), milestones (books and pages read, record year and month, months in a row, a book read
  * again, whose level is the most times a book was read again), discoveries
  * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
@@ -31,7 +31,7 @@
 class Library_Achievements {
 
 	/**
-	 * Number of books from which reading all those of an author, a series or a collection counts.
+	 * Number of books from which reading all those of an author, a series or its cycle, or a collection counts.
 	 *
 	 * @var array<string,int>
 	 */
@@ -437,7 +437,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Series, authors and collections read in full, one achievement for each kind, and those with few books left.
+	 * Series and their cycles, authors and collections read in full, one achievement for each kind, and those with few books left.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
@@ -490,9 +490,30 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Series, authors and collections with enough books to be completed, keyed by their books, then by kind.
+	 * The series of a book and the cycles it belongs to, keyed by their key, from the series to the widest cycle: a series
+	 * is typed after its cycles, such as "Star Wars, Young Jedi Knights", a series of the cycle "Star Wars".
 	 *
-	 * The same books count once: for their series, else for their authors together, else for their collection.
+	 * @param string $series Series of a book, after its cycles.
+	 * @return array<string,string>
+	 */
+	private static function get_series_and_cycles( string $series ): array {
+		$names             = Library_Books::split( $series );
+		$series_and_cycles = array();
+
+		for ( $count = count( $names ); $count > 0; $count-- ) {
+			$name = implode( ', ', array_slice( $names, 0, $count ) );
+
+			$series_and_cycles[ self::key( $name ) ] = $name;
+		}
+
+		return $series_and_cycles;
+	}
+
+	/**
+	 * Series and their cycles, authors and collections with enough books to be completed, keyed by their books, then by kind.
+	 *
+	 * The same books count once: for their series, else for their cycle, else for their authors together, else for their
+	 * collection.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<string,array<string,array<int|string,array<int,array>>>>
@@ -505,8 +526,8 @@ class Library_Achievements {
 		);
 
 		foreach ( $books as $book ) {
-			if ( '' !== $book['series'] ) {
-				$groups['series'][ self::key( $book['series'] ) ][] = $book;
+			foreach ( array_keys( self::get_series_and_cycles( $book['series'] ) ) as $series_key ) {
+				$groups['series'][ $series_key ][] = $book;
 			}
 
 			foreach ( $book['author_ids'] as $author_id ) {
@@ -553,7 +574,7 @@ class Library_Achievements {
 		$left   = $total - count( $read );
 
 		if ( 'series' === $kind ) {
-			$subject = $group[0]['series'];
+			$subject = self::get_series_and_cycles( $group[0]['series'] )[ $key ];
 			$target  = self::search_target( Library_WP_Query::keyword_search( 'series', $subject ), $group );
 		} else {
 			$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';

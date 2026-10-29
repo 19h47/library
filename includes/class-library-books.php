@@ -210,7 +210,7 @@ class Library_Books {
 	 * @param string $value Field value.
 	 * @return string[]
 	 */
-	private static function split( string $value ): array {
+	public static function split( string $value ): array {
 		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ), 'strlen' ) );
 	}
 }

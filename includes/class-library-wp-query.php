@@ -175,7 +175,7 @@ class Library_WP_Query {
 		}
 
 		$keywords = array(
-			array( array( 'series:SAS' ), __( 'the series, by its exact name', 'library' ) ),
+			array( array( 'series:SAS' ), __( 'a series, or a cycle with its series, by its exact name', 'library' ) ),
 			array( array( 'author:Tabucchi' ), __( 'an author, with their pseudonyms', 'library' ) ),
 			array( array( 'publisher:Gallimard' ), __( 'a publisher, with its collections', 'library' ) ),
 			array( array( 'translator:Bruneau' ), __( 'a translator', 'library' ) ),
@@ -226,17 +226,20 @@ class Library_WP_Query {
 
 		switch ( $keyword ) {
 			case 'series':
-				// A volume without series is a volume of the series named by its title, as in Library_Books.
+				// A series is found from one comma to the next, so that a cycle finds the books of its series: "Star Wars"
+				// those of "Star Wars, Young Jedi Knights". A volume without series is a volume of the series named by its
+				// title, as in Library_Books.
+				$series_like = '%,' . $wpdb->esc_like( str_replace( ', ', ',', $value ) ) . ',%';
+
 				return $wpdb->prepare(
 					"SELECT post_id FROM {$wpdb->postmeta}
-					WHERE meta_key = 'series' AND ( LOWER( meta_value ) = %s OR FIND_IN_SET( %s, LOWER( REPLACE( meta_value, ', ', ',' ) ) ) )
+					WHERE meta_key = 'series' AND CONCAT( ',', LOWER( REPLACE( meta_value, ', ', ',' ) ), ',' ) LIKE %s
 					UNION
 					SELECT p.ID FROM {$wpdb->posts} AS p
 					INNER JOIN {$wpdb->postmeta} AS v ON v.post_id = p.ID AND v.meta_key = 'volume_number' AND v.meta_value REGEXP '[0-9]'
 					LEFT JOIN {$wpdb->postmeta} AS s ON s.post_id = p.ID AND s.meta_key = 'series' AND s.meta_value != ''
 					WHERE s.post_id IS NULL AND LOWER( p.post_title ) = %s",
-					$value,
-					$value,
+					$series_like,
 					$value
 				);
 			case 'author':
