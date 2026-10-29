@@ -447,13 +447,8 @@
 							),
 						)
 					);
-					Library::component(
-						'meta-field',
-						array(
-							'key'        => 'isbn',
-							'attributes' => array( 'inputmode' => 'numeric' ),
-						)
-					);
+					// An ISBN takes hyphens, which a numeric keyboard may not have.
+					Library::component( 'meta-field', array( 'key' => 'isbn' ) );
 					Library::component(
 						'field',
 						array(
