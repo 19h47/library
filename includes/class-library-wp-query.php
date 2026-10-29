@@ -11,7 +11,7 @@
 
 /**
  * Extends book searches to the book text meta (ISBN, series, translators…) and terms (authors, publishers, collections),
- * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi".
+ * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi"; the REST API lists a series in reading order.
  *
  * @since      1.0.0
  * @package    Library
@@ -36,6 +36,8 @@ class Library_WP_Query {
 		add_action( 'pre_get_posts', array( $this, 'parse_keywords' ) );
 		add_filter( 'posts_search', array( $this, 'search_meta_and_terms' ), 10, 2 );
 		add_filter( 'posts_where', array( $this, 'search_keywords' ), 10, 2 );
+		add_filter( 'rest_book_query', array( $this, 'allow_reading_order' ), 10, 2 );
+		add_filter( 'posts_orderby', array( $this, 'order_series_search' ), 10, 2 );
 		add_filter( 'get_search_query', array( $this, 'show_typed_search' ) );
 		add_action( 'load-edit.php', array( $this, 'add_help_tab' ) );
 	}
@@ -148,6 +150,45 @@ class Library_WP_Query {
 		}
 
 		return $where;
+	}
+
+	/**
+	 * Let a search of the REST API that asks for no order, such as the one of the reading app, list a series in reading
+	 * order rather than by date added: core orders by date when none is asked.
+	 *
+	 * @param array           $args    WP_Query arguments.
+	 * @param WP_REST_Request $request Request.
+	 * @return array
+	 */
+	public function allow_reading_order( array $args, WP_REST_Request $request ): array {
+		$args['library_reading_order'] = ! isset( $request->get_query_params()['orderby'] );
+
+		return $args;
+	}
+
+	/**
+	 * List the books a search for a series finds in reading order, as Library_Books::in_reading_order() sorts them,
+	 * when the search lets it.
+	 *
+	 * @param string   $orderby ORDER BY clause.
+	 * @param WP_Query $query   Query instance.
+	 * @return string
+	 */
+	public function order_series_search( string $orderby, WP_Query $query ): string {
+		$series = array(
+			'keyword' => 'series',
+			'exclude' => false,
+		);
+
+		if ( ! $query->get( 'library_reading_order' ) || ! wp_list_filter( $query->get( 'library_keywords', array() ), $series ) ) {
+			return $orderby;
+		}
+
+		global $wpdb;
+
+		$book_ids = implode( ', ', array_column( Library_Books::in_reading_order( Library_Books::all() ), 'id' ) );
+
+		return '' !== $book_ids ? "FIELD( {$wpdb->posts}.ID, $book_ids )" : $orderby;
 	}
 
 	/**
