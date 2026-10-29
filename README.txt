@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.15.0
+Stable tag: 6.15.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -88,6 +88,9 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
 
 == Changelog ==
+
+= 6.15.1 =
+* Fixed: the book form and quick edit of the admin saved a new or changed ISBN whose check digit is wrong, which the reading app refuses. Quick edit now refuses it with the reason; the book form saves the rest of the book, keeps the ISBN it had and says why.
 
 = 6.15.0 =
 * Books: a book without ISBN, such as an army book of Warhammer, takes the EAN-13 of its barcode in the ISBN field, saved as its 13 digits, such as 5011921988754, and its check digit checked as the one of an ISBN, itself an EAN-13 of the prefixes 978 and 979. The field took such a code from the prefix 501 only, with made-up hyphens.
