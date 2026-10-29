@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-29T08:24:42+00:00\n"
+"POT-Creation-Date: 2026-10-29T09:36:40+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -218,20 +218,20 @@ msgstr "Années d’édition"
 msgid "Rating distribution"
 msgstr "Répartition des notes"
 
-#: admin/class-library-dashboard.php:379 includes/class-library-meta.php:100
+#: admin/class-library-dashboard.php:379 includes/class-library-meta.php:101
 msgid "Rating"
 msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:246
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:247
 #: app/js/lib/format.js:45
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:242
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:243
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -584,7 +584,7 @@ msgstr "Chargement…"
 msgid "Reading state"
 msgstr "État de lecture"
 
-#: app/partials/library-app.php:96 includes/class-library-meta.php:101
+#: app/partials/library-app.php:96 includes/class-library-meta.php:102
 #: app/js/lib/format.js:93
 msgid "Read"
 msgstr "Lu"
@@ -1119,47 +1119,47 @@ msgid_plural "%s books"
 msgstr[0] "%s livre"
 msgstr[1] "%s livres"
 
-#: includes/class-library-meta.php:90
+#: includes/class-library-meta.php:91
 msgid "Subtitle"
 msgstr "Sous-titre"
 
-#: includes/class-library-meta.php:91
+#: includes/class-library-meta.php:92
 msgid "Series"
 msgstr "Série"
 
-#: includes/class-library-meta.php:92
+#: includes/class-library-meta.php:93
 msgid "ISBN"
 msgstr "ISBN"
 
-#: includes/class-library-meta.php:93
+#: includes/class-library-meta.php:94
 msgid "ISSN"
 msgstr "ISSN"
 
-#: includes/class-library-meta.php:94
+#: includes/class-library-meta.php:95
 msgid "Volume Number"
 msgstr "Numéro de volume"
 
-#: includes/class-library-meta.php:95
+#: includes/class-library-meta.php:96
 msgid "Translators"
 msgstr "Traducteurs"
 
-#: includes/class-library-meta.php:96
+#: includes/class-library-meta.php:97
 msgid "Edition date"
 msgstr "Date d’édition"
 
-#: includes/class-library-meta.php:97
+#: includes/class-library-meta.php:98
 msgid "Read dates"
 msgstr "Dates de lecture"
 
-#: includes/class-library-meta.php:98
+#: includes/class-library-meta.php:99
 msgid "First published"
 msgstr "Première parution"
 
-#: includes/class-library-meta.php:99
+#: includes/class-library-meta.php:100
 msgid "Pages"
 msgstr "Pages"
 
-#: includes/class-library-meta.php:104
+#: includes/class-library-meta.php:105
 msgid ""
 "Shown after the title, such as “The Knife: Meditations After an Attempted "
 "Murder”."
@@ -1167,27 +1167,29 @@ msgstr ""
 "Affiché après le titre, comme « Le Couteau : Réflexions suite à une "
 "tentative d’assassinat »."
 
-#: includes/class-library-meta.php:105
+#: includes/class-library-meta.php:106
 msgid ""
 "10 or 13 digits, with or without hyphens, such as 9782070360246, which "
-"becomes 978-2-07-036024-6."
+"becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its "
+"barcode."
 msgstr ""
 "10 ou 13 chiffres, avec ou sans tirets, comme 9782070360246, qui devient "
-"978-2-07-036024-6."
+"978-2-07-036024-6 ; pour un livre sans ISBN, les 13 chiffres de son code-"
+"barres."
 
-#: includes/class-library-meta.php:106
+#: includes/class-library-meta.php:107
 msgid "Two groups of four characters, such as 0395-2649."
 msgstr "Deux groupes de quatre caractères, comme 0395-2649."
 
-#: includes/class-library-meta.php:107
+#: includes/class-library-meta.php:108
 msgid "Separate series with commas"
 msgstr "Séparez les séries par des virgules"
 
-#: includes/class-library-meta.php:108
+#: includes/class-library-meta.php:109
 msgid "Separate translators with commas"
 msgstr "Séparez les traducteurs par des virgules"
 
-#: includes/class-library-meta.php:109
+#: includes/class-library-meta.php:110
 msgid ""
 "When the work first came out, whatever the edition: a year, a year and "
 "month, or a date, such as 1929, 1929-11 or 1929-11-08."
@@ -1195,7 +1197,7 @@ msgstr ""
 "Date de première parution de l’œuvre, quelle que soit l’édition : une année, "
 "une année et un mois, ou une date, comme 1929, 1929-11 ou 1929-11-08."
 
-#: includes/class-library-meta.php:110
+#: includes/class-library-meta.php:111
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 

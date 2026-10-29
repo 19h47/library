@@ -35,13 +35,14 @@ class Library_Meta {
 	private const DATE_KEYS = array( 'edition_date', 'read_date' );
 
 	/**
-	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces.
+	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
+	 * without ISBN, as its 13 digits.
 	 *
 	 * Browsers compile the pattern of an input with the v flag, where a hyphen in a class is escaped: an invalid pattern checks nothing.
 	 *
 	 * @var string
 	 */
-	private const ISBN_PATTERN = '^(?:(?=.{17}$)(97[89]|501)[ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|97[89][0-9]{10}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
+	private const ISBN_PATTERN = '^(?:(?=.{17}$)97[89][ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|[0-9]{13}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
 
 	/**
 	 * Pattern of an ISSN, such as 1234-5678.
@@ -102,7 +103,7 @@ class Library_Meta {
 		);
 		$descriptions = array(
 			'subtitle'       => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
-			'isbn'           => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6.', 'library' ),
+			'isbn'           => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
 			'issn'           => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
 			'series'         => __( 'Separate series with commas', 'library' ),
 			'translators'    => __( 'Separate translators with commas', 'library' ),
@@ -417,15 +418,15 @@ class Library_Meta {
 	}
 
 	/**
-	 * Keep an ISBN with its hyphens where its parts end, such as 978-2-07-036024-6 typed 9782070360246; one that
-	 * Library_ISBN cannot place them in, such as one with a wrong check digit, as typed.
+	 * Keep an ISBN with its hyphens where its parts end, such as 978-2-07-036024-6 typed 9782070360246, and another
+	 * EAN-13 as its 13 digits; a code Library_ISBN cannot format, such as one with a wrong check digit, as typed.
 	 *
 	 * @param mixed $value Raw value.
 	 * @return string
 	 */
 	public static function sanitize_isbn( $value ): string {
 		$value = sanitize_text_field( (string) $value );
-		$isbn  = Library_ISBN::hyphenate( $value );
+		$isbn  = Library_ISBN::format( $value );
 
 		return '' !== $isbn ? $isbn : $value;
 	}
