@@ -97,6 +97,7 @@ class Library_Achievements_Page {
 			'completions' => __( 'Completions', 'library' ),
 			'milestones'  => __( 'Milestones', 'library' ),
 			'discoveries' => __( 'Discoveries', 'library' ),
+			'forms'       => __( 'Forms', 'library' ),
 			'languages'   => __( 'Languages and translators', 'library' ),
 			'easter-eggs' => __( 'Easter eggs', 'library' ),
 		);
