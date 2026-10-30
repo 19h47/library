@@ -95,10 +95,10 @@ export function clone( id ) {
 	return document.getElementById( id ).content.firstElementChild.cloneNode( true );
 }
 
-/** Fills the card of a book; `state` is the line under its title, followed by the tag of a book not kept or to buy. */
+/** Fills the card of a book; `state` is the line under its title, followed by the tags of its form and of a book not kept or to buy. */
 export function fillBook( $item, book, state ) {
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, status: formatStatus( book ) } );
+	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, form: book.form, status: formatStatus( book ) } );
 }
 
 /** The cover of a book, which opens it; a book without cover shows its title instead. */

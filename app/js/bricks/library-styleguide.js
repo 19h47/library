@@ -24,8 +24,9 @@ const BOOKS = [
 		cover: COVER,
 		read: true,
 		rating: 7.5,
+		form: 'A form',
 	},
-	{ title: 'A book not kept', credits: 'An Author · A Publisher · 2024', status: notKept, read: true },
+	{ title: 'A book not kept', credits: 'An Author · A Publisher · 2024', status: notKept, read: true, form: 'A form' },
 	{ title: 'A book to buy', credits: 'An Author · A Publisher · 2024', cover: COVER, status: toBuy },
 	{
 		title: 'A title long enough to go over several lines, as the title of a volume of a series with its subtitle does',
@@ -33,7 +34,7 @@ const BOOKS = [
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
-].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, rating: 0, ...book } ) );
+].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, rating: 0, form: '', ...book } ) );
 
 const ACHIEVEMENTS = [
 	{ title: 'An achievement', subject: 'Its subject', detail: 'Its detail', date: '2026-10-28' },

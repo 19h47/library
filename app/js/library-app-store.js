@@ -112,7 +112,7 @@
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
 	}
 
-	/** A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and the names with another role, and its original languages. */
+	/** A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and the names with another role, its original languages and its form. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 		const details = media?.media_details;
@@ -146,6 +146,8 @@
 			...Object.fromEntries( config.roles.map( ( role ) => [ role, names.filter( ( name ) => meta[ role ].includes( name.id ) ) ] ) ),
 			// As their ISO 639 codes, the slugs of their terms: the app names them in a sentence.
 			languages: terms.filter( ( term ) => 'library_language' === term.taxonomy ).map( ( term ) => term.slug ),
+			// Its name, for the tag of its card.
+			form: text( terms.find( ( term ) => 'library_form' === term.taxonomy )?.name ?? '' ),
 		};
 	}
 
