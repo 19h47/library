@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 6.17.1\n"
+"Project-Id-Version: Library 6.18.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-29T17:50:22+00:00\n"
+"POT-Creation-Date: 2026-10-30T09:51:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -411,9 +411,9 @@ msgstr ""
 #. translators: 1: title, 2: subtitle.
 #. translators: 1: series, 2: title.
 #: admin/partials/library-dashboard-chart.php:40
-#: includes/class-library-books.php:180
-#: includes/class-library-books.php:185
-#: includes/class-library-books.php:203
+#: includes/class-library-books.php:197
+#: includes/class-library-books.php:202
+#: includes/class-library-books.php:220
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -439,7 +439,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:601
+#: includes/class-library-rest-api.php:631
 msgid "No book to read."
 msgstr ""
 
@@ -1111,27 +1111,27 @@ msgid "Volume 1 read after a later volume"
 msgstr ""
 
 #. translators: %s: volume number.
-#: includes/class-library-books.php:190
+#: includes/class-library-books.php:207
 #, php-format
 msgid "vol. %s"
 msgstr ""
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-library-books.php:190
-#: includes/class-library-books.php:226
+#: includes/class-library-books.php:207
+#: includes/class-library-books.php:273
 #, php-format
 msgid "no. %s"
 msgstr ""
 
 #. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
-#: includes/class-library-books.php:194
+#: includes/class-library-books.php:211
 #, php-format
 msgid "%1$s, %2$s"
 msgstr ""
 
 #. translators: %s: number of books.
-#: includes/class-library-books.php:246
+#: includes/class-library-books.php:293
 #: app/js/lib/format.js:29
 #, php-format,js-format
 msgid "%s book"
@@ -1474,59 +1474,63 @@ msgstr ""
 msgid "ID of the book."
 msgstr ""
 
-#: includes/class-library-rest-api.php:117
+#: includes/class-library-rest-api.php:107
+msgid "File name of the photo picked, whose extension the cover keeps."
+msgstr ""
+
+#: includes/class-library-rest-api.php:134
 msgid "Page of the months."
 msgstr ""
 
-#: includes/class-library-rest-api.php:123
+#: includes/class-library-rest-api.php:140
 msgid "Number of months per page."
 msgstr ""
 
-#: includes/class-library-rest-api.php:142
+#: includes/class-library-rest-api.php:159
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
 msgstr ""
 
-#: includes/class-library-rest-api.php:170
+#: includes/class-library-rest-api.php:187
 msgid "Term ID of the author, or of one of their pseudonyms."
 msgstr ""
 
-#: includes/class-library-rest-api.php:190
+#: includes/class-library-rest-api.php:207
 msgid "Title of the book."
 msgstr ""
 
-#: includes/class-library-rest-api.php:199
+#: includes/class-library-rest-api.php:216
 msgid "Summary of the book in a few words, its excerpt."
 msgstr ""
 
-#: includes/class-library-rest-api.php:204
+#: includes/class-library-rest-api.php:221
 msgid "Notes on the book, its content."
 msgstr ""
 
-#: includes/class-library-rest-api.php:209
+#: includes/class-library-rest-api.php:226
 msgid "Names of the authors or pseudonyms; a name not found adds an author."
 msgstr ""
 
-#: includes/class-library-rest-api.php:215
+#: includes/class-library-rest-api.php:232
 msgid "Name of the publisher; a name not found adds a publisher."
 msgstr ""
 
-#: includes/class-library-rest-api.php:220
+#: includes/class-library-rest-api.php:237
 msgid "Name of the collection, under the publisher and sent with it; a name not found adds a collection."
 msgstr ""
 
-#: includes/class-library-rest-api.php:225
+#: includes/class-library-rest-api.php:242
 msgid "Term ID of the original language."
 msgstr ""
 
-#: includes/class-library-rest-api.php:230
+#: includes/class-library-rest-api.php:247
 msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr ""
 
-#: includes/class-library-rest-api.php:235
+#: includes/class-library-rest-api.php:252
 msgid "Book meta, such as isbn, as the book form saves them."
 msgstr ""
 
-#: includes/class-library-rest-api.php:244
+#: includes/class-library-rest-api.php:261
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 
@@ -1884,6 +1888,6 @@ msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr ""
 
-#: app/js/library-app-store.js:157
+#: app/js/library-app-store.js:158
 msgid "The books could not be loaded."
 msgstr ""

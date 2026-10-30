@@ -198,7 +198,7 @@ class Library_App {
 		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
 
 		[ $store_url, $store_version ] = Library::asset( 'app/js/library-app-store.js' );
-		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch', 'wp-i18n' ), $store_version, false );
+		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch', 'wp-i18n', 'wp-url' ), $store_version, false );
 		wp_set_script_translations( 'library-app-store', 'library', LIBRARY_DIR_PATH . 'languages' );
 		wp_localize_script( 'library-app-store', 'libraryApp', $this->get_config() );
 

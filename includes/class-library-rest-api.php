@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: a book added or edited, reading stats, readings by month, reading idea, achievements, authors and the credits of a book.
+ * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, authors and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -91,6 +91,23 @@ class Library_Rest_API {
 					'callback'            => array( $this, 'edit_book' ),
 					'permission_callback' => $can_edit_book,
 					'args'                => $this->get_book_args( false ),
+				),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
+			'books/cover-name',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_cover_name' ),
+				'permission_callback' => fn() => current_user_can( 'upload_files' ),
+				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'authors', 'meta' ) ) ) + array(
+					'photo' => array(
+						'description' => __( 'File name of the photo picked, whose extension the cover keeps.', 'library' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
 				),
 			),
 		);
@@ -474,6 +491,19 @@ class Library_Rest_API {
 		$response->add_link( 'book', rest_url( 'wp/v2/books/' . $book_id ), array( 'embeddable' => true ) );
 
 		return $response;
+	}
+
+	/**
+	 * The name of the image of a cover, from the fields of its book as its form sends them, before the photo is uploaded:
+	 * its first author and the title to show, from Library_Books::cover_name().
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public function get_cover_name( WP_REST_Request $request ): WP_REST_Response {
+		$name = Library_Books::cover_name( $request['title'], $request['authors'], (array) $request['meta'], $request['photo'] );
+
+		return rest_ensure_response( array( 'name' => $name ) );
 	}
 
 	/**
