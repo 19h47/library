@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.2.0
+Stable tag: 8.3.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ Library adds a **Book** post type and four taxonomies, **People**, **Publishers*
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
-* **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
+* **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, forms, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
 * **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state, by status and by form, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the people: see the FAQ.
 * **Translatable** – French translation included.
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.3.0 =
+* Achievements: the forms have their own: 10, 25, 50, 100, 250 and 500 books read of a form, such as 100 novels; Jack of all trades, 4 forms read in a month; and Tour of the library, a book read of each form of the library, which shows the forms left to read once three or fewer are. Their subject leads to the books of the form, read or left to read.
 
 = 8.2.0 =
 * Reading app: the card of a book shows its form, such as Novel or Comic, in a tag after the line of its reading, before the one of a book not kept or to buy.
