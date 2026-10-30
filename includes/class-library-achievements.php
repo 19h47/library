@@ -77,6 +77,27 @@ class Library_Achievements {
 	private const LANGUAGE_MILESTONES = array( 5, 10, 20, 30 );
 
 	/**
+	 * Numbers of books read of a form that count, such as 50 novels.
+	 *
+	 * @var int[]
+	 */
+	private const FORM_MILESTONES = array( 10, 25, 50, 100, 250, 500 );
+
+	/**
+	 * Number of forms read the same month that makes a jack of all trades.
+	 *
+	 * @var int
+	 */
+	private const JACK_OF_ALL_TRADES_FORMS = 4;
+
+	/**
+	 * Number of forms left up to which the tour of the library is close.
+	 *
+	 * @var int
+	 */
+	private const CLOSE_FORMS = 3;
+
+	/**
 	 * Number of months in a row with a reading from which the longest run counts.
 	 *
 	 * @var int
@@ -221,6 +242,11 @@ class Library_Achievements {
 			'archaeologist'     => 'search',
 			'decades'           => 'admin-site-alt3',
 		),
+		'forms'       => array(
+			'form'               => 'tag',
+			'jack-of-all-trades' => 'screenoptions',
+			'library-tour'       => 'location-alt',
+		),
 		'languages'   => array(
 			'languages'         => 'admin-site',
 			'original-language' => 'format-chat',
@@ -274,6 +300,8 @@ class Library_Achievements {
 		[ $decades, $close_decades ]         = $this->get_decades( $reads );
 		[ $translators, $close_translators ] = $this->get_translators( $reads );
 		[ $languages, $close_languages ]     = $this->get_language_milestones( $reads );
+		[ $forms, $close_forms ]             = $this->get_form_milestones( $reads );
+		[ $tour, $close_tour ]               = $this->get_library_tour( $books, $reads );
 
 		$earned = array_merge(
 			$completions,
@@ -285,6 +313,9 @@ class Library_Achievements {
 			$this->get_rereads( $readings ),
 			$this->get_discoveries( $books, $reads ),
 			$decades,
+			$forms,
+			$this->get_jack_of_all_trades( $readings ),
+			$tour,
 			$translators,
 			$languages,
 			$this->get_language_feats( $reads, $readings ),
@@ -293,7 +324,7 @@ class Library_Achievements {
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
 
-		$close = array_merge( $close, $close_read, $close_pages, $close_decades, $close_translators, $close_languages );
+		$close = array_merge( $close, $close_read, $close_pages, $close_decades, $close_forms, $close_tour, $close_translators, $close_languages );
 
 		// Fewest left first, then the furthest along.
 		usort( $close, fn( array $a, array $b ) => array( $a['total'] - $a['done'], $b['done'] / $b['total'], $a['subject'] ) <=> array( $b['total'] - $b['done'], $a['done'] / $a['total'], $b['subject'] ) );
@@ -1034,6 +1065,124 @@ class Library_Achievements {
 		}
 
 		return array( array(), array() );
+	}
+
+	/**
+	 * The highest number of books read of each form reached, such as 50 novels, and the next one of the forms with few
+	 * books left to it.
+	 *
+	 * @param array<int,array> $reads Books read, in reading order.
+	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 */
+	private function get_form_milestones( array $reads ): array {
+		/* translators: %s: number of books read. */
+		$title   = fn( int $milestone ) => sprintf( __( '%s books read', 'library' ), number_format_i18n( $milestone ) );
+		$by_form = array();
+		$earned  = array();
+		$close   = array();
+
+		foreach ( $reads as $book ) {
+			foreach ( $book['forms'] as $form ) {
+				$by_form[ $form ][] = $book;
+			}
+		}
+
+		foreach ( $by_form as $form => $books ) {
+			$target  = self::build_search_target( Library_WP_Query::build_keyword_search( 'form', $form ) . ' read:yes', $books );
+			$reached = array_filter( self::FORM_MILESTONES, fn( int $milestone ) => count( $books ) >= $milestone );
+			$next    = current( array_diff( self::FORM_MILESTONES, $reached ) );
+
+			if ( $reached ) {
+				$book     = $books[ max( $reached ) - 1 ];
+				$earned[] = self::build_achievement( 'form', $title( max( $reached ) ), $form, $book['full_title'], $target, $book['read_date'] );
+			}
+
+			if ( false !== $next && $next - count( $books ) <= self::CLOSE_BOOKS ) {
+				$close[] = self::build_achievement( 'form', $title( $next ), $form, '', $target, '' ) + array(
+					'done'  => count( $books ),
+					'total' => $next,
+				);
+			}
+		}
+
+		return array( $earned, $close );
+	}
+
+	/**
+	 * The latest month in which books of several forms were read, such as a novel, a comic, an essay and a magazine.
+	 *
+	 * @param array<int,array> $readings Readings, in reading order.
+	 * @return array<int,array>
+	 */
+	private function get_jack_of_all_trades( array $readings ): array {
+		$dated = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
+		$month = self::get_latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), fn( array $book ) => $book['forms'], self::JACK_OF_ALL_TRADES_FORMS );
+
+		if ( ! $month ) {
+			return array();
+		}
+
+		return array(
+			self::build_achievement(
+				'jack-of-all-trades',
+				__( 'Jack of all trades', 'library' ),
+				date_i18n( 'F Y', strtotime( $month['period'] . '-01' ) ),
+				/* translators: %s: number of forms, such as novel or comic. */
+				sprintf( __( '%s forms in a month', 'library' ), number_format_i18n( self::JACK_OF_ALL_TRADES_FORMS ) ),
+				null,
+				$month['book']['read_date']
+			),
+		);
+	}
+
+	/**
+	 * A book read of each form of the books at hand, kept or not, dated by the reading of the last form; with few forms
+	 * left, those to read. The forms of the books to buy are not in the library yet.
+	 *
+	 * @param array<int,array> $books All the books.
+	 * @param array<int,array> $reads Books read, in reading order.
+	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 */
+	private function get_library_tour( array $books, array $reads ): array {
+		$at_hand     = array_filter( $books, fn( array $book ) => Library_Posts::TO_BUY !== $book['status'] );
+		$forms       = array_values( array_unique( array_merge( ...array_values( array_column( $at_hand, 'forms' ) ) ) ) );
+		$first_reads = array();
+
+		foreach ( $reads as $book ) {
+			foreach ( $book['forms'] as $form ) {
+				$first_reads[ $form ] ??= $book;
+			}
+		}
+
+		$left  = array_values( array_diff( $forms, array_keys( $first_reads ) ) );
+		$title = __( 'Tour of the library', 'library' );
+
+		// A tour needs forms to go round.
+		if ( count( $forms ) < 2 ) {
+			return array( array(), array() );
+		}
+
+		if ( ! $left ) {
+			/* translators: %s: number of forms, such as novel or comic. */
+			$detail = sprintf( _n( '%s form read', '%s forms read', count( $forms ), 'library' ), number_format_i18n( count( $forms ) ) );
+
+			return array( array( self::build_achievement( 'library-tour', $title, '', $detail, null, self::get_latest_read_date( array_intersect_key( $first_reads, array_flip( $forms ) ) ) ) ), array() );
+		}
+
+		if ( count( $left ) > self::CLOSE_FORMS ) {
+			return array( array(), array() );
+		}
+
+		$values = implode( ',', array_map( fn( string $form ) => '"' . $form . '"', $left ) );
+		$unread = array_filter( $at_hand, fn( array $book ) => ! $book['read'] && array_intersect( $book['forms'], $left ) );
+		/* translators: %s: forms left to read, such as "Poetry, Drama". */
+		$detail   = sprintf( __( 'Still to read: %s', 'library' ), implode( ', ', $left ) );
+		$progress = array(
+			'done'  => count( $forms ) - count( $left ),
+			'total' => count( $forms ),
+		);
+
+		return array( array(), array( self::build_achievement( 'library-tour', $title, '', $detail, self::build_search_target( "form:{$values} read:no", array_values( $unread ) ), '' ) + $progress ) );
 	}
 
 	/**

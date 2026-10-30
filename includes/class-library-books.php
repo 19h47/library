@@ -43,9 +43,9 @@ class Library_Books {
 	 * Authors are counted for their real name, and so are its contributors, its names with another role, such as a
 	 * colorist. The read dates go from the first reading to the latest.
 	 * The date added is the post date. The full title is the one to show.
-	 * Original languages are their names keyed by their code, e.g. "it" => "Italien".
+	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>,forms:string[]}>
 	 */
 	public static function get_books(): array {
 		if ( null !== self::$books ) {
@@ -74,6 +74,7 @@ class Library_Books {
 			$translators    = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID, 'translator' ) );
 			$collections    = Library_Taxonomies::get_collections( $post->ID );
 			$languages      = get_the_terms( $post->ID, 'library_language' );
+			$forms          = get_the_terms( $post->ID, 'library_form' );
 
 			if ( '' === $series && null !== $volume ) {
 				$series = $post->post_title;
@@ -101,6 +102,7 @@ class Library_Books {
 				'collections'     => wp_list_pluck( $collections, 'name' ),
 				'collection_ids'  => wp_list_pluck( $collections, 'term_id' ),
 				'languages'       => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
+				'forms'           => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
 			);
 		}
 
