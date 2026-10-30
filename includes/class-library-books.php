@@ -1,6 +1,6 @@
 <?php
 /**
- * Books data shared by the reading idea, the achievements and the REST API, and how a book, a number of books and a rating are said.
+ * Books data shared by the reading idea, the achievements and the REST API, how a book, a number of books and a rating are said, and how a cover is named.
  *
  * @link       https://github.com/19h47/library
  * @since      2.2.0
@@ -161,19 +161,36 @@ class Library_Books {
 	}
 
 	/**
-	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
-	 *
-	 * A book without series but with a volume number is a volume of the series named by its title: "City Hunter, vol. 3".
-	 * A volume typed "Tome 08" shows as "vol. 8", a number alone as "no. 8", anything else as typed, e.g. "Chant II".
+	 * Title of a book to show, from its series, volume and subtitle saved: see full_title().
 	 *
 	 * @param int    $book_id Book ID.
 	 * @param string $title   Title of the post.
 	 * @return string
 	 */
 	public static function title( int $book_id, string $title ): string {
-		$series   = (string) get_post_meta( $book_id, 'series', true );
-		$volume   = (string) get_post_meta( $book_id, 'volume_number', true );
-		$subtitle = (string) get_post_meta( $book_id, 'subtitle', true );
+		$meta = array();
+
+		foreach ( array( 'series', 'volume_number', 'subtitle' ) as $key ) {
+			$meta[ $key ] = get_post_meta( $book_id, $key, true );
+		}
+
+		return self::full_title( $title, $meta );
+	}
+
+	/**
+	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
+	 *
+	 * A book without series but with a volume number is a volume of the series named by its title: "City Hunter, vol. 3".
+	 * A volume typed "Tome 08" shows as "vol. 8", a number alone as "no. 8", anything else as typed, e.g. "Chant II".
+	 *
+	 * @param string $title Title of the book.
+	 * @param array  $meta  Meta of the book, saved or as its form sends them: series, volume_number and subtitle.
+	 * @return string
+	 */
+	public static function full_title( string $title, array $meta ): string {
+		$series   = (string) ( $meta['series'] ?? '' );
+		$volume   = (string) ( $meta['volume_number'] ?? '' );
+		$subtitle = (string) ( $meta['subtitle'] ?? '' );
 
 		if ( '' !== $subtitle ) {
 			/* translators: 1: title, 2: subtitle. */
@@ -201,6 +218,36 @@ class Library_Books {
 
 		/* translators: 1: series, 2: title. */
 		return sprintf( __( '%1$s: %2$s', 'library' ), $series, $title );
+	}
+
+	/**
+	 * Name of the image of a cover, after its first author by name and the title to show, the extension of the photo
+	 * kept: "charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg"; the title alone for a book without author.
+	 *
+	 * A name keeps letters and digits without accents only: a sign a slug keeps encoded, such as the dot of "René⸱e", is
+	 * left out. A book named in another script keeps the name of its photo.
+	 *
+	 * @param string   $title   Title of the book.
+	 * @param string[] $authors Names of its authors.
+	 * @param array    $meta    Meta of the book: series, volume_number and subtitle.
+	 * @param string   $photo   File name of the photo.
+	 * @return string
+	 */
+	public static function cover_name( string $title, array $authors, array $meta, string $photo ): string {
+		$slug = fn( string $text ): string => trim( preg_replace( array( '/%[0-9a-f]{2}/', '/-{2,}/' ), array( '', '-' ), sanitize_title( $text ) ), '-' );
+
+		// By name, case and accents aside, as the books list their authors.
+		$authors = array_filter( array_map( $slug, $authors ) );
+		sort( $authors );
+
+		$name      = $slug( implode( ' ', array( $authors[0] ?? '', self::full_title( $title, $meta ) ) ) );
+		$extension = strtolower( pathinfo( $photo, PATHINFO_EXTENSION ) );
+
+		if ( '' === $name ) {
+			return $photo;
+		}
+
+		return '' !== $extension ? "$name.$extension" : $name;
 	}
 
 	/**

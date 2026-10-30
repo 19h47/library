@@ -86,6 +86,7 @@ The routes of the plugin, to users who can edit posts:
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
 * `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its authors, publisher and collection by name, its original language and its meta, to users who can edit it.
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
+* `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `authors` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
 

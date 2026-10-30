@@ -30,6 +30,7 @@
 
 	const { apiFetch } = window.wp;
 	const { __ } = window.wp.i18n;
+	const { addQueryArgs } = window.wp.url;
 	const config = window.libraryApp;
 	const $root = document.documentElement;
 	const $themeColor = document.querySelector( 'meta[name="theme-color"]' );
@@ -546,7 +547,7 @@
 			this.#update( 'editing', () => ( { loading: true, error: '' } ) );
 
 			try {
-				const coverId = cover ? await this.#uploadCover( cover, book.title ) : 0;
+				const coverId = cover ? await this.#uploadCover( cover, book ) : 0;
 				const { id } = await apiFetch( { path: '/library/v1/books', method: 'POST', data: { ...book, cover: coverId } } );
 
 				await this.#fetchBooks( [ id ] );
@@ -594,7 +595,7 @@
 
 			try {
 				if ( cover ) {
-					changes.cover = await this.#uploadCover( cover, values.title );
+					changes.cover = await this.#uploadCover( cover, { ...values, meta } );
 				}
 
 				await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: changes } );
@@ -662,11 +663,13 @@
 			} ) );
 		}
 
-		/** Uploads the photo of a cover, titled after its book, and returns the ID of its image. */
-		async #uploadCover( file, title ) {
+		/** Uploads the photo of a cover, named and titled after its book as its form sends it, and returns the ID of its image. */
+		async #uploadCover( file, { title, authors, meta } ) {
+			const query = { title, authors, meta, photo: file.name };
+			const { name } = await apiFetch( { path: addQueryArgs( '/library/v1/books/cover-name', query ) } );
 			const body = new FormData();
 
-			body.append( 'file', file );
+			body.append( 'file', file, name );
 			body.append( 'title', title );
 
 			return ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
