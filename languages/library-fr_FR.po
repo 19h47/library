@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-30T09:48:13+00:00\n"
+"POT-Creation-Date: 2026-10-30T10:36:42+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1502,7 +1502,8 @@ msgstr "ID du livre."
 
 #: includes/class-library-rest-api.php:107
 msgid "File name of the photo picked, whose extension the cover keeps."
-msgstr "Nom de fichier de la photo choisie, dont la couverture garde l’extension."
+msgstr ""
+"Nom de fichier de la photo choisie, dont la couverture garde l’extension."
 
 #: includes/class-library-rest-api.php:134
 msgid "Page of the months."
@@ -1558,10 +1559,8 @@ msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr "ID de l’image envoyée comme couverture, 0 pour aucune."
 
 #: includes/class-library-rest-api.php:252
-msgid "Book meta, such as isbn, as the book form saves them."
-msgstr ""
-"Métadonnées du livre, comme isbn, comme le formulaire du livre les "
-"enregistre."
+msgid "Book meta, such as library_isbn, as the book form saves them."
+msgstr "Métas du livre, comme library_isbn, telles que le formulaire du livre les enregistre."
 
 #: includes/class-library-rest-api.php:261
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
@@ -1649,91 +1648,91 @@ msgstr "Les plus utilisés"
 msgid "&larr; Back to Authors"
 msgstr "&larr; Retour aux auteurs"
 
-#: includes/class-library-taxonomies.php:172
+#: includes/class-library-taxonomies.php:175
 msgctxt "library publishers general name"
 msgid "Publishers"
 msgstr "Éditeurs"
 
-#: includes/class-library-taxonomies.php:173
+#: includes/class-library-taxonomies.php:176
 msgctxt "library publishers singular name"
 msgid "Publisher"
 msgstr "Éditeur"
 
-#: includes/class-library-taxonomies.php:174
+#: includes/class-library-taxonomies.php:177
 msgid "Search Publishers"
 msgstr "Rechercher des éditeurs"
 
-#: includes/class-library-taxonomies.php:175
+#: includes/class-library-taxonomies.php:178
 msgid "All Publishers"
 msgstr "Tous les éditeurs"
 
-#: includes/class-library-taxonomies.php:176
+#: includes/class-library-taxonomies.php:179
 msgid "Popular Publishers"
 msgstr "Éditeurs populaires"
 
-#: includes/class-library-taxonomies.php:177
+#: includes/class-library-taxonomies.php:180
 msgid "Edit Publisher"
 msgstr "Modifier l'éditeur"
 
-#: includes/class-library-taxonomies.php:178
+#: includes/class-library-taxonomies.php:181
 msgid "View Publisher"
 msgstr "Voir l'éditeur"
 
-#: includes/class-library-taxonomies.php:179
+#: includes/class-library-taxonomies.php:182
 msgid "Update Publisher"
 msgstr "Mettre à jour l'éditeur"
 
-#: includes/class-library-taxonomies.php:180
+#: includes/class-library-taxonomies.php:183
 msgid "Add New Publisher"
 msgstr "Ajouter un éditeur"
 
-#: includes/class-library-taxonomies.php:181
+#: includes/class-library-taxonomies.php:184
 msgid "New Publisher Name"
 msgstr "Nom du nouvel éditeur"
 
-#: includes/class-library-taxonomies.php:182
+#: includes/class-library-taxonomies.php:185
 msgid "Add or remove publishers"
 msgstr "Ajouter ou supprimer des éditeurs"
 
-#: includes/class-library-taxonomies.php:183
+#: includes/class-library-taxonomies.php:186
 msgid "Choose from the most used publishers"
 msgstr "Choisir parmi les éditeurs les plus utilisés"
 
-#: includes/class-library-taxonomies.php:184
+#: includes/class-library-taxonomies.php:187
 msgid "No publishers found."
 msgstr "Aucun éditeur trouvé."
 
-#: includes/class-library-taxonomies.php:185
+#: includes/class-library-taxonomies.php:188
 msgid "No publishers"
 msgstr "Aucun éditeur"
 
-#: includes/class-library-taxonomies.php:186
+#: includes/class-library-taxonomies.php:189
 msgid "Publishers list navigation"
 msgstr "Navigation de la liste des éditeurs"
 
-#: includes/class-library-taxonomies.php:187
+#: includes/class-library-taxonomies.php:190
 msgid "Publishers list"
 msgstr "Liste des éditeurs"
 
 #. translators: Publisher heading when selecting from the most used terms.
-#: includes/class-library-taxonomies.php:189
+#: includes/class-library-taxonomies.php:192
 msgctxt "editor"
 msgid "Most Used"
 msgstr "Les plus utilisés"
 
-#: includes/class-library-taxonomies.php:190
+#: includes/class-library-taxonomies.php:193
 msgid "&larr; Back to Publishers"
 msgstr "&larr; Retour aux éditeurs"
 
-#: includes/class-library-taxonomies.php:191
+#: includes/class-library-taxonomies.php:194
 msgid "Parent Publisher"
 msgstr "Éditeur parent"
 
-#: includes/class-library-taxonomies.php:192
+#: includes/class-library-taxonomies.php:195
 msgid "Parent Publisher:"
 msgstr "Éditeur parent :"
 
-#: includes/class-library-taxonomies.php:193
+#: includes/class-library-taxonomies.php:196
 msgid ""
 "Pick the publisher of a collection, such as Gallimard for Folio. A publisher "
 "has none."
@@ -1741,71 +1740,71 @@ msgstr ""
 "Choisissez l’éditeur d’une collection, comme Gallimard pour Folio. Un "
 "éditeur n’en a pas."
 
-#: includes/class-library-taxonomies.php:222
+#: includes/class-library-taxonomies.php:227
 msgctxt "library languages general name"
 msgid "Original languages"
 msgstr "Langues d’origine"
 
-#: includes/class-library-taxonomies.php:223
+#: includes/class-library-taxonomies.php:228
 msgctxt "library languages singular name"
 msgid "Original language"
 msgstr "Langue d’origine"
 
-#: includes/class-library-taxonomies.php:224
+#: includes/class-library-taxonomies.php:229
 msgctxt "library languages menu name"
 msgid "Languages"
 msgstr "Langues"
 
-#: includes/class-library-taxonomies.php:225
+#: includes/class-library-taxonomies.php:230
 msgid "Search Languages"
 msgstr "Rechercher des langues"
 
-#: includes/class-library-taxonomies.php:226
+#: includes/class-library-taxonomies.php:231
 msgid "All Languages"
 msgstr "Toutes les langues"
 
-#: includes/class-library-taxonomies.php:227
+#: includes/class-library-taxonomies.php:232
 msgid "Edit Language"
 msgstr "Modifier la langue"
 
-#: includes/class-library-taxonomies.php:228
+#: includes/class-library-taxonomies.php:233
 msgid "View Language"
 msgstr "Voir la langue"
 
-#: includes/class-library-taxonomies.php:229
+#: includes/class-library-taxonomies.php:234
 msgid "Update Language"
 msgstr "Mettre à jour la langue"
 
-#: includes/class-library-taxonomies.php:230
+#: includes/class-library-taxonomies.php:235
 msgid "Add New Language"
 msgstr "Ajouter une langue"
 
-#: includes/class-library-taxonomies.php:231
+#: includes/class-library-taxonomies.php:236
 msgid "New Language Name"
 msgstr "Nom de la nouvelle langue"
 
-#: includes/class-library-taxonomies.php:232
+#: includes/class-library-taxonomies.php:237
 msgid "No languages found."
 msgstr "Aucune langue trouvée."
 
-#: includes/class-library-taxonomies.php:233
+#: includes/class-library-taxonomies.php:238
 msgid "No languages"
 msgstr "Aucune langue"
 
-#: includes/class-library-taxonomies.php:234
+#: includes/class-library-taxonomies.php:239
 msgid "Languages list navigation"
 msgstr "Navigation de la liste des langues"
 
-#: includes/class-library-taxonomies.php:235
+#: includes/class-library-taxonomies.php:240
 msgid "Languages list"
 msgstr "Liste des langues"
 
-#: includes/class-library-taxonomies.php:236
+#: includes/class-library-taxonomies.php:241
 msgid "&larr; Back to Languages"
 msgstr "&larr; Retour aux langues"
 
 #. translators: %s: name or slug typed for a language, e.g. Norvégien.
-#: includes/class-library-taxonomies.php:283
+#: includes/class-library-taxonomies.php:290
 #, php-format
 msgid ""
 "%s is neither the name of a language nor its ISO 639 code, such as Norwegian "
@@ -1814,7 +1813,7 @@ msgstr ""
 "%s n’est ni le nom d’une langue ni son code ISO 639, comme norvégien ou no."
 
 #. translators: %s: name of a language, e.g. Norvégien.
-#: includes/class-library-taxonomies.php:292
+#: includes/class-library-taxonomies.php:299
 #, php-format
 msgid "%s is already among the languages."
 msgstr "%s figure déjà parmi les langues."
@@ -1934,9 +1933,14 @@ msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr "Traduit du %1$s par %2$s"
 
-#: app/js/library-app-store.js:158
+#: app/js/library-app-store.js:160
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
+
+#~ msgid "Book meta, such as isbn, as the book form saves them."
+#~ msgstr ""
+#~ "Métadonnées du livre, comme isbn, comme le formulaire du livre les "
+#~ "enregistre."
 
 #~ msgid ""
 #~ "The search finds the text in the title, subtitle, series, ISBN, ISSN, "

@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					/* translators: 1: book title, linked, 2: edition year. */
 					esc_html__( 'Oldest: %1$s (%2$s)', 'library' ),
 					'<a href="' . esc_url( (string) get_edit_post_link( $oldest->ID ) ) . '">' . esc_html( get_the_title( $oldest ) ) . '</a>',
-					esc_html( substr( (string) get_post_meta( $oldest->ID, 'edition_date', true ), 0, 4 ) )
+					esc_html( substr( (string) get_post_meta( $oldest->ID, 'library_edition_date', true ), 0, 4 ) )
 				);
 				?>
 			</p>

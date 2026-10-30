@@ -86,7 +86,7 @@
 						<library-count class="app-pill" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						<library-read-filter>
 							<?php
-							Library::component(
+							Library::render_component(
 								'pill-select',
 								array(
 									'id'      => 'library-read-filter',
@@ -102,7 +102,7 @@
 						</library-read-filter>
 						<library-status-filter>
 							<?php
-							Library::component(
+							Library::render_component(
 								'pill-select',
 								array(
 									'id'      => 'library-status-filter',
@@ -277,24 +277,24 @@
 					<form class="library-reading">
 						<div class="library-reading__pills">
 							<?php
-							Library::component(
+							Library::render_component(
 								'pill-checkbox',
 								array(
 									'id'      => 'library-reading-read',
-									'label'   => Library_Meta::label( 'read' ),
-									'control' => Library_Meta::control( 'read' ),
+									'label'   => Library_Meta::get_label( 'library_read' ),
+									'control' => Library_Meta::get_control( 'library_read' ),
 								)
 							);
-							Library::component(
+							Library::render_component(
 								'pill-select',
 								array(
 									'id'         => 'library-reading-rating',
-									'label'      => Library_Meta::label( 'rating' ),
+									'label'      => Library_Meta::get_label( 'library_rating' ),
 									'options'    => $rating_choices,
-									'attributes' => array( 'name' => 'rating' ),
+									'attributes' => array( 'name' => 'library_rating' ),
 								)
 							);
-							Library::component(
+							Library::render_component(
 								'pill-select',
 								array(
 									'id'         => 'library-reading-status',
@@ -306,11 +306,11 @@
 							?>
 						</div>
 						<?php
-						Library::component(
+						Library::render_component(
 							'input-list',
 							array(
 								'class'      => 'library-reading__dates',
-								'legend'     => Library_Meta::label( 'read_date' ),
+								'legend'     => Library_Meta::get_label( 'library_read_date' ),
 								'required'   => true,
 								'add'        => __( 'Add a reading', 'library' ),
 								'action'     => 'add',
@@ -333,19 +333,19 @@
 						<dd data-field="authors"></dd>
 					</div>
 					<div data-row="isbn">
-						<dt><?php echo esc_html( Library_Meta::label( 'isbn' ) ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
 						<dd data-field="isbn"></dd>
 					</div>
 					<div data-row="pages">
-						<dt><?php echo esc_html( Library_Meta::label( 'pages' ) ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::get_label( 'library_pages' ) ); ?></dt>
 						<dd data-field="pages"></dd>
 					</div>
 					<div data-row="edition_date">
-						<dt><?php echo esc_html( Library_Meta::label( 'edition_date' ) ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::get_label( 'library_edition_date' ) ); ?></dt>
 						<dd data-field="edition_date"></dd>
 					</div>
 					<div data-row="published_date">
-						<dt><?php echo esc_html( Library_Meta::label( 'published_date' ) ); ?></dt>
+						<dt><?php echo esc_html( Library_Meta::get_label( 'library_published_date' ) ); ?></dt>
 						<dd data-field="published_date"></dd>
 					</div>
 				</dl>
@@ -368,7 +368,7 @@
 				></h2>
 				<form class="library-edit__form">
 					<?php
-					Library::component(
+					Library::render_component(
 						'image-field',
 						array(
 							'id'     => 'library-edit-cover',
@@ -377,7 +377,7 @@
 							'remove' => __( 'Remove the cover', 'library' ),
 						)
 					);
-					Library::component(
+					Library::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-title',
@@ -389,7 +389,7 @@
 							),
 						)
 					);
-					Library::component(
+					Library::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-excerpt',
@@ -401,7 +401,7 @@
 							),
 						)
 					);
-					Library::component(
+					Library::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-content',
@@ -413,7 +413,7 @@
 							),
 						)
 					);
-					Library::component(
+					Library::render_component(
 						'input-list',
 						array(
 							'legend' => $author_labels->name,
@@ -422,7 +422,7 @@
 							'list'   => array( 'data-list' => 'authors' ),
 						)
 					);
-					Library::component(
+					Library::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-publisher',
@@ -434,7 +434,7 @@
 							),
 						)
 					);
-					Library::component(
+					Library::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-collection',
@@ -448,13 +448,13 @@
 						)
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
-					Library::component( 'meta-field', array( 'key' => 'isbn' ) );
-					Library::component(
+					Library::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
+					Library::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-status',
 							'label'      => __( 'Library', 'library' ),
-							'control'    => Library::select( $status_choices ),
+							'control'    => Library::get_select( $status_choices ),
 							'attributes' => array( 'name' => 'status' ),
 						)
 					);
@@ -462,23 +462,23 @@
 					<details class="library-edit__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'subtitle', 'series', 'volume_number', 'collection_number', 'issn', 'pages', 'edition_date', 'published_date', 'translators' ) as $key ) {
-							Library::component(
+						foreach ( array( 'library_subtitle', 'library_series', 'library_volume_number', 'library_collection_number', 'library_issn', 'library_pages', 'library_edition_date', 'library_published_date', 'library_translators' ) as $key ) {
+							Library::render_component(
 								'meta-field',
 								array(
 									'key'        => $key,
 									// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
-									'attributes' => 'pages' === $key ? array( 'inputmode' => 'numeric' ) : array(),
+									'attributes' => 'library_pages' === $key ? array( 'inputmode' => 'numeric' ) : array(),
 								)
 							);
 						}
 
-						Library::component(
+						Library::render_component(
 							'field',
 							array(
 								'id'         => 'library-edit-language',
 								'label'      => $language_labels->singular_name,
-								'control'    => Library::select( array( '' => $language_labels->no_terms ) ),
+								'control'    => Library::get_select( array( '' => $language_labels->no_terms ) ),
 								'attributes' => array( 'name' => 'language' ),
 							)
 						);
@@ -518,8 +518,8 @@
 		<template id="library-read-date">
 			<li class="library-input-list__item">
 				<?php
-				$control = Library_Meta::control(
-					'read_date',
+				$control = Library_Meta::get_control(
+					'library_read_date',
 					array(
 						'required'   => true,
 						'aria-label' => __( 'Read date', 'library' ),

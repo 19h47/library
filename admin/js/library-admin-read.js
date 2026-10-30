@@ -29,7 +29,7 @@
 	// Quick edit reads the inline data, so it must follow the date the server kept.
 	// The checkbox adds or clears a single date: the cell of a book read several times stays as it is.
 	const updateReadDates = ( id, readDates ) => {
-		const cell       = document.querySelector( `#post-${ id } .column-read_date` );
+		const cell       = document.querySelector( `#post-${ id } .column-library_read_date` );
 		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
 
 		if ( ! cell || ! inlineDate || readDates.length > 1 ) {
@@ -57,10 +57,10 @@
 		readPercentageEl.textContent = readPercentageEl.dataset.loadingText;
 
 		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
-		const meta       = { read: checkbox.checked };
+		const meta       = { library_read: checkbox.checked };
 
 		if ( checkbox.checked && ! inlineDate?.textContent ) {
-			meta.read_date = [ config.today ];
+			meta.library_read_date = [ config.today ];
 		}
 
 		try {
@@ -71,7 +71,7 @@
 			} );
 
 			// A date stored empty comes back as null.
-			updateReadDates( id, book.meta.read_date.filter( Boolean ) );
+			updateReadDates( id, book.meta.library_read_date.filter( Boolean ) );
 
 			const stats = await apiFetch( { path: '/library/v1/books/reading-stats' } );
 

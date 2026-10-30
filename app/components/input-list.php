@@ -24,7 +24,7 @@ $args  = wp_parse_args(
 );
 $class = trim( "library-input-list {$args['class']}" );
 
-echo Library::control( '<fieldset>', $args['attributes'] + array( 'class' => $class ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+echo Library::set_attributes( '<fieldset>', $args['attributes'] + array( 'class' => $class ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 ?>
 	<legend>
 		<?php
@@ -32,7 +32,7 @@ echo Library::control( '<fieldset>', $args['attributes'] + array( 'class' => $cl
 		echo esc_html( $args['required'] ? sprintf( _x( '%s (required)', 'several fields', 'library' ), $args['legend'] ) : $args['legend'] );
 		?>
 	</legend>
-	<?php echo Library::control( '<ul></ul>', $args['list'] + array( 'class' => 'library-input-list__items' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+	<?php echo Library::set_attributes( '<ul></ul>', $args['list'] + array( 'class' => 'library-input-list__items' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
 	<p>
 		<button class="app-pill" type="button" data-action="<?php echo esc_attr( $args['action'] ); ?>"><?php echo esc_html( $args['add'] ); ?></button>
 	</p>

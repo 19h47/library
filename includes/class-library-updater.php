@@ -74,12 +74,12 @@ class Library_Updater {
 		}
 
 		return array(
-			'slug'    => $this->slug(),
+			'slug'    => $this->get_slug(),
 			'version' => $release['version'],
 			'url'     => $release['url'],
 			'package' => $release['package'],
-			'tested'  => $this->tested( $release['readme'] ?? '' ),
-			'icons'   => array( 'svg' => $this->asset_url( 'icon.svg' ) ),
+			'tested'  => $this->get_tested_up_to( $release['readme'] ?? '' ),
+			'icons'   => array( 'svg' => $this->get_asset_url( 'icon.svg' ) ),
 		);
 	}
 
@@ -92,7 +92,7 @@ class Library_Updater {
 	 * @return false|object|array
 	 */
 	public function get_plugin_information( $result, string $action, object $args ) {
-		if ( 'plugin_information' !== $action || ! isset( $args->slug ) || $this->slug() !== $args->slug ) {
+		if ( 'plugin_information' !== $action || ! isset( $args->slug ) || $this->get_slug() !== $args->slug ) {
 			return $result;
 		}
 
@@ -104,20 +104,20 @@ class Library_Updater {
 
 		$plugin_data = get_plugin_data( LIBRARY_FILE, false, false );
 		$readme      = $release['readme'] ?? '';
-		$sections    = Library_Readme::sections( $readme );
+		$sections    = Library_Readme::get_sections( $readme );
 
 		return (object) array(
 			'name'          => $plugin_data['Name'],
-			'slug'          => $this->slug(),
+			'slug'          => $this->get_slug(),
 			'version'       => $release['version'],
 			'author'        => $plugin_data['Author'],
 			'homepage'      => $plugin_data['PluginURI'],
 			'requires'      => $plugin_data['RequiresWP'],
-			'tested'        => $this->tested( $readme ),
+			'tested'        => $this->get_tested_up_to( $readme ),
 			'requires_php'  => $plugin_data['RequiresPHP'],
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
-			'banners'       => array( 'high' => $this->asset_url( 'banner.svg' ) ),
+			'banners'       => array( 'high' => $this->get_asset_url( 'banner.svg' ) ),
 			'sections'      => $sections ? $sections : array( 'changelog' => wpautop( esc_html( $release['notes'] ) ) ),
 		);
 	}
@@ -131,8 +131,8 @@ class Library_Updater {
 	 * @param string $readme Readme of the release.
 	 * @return string
 	 */
-	private function tested( string $readme ): string {
-		$tested     = Library_Readme::header( $readme, 'Tested up to' );
+	private function get_tested_up_to( string $readme ): string {
+		$tested     = Library_Readme::get_header( $readme, 'Tested up to' );
 		$wp_version = get_bloginfo( 'version' );
 
 		return '' !== $tested && str_starts_with( $wp_version . '.', $tested . '.' ) ? $wp_version : $tested;
@@ -156,7 +156,7 @@ class Library_Updater {
 
 		global $wp_filesystem;
 
-		$destination = trailingslashit( $remote_source ) . $this->slug() . '/';
+		$destination = trailingslashit( $remote_source ) . $this->get_slug() . '/';
 
 		if ( trailingslashit( $source ) === $destination ) {
 			return $source;
@@ -183,7 +183,7 @@ class Library_Updater {
 			return is_array( $cached ) ? $cached : null;
 		}
 
-		$url      = 'https://api.github.com/repos/' . $this->repository() . '/releases/latest';
+		$url      = 'https://api.github.com/repos/' . $this->get_repository() . '/releases/latest';
 		$response = wp_remote_get( $url, array( 'headers' => array( 'Accept' => 'application/vnd.github+json' ) ) );
 		$body     = json_decode( wp_remote_retrieve_body( $response ), true );
 		$release  = null;
@@ -215,7 +215,7 @@ class Library_Updater {
 	 * @return string
 	 */
 	private function get_readme( string $tag ): string {
-		$response = wp_remote_get( 'https://raw.githubusercontent.com/' . $this->repository() . '/' . rawurlencode( $tag ) . '/README.txt' );
+		$response = wp_remote_get( 'https://raw.githubusercontent.com/' . $this->get_repository() . '/' . rawurlencode( $tag ) . '/README.txt' );
 
 		return 200 === wp_remote_retrieve_response_code( $response ) ? wp_remote_retrieve_body( $response ) : '';
 	}
@@ -226,8 +226,8 @@ class Library_Updater {
 	 * @param string $file File name, e.g. "icon.svg".
 	 * @return string
 	 */
-	private function asset_url( string $file ): string {
-		return Library::asset( "assets/$file" )[0];
+	private function get_asset_url( string $file ): string {
+		return Library::get_asset( "assets/$file" )[0];
 	}
 
 	/**
@@ -235,7 +235,7 @@ class Library_Updater {
 	 *
 	 * @return string
 	 */
-	private function repository(): string {
+	private function get_repository(): string {
 		$update_uri = get_file_data( LIBRARY_FILE, array( 'update_uri' => 'Update URI' ) )['update_uri'];
 
 		return trim( (string) wp_parse_url( $update_uri, PHP_URL_PATH ), '/' );
@@ -246,7 +246,7 @@ class Library_Updater {
 	 *
 	 * @return string
 	 */
-	private function slug(): string {
+	private function get_slug(): string {
 		return dirname( $this->plugin_file );
 	}
 }

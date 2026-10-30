@@ -1,5 +1,5 @@
 /**
- * Quick edit: prefill the book fields from the row inline data (library_{meta key}).
+ * Quick edit: prefill the book fields from the row inline data, one element per field, its class the meta key.
  *
  * Extends inlineEditPost.edit (WordPress core), which fills its own fields
  * from the hidden #inline_{id} block the same way.
@@ -33,8 +33,7 @@
 		}
 
 		inlineData.querySelectorAll( '[class^="library_"]' ).forEach( ( value ) => {
-			const field   = value.className.replace( 'library_', '' );
-			const control = editRow.querySelector( `[name="${ field }"]` );
+			const control = editRow.querySelector( `[name="${ value.className }"]` );
 
 			if ( control ) {
 				control.value = value.textContent;

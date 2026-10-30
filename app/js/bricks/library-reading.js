@@ -11,7 +11,7 @@ import { inputList, showErrors } from 'library-app/behaviors';
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
 		const $form = this.querySelector( 'form' );
-		const { read: $read, rating: $rating, status: $status } = $form.elements;
+		const { library_read: $read, library_rating: $rating, status: $status } = $form.elements;
 		const $dates = this.querySelector( '.library-reading__dates' );
 		const $list = $dates.querySelector( 'ul' );
 		const $add = $dates.querySelector( '[data-action="add"]' );
@@ -54,12 +54,12 @@ class LibraryReadingElement extends Brick {
 			'submit',
 			( event ) => {
 				const data = new FormData( $form );
-				const rating = data.get( 'rating' );
+				const rating = data.get( 'library_rating' );
 
 				event.preventDefault();
 				store.saveReading( {
-					read: data.has( 'read' ),
-					readDates: data.getAll( 'read_date' ),
+					read: data.has( 'library_read' ),
+					readDates: data.getAll( 'library_read_date' ),
 					rating: rating ? Number( rating ) : null,
 					status: data.get( 'status' ),
 				} );

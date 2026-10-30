@@ -31,10 +31,10 @@ Library adds a **Book** post type and three taxonomies, **Authors**, **Publisher
 
 = Technical =
 
-* Registers the `book` post type, edited in the classic screen, the `library-author`, `library-publisher` and `library-language` taxonomies and the book meta, all in the REST API.
+* Registers the `library_book` post type, edited in the classic screen, the `library_author`, `library_publisher` and `library_language` taxonomies and the book meta, `library_isbn`, `library_read_date` and so on, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
 * The hyphens of an ISBN come from `includes/isbn-ranges.json`, the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation) for every group, refreshed before each release with `php bin/update-isbn-ranges.php`. Another EAN-13 keeps its 13 digits; an ISBN of a range missing from it, or a code whose check digit is wrong, is kept as typed.
-* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library::component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
+* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library::render_component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
 
 == Installation ==
 
@@ -74,7 +74,7 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/library-author`, `library-publisher` and `library-language`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given.
+Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. Authors, publishers and original languages are at `/wp-json/wp/v2/authors`, `publishers` and `languages`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given.
 
 The routes of the plugin, to users who can edit posts:
 
@@ -85,7 +85,7 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/authors/<id>` – an author, their pseudonyms, their description, their books in the order they first came out and their reading.
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
 * `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its authors, publisher and collection by name, its original language and its meta, to users who can edit it.
-* `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `cover` of 0 removes it.
+* `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `featured_media` of 0 removes the cover.
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `authors` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==

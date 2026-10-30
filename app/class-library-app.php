@@ -57,8 +57,8 @@ class Library_App {
 	 *
 	 * @return string
 	 */
-	public static function url(): string {
-		return admin_url( 'edit.php?post_type=book&page=' . self::SLUG );
+	public static function get_url(): string {
+		return admin_url( 'edit.php?post_type=library_book&page=' . self::SLUG );
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Library_App {
 	 */
 	public function add_page(): void {
 		$hook = add_submenu_page(
-			'edit.php?post_type=book',
+			'edit.php?post_type=library_book',
 			__( 'Library', 'library' ),
 			__( 'App', 'library' ),
 			'edit_posts',
@@ -95,13 +95,13 @@ class Library_App {
 
 		$this->register_assets();
 
-		$manifest_url       = add_query_arg( 'manifest', '1', self::url() );
-		[ $favicon_url ]    = Library::asset( 'app/favicon.svg' );
-		[ $touch_icon_url ] = Library::asset( 'app/apple-touch-icon.png' );
-		$labels             = get_post_type_object( 'book' )->labels;
-		$author_labels      = get_taxonomy( 'library-author' )->labels;
-		$publisher_labels   = get_taxonomy( 'library-publisher' )->labels;
-		$language_labels    = get_taxonomy( 'library-language' )->labels;
+		$manifest_url       = add_query_arg( 'manifest', '1', self::get_url() );
+		[ $favicon_url ]    = Library::get_asset( 'app/favicon.svg' );
+		[ $touch_icon_url ] = Library::get_asset( 'app/apple-touch-icon.png' );
+		$labels             = get_post_type_object( 'library_book' )->labels;
+		$author_labels      = get_taxonomy( 'library_author' )->labels;
+		$publisher_labels   = get_taxonomy( 'library_publisher' )->labels;
+		$language_labels    = get_taxonomy( 'library_language' )->labels;
 		$rating_choices     = Library_Meta::get_rating_choices();
 		$status_choices     = Library_Posts::get_status_choices();
 		$views              = $this->get_views( $labels->name );
@@ -135,7 +135,7 @@ class Library_App {
 		foreach ( $labels as $view => $label ) {
 			$views[ $view ] = array(
 				'label' => $label,
-				'url'   => 'books' === $view ? self::url() : add_query_arg( 'view', $view, self::url() ),
+				'url'   => 'books' === $view ? self::get_url() : add_query_arg( 'view', $view, self::get_url() ),
 			);
 		}
 
@@ -151,13 +151,13 @@ class Library_App {
 	 * @return void
 	 */
 	private function render_manifest(): void {
-		[ $icon_url ]       = Library::asset( 'app/favicon-dark.svg' );
-		[ $touch_icon_url ] = Library::asset( 'app/apple-touch-icon.png' );
+		[ $icon_url ]       = Library::get_asset( 'app/favicon-dark.svg' );
+		[ $touch_icon_url ] = Library::get_asset( 'app/apple-touch-icon.png' );
 
 		$manifest = array(
 			'name'             => __( 'Library', 'library' ),
 			'short_name'       => __( 'Library', 'library' ),
-			'start_url'        => self::url(),
+			'start_url'        => self::get_url(),
 			'scope'            => admin_url(),
 			'display'          => 'standalone',
 			'background_color' => '#ffffff',
@@ -191,13 +191,13 @@ class Library_App {
 	 * @return void
 	 */
 	private function register_assets(): void {
-		[ $base_url, $base_version ] = Library::asset( 'app/css/app-style.css' );
+		[ $base_url, $base_version ] = Library::get_asset( 'app/css/app-style.css' );
 		wp_register_style( 'library-app-style', $base_url, array(), $base_version );
 
-		[ $style_url, $style_version ] = Library::asset( 'app/css/library-app.css' );
+		[ $style_url, $style_version ] = Library::get_asset( 'app/css/library-app.css' );
 		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
 
-		[ $store_url, $store_version ] = Library::asset( 'app/js/library-app-store.js' );
+		[ $store_url, $store_version ] = Library::get_asset( 'app/js/library-app-store.js' );
 		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch', 'wp-i18n', 'wp-url' ), $store_version, false );
 		wp_set_script_translations( 'library-app-store', 'library', LIBRARY_DIR_PATH . 'languages' );
 		wp_localize_script( 'library-app-store', 'libraryApp', $this->get_config() );
@@ -206,7 +206,7 @@ class Library_App {
 
 		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/lib/*.js' ) as $file ) {
 			$name              = basename( $file, '.js' );
-			[ $url, $version ] = Library::asset( "app/js/lib/$name.js" );
+			[ $url, $version ] = Library::get_asset( "app/js/lib/$name.js" );
 			$shared[]          = "library-app/$name";
 			wp_register_script_module( "library-app/$name", $url, array(), $version );
 			wp_set_script_module_translations( "library-app/$name", 'library', LIBRARY_DIR_PATH . 'languages' );
@@ -214,7 +214,7 @@ class Library_App {
 
 		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' ) as $file ) {
 			$name              = basename( $file, '.js' );
-			[ $url, $version ] = Library::asset( "app/js/bricks/$name.js" );
+			[ $url, $version ] = Library::get_asset( "app/js/bricks/$name.js" );
 			wp_enqueue_script_module( "library-app/$name", $url, $shared, $version );
 			wp_set_script_module_translations( "library-app/$name", 'library', LIBRARY_DIR_PATH . 'languages' );
 		}
@@ -227,18 +227,18 @@ class Library_App {
 	 * @return array
 	 */
 	private function get_config(): array {
-		[ $favicon_url ]      = Library::asset( 'app/favicon.svg' );
-		[ $favicon_dark_url ] = Library::asset( 'app/favicon-dark.svg' );
+		[ $favicon_url ]      = Library::get_asset( 'app/favicon.svg' );
+		[ $favicon_dark_url ] = Library::get_asset( 'app/favicon-dark.svg' );
 
 		return array(
-			'statuses'  => implode( ',', Library_Books::statuses() ),
+			'statuses'  => implode( ',', Library_Books::get_statuses() ),
 			'notKept'   => Library_Posts::NOT_KEPT,
 			'toBuy'     => Library_Posts::TO_BUY,
 			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
-			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::url() ) . '&author=',
-			'bookUrl'   => self::url() . '&book=',
-			'searchUrl' => self::url() . '&q=',
+			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::get_url() ) . '&author=',
+			'bookUrl'   => self::get_url() . '&book=',
+			'searchUrl' => self::get_url() . '&q=',
 			'icons'     => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,

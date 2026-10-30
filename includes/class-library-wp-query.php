@@ -36,7 +36,7 @@ class Library_WP_Query {
 		add_action( 'pre_get_posts', array( $this, 'parse_keywords' ) );
 		add_filter( 'posts_search', array( $this, 'search_meta_and_terms' ), 10, 2 );
 		add_filter( 'posts_where', array( $this, 'search_keywords' ), 10, 2 );
-		add_filter( 'rest_book_query', array( $this, 'allow_reading_order' ), 10, 2 );
+		add_filter( 'rest_library_book_query', array( $this, 'allow_reading_order' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'order_series_search' ), 10, 2 );
 		add_filter( 'get_search_query', array( $this, 'show_typed_search' ) );
 		add_action( 'load-edit.php', array( $this, 'add_help_tab' ) );
@@ -49,7 +49,7 @@ class Library_WP_Query {
 	 * @param string $value   Value.
 	 * @return string
 	 */
-	public static function keyword_search( string $keyword, string $value ): string {
+	public static function build_keyword_search( string $keyword, string $value ): string {
 		return sprintf( '%s:"%s"', $keyword, $value );
 	}
 
@@ -67,7 +67,7 @@ class Library_WP_Query {
 		// The search of the books list comes slashed from the request; core only unslashes it when it searches.
 		$search = stripslashes( (string) $query->get( 's' ) );
 
-		if ( '' === $search || ! in_array( 'book', (array) $query->get( 'post_type' ), true ) ) {
+		if ( '' === $search || ! in_array( 'library_book', (array) $query->get( 'post_type' ), true ) ) {
 			return;
 		}
 
@@ -117,7 +117,7 @@ class Library_WP_Query {
 	public function search_meta_and_terms( string $search, WP_Query $query ): string {
 		$post_types = (array) $query->get( 'post_type' );
 
-		if ( '' === $search || ! in_array( 'book', $post_types, true ) ) {
+		if ( '' === $search || ! in_array( 'library_book', $post_types, true ) ) {
 			return $search;
 		}
 
@@ -129,7 +129,7 @@ class Library_WP_Query {
 			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( Library_Meta::TEXT_KEYS ), '%s' ) ) . ' ) AND meta_value LIKE %s',
 			$meta_values
 		);
-		$term_matches = self::term_matches( Library_Taxonomies::TAXONOMIES, $like );
+		$term_matches = self::build_term_matches( Library_Taxonomies::TAXONOMIES, $like );
 
 		return " AND ( {$wpdb->posts}.ID IN ( $meta_matches ) OR {$wpdb->posts}.ID IN ( $term_matches ) OR ( 1 = 1 $search ) )";
 	}
@@ -145,7 +145,7 @@ class Library_WP_Query {
 		global $wpdb;
 
 		foreach ( $query->get( 'library_keywords', array() ) as $keyword ) {
-			$matches = array_map( fn( string $value ) => "{$wpdb->posts}.ID IN ( " . self::keyword_matches( $keyword['keyword'], $value ) . ' )', $keyword['values'] );
+			$matches = array_map( fn( string $value ) => "{$wpdb->posts}.ID IN ( " . self::build_keyword_matches( $keyword['keyword'], $value ) . ' )', $keyword['values'] );
 			$where  .= ( $keyword['exclude'] ? ' AND NOT ( ' : ' AND ( ' ) . implode( ' OR ', $matches ) . ' )';
 		}
 
@@ -167,7 +167,7 @@ class Library_WP_Query {
 	}
 
 	/**
-	 * List the books a search for a series finds in reading order, as Library_Books::in_reading_order() sorts them,
+	 * List the books a search for a series finds in reading order, as Library_Books::sort_in_reading_order() sorts them,
 	 * when the search lets it.
 	 *
 	 * @param string   $orderby ORDER BY clause.
@@ -186,7 +186,7 @@ class Library_WP_Query {
 
 		global $wpdb;
 
-		$book_ids = implode( ', ', array_column( Library_Books::in_reading_order( Library_Books::all() ), 'id' ) );
+		$book_ids = implode( ', ', array_column( Library_Books::sort_in_reading_order( Library_Books::get_books() ), 'id' ) );
 
 		return '' !== $book_ids ? "FIELD( {$wpdb->posts}.ID, $book_ids )" : $orderby;
 	}
@@ -211,7 +211,7 @@ class Library_WP_Query {
 	public function add_help_tab(): void {
 		$screen = get_current_screen();
 
-		if ( ! $screen || 'book' !== $screen->post_type ) {
+		if ( ! $screen || 'library_book' !== $screen->post_type ) {
 			return;
 		}
 
@@ -258,7 +258,7 @@ class Library_WP_Query {
 	 * @param string $value   Value.
 	 * @return string
 	 */
-	private static function keyword_matches( string $keyword, string $value ): string {
+	private static function build_keyword_matches( string $keyword, string $value ): string {
 		global $wpdb;
 
 		$like  = '%' . $wpdb->esc_like( $value ) . '%';
@@ -274,56 +274,56 @@ class Library_WP_Query {
 
 				return $wpdb->prepare(
 					"SELECT post_id FROM {$wpdb->postmeta}
-					WHERE meta_key = 'series' AND CONCAT( ',', LOWER( REPLACE( meta_value, ', ', ',' ) ), ',' ) LIKE %s
+					WHERE meta_key = 'library_series' AND CONCAT( ',', LOWER( REPLACE( meta_value, ', ', ',' ) ), ',' ) LIKE %s
 					UNION
 					SELECT p.ID FROM {$wpdb->posts} AS p
-					INNER JOIN {$wpdb->postmeta} AS v ON v.post_id = p.ID AND v.meta_key = 'volume_number' AND v.meta_value REGEXP '[0-9]'
-					LEFT JOIN {$wpdb->postmeta} AS s ON s.post_id = p.ID AND s.meta_key = 'series' AND s.meta_value != ''
+					INNER JOIN {$wpdb->postmeta} AS v ON v.post_id = p.ID AND v.meta_key = 'library_volume_number' AND v.meta_value REGEXP '[0-9]'
+					LEFT JOIN {$wpdb->postmeta} AS s ON s.post_id = p.ID AND s.meta_key = 'library_series' AND s.meta_value != ''
 					WHERE s.post_id IS NULL AND LOWER( p.post_title ) = %s",
 					$series_like,
 					$value
 				);
 			case 'author':
-				return self::term_matches( array( 'library-author' ), $like );
+				return self::build_term_matches( array( 'library_author' ), $like );
 			case 'publisher':
-				return self::term_matches( array( 'library-publisher' ), $like );
+				return self::build_term_matches( array( 'library_publisher' ), $like );
 			case 'translator':
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'translators' AND meta_value LIKE %s", $like );
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_translators' AND meta_value LIKE %s", $like );
 			case 'language':
 				return $wpdb->prepare(
 					"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
 					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
 					INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
-					WHERE tt.taxonomy = 'library-language' AND ( t.slug = %s OR t.name LIKE %s )",
+					WHERE tt.taxonomy = 'library_language' AND ( t.slug = %s OR t.name LIKE %s )",
 					$value,
 					$wpdb->esc_like( $value ) . '%'
 				);
 			case 'isbn':
 				$digits = '%' . $wpdb->esc_like( (string) preg_replace( '/[\s-]/', '', $value ) ) . '%';
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
 			case 'read':
 				if ( 'yes' === $value ) {
-					return "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'read' AND meta_value = '1'";
+					return "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read' AND meta_value = '1'";
 				}
 
 				if ( 'no' === $value ) {
 					return "SELECT p.ID FROM {$wpdb->posts} AS p
-						LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
-						WHERE p.post_type = 'book' AND r.post_id IS NULL";
+						LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'library_read' AND r.meta_value = '1'
+						WHERE p.post_type = 'library_book' AND r.post_id IS NULL";
 				}
 
 				if ( ! preg_match( '/^\d{4}(-\d{2})?$/', $value ) ) {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'read_date' AND meta_value LIKE %s", $value . '%' );
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date' AND meta_value LIKE %s", $value . '%' );
 			case 'rating':
 				if ( ! is_numeric( $value ) ) {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'rating' AND CAST( meta_value AS DECIMAL(3,1) ) >= %f", (float) $value );
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_rating' AND CAST( meta_value AS DECIMAL(3,1) ) >= %f", (float) $value );
 		}
 
 		return $none;
@@ -336,7 +336,7 @@ class Library_WP_Query {
 	 * @param string   $like       LIKE pattern.
 	 * @return string
 	 */
-	private static function term_matches( array $taxonomies, string $like ): string {
+	private static function build_term_matches( array $taxonomies, string $like ): string {
 		global $wpdb;
 
 		$values = array( ...$taxonomies, $like, $like );

@@ -79,7 +79,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<div class="library-dashboard-stats-wrap">
-		<a class="library-dashboard-link" href="<?php echo esc_url( admin_url( 'edit.php?post_type=book' ) ); ?>">
+		<a class="library-dashboard-link" href="<?php echo esc_url( admin_url( 'edit.php?post_type=library_book' ) ); ?>">
 			<?php esc_html_e( 'View all books', 'library' ); ?>
 		</a>
 	</div>

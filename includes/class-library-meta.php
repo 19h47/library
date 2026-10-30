@@ -25,14 +25,14 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'collection_number', 'translators' );
+	public const TEXT_KEYS = array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_translators' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d; a book has one read date per reading.
 	 *
 	 * @var string[]
 	 */
-	private const DATE_KEYS = array( 'edition_date', 'read_date' );
+	private const DATE_KEYS = array( 'library_edition_date', 'library_read_date' );
 
 	/**
 	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
@@ -56,7 +56,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const QUICK_EDIT_KEYS = array( 'isbn', 'pages', 'read_date', 'rating' );
+	public const QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
 
 	/**
 	 * All book meta keys.
@@ -66,7 +66,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'published_date', 'pages', 'rating', 'read' );
+	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_read' );
 
 	/**
 	 * Register hooks.
@@ -88,39 +88,39 @@ class Library_Meta {
 	 */
 	public function register_meta(): void {
 		$labels       = array(
-			'subtitle'          => __( 'Subtitle', 'library' ),
-			'series'            => __( 'Series', 'library' ),
-			'isbn'              => __( 'ISBN', 'library' ),
-			'issn'              => __( 'ISSN', 'library' ),
-			'volume_number'     => __( 'Volume Number', 'library' ),
-			'collection_number' => __( 'Collection Number', 'library' ),
-			'translators'       => __( 'Translators', 'library' ),
-			'edition_date'      => __( 'Edition date', 'library' ),
-			'read_date'         => __( 'Read dates', 'library' ),
-			'published_date'    => __( 'First published', 'library' ),
-			'pages'             => __( 'Pages', 'library' ),
-			'rating'            => __( 'Rating', 'library' ),
-			'read'              => __( 'Read', 'library' ),
+			'library_subtitle'          => __( 'Subtitle', 'library' ),
+			'library_series'            => __( 'Series', 'library' ),
+			'library_isbn'              => __( 'ISBN', 'library' ),
+			'library_issn'              => __( 'ISSN', 'library' ),
+			'library_volume_number'     => __( 'Volume Number', 'library' ),
+			'library_collection_number' => __( 'Collection Number', 'library' ),
+			'library_translators'       => __( 'Translators', 'library' ),
+			'library_edition_date'      => __( 'Edition date', 'library' ),
+			'library_read_date'         => __( 'Read dates', 'library' ),
+			'library_published_date'    => __( 'First published', 'library' ),
+			'library_pages'             => __( 'Pages', 'library' ),
+			'library_rating'            => __( 'Rating', 'library' ),
+			'library_read'              => __( 'Read', 'library' ),
 		);
 		$descriptions = array(
-			'subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
-			'isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
-			'issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
-			'series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
-			'collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
-			'translators'       => __( 'Separate translators with commas', 'library' ),
-			'published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
-			'rating'            => __( 'Rating from 1 to 10.', 'library' ),
+			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
+			'library_isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
+			'library_issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
+			'library_series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
+			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
+			'library_translators'       => __( 'Separate translators with commas', 'library' ),
+			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
 		);
 		$patterns     = array(
-			'isbn' => self::ISBN_PATTERN,
-			'issn' => self::ISSN_PATTERN,
+			'library_isbn' => self::ISBN_PATTERN,
+			'library_issn' => self::ISSN_PATTERN,
 		);
-		$sanitizers   = array( 'isbn' => array( self::class, 'sanitize_isbn' ) );
+		$sanitizers   = array( 'library_isbn' => array( self::class, 'sanitize_isbn' ) );
 
 		foreach ( self::TEXT_KEYS as $key ) {
 			register_post_meta(
-				'book',
+				'library_book',
 				$key,
 				array(
 					'type'              => 'string',
@@ -135,12 +135,12 @@ class Library_Meta {
 
 		foreach ( self::DATE_KEYS as $key ) {
 			register_post_meta(
-				'book',
+				'library_book',
 				$key,
 				array(
 					'type'              => 'string',
 					'label'             => $labels[ $key ],
-					'single'            => 'read_date' !== $key,
+					'single'            => 'library_read_date' !== $key,
 					'show_in_rest'      => array(
 						'schema' => array(
 							'pattern' => '^\d{4}-\d{2}-\d{2}$',
@@ -154,12 +154,12 @@ class Library_Meta {
 
 		// Often known by its year only.
 		register_post_meta(
-			'book',
-			'published_date',
+			'library_book',
+			'library_published_date',
 			array(
 				'type'              => 'string',
-				'label'             => $labels['published_date'],
-				'description'       => $descriptions['published_date'],
+				'label'             => $labels['library_published_date'],
+				'description'       => $descriptions['library_published_date'],
 				'single'            => true,
 				'show_in_rest'      => array(
 					'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
@@ -169,11 +169,11 @@ class Library_Meta {
 		);
 
 		register_post_meta(
-			'book',
-			'pages',
+			'library_book',
+			'library_pages',
 			array(
 				'type'              => 'integer',
-				'label'             => $labels['pages'],
+				'label'             => $labels['library_pages'],
 				'single'            => true,
 				'show_in_rest'      => array(
 					'schema' => array( 'minimum' => 1 ),
@@ -183,12 +183,12 @@ class Library_Meta {
 		);
 
 		register_post_meta(
-			'book',
-			'rating',
+			'library_book',
+			'library_rating',
 			array(
 				'type'              => 'number',
-				'label'             => $labels['rating'],
-				'description'       => $descriptions['rating'],
+				'label'             => $labels['library_rating'],
+				'description'       => $descriptions['library_rating'],
 				'single'            => true,
 				'show_in_rest'      => array(
 					'schema' => array(
@@ -202,11 +202,11 @@ class Library_Meta {
 		);
 
 		register_post_meta(
-			'book',
-			'read',
+			'library_book',
+			'library_read',
 			array(
 				'type'              => 'boolean',
-				'label'             => $labels['read'],
+				'label'             => $labels['library_read'],
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -220,8 +220,8 @@ class Library_Meta {
 	 * @param string $key Meta key.
 	 * @return string
 	 */
-	public static function label( string $key ): string {
-		return get_registered_meta_keys( 'post', 'book' )[ $key ]['label'];
+	public static function get_label( string $key ): string {
+		return get_registered_meta_keys( 'post', 'library_book' )[ $key ]['label'];
 	}
 
 	/**
@@ -230,8 +230,8 @@ class Library_Meta {
 	 * @param string $key Meta key.
 	 * @return string
 	 */
-	public static function description( string $key ): string {
-		return get_registered_meta_keys( 'post', 'book' )[ $key ]['description'];
+	public static function get_description( string $key ): string {
+		return get_registered_meta_keys( 'post', 'library_book' )[ $key ]['description'];
 	}
 
 	/**
@@ -241,12 +241,12 @@ class Library_Meta {
 	 * @return array<string,string>
 	 */
 	public static function get_rating_choices(): array {
-		$schema  = get_registered_meta_keys( 'post', 'book' )['rating']['show_in_rest']['schema'];
+		$schema  = get_registered_meta_keys( 'post', 'library_book' )['library_rating']['show_in_rest']['schema'];
 		$ratings = array( '' => __( 'No rating', 'library' ) );
 
 		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
 			/* translators: %s: rating, e.g. 7.5. */
-			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::rating_text( $rating ) );
+			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::format_rating( $rating ) );
 		}
 
 		return $ratings;
@@ -264,16 +264,16 @@ class Library_Meta {
 	 *                           true gives an attribute without value, null leaves it out.
 	 * @return string HTML.
 	 */
-	public static function control( string $key, array $attributes = array() ): string {
-		if ( 'rating' === $key ) {
-			$select = Library::select( self::get_rating_choices(), $attributes['value'] ?? null );
+	public static function get_control( string $key, array $attributes = array() ): string {
+		if ( 'library_rating' === $key ) {
+			$select = Library::get_select( self::get_rating_choices(), $attributes['value'] ?? null );
 
 			unset( $attributes['value'] );
 
-			return Library::control( $select, $attributes + array( 'name' => $key ) );
+			return Library::set_attributes( $select, $attributes + array( 'name' => $key ) );
 		}
 
-		$meta   = get_registered_meta_keys( 'post', 'book' )[ $key ];
+		$meta   = get_registered_meta_keys( 'post', 'library_book' )[ $key ];
 		$schema = $meta['show_in_rest']['schema'] ?? array();
 		$type   = match ( true ) {
 			'boolean' === $meta['type'] => 'checkbox',
@@ -282,7 +282,7 @@ class Library_Meta {
 			default => 'text',
 		};
 
-		return Library::control(
+		return Library::set_attributes(
 			'<input>',
 			$attributes + array(
 				'type'    => $type,
@@ -308,19 +308,19 @@ class Library_Meta {
 	 * @return void
 	 */
 	public function sync_reading_state( $meta_ids, int $post_id, string $meta_key ): void {
-		if ( ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || 'book' !== get_post_type( $post_id ) ) {
+		if ( ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || 'library_book' !== get_post_type( $post_id ) ) {
 			return;
 		}
 
-		$read       = (bool) get_post_meta( $post_id, 'read', true );
+		$read       = (bool) get_post_meta( $post_id, 'library_read', true );
 		$read_dates = self::get_read_dates( $post_id );
 
-		if ( 'read_date' === $meta_key && $read_dates && ! $read ) {
-			update_post_meta( $post_id, 'read', true );
+		if ( 'library_read_date' === $meta_key && $read_dates && ! $read ) {
+			update_post_meta( $post_id, 'library_read', true );
 		}
 
-		if ( 'read' === $meta_key && ! $read && $read_dates ) {
-			delete_post_meta( $post_id, 'read_date' );
+		if ( 'library_read' === $meta_key && ! $read && $read_dates ) {
+			delete_post_meta( $post_id, 'library_read_date' );
 		}
 	}
 
@@ -331,7 +331,7 @@ class Library_Meta {
 	 * @return string[]
 	 */
 	public static function get_read_dates( int $post_id ): array {
-		$read_dates = array_unique( array_filter( get_post_meta( $post_id, 'read_date', false ) ) );
+		$read_dates = array_unique( array_filter( get_post_meta( $post_id, 'library_read_date', false ) ) );
 
 		sort( $read_dates );
 
@@ -366,19 +366,19 @@ class Library_Meta {
 	 * @return void
 	 */
 	public static function save( int $post_id, array $values ): void {
-		$was_read = (bool) get_post_meta( $post_id, 'read', true );
+		$was_read = (bool) get_post_meta( $post_id, 'library_read', true );
 
 		foreach ( self::KEYS as $key ) {
 			if ( ! array_key_exists( $key, $values ) ) {
 				continue;
 			}
 
-			if ( 'read_date' === $key ) {
+			if ( 'library_read_date' === $key ) {
 				self::save_read_dates( $post_id, (array) $values[ $key ] );
 				continue;
 			}
 
-			$value = sanitize_meta( $key, $values[ $key ], 'post', 'book' );
+			$value = sanitize_meta( $key, $values[ $key ], 'post', 'library_book' );
 
 			if ( '' === $value || false === $value ) {
 				delete_post_meta( $post_id, $key );
@@ -388,10 +388,10 @@ class Library_Meta {
 			update_post_meta( $post_id, $key, wp_slash( $value ) );
 		}
 
-		$marked_read = ! $was_read && (bool) get_post_meta( $post_id, 'read', true );
+		$marked_read = ! $was_read && (bool) get_post_meta( $post_id, 'library_read', true );
 
 		if ( $marked_read && ! self::get_read_dates( $post_id ) ) {
-			add_post_meta( $post_id, 'read_date', current_time( 'Y-m-d' ) );
+			add_post_meta( $post_id, 'library_read_date', current_time( 'Y-m-d' ) );
 		}
 	}
 
@@ -403,7 +403,7 @@ class Library_Meta {
 	 * @return void
 	 */
 	private static function save_read_dates( int $post_id, array $read_dates ): void {
-		$read_dates = array_map( fn( $read_date ) => sanitize_meta( 'read_date', $read_date, 'post', 'book' ), $read_dates );
+		$read_dates = array_map( fn( $read_date ) => sanitize_meta( 'library_read_date', $read_date, 'post', 'library_book' ), $read_dates );
 		$read_dates = array_unique( array_filter( $read_dates ) );
 
 		sort( $read_dates );
@@ -412,10 +412,10 @@ class Library_Meta {
 			return;
 		}
 
-		delete_post_meta( $post_id, 'read_date' );
+		delete_post_meta( $post_id, 'library_read_date' );
 
 		foreach ( $read_dates as $read_date ) {
-			add_post_meta( $post_id, 'read_date', $read_date );
+			add_post_meta( $post_id, 'library_read_date', $read_date );
 		}
 	}
 
@@ -443,7 +443,7 @@ class Library_Meta {
 	 * @return WP_Error|null
 	 */
 	public static function check_isbn( int $post_id, string $isbn ): ?WP_Error {
-		if ( ! Library_ISBN::has_wrong_check_digit( $isbn ) || get_post_meta( $post_id, 'isbn', true ) === $isbn ) {
+		if ( ! Library_ISBN::has_wrong_check_digit( $isbn ) || get_post_meta( $post_id, 'library_isbn', true ) === $isbn ) {
 			return null;
 		}
 

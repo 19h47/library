@@ -55,7 +55,7 @@ class Library_Achievements_Page {
 	 * Add the achievements page under the books menu, with the dashboard styles.
 	 */
 	public function add_page(): void {
-		$hook = add_submenu_page( 'edit.php?post_type=book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), 'edit_posts', self::PAGE, array( $this, 'render_page' ) );
+		$hook = add_submenu_page( 'edit.php?post_type=library_book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), 'edit_posts', self::PAGE, array( $this, 'render_page' ) );
 
 		add_action( "admin_print_styles-$hook", array( Library_Dashboard::class, 'enqueue_style' ) );
 	}
@@ -80,7 +80,7 @@ class Library_Achievements_Page {
 		$achievements     = ( new Library_Achievements() )->get_achievements();
 		$earned           = $achievements['earned'];
 		$close            = $achievements['close'];
-		$families         = self::by_family( $earned );
+		$families         = self::group_by_family( $earned );
 		$easter_egg_kinds = count( Library_Achievements::KINDS['easter-eggs'] );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-achievements.php';
@@ -92,7 +92,7 @@ class Library_Achievements_Page {
 	 * @param array<int,array> $earned Achievements earned.
 	 * @return array<string,array{name:string,achievements:array<int,array>}>
 	 */
-	private static function by_family( array $earned ): array {
+	private static function group_by_family( array $earned ): array {
 		$names    = array(
 			'completions' => __( 'Completions', 'library' ),
 			'milestones'  => __( 'Milestones', 'library' ),
@@ -122,7 +122,7 @@ class Library_Achievements_Page {
 	 * @param string $kind Kind.
 	 * @return string
 	 */
-	public static function icon( string $kind ): string {
+	public static function get_icon( string $kind ): string {
 		$icons = array_merge( ...array_values( Library_Achievements::KINDS ) );
 
 		return 'dashicons-' . $icons[ $kind ];
@@ -134,7 +134,7 @@ class Library_Achievements_Page {
 	 * @param array $achievement Achievement.
 	 * @return string
 	 */
-	public static function date( array $achievement ): string {
+	public static function get_earned_date( array $achievement ): string {
 		return '' !== $achievement['date'] ? date_i18n( get_option( 'date_format' ), strtotime( $achievement['date'] ) ) : '';
 	}
 
@@ -145,7 +145,7 @@ class Library_Achievements_Page {
 	 * @param array $achievement Achievement.
 	 * @return string
 	 */
-	public static function url( array $achievement ): string {
+	public static function get_url( array $achievement ): string {
 		$target = $achievement['target'];
 
 		if ( ! $target ) {
@@ -156,7 +156,7 @@ class Library_Achievements_Page {
 			return (string) get_edit_post_link( $target['id'], 'raw' );
 		}
 
-		$url = admin_url( 'edit.php?post_type=book' );
+		$url = admin_url( 'edit.php?post_type=library_book' );
 
 		if ( $target['not_kept'] ) {
 			$url = add_query_arg( 'post_status', Library_Posts::NOT_KEPT, $url );
@@ -166,7 +166,7 @@ class Library_Achievements_Page {
 			return add_query_arg( 's', rawurlencode( $target['search'] ), $url );
 		}
 
-		$taxonomy = 'author' === $target['type'] ? 'library-author' : 'library-publisher';
+		$taxonomy = 'author' === $target['type'] ? 'library_author' : 'library_publisher';
 		$term     = get_term( $target['id'], $taxonomy );
 
 		return $term instanceof WP_Term ? add_query_arg( $taxonomy, $term->slug, $url ) : '';

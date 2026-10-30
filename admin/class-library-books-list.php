@@ -26,17 +26,17 @@ class Library_Books_List {
 	 * @return void
 	 */
 	public function hooks(): void {
-		add_filter( 'manage_book_posts_columns', array( $this, 'add_custom_columns' ) );
-		add_action( 'manage_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
+		add_filter( 'manage_library_book_posts_columns', array( $this, 'add_custom_columns' ) );
+		add_action( 'manage_library_book_posts_custom_column', array( $this, 'render_custom_columns' ), 10, 2 );
 		add_filter( 'post_column_taxonomy_links', array( $this, 'link_column_terms' ), 10, 3 );
-		add_filter( 'manage_edit-book_sortable_columns', array( $this, 'add_sortable_columns' ) );
+		add_filter( 'manage_edit-library_book_sortable_columns', array( $this, 'add_sortable_columns' ) );
 		add_filter( 'posts_clauses', array( $this, 'sort_by_meta' ), 10, 2 );
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
 		// Before core saves a quick edit, at 1.
 		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_mistyped_isbn' ), 0 );
-		add_action( 'save_post_book', array( $this, 'save_quick_edit' ) );
-		add_filter( 'views_edit-book', array( $this, 'add_list_table_views' ) );
+		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
+		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
 		add_action( 'current_screen', array( $this, 'label_published_view' ) );
 	}
 
@@ -53,12 +53,12 @@ class Library_Books_List {
 
 		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
 
-		$columns['edition_date'] = Library_Meta::label( 'edition_date' );
-		$columns['isbn']         = Library_Meta::label( 'isbn' );
-		$columns['read']         = Library_Meta::label( 'read' );
+		$columns['library_edition_date'] = Library_Meta::get_label( 'library_edition_date' );
+		$columns['library_isbn']         = Library_Meta::get_label( 'library_isbn' );
+		$columns['library_read']         = Library_Meta::get_label( 'library_read' );
 		// The latest one.
-		$columns['read_date'] = __( 'Read date', 'library' );
-		$columns['rating']    = Library_Meta::label( 'rating' );
+		$columns['library_read_date'] = __( 'Read date', 'library' );
+		$columns['library_rating']    = Library_Meta::get_label( 'library_rating' );
 
 		return $columns;
 	}
@@ -77,7 +77,7 @@ class Library_Books_List {
 
 		switch ( $column_name ) {
 
-			case 'read':
+			case 'library_read':
 				/* translators: %s: book title. */
 				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
 
@@ -89,8 +89,8 @@ class Library_Books_List {
 				);
 
 				break;
-			case 'edition_date':
-				$edition_date = get_post_meta( $post_id, 'edition_date', true );
+			case 'library_edition_date':
+				$edition_date = get_post_meta( $post_id, 'library_edition_date', true );
 
 				if ( $edition_date ) {
 					$output .= date_i18n( get_option( 'date_format' ), strtotime( $edition_date ) );
@@ -99,13 +99,13 @@ class Library_Books_List {
 				}
 
 				break;
-			case 'isbn':
-				$isbn = get_post_meta( $post_id, 'isbn', true );
+			case 'library_isbn':
+				$isbn = get_post_meta( $post_id, 'library_isbn', true );
 
 				$output .= $isbn ? esc_html( $isbn ) : '—';
 
 				break;
-			case 'read_date':
+			case 'library_read_date':
 				$read_dates = Library_Meta::get_read_dates( $post_id );
 				$readings   = count( $read_dates );
 
@@ -122,17 +122,17 @@ class Library_Books_List {
 				}
 
 				break;
-			case 'rating':
-				$rating = get_post_meta( $post_id, 'rating', true );
+			case 'library_rating':
+				$rating = get_post_meta( $post_id, 'library_rating', true );
 
-				$output .= '' !== $rating ? esc_html( Library_Books::rating_text( (float) $rating ) ) . ' / 10' : '—';
+				$output .= '' !== $rating ? esc_html( Library_Books::format_rating( (float) $rating ) ) . ' / 10' : '—';
 
 				break;
 			case 'thumbnail':
-				$rating = get_post_meta( $post_id, 'rating', true );
+				$rating = get_post_meta( $post_id, 'library_rating', true );
 
 				if ( '' !== $rating ) {
-					$rating_text = Library_Books::rating_text( (float) $rating );
+					$rating_text = Library_Books::format_rating( (float) $rating );
 					$output     .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_text ) . '/10" aria-hidden="true">' . esc_html( $rating_text ) . '</span>';
 				}
 
@@ -186,7 +186,7 @@ class Library_Books_List {
 	 * @see https://developer.wordpress.org/reference/hooks/add_inline_data/
 	 */
 	public function add_inline_data( WP_Post $post ): void {
-		if ( 'book' !== $post->post_type ) {
+		if ( 'library_book' !== $post->post_type ) {
 			return;
 		}
 
@@ -194,9 +194,9 @@ class Library_Books_List {
 
 		foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) {
 			// Quick edit edits the latest reading.
-			$value = 'read_date' === $key ? (string) end( $read_dates ) : (string) get_post_meta( $post->ID, $key, true );
+			$value = 'library_read_date' === $key ? (string) end( $read_dates ) : (string) get_post_meta( $post->ID, $key, true );
 
-			printf( '<div class="library_%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
+			printf( '<div class="%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
 		}
 	}
 
@@ -207,19 +207,19 @@ class Library_Books_List {
 	 * @see https://developer.wordpress.org/reference/hooks/quick_edit_custom_box/
 	 */
 	public function render_quick_edit( string $column_name ): void {
-		if ( 'isbn' !== $column_name ) {
+		if ( 'library_isbn' !== $column_name ) {
 			return;
 		}
 
 		// Quick edit edits the latest reading.
-		$labels = array( 'read_date' => __( 'Last read date', 'library' ) );
+		$labels = array( 'library_read_date' => __( 'Last read date', 'library' ) );
 		?>
 		<fieldset class="inline-edit-col-right">
 			<div class="inline-edit-col">
 				<?php foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
-						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Library_Meta::label( $key ) ); ?></span>
-						<span class="input-text-wrap"><?php echo Library_Meta::control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
+						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Library_Meta::get_label( $key ) ); ?></span>
+						<span class="input-text-wrap"><?php echo Library_Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>
@@ -238,11 +238,11 @@ class Library_Books_List {
 
 		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
 
-		if ( 'book' !== get_post_type( $post_id ) || ! isset( $_POST['isbn'] ) || ! current_user_can( 'edit_post', $post_id ) ) {
+		if ( 'library_book' !== get_post_type( $post_id ) || ! isset( $_POST['library_isbn'] ) || ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		$error = Library_Meta::check_isbn( $post_id, sanitize_text_field( wp_unslash( $_POST['isbn'] ) ) );
+		$error = Library_Meta::check_isbn( $post_id, sanitize_text_field( wp_unslash( $_POST['library_isbn'] ) ) );
 
 		if ( $error ) {
 			wp_die( esc_html( $error->get_error_message() ) );
@@ -265,8 +265,8 @@ class Library_Books_List {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Library_Meta.
 		$values = wp_unslash( $_POST );
 
-		if ( isset( $values['read_date'] ) ) {
-			$values['read_date'] = Library_Meta::replace_latest_read_date( $post_id, (string) $values['read_date'] );
+		if ( isset( $values['library_read_date'] ) ) {
+			$values['library_read_date'] = Library_Meta::replace_latest_read_date( $post_id, (string) $values['library_read_date'] );
 		}
 
 		Library_Meta::save( $post_id, $values );
@@ -280,8 +280,8 @@ class Library_Books_List {
 	 * @return array
 	 */
 	public function add_sortable_columns( array $sortable_columns ): array {
-		$sortable_columns['edition_date'] = array( 'edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
-		$sortable_columns['rating']       = array( 'rating', true, '', __( 'Table ordered by rating.', 'library' ) );
+		$sortable_columns['library_edition_date'] = array( 'library_edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
+		$sortable_columns['library_rating']       = array( 'library_rating', true, '', __( 'Table ordered by rating.', 'library' ) );
 
 		return $sortable_columns;
 	}
@@ -297,14 +297,14 @@ class Library_Books_List {
 	 * @return string[]
 	 */
 	public function sort_by_meta( array $clauses, WP_Query $query ): array {
-		if ( ! is_admin() || ! $query->is_main_query() || 'book' !== $query->get( 'post_type' ) ) {
+		if ( ! is_admin() || ! $query->is_main_query() || 'library_book' !== $query->get( 'post_type' ) ) {
 			return $clauses;
 		}
 
-		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'edition_date';
+		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_edition_date';
 		$values  = array(
-			'edition_date' => 'library_sort.meta_value',
-			'rating'       => 'CAST( library_sort.meta_value AS DECIMAL(3,1) )',
+			'library_edition_date' => 'library_sort.meta_value',
+			'library_rating'       => 'CAST( library_sort.meta_value AS DECIMAL(3,1) )',
 		);
 
 		if ( ! isset( $values[ $orderby ] ) ) {
@@ -357,7 +357,7 @@ class Library_Books_List {
 	 * @return void
 	 */
 	public function label_published_view( WP_Screen $screen ): void {
-		if ( 'edit-book' !== $screen->id ) {
+		if ( 'edit-library_book' !== $screen->id ) {
 			return;
 		}
 
@@ -384,7 +384,7 @@ class Library_Books_List {
 			return $term_links;
 		}
 
-		if ( 'library-publisher' === $taxonomy ) {
+		if ( 'library_publisher' === $taxonomy ) {
 			$terms = Library_Taxonomies::get_top_level_terms( $terms );
 		} elseif ( '' === $status ) {
 			return $term_links;
@@ -394,7 +394,7 @@ class Library_Books_List {
 			function ( WP_Term $term ) use ( $taxonomy, $status ) {
 				$query_args = array_filter(
 					array(
-						'post_type'   => 'book',
+						'post_type'   => 'library_book',
 						'post_status' => $status,
 						$taxonomy     => $term->slug,
 					)

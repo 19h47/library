@@ -130,7 +130,7 @@ class Library_Reading_Idea {
 	 */
 	private function get_ideas(): array {
 		$week    = wp_date( 'o-W' );
-		$books   = Library_Books::all();
+		$books   = Library_Books::get_books();
 		$to_read = self::get_books_to_read( $books );
 		$kinds   = array(
 			$this->get_series_ideas( $books, $to_read ),
@@ -207,7 +207,7 @@ class Library_Reading_Idea {
 	 * @param string $date Date, Y-m-d.
 	 * @return string
 	 */
-	private static function year( string $date ): string {
+	private static function get_year( string $date ): string {
 		return substr( $date, 0, 4 );
 	}
 
@@ -217,7 +217,7 @@ class Library_Reading_Idea {
 	 * @param array $book Book.
 	 * @return string
 	 */
-	private static function latest_read_date( array $book ): string {
+	private static function get_latest_read_date( array $book ): string {
 		return (string) end( $book['read_dates'] );
 	}
 
@@ -255,7 +255,7 @@ class Library_Reading_Idea {
 					_n( 'Next in %1$s: you have read %2$s volume, in %3$s.', 'Next in %1$s: you have read %2$s volumes, the last one in %3$s.', $read['volumes'], 'library' ),
 					$series,
 					$volumes,
-					self::year( $read['latest_read'] )
+					self::get_year( $read['latest_read'] )
 				);
 
 			$ideas[] = array(
@@ -288,7 +288,7 @@ class Library_Reading_Idea {
 
 			$read_by_series[ $book['series'] ] = array(
 				'volumes'     => $read['volumes'] + 1,
-				'latest_read' => max( $read['latest_read'], self::latest_read_date( $book ) ),
+				'latest_read' => max( $read['latest_read'], self::get_latest_read_date( $book ) ),
 			);
 		}
 
@@ -305,8 +305,8 @@ class Library_Reading_Idea {
 	private static function get_next_parts( array $books ): array {
 		$parts = array();
 
-		foreach ( Library_Books::in_reading_order( $books ) as $book ) {
-			$cycle = Library_Books::cycle( $book['series'] );
+		foreach ( Library_Books::sort_in_reading_order( $books ) as $book ) {
+			$cycle = Library_Books::get_cycle( $book['series'] );
 
 			if ( '' !== $cycle ) {
 				$parts[ $cycle ][ $book['series'] ][] = $book;
@@ -354,7 +354,7 @@ class Library_Reading_Idea {
 					$ratings[ $name ][] = $book['rating'];
 				}
 
-				$latest_read[ $name ] = max( $latest_read[ $name ] ?? '', self::latest_read_date( $book ) );
+				$latest_read[ $name ] = max( $latest_read[ $name ] ?? '', self::get_latest_read_date( $book ) );
 			}
 		}
 
@@ -407,9 +407,9 @@ class Library_Reading_Idea {
 			$to_read,
 			'authors',
 			function ( string $author, array $stats ) use ( $dormant_year ): string {
-				$average   = Library_Books::rating_text( $stats['average'] );
+				$average   = Library_Books::format_rating( $stats['average'] );
 				$rated     = number_format_i18n( $stats['rated'] );
-				$read_year = self::year( $stats['latest_read'] );
+				$read_year = self::get_year( $stats['latest_read'] );
 
 				if ( '' !== $read_year && (int) $read_year <= $dormant_year ) {
 					return sprintf(
@@ -497,7 +497,7 @@ class Library_Reading_Idea {
 				/* translators: 1: translator, 2: average rating, 3: number of books rated. */
 				__( 'Translated by %1$s: %2$s/10 on average over %3$s books rated.', 'library' ),
 				$translator,
-				Library_Books::rating_text( $stats['average'] ),
+				Library_Books::format_rating( $stats['average'] ),
 				number_format_i18n( $stats['rated'] )
 			)
 		);
@@ -519,7 +519,7 @@ class Library_Reading_Idea {
 				/* translators: 1: collection, e.g. "Folio", 2: average rating, 3: number of books rated. */
 				__( 'In %1$s: %2$s/10 on average over %3$s books rated.', 'library' ),
 				$collection,
-				Library_Books::rating_text( $stats['average'] ),
+				Library_Books::format_rating( $stats['average'] ),
 				number_format_i18n( $stats['rated'] )
 			)
 		);
@@ -567,7 +567,7 @@ class Library_Reading_Idea {
 	 */
 	private static function get_anniversary( string $date ): ?int {
 		$month_day = substr( $date, 5 );
-		$years     = (int) wp_date( 'Y' ) - (int) self::year( $date );
+		$years     = (int) wp_date( 'Y' ) - (int) self::get_year( $date );
 
 		if ( '01-01' === $month_day || ! str_starts_with( $month_day, wp_date( 'm' ) ) || $years < self::ANNIVERSARY_YEARS || 0 !== $years % self::ANNIVERSARY_YEARS ) {
 			return null;
@@ -673,7 +673,7 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_decade_ideas( array $books, array $to_read ): array {
-		$decade       = fn( array $book ) => intdiv( (int) self::year( $book['published_date'] ), 10 ) * 10;
+		$decade       = fn( array $book ) => intdiv( (int) self::get_year( $book['published_date'] ), 10 ) * 10;
 		$read_decades = array();
 
 		foreach ( $books as $book ) {
@@ -778,7 +778,7 @@ class Library_Reading_Idea {
 		$ideas       = array();
 
 		foreach ( $books as $book ) {
-			$read_year = self::year( self::latest_read_date( $book ) );
+			$read_year = self::get_year( self::get_latest_read_date( $book ) );
 
 			if ( '' === $read_year || (int) $read_year > $latest_year || null === $book['rating'] || $book['rating'] < self::REREAD_RATING ) {
 				continue;
@@ -789,7 +789,7 @@ class Library_Reading_Idea {
 				'reason' => sprintf(
 					/* translators: 1: rating, 2: year read. */
 					__( 'Rated %1$s/10, read in %2$s: read it again?', 'library' ),
-					Library_Books::rating_text( $book['rating'] ),
+					Library_Books::format_rating( $book['rating'] ),
 					$read_year
 				),
 			);
@@ -812,7 +812,7 @@ class Library_Reading_Idea {
 				$reason = __( 'Not kept, still to read: borrowed?', 'library' );
 			} else {
 				/* translators: %s: year the book was added. */
-				$reason = sprintf( __( 'Waiting on the reading pile since %s.', 'library' ), self::year( $book['added'] ) );
+				$reason = sprintf( __( 'Waiting on the reading pile since %s.', 'library' ), self::get_year( $book['added'] ) );
 			}
 
 			$ideas[] = array(
@@ -861,7 +861,7 @@ class Library_Reading_Idea {
 				/* translators: 1: author, 2: average rating, 3: number of books rated. */
 				__( 'To buy, by %1$s: you gave them %2$s/10 on average over %3$s books.', 'library' ),
 				$author,
-				Library_Books::rating_text( $stats['average'] ),
+				Library_Books::format_rating( $stats['average'] ),
 				number_format_i18n( $stats['rated'] )
 			)
 		);

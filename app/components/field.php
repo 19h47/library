@@ -26,7 +26,7 @@ $args = wp_parse_args(
 );
 
 $description_id = "{$args['id']}-description";
-$control        = Library::control(
+$control        = Library::set_attributes(
 	$args['control'],
 	$args['attributes'] + array(
 		'id'               => $args['id'],
