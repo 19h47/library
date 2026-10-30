@@ -25,7 +25,7 @@ class Library_WP_Query {
 	 *
 	 * @var string[]
 	 */
-	public const KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'isbn', 'read', 'rating' );
+	public const KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'rating' );
 
 	/**
 	 * Register hooks.
@@ -215,17 +215,20 @@ class Library_WP_Query {
 			return;
 		}
 
-		$keywords = array(
+		/* translators: Search keyword with a form, such as a novel, as named in the library: the keyword form stays in English. */
+		$form_example = _x( 'form:novel', 'search example', 'library' );
+		$keywords     = array(
 			array( array( 'series:SAS' ), __( 'a series, or a cycle with its series, by its exact name', 'library' ) ),
 			array( array( 'author:Tabucchi' ), __( 'an author, with their pseudonyms', 'library' ) ),
 			array( array( 'publisher:Gallimard' ), __( 'a publisher, with its collections', 'library' ) ),
 			array( array( 'translator:Bruneau' ), __( 'a translator', 'library' ) ),
 			array( array( 'language:it' ), __( 'the original language, by its code or the start of its name', 'library' ) ),
+			array( array( $form_example ), __( 'the form, by its name', 'library' ) ),
 			array( array( 'isbn:9782070368228' ), __( 'the ISBN, with or without hyphens', 'library' ) ),
 			array( array( 'read:yes', 'read:no', 'read:2024', 'read:2024-05' ), __( 'read or not, or read in a year or a month, rereads included', 'library' ) ),
 			array( array( 'rating:9' ), __( 'rated 9 or more; a half point with a dot: 8.5', 'library' ) ),
 		);
-		$items    = '';
+		$items        = '';
 
 		foreach ( $keywords as [ $examples, $description ] ) {
 			$codes  = array_map( fn( string $example ) => '<code>' . esc_html( $example ) . '</code>', $examples );
@@ -237,7 +240,7 @@ class Library_WP_Query {
 				'id'      => 'library-search',
 				'title'   => __( 'Search', 'library' ),
 				'content' =>
-					'<p>' . esc_html__( 'The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, collection number, people, publishers, collections and original languages. Keywords narrow it to a field:', 'library' ) . '</p>' .
+					'<p>' . esc_html__( 'The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, collection number, people, publishers, collections, original languages and forms. Keywords narrow it to a field:', 'library' ) . '</p>' .
 					'<ul>' . $items . '</ul>' .
 					'<p>' . sprintf(
 						/* translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces. */
@@ -302,6 +305,8 @@ class Library_WP_Query {
 					$like,
 					$like
 				);
+			case 'form':
+				return self::build_term_matches( array( 'library_form' ), $like );
 			case 'language':
 				return $wpdb->prepare(
 					"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr

@@ -16,7 +16,7 @@
 
 	const STORAGE_KEY = 'library-app';
 	// Kept between visits. The query, the view, the person and the book open are in the URL only, as ?q=, ?view=, ?person= and ?book=.
-	const SAVED = [ 'theme', 'themeChosen', 'read', 'status' ];
+	const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form' ];
 	// The views of the navigation; the page of a person is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
 	const PERSON_VIEW = 'person';
@@ -210,6 +210,8 @@
 			read: [ 'yes', 'no' ].includes( saved?.read ) ? saved.read : '',
 			// "" for any, or the status of the books shown, such as not kept.
 			status: config.statuses.split( ',' ).includes( saved?.status ) ? saved.status : '',
+			// "" for any, or the term ID of the form of the books shown, such as comics.
+			form: config.forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		};
 	}
 
@@ -230,7 +232,7 @@
 
 	/**
 	 * What a list asks the API for: `search` the books the search finds, of the status chosen, else of any status but
-	 * to buy for the books to read, which are not at hand; `toBuy` the books to buy.
+	 * to buy for the books to read, which are not at hand, and of the form chosen; `toBuy` the books to buy.
 	 */
 	function queryOf( list, state ) {
 		if ( 'toBuy' === list ) {
@@ -241,7 +243,7 @@
 		const atHand = config.statuses.split( ',' ).filter( ( item ) => config.toBuy !== item ).join();
 		const status = state.status || ( 'no' === state.read ? atHand : config.statuses );
 
-		return search ? { search, status } : { status };
+		return { ...( search && { search } ), status, ...( state.form && { forms: state.form } ) };
 	}
 
 	/** SAVED goes to localStorage, the query to the URL. */
@@ -424,13 +426,18 @@
 			this.#fetchList( 'search' );
 		}
 
+		setForm( form ) {
+			this.set( ( state ) => ( { ...state, form } ) );
+			this.#fetchList( 'search' );
+		}
+
 		/**
-		 * Shows the books a search finds, read or not, of any status, at the top of the books view, such as the books
+		 * Shows the books a search finds, read or not, of any status and form, at the top of the books view, such as the books
 		 * of a series from an achievement. The view comes first, so that the query goes to its URL.
 		 */
 		searchBooks( query ) {
 			this.setView( 'books' );
-			this.set( ( state ) => ( { ...state, query, read: '', status: '' } ) );
+			this.set( ( state ) => ( { ...state, query, read: '', status: '', form: '' } ) );
 			this.#fetchList( 'search' );
 			scrollToTop();
 		}
@@ -889,8 +896,8 @@
 		async #refreshList( list, id ) {
 			const query = queryOf( list, this.get() );
 
-			// Every book is found without a search or a status chosen.
-			if ( 'search' === list && ! query.search && ! this.get().status ) {
+			// Every book is found without a search, a status or a form chosen.
+			if ( 'search' === list && ! query.search && ! this.get().status && ! query.forms ) {
 				return;
 			}
 
@@ -898,9 +905,8 @@
 
 			try {
 				const found = await apiFetch( { path: `/wp/v2/books?${ params }` } );
-				// Another search or another status may have replaced the books found meanwhile.
-				const { search, status } = queryOf( list, this.get() );
-				const isListed = search === query.search && status === query.status && this.get()[ list ].items.includes( id );
+				// Another search, status or form may have replaced the books found meanwhile.
+				const isListed = JSON.stringify( queryOf( list, this.get() ) ) === JSON.stringify( query ) && this.get()[ list ].items.includes( id );
 
 				if ( ! found.length && isListed ) {
 					this.#update( list, ( current ) => ( {
