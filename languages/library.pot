@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 8.1.1\n"
+"Project-Id-Version: Library 8.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-30T18:46:18+00:00\n"
+"POT-Creation-Date: 2026-10-30T19:02:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -86,7 +86,7 @@ msgid "Authors"
 msgstr ""
 
 #: admin/class-library-books-list.php:62
-#: app/partials/library-app.php:567
+#: app/partials/library-app.php:568
 msgid "Read date"
 msgstr ""
 
@@ -718,17 +718,17 @@ msgstr ""
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:577
 #: app/partials/library-app.php:578
+#: app/partials/library-app.php:579
 msgid "Remove this reading"
 msgstr ""
 
-#: app/partials/library-app.php:602
+#: app/partials/library-app.php:603
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:612
 #: app/partials/library-app.php:613
+#: app/partials/library-app.php:614
 msgid "Remove this person"
 msgstr ""
 
@@ -2057,6 +2057,6 @@ msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr ""
 
-#: app/js/library-app-store.js:164
+#: app/js/library-app-store.js:166
 msgid "The books could not be loaded."
 msgstr ""
