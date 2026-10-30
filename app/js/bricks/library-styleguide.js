@@ -54,7 +54,7 @@ class LibraryStyleguideElement extends Brick {
 			covers: () => [ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map( ( book ) => renderCover( book ) ),
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
-			authors: () => [ 'An Author', '' ].map( ( name ) => this.#renderInput( 'library-edit-author', name ) ),
+			people: () => [ 'A Person', '' ].map( ( name ) => this.#renderInput( 'library-edit-person', name ) ),
 			dates: () => [ '2026-10-28', '2126-10-28' ].map( ( date ) => this.#renderInput( 'library-read-date', date ) ),
 		};
 

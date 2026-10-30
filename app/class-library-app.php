@@ -30,11 +30,11 @@ class Library_App {
 	public const SLUG = 'library';
 
 	/**
-	 * View of the page of an author, opened from a book or an achievement rather than from the navigation.
+	 * View of the page of a person, opened from a book or an achievement rather than from the navigation.
 	 *
 	 * @var string
 	 */
-	public const AUTHOR_VIEW = 'author';
+	public const PERSON_VIEW = 'person';
 
 	/**
 	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
@@ -99,7 +99,7 @@ class Library_App {
 		[ $favicon_url ]    = Library::get_asset( 'app/favicon.svg' );
 		[ $touch_icon_url ] = Library::get_asset( 'app/apple-touch-icon.png' );
 		$labels             = get_post_type_object( 'library_book' )->labels;
-		$author_labels      = get_taxonomy( 'library_author' )->labels;
+		$person_labels      = get_taxonomy( 'library_person' )->labels;
 		$publisher_labels   = get_taxonomy( 'library_publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library_language' )->labels;
 		$rating_choices     = Library_Meta::get_rating_choices();
@@ -108,9 +108,9 @@ class Library_App {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
 		$view   = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
-		$author = absint( $_GET['author'] ?? 0 );
+		$person = absint( $_GET['person'] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( self::AUTHOR_VIEW === $view && $author ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( self::PERSON_VIEW === $view && $person ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
 		require LIBRARY_DIR_PATH . 'app/partials/library-app.php';
 		exit;
@@ -234,9 +234,11 @@ class Library_App {
 			'statuses'  => implode( ',', Library_Books::get_statuses() ),
 			'notKept'   => Library_Posts::NOT_KEPT,
 			'toBuy'     => Library_Posts::TO_BUY,
+			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
+			'roles'     => array_values( str_replace( 'library_', '', Library_Meta::ROLE_KEYS ) ),
 			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
-			'authorUrl' => add_query_arg( 'view', self::AUTHOR_VIEW, self::get_url() ) . '&author=',
+			'personUrl' => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
 			'bookUrl'   => self::get_url() . '&book=',
 			'searchUrl' => self::get_url() . '&q=',
 			'icons'     => array(

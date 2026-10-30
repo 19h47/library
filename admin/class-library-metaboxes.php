@@ -1,6 +1,6 @@
 <?php
 /**
- * Edit screen of a book, the classic one: the information metabox, the "Not kept" box and the authors tag box.
+ * Edit screen of a book, the classic one: the information metabox, the "Not kept" box and the people tag box.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Renders and saves the book information metabox and the "Not kept" box of the publish box, and types the authors in a tag box.
+ * Renders and saves the book information metabox and the "Not kept" box of the publish box, and types the people in a tag box.
  *
  * @since      1.0.0
  * @package    Library
@@ -26,7 +26,7 @@ class Library_Metaboxes {
 	 */
 	public function hooks(): void {
 		add_action( 'add_meta_boxes_library_book', array( $this, 'add_metabox' ) );
-		add_action( 'add_meta_boxes_library_book', array( $this, 'register_author_box' ) );
+		add_action( 'add_meta_boxes_library_book', array( $this, 'register_person_box' ) );
 		add_action( 'admin_action_editpost', array( $this, 'refuse_mistyped_isbn' ) );
 		add_action( 'admin_notices', array( $this, 'show_refused_isbn' ) );
 		add_filter( 'removable_query_args', array( $this, 'remove_refused_isbn_arg' ) );
@@ -86,6 +86,9 @@ class Library_Metaboxes {
 		}
 
 		$values['library_read_date'] = Library_Meta::get_read_dates( $post->ID );
+		$names                       = get_the_terms( $post->ID, 'library_person' );
+		$names                       = is_array( $names ) ? $names : array();
+		$roles                       = Library_Meta::get_roles( $post->ID );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
@@ -108,6 +111,11 @@ class Library_Metaboxes {
 		$values = wp_unslash( $_POST );
 
 		Library_Meta::save( $post_id, $values );
+
+		// The names of the book are saved first: a name just added is an author, its role chosen once it is saved.
+		if ( isset( $values['library_roles'] ) ) {
+			Library_Meta::save_roles( $post_id, array_map( 'sanitize_key', (array) $values['library_roles'] ) );
+		}
 	}
 
 	/**
@@ -226,17 +234,17 @@ class Library_Metaboxes {
 	}
 
 	/**
-	 * Give the authors tag box the id of a tag box.
+	 * Give the people tag box the id of a tag box.
 	 *
-	 * Core names the box of a hierarchical taxonomy "library_authordiv", and only starts the tag box
+	 * Core names the box of a hierarchical taxonomy "library_persondiv", and only starts the tag box
 	 * script when a box id starts with "tagsdiv-": otherwise the tag box stays empty.
 	 *
 	 * @return void
 	 */
-	public function register_author_box(): void {
-		$taxonomy = get_taxonomy( 'library_author' );
+	public function register_person_box(): void {
+		$taxonomy = get_taxonomy( 'library_person' );
 
-		remove_meta_box( 'library_authordiv', 'library_book', 'side' );
-		add_meta_box( 'tagsdiv-library_author', $taxonomy->labels->name, $taxonomy->meta_box_cb, 'library_book', 'side', 'core', array( 'taxonomy' => 'library_author' ) );
+		remove_meta_box( 'library_persondiv', 'library_book', 'side' );
+		add_meta_box( 'tagsdiv-library_person', $taxonomy->labels->name, $taxonomy->meta_box_cb, 'library_book', 'side', 'core', array( 'taxonomy' => 'library_person' ) );
 	}
 }

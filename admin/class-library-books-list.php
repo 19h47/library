@@ -53,9 +53,11 @@ class Library_Books_List {
 
 		$columns = array( 'thumbnail' => __( 'Thumbnail', 'library' ) ) + $columns;
 
-		$columns['library_edition_date'] = Library_Meta::get_label( 'library_edition_date' );
-		$columns['library_isbn']         = Library_Meta::get_label( 'library_isbn' );
-		$columns['library_read']         = Library_Meta::get_label( 'library_read' );
+		// The column of the people shows the ones credited, as the credits of a book do.
+		$columns['taxonomy-library_person'] = __( 'Authors', 'library' );
+		$columns['library_edition_date']    = Library_Meta::get_label( 'library_edition_date' );
+		$columns['library_isbn']            = Library_Meta::get_label( 'library_isbn' );
+		$columns['library_read']            = Library_Meta::get_label( 'library_read' );
 		// The latest one.
 		$columns['library_read_date'] = __( 'Read date', 'library' );
 		$columns['library_rating']    = Library_Meta::get_label( 'library_rating' );
@@ -366,9 +368,10 @@ class Library_Books_List {
 	}
 
 	/**
-	 * Links of the authors, publishers and languages columns of the books list.
+	 * Links of the people, publishers and languages columns of the books list.
 	 *
-	 * A collection shows as its publisher, once. The links keep the status of the current view:
+	 * The people are those credited for the book, as its credits name them: its authors, or the publishing directors of
+	 * a collective work, else none. A collection shows as its publisher, once. The links keep the status of the current view:
 	 * core links to the "All" view, which leaves out the books not kept, so from their view they listed nothing.
 	 *
 	 * @param string[]  $term_links Term links.
@@ -386,11 +389,20 @@ class Library_Books_List {
 
 		if ( 'library_publisher' === $taxonomy ) {
 			$terms = Library_Taxonomies::get_top_level_terms( $terms );
+		} elseif ( 'library_person' === $taxonomy ) {
+			$terms = Library_Taxonomies::get_credited_people( get_the_ID() );
 		} elseif ( '' === $status ) {
 			return $term_links;
 		}
 
-		return array_map(
+		if ( ! $terms ) {
+			// As core shows a column without terms.
+			$no_terms = get_taxonomy( $taxonomy )->labels->no_terms;
+
+			return array( '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . esc_html( $no_terms ) . '</span>' );
+		}
+
+		$links = array_map(
 			function ( WP_Term $term ) use ( $taxonomy, $status ) {
 				$query_args = array_filter(
 					array(
@@ -405,5 +417,13 @@ class Library_Books_List {
 			},
 			$terms
 		);
+
+		if ( 'library_person' === $taxonomy && Library_Posts::is_collective( get_the_ID() ) ) {
+			$last_link = array_key_last( $links );
+
+			$links[ $last_link ] = Library_Books::format_directors( $links[ $last_link ] );
+		}
+
+		return $links;
 	}
 }

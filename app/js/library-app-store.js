@@ -15,11 +15,11 @@
 	'use strict';
 
 	const STORAGE_KEY = 'library-app';
-	// Kept between visits. The query, the view, the author and the book open are in the URL only, as ?q=, ?view=, ?author= and ?book=.
+	// Kept between visits. The query, the view, the person and the book open are in the URL only, as ?q=, ?view=, ?person= and ?book=.
 	const SAVED = [ 'theme', 'themeChosen', 'read', 'status' ];
-	// The views of the navigation; the page of an author is another one, opened from a book or an achievement.
+	// The views of the navigation; the page of a person is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
-	const AUTHOR_VIEW = 'author';
+	const PERSON_VIEW = 'person';
 	// The components of the app, for development: a view out of the navigation, opened by searching its name.
 	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the latest readings, the reading idea and the achievements close to be earned.
@@ -112,7 +112,7 @@
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
 	}
 
-	/** A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and its original languages. */
+	/** A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and the names with another role, and its original languages. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 		const details = media?.media_details;
@@ -122,6 +122,11 @@
 		const terms = ( item._embedded?.[ 'wp:term' ] ?? [] ).flat();
 		// Its meta without the prefix of their keys: library_rating is its rating.
 		const meta = Object.fromEntries( Object.entries( item.meta ).map( ( [ key, value ] ) => [ key.replace( /^library_/, '' ), value ] ) );
+		// As named on the book: a pseudonym opens the page of the person too.
+		const names = terms
+			.filter( ( term ) => 'library_person' === term.taxonomy )
+			.map( ( term ) => ( { id: term.id, name: text( term.name ) } ) );
+		const roleIds = config.roles.flatMap( ( role ) => meta[ role ] );
 
 		return {
 			...meta,
@@ -136,10 +141,9 @@
 			status: item.status,
 			// Its size gives the image its place before it loads.
 			cover: size ? { url: size.source_url, width: size.width, height: size.height } : null,
-			// As named on the book: a pseudonym opens the page of the author too.
-			authors: terms
-				.filter( ( term ) => 'library_author' === term.taxonomy )
-				.map( ( term ) => ( { id: term.id, name: text( term.name ) } ) ),
+			// Its names without another role, then the others by role, such as its colorists, in place of their IDs.
+			authors: names.filter( ( name ) => ! roleIds.includes( name.id ) ),
+			...Object.fromEntries( config.roles.map( ( role ) => [ role, names.filter( ( name ) => meta[ role ].includes( name.id ) ) ] ) ),
 			// As their ISO 639 codes, the slugs of their terms: the app names them in a sentence.
 			languages: terms.filter( ( term ) => 'library_language' === term.taxonomy ).map( ( term ) => term.slug ),
 		};
@@ -149,7 +153,7 @@
 	function toForm( item ) {
 		return {
 			...item,
-			authors: item.authors.map( text ),
+			people: item.people.map( ( person ) => ( { ...person, name: text( person.name ) } ) ),
 			publisher: text( item.publisher ),
 			collection: text( item.collection ),
 		};
@@ -160,12 +164,12 @@
 		return error?.message ?? __( 'The books could not be loaded.', 'library' );
 	}
 
-	/** The view of a URL, the books by default; the page of an author needs an author. */
+	/** The view of a URL, the books by default; the page of a person needs a person. */
 	function viewOf( url ) {
 		const view = new URL( url ).searchParams.get( 'view' );
 
-		if ( AUTHOR_VIEW === view ) {
-			return idOf( url, 'author' ) ? view : 'books';
+		if ( PERSON_VIEW === view ) {
+			return idOf( url, 'person' ) ? view : 'books';
 		}
 
 		return isNamedView( view ) ? view : 'books';
@@ -176,7 +180,7 @@
 		return VIEWS.includes( view ) || STYLEGUIDE_VIEW === view;
 	}
 
-	/** The ID a URL gives as `name`, such as the author of ?author= or the book of ?book=, or 0. */
+	/** The ID a URL gives as `name`, such as the person of ?person= or the book of ?book=, or 0. */
 	function idOf( url, name ) {
 		const id = Number( new URL( url ).searchParams.get( name ) );
 
@@ -284,17 +288,17 @@
 		return { id, book, open: false, loading: false, error: '' };
 	}
 
-	/** The names the form of a book suggests, as terms: authors and pseudonyms, publishers and collections, original languages. */
+	/** The names the form of a book suggests, as terms: people and pseudonyms, publishers and collections, original languages. */
 	function terms() {
-		return { authors: [], publishers: [], languages: [], loading: false, loaded: false };
+		return { people: [], publishers: [], languages: [], loading: false, loaded: false };
 	}
 
 	/**
-	 * The author open, under their real name: `books` all their book IDs, in order,
+	 * The person open, under their real name: `books` all their book IDs, in order,
 	 * `items` the ones loaded so far, a page at a time; `bookPages` the pages of their books,
 	 * as `pages` counts the pages of the list; `completion` is an achievement; `description` is HTML.
 	 */
-	function author( id = 0 ) {
+	function person( id = 0 ) {
 		return { ...pages(), id, name: '', pseudonyms: [], description: '', books: [], read: 0, rating: null, bookPages: 0, completion: null };
 	}
 
@@ -302,14 +306,14 @@
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
 	 * `search` the books found, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
-	 * `author` the books of the author open, `book` the book open,
+	 * `person` the books of the person open, `book` the book open,
 	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
 		// The request of each list running, `search` or `toBuy`: another one cancels it.
 		#controllers = {};
-		#authorController = null;
+		#personController = null;
 
 		constructor() {
 			super( {
@@ -321,7 +325,7 @@
 				achievements: achievements(),
 				toBuy: pages(),
 				stats: null,
-				author: author(),
+				person: person(),
 				book: 0,
 				saving: saving(),
 				editing: editing(),
@@ -336,7 +340,7 @@
 
 			// Back and forward between the views; they open and close the book too.
 			addEventListener( 'popstate', () => {
-				this.#show( viewOf( location.href ), idOf( location.href, 'author' ) );
+				this.#show( viewOf( location.href ), idOf( location.href, 'person' ) );
 				this.#showBook( idOf( location.href, 'book' ) );
 			} );
 
@@ -346,7 +350,7 @@
 				}
 			} );
 
-			this.#show( this.get().view, idOf( location.href, 'author' ) );
+			this.#show( this.get().view, idOf( location.href, 'person' ) );
 			this.#showBook( idOf( location.href, 'book' ) );
 			this.#fetchStats();
 		}
@@ -365,7 +369,7 @@
 				url.searchParams.set( 'view', view );
 			}
 
-			url.searchParams.delete( 'author' );
+			url.searchParams.delete( 'person' );
 			url.searchParams.delete( 'book' );
 			history.pushState( null, '', url );
 			this.#show( view );
@@ -373,13 +377,13 @@
 		}
 
 		/**
-		 * Opens the page of an author, at its top, with its URL in the history. The book open closes, its URL
-		 * staying in the history: going back opens it again. On the page of the author already, it just closes.
+		 * Opens the page of a person, at its top, with its URL in the history. The book open closes, its URL
+		 * staying in the history: going back opens it again. On the page of the person already, it just closes.
 		 */
-		openAuthor( id ) {
-			const { view, author: current } = this.get();
+		openPerson( id ) {
+			const { view, person: current } = this.get();
 
-			if ( AUTHOR_VIEW === view && id === current.id ) {
+			if ( PERSON_VIEW === view && id === current.id ) {
 				this.closeBook();
 				return;
 			}
@@ -387,11 +391,11 @@
 			const url = new URL( location.href );
 
 			this.#hideBook();
-			url.searchParams.set( 'view', AUTHOR_VIEW );
-			url.searchParams.set( 'author', id );
+			url.searchParams.set( 'view', PERSON_VIEW );
+			url.searchParams.set( 'person', id );
 			url.searchParams.delete( 'book' );
 			history.pushState( null, '', url );
-			this.#show( AUTHOR_VIEW, id );
+			this.#show( PERSON_VIEW, id );
 			scrollToTop();
 		}
 
@@ -440,12 +444,12 @@
 			}
 		}
 
-		/** The next page of the books of the author, unless one is loading or none is left. */
-		loadMoreAuthorBooks() {
-			const { loading, page, pages: last } = this.get().author;
+		/** The next page of the books of the person, unless one is loading or none is left. */
+		loadMorePersonBooks() {
+			const { loading, page, pages: last } = this.get().person;
 
 			if ( ! loading && page < last ) {
-				this.#fetchAuthorBooks( page + 1 );
+				this.#fetchPersonBooks( page + 1 );
 			}
 		}
 
@@ -569,8 +573,9 @@
 		async editBook( { cover, coverRemoved, meta, ...values } ) {
 			const { books, editing: form } = this.get();
 			const { id, book } = form;
+			// Compared as JSON: the people are objects, each name with its role.
 			const changes = Object.fromEntries(
-				Object.entries( values ).filter( ( [ key, value ] ) => value.toString() !== book[ key ].toString() )
+				Object.entries( values ).filter( ( [ key, value ] ) => JSON.stringify( value ) !== JSON.stringify( book[ key ] ) )
 			);
 			const changedMeta = Object.fromEntries( Object.entries( meta ).filter( ( [ key, value ] ) => value !== book.meta[ key ] ) );
 
@@ -666,8 +671,8 @@
 		}
 
 		/** Uploads the photo of a cover, named and titled after its book as its form sends it, and returns the ID of its image. */
-		async #uploadCover( file, { title, authors, meta } ) {
-			const query = { title, authors, meta, photo: file.name };
+		async #uploadCover( file, { title, people, meta } ) {
+			const query = { title, people, meta, photo: file.name };
 			const { name } = await apiFetch( { path: addQueryArgs( '/library/v1/books/cover-name', query ) } );
 			const body = new FormData();
 
@@ -701,12 +706,12 @@
 			}
 		}
 
-		/** Shows a view, and loads its data the first time; the page of an author starts again for another author `id`. */
+		/** Shows a view, and loads its data the first time; the page of a person starts again for another person `id`. */
 		#show( view, id = 0 ) {
 			this.set( ( state ) => {
 				const next = state.view === view ? state : { ...state, view };
 
-				return AUTHOR_VIEW !== view || id === state.author.id ? next : { ...next, author: author( id ) };
+				return PERSON_VIEW !== view || id === state.person.id ? next : { ...next, person: person( id ) };
 			} );
 			this.#load( view );
 			this.#loadHome();
@@ -732,7 +737,7 @@
 				idea: [ state.idea, () => this.#fetchIdea( 0 ) ],
 				achievements: [ state.achievements, () => this.#fetchAchievements() ],
 				'to-buy': [ state.toBuy, () => this.#fetchList( 'toBuy' ) ],
-				[ AUTHOR_VIEW ]: [ state.author, () => this.#fetchAuthor() ],
+				[ PERSON_VIEW ]: [ state.person, () => this.#fetchPerson() ],
 			};
 			const [ data, fetchData ] = loaders[ view ];
 
@@ -744,7 +749,7 @@
 		/**
 		 * After the book `id` was saved: the stats, and the views but the one shown, load again. The list shown follows
 		 * the book where it is: the books found lose it when the search no longer finds it, the books to buy when it is
-		 * bought, the diary takes its readings added or removed, the page of an author updates their books and their reading,
+		 * bought, the diary takes its readings added or removed, the page of a person updates their books and their reading,
 		 * the achievements load again, and the home its readings and achievements; elsewhere its card follows it.
 		 */
 		#reload( id ) {
@@ -758,7 +763,7 @@
 				diary: 'diary' === view || home ? state.diary : pages(),
 				idea: 'idea' === view || home ? state.idea : idea(),
 				achievements: 'achievements' === view || home ? state.achievements : achievements(),
-				author: AUTHOR_VIEW === view ? state.author : author(),
+				person: PERSON_VIEW === view ? state.person : person(),
 			} ) );
 			this.#fetchStats();
 
@@ -778,14 +783,14 @@
 				this.#fetchAchievements();
 			}
 
-			if ( AUTHOR_VIEW === view ) {
-				this.#fetchAuthor();
+			if ( PERSON_VIEW === view ) {
+				this.#fetchPerson();
 			}
 		}
 
 		/** After a book was added: the stats, every view and the names to suggest load again; the view shown at once. */
 		#reloadAll() {
-			const { view, author: current } = this.get();
+			const { view, person: current } = this.get();
 
 			this.set( ( state ) => ( {
 				...state,
@@ -794,7 +799,7 @@
 				idea: idea(),
 				achievements: achievements(),
 				toBuy: pages(),
-				author: author( current.id ),
+				person: person( current.id ),
 				terms: terms(),
 			} ) );
 			this.#fetchStats();
@@ -989,20 +994,20 @@
 			}
 		}
 
-		/** The author open, then the first page of their books, unless it is loaded already. Another author cancels the one loading. */
-		async #fetchAuthor() {
-			this.#authorController?.abort();
-			this.#authorController = new AbortController();
+		/** The person open, then the first page of their books, unless it is loaded already. Another person cancels the one loading. */
+		async #fetchPerson() {
+			this.#personController?.abort();
+			this.#personController = new AbortController();
 
-			const { signal } = this.#authorController;
+			const { signal } = this.#personController;
 
-			this.#update( 'author', () => ( { loading: true, error: '' } ) );
+			this.#update( 'person', () => ( { loading: true, error: '' } ) );
 
 			try {
-				const data = await apiFetch( { path: `/library/v1/authors/${ this.get().author.id }`, signal } );
+				const data = await apiFetch( { path: `/library/v1/people/${ this.get().person.id }`, signal } );
 
-				this.#update( 'author', ( current ) => ( {
-					// A book saved without the author leaves their books.
+				this.#update( 'person', ( current ) => ( {
+					// A book saved without the person leaves their books.
 					items: current.items.filter( ( book ) => data.books.includes( book ) ),
 					name: text( data.name ),
 					pseudonyms: data.pseudonyms.map( text ),
@@ -1019,28 +1024,28 @@
 				} ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( 'author', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( 'person', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 
 				return;
 			}
 
-			if ( ! this.get().author.page ) {
-				await this.#fetchAuthorBooks( 1 );
+			if ( ! this.get().person.page ) {
+				await this.#fetchPersonBooks( 1 );
 			}
 		}
 
-		/** A page of the books of the author open, from their IDs. */
-		async #fetchAuthorBooks( page ) {
-			const { signal } = this.#authorController;
-			const ids = this.get().author.books.slice( ( page - 1 ) * PER_PAGE, page * PER_PAGE );
+		/** A page of the books of the person open, from their IDs. */
+		async #fetchPersonBooks( page ) {
+			const { signal } = this.#personController;
+			const ids = this.get().person.books.slice( ( page - 1 ) * PER_PAGE, page * PER_PAGE );
 
-			this.#update( 'author', () => ( { loading: true, error: '' } ) );
+			this.#update( 'person', () => ( { loading: true, error: '' } ) );
 
 			try {
 				await this.#fetchBooks( ids, signal );
 
-				this.#update( 'author', ( current ) => ( {
+				this.#update( 'person', ( current ) => ( {
 					items: [ ...current.items, ...ids ],
 					page,
 					loading: false,
@@ -1048,7 +1053,7 @@
 				} ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( 'author', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( 'person', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 			}
 		}
@@ -1065,19 +1070,19 @@
 			}
 		}
 
-		/** Every author and pseudonym, publisher and collection, and original language: apiFetch loads all their pages. */
+		/** Every person and pseudonym, publisher and collection, and original language: apiFetch loads all their pages. */
 		async #fetchTerms() {
 			this.#update( 'terms', () => ( { loading: true } ) );
 
 			try {
-				const bases = [ 'authors', 'publishers', 'languages' ];
-				const [ authors, publishers, languages ] = await Promise.all(
+				const bases = [ 'people', 'publishers', 'languages' ];
+				const [ people, publishers, languages ] = await Promise.all(
 					bases.map( ( base ) => apiFetch( { path: `/wp/v2/${ base }?per_page=-1&_fields=id,name,parent` } ) )
 				);
 				const toTerm = ( { id, name, parent } ) => ( { id, name: text( name ), parent } );
 
 				this.#update( 'terms', () => ( {
-					authors: authors.map( toTerm ),
+					people: people.map( toTerm ),
 					publishers: publishers.map( toTerm ),
 					languages: languages.map( toTerm ),
 					loading: false,

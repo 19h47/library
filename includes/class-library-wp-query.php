@@ -10,7 +10,7 @@
  */
 
 /**
- * Extends book searches to the book text meta (ISBN, series, translators…) and terms (authors, publishers, collections),
+ * Extends book searches to the book text meta (ISBN, series…) and terms (people, publishers, collections),
  * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi"; the REST API lists a series in reading order.
  *
  * @since      1.0.0
@@ -237,7 +237,7 @@ class Library_WP_Query {
 				'id'      => 'library-search',
 				'title'   => __( 'Search', 'library' ),
 				'content' =>
-					'<p>' . esc_html__( 'The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, collection number, translators, authors, publishers, collections and original languages. Keywords narrow it to a field:', 'library' ) . '</p>' .
+					'<p>' . esc_html__( 'The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, collection number, people, publishers, collections and original languages. Keywords narrow it to a field:', 'library' ) . '</p>' .
 					'<ul>' . $items . '</ul>' .
 					'<p>' . sprintf(
 						/* translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces. */
@@ -284,11 +284,24 @@ class Library_WP_Query {
 					$value
 				);
 			case 'author':
-				return self::build_term_matches( array( 'library_author' ), $like );
+				// A name of the book without another role, or the real name of its pseudonym: a colorist is not one of its authors.
+				$with_role = Library_Meta::build_with_role_condition( 'tr.object_id', 'tt.term_id' );
+
+				return self::build_term_matches( array( 'library_person' ), $like, "NOT {$with_role}" );
 			case 'publisher':
 				return self::build_term_matches( array( 'library_publisher' ), $like );
 			case 'translator':
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_translators' AND meta_value LIKE %s", $like );
+				// A name of the book with the role of translator, or the real name of its pseudonym.
+				return $wpdb->prepare(
+					"SELECT tr.object_id FROM {$wpdb->postmeta} AS m
+					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_id = m.meta_value AND tt.taxonomy = 'library_person'
+					INNER JOIN {$wpdb->term_relationships} AS tr ON tr.object_id = m.post_id AND tr.term_taxonomy_id = tt.term_taxonomy_id
+					INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
+					LEFT JOIN {$wpdb->terms} AS parent ON parent.term_id = tt.parent
+					WHERE m.meta_key = 'library_translators' AND ( t.name LIKE %s OR parent.name LIKE %s )",
+					$like,
+					$like
+				);
 			case 'language':
 				return $wpdb->prepare(
 					"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
@@ -334,20 +347,23 @@ class Library_WP_Query {
 	 *
 	 * @param string[] $taxonomies Taxonomies.
 	 * @param string   $like       LIKE pattern.
+	 * @param string   $condition  SQL condition the term tt of the book tr meets too, without placeholder.
 	 * @return string
 	 */
-	private static function build_term_matches( array $taxonomies, string $like ): string {
+	private static function build_term_matches( array $taxonomies, string $like, string $condition = '1 = 1' ): string {
 		global $wpdb;
 
 		$values = array( ...$taxonomies, $like, $like );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $condition is built from constants, without value.
 		return $wpdb->prepare(
 			"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
 			INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
 			LEFT JOIN {$wpdb->terms} AS parent ON parent.term_id = tt.parent
-			WHERE tt.taxonomy IN ( " . implode( ', ', array_fill( 0, count( $taxonomies ), '%s' ) ) . ' ) AND ( t.name LIKE %s OR parent.name LIKE %s )',
+			WHERE tt.taxonomy IN ( " . implode( ', ', array_fill( 0, count( $taxonomies ), '%s' ) ) . " ) AND ( t.name LIKE %s OR parent.name LIKE %s ) AND {$condition}",
 			$values
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }

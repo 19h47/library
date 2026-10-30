@@ -1,7 +1,7 @@
-import { store } from 'library-app/app';
+import { roles, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
-import { fill, fillCover, linkAuthors } from 'library-app/render';
+import { fill, fillCover, linkPeople } from 'library-app/render';
 import { openLinks } from 'library-app/behaviors';
 
 /**
@@ -49,7 +49,16 @@ class LibraryBookElement extends Brick {
 			edition_date: book.edition_date ? formatDate( book.edition_date ) : '',
 			published_date: book.published_date ? formatDate( book.published_date ) : '',
 		} );
-		linkAuthors( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
+		linkPeople( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
+		// The other names of the book, by role, such as its colorists; the translators, in the translation line, have no field.
+		fill( $dialog, Object.fromEntries( roles.map( ( role ) => [ role, listFormat.format( book[ role ].map( ( name ) => name.name ) ) ] ) ) );
+		roles.forEach( ( role ) => {
+			const $field = $dialog.querySelector( `[data-field="${ role }"]` );
+
+			if ( $field ) {
+				linkPeople( $field, book[ role ] );
+			}
+		} );
 		// HTML as the API renders it, from the notes of the book.
 		$content.innerHTML = book.content;
 		$content.hidden = ! book.content;

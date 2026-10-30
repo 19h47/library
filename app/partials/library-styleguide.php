@@ -21,7 +21,7 @@ $fonts  = array( '--app-font-mono', '--app-font-ui' );
 $sizes = array(
 	array( 'var(--app-font-small)', 'var(--app-font-ui)', 'Pills, meta lines, labels, the excerpt of a card: half a step below the text' ),
 	array( 'var(--app-u1)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections' ),
-	array( 'var(--app-font-large)', 'var(--app-font-mono)', 'The year, the title of a book, the name of an author, the title of the page on a phone: half a step above' ),
+	array( 'var(--app-font-large)', 'var(--app-font-mono)', 'The year, the title of a book, the name of a person, the title of the page on a phone: half a step above' ),
 	array( 'calc(var(--app-u2) * sqrt(var(--app-phi)))', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
 );
 ?>
@@ -109,12 +109,12 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-author</code>, with <code>__description</code></figcaption>
+				<figcaption><code>.library-person</code>, with <code>__description</code></figcaption>
 				<div class="library-styleguide__frame">
-					<header class="library-author">
-						<h4 class="library-author__name">An Author</h4>
+					<header class="library-person">
+						<h4 class="library-person__name">A Person</h4>
 						<p>Also known as A Pseudonym</p>
-						<div class="library-author__description">
+						<div class="library-person__description">
 							<p>Their description, as written in the admin.</p>
 							<p>A second paragraph, with <em>a word in italics</em>.</p>
 						</div>
@@ -412,16 +412,16 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>input-list</code>, the authors of a book</figcaption>
+				<figcaption><code>input-list</code>, the people of a book</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Library::render_component(
 						'input-list',
 						array(
-							'legend' => 'Authors',
-							'add'    => 'Add an author',
-							'action' => 'add-author',
-							'list'   => array( 'data-sample' => 'authors' ),
+							'legend' => 'People',
+							'add'    => 'Add a person',
+							'action' => 'add-person',
+							'list'   => array( 'data-sample' => 'people' ),
 						)
 					);
 					?>

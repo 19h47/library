@@ -2,7 +2,7 @@
  * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
  *
  * The views and their navigation, the home, the book cards with their cover, the reading idea,
- * the stats and the achievements, the page of an author, and the dialog of a book with its reading.
+ * the stats and the achievements, the page of a person, and the dialog of a book with its reading.
  */
 
 :root {
@@ -46,7 +46,7 @@ library-view > .app-controls {
 }
 
 /* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
-:is(library-view, library-idea, library-diary, library-achievements, library-author) > .app-status {
+:is(library-view, library-idea, library-diary, library-achievements, library-person) > .app-status {
 	margin-bottom: var(--app-gap);
 }
 
@@ -91,9 +91,9 @@ library-view > .app-controls {
 	text-transform: uppercase;
 }
 
-/* The large text: the title of a book open, the name of an author, tightened as the title of the page */
+/* The large text: the title of a book open, the name of a person, tightened as the title of the page */
 .library-book__title,
-.library-author__name {
+.library-person__name {
 	font-size: var(--app-font-large);
 	line-height: var(--app-line-height);
 	letter-spacing: -0.02em;
@@ -136,9 +136,9 @@ library-view > .app-controls {
 	background: color-mix(in oklab, currentColor 10%, transparent);
 }
 
-/* Text written in the admin, the notes of a book or the description of an author: its paragraphs a step apart */
+/* Text written in the admin, the notes of a book or the description of a person: its paragraphs a step apart */
 .library-book__content,
-.library-author__description {
+.library-person__description {
 	display: grid;
 	gap: var(--app-u1);
 }
@@ -334,26 +334,26 @@ library-view > .app-controls {
 	text-transform: uppercase;
 }
 
-/* The page of an author: their names and their reading, then the completion their books count for, then their books */
-.library-author {
+/* The page of a person: their names and their reading, then the completion their books count for, then their books */
+.library-person {
 	display: grid;
 	gap: var(--app-gap-small);
 }
 
-/* The page of an author spaces their names and their reading from what follows */
-library-author > .library-author {
+/* The page of a person spaces their names and their reading from what follows */
+library-person > .library-person {
 	margin-bottom: var(--app-u2);
 }
 
-.library-author > p {
+.library-person > p {
 	color: var(--app-text-muted);
 }
 
-.library-author__description {
+.library-person__description {
 	margin-block: var(--app-gap);
 }
 
-.library-author__completion {
+.library-person__completion {
 	margin-bottom: var(--app-u2);
 }
 
@@ -374,7 +374,7 @@ library-author > .library-author {
 }
 
 /*
- * A list of inputs, such as the authors of a book or its read dates: its legend above it as the label of a field, then
+ * A list of inputs, such as the people of a book or its read dates: its legend above it as the label of a field, then
  * its rows and the button that adds one, a gap apart. A row holds its input and the control that removes it.
  */
 .library-input-list {
@@ -490,7 +490,8 @@ library-author > .library-author {
 	cursor: pointer;
 }
 
-.library-edit__details .library-field {
+/* The details, a field or a pill per line, such as a collective work, a step apart */
+.library-edit__details :is(.library-field, .app-pill) {
 	margin-top: var(--app-u1);
 }
 

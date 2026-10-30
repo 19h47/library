@@ -336,6 +336,16 @@ class Library_Reading_Idea {
 	}
 
 	/**
+	 * Books part of the work of their authors: all but the collective ones.
+	 *
+	 * @param array<int,array> $books Books.
+	 * @return array<int,array>
+	 */
+	private static function get_authored_books( array $books ): array {
+		return array_filter( $books, fn( array $book ) => ! $book['collective'] );
+	}
+
+	/**
 	 * Books to read with a name rated well in a field: the best rated name gives the reason.
 	 *
 	 * @param array<int,array> $books   All the books.
@@ -403,8 +413,8 @@ class Library_Reading_Idea {
 		$dormant_year = (int) wp_date( 'Y' ) - self::DORMANT_YEARS;
 
 		return self::get_rated_well_ideas(
-			$books,
-			$to_read,
+			self::get_authored_books( $books ),
+			self::get_authored_books( $to_read ),
 			'authors',
 			function ( string $author, array $stats ) use ( $dormant_year ): string {
 				$average   = Library_Books::format_rating( $stats['average'] );
@@ -444,7 +454,7 @@ class Library_Reading_Idea {
 		$books_by_author = array();
 		$read_authors    = array();
 
-		foreach ( $books as $book ) {
+		foreach ( self::get_authored_books( $books ) as $book ) {
 			foreach ( $book['authors'] as $author ) {
 				if ( Library_Posts::TO_BUY !== $book['status'] ) {
 					$books_by_author[ $author ] = ( $books_by_author[ $author ] ?? 0 ) + 1;
@@ -458,7 +468,7 @@ class Library_Reading_Idea {
 
 		$ideas = array();
 
-		foreach ( $to_read as $book ) {
+		foreach ( self::get_authored_books( $to_read ) as $book ) {
 			foreach ( $book['authors'] as $author ) {
 				if ( isset( $read_authors[ $author ] ) || $books_by_author[ $author ] < self::UNREAD_AUTHOR_BOOKS ) {
 					continue;
@@ -854,8 +864,8 @@ class Library_Reading_Idea {
 		}
 
 		$author_ideas = self::get_rated_well_ideas(
-			$books,
-			$to_buy,
+			self::get_authored_books( $books ),
+			self::get_authored_books( $to_buy ),
 			'authors',
 			fn( string $author, array $stats ): string => sprintf(
 				/* translators: 1: author, 2: average rating, 3: number of books rated. */

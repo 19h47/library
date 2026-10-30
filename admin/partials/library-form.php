@@ -9,7 +9,9 @@
  * @subpackage Library/admin/partials
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
- * @var array $values Values of the book, by meta key; the read dates as a list.
+ * @var array             $values Values of the book, by meta key; the read dates as a list.
+ * @var WP_Term[]         $names  Names of the book, authors or with another role.
+ * @var array<int,string> $roles  Roles of the names with another role than author, by term ID.
  */
 
 ?>
@@ -17,32 +19,10 @@
 <table class="form-table" role="presentation">
 
 	<?php
-	foreach ( array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_pages', 'library_edition_date', 'library_published_date' ) as $key ) {
+	foreach ( array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_pages', 'library_edition_date', 'library_published_date', 'library_read' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
-
-	<!-- Read -->
-	<tr>
-		<th scope="row">
-			<label for="library-read"><?php echo esc_html( Library_Meta::get_label( 'library_read' ) ); ?></label>
-		</th>
-		<td>
-			<input type="hidden" name="library_read" value="0">
-			<?php
-			$control = Library_Meta::get_control(
-				'library_read',
-				array(
-					'id'      => 'library-read',
-					'value'   => '1',
-					'checked' => (bool) $values['library_read'],
-				)
-			);
-
-			echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
-			?>
-		</td>
-	</tr>
 
 	<!-- Read Dates -->
 	<tr>
@@ -83,8 +63,39 @@
 	</tr>
 
 	<?php
-	foreach ( array( 'library_rating', 'library_translators' ) as $key ) {
+	foreach ( array( 'library_rating', 'library_collective' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
+
+	<?php if ( $names ) : ?>
+		<!-- Roles -->
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Roles', 'library' ); ?></th>
+			<td>
+				<fieldset aria-describedby="library-roles-description">
+					<legend class="screen-reader-text"><?php esc_html_e( 'Roles', 'library' ); ?></legend>
+					<?php foreach ( $names as $name ) : ?>
+						<label for="library-role-<?php echo esc_attr( $name->term_id ); ?>"><?php echo esc_html( $name->name ); ?></label>
+						<?php
+						$select = Library::get_select( Library_Meta::get_role_choices(), $roles[ $name->term_id ] ?? 'author' );
+						$select = Library::set_attributes(
+							$select,
+							array(
+								'id'   => "library-role-{$name->term_id}",
+								'name' => "library_roles[{$name->term_id}]",
+							)
+						);
+
+						echo $select; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+						?>
+						<br>
+					<?php endforeach; ?>
+				</fieldset>
+				<p class="description" id="library-roles-description">
+					<?php esc_html_e( 'The role of each name of the book: a colorist, for instance, is not one of its authors. A name just added is an author: save the book to choose another role.', 'library' ); ?>
+				</p>
+			</td>
+		</tr>
+	<?php endif; ?>
 </table>

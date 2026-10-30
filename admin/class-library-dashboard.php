@@ -110,7 +110,7 @@ class Library_Dashboard {
 		$rankings = array(
 			array(
 				'title' => __( 'Most present authors', 'library' ),
-				'items' => $this->get_top_terms( 'library_author' ),
+				'items' => $this->get_top_terms( 'library_person' ),
 			),
 			array(
 				'title' => __( 'Most present publishers', 'library' ),
@@ -127,7 +127,7 @@ class Library_Dashboard {
 		);
 		$counts   = array(
 			'books'      => $stats['total'],
-			'authors'    => $this->count_terms( 'library_author' ),
+			'authors'    => $this->count_terms( 'library_person' ),
 			'publishers' => $this->count_terms( 'library_publisher' ),
 			'languages'  => $this->count_terms( 'library_language' ),
 			'translated' => $this->count_translated_books(),
@@ -489,7 +489,28 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Terms with the most books; pseudonyms count for their real name and collections for their publisher, i.e. their parent.
+	 * Whether the term tt of the book p counts for its taxonomy: a name counts as an author, unless it has another role, such
+	 * as a colorist, or the book is collective, which is not part of the work of its authors; every other term counts.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 * @return string
+	 */
+	private static function get_counted_condition( string $taxonomy ): string {
+		global $wpdb;
+
+		if ( 'library_person' !== $taxonomy ) {
+			return '1 = 1';
+		}
+
+		$with_role  = Library_Meta::build_with_role_condition( 'p.ID', 'tt.term_id' );
+		$collective = "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} AS collective WHERE collective.post_id = p.ID AND collective.meta_key = 'library_collective' AND collective.meta_value = '1' )";
+
+		return "NOT {$with_role} AND NOT {$collective}";
+	}
+
+	/**
+	 * Terms with the most books; pseudonyms count for their real name and collections for their publisher, i.e. their parent,
+	 * and only the terms that count for their taxonomy do.
 	 *
 	 * @param string $taxonomy Taxonomy.
 	 * @return array<int,array{name:string,url:string,text:string}>
@@ -498,6 +519,7 @@ class Library_Dashboard {
 		global $wpdb;
 
 		$read_books = self::get_read_books_table();
+		$counted    = self::get_counted_condition( $taxonomy );
 
 		$rows = Library_Stats::get_results(
 			"SELECT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
@@ -505,7 +527,7 @@ class Library_Dashboard {
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
 			LEFT JOIN {$read_books} ON r.post_id = p.ID
-			WHERE {library}
+			WHERE {library} AND {$counted}
 			GROUP BY 1
 			ORDER BY books DESC, books_read DESC
 			LIMIT %d",
@@ -579,7 +601,8 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Number of terms of a taxonomy with at least one book kept; pseudonyms count for their real name and collections for their publisher.
+	 * Number of terms of a taxonomy with at least one book kept; pseudonyms count for their real name and collections for their publisher,
+	 * and only the terms that count for their taxonomy do.
 	 *
 	 * @param string $taxonomy Taxonomy.
 	 * @return int
@@ -587,12 +610,14 @@ class Library_Dashboard {
 	private function count_terms( string $taxonomy ): int {
 		global $wpdb;
 
+		$counted = self::get_counted_condition( $taxonomy );
+
 		[ $row ] = Library_Stats::get_results(
 			"SELECT COUNT( DISTINCT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) ) AS terms
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			WHERE {library}",
+			WHERE {library} AND {$counted}",
 			$taxonomy
 		);
 

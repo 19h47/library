@@ -25,7 +25,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_translators' );
+	public const TEXT_KEYS = array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d; a book has one read date per reading.
@@ -52,6 +52,21 @@ class Library_Meta {
 	private const ISSN_PATTERN = '^\\S{4}-\\S{4}$';
 
 	/**
+	 * Meta of the names of a book with another role than author, by role, such as its colorists: the term IDs of these
+	 * names in the people taxonomy, as catalogues give each name its function. A name of a book without role is one of
+	 * its authors.
+	 *
+	 * @var array<string,string>
+	 */
+	public const ROLE_KEYS = array(
+		'translator' => 'library_translators',
+		'colorist'   => 'library_colorists',
+		'inker'      => 'library_inkers',
+		'letterer'   => 'library_letterers',
+		'director'   => 'library_directors',
+	);
+
+	/**
 	 * Book meta edited in quick edit.
 	 *
 	 * @var string[]
@@ -66,7 +81,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_read' );
+	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_read' );
 
 	/**
 	 * Register hooks.
@@ -100,7 +115,12 @@ class Library_Meta {
 			'library_published_date'    => __( 'First published', 'library' ),
 			'library_pages'             => __( 'Pages', 'library' ),
 			'library_rating'            => __( 'Rating', 'library' ),
+			'library_collective'        => __( 'Collective work', 'library' ),
 			'library_read'              => __( 'Read', 'library' ),
+			'library_colorists'         => __( 'Colorists', 'library' ),
+			'library_inkers'            => __( 'Inkers', 'library' ),
+			'library_letterers'         => __( 'Letterers', 'library' ),
+			'library_directors'         => __( 'Publishing directors', 'library' ),
 		);
 		$descriptions = array(
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
@@ -108,9 +128,9 @@ class Library_Meta {
 			'library_issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
 			'library_series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
-			'library_translators'       => __( 'Separate translators with commas', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
 			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
+			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 		);
 		$patterns     = array(
 			'library_isbn' => self::ISBN_PATTERN,
@@ -201,6 +221,20 @@ class Library_Meta {
 			)
 		);
 
+		// A magazine or an anthology, as catalogues tell a compilation from a work its authors made together.
+		register_post_meta(
+			'library_book',
+			'library_collective',
+			array(
+				'type'              => 'boolean',
+				'label'             => $labels['library_collective'],
+				'description'       => $descriptions['library_collective'],
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+
 		register_post_meta(
 			'library_book',
 			'library_read',
@@ -212,6 +246,90 @@ class Library_Meta {
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			)
 		);
+
+		foreach ( self::ROLE_KEYS as $key ) {
+			register_post_meta(
+				'library_book',
+				$key,
+				array(
+					'type'              => 'integer',
+					'label'             => $labels[ $key ],
+					'single'            => false,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'absint',
+				)
+			);
+		}
+	}
+
+	/**
+	 * Roles a form offers for a name of a book, by value, with their label: author, then the other roles.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_role_choices(): array {
+		return array(
+			'author'     => _x( 'Author', 'role', 'library' ),
+			'translator' => _x( 'Translator', 'role', 'library' ),
+			'colorist'   => _x( 'Colorist', 'role', 'library' ),
+			'inker'      => _x( 'Inker', 'role', 'library' ),
+			'letterer'   => _x( 'Letterer', 'role', 'library' ),
+			'director'   => _x( 'Publishing director', 'role', 'library' ),
+		);
+	}
+
+	/**
+	 * Roles of the names of a book with another role than author, by term ID, such as 519 => "colorist".
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<int,string>
+	 */
+	public static function get_roles( int $post_id ): array {
+		$roles = array();
+
+		foreach ( self::ROLE_KEYS as $role => $key ) {
+			foreach ( get_post_meta( $post_id, $key, false ) as $term_id ) {
+				$roles[ (int) $term_id ] = $role;
+			}
+		}
+
+		return $roles;
+	}
+
+	/**
+	 * Replace the roles of the names of a book: the names of the book only, author or an unknown role kept as none.
+	 *
+	 * @param int               $post_id Post ID.
+	 * @param array<int,string> $roles   Roles by term ID.
+	 * @return void
+	 */
+	public static function save_roles( int $post_id, array $roles ): void {
+		$term_ids = wp_get_post_terms( $post_id, 'library_person', array( 'fields' => 'ids' ) );
+
+		foreach ( self::ROLE_KEYS as $role => $key ) {
+			$role_ids = array_intersect( array_keys( $roles, $role, true ), $term_ids );
+
+			delete_post_meta( $post_id, $key );
+
+			foreach ( $role_ids as $term_id ) {
+				add_post_meta( $post_id, $key, $term_id );
+			}
+		}
+	}
+
+	/**
+	 * SQL condition: whether a name of a book has another role than author, such as colorist, from the columns of their IDs.
+	 *
+	 * @param string $book_id_column Column of the book ID, such as p.ID.
+	 * @param string $term_id_column Column of the term ID of the name, such as tt.term_id.
+	 * @return string
+	 */
+	public static function build_with_role_condition( string $book_id_column, string $term_id_column ): string {
+		global $wpdb;
+
+		$keys = "'" . implode( "', '", self::ROLE_KEYS ) . "'";
+
+		return "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} AS role WHERE role.post_id = {$book_id_column} AND role.meta_key IN ( {$keys} ) AND role.meta_value = {$term_id_column} )";
 	}
 
 	/**

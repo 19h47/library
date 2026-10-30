@@ -51,10 +51,7 @@ export function formatRating( rating ) {
  * first letter, as the "de l'" and "du" of French: each string is translated for a vowel and for a consonant.
  */
 export function formatTranslation( book ) {
-	const translators = book.translators
-		.split( ',' )
-		.map( ( translator ) => translator.trim() )
-		.filter( Boolean );
+	const translators = book.translators.map( ( translator ) => translator.name );
 
 	if ( ! translators.length ) {
 		return '';

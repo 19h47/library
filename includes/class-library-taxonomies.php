@@ -10,7 +10,7 @@
  */
 
 /**
- * Registers library_author, library_publisher and library_language taxonomies.
+ * Registers library_person, library_publisher and library_language taxonomies.
  *
  * @since      1.0.0
  * @package    Library
@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	public const TAXONOMIES = array( 'library_author', 'library_publisher', 'library_language' );
+	public const TAXONOMIES = array( 'library_person', 'library_publisher', 'library_language' );
 
 	/**
 	 * Register hooks.
@@ -47,38 +47,38 @@ class Library_Taxonomies {
 	 * @return void
 	 */
 	public function register_taxonomies(): void {
-		$this->register_author();
+		$this->register_person();
 		$this->register_publisher();
 		$this->register_language();
 	}
 
 	/**
-	 * Register author
+	 * Register person
 	 *
 	 * @return void
 	 */
-	public function register_author() {
+	public function register_person() {
 		$labels = array(
-			'name'                       => _x( 'Authors', 'library authors general name', 'library' ),
-			'singular_name'              => _x( 'Author', 'library authors singular name', 'library' ),
-			'search_items'               => __( 'Search Authors', 'library' ),
-			'all_items'                  => __( 'All Authors', 'library' ),
-			'popular_items'              => __( 'Popular Authors', 'library' ),
-			'edit_item'                  => __( 'Edit Author', 'library' ),
-			'view_item'                  => __( 'View Author', 'library' ),
-			'update_item'                => __( 'Update Author', 'library' ),
-			'add_new_item'               => __( 'Add New Author', 'library' ),
-			'new_item_name'              => __( 'New Author Name', 'library' ),
-			'separate_items_with_commas' => __( 'Separate authors with commas', 'library' ),
-			'add_or_remove_items'        => __( 'Add or remove authors', 'library' ),
-			'choose_from_most_used'      => __( 'Choose from the most used authors', 'library' ),
-			'not_found'                  => __( 'No authors found.', 'library' ),
-			'no_terms'                   => __( 'No authors', 'library' ),
-			'items_list_navigation'      => __( 'Authors list navigation', 'library' ),
-			'items_list'                 => __( 'Authors list', 'library' ),
-			/* translators: Author heading when selecting from the most used terms. */
-			'most_used'                  => _x( 'Most Used', 'author', 'library' ),
-			'back_to_items'              => __( '&larr; Back to Authors', 'library' ),
+			'name'                       => _x( 'People', 'library people general name', 'library' ),
+			'singular_name'              => _x( 'Person', 'library people singular name', 'library' ),
+			'search_items'               => __( 'Search People', 'library' ),
+			'all_items'                  => __( 'All People', 'library' ),
+			'popular_items'              => __( 'Popular People', 'library' ),
+			'edit_item'                  => __( 'Edit Person', 'library' ),
+			'view_item'                  => __( 'View Person', 'library' ),
+			'update_item'                => __( 'Update Person', 'library' ),
+			'add_new_item'               => __( 'Add New Person', 'library' ),
+			'new_item_name'              => __( 'New Person Name', 'library' ),
+			'separate_items_with_commas' => __( 'Separate people with commas', 'library' ),
+			'add_or_remove_items'        => __( 'Add or remove people', 'library' ),
+			'choose_from_most_used'      => __( 'Choose from the most used people', 'library' ),
+			'not_found'                  => __( 'No people found.', 'library' ),
+			'no_terms'                   => __( 'No people', 'library' ),
+			'items_list_navigation'      => __( 'People list navigation', 'library' ),
+			'items_list'                 => __( 'People list', 'library' ),
+			/* translators: Person heading when selecting from the most used terms. */
+			'most_used'                  => _x( 'Most Used', 'person', 'library' ),
+			'back_to_items'              => __( '&larr; Back to People', 'library' ),
 		);
 
 		$args = array(
@@ -92,19 +92,19 @@ class Library_Taxonomies {
 			'show_in_quick_edit'   => true,
 			'show_admin_column'    => true,
 			'show_in_rest'         => true,
-			// As core names its own: tags under /wp/v2/tags, and their archives /tag/; /author/ is the one of users.
-			'rest_base'            => 'authors',
-			'rewrite'              => array( 'slug' => 'library-author' ),
-			// The tag box lets authors be typed rather than picked from a checklist.
+			// As core names its own: tags under /wp/v2/tags. Each name of a book is a person, whatever their role, as the BnF has it.
+			'rest_base'            => 'people',
+			'rewrite'              => array( 'slug' => 'library-person' ),
+			// The tag box lets people be typed rather than picked from a checklist.
 			'meta_box_cb'          => 'post_tags_meta_box',
-			'meta_box_sanitize_cb' => array( self::class, 'sanitize_author_names' ),
+			'meta_box_sanitize_cb' => array( self::class, 'sanitize_person_names' ),
 		);
 
-		register_taxonomy( 'library_author', 'library_book', $args );
+		register_taxonomy( 'library_person', 'library_book', $args );
 	}
 
 	/**
-	 * Turn the author names typed in the tag box into term IDs, creating the missing authors.
+	 * Turn the names typed in the tag box into term IDs, creating the missing people.
 	 *
 	 * Core only resolves existing names: a hierarchical taxonomy is saved by IDs, so new names would be dropped.
 	 * Quick and bulk edit post the checklist of a hierarchical taxonomy instead: term IDs, kept as they are.
@@ -113,7 +113,7 @@ class Library_Taxonomies {
 	 * @param string|string[] $terms    Comma-separated names from the tag box, or term IDs from the checklist.
 	 * @return int[]
 	 */
-	public static function sanitize_author_names( string $taxonomy, $terms ): array {
+	public static function sanitize_person_names( string $taxonomy, $terms ): array {
 		// The helpers of the tag box are admin ones: a book added through the REST API needs them too.
 		require_once ABSPATH . 'wp-admin/includes/post.php';
 
@@ -142,7 +142,7 @@ class Library_Taxonomies {
 	/**
 	 * The term of a name under a parent, such as a collection under its publisher: the existing one, else a new one.
 	 *
-	 * The names of authors go through sanitize_author_names() instead, as in their tag box.
+	 * The names of people go through sanitize_person_names() instead, as in their tag box.
 	 *
 	 * @param string $taxonomy  Taxonomy name.
 	 * @param string $name      Name of the term.
@@ -377,6 +377,49 @@ class Library_Taxonomies {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Authors of a book, i.e. its names without another role, such as a colorist.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return WP_Term[]
+	 */
+	public static function get_authors( int $book_id ): array {
+		$terms = get_the_terms( $book_id, 'library_person' );
+		$roles = Library_Meta::get_roles( $book_id );
+
+		return array_values( array_filter( is_array( $terms ) ? $terms : array(), fn( WP_Term $term ) => ! isset( $roles[ $term->term_id ] ) ) );
+	}
+
+	/**
+	 * Contributors of a book, i.e. its names with another role than author, such as a colorist, or those of a role.
+	 *
+	 * @param int    $book_id Book ID.
+	 * @param string $role    Role, such as translator, or empty for all.
+	 * @return WP_Term[]
+	 */
+	public static function get_contributors( int $book_id, string $role = '' ): array {
+		$terms = get_the_terms( $book_id, 'library_person' );
+		$roles = Library_Meta::get_roles( $book_id );
+
+		return array_values(
+			array_filter(
+				is_array( $terms ) ? $terms : array(),
+				fn( WP_Term $term ) => isset( $roles[ $term->term_id ] ) && ( '' === $role || $role === $roles[ $term->term_id ] )
+			)
+		);
+	}
+
+	/**
+	 * People credited for a book: its authors, or the publishing directors of a collective work, as catalogues have it,
+	 * none of its authors.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return WP_Term[]
+	 */
+	public static function get_credited_people( int $book_id ): array {
+		return Library_Posts::is_collective( $book_id ) ? self::get_contributors( $book_id, 'director' ) : self::get_authors( $book_id );
 	}
 
 	/**
