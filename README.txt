@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.0.0
+Stable tag: 8.1.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,11 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.1.0 =
+* Books: a book has a form, such as a novel, a comic or a magazine, among those added in **Books > Forms**, chosen in its Forms box, quick and bulk edit, and the book form of the reading app; the books list shows it in a column. The search finds a form by its name, and the keyword `form:` narrows it to one, such as `form:novel`.
+* Reading app: the books are filtered by form too, and a book added while they are takes their form.
+* REST API: the forms are at `/wp-json/wp/v2/forms`, and the routes `library/v1/books` and `books/<id>` take and give the `form` of a book, its term ID.
 
 = 8.0.0 =
 * Breaking: the taxonomy `library_author` is `library_person`, as each name of a book is a person, whatever their role. Its terms are at `/wp-json/wp/v2/people` and their URLs under `library-person/`, a person at `/wp-json/library/v1/people/<id>`, and the routes `library/v1/books`, `books/<id>` and `books/cover-name` take and give `people`, a list of `{name, role}`, instead of `authors`.
