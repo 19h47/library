@@ -1,6 +1,6 @@
 <?php
 /**
- * A list of inputs in a fieldset, its legend above it and the button that adds an input under it, such as the authors
+ * A list of inputs in a fieldset, its legend above it and the button that adds an input under it, such as the people
  * of a book: its rows are clones of a template, which inputList() adds and removes. Required, its legend says so; a
  * class names it in its place, such as the read dates of the reading of a book.
  *

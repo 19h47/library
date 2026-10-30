@@ -265,6 +265,17 @@ class Library_Posts {
 	}
 
 	/**
+	 * Whether a book is collective, such as a magazine or an anthology: its authors are contributors, none of them the
+	 * author of the book.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public static function is_collective( int $post_id ): bool {
+		return (bool) get_post_meta( $post_id, 'library_collective', true );
+	}
+
+	/**
 	 * Show a book title with its series, volume and subtitle, as everywhere else.
 	 *
 	 * @param string $title   The post title.

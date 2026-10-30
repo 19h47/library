@@ -5,7 +5,7 @@
  * @subpackage Library/app
  */
 
-import { __, authorUrl, bookUrl, searchUrl, sprintf } from 'library-app/app';
+import { __, personUrl, bookUrl, searchUrl, sprintf } from 'library-app/app';
 import { formatDate, formatNumber, formatStatus, join, listFormat } from 'library-app/format';
 
 /**
@@ -27,7 +27,7 @@ export function fill( $root, fields ) {
 	} );
 }
 
-/** A link the app follows without reloading, as its data say: to the page of an author, a book, or the books a search finds. */
+/** A link the app follows without reloading, as its data say: to the page of a person, a book, or the books a search finds. */
 function link( href, data, text ) {
 	const $link = document.createElement( 'a' );
 
@@ -38,18 +38,18 @@ function link( href, data, text ) {
 	return $link;
 }
 
-/** A link to the page of an author. */
-function authorLink( id, name ) {
-	return link( authorUrl + id, { author: id }, name );
+/** A link to the page of a person. */
+function personLink( id, name ) {
+	return link( personUrl + id, { person: id }, name );
 }
 
-/** Turns the names of authors in `$field` into links to their pages, listed as the language lists them. */
-export function linkAuthors( $field, authors ) {
-	const $links = authors.map( ( author ) => authorLink( author.id, author.name ) );
+/** Turns the names of people in `$field` into links to their pages, listed as the language lists them. */
+export function linkPeople( $field, people ) {
+	const $links = people.map( ( person ) => personLink( person.id, person.name ) );
 
 	$field.replaceChildren(
 		...listFormat
-			.formatToParts( authors.map( ( author ) => author.name ) )
+			.formatToParts( people.map( ( person ) => person.name ) )
 			.map( ( part ) => ( 'element' === part.type ? $links.shift() : part.value ) )
 	);
 }
@@ -62,7 +62,7 @@ function linkAchievement( $field, { target } ) {
 	const text = $field.textContent;
 	const links = {
 		book: () => link( bookUrl + target.id, { book: target.id }, text ),
-		author: () => authorLink( target.id, text ),
+		author: () => personLink( target.id, text ),
 		search: () => link( searchUrl + encodeURIComponent( target.search ), { search: target.search }, text ),
 	};
 

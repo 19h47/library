@@ -1,6 +1,7 @@
 <?php
 /**
  * A row of the book information metabox: the label, the control and the description of a book meta, as registered.
+ * A boolean is a checkbox, sent as 0 when unchecked.
  *
  * @link       https://github.com/19h47/library
  * @since      6.0.0
@@ -18,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $field_id    = str_replace( '_', '-', $key );
 $description = Library_Meta::get_description( $key );
+$is_boolean  = 'boolean' === get_registered_meta_keys( 'post', 'library_book' )[ $key ]['type'];
 // The select of a rating keeps the width of its choices.
 $widths = array(
 	'library_subtitle' => 'large-text',
@@ -31,13 +33,17 @@ $widths = array(
 		<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></label>
 	</th>
 	<td>
+		<?php if ( $is_boolean ) : ?>
+			<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="0">
+		<?php endif; ?>
 		<?php
 		$control = Library_Meta::get_control(
 			$key,
 			array(
 				'id'               => $field_id,
-				'class'            => array_key_exists( $key, $widths ) ? $widths[ $key ] : 'regular-text',
-				'value'            => (string) $values[ $key ],
+				'class'            => $is_boolean ? null : ( array_key_exists( $key, $widths ) ? $widths[ $key ] : 'regular-text' ),
+				'value'            => $is_boolean ? '1' : (string) $values[ $key ],
+				'checked'          => $is_boolean ? (bool) $values[ $key ] : null,
 				'aria-describedby' => '' !== $description ? "$field_id-description" : null,
 			)
 		);

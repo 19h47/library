@@ -507,6 +507,16 @@ class Library_Achievements {
 	}
 
 	/**
+	 * Authors whose work the book is part of: none for a collective book, which is only found through its authors.
+	 *
+	 * @param array $book Book.
+	 * @return int[]
+	 */
+	private static function get_work_author_ids( array $book ): array {
+		return $book['collective'] ? array() : $book['author_ids'];
+	}
+
+	/**
 	 * Series and their cycles, authors and collections with enough books to be completed, keyed by their books, then by kind.
 	 *
 	 * The same books count once: for their series, else for their cycle, else for their authors together, else for their
@@ -527,7 +537,7 @@ class Library_Achievements {
 				$groups['series'][ $series_key ][] = $book;
 			}
 
-			foreach ( $book['author_ids'] as $author_id ) {
+			foreach ( self::get_work_author_ids( $book ) as $author_id ) {
 				$groups['author'][ $author_id ][] = $book;
 			}
 
@@ -574,7 +584,7 @@ class Library_Achievements {
 			$subject = self::get_series_and_cycles( $group[0]['series'] )[ $key ];
 			$target  = self::build_search_target( Library_WP_Query::build_keyword_search( 'series', $subject ), $group );
 		} else {
-			$taxonomy = 'author' === $kind ? 'library_author' : 'library_publisher';
+			$taxonomy = 'author' === $kind ? 'library_person' : 'library_publisher';
 			$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
 			$subject  = wp_sprintf( '%l', wp_list_pluck( array_filter( $terms, fn( $term ) => $term instanceof WP_Term ), 'name' ) );
 			$target   = self::build_term_target( $kind, (int) $key, $group );
@@ -1390,7 +1400,7 @@ class Library_Achievements {
 		$seen  = array();
 		$twins = null;
 
-		foreach ( array_filter( $dated, fn( array $book ) => null !== self::get_first_year( $book ) && $book['author_ids'] ) as $book ) {
+		foreach ( array_filter( $dated, fn( array $book ) => null !== self::get_first_year( $book ) && self::get_work_author_ids( $book ) ) as $book ) {
 			$key = $book['read_date'] . self::get_first_year( $book );
 
 			foreach ( $seen[ $key ] ?? array() as $twin ) {
@@ -1605,7 +1615,10 @@ class Library_Achievements {
 		foreach ( array_reverse( $titles ) as $books ) {
 			foreach ( $books as $book ) {
 				foreach ( $books as $other ) {
-					if ( $book['author_ids'] && $other['author_ids'] && ! array_intersect( $book['author_ids'], $other['author_ids'] ) ) {
+					$author_ids       = self::get_work_author_ids( $book );
+					$other_author_ids = self::get_work_author_ids( $other );
+
+					if ( $author_ids && $other_author_ids && ! array_intersect( $author_ids, $other_author_ids ) ) {
 						$latest = max( $book['read_date'], $other['read_date'] );
 
 						return array( self::build_achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::build_search_target( $book['title'], $books ), $latest ) );

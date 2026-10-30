@@ -1,7 +1,7 @@
 <?php
 /**
  * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the books to buy,
- * the page of an author, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
+ * the page of a person, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
@@ -16,7 +16,7 @@
  * @var string                                        $favicon_url    URL of the icon.
  * @var string                                        $touch_icon_url URL of the home screen icon of an iPhone, which takes no SVG.
  * @var object                                        $labels         Labels of the book post type.
- * @var object                                        $author_labels    Labels of the authors taxonomy.
+ * @var object                                        $person_labels    Labels of the people taxonomy.
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
  * @var object                                        $language_labels  Labels of the original languages taxonomy.
  * @var array<string,string>                          $rating_choices Ratings a form offers, by value, with their label, none first.
@@ -211,19 +211,19 @@
 					</library-list>
 				</library-view>
 
-				<library-view name="author" <?php echo Library_App::AUTHOR_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-author>
+				<library-view name="person" <?php echo Library_App::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
-						<header class="library-author">
-							<h2 class="library-author__name" data-field="name"></h2>
+						<header class="library-person">
+							<h2 class="library-person__name" data-field="name"></h2>
 							<p data-field="pseudonyms"></p>
-							<div class="library-author__description" data-html="description" hidden></div>
+							<div class="library-person__description" data-html="description" hidden></div>
 							<p data-field="summary"></p>
 						</header>
-						<ul class="app-list__items library-author__completion" data-list="completion" hidden></ul>
+						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
-					</library-author>
+					</library-person>
 				</library-view>
 
 				<library-view name="styleguide" <?php echo Library_App::STYLEGUIDE_VIEW === $view ? '' : 'hidden'; ?>>
@@ -329,9 +329,17 @@
 				</library-reading>
 				<dl class="library-book__fields">
 					<div data-row="authors">
-						<dt><?php echo esc_html( $author_labels->name ); ?></dt>
+						<dt><?php echo esc_html( $person_labels->name ); ?></dt>
 						<dd data-field="authors"></dd>
 					</div>
+					<?php // The translators are named by the translation line. ?>
+					<?php foreach ( array_diff( Library_Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
+						<?php $role_field = str_replace( 'library_', '', $key ); ?>
+						<div data-row="<?php echo esc_attr( $role_field ); ?>">
+							<dt><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></dt>
+							<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
+						</div>
+					<?php endforeach; ?>
 					<div data-row="isbn">
 						<dt><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
 						<dd data-field="isbn"></dd>
@@ -416,10 +424,10 @@
 					Library::render_component(
 						'input-list',
 						array(
-							'legend' => $author_labels->name,
-							'add'    => __( 'Add an author', 'library' ),
-							'action' => 'add-author',
-							'list'   => array( 'data-list' => 'authors' ),
+							'legend' => $person_labels->name,
+							'add'    => __( 'Add a person', 'library' ),
+							'action' => 'add-person',
+							'list'   => array( 'data-list' => 'people' ),
 						)
 					);
 					Library::render_component(
@@ -462,7 +470,7 @@
 					<details class="library-edit__details">
 						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'library_subtitle', 'library_series', 'library_volume_number', 'library_collection_number', 'library_issn', 'library_pages', 'library_edition_date', 'library_published_date', 'library_translators' ) as $key ) {
+						foreach ( array( 'library_subtitle', 'library_series', 'library_volume_number', 'library_collection_number', 'library_issn', 'library_pages', 'library_edition_date', 'library_published_date' ) as $key ) {
 							Library::render_component(
 								'meta-field',
 								array(
@@ -472,6 +480,15 @@
 								)
 							);
 						}
+
+						Library::render_component(
+							'pill-checkbox',
+							array(
+								'id'      => 'library-edit-collective',
+								'label'   => Library_Meta::get_label( 'library_collective' ),
+								'control' => Library_Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
+							)
+						);
 
 						Library::render_component(
 							'field',
@@ -492,7 +509,7 @@
 				<p class="library-book__actions" hidden>
 					<a data-link="admin" href=""><?php esc_html_e( 'Edit in the dashboard', 'library' ); ?></a>
 				</p>
-				<datalist id="library-edit-authors"></datalist>
+				<datalist id="library-edit-people"></datalist>
 				<datalist id="library-edit-publishers"></datalist>
 				<datalist id="library-edit-collections"></datalist>
 			</dialog>
@@ -549,15 +566,26 @@
 			</li>
 		</template>
 
-		<template id="library-edit-author">
+		<template id="library-edit-person">
 			<li class="library-input-list__item">
-				<input name="author" list="library-edit-authors" autocomplete="off" aria-label="<?php echo esc_attr( $author_labels->singular_name ); ?>">
+				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
+				<?php
+				$role_select = Library::set_attributes(
+					Library::get_select( Library_Meta::get_role_choices() ),
+					array(
+						'name'       => 'role',
+						'aria-label' => __( 'Role', 'library' ),
+					)
+				);
+
+				echo $role_select; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+				?>
 				<button
 					class="app-control"
 					type="button"
 					data-action="remove"
-					aria-label="<?php esc_attr_e( 'Remove this author', 'library' ); ?>"
-					title="<?php esc_attr_e( 'Remove this author', 'library' ); ?>"
+					aria-label="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
+					title="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
 				>×</button>
 			</li>
 		</template>

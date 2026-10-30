@@ -166,7 +166,7 @@ class Library_Achievements_Page {
 			return add_query_arg( 's', rawurlencode( $target['search'] ), $url );
 		}
 
-		$taxonomy = 'author' === $target['type'] ? 'library_author' : 'library_publisher';
+		$taxonomy = 'author' === $target['type'] ? 'library_person' : 'library_publisher';
 		$term     = get_term( $target['id'], $taxonomy );
 
 		return $term instanceof WP_Term ? add_query_arg( $taxonomy, $term->slug, $url ) : '';

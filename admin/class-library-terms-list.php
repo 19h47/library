@@ -10,7 +10,7 @@
  */
 
 /**
- * Adds a "Not kept" column to the lists of authors, publishers and original languages, and names their messages.
+ * Adds a "Not kept" column to the lists of people, publishers and original languages, and names their messages.
  *
  * @since      6.1.1
  * @package    Library
@@ -50,14 +50,14 @@ class Library_Terms_List {
 	 * @return array
 	 */
 	public function add_term_messages( array $messages ): array {
-		$messages['library_author'] = array(
+		$messages['library_person'] = array(
 			0 => '',
-			1 => __( 'Author added.', 'library' ),
-			2 => __( 'Author deleted.', 'library' ),
-			3 => __( 'Author updated.', 'library' ),
-			4 => __( 'Author not added.', 'library' ),
-			5 => __( 'Author not updated.', 'library' ),
-			6 => __( 'Authors deleted.', 'library' ),
+			1 => __( 'Person added.', 'library' ),
+			2 => __( 'Person deleted.', 'library' ),
+			3 => __( 'Person updated.', 'library' ),
+			4 => __( 'Person not added.', 'library' ),
+			5 => __( 'Person not updated.', 'library' ),
+			6 => __( 'People deleted.', 'library' ),
 		);
 
 		$messages['library_publisher'] = array(

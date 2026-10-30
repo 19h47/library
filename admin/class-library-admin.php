@@ -29,14 +29,14 @@ class Library_Admin {
 	}
 
 	/**
-	 * Enqueue the styles of the books, authors and publishers lists, and the books list scripts.
+	 * Enqueue the styles of the books, people and publishers lists, and the books list scripts.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
 		$screen  = get_current_screen();
-		$screens = array( 'edit-library_book', 'edit-library_author', 'edit-library_publisher' );
+		$screens = array( 'edit-library_book', 'edit-library_person', 'edit-library_publisher' );
 
 		if ( ! $screen || ! in_array( $screen->id, $screens, true ) ) {
 			return;

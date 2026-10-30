@@ -10,7 +10,7 @@ function renderOptions( terms, value = ( term ) => term.name ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * Its cover, title, excerpt, notes, authors, publisher and collection, ISBN, its status when it is added, the one of the
+ * Its cover, title, excerpt, notes, people, publisher and collection, ISBN, its status when it is added, the one of the
  * list shown (the reading of a book changes it after), and more details. The names typed are suggested
  * among those of the library, the collections among those of the publisher; a name not found is added.
  * Closing the form drops it.
@@ -27,20 +27,22 @@ class LibraryEditElement extends Brick {
 		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, cover: $cover, status: $status } = $form.elements;
 		// The fields of the meta are named after them.
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
-		const $authors = this.querySelector( '[data-list="authors"]' );
-		const $addAuthor = this.querySelector( '[data-action="add-author"]' );
+		// A checkbox stands for a boolean, its value being the one it sends once checked.
+		const getValue = ( $field ) => ( 'checkbox' === $field.type ? $field.checked : $field.value );
+		const $people = this.querySelector( '[data-list="people"]' );
+		const $addPerson = this.querySelector( '[data-action="add-person"]' );
 		const $preview = this.querySelector( '.library-image-field__preview' );
 		const $removeCover = this.querySelector( '[data-action="remove-cover"]' );
 		const $details = this.querySelector( '.library-edit__details' );
 		const $admin = this.querySelector( '[data-link="admin"]' );
 		const $submit = $form.querySelector( '[type="submit"]' );
 		const $suggestions = {
-			authors: this.querySelector( '#library-edit-authors' ),
+			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
 			collections: this.querySelector( '#library-edit-collections' ),
 		};
 
-		const addAuthor = inputList( { $list: $authors, $add: $addAuthor, id: 'library-edit-author', signal } );
+		const addPerson = inputList( { $list: $people, $add: $addPerson, id: 'library-edit-person', signal } );
 		const clearErrors = showErrors( $form, signal );
 
 		// The collections of the publisher typed, when the library has it; a collection needs a publisher.
@@ -85,16 +87,21 @@ class LibraryEditElement extends Brick {
 			'submit',
 			( event ) => {
 				const data = new FormData( $form );
+				// One role for each name, in the same row.
+				const roles = data.getAll( 'role' );
 				const cover = $cover.files[ 0 ] ?? null;
 				const book = {
 					title: data.get( 'title' ),
 					excerpt: $excerpt.value,
 					content: $content.value,
-					authors: data.getAll( 'author' ).map( ( name ) => name.trim() ).filter( Boolean ),
+					people: data
+						.getAll( 'person' )
+						.map( ( name, index ) => ( { name: name.trim(), role: roles[ index ] } ) )
+						.filter( ( person ) => person.name ),
 					publisher: data.get( 'publisher' ),
 					collection: data.get( 'collection' ) ?? '',
 					language: Number( data.get( 'language' ) ),
-					meta: Object.fromEntries( $meta.map( ( $field ) => [ $field.name, $field.value ] ) ),
+					meta: Object.fromEntries( $meta.map( ( $field ) => [ $field.name, getValue( $field ) ] ) ),
 				};
 
 				event.preventDefault();
@@ -132,11 +139,15 @@ class LibraryEditElement extends Brick {
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
 					$status.value = listedStatus || 'publish';
-					$authors.replaceChildren();
-					book?.authors.forEach( ( name ) => addAuthor( name ) );
+					$people.replaceChildren();
+					book?.people.forEach( ( { name, role } ) => {
+						const $row = addPerson( name ).closest( 'li' );
 
-					if ( ! $authors.children.length ) {
-						addAuthor();
+						$row.querySelector( '[name="role"]' ).value = role;
+					} );
+
+					if ( ! $people.children.length ) {
+						addPerson();
 					}
 
 					if ( book ) {
@@ -147,11 +158,17 @@ class LibraryEditElement extends Brick {
 						$collection.value = book.collection;
 						$language.value = ( book.language || '' ).toString();
 						$meta.forEach( ( $field ) => {
-							$field.value = book.meta[ $field.name ] ?? '';
+							const value = book.meta[ $field.name ] ?? '';
+
+							if ( 'checkbox' === $field.type ) {
+								$field.checked = Boolean( value );
+							} else {
+								$field.value = value;
+							}
 						} );
 					}
 
-					$details.open = [ ...$details.querySelectorAll( 'input, select' ) ].some( ( $field ) => $field.value );
+					$details.open = [ ...$details.querySelectorAll( 'input, select' ) ].some( getValue );
 					showCover();
 					suggestCollections();
 					$dialog.showModal();
@@ -171,7 +188,7 @@ class LibraryEditElement extends Brick {
 				( terms ) => {
 					const $none = $language.options[ 0 ];
 
-					$suggestions.authors.replaceChildren( ...renderOptions( terms.authors ) );
+					$suggestions.people.replaceChildren( ...renderOptions( terms.people ) );
 					$suggestions.publishers.replaceChildren( ...renderOptions( terms.publishers.filter( ( term ) => ! term.parent ) ) );
 					$language.replaceChildren( $none, ...renderOptions( terms.languages, ( term ) => term.id ) );
 					// The languages may come once the form is open, the first time.

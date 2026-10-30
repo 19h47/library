@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, authors and the credits of a book.
+ * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, people and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -102,7 +102,7 @@ class Library_Rest_API {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_cover_name' ),
 				'permission_callback' => fn() => current_user_can( 'upload_files' ),
-				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'authors', 'meta' ) ) ) + array(
+				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'meta' ) ) ) + array(
 					'photo' => array(
 						'description' => __( 'File name of the photo picked, whose extension the cover keeps.', 'library' ),
 						'type'        => 'string',
@@ -177,14 +177,14 @@ class Library_Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'authors/(?P<id>\d+)',
+			'people/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_author' ),
+				'callback'            => array( $this, 'get_person' ),
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 				'args'                => array(
 					'id' => array(
-						'description' => __( 'Term ID of the author, or of one of their pseudonyms.', 'library' ),
+						'description' => __( 'Term ID of the person, or of one of their pseudonyms.', 'library' ),
 						'type'        => 'integer',
 						'minimum'     => 1,
 					),
@@ -222,10 +222,24 @@ class Library_Rest_API {
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'authors'        => array(
-				'description' => __( 'Names of the authors or pseudonyms; a name not found adds an author.', 'library' ),
+			'people'         => array(
+				'description' => __( 'People of the book, by their name or a pseudonym, each with its role, such as colorist; a name not found adds a person.', 'library' ),
 				'type'        => 'array',
-				'items'       => array( 'type' => 'string' ),
+				'items'       => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'name' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+						'role' => array(
+							'type'     => 'string',
+							'enum'     => array_keys( Library_Meta::get_role_choices() ),
+							'required' => true,
+						),
+					),
+					'additionalProperties' => false,
+				),
 				'default'     => array(),
 			),
 			'publisher'      => array(
@@ -312,7 +326,7 @@ class Library_Rest_API {
 
 	/**
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its authors as the book gives them, its publisher and collection, its original language and its meta.
+	 * its names as the book gives them, each with its role, its publisher and collection, its original language and its meta.
 	 *
 	 * The form edits one publisher and one collection: a book given more gives its first collection, or else publisher.
 	 *
@@ -325,6 +339,7 @@ class Library_Rest_API {
 		$publishers = get_the_terms( $book, 'library_publisher' );
 		$publisher  = $collection ? get_term( $collection->parent, 'library_publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
+		$roles      = Library_Meta::get_roles( $book->ID );
 		$meta       = array();
 
 		// The read dates are the reading of the book, which its own form edits.
@@ -338,7 +353,13 @@ class Library_Rest_API {
 				'title'      => $book->post_title,
 				'excerpt'    => $book->post_excerpt,
 				'content'    => $book->post_content,
-				'authors'    => wp_get_post_terms( $book->ID, 'library_author', array( 'fields' => 'names' ) ),
+				'people'     => array_map(
+					fn( WP_Term $term ) => array(
+						'name' => $term->name,
+						'role' => $roles[ $term->term_id ] ?? 'author',
+					),
+					wp_get_post_terms( $book->ID, 'library_person' )
+				),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? $collection->name : '',
 				'language'   => (int) current( $languages ),
@@ -393,7 +414,7 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its authors through the rule
+	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its people through the rule
 	 * of their tag box, its collection, or else its publisher, and its original language. A name not found adds a term.
 	 *
 	 * A collection is under its publisher, and goes with it: a book in a collection has the collection only.
@@ -404,8 +425,8 @@ class Library_Rest_API {
 	private function get_terms( WP_REST_Request $request ): array {
 		$terms = array();
 
-		if ( $request->has_param( 'authors' ) ) {
-			$terms['library_author'] = Library_Taxonomies::sanitize_author_names( 'library_author', implode( ',', $request['authors'] ) );
+		if ( $request->has_param( 'people' ) ) {
+			$terms['library_person'] = Library_Taxonomies::sanitize_person_names( 'library_person', implode( ',', array_column( $request['people'], 'name' ) ) );
 		}
 
 		if ( $request->has_param( 'publisher' ) ) {
@@ -420,6 +441,24 @@ class Library_Rest_API {
 		}
 
 		return $terms;
+	}
+
+	/**
+	 * Roles of the names sent, by term ID, once their terms exist: a name stands for the term its tag box gives it.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return array<int,string>
+	 */
+	private function get_roles( WP_REST_Request $request ): array {
+		$roles = array();
+
+		foreach ( $request['people'] as $person ) {
+			foreach ( Library_Taxonomies::sanitize_person_names( 'library_person', $person['name'] ) as $term_id ) {
+				$roles[ $term_id ] = $person['role'];
+			}
+		}
+
+		return $roles;
 	}
 
 	/**
@@ -456,6 +495,10 @@ class Library_Rest_API {
 
 		foreach ( $terms as $taxonomy => $term_ids ) {
 			wp_set_object_terms( $book_id, $term_ids, $taxonomy );
+		}
+
+		if ( $request->has_param( 'people' ) ) {
+			Library_Meta::save_roles( $book_id, $this->get_roles( $request ) );
 		}
 
 		if ( ! $request->has_param( 'featured_media' ) ) {
@@ -501,7 +544,8 @@ class Library_Rest_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_cover_name( WP_REST_Request $request ): WP_REST_Response {
-		$name = Library_Books::build_cover_name( $request['title'], $request['authors'], (array) $request['meta'], $request['photo'] );
+		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
+		$name    = Library_Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (array) $request['meta'], $request['photo'] );
 
 		return rest_ensure_response( array( 'name' => $name ) );
 	}
@@ -559,7 +603,7 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * An author under their real name, with their pseudonyms, their description, their books and their reading: the books read,
+	 * A person under their real name, with their pseudonyms, their description, their books and their reading: the books read,
 	 * the average rating, the pages of their books and the completion their books count for.
 	 *
 	 * The description is the one of the term, as a theme shows it: its paragraphs and line breaks become HTML,
@@ -567,26 +611,26 @@ class Library_Rest_API {
 	 *
 	 * The pages add up those of the books with a number of pages, read or not, each book once: 0 when none has one.
 	 *
-	 * The books are those of the author and of their pseudonyms, kept or not, as the achievements count them,
-	 * as IDs of the core API: in the order they first came out, then by title, those without date last.
+	 * The books are those of the person and of their pseudonyms, kept or not, whatever their role, author or another one,
+	 * such as colorist, as IDs of the core API: in the order they first came out, then by title, those without date last.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_author( WP_REST_Request $request ) {
-		$term   = get_term( $request['id'], 'library_author' );
-		$author = $term instanceof WP_Term ? current( Library_Taxonomies::get_top_level_terms( array( $term ) ) ) : null;
+	public function get_person( WP_REST_Request $request ) {
+		$term   = get_term( $request['id'], 'library_person' );
+		$person = $term instanceof WP_Term ? current( Library_Taxonomies::get_top_level_terms( array( $term ) ) ) : null;
 
-		if ( ! $author instanceof WP_Term ) {
-			return new WP_Error( 'library_no_author', get_taxonomy( 'library_author' )->labels->not_found, array( 'status' => 404 ) );
+		if ( ! $person instanceof WP_Term ) {
+			return new WP_Error( 'library_no_person', get_taxonomy( 'library_person' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books      = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $author->term_id, $book['author_ids'], true ) );
+		$books      = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $person->term_id, array( ...$book['author_ids'], ...$book['contributor_ids'] ), true ) );
 		$ratings    = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
 		$pseudonyms = get_terms(
 			array(
-				'taxonomy'   => 'library_author',
-				'parent'     => $author->term_id,
+				'taxonomy'   => 'library_person',
+				'parent'     => $person->term_id,
 				'hide_empty' => false,
 				'fields'     => 'names',
 			)
@@ -605,15 +649,15 @@ class Library_Rest_API {
 
 		return rest_ensure_response(
 			array(
-				'id'          => $author->term_id,
-				'name'        => $author->name,
+				'id'          => $person->term_id,
+				'name'        => $person->name,
 				'pseudonyms'  => is_array( $pseudonyms ) ? $pseudonyms : array(),
-				'description' => term_description( $author ),
+				'description' => term_description( $person ),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
 				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
-				'completion'  => ( new Library_Achievements() )->get_author_completion( $author->term_id ),
+				'completion'  => ( new Library_Achievements() )->get_author_completion( $person->term_id ),
 			)
 		);
 	}

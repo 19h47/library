@@ -40,11 +40,12 @@ class Library_Books {
 	 * All the books, kept, not kept or to buy.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
-	 * Authors are counted for their real name. The read dates go from the first reading to the latest.
+	 * Authors are counted for their real name, and so are its contributors, its names with another role, such as a
+	 * colorist. The read dates go from the first reading to the latest.
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
 	 */
 	public static function get_books(): array {
 		if ( null !== self::$books ) {
@@ -68,8 +69,9 @@ class Library_Books {
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
 			$published_date = (string) get_post_meta( $post->ID, 'library_published_date', true );
-			$author_terms   = get_the_terms( $post->ID, 'library_author' );
-			$authors        = Library_Taxonomies::get_top_level_terms( is_array( $author_terms ) ? $author_terms : array() );
+			$authors        = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_authors( $post->ID ) );
+			$contributors   = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID ) );
+			$translators    = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID, 'translator' ) );
 			$collections    = Library_Taxonomies::get_collections( $post->ID );
 			$languages      = get_the_terms( $post->ID, 'library_language' );
 
@@ -78,25 +80,27 @@ class Library_Books {
 			}
 
 			self::$books[ $post->ID ] = array(
-				'id'             => $post->ID,
-				'title'          => $post->post_title,
-				'full_title'     => self::get_full_title( $post->ID, $post->post_title ),
-				'status'         => $post->post_status,
-				'series'         => $series,
-				'volume'         => $volume,
-				'read'           => Library_Posts::is_read( $post->ID ),
-				'read_dates'     => Library_Meta::get_read_dates( $post->ID ),
-				'rating'         => '' !== $rating ? (float) $rating : null,
-				'pages'          => $pages ? $pages : null,
-				'edition_date'   => $edition_date,
-				'published_date' => $published_date,
-				'added'          => $post->post_date,
-				'authors'        => wp_list_pluck( $authors, 'name' ),
-				'author_ids'     => wp_list_pluck( $authors, 'term_id' ),
-				'translators'    => self::split( (string) get_post_meta( $post->ID, 'library_translators', true ) ),
-				'collections'    => wp_list_pluck( $collections, 'name' ),
-				'collection_ids' => wp_list_pluck( $collections, 'term_id' ),
-				'languages'      => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
+				'id'              => $post->ID,
+				'title'           => $post->post_title,
+				'full_title'      => self::get_full_title( $post->ID, $post->post_title ),
+				'status'          => $post->post_status,
+				'series'          => $series,
+				'volume'          => $volume,
+				'read'            => Library_Posts::is_read( $post->ID ),
+				'collective'      => Library_Posts::is_collective( $post->ID ),
+				'read_dates'      => Library_Meta::get_read_dates( $post->ID ),
+				'rating'          => '' !== $rating ? (float) $rating : null,
+				'pages'           => $pages ? $pages : null,
+				'edition_date'    => $edition_date,
+				'published_date'  => $published_date,
+				'added'           => $post->post_date,
+				'authors'         => wp_list_pluck( $authors, 'name' ),
+				'author_ids'      => wp_list_pluck( $authors, 'term_id' ),
+				'contributor_ids' => wp_list_pluck( $contributors, 'term_id' ),
+				'translators'     => wp_list_pluck( $translators, 'name' ),
+				'collections'     => wp_list_pluck( $collections, 'name' ),
+				'collection_ids'  => wp_list_pluck( $collections, 'term_id' ),
+				'languages'       => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
 			);
 		}
 
@@ -222,14 +226,15 @@ class Library_Books {
 
 	/**
 	 * Name of the image of a cover, after its first author by name and the title to show, the extension of the photo
-	 * kept: "charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg"; the title alone for a book without author.
+	 * kept: "charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg"; the title alone for a book without author or
+	 * collective.
 	 *
 	 * A name keeps letters and digits without accents only: a sign a slug keeps encoded, such as the dot of "René⸱e", is
 	 * left out. A book named in another script keeps the name of its photo.
 	 *
 	 * @param string   $title   Title of the book.
 	 * @param string[] $authors Names of its authors.
-	 * @param array    $meta    Meta of the book: series, volume_number and subtitle.
+	 * @param array    $meta    Meta of the book: series, volume_number, subtitle and collective.
 	 * @param string   $photo   File name of the photo.
 	 * @return string
 	 */
@@ -240,7 +245,8 @@ class Library_Books {
 		$authors = array_filter( array_map( $slug, $authors ) );
 		sort( $authors );
 
-		$name      = $slug( implode( ' ', array( $authors[0] ?? '', self::build_full_title( $title, $meta ) ) ) );
+		$author    = rest_sanitize_boolean( $meta['library_collective'] ?? false ) ? '' : ( $authors[0] ?? '' );
+		$name      = $slug( implode( ' ', array( $author, self::build_full_title( $title, $meta ) ) ) );
 		$extension = strtolower( pathinfo( $photo, PATHINFO_EXTENSION ) );
 
 		if ( '' === $name ) {
@@ -251,13 +257,26 @@ class Library_Books {
 	}
 
 	/**
+	 * The publishing directors of a collective work as credited: "Benoît Mouchart (dir.)".
+	 *
+	 * @param string $names Their names, as listed.
+	 * @return string
+	 */
+	public static function format_directors( string $names ): string {
+		/* translators: %s: names of the publishing directors of a collective work. */
+		return sprintf( __( '%s (dir.)', 'library' ), $names );
+	}
+
+	/**
 	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year".
+	 *
+	 * A collective work is credited to its publishing directors, as catalogues have it, and to none of its authors:
+	 * "Benoît Mouchart (dir.) · Casterman · 2020", or "Casterman · 2020" without director.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return string
 	 */
 	public static function get_credits( int $book_id ): string {
-		$authors           = get_the_terms( $book_id, 'library_author' );
 		$terms             = get_the_terms( $book_id, 'library_publisher' );
 		$collection_number = (string) get_post_meta( $book_id, 'library_collection_number', true );
 		$publishers        = array();
@@ -273,8 +292,14 @@ class Library_Books {
 			$publishers[ array_key_last( $publishers ) ] .= ' ' . sprintf( __( 'no. %s', 'library' ), $collection_number );
 		}
 
+		$names = implode( ', ', wp_list_pluck( Library_Taxonomies::get_credited_people( $book_id ), 'name' ) );
+
+		if ( '' !== $names && Library_Posts::is_collective( $book_id ) ) {
+			$names = self::format_directors( $names );
+		}
+
 		$parts = array(
-			implode( ', ', wp_list_pluck( is_array( $authors ) ? $authors : array(), 'name' ) ),
+			$names,
 			implode( ', ', $publishers ),
 			substr( (string) get_post_meta( $book_id, 'library_edition_date', true ), 0, 4 ),
 		);
