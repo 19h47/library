@@ -25,12 +25,12 @@ class Library_Metaboxes {
 	 * @return void
 	 */
 	public function hooks(): void {
-		add_action( 'add_meta_boxes_book', array( $this, 'add_metabox' ) );
-		add_action( 'add_meta_boxes_book', array( $this, 'register_author_box' ) );
+		add_action( 'add_meta_boxes_library_book', array( $this, 'add_metabox' ) );
+		add_action( 'add_meta_boxes_library_book', array( $this, 'register_author_box' ) );
 		add_action( 'admin_action_editpost', array( $this, 'refuse_mistyped_isbn' ) );
 		add_action( 'admin_notices', array( $this, 'show_refused_isbn' ) );
 		add_filter( 'removable_query_args', array( $this, 'remove_refused_isbn_arg' ) );
-		add_action( 'save_post_book', array( $this, 'save_metabox' ) );
+		add_action( 'save_post_library_book', array( $this, 'save_metabox' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'render_status' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'save_status' ), 10, 2 );
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'keep_classic_editor' ), 10, 2 );
@@ -45,7 +45,7 @@ class Library_Metaboxes {
 	 * @return bool
 	 */
 	public function keep_classic_editor( bool $use_block_editor, string $post_type ): bool {
-		return 'book' === $post_type ? false : $use_block_editor;
+		return 'library_book' === $post_type ? false : $use_block_editor;
 	}
 
 	/**
@@ -56,16 +56,16 @@ class Library_Metaboxes {
 	 */
 	public function add_metabox() {
 		add_meta_box(
-			'book_information',
+			'library_book_information',
 			__( 'Information', 'library' ),
 			array( $this, 'render_metabox' ),
-			'book',
+			'library_book',
 			'normal',
 			'default'
 		);
 
 		// Custom fields support only exposes the meta in the REST API; this form edits them.
-		remove_meta_box( 'postcustom', 'book', 'normal' );
+		remove_meta_box( 'postcustom', 'library_book', 'normal' );
 	}
 
 
@@ -85,7 +85,7 @@ class Library_Metaboxes {
 			$values[ $key ] = get_post_meta( $post->ID, $key, true );
 		}
 
-		$values['read_date'] = Library_Meta::get_read_dates( $post->ID );
+		$values['library_read_date'] = Library_Meta::get_read_dates( $post->ID );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
@@ -122,17 +122,17 @@ class Library_Metaboxes {
 		$nonce   = isset( $_POST['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
 		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
 
-		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) || 'book' !== get_post_type( $post_id ) || ! isset( $_POST['isbn'] ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'library_metabox_nonce' ) || 'library_book' !== get_post_type( $post_id ) || ! isset( $_POST['library_isbn'] ) ) {
 			return;
 		}
 
-		$isbn = sanitize_text_field( wp_unslash( $_POST['isbn'] ) );
+		$isbn = sanitize_text_field( wp_unslash( $_POST['library_isbn'] ) );
 
 		if ( ! Library_Meta::check_isbn( $post_id, $isbn ) ) {
 			return;
 		}
 
-		$_POST['isbn'] = wp_slash( (string) get_post_meta( $post_id, 'isbn', true ) );
+		$_POST['library_isbn'] = wp_slash( (string) get_post_meta( $post_id, 'library_isbn', true ) );
 
 		add_filter( 'redirect_post_location', fn( string $location ): string => add_query_arg( 'library_refused_isbn', rawurlencode( $isbn ), $location ) );
 	}
@@ -146,7 +146,7 @@ class Library_Metaboxes {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
 		$isbn = isset( $_GET['library_refused_isbn'] ) ? sanitize_text_field( wp_unslash( $_GET['library_refused_isbn'] ) ) : '';
 
-		if ( '' === $isbn || 'book' !== get_current_screen()?->post_type ) {
+		if ( '' === $isbn || 'library_book' !== get_current_screen()?->post_type ) {
 			return;
 		}
 
@@ -175,7 +175,7 @@ class Library_Metaboxes {
 	 * @return void
 	 */
 	public function render_status( WP_Post $post ): void {
-		if ( 'book' !== $post->post_type ) {
+		if ( 'library_book' !== $post->post_type ) {
 			return;
 		}
 
@@ -209,7 +209,7 @@ class Library_Metaboxes {
 	public function save_status( array $data, array $postarr ): array {
 		$nonce = isset( $postarr['library_status_nonce'] ) ? sanitize_key( wp_unslash( $postarr['library_status_nonce'] ) ) : '';
 
-		if ( 'book' !== $data['post_type'] || ! wp_verify_nonce( $nonce, 'library_status' ) || in_array( $data['post_status'], array( 'trash', 'auto-draft' ), true ) ) {
+		if ( 'library_book' !== $data['post_type'] || ! wp_verify_nonce( $nonce, 'library_status' ) || in_array( $data['post_status'], array( 'trash', 'auto-draft' ), true ) ) {
 			return $data;
 		}
 
@@ -228,15 +228,15 @@ class Library_Metaboxes {
 	/**
 	 * Give the authors tag box the id of a tag box.
 	 *
-	 * Core names the box of a hierarchical taxonomy "library-authordiv", and only starts the tag box
+	 * Core names the box of a hierarchical taxonomy "library_authordiv", and only starts the tag box
 	 * script when a box id starts with "tagsdiv-": otherwise the tag box stays empty.
 	 *
 	 * @return void
 	 */
 	public function register_author_box(): void {
-		$taxonomy = get_taxonomy( 'library-author' );
+		$taxonomy = get_taxonomy( 'library_author' );
 
-		remove_meta_box( 'library-authordiv', 'book', 'side' );
-		add_meta_box( 'tagsdiv-library-author', $taxonomy->labels->name, $taxonomy->meta_box_cb, 'book', 'side', 'core', array( 'taxonomy' => 'library-author' ) );
+		remove_meta_box( 'library_authordiv', 'library_book', 'side' );
+		add_meta_box( 'tagsdiv-library_author', $taxonomy->labels->name, $taxonomy->meta_box_cb, 'library_book', 'side', 'core', array( 'taxonomy' => 'library_author' ) );
 	}
 }

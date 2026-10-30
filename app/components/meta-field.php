@@ -13,13 +13,13 @@
 
 $args = wp_parse_args( $args, array( 'attributes' => array() ) );
 
-Library::component(
+Library::render_component(
 	'field',
 	array(
 		'id'          => 'library-edit-' . str_replace( '_', '-', $args['key'] ),
-		'label'       => Library_Meta::label( $args['key'] ),
-		'description' => Library_Meta::description( $args['key'] ),
-		'control'     => Library_Meta::control(
+		'label'       => Library_Meta::get_label( $args['key'] ),
+		'description' => Library_Meta::get_description( $args['key'] ),
+		'control'     => Library_Meta::get_control(
 			$args['key'],
 			$args['attributes'] + array(
 				'data-meta'    => true,

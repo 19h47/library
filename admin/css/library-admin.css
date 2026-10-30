@@ -31,12 +31,12 @@
 	border-radius: 50%;
 }
 
-.fixed .column-read {
+.fixed .column-library_read {
 	width: 80px;
 	text-align: right;
 }
 
-.fixed .column-read input {
+.fixed .column-library_read input {
 	margin: 0;
 }
 

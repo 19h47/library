@@ -16,23 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$field_id    = 'library-' . str_replace( '_', '-', $key );
-$description = Library_Meta::description( $key );
+$field_id    = str_replace( '_', '-', $key );
+$description = Library_Meta::get_description( $key );
 // The select of a rating keeps the width of its choices.
 $widths = array(
-	'subtitle' => 'large-text',
-	'pages'    => 'small-text',
-	'rating'   => null,
+	'library_subtitle' => 'large-text',
+	'library_pages'    => 'small-text',
+	'library_rating'   => null,
 );
 ?>
 
 <tr>
 	<th scope="row">
-		<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( Library_Meta::label( $key ) ); ?></label>
+		<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></label>
 	</th>
 	<td>
 		<?php
-		$control = Library_Meta::control(
+		$control = Library_Meta::get_control(
 			$key,
 			array(
 				'id'               => $field_id,

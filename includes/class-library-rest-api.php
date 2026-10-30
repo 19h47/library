@@ -36,10 +36,10 @@ class Library_Rest_API {
 	 */
 	public function register_rest_fields(): void {
 		register_rest_field(
-			'book',
+			'library_book',
 			'credits',
 			array(
-				'get_callback' => fn( array $book ) => Library_Books::credits( $book['id'] ),
+				'get_callback' => fn( array $book ) => Library_Books::get_credits( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Credits of the book, to show under its title: authors · publisher, collection · edition year.', 'library' ),
 					'type'        => 'string',
@@ -62,8 +62,8 @@ class Library_Rest_API {
 			'books',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'add_book' ),
-				'permission_callback' => fn() => current_user_can( get_post_type_object( 'book' )->cap->publish_posts ),
+				'callback'            => array( $this, 'create_book' ),
+				'permission_callback' => fn() => current_user_can( get_post_type_object( 'library_book' )->cap->publish_posts ),
 				'args'                => $this->get_book_args( true ),
 			),
 		);
@@ -78,7 +78,7 @@ class Library_Rest_API {
 					'id' => array(
 						'description'       => __( 'ID of the book.', 'library' ),
 						'type'              => 'integer',
-						'validate_callback' => fn( $id ) => 'book' === get_post_type( (int) $id ),
+						'validate_callback' => fn( $id ) => 'library_book' === get_post_type( (int) $id ),
 					),
 				),
 				array(
@@ -88,7 +88,7 @@ class Library_Rest_API {
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'edit_book' ),
+					'callback'            => array( $this, 'update_book' ),
 					'permission_callback' => $can_edit_book,
 					'args'                => $this->get_book_args( false ),
 				),
@@ -203,7 +203,7 @@ class Library_Rest_API {
 	 */
 	private function get_book_args( bool $adding ): array {
 		$args = array(
-			'title'      => array(
+			'title'          => array(
 				'description'       => __( 'Title of the book.', 'library' ),
 				'type'              => 'string',
 				'required'          => true,
@@ -212,44 +212,44 @@ class Library_Rest_API {
 				'validate_callback' => 'rest_validate_request_arg',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
-			'excerpt'    => array(
+			'excerpt'        => array(
 				'description' => __( 'Summary of the book in a few words, its excerpt.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'content'    => array(
+			'content'        => array(
 				'description' => __( 'Notes on the book, its content.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'authors'    => array(
+			'authors'        => array(
 				'description' => __( 'Names of the authors or pseudonyms; a name not found adds an author.', 'library' ),
 				'type'        => 'array',
 				'items'       => array( 'type' => 'string' ),
 				'default'     => array(),
 			),
-			'publisher'  => array(
+			'publisher'      => array(
 				'description' => __( 'Name of the publisher; a name not found adds a publisher.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'collection' => array(
+			'collection'     => array(
 				'description' => __( 'Name of the collection, under the publisher and sent with it; a name not found adds a collection.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'language'   => array(
+			'language'       => array(
 				'description' => __( 'Term ID of the original language.', 'library' ),
 				'type'        => 'integer',
 				'default'     => 0,
 			),
-			'cover'      => array(
+			'featured_media' => array(
 				'description' => __( 'ID of the image uploaded as the cover, 0 for none.', 'library' ),
 				'type'        => 'integer',
 				'default'     => 0,
 			),
-			'meta'       => array(
-				'description' => __( 'Book meta, such as isbn, as the book form saves them.', 'library' ),
+			'meta'           => array(
+				'description' => __( 'Book meta, such as library_isbn, as the book form saves them.', 'library' ),
 				'type'        => 'object',
 				'default'     => array(),
 			),
@@ -278,9 +278,9 @@ class Library_Rest_API {
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function add_book( WP_REST_Request $request ) {
+	public function create_book( WP_REST_Request $request ) {
 		$meta  = (array) $request['meta'];
-		$error = Library_Meta::check_isbn( 0, (string) ( $meta['isbn'] ?? '' ) );
+		$error = Library_Meta::check_isbn( 0, (string) ( $meta['library_isbn'] ?? '' ) );
 
 		if ( $error ) {
 			return $error;
@@ -289,7 +289,7 @@ class Library_Rest_API {
 		// The names first, so that a book is never left half added.
 		$terms = $this->get_terms( $request );
 		$post  = array(
-			'post_type'    => 'book',
+			'post_type'    => 'library_book',
 			'post_status'  => $request['status'],
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
@@ -322,13 +322,13 @@ class Library_Rest_API {
 	public function get_book( WP_REST_Request $request ): WP_REST_Response {
 		$book       = get_post( $request['id'] );
 		$collection = current( Library_Taxonomies::get_collections( $book->ID ) );
-		$publishers = get_the_terms( $book, 'library-publisher' );
-		$publisher  = $collection ? get_term( $collection->parent, 'library-publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
-		$languages  = wp_get_post_terms( $book->ID, 'library-language', array( 'fields' => 'ids' ) );
+		$publishers = get_the_terms( $book, 'library_publisher' );
+		$publisher  = $collection ? get_term( $collection->parent, 'library_publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
+		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$meta       = array();
 
 		// The read dates are the reading of the book, which its own form edits.
-		foreach ( array_diff( Library_Meta::KEYS, array( 'read_date' ) ) as $key ) {
+		foreach ( array_diff( Library_Meta::KEYS, array( 'library_read_date' ) ) as $key ) {
 			$meta[ $key ] = get_post_meta( $book->ID, $key, true );
 		}
 
@@ -338,7 +338,7 @@ class Library_Rest_API {
 				'title'      => $book->post_title,
 				'excerpt'    => $book->post_excerpt,
 				'content'    => $book->post_content,
-				'authors'    => wp_get_post_terms( $book->ID, 'library-author', array( 'fields' => 'names' ) ),
+				'authors'    => wp_get_post_terms( $book->ID, 'library_author', array( 'fields' => 'names' ) ),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? $collection->name : '',
 				'language'   => (int) current( $languages ),
@@ -356,10 +356,10 @@ class Library_Rest_API {
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function edit_book( WP_REST_Request $request ) {
+	public function update_book( WP_REST_Request $request ) {
 		$book_id = $request['id'];
 		$meta    = (array) $request['meta'];
-		$error   = Library_Meta::check_isbn( $book_id, (string) ( $meta['isbn'] ?? '' ) );
+		$error   = Library_Meta::check_isbn( $book_id, (string) ( $meta['library_isbn'] ?? '' ) );
 
 		if ( $error ) {
 			return $error;
@@ -405,18 +405,18 @@ class Library_Rest_API {
 		$terms = array();
 
 		if ( $request->has_param( 'authors' ) ) {
-			$terms['library-author'] = Library_Taxonomies::sanitize_author_names( 'library-author', implode( ',', $request['authors'] ) );
+			$terms['library_author'] = Library_Taxonomies::sanitize_author_names( 'library_author', implode( ',', $request['authors'] ) );
 		}
 
 		if ( $request->has_param( 'publisher' ) ) {
-			$publisher_id  = Library_Taxonomies::get_term_id( 'library-publisher', $request['publisher'] );
-			$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library-publisher', (string) $request['collection'], $publisher_id ) : 0;
+			$publisher_id  = Library_Taxonomies::get_term_id( 'library_publisher', $request['publisher'] );
+			$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library_publisher', (string) $request['collection'], $publisher_id ) : 0;
 
-			$terms['library-publisher'] = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
+			$terms['library_publisher'] = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
 		}
 
 		if ( $request->has_param( 'language' ) ) {
-			$terms['library-language'] = array_filter( array( $request['language'] ) );
+			$terms['library_language'] = array_filter( array( $request['language'] ) );
 		}
 
 		return $terms;
@@ -433,7 +433,7 @@ class Library_Rest_API {
 	private function get_slug_fields( int $book_id, array $meta ): array {
 		$fields = array();
 
-		foreach ( array( 'isbn', 'issn', 'volume_number' ) as $key ) {
+		foreach ( array( 'library_isbn', 'library_issn', 'library_volume_number' ) as $key ) {
 			$fields[ $key ] = $meta[ $key ] ?? (string) get_post_meta( $book_id, $key, true );
 		}
 
@@ -441,8 +441,8 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * Save what is sent for a book, after its post: its meta through Library_Meta, its terms, and its cover, which becomes
-	 * an image of the book; a cover of 0 removes it.
+	 * Save what is sent for a book, after its post: its meta through Library_Meta, its terms, and its cover, the featured_media
+	 * sent, which becomes an image of the book; 0 removes it.
 	 *
 	 * @param int             $book_id Book ID.
 	 * @param WP_REST_Request $request Request.
@@ -458,11 +458,11 @@ class Library_Rest_API {
 			wp_set_object_terms( $book_id, $term_ids, $taxonomy );
 		}
 
-		if ( ! $request->has_param( 'cover' ) ) {
+		if ( ! $request->has_param( 'featured_media' ) ) {
 			return;
 		}
 
-		$cover_id = $request['cover'];
+		$cover_id = $request['featured_media'];
 
 		if ( ! $cover_id ) {
 			delete_post_thumbnail( $book_id );
@@ -495,13 +495,13 @@ class Library_Rest_API {
 
 	/**
 	 * The name of the image of a cover, from the fields of its book as its form sends them, before the photo is uploaded:
-	 * its first author and the title to show, from Library_Books::cover_name().
+	 * its first author and the title to show, from Library_Books::build_cover_name().
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function get_cover_name( WP_REST_Request $request ): WP_REST_Response {
-		$name = Library_Books::cover_name( $request['title'], $request['authors'], (array) $request['meta'], $request['photo'] );
+		$name = Library_Books::build_cover_name( $request['title'], $request['authors'], (array) $request['meta'], $request['photo'] );
 
 		return rest_ensure_response( array( 'name' => $name ) );
 	}
@@ -517,9 +517,9 @@ class Library_Rest_API {
 	 */
 	public function get_readings( WP_REST_Request $request ): WP_REST_Response {
 		$per_page = $request['per_page'];
-		$total    = (int) Library_Stats::select( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
-		$months   = wp_list_pluck( Library_Stats::select( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
-		$rows     = $months ? Library_Stats::select(
+		$total    = (int) Library_Stats::get_results( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
+		$months   = wp_list_pluck( Library_Stats::get_results( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
+		$rows     = $months ? Library_Stats::get_results(
 			'SELECT r.book, r.date FROM {readings} WHERE LEFT( r.date, 7 ) IN ( ' . implode( ', ', array_fill( 0, count( $months ), '%s' ) ) . ' ) ORDER BY r.date DESC, r.book DESC',
 			...$months
 		) : array();
@@ -574,18 +574,18 @@ class Library_Rest_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_author( WP_REST_Request $request ) {
-		$term   = get_term( $request['id'], 'library-author' );
+		$term   = get_term( $request['id'], 'library_author' );
 		$author = $term instanceof WP_Term ? current( Library_Taxonomies::get_top_level_terms( array( $term ) ) ) : null;
 
 		if ( ! $author instanceof WP_Term ) {
-			return new WP_Error( 'library_no_author', get_taxonomy( 'library-author' )->labels->not_found, array( 'status' => 404 ) );
+			return new WP_Error( 'library_no_author', get_taxonomy( 'library_author' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books      = array_filter( Library_Books::all(), fn( array $book ) => in_array( $author->term_id, $book['author_ids'], true ) );
+		$books      = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $author->term_id, $book['author_ids'], true ) );
 		$ratings    = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
 		$pseudonyms = get_terms(
 			array(
-				'taxonomy'   => 'library-author',
+				'taxonomy'   => 'library_author',
 				'parent'     => $author->term_id,
 				'hide_empty' => false,
 				'fields'     => 'names',
@@ -595,8 +595,8 @@ class Library_Rest_API {
 		usort(
 			$books,
 			function ( array $a, array $b ): int {
-				$a_date = Library_Books::date( $a );
-				$b_date = Library_Books::date( $b );
+				$a_date = Library_Books::get_date( $a );
+				$b_date = Library_Books::get_date( $b );
 				$order  = array( '' === $a_date, $a_date ) <=> array( '' === $b_date, $b_date );
 
 				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );

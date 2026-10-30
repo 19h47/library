@@ -264,7 +264,7 @@ class Library_Achievements {
 	 */
 	public function get_achievements(): array {
 		// A book is dated by its first reading.
-		$books    = array_map( fn( array $book ) => $book + array( 'read_date' => $book['read_dates'][0] ?? '' ), Library_Books::all() );
+		$books    = array_map( fn( array $book ) => $book + array( 'read_date' => $book['read_dates'][0] ?? '' ), Library_Books::get_books() );
 		$reads    = self::get_reads( $books );
 		$readings = self::get_readings( $books );
 
@@ -311,11 +311,11 @@ class Library_Achievements {
 	 * @param string     $title   Title, e.g. "Complete author".
 	 * @param string     $subject What it is about: an author, a series, a book… or empty.
 	 * @param string     $detail  Detail, e.g. "9 books".
-	 * @param array|null $target  What its subject leads to, from book_target(), search_target() or term_target(), or null.
+	 * @param array|null $target  What its subject leads to, from build_book_target(), build_search_target() or build_term_target(), or null.
 	 * @param string     $date    Date earned, Y-m-d, or empty when unknown or not dated.
 	 * @return array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool}
 	 */
-	private static function achievement( string $kind, string $title, string $subject, string $detail, ?array $target, string $date ): array {
+	private static function build_achievement( string $kind, string $title, string $subject, string $detail, ?array $target, string $date ): array {
 		return array(
 			'kind'       => $kind,
 			'title'      => $title,
@@ -333,7 +333,7 @@ class Library_Achievements {
 	 * @param string $name Name.
 	 * @return string
 	 */
-	private static function key( string $name ): string {
+	private static function get_name_key( string $name ): string {
 		return mb_strtolower( trim( $name ) );
 	}
 
@@ -378,7 +378,7 @@ class Library_Achievements {
 	 * @param array<int,array> $books Books.
 	 * @return string
 	 */
-	private static function latest_read_date( array $books ): string {
+	private static function get_latest_read_date( array $books ): string {
 		return (string) max( array_merge( array( '' ), array_column( $books, 'read_date' ) ) );
 	}
 
@@ -388,7 +388,7 @@ class Library_Achievements {
 	 * @param int $book_id Book ID.
 	 * @return array{type:string,id:int}
 	 */
-	private static function book_target( int $book_id ): array {
+	private static function build_book_target( int $book_id ): array {
 		return array(
 			'type' => 'book',
 			'id'   => $book_id,
@@ -402,11 +402,11 @@ class Library_Achievements {
 	 * @param array<int,array> $books  Books found.
 	 * @return array{type:string,search:string,not_kept:bool}
 	 */
-	private static function search_target( string $search, array $books ): array {
+	private static function build_search_target( string $search, array $books ): array {
 		return array(
 			'type'     => 'search',
 			'search'   => $search,
-			'not_kept' => self::not_kept( $books ),
+			'not_kept' => self::is_none_kept( $books ),
 		);
 	}
 
@@ -418,11 +418,11 @@ class Library_Achievements {
 	 * @param array<int,array> $books   Books of the term.
 	 * @return array{type:string,id:int,not_kept:bool}
 	 */
-	private static function term_target( string $type, int $term_id, array $books ): array {
+	private static function build_term_target( string $type, int $term_id, array $books ): array {
 		return array(
 			'type'     => $type,
 			'id'       => $term_id,
-			'not_kept' => self::not_kept( $books ),
+			'not_kept' => self::is_none_kept( $books ),
 		);
 	}
 
@@ -432,7 +432,7 @@ class Library_Achievements {
 	 * @param array<int,array> $books Books.
 	 * @return bool
 	 */
-	private static function not_kept( array $books ): bool {
+	private static function is_none_kept( array $books ): bool {
 		return array( Library_Posts::NOT_KEPT ) === array_unique( array_column( $books, 'status' ) );
 	}
 
@@ -447,7 +447,7 @@ class Library_Achievements {
 		$close  = array();
 
 		foreach ( self::get_completion_groups( $books ) as $kinds ) {
-			$completion = self::completion( $kinds );
+			$completion = self::get_group_completion( $kinds );
 
 			if ( ! isset( $completion['total'] ) ) {
 				$earned[ $completion['kind'] ][] = $completion;
@@ -467,7 +467,7 @@ class Library_Achievements {
 		$levels       = array();
 
 		foreach ( $earned as $kind => $kind_earned ) {
-			$levels = array_merge( $levels, self::level( $kind_earned, $level_titles[ $kind ] ) );
+			$levels = array_merge( $levels, self::get_level_achievement( $kind_earned, $level_titles[ $kind ] ) );
 		}
 
 		return array( $levels, $close );
@@ -480,9 +480,9 @@ class Library_Achievements {
 	 * @return array|null
 	 */
 	public function get_author_completion( int $author_id ): ?array {
-		foreach ( self::get_completion_groups( Library_Books::all() ) as $kinds ) {
+		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
 			if ( isset( $kinds['author'][ $author_id ] ) ) {
-				return self::completion( $kinds );
+				return self::get_group_completion( $kinds );
 			}
 		}
 
@@ -499,8 +499,8 @@ class Library_Achievements {
 	private static function get_series_and_cycles( string $series ): array {
 		$series_and_cycles = array();
 
-		for ( $name = implode( ', ', Library_Books::split( $series ) ); '' !== $name; $name = Library_Books::cycle( $name ) ) {
-			$series_and_cycles[ self::key( $name ) ] = $name;
+		for ( $name = implode( ', ', Library_Books::split( $series ) ); '' !== $name; $name = Library_Books::get_cycle( $name ) ) {
+			$series_and_cycles[ self::get_name_key( $name ) ] = $name;
 		}
 
 		return $series_and_cycles;
@@ -557,7 +557,7 @@ class Library_Achievements {
 	 * @param array<string,array<int|string,array<int,array>>> $kinds Groups of the same books, by kind, then by key.
 	 * @return array
 	 */
-	private static function completion( array $kinds ): array {
+	private static function get_group_completion( array $kinds ): array {
 		$titles = array(
 			'author'     => __( 'Complete author', 'library' ),
 			'series'     => __( 'Series finished', 'library' ),
@@ -572,21 +572,21 @@ class Library_Achievements {
 
 		if ( 'series' === $kind ) {
 			$subject = self::get_series_and_cycles( $group[0]['series'] )[ $key ];
-			$target  = self::search_target( Library_WP_Query::keyword_search( 'series', $subject ), $group );
+			$target  = self::build_search_target( Library_WP_Query::build_keyword_search( 'series', $subject ), $group );
 		} else {
-			$taxonomy = 'author' === $kind ? 'library-author' : 'library-publisher';
+			$taxonomy = 'author' === $kind ? 'library_author' : 'library_publisher';
 			$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
 			$subject  = wp_sprintf( '%l', wp_list_pluck( array_filter( $terms, fn( $term ) => $term instanceof WP_Term ), 'name' ) );
-			$target   = self::term_target( $kind, (int) $key, $group );
+			$target   = self::build_term_target( $kind, (int) $key, $group );
 		}
 
 		if ( 0 === $left ) {
-			return self::achievement( $kind, $titles[ $kind ], $subject, Library_Books::books_text( $total ), $target, self::latest_read_date( $read ) );
+			return self::build_achievement( $kind, $titles[ $kind ], $subject, Library_Books::format_books( $total ), $target, self::get_latest_read_date( $read ) );
 		}
 
 		$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
 
-		return self::achievement(
+		return self::build_achievement(
 			$kind,
 			$titles[ $kind ],
 			$subject,
@@ -612,7 +612,7 @@ class Library_Achievements {
 	 * @param callable         $title  Title from the number of subjects, e.g. "38 complete authors".
 	 * @return array<int,array> The achievement, or none.
 	 */
-	private static function level( array $earned, callable $title ): array {
+	private static function get_level_achievement( array $earned, callable $title ): array {
 		if ( ! $earned ) {
 			return array();
 		}
@@ -648,19 +648,19 @@ class Library_Achievements {
 				continue;
 			}
 
-			$term     = get_term( $collection_id, 'library-publisher' );
-			$earned[] = self::achievement(
+			$term     = get_term( $collection_id, 'library_publisher' );
+			$earned[] = self::build_achievement(
 				'collection-step',
 				'',
 				$term instanceof WP_Term ? $term->name : '',
 				/* translators: 1: number of books read, 2: number of books. */
 				sprintf( __( '%1$s read of %2$s', 'library' ), number_format_i18n( count( $reads ) ), number_format_i18n( $total ) ),
-				self::term_target( 'collection', $collection_id, $group ),
+				self::build_term_target( 'collection', $collection_id, $group ),
 				$reads[ $half - 1 ]['read_date']
 			);
 		}
 
-		return self::level(
+		return self::get_level_achievement(
 			$earned,
 			/* translators: %s: number of collections read by half or more. */
 			fn( int $count ) => sprintf( _n( '%s collection read by half or more', '%s collections read by half or more', $count, 'library' ), number_format_i18n( $count ) )
@@ -682,7 +682,7 @@ class Library_Achievements {
 
 		foreach ( self::READ_MILESTONES as $milestone ) {
 			if ( count( $reads ) < $milestone ) {
-				$next[] = self::achievement( 'read', $title( $milestone ), '', '', null, '' ) + array(
+				$next[] = self::build_achievement( 'read', $title( $milestone ), '', '', null, '' ) + array(
 					'done'  => count( $reads ),
 					'total' => $milestone,
 				);
@@ -690,7 +690,7 @@ class Library_Achievements {
 			}
 
 			$earned = array(
-				self::achievement(
+				self::build_achievement(
 					'read',
 					$title( $milestone ),
 					'',
@@ -723,7 +723,7 @@ class Library_Achievements {
 
 			while ( $milestones && $pages >= $milestones[0] ) {
 				$earned = array(
-					self::achievement(
+					self::build_achievement(
 						'pages',
 						$title( array_shift( $milestones ) ),
 						'',
@@ -740,7 +740,7 @@ class Library_Achievements {
 			return array( $earned, array() );
 		}
 
-		$next = self::achievement( 'pages', $title( $milestones[0] ), '', '', null, '' ) + array(
+		$next = self::build_achievement( 'pages', $title( $milestones[0] ), '', '', null, '' ) + array(
 			'done'  => $pages,
 			'total' => $milestones[0],
 		);
@@ -787,11 +787,11 @@ class Library_Achievements {
 			$before = array_filter( $counts, fn( string $key ) => $key < $record, ARRAY_FILTER_USE_KEY );
 			$former = $before ? max( $before ) : 0;
 
-			$earned[] = self::achievement(
+			$earned[] = self::build_achievement(
 				"record-$kind",
 				$period['title'],
 				date_i18n( $period['format'], strtotime( str_pad( $record, 10, '-01', STR_PAD_RIGHT ) ) ),
-				Library_Books::books_text( $best ),
+				Library_Books::format_books( $best ),
 				null,
 				$by_period[ $record ][ $former ]['read_date']
 			);
@@ -832,7 +832,7 @@ class Library_Achievements {
 		}
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				'streak',
 				/* translators: %s: number of months. */
 				sprintf( __( '%s months in a row', 'library' ), number_format_i18n( count( $longest ) ) ),
@@ -875,14 +875,14 @@ class Library_Achievements {
 		}
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				'reread',
 				/* translators: %s: most times a book was read again. */
 				sprintf( _n( 'Read again %s time', 'Read again %s times', $level, 'library' ), number_format_i18n( $level ) ),
 				$found['full_title'],
 				/* translators: %s: year of the first reading of the book. */
 				sprintf( __( 'First read in %s', 'library' ), substr( $found['read_dates'][0], 0, 4 ) ),
-				self::book_target( $found['id'] ),
+				self::build_book_target( $found['id'] ),
 				$found['read_date']
 			),
 		);
@@ -894,8 +894,8 @@ class Library_Achievements {
 	 * @param array $book Book.
 	 * @return int|null
 	 */
-	private static function first_year( array $book ): ?int {
-		$date = Library_Books::date( $book );
+	private static function get_first_year( array $book ): ?int {
+		$date = Library_Books::get_date( $book );
 
 		return '' !== $date ? (int) substr( $date, 0, 4 ) : null;
 	}
@@ -909,22 +909,22 @@ class Library_Achievements {
 	 * @param array<int,array> $books       Books that earned it, in reading order.
 	 * @return array<int,array> The achievement, or none.
 	 */
-	private static function latest( string $kind, string $title, string $description, array $books ): array {
+	private static function get_latest_achievement( string $kind, string $title, string $description, array $books ): array {
 		if ( ! $books ) {
 			return array();
 		}
 
 		$book = end( $books );
 		/* translators: 1: what the books did, e.g. "Read on 29 February", 2: number of books, e.g. "3 books". */
-		$detail = count( $books ) > 1 ? sprintf( __( '%1$s (%2$s)', 'library' ), $description, Library_Books::books_text( count( $books ) ) ) : $description;
+		$detail = count( $books ) > 1 ? sprintf( __( '%1$s (%2$s)', 'library' ), $description, Library_Books::format_books( count( $books ) ) ) : $description;
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				$kind,
 				$title,
 				$book['full_title'],
 				$detail,
-				self::book_target( $book['id'] ),
+				self::build_book_target( $book['id'] ),
 				$book['read_date']
 			),
 		);
@@ -940,16 +940,16 @@ class Library_Achievements {
 	private function get_discoveries( array $books, array $reads ): array {
 		$dated = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
 
-		$hot_off_the_press = array_filter( $dated, fn( array $book ) => self::first_year( $book ) === (int) substr( $book['read_date'], 0, 4 ) );
+		$hot_off_the_press = array_filter( $dated, fn( array $book ) => self::get_first_year( $book ) === (int) substr( $book['read_date'], 0, 4 ) );
 		$centenarians      = array_filter(
 			$dated,
-			fn( array $book ) => null !== self::first_year( $book ) && (int) substr( $book['read_date'], 0, 4 ) - self::first_year( $book ) >= self::CENTENARIAN_YEARS
+			fn( array $book ) => null !== self::get_first_year( $book ) && (int) substr( $book['read_date'], 0, 4 ) - self::get_first_year( $book ) >= self::CENTENARIAN_YEARS
 		);
 
 		return array_merge(
-			self::latest( 'hot-off-the-press', __( 'Hot off the press', 'library' ), __( 'Read the year it came out', 'library' ), array_values( $hot_off_the_press ) ),
-			self::latest( 'centenarian', __( 'Centenarian', 'library' ), __( 'Read a century or more after it first came out', 'library' ), array_values( $centenarians ) ),
-			self::latest( 'archaeologist', __( 'Archaeologist', 'library' ), __( 'Read while the oldest book of the pile', 'library' ), $this->get_oldest_of_the_pile_reads( $books, $dated ) )
+			self::get_latest_achievement( 'hot-off-the-press', __( 'Hot off the press', 'library' ), __( 'Read the year it came out', 'library' ), array_values( $hot_off_the_press ) ),
+			self::get_latest_achievement( 'centenarian', __( 'Centenarian', 'library' ), __( 'Read a century or more after it first came out', 'library' ), array_values( $centenarians ) ),
+			self::get_latest_achievement( 'archaeologist', __( 'Archaeologist', 'library' ), __( 'Read while the oldest book of the pile', 'library' ), $this->get_oldest_of_the_pile_reads( $books, $dated ) )
 		);
 	}
 
@@ -999,7 +999,7 @@ class Library_Achievements {
 		$decades = array();
 
 		foreach ( $reads as $book ) {
-			$year = self::first_year( $book ) ?? 0;
+			$year = self::get_first_year( $book ) ?? 0;
 
 			if ( $year >= 1900 && $year < 2000 && ! isset( $decades[ intdiv( $year, 10 ) ] ) ) {
 				$decades[ intdiv( $year, 10 ) ] = $book;
@@ -1011,7 +1011,7 @@ class Library_Achievements {
 		$detail = sprintf( __( '%s decades of 10', 'library' ), number_format_i18n( count( $decades ) ) );
 
 		if ( 10 === count( $decades ) ) {
-			return array( array( self::achievement( 'decades', $title, '', $detail, null, self::latest_read_date( $decades ) ) ), array() );
+			return array( array( self::build_achievement( 'decades', $title, '', $detail, null, self::get_latest_read_date( $decades ) ) ), array() );
 		}
 
 		if ( count( $decades ) >= self::CLOSE_DECADES ) {
@@ -1020,7 +1020,7 @@ class Library_Achievements {
 				'total' => 10,
 			);
 
-			return array( array(), array( self::achievement( 'decades', $title, '', $detail, null, '' ) + $progress ) );
+			return array( array(), array( self::build_achievement( 'decades', $title, '', $detail, null, '' ) + $progress ) );
 		}
 
 		return array( array(), array() );
@@ -1040,27 +1040,27 @@ class Library_Achievements {
 
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
-				$translators[ self::key( $translator ) ][] = $book;
-				$names[ self::key( $translator ) ]       ??= $translator;
+				$translators[ self::get_name_key( $translator ) ][] = $book;
+				$names[ self::get_name_key( $translator ) ]       ??= $translator;
 			}
 		}
 
 		foreach ( $translators as $key => $books ) {
 			$translator = $names[ $key ];
 			$left       = self::TRANSLATOR_BOOKS - count( $books );
-			$detail     = Library_Books::books_text( count( $books ) );
+			$detail     = Library_Books::format_books( count( $books ) );
 
 			if ( $left <= 0 ) {
-				$earned[] = self::achievement( 'translator', '', $translator, $detail, self::search_target( Library_WP_Query::keyword_search( 'translator', $translator ), $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
+				$earned[] = self::build_achievement( 'translator', '', $translator, $detail, self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]['read_date'] );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
-				$close[] = self::achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::search_target( Library_WP_Query::keyword_search( 'translator', $translator ), $books ), '' ) + array(
+				$close[] = self::build_achievement( 'translator', __( 'Faithful to a translator', 'library' ), $translator, $detail, self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), $books ), '' ) + array(
 					'done'  => count( $books ),
 					'total' => self::TRANSLATOR_BOOKS,
 				);
 			}
 		}
 
-		$level = self::level(
+		$level = self::get_level_achievement(
 			$earned,
 			/* translators: %s: number of translators with many books read. */
 			fn( int $count ) => sprintf( _n( 'Faithful to %s translator', 'Faithful to %s translators', $count, 'library' ), number_format_i18n( $count ) )
@@ -1089,7 +1089,7 @@ class Library_Achievements {
 				$languages[ $language ] = $book;
 
 				if ( $milestones && count( $languages ) === $milestones[0] ) {
-					$earned[] = self::achievement(
+					$earned[] = self::build_achievement(
 						'languages',
 						/* translators: %s: number of original languages read. */
 						sprintf( __( '%s original languages', 'library' ), number_format_i18n( array_shift( $milestones ) ) ),
@@ -1116,7 +1116,7 @@ class Library_Achievements {
 		/* translators: %s: number of original languages read. */
 		$detail = sprintf( _n( '%s language read', '%s languages read', count( $languages ), 'library' ), number_format_i18n( count( $languages ) ) );
 
-		return array( $earned, array( self::achievement( 'languages', $title, '', $detail, null, '' ) + $progress ) );
+		return array( $earned, array( self::build_achievement( 'languages', $title, '', $detail, null, '' ) + $progress ) );
 	}
 
 	/**
@@ -1132,7 +1132,7 @@ class Library_Achievements {
 		$own_language = strtok( get_user_locale(), '_' );
 		$dated        = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
 		$languages    = fn( array $book ) => $book['languages'];
-		$feats        = self::latest(
+		$feats        = self::get_latest_achievement(
 			'original-language',
 			__( 'In the original', 'library' ),
 			__( 'Read in its original language, without translator', 'library' ),
@@ -1144,10 +1144,10 @@ class Library_Achievements {
 			)
 		);
 
-		$polyglot = self::latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), $languages, self::POLYGLOT_LANGUAGES );
+		$polyglot = self::get_latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), $languages, self::POLYGLOT_LANGUAGES );
 
 		if ( $polyglot ) {
-			$feats[] = self::achievement(
+			$feats[] = self::build_achievement(
 				'polyglot',
 				__( 'Polyglot of the month', 'library' ),
 				date_i18n( 'F Y', strtotime( $polyglot['period'] . '-01' ) ),
@@ -1158,10 +1158,10 @@ class Library_Achievements {
 			);
 		}
 
-		$rosetta_stone = self::latest_variety( $dated, fn( array $book ) => gmdate( 'o-W', strtotime( $book['read_date'] ) ), $languages, self::ROSETTA_STONE_LANGUAGES );
+		$rosetta_stone = self::get_latest_variety( $dated, fn( array $book ) => gmdate( 'o-W', strtotime( $book['read_date'] ) ), $languages, self::ROSETTA_STONE_LANGUAGES );
 
 		if ( $rosetta_stone ) {
-			$feats[] = self::achievement(
+			$feats[] = self::build_achievement(
 				'rosetta-stone',
 				__( 'Rosetta Stone', 'library' ),
 				'',
@@ -1188,23 +1188,23 @@ class Library_Achievements {
 
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
-				$names[ self::key( $translator ) ] ??= $translator;
+				$names[ self::get_name_key( $translator ) ] ??= $translator;
 
 				foreach ( $book['languages'] as $language ) {
-					$from[ self::key( $translator ) ][ $language ] ??= $book;
+					$from[ self::get_name_key( $translator ) ][ $language ] ??= $book;
 				}
 			}
 		}
 
 		foreach ( array_filter( $from, fn( array $languages ) => count( $languages ) > 1 ) as $key => $languages ) {
 			$translator = $names[ $key ];
-			$earned[]   = self::achievement(
+			$earned[]   = self::build_achievement(
 				'go-between',
 				__( 'Go-between', 'library' ),
 				$translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::search_target( Library_WP_Query::keyword_search( 'translator', $translator ), array_values( $languages ) ),
+				self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), array_values( $languages ) ),
 				array_values( $languages )[1]['read_date']
 			);
 		}
@@ -1222,7 +1222,7 @@ class Library_Achievements {
 	 * @param int              $count  Number of different values to reach.
 	 * @return array{period:string,book:array}|null
 	 */
-	private static function latest_variety( array $dated, callable $period, callable $values, int $count ): ?array {
+	private static function get_latest_variety( array $dated, callable $period, callable $values, int $count ): ?array {
 		$seen   = array();
 		$latest = null;
 
@@ -1264,21 +1264,21 @@ class Library_Achievements {
 		usort( $answers, fn( array $a, array $b ) => strcmp( $a['read_date'], $b['read_date'] ) );
 
 		return array_merge(
-			self::latest(
+			self::get_latest_achievement(
 				'page-404',
 				__( 'Error 404', 'library' ),
 				/* translators: %s: number of pages. */
 				sprintf( __( 'Page not found: a book of %s pages', 'library' ), number_format_i18n( self::ODD_PAGES['page-404'] ) ),
 				$by_pages( self::ODD_PAGES['page-404'] )
 			),
-			self::latest(
+			self::get_latest_achievement(
 				'fahrenheit-451',
 				__( 'Fahrenheit 451', 'library' ),
 				/* translators: %s: number of pages. */
 				sprintf( __( 'A book of %s pages, the temperature at which paper burns', 'library' ), number_format_i18n( self::ODD_PAGES['fahrenheit-451'] ) ),
 				$by_pages( self::ODD_PAGES['fahrenheit-451'] )
 			),
-			self::latest( 'ultimate-question', __( 'The Ultimate Question', 'library' ), __( 'A book of 42 pages, or the 42nd read of a year', 'library' ), $answers )
+			self::get_latest_achievement( 'ultimate-question', __( 'The Ultimate Question', 'library' ), __( 'A book of 42 pages, or the 42nd read of a year', 'library' ), $answers )
 		);
 	}
 
@@ -1295,14 +1295,14 @@ class Library_Achievements {
 			$book['pages'] > self::SPLITS_PAGES['long'] => array( 'long' ),
 			default => array(),
 		};
-		$splits = self::latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), $size, 2 );
+		$splits = self::get_latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), $size, 2 );
 
 		if ( ! $splits ) {
 			return array();
 		}
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				'splits',
 				__( 'The splits', 'library' ),
 				date_i18n( 'F Y', strtotime( $splits['period'] . '-01' ) ),
@@ -1350,7 +1350,7 @@ class Library_Achievements {
 		/* translators: %s: number of pages. */
 		$detail = sprintf( __( '%s pages read within a year', 'library' ), number_format_i18n( self::EVEREST_PAGES ) );
 
-		return array( self::achievement( 'everest', __( 'Everest', 'library' ), '', $detail, null, $summit ) );
+		return array( self::build_achievement( 'everest', __( 'Everest', 'library' ), '', $detail, null, $summit ) );
 	}
 
 	/**
@@ -1360,15 +1360,15 @@ class Library_Achievements {
 	 * @return array<int,array>
 	 */
 	private function get_time_machine( array $dated ): array {
-		$century = fn( array $book ) => null !== self::first_year( $book ) ? array( intdiv( self::first_year( $book ), 100 ) ) : array();
-		$trip    = self::latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), $century, self::TIME_MACHINE_CENTURIES );
+		$century = fn( array $book ) => null !== self::get_first_year( $book ) ? array( intdiv( self::get_first_year( $book ), 100 ) ) : array();
+		$trip    = self::get_latest_variety( $dated, fn( array $book ) => substr( $book['read_date'], 0, 7 ), $century, self::TIME_MACHINE_CENTURIES );
 
 		if ( ! $trip ) {
 			return array();
 		}
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				'time-machine',
 				__( 'Time machine', 'library' ),
 				date_i18n( 'F Y', strtotime( $trip['period'] . '-01' ) ),
@@ -1390,8 +1390,8 @@ class Library_Achievements {
 		$seen  = array();
 		$twins = null;
 
-		foreach ( array_filter( $dated, fn( array $book ) => null !== self::first_year( $book ) && $book['author_ids'] ) as $book ) {
-			$key = $book['read_date'] . self::first_year( $book );
+		foreach ( array_filter( $dated, fn( array $book ) => null !== self::get_first_year( $book ) && $book['author_ids'] ) as $book ) {
+			$key = $book['read_date'] . self::get_first_year( $book );
 
 			foreach ( $seen[ $key ] ?? array() as $twin ) {
 				if ( ! array_intersect( $twin['author_ids'], $book['author_ids'] ) ) {
@@ -1407,7 +1407,7 @@ class Library_Achievements {
 		}
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				'twins',
 				__( 'Twins', 'library' ),
 				$twins[1]['full_title'],
@@ -1415,9 +1415,9 @@ class Library_Achievements {
 					/* translators: 1: title of the other book, 2: year both first came out. */
 					__( 'Read the same day as %1$s, both came out in %2$s', 'library' ),
 					$twins[0]['full_title'],
-					self::first_year( $twins[1] )
+					self::get_first_year( $twins[1] )
 				),
-				self::book_target( $twins[1]['id'] ),
+				self::build_book_target( $twins[1]['id'] ),
 				$twins[1]['read_date']
 			),
 		);
@@ -1440,48 +1440,48 @@ class Library_Achievements {
 
 		if ( $to_read >= self::TSUNDOKU_BOOKS ) {
 			/* translators: %s: number of books to read. */
-			$eggs[] = self::achievement( 'tsundoku', __( 'Tsundoku', 'library' ), '', sprintf( __( '%s books waiting to be read', 'library' ), number_format_i18n( $to_read ) ), null, '' );
+			$eggs[] = self::build_achievement( 'tsundoku', __( 'Tsundoku', 'library' ), '', sprintf( __( '%s books waiting to be read', 'library' ), number_format_i18n( $to_read ) ), null, '' );
 		}
 
 		$eggs = array_merge(
 			$eggs,
-			self::latest( 'leap-day', __( 'Leap day', 'library' ), __( 'Read on 29 February', 'library' ), $on( '02-29' ) ),
-			self::latest( 'pi-day', __( 'Pi day', 'library' ), __( 'Read on 14 March', 'library' ), $on( '03-14' ) ),
-			self::latest( 'new-year', __( 'New Year\'s resolution', 'library' ), __( 'Read on 1 January', 'library' ), $on( '01-01' ) ),
-			self::latest( 'new-years-eve', __( 'Last of the year', 'library' ), __( 'Read on 31 December', 'library' ), $on( '12-31' ) ),
-			self::latest(
+			self::get_latest_achievement( 'leap-day', __( 'Leap day', 'library' ), __( 'Read on 29 February', 'library' ), $on( '02-29' ) ),
+			self::get_latest_achievement( 'pi-day', __( 'Pi day', 'library' ), __( 'Read on 14 March', 'library' ), $on( '03-14' ) ),
+			self::get_latest_achievement( 'new-year', __( 'New Year\'s resolution', 'library' ), __( 'Read on 1 January', 'library' ), $on( '01-01' ) ),
+			self::get_latest_achievement( 'new-years-eve', __( 'Last of the year', 'library' ), __( 'Read on 31 December', 'library' ), $on( '12-31' ) ),
+			self::get_latest_achievement(
 				'friday-13th',
 				__( 'Friday the 13th', 'library' ),
 				__( 'Read on a Friday the 13th', 'library' ),
 				array_values( array_filter( $dated, fn( array $book ) => '13' === substr( $book['read_date'], 8 ) && '5' === gmdate( 'N', strtotime( $book['read_date'] ) ) ) )
 			),
-			self::latest(
+			self::get_latest_achievement(
 				'palindrome',
 				__( 'Palindrome date', 'library' ),
 				__( 'Read on a date that reads the same backwards', 'library' ),
 				array_values( array_filter( $dated, fn( array $book ) => str_replace( '-', '', $book['read_date'] ) === strrev( str_replace( '-', '', $book['read_date'] ) ) ) )
 			),
-			self::latest(
+			self::get_latest_achievement(
 				'love-at-first-sight',
 				__( 'Love at first sight', 'library' ),
 				__( 'Added and read the same day', 'library' ),
 				array_values( array_filter( $dated, fn( array $book ) => substr( $book['added'], 0, 10 ) === $book['read_date'] ) )
 			),
-			self::latest(
+			self::get_latest_achievement(
 				'brick',
 				__( 'Brick', 'library' ),
 				/* translators: %s: number of pages. */
 				sprintf( __( 'A book of %s pages or more', 'library' ), number_format_i18n( self::BRICK_PAGES ) ),
 				array_values( array_filter( $reads, fn( array $book ) => (int) $book['pages'] >= self::BRICK_PAGES ) )
 			),
-			self::latest(
+			self::get_latest_achievement(
 				'one-that-got-away',
 				__( 'The one that got away', 'library' ),
 				/* translators: %s: rating, out of 10. */
 				sprintf( __( 'Not kept, rated %s or more', 'library' ), number_format_i18n( self::ONE_THAT_GOT_AWAY_RATING ) ),
 				array_values( array_filter( $reads, fn( array $book ) => Library_Posts::NOT_KEPT === $book['status'] && $book['rating'] >= self::ONE_THAT_GOT_AWAY_RATING ) )
 			),
-			self::latest(
+			self::get_latest_achievement(
 				'mouthful',
 				__( 'Mouthful', 'library' ),
 				/* translators: %s: number of characters. */
@@ -1525,7 +1525,7 @@ class Library_Achievements {
 		$day = (string) array_key_last( $marathons );
 
 		/* translators: %s: number of books read the same day. */
-		return array( self::achievement( 'marathon', __( 'Marathon', 'library' ), '', sprintf( __( '%s books read the same day', 'library' ), number_format_i18n( count( $marathons[ $day ] ) ) ), null, $day ) );
+		return array( self::build_achievement( 'marathon', __( 'Marathon', 'library' ), '', sprintf( __( '%s books read the same day', 'library' ), number_format_i18n( count( $marathons[ $day ] ) ) ), null, $day ) );
 	}
 
 	/**
@@ -1552,7 +1552,7 @@ class Library_Achievements {
 		}
 
 		return array(
-			self::achievement(
+			self::build_achievement(
 				'seven-days-a-week',
 				__( 'Seven days a week', 'library' ),
 				'',
@@ -1586,7 +1586,7 @@ class Library_Achievements {
 			return array();
 		}
 
-		return array( self::achievement( 'hat-trick', __( 'Hat-trick', 'library' ), $found['full_title'], __( 'Three books rated 10 in a row', 'library' ), self::book_target( $found['id'] ), $found['read_date'] ) );
+		return array( self::build_achievement( 'hat-trick', __( 'Hat-trick', 'library' ), $found['full_title'], __( 'Three books rated 10 in a row', 'library' ), self::build_book_target( $found['id'] ), $found['read_date'] ) );
 	}
 
 	/**
@@ -1599,7 +1599,7 @@ class Library_Achievements {
 		$titles = array();
 
 		foreach ( $reads as $book ) {
-			$titles[ self::key( $book['title'] ) ][] = $book;
+			$titles[ self::get_name_key( $book['title'] ) ][] = $book;
 		}
 
 		foreach ( array_reverse( $titles ) as $books ) {
@@ -1608,7 +1608,7 @@ class Library_Achievements {
 					if ( $book['author_ids'] && $other['author_ids'] && ! array_intersect( $book['author_ids'], $other['author_ids'] ) ) {
 						$latest = max( $book['read_date'], $other['read_date'] );
 
-						return array( self::achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::search_target( $book['title'], $books ), $latest ) );
+						return array( self::build_achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::build_search_target( $book['title'], $books ), $latest ) );
 					}
 				}
 			}
@@ -1632,10 +1632,10 @@ class Library_Achievements {
 				continue;
 			}
 
-			if ( 1 === $book['volume'] && isset( $later[ self::key( $book['series'] ) ] ) ) {
+			if ( 1 === $book['volume'] && isset( $later[ self::get_name_key( $book['series'] ) ] ) ) {
 				$found = $book;
 			} elseif ( $book['volume'] > 1 ) {
-				$later[ self::key( $book['series'] ) ] = true;
+				$later[ self::get_name_key( $book['series'] ) ] = true;
 			}
 		}
 
@@ -1643,6 +1643,6 @@ class Library_Achievements {
 			return array();
 		}
 
-		return array( self::achievement( 'back-to-the-start', __( 'Back to the start', 'library' ), $found['full_title'], __( 'Volume 1 read after a later volume', 'library' ), self::book_target( $found['id'] ), $found['read_date'] ) );
+		return array( self::build_achievement( 'back-to-the-start', __( 'Back to the start', 'library' ), $found['full_title'], __( 'Volume 1 read after a later volume', 'library' ), self::build_book_target( $found['id'] ), $found['read_date'] ) );
 	}
 }

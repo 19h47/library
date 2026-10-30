@@ -12,7 +12,7 @@
  */
 
 $args   = wp_parse_args( $args, array( 'attributes' => array() ) );
-$select = Library::control( Library::select( $args['options'] ), $args['attributes'] + array( 'id' => $args['id'] ) );
+$select = Library::set_attributes( Library::get_select( $args['options'] ), $args['attributes'] + array( 'id' => $args['id'] ) );
 ?>
 <label class="app-pill" for="<?php echo esc_attr( $args['id'] ); ?>">
 	<span class="sr-only"><?php echo esc_html( $args['label'] ); ?></span>

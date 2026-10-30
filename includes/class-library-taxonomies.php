@@ -10,7 +10,7 @@
  */
 
 /**
- * Registers library-author, library-publisher and library-language taxonomies.
+ * Registers library_author, library_publisher and library_language taxonomies.
  *
  * @since      1.0.0
  * @package    Library
@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	public const TAXONOMIES = array( 'library-author', 'library-publisher', 'library-language' );
+	public const TAXONOMIES = array( 'library_author', 'library_publisher', 'library_language' );
 
 	/**
 	 * Register hooks.
@@ -37,7 +37,7 @@ class Library_Taxonomies {
 		add_filter( 'pre_insert_term', array( $this, 'require_language_code' ), 10, 3 );
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 		// Before core adds the languages typed in the box of a book, at 10.
-		add_action( 'wp_ajax_add-library-language', array( $this, 'explain_refused_language' ), 9 );
+		add_action( 'wp_ajax_add-library_language', array( $this, 'explain_refused_language' ), 9 );
 	}
 
 	/**
@@ -92,12 +92,15 @@ class Library_Taxonomies {
 			'show_in_quick_edit'   => true,
 			'show_admin_column'    => true,
 			'show_in_rest'         => true,
+			// As core names its own: tags under /wp/v2/tags, and their archives /tag/; /author/ is the one of users.
+			'rest_base'            => 'authors',
+			'rewrite'              => array( 'slug' => 'library-author' ),
 			// The tag box lets authors be typed rather than picked from a checklist.
 			'meta_box_cb'          => 'post_tags_meta_box',
 			'meta_box_sanitize_cb' => array( self::class, 'sanitize_author_names' ),
 		);
 
-		register_taxonomy( 'library-author', 'book', $args );
+		register_taxonomy( 'library_author', 'library_book', $args );
 	}
 
 	/**
@@ -204,9 +207,11 @@ class Library_Taxonomies {
 			'show_in_quick_edit' => true,
 			'show_admin_column'  => true,
 			'show_in_rest'       => true,
+			'rest_base'          => 'publishers',
+			'rewrite'            => array( 'slug' => 'library-publisher' ),
 		);
 
-		register_taxonomy( 'library-publisher', 'book', $args );
+		register_taxonomy( 'library_publisher', 'library_book', $args );
 	}
 
 	/**
@@ -247,9 +252,11 @@ class Library_Taxonomies {
 			'show_in_quick_edit' => true,
 			'show_admin_column'  => true,
 			'show_in_rest'       => true,
+			'rest_base'          => 'languages',
+			'rewrite'            => array( 'slug' => 'library-language' ),
 		);
 
-		register_taxonomy( 'library-language', 'book', $args );
+		register_taxonomy( 'library_language', 'library_book', $args );
 	}
 
 	/**
@@ -266,7 +273,7 @@ class Library_Taxonomies {
 	 * @return string|WP_Error
 	 */
 	public function require_language_code( $term, string $taxonomy, array $args ) {
-		if ( 'library-language' !== $taxonomy || is_wp_error( $term ) ) {
+		if ( 'library_language' !== $taxonomy || is_wp_error( $term ) ) {
 			return $term;
 		}
 
@@ -331,17 +338,17 @@ class Library_Taxonomies {
 	 * @return void
 	 */
 	public function explain_refused_language(): void {
-		check_ajax_referer( 'add-library-language', '_ajax_nonce-add-library-language' );
+		check_ajax_referer( 'add-library_language', '_ajax_nonce-add-library_language' );
 
-		$names = explode( ',', sanitize_text_field( wp_unslash( $_POST['newlibrary-language'] ?? '' ) ) );
+		$names = explode( ',', sanitize_text_field( wp_unslash( $_POST['newlibrary_language'] ?? '' ) ) );
 
 		foreach ( $names as $name ) {
-			$term = '' !== sanitize_title( $name ) ? $this->require_language_code( trim( $name ), 'library-language', array() ) : $name;
+			$term = '' !== sanitize_title( $name ) ? $this->require_language_code( trim( $name ), 'library_language', array() ) : $name;
 
 			if ( is_wp_error( $term ) ) {
 				$response = new WP_Ajax_Response(
 					array(
-						'what' => 'library-language',
+						'what' => 'library_language',
 						'data' => $term,
 					)
 				);
@@ -359,7 +366,7 @@ class Library_Taxonomies {
 	 * @return array
 	 */
 	public function name_language( array $data, string $taxonomy ): array {
-		if ( 'library-language' !== $taxonomy || ! class_exists( 'Locale' ) || ! preg_match( '/^[a-z]{2,3}$/', $data['name'] ) ) {
+		if ( 'library_language' !== $taxonomy || ! class_exists( 'Locale' ) || ! preg_match( '/^[a-z]{2,3}$/', $data['name'] ) ) {
 			return $data;
 		}
 
@@ -379,7 +386,7 @@ class Library_Taxonomies {
 	 * @return WP_Term[]
 	 */
 	public static function get_collections( int $book_id ): array {
-		$terms = get_the_terms( $book_id, 'library-publisher' );
+		$terms = get_the_terms( $book_id, 'library_publisher' );
 
 		return array_values( wp_list_filter( is_array( $terms ) ? $terms : array(), array( 'parent' => 0 ), 'NOT' ) );
 	}

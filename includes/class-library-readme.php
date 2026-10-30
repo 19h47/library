@@ -47,7 +47,7 @@ class Library_Readme {
 	 * @param string $readme Readme content.
 	 * @return array<string,string>
 	 */
-	public static function sections( string $readme ): array {
+	public static function get_sections( string $readme ): array {
 		$parts    = preg_split( '/^==\s*([^=].*?)\s*==\s*$/m', str_replace( "\r\n", "\n", $readme ), -1, PREG_SPLIT_DELIM_CAPTURE );
 		$sections = array();
 
@@ -56,7 +56,7 @@ class Library_Readme {
 			$key = self::SECTIONS[ $name ] ?? null;
 
 			if ( $key ) {
-				$sections[ $key ] = self::html( $text );
+				$sections[ $key ] = self::get_section_html( $text );
 			}
 		}
 
@@ -70,7 +70,7 @@ class Library_Readme {
 	 * @param string $name   Header name.
 	 * @return string
 	 */
-	public static function header( string $readme, string $name ): string {
+	public static function get_header( string $readme, string $name ): string {
 		return preg_match( '/^' . preg_quote( $name, '/' ) . ':\s*(.+?)\s*$/mi', $readme, $match ) ? $match[1] : '';
 	}
 
@@ -80,14 +80,14 @@ class Library_Readme {
 	 * @param string $text Section text.
 	 * @return string
 	 */
-	private static function html( string $text ): string {
+	private static function get_section_html( string $text ): string {
 		$html = '';
 
 		foreach ( preg_split( '/\n\s*\n/', trim( $text ) ) as $block ) {
 			$lines = explode( "\n", $block );
 
 			if ( preg_match( '/^=\s*(.+?)\s*=$/', $lines[0], $match ) ) {
-				$html .= '<h4>' . self::inline( $match[1] ) . '</h4>';
+				$html .= '<h4>' . self::get_inline_html( $match[1] ) . '</h4>';
 				array_shift( $lines );
 			}
 
@@ -95,7 +95,7 @@ class Library_Readme {
 				continue;
 			}
 
-			$html .= preg_match( self::LIST_ITEM, $lines[0] ) ? self::list_html( $lines ) : '<p>' . self::inline( implode( ' ', $lines ) ) . '</p>';
+			$html .= preg_match( self::LIST_ITEM, $lines[0] ) ? self::get_list_html( $lines ) : '<p>' . self::get_inline_html( implode( ' ', $lines ) ) . '</p>';
 		}
 
 		return $html;
@@ -107,13 +107,13 @@ class Library_Readme {
 	 * @param string[] $lines List lines.
 	 * @return string
 	 */
-	private static function list_html( array $lines ): string {
+	private static function get_list_html( array $lines ): string {
 		$html  = '';
 		$lists = array();
 
 		foreach ( $lines as $line ) {
 			if ( ! preg_match( self::LIST_ITEM, $line, $match ) ) {
-				$html .= ' ' . self::inline( trim( $line ) );
+				$html .= ' ' . self::get_inline_html( trim( $line ) );
 				continue;
 			}
 
@@ -134,7 +134,7 @@ class Library_Readme {
 				);
 			}
 
-			$html .= '<li>' . self::inline( $match[3] );
+			$html .= '<li>' . self::get_inline_html( $match[3] );
 		}
 
 		while ( $lists ) {
@@ -150,7 +150,7 @@ class Library_Readme {
 	 * @param string $text Text.
 	 * @return string
 	 */
-	private static function inline( string $text ): string {
+	private static function get_inline_html( string $text ): string {
 		$html = esc_html( $text );
 		$html = preg_replace( '/`([^`]+)`/', '<code>$1</code>', $html );
 		$html = preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $html );

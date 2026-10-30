@@ -44,7 +44,7 @@ class Library_Posts {
 		add_action( 'init', array( $this, 'register_post_statuses' ) );
 		// After the status of the post is known, which the "Library" menu of the publish box may change.
 		add_filter( 'wp_insert_post_data', array( $this, 'build_slug' ), 11, 2 );
-		add_filter( 'wp_insert_post_data', array( $this, 'date_bought' ), 11, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'set_bought_date' ), 11, 2 );
 		add_filter( 'the_title', array( $this, 'show_full_title' ), 10, 2 );
 	}
 
@@ -57,7 +57,7 @@ class Library_Posts {
 	 * @return void
 	 */
 	public function add_thumbnail_support(): void {
-		add_theme_support( 'post-thumbnails', array( 'book' ) );
+		add_theme_support( 'post-thumbnails', array( 'library_book' ) );
 	}
 
 	/**
@@ -118,10 +118,10 @@ class Library_Posts {
 	 * @param array $postarr Slashed submitted data.
 	 * @return array
 	 */
-	public function date_bought( array $data, array $postarr ): array {
+	public function set_bought_date( array $data, array $postarr ): array {
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
 
-		if ( 'book' !== $data['post_type'] || ! $post_id || self::TO_BUY !== get_post_status( $post_id ) || in_array( $data['post_status'], array( self::TO_BUY, 'trash' ), true ) ) {
+		if ( 'library_book' !== $data['post_type'] || ! $post_id || self::TO_BUY !== get_post_status( $post_id ) || in_array( $data['post_status'], array( self::TO_BUY, 'trash' ), true ) ) {
 			return $data;
 		}
 
@@ -146,7 +146,7 @@ class Library_Posts {
 	 * @return array
 	 */
 	public function build_slug( array $data, array $postarr ): array {
-		if ( 'book' !== $data['post_type'] || ! isset( $postarr['isbn'] ) ) {
+		if ( 'library_book' !== $data['post_type'] || ! isset( $postarr['library_isbn'] ) ) {
 			return $data;
 		}
 
@@ -154,14 +154,14 @@ class Library_Posts {
 		$title   = sanitize_text_field( wp_unslash( $postarr['post_title'] ?? '' ) );
 		$fields  = array();
 
-		foreach ( array( 'isbn', 'issn', 'volume_number' ) as $key ) {
-			$fields[ $key ] = sanitize_meta( $key, isset( $postarr[ $key ] ) ? wp_unslash( $postarr[ $key ] ) : (string) get_post_meta( $post_id, $key, true ), 'post', 'book' );
+		foreach ( array( 'library_isbn', 'library_issn', 'library_volume_number' ) as $key ) {
+			$fields[ $key ] = sanitize_meta( $key, isset( $postarr[ $key ] ) ? wp_unslash( $postarr[ $key ] ) : (string) get_post_meta( $post_id, $key, true ), 'post', 'library_book' );
 		}
 
-		if ( $fields['issn'] && $fields['volume_number'] ) {
-			$parts = array( $title, $fields['issn'], $fields['volume_number'] );
-		} elseif ( $fields['isbn'] ) {
-			$parts = array( $title, $fields['isbn'] );
+		if ( $fields['library_issn'] && $fields['library_volume_number'] ) {
+			$parts = array( $title, $fields['library_issn'], $fields['library_volume_number'] );
+		} elseif ( $fields['library_isbn'] ) {
+			$parts = array( $title, $fields['library_isbn'] );
 		} else {
 			$parts = array( $title );
 		}
@@ -173,7 +173,7 @@ class Library_Posts {
 			return $data;
 		}
 
-		$data['post_name'] = wp_unique_post_slug( $slug, $post_id, $data['post_status'], 'book', $data['post_parent'] );
+		$data['post_name'] = wp_unique_post_slug( $slug, $post_id, $data['post_status'], 'library_book', $data['post_parent'] );
 
 		return $data;
 	}
@@ -251,7 +251,7 @@ class Library_Posts {
 		 */
 		$args = apply_filters( 'library_post_type_args', $args );
 
-		register_post_type( 'book', $args );
+		register_post_type( 'library_book', $args );
 	}
 
 	/**
@@ -261,7 +261,7 @@ class Library_Posts {
 	 * @return bool
 	 */
 	public static function is_read( int $post_id ): bool {
-		return (bool) get_post_meta( $post_id, 'read', true );
+		return (bool) get_post_meta( $post_id, 'library_read', true );
 	}
 
 	/**
@@ -272,10 +272,10 @@ class Library_Posts {
 	 * @return string
 	 */
 	public function show_full_title( string $title, int $post_id = 0 ): string {
-		if ( ! $post_id || 'book' !== get_post_type( $post_id ) ) {
+		if ( ! $post_id || 'library_book' !== get_post_type( $post_id ) ) {
 			return $title;
 		}
 
-		return Library_Books::title( $post_id, $title );
+		return Library_Books::get_full_title( $post_id, $title );
 	}
 }

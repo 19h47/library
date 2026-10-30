@@ -112,7 +112,7 @@
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
 	}
 
-	/** A book of the API as the app shows it: plain text but its notes, its read dates in order, its cover with its size, its authors and its original languages. */
+	/** A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and its original languages. */
 	function toBook( item ) {
 		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 		const details = media?.media_details;
@@ -120,11 +120,13 @@
 		const original = media?.source_url && { source_url: media.source_url, width: details.width, height: details.height };
 		const size = details?.sizes?.medium ?? original;
 		const terms = ( item._embedded?.[ 'wp:term' ] ?? [] ).flat();
+		// Its meta without the prefix of their keys: library_rating is its rating.
+		const meta = Object.fromEntries( Object.entries( item.meta ).map( ( [ key, value ] ) => [ key.replace( /^library_/, '' ), value ] ) );
 
 		return {
-			...item.meta,
+			...meta,
 			// A date stored empty comes back as null.
-			read_date: [ ...new Set( item.meta.read_date.filter( Boolean ) ) ].sort(),
+			read_date: [ ...new Set( meta.read_date.filter( Boolean ) ) ].sort(),
 			id: item.id,
 			title: text( item.title.rendered ),
 			excerpt: text( item.excerpt.rendered ),
@@ -136,10 +138,10 @@
 			cover: size ? { url: size.source_url, width: size.width, height: size.height } : null,
 			// As named on the book: a pseudonym opens the page of the author too.
 			authors: terms
-				.filter( ( term ) => 'library-author' === term.taxonomy )
+				.filter( ( term ) => 'library_author' === term.taxonomy )
 				.map( ( term ) => ( { id: term.id, name: text( term.name ) } ) ),
 			// As their ISO 639 codes, the slugs of their terms: the app names them in a sentence.
-			languages: terms.filter( ( term ) => 'library-language' === term.taxonomy ).map( ( term ) => term.slug ),
+			languages: terms.filter( ( term ) => 'library_language' === term.taxonomy ).map( ( term ) => term.slug ),
 		};
 	}
 
@@ -548,7 +550,7 @@
 
 			try {
 				const coverId = cover ? await this.#uploadCover( cover, book ) : 0;
-				const { id } = await apiFetch( { path: '/library/v1/books', method: 'POST', data: { ...book, cover: coverId } } );
+				const { id } = await apiFetch( { path: '/library/v1/books', method: 'POST', data: { ...book, featured_media: coverId } } );
 
 				await this.#fetchBooks( [ id ] );
 				this.closeEdit();
@@ -583,7 +585,7 @@
 			}
 
 			if ( coverRemoved && ! cover && books[ id ].cover ) {
-				changes.cover = 0;
+				changes.featured_media = 0;
 			}
 
 			if ( ! cover && ! Object.keys( changes ).length ) {
@@ -595,7 +597,7 @@
 
 			try {
 				if ( cover ) {
-					changes.cover = await this.#uploadCover( cover, { ...values, meta } );
+					changes.featured_media = await this.#uploadCover( cover, { ...values, meta } );
 				}
 
 				await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: changes } );
@@ -623,15 +625,15 @@
 			const meta = {};
 
 			if ( read !== book.read ) {
-				meta.read = read;
+				meta.library_read = read;
 			}
 
 			if ( read && dates.join() !== book.read_date.join() ) {
-				meta.read_date = dates;
+				meta.library_read_date = dates;
 			}
 
 			if ( rating !== ( book.rating || null ) ) {
-				meta.rating = rating;
+				meta.library_rating = rating;
 			}
 
 			if ( ! Object.keys( meta ).length && status === book.status ) {
@@ -1068,9 +1070,9 @@
 			this.#update( 'terms', () => ( { loading: true } ) );
 
 			try {
-				const taxonomies = [ 'library-author', 'library-publisher', 'library-language' ];
+				const bases = [ 'authors', 'publishers', 'languages' ];
 				const [ authors, publishers, languages ] = await Promise.all(
-					taxonomies.map( ( taxonomy ) => apiFetch( { path: `/wp/v2/${ taxonomy }?per_page=-1&_fields=id,name,parent` } ) )
+					bases.map( ( base ) => apiFetch( { path: `/wp/v2/${ base }?per_page=-1&_fields=id,name,parent` } ) )
 				);
 				const toTerm = ( { id, name, parent } ) => ( { id, name: text( name ), parent } );
 

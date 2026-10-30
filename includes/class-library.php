@@ -55,7 +55,7 @@ class Library {
 	 * @param string $path Path relative to the plugin folder, e.g. admin/css/library-admin.css.
 	 * @return array{0:string,1:string}
 	 */
-	public static function asset( string $path ): array {
+	public static function get_asset( string $path ): array {
 		$url     = plugins_url( $path, LIBRARY_FILE );
 		$version = (string) filemtime( LIBRARY_DIR_PATH . $path );
 
@@ -71,7 +71,7 @@ class Library {
 	 * @param array<string, mixed> $args Arguments of the component, as its file describes them.
 	 * @return void
 	 */
-	public static function component( string $name, array $args = array() ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Read by the component it includes.
+	public static function render_component( string $name, array $args = array() ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Read by the component it includes.
 		require LIBRARY_DIR_PATH . "app/components/$name.php";
 	}
 
@@ -82,7 +82,7 @@ class Library {
 	 * @param array<string, string|bool|null> $attributes Attributes of the control.
 	 * @return string
 	 */
-	public static function control( string $markup, array $attributes ): string {
+	public static function set_attributes( string $markup, array $attributes ): string {
 		$control = new WP_HTML_Tag_Processor( $markup );
 
 		$control->next_tag();
@@ -101,7 +101,7 @@ class Library {
 	 * @param string|null               $value   Value of the option selected, or null for the first one.
 	 * @return string
 	 */
-	public static function select( array $options, ?string $value = null ): string {
+	public static function get_select( array $options, ?string $value = null ): string {
 		$markup = '';
 
 		foreach ( $options as $option => $label ) {

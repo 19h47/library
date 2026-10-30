@@ -32,7 +32,7 @@ class Library_Books {
 	 *
 	 * @return string[]
 	 */
-	public static function statuses(): array {
+	public static function get_statuses(): array {
 		return array_keys( Library_Posts::get_status_choices() );
 	}
 
@@ -46,15 +46,15 @@ class Library_Books {
 	 *
 	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>}>
 	 */
-	public static function all(): array {
+	public static function get_books(): array {
 		if ( null !== self::$books ) {
 			return self::$books;
 		}
 
 		$posts = get_posts(
 			array(
-				'post_type'   => 'book',
-				'post_status' => self::statuses(),
+				'post_type'   => 'library_book',
+				'post_status' => self::get_statuses(),
 				'numberposts' => -1,
 			)
 		);
@@ -62,16 +62,16 @@ class Library_Books {
 		self::$books = array();
 
 		foreach ( $posts as $post ) {
-			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'volume_number', true ), $match ) ? (int) $match[0] : null;
-			$series         = (string) get_post_meta( $post->ID, 'series', true );
-			$rating         = get_post_meta( $post->ID, 'rating', true );
-			$pages          = (int) get_post_meta( $post->ID, 'pages', true );
-			$edition_date   = (string) get_post_meta( $post->ID, 'edition_date', true );
-			$published_date = (string) get_post_meta( $post->ID, 'published_date', true );
-			$author_terms   = get_the_terms( $post->ID, 'library-author' );
+			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'library_volume_number', true ), $match ) ? (int) $match[0] : null;
+			$series         = (string) get_post_meta( $post->ID, 'library_series', true );
+			$rating         = get_post_meta( $post->ID, 'library_rating', true );
+			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
+			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
+			$published_date = (string) get_post_meta( $post->ID, 'library_published_date', true );
+			$author_terms   = get_the_terms( $post->ID, 'library_author' );
 			$authors        = Library_Taxonomies::get_top_level_terms( is_array( $author_terms ) ? $author_terms : array() );
 			$collections    = Library_Taxonomies::get_collections( $post->ID );
-			$languages      = get_the_terms( $post->ID, 'library-language' );
+			$languages      = get_the_terms( $post->ID, 'library_language' );
 
 			if ( '' === $series && null !== $volume ) {
 				$series = $post->post_title;
@@ -80,7 +80,7 @@ class Library_Books {
 			self::$books[ $post->ID ] = array(
 				'id'             => $post->ID,
 				'title'          => $post->post_title,
-				'full_title'     => self::title( $post->ID, $post->post_title ),
+				'full_title'     => self::get_full_title( $post->ID, $post->post_title ),
 				'status'         => $post->post_status,
 				'series'         => $series,
 				'volume'         => $volume,
@@ -93,7 +93,7 @@ class Library_Books {
 				'added'          => $post->post_date,
 				'authors'        => wp_list_pluck( $authors, 'name' ),
 				'author_ids'     => wp_list_pluck( $authors, 'term_id' ),
-				'translators'    => self::split( (string) get_post_meta( $post->ID, 'translators', true ) ),
+				'translators'    => self::split( (string) get_post_meta( $post->ID, 'library_translators', true ) ),
 				'collections'    => wp_list_pluck( $collections, 'name' ),
 				'collection_ids' => wp_list_pluck( $collections, 'term_id' ),
 				'languages'      => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
@@ -106,10 +106,10 @@ class Library_Books {
 	/**
 	 * Date of a book: when the work first came out, or else its edition date.
 	 *
-	 * @param array $book Book, from all().
+	 * @param array $book Book, from get_books().
 	 * @return string
 	 */
-	public static function date( array $book ): string {
+	public static function get_date( array $book ): string {
 		return '' !== $book['published_date'] ? $book['published_date'] : $book['edition_date'];
 	}
 
@@ -117,14 +117,14 @@ class Library_Books {
 	 * Books in reading order: in the order they first came out, a series at the date of its first book with its volumes in
 	 * their order, so that the parts of a cycle follow one another; those without date last, then by title.
 	 *
-	 * @param array<int,array> $books Books, from all().
+	 * @param array<int,array> $books Books, from get_books().
 	 * @return array<int,array>
 	 */
-	public static function in_reading_order( array $books ): array {
+	public static function sort_in_reading_order( array $books ): array {
 		$series_dates = array();
 
 		foreach ( $books as $book ) {
-			$date = self::date( $book );
+			$date = self::get_date( $book );
 
 			if ( '' !== $book['series'] && '' !== $date ) {
 				$series_dates[ $book['series'] ] = min( $date, $series_dates[ $book['series'] ] ?? $date );
@@ -132,9 +132,9 @@ class Library_Books {
 		}
 
 		$place = function ( array $book ) use ( $series_dates ): array {
-			$date = '' !== $book['series'] ? $series_dates[ $book['series'] ] ?? '' : self::date( $book );
+			$date = '' !== $book['series'] ? $series_dates[ $book['series'] ] ?? '' : self::get_date( $book );
 
-			return array( '' === $date, $date, $book['series'], $book['volume'] ?? PHP_INT_MAX, self::date( $book ) );
+			return array( '' === $date, $date, $book['series'], $book['volume'] ?? PHP_INT_MAX, self::get_date( $book ) );
 		};
 
 		usort(
@@ -156,25 +156,25 @@ class Library_Books {
 	 * @param string $series Series, after its cycles.
 	 * @return string
 	 */
-	public static function cycle( string $series ): string {
+	public static function get_cycle( string $series ): string {
 		return implode( ', ', array_slice( self::split( $series ), 0, -1 ) );
 	}
 
 	/**
-	 * Title of a book to show, from its series, volume and subtitle saved: see full_title().
+	 * Title of a book to show, from its series, volume and subtitle saved: see build_full_title().
 	 *
 	 * @param int    $book_id Book ID.
 	 * @param string $title   Title of the post.
 	 * @return string
 	 */
-	public static function title( int $book_id, string $title ): string {
+	public static function get_full_title( int $book_id, string $title ): string {
 		$meta = array();
 
-		foreach ( array( 'series', 'volume_number', 'subtitle' ) as $key ) {
+		foreach ( array( 'library_series', 'library_volume_number', 'library_subtitle' ) as $key ) {
 			$meta[ $key ] = get_post_meta( $book_id, $key, true );
 		}
 
-		return self::full_title( $title, $meta );
+		return self::build_full_title( $title, $meta );
 	}
 
 	/**
@@ -187,10 +187,10 @@ class Library_Books {
 	 * @param array  $meta  Meta of the book, saved or as its form sends them: series, volume_number and subtitle.
 	 * @return string
 	 */
-	public static function full_title( string $title, array $meta ): string {
-		$series   = (string) ( $meta['series'] ?? '' );
-		$volume   = (string) ( $meta['volume_number'] ?? '' );
-		$subtitle = (string) ( $meta['subtitle'] ?? '' );
+	public static function build_full_title( string $title, array $meta ): string {
+		$series   = (string) ( $meta['library_series'] ?? '' );
+		$volume   = (string) ( $meta['library_volume_number'] ?? '' );
+		$subtitle = (string) ( $meta['library_subtitle'] ?? '' );
 
 		if ( '' !== $subtitle ) {
 			/* translators: 1: title, 2: subtitle. */
@@ -233,14 +233,14 @@ class Library_Books {
 	 * @param string   $photo   File name of the photo.
 	 * @return string
 	 */
-	public static function cover_name( string $title, array $authors, array $meta, string $photo ): string {
+	public static function build_cover_name( string $title, array $authors, array $meta, string $photo ): string {
 		$slug = fn( string $text ): string => trim( preg_replace( array( '/%[0-9a-f]{2}/', '/-{2,}/' ), array( '', '-' ), sanitize_title( $text ) ), '-' );
 
 		// By name, case and accents aside, as the books list their authors.
 		$authors = array_filter( array_map( $slug, $authors ) );
 		sort( $authors );
 
-		$name      = $slug( implode( ' ', array( $authors[0] ?? '', self::full_title( $title, $meta ) ) ) );
+		$name      = $slug( implode( ' ', array( $authors[0] ?? '', self::build_full_title( $title, $meta ) ) ) );
 		$extension = strtolower( pathinfo( $photo, PATHINFO_EXTENSION ) );
 
 		if ( '' === $name ) {
@@ -256,10 +256,10 @@ class Library_Books {
 	 * @param int $book_id Book ID.
 	 * @return string
 	 */
-	public static function credits( int $book_id ): string {
-		$authors           = get_the_terms( $book_id, 'library-author' );
-		$terms             = get_the_terms( $book_id, 'library-publisher' );
-		$collection_number = (string) get_post_meta( $book_id, 'collection_number', true );
+	public static function get_credits( int $book_id ): string {
+		$authors           = get_the_terms( $book_id, 'library_author' );
+		$terms             = get_the_terms( $book_id, 'library_publisher' );
+		$collection_number = (string) get_post_meta( $book_id, 'library_collection_number', true );
 		$publishers        = array();
 
 		foreach ( Library_Taxonomies::get_top_level_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
@@ -276,7 +276,7 @@ class Library_Books {
 		$parts = array(
 			implode( ', ', wp_list_pluck( is_array( $authors ) ? $authors : array(), 'name' ) ),
 			implode( ', ', $publishers ),
-			substr( (string) get_post_meta( $book_id, 'edition_date', true ), 0, 4 ),
+			substr( (string) get_post_meta( $book_id, 'library_edition_date', true ), 0, 4 ),
 		);
 
 		return implode( ' · ', array_filter( $parts, 'strlen' ) );
@@ -288,7 +288,7 @@ class Library_Books {
 	 * @param int $books Number of books.
 	 * @return string
 	 */
-	public static function books_text( int $books ): string {
+	public static function format_books( int $books ): string {
 		/* translators: %s: number of books. */
 		return sprintf( _n( '%s book', '%s books', $books, 'library' ), number_format_i18n( $books ) );
 	}
@@ -299,7 +299,7 @@ class Library_Books {
 	 * @param float $rating Rating, out of 10.
 	 * @return string
 	 */
-	public static function rating_text( float $rating ): string {
+	public static function format_rating( float $rating ): string {
 		$rating   = round( $rating, 1 );
 		$decimals = floor( $rating ) === $rating ? 0 : 1;
 

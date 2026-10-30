@@ -50,7 +50,7 @@ class Library_Terms_List {
 	 * @return array
 	 */
 	public function add_term_messages( array $messages ): array {
-		$messages['library-author'] = array(
+		$messages['library_author'] = array(
 			0 => '',
 			1 => __( 'Author added.', 'library' ),
 			2 => __( 'Author deleted.', 'library' ),
@@ -60,7 +60,7 @@ class Library_Terms_List {
 			6 => __( 'Authors deleted.', 'library' ),
 		);
 
-		$messages['library-publisher'] = array(
+		$messages['library_publisher'] = array(
 			0 => '',
 			1 => __( 'Publisher added.', 'library' ),
 			2 => __( 'Publisher deleted.', 'library' ),
@@ -70,7 +70,7 @@ class Library_Terms_List {
 			6 => __( 'Publishers deleted.', 'library' ),
 		);
 
-		$messages['library-language'] = array(
+		$messages['library_language'] = array(
 			0 => '',
 			1 => __( 'Language added.', 'library' ),
 			2 => __( 'Language deleted.', 'library' ),
@@ -117,7 +117,7 @@ class Library_Terms_List {
 
 		$url = add_query_arg(
 			array(
-				'post_type'     => 'book',
+				'post_type'     => 'library_book',
 				'post_status'   => Library_Posts::NOT_KEPT,
 				$term->taxonomy => $term->slug,
 			),
@@ -149,7 +149,7 @@ class Library_Terms_List {
 					"SELECT $group AS term_id, COUNT( DISTINCT p.ID ) AS books
 					FROM {$wpdb->term_relationships} AS tr
 					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
-					INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'book' AND p.post_status = %s
+					INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status = %s
 					GROUP BY 1",
 					Library_Posts::NOT_KEPT
 				)

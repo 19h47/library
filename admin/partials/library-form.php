@@ -17,7 +17,7 @@
 <table class="form-table" role="presentation">
 
 	<?php
-	foreach ( array( 'subtitle', 'series', 'isbn', 'issn', 'volume_number', 'collection_number', 'pages', 'edition_date', 'published_date' ) as $key ) {
+	foreach ( array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_pages', 'library_edition_date', 'library_published_date' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
@@ -25,17 +25,17 @@
 	<!-- Read -->
 	<tr>
 		<th scope="row">
-			<label for="library-read"><?php echo esc_html( Library_Meta::label( 'read' ) ); ?></label>
+			<label for="library-read"><?php echo esc_html( Library_Meta::get_label( 'library_read' ) ); ?></label>
 		</th>
 		<td>
-			<input type="hidden" name="read" value="0">
+			<input type="hidden" name="library_read" value="0">
 			<?php
-			$control = Library_Meta::control(
-				'read',
+			$control = Library_Meta::get_control(
+				'library_read',
 				array(
 					'id'      => 'library-read',
 					'value'   => '1',
-					'checked' => (bool) $values['read'],
+					'checked' => (bool) $values['library_read'],
 				)
 			);
 
@@ -47,12 +47,12 @@
 	<!-- Read Dates -->
 	<tr>
 		<th scope="row">
-			<?php echo esc_html( Library_Meta::label( 'read_date' ) ); ?>
+			<?php echo esc_html( Library_Meta::get_label( 'library_read_date' ) ); ?>
 		</th>
 		<td>
 			<fieldset>
-				<legend class="screen-reader-text"><?php echo esc_html( Library_Meta::label( 'read_date' ) ); ?></legend>
-				<?php foreach ( array( ...$values['read_date'], '' ) as $index => $read_date ) : ?>
+				<legend class="screen-reader-text"><?php echo esc_html( Library_Meta::get_label( 'library_read_date' ) ); ?></legend>
+				<?php foreach ( array( ...$values['library_read_date'], '' ) as $index => $read_date ) : ?>
 					<label for="library-read-date-<?php echo esc_attr( $index ); ?>" class="screen-reader-text">
 						<?php
 						/* translators: %d: number of the reading, e.g. 2 for the second one. */
@@ -60,11 +60,11 @@
 						?>
 					</label>
 					<?php
-					$control = Library_Meta::control(
-						'read_date',
+					$control = Library_Meta::get_control(
+						'library_read_date',
 						array(
 							'id'               => "library-read-date-$index",
-							'name'             => 'read_date[]',
+							'name'             => 'library_read_date[]',
 							'class'            => 'regular-text',
 							'aria-describedby' => 'library-read-date-description',
 							'value'            => $read_date,
@@ -83,7 +83,7 @@
 	</tr>
 
 	<?php
-	foreach ( array( 'rating', 'translators' ) as $key ) {
+	foreach ( array( 'library_rating', 'library_translators' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>

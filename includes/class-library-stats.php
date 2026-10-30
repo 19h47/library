@@ -21,11 +21,11 @@ class Library_Stats {
 
 	/**
 	 * SQL condition on the posts table aliased "p": all books, kept or not, for the reading stats; "{statuses}" stands
-	 * for the statuses of the books, from Library_Books::statuses().
+	 * for the statuses of the books, from Library_Books::get_statuses().
 	 *
 	 * @var string
 	 */
-	private const BOOKS = "p.post_type = 'book' AND p.post_status IN ( {statuses} )";
+	private const BOOKS = "p.post_type = 'library_book' AND p.post_status IN ( {statuses} )";
 
 	/**
 	 * SQL condition on the posts table aliased "p": the books at hand, kept or not, but not those to buy, for the reading pile.
@@ -51,14 +51,14 @@ class Library_Stats {
 	 * @param mixed  ...$args Values for the placeholders.
 	 * @return object[]
 	 */
-	public static function select( string $sql, mixed ...$args ): array {
+	public static function get_results( string $sql, mixed ...$args ): array {
 		global $wpdb;
 
 		$readings = "( SELECT DISTINCT m.post_id AS book, m.meta_value AS date
 			FROM {$wpdb->postmeta} AS m
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			WHERE m.meta_key = 'read_date' AND m.meta_value != '' AND {books} ) AS r";
-		$statuses = "'" . implode( "', '", Library_Books::statuses() ) . "'";
+			WHERE m.meta_key = 'library_read_date' AND m.meta_value != '' AND {books} ) AS r";
+		$statuses = "'" . implode( "', '", Library_Books::get_statuses() ) . "'";
 		// The readings first: they hold the books condition; the statuses last: every condition holds them.
 		$sql = str_replace( array( '{readings}', '{books}', '{at_hand}', '{library}', '{statuses}' ), array( $readings, self::BOOKS, self::AT_HAND, self::LIBRARY, $statuses ), $sql );
 		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
@@ -72,17 +72,17 @@ class Library_Stats {
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
-		$total = (int) wp_count_posts( 'book' )->publish;
+		$total = (int) wp_count_posts( 'library_book' )->publish;
 
 		// The list table sort filters must not alter this count.
 		$read_query = new WP_Query(
 			array(
-				'post_type'        => 'book',
+				'post_type'        => 'library_book',
 				'post_status'      => 'publish',
 				'posts_per_page'   => 1,
 				'fields'           => 'ids',
 				'suppress_filters' => true,
-				'meta_key'         => 'read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
+				'meta_key'         => 'library_read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
 				'meta_value'       => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
 			)
 		);
@@ -105,10 +105,10 @@ class Library_Stats {
 	public static function count_unread_books(): int {
 		global $wpdb;
 
-		[ $row ] = self::select(
+		[ $row ] = self::get_results(
 			"SELECT COUNT( DISTINCT p.ID ) AS books
 			FROM {$wpdb->posts} AS p
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'read' AND r.meta_value = '1'
+			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'library_read' AND r.meta_value = '1'
 			WHERE r.post_id IS NULL
 				AND {at_hand}"
 		);
@@ -136,7 +136,7 @@ class Library_Stats {
 		$this_year_from = $today->format( 'Y-01-01' );
 		$last_year_from = $same_day->format( 'Y-01-01' );
 
-		[ $row ] = self::select(
+		[ $row ] = self::get_results(
 			'SELECT
 				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS this_year,
 				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS last_year
