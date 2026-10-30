@@ -1,6 +1,6 @@
 <?php
 /**
- * Book taxonomies: author, publisher and original language.
+ * Book taxonomies: person, publisher, original language and form.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Registers library_person, library_publisher and library_language taxonomies.
+ * Registers library_person, library_publisher, library_language and library_form taxonomies.
  *
  * @since      1.0.0
  * @package    Library
@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	public const TAXONOMIES = array( 'library_person', 'library_publisher', 'library_language' );
+	public const TAXONOMIES = array( 'library_person', 'library_publisher', 'library_language', 'library_form' );
 
 	/**
 	 * Register hooks.
@@ -50,6 +50,7 @@ class Library_Taxonomies {
 		$this->register_person();
 		$this->register_publisher();
 		$this->register_language();
+		$this->register_form();
 	}
 
 	/**
@@ -257,6 +258,49 @@ class Library_Taxonomies {
 		);
 
 		register_taxonomy( 'library_language', 'library_book', $args );
+	}
+
+	/**
+	 * Register form
+	 *
+	 * What a book is, such as a novel, a comic or a magazine, one for each book.
+	 *
+	 * @return void
+	 */
+	public function register_form() {
+		$labels = array(
+			'name'                  => _x( 'Forms', 'library forms general name', 'library' ),
+			'singular_name'         => _x( 'Form', 'library forms singular name', 'library' ),
+			'search_items'          => __( 'Search Forms', 'library' ),
+			'all_items'             => __( 'All Forms', 'library' ),
+			'edit_item'             => __( 'Edit Form', 'library' ),
+			'view_item'             => __( 'View Form', 'library' ),
+			'update_item'           => __( 'Update Form', 'library' ),
+			'add_new_item'          => __( 'Add New Form', 'library' ),
+			'new_item_name'         => __( 'New Form Name', 'library' ),
+			'not_found'             => __( 'No forms found.', 'library' ),
+			'no_terms'              => __( 'No forms', 'library' ),
+			'items_list_navigation' => __( 'Forms list navigation', 'library' ),
+			'items_list'            => __( 'Forms list', 'library' ),
+			'back_to_items'         => __( '&larr; Back to Forms', 'library' ),
+		);
+
+		$args = array(
+			'labels'             => $labels,
+			'hierarchical'       => true, // For the checklist box, in quick and bulk edit too.
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'show_in_nav_menus'  => true,
+			'show_in_quick_edit' => true,
+			'show_admin_column'  => true,
+			'show_in_rest'       => true,
+			'rest_base'          => 'forms',
+			'rewrite'            => array( 'slug' => 'library-form' ),
+		);
+
+		register_taxonomy( 'library_form', 'library_book', $args );
 	}
 
 	/**

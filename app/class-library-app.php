@@ -102,6 +102,8 @@ class Library_App {
 		$person_labels      = get_taxonomy( 'library_person' )->labels;
 		$publisher_labels   = get_taxonomy( 'library_publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library_language' )->labels;
+		$form_labels        = get_taxonomy( 'library_form' )->labels;
+		$form_choices       = self::get_form_choices();
 		$rating_choices     = Library_Meta::get_rating_choices();
 		$status_choices     = Library_Posts::get_status_choices();
 		$views              = $this->get_views( $labels->name );
@@ -221,7 +223,23 @@ class Library_App {
 	}
 
 	/**
-	 * What the scripts need from the server: the statuses to list and the URLs. Their strings are translated by WordPress,
+	 * Forms the filter of the books and the form of a book offer, by term ID, with their name as text.
+	 *
+	 * @return array<int,string>
+	 */
+	private static function get_form_choices(): array {
+		$forms = get_terms(
+			array(
+				'taxonomy'   => 'library_form',
+				'hide_empty' => false,
+			)
+		);
+
+		return array_map( fn( WP_Term $form ) => wp_specialchars_decode( $form->name, ENT_QUOTES ), array_column( $forms, null, 'term_id' ) );
+	}
+
+	/**
+	 * What the scripts need from the server: the statuses and forms to list and the URLs. Their strings are translated by WordPress,
 	 * from the JSON files of the languages folder.
 	 *
 	 * @return array
@@ -232,6 +250,7 @@ class Library_App {
 
 		return array(
 			'statuses'  => implode( ',', Library_Books::get_statuses() ),
+			'forms'     => implode( ',', array_keys( self::get_form_choices() ) ),
 			'notKept'   => Library_Posts::NOT_KEPT,
 			'toBuy'     => Library_Posts::TO_BUY,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.

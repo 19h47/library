@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.0.0
+Stable tag: 8.1.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,11 +14,11 @@ Catalogue your books and log your readings: authors, publishers, original langua
 
 == Description ==
 
-Library adds a **Book** post type and three taxonomies, **People**, **Publishers** and **Original languages**, to catalogue your books and log your readings from the WordPress admin, or from your phone.
+Library adds a **Book** post type and four taxonomies, **People**, **Publishers**, **Original languages** and **Forms**, to catalogue your books and log your readings from the WordPress admin, or from your phone.
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, number in its collection, ISBN, ISSN, number of pages, edition date and date first published, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. The number in its collection follows the collection: “Pocket Science-fiction no. 5667”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13.
+* **Books** – Cover, subtitle, series and volume, number in its collection, ISBN, ISSN, number of pages, edition date and date first published, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. The number in its collection follows the collection: “Pocket Science-fiction no. 5667”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13. Its form, such as a novel, a comic or a magazine, is one of those added in **Books > Forms**.
 * **People** – Each name of a book is a person, the author unless a role is chosen: translator, colorist, inker, letterer or publishing director. A collective work, a magazine or an anthology, is credited to its publishing directors, “X (dir.)”, else to no one: it is found through each of its people, but counts among the books of none of them.
 * **People, publishers and languages** – Pseudonyms are children of a person's real name, collections children of their publisher: filtering by a person or a publisher includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
@@ -26,13 +26,13 @@ Library adds a **Book** post type and three taxonomies, **People**, **Publishers
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state and by status, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
+* **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state, by status and by form, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the people: see the FAQ.
 * **Translatable** – French translation included.
 
 = Technical =
 
-* Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_publisher` and `library_language` taxonomies and the book meta, `library_isbn`, `library_read_date` and so on, all in the REST API.
+* Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn`, `library_read_date` and so on, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
 * The hyphens of an ISBN come from `includes/isbn-ranges.json`, the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation) for every group, refreshed before each release with `php bin/update-isbn-ranges.php`. Another EAN-13 keeps its 13 digits; an ISBN of a range missing from it, or a code whose check digit is wrong, is kept as typed.
 * The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library::render_component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
@@ -51,7 +51,7 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, with the status of the books shown: to buy from the **To buy** view, or the status the books are filtered by.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, with the status of the books shown: to buy from the **To buy** view, or the status the books are filtered by, and the form they are filtered by.
 
 = Can several readers share the library? =
 
@@ -75,7 +75,7 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. People, publishers and original languages are at `/wp-json/wp/v2/people`, `publishers` and `languages`; a collection is a publisher with a `parent`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given.
+Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. People, publishers, original languages and forms are at `/wp-json/wp/v2/people`, `publishers`, `languages` and `forms`; a collection is a publisher with a `parent`. The books of a form are listed with `?forms=<id>`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given.
 
 The routes of the plugin, to users who can edit posts:
 
@@ -85,11 +85,16 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
 * `GET /wp-json/library/v1/people/<id>` – a person, their pseudonyms, their description, their books in the order they first came out, whatever their role, and their reading.
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
-* `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its people by name with their role, its publisher and collection by name, its original language and its meta, to users who can edit it.
+* `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its people by name with their role, its publisher and collection by name, its original language, its form and its meta, to users who can edit it.
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `featured_media` of 0 removes the cover.
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.1.0 =
+* Books: a book has a form, such as a novel, a comic or a magazine, among those added in **Books > Forms**, chosen in its Forms box, quick and bulk edit, and the book form of the reading app; the books list shows it in a column. The search finds a form by its name, and the keyword `form:` narrows it to one, such as `form:novel`.
+* Reading app: the books are filtered by form too, and a book added while they are takes their form.
+* REST API: the forms are at `/wp-json/wp/v2/forms`, and the routes `library/v1/books` and `books/<id>` take and give the `form` of a book, its term ID.
 
 = 8.0.0 =
 * Breaking: the taxonomy `library_author` is `library_person`, as each name of a book is a person, whatever their role. Its terms are at `/wp-json/wp/v2/people` and their URLs under `library-person/`, a person at `/wp-json/library/v1/people/<id>`, and the routes `library/v1/books`, `books/<id>` and `books/cover-name` take and give `people`, a list of `{name, role}`, instead of `authors`.

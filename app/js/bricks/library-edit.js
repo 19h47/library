@@ -10,7 +10,7 @@ function renderOptions( terms, value = ( term ) => term.name ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * Its cover, title, excerpt, notes, people, publisher and collection, ISBN, its status when it is added, the one of the
+ * Its cover, title, excerpt, notes, people, publisher and collection, ISBN, form, its status when it is added, the one of the
  * list shown (the reading of a book changes it after), and more details. The names typed are suggested
  * among those of the library, the collections among those of the publisher; a name not found is added.
  * Closing the form drops it.
@@ -24,7 +24,7 @@ class LibraryEditElement extends Brick {
 		const $dialog = this.querySelector( 'dialog' );
 		const $heading = this.querySelector( '#library-edit-heading' );
 		const $form = this.querySelector( '.library-edit__form' );
-		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, cover: $cover, status: $status } = $form.elements;
+		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, form: $bookForm, cover: $cover, status: $status } = $form.elements;
 		// The fields of the meta are named after them.
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
@@ -101,6 +101,7 @@ class LibraryEditElement extends Brick {
 					publisher: data.get( 'publisher' ),
 					collection: data.get( 'collection' ) ?? '',
 					language: Number( data.get( 'language' ) ),
+					form: Number( data.get( 'form' ) ),
 					meta: Object.fromEntries( $meta.map( ( $field ) => [ $field.name, getValue( $field ) ] ) ),
 				};
 
@@ -124,9 +125,9 @@ class LibraryEditElement extends Brick {
 						return;
 					}
 
-					const { editing, view, status } = store.get();
+					const { editing, view, status, form } = store.get();
 					const { id, book } = editing;
-					// A book added joins the list shown: to buy from the books to buy, of the status chosen from the books.
+					// A book added joins the list shown: to buy from the books to buy, of the status and form chosen from the books.
 					const listedStatus = { books: status, 'to-buy': toBuy }[ view ];
 
 					// The form opens on the values of the book, or empty, its details folded unless they hold some.
@@ -139,6 +140,7 @@ class LibraryEditElement extends Brick {
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
 					$status.value = listedStatus || 'publish';
+					$bookForm.value = 'books' === view ? form : '';
 					$people.replaceChildren();
 					book?.people.forEach( ( { name, role } ) => {
 						const $row = addPerson( name ).closest( 'li' );
@@ -157,6 +159,7 @@ class LibraryEditElement extends Brick {
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$language.value = ( book.language || '' ).toString();
+						$bookForm.value = ( book.form || '' ).toString();
 						$meta.forEach( ( $field ) => {
 							const value = book.meta[ $field.name ] ?? '';
 

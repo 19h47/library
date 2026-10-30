@@ -257,6 +257,11 @@ class Library_Rest_API {
 				'type'        => 'integer',
 				'default'     => 0,
 			),
+			'form'           => array(
+				'description' => __( 'Term ID of the form, such as a novel or a comic.', 'library' ),
+				'type'        => 'integer',
+				'default'     => 0,
+			),
 			'featured_media' => array(
 				'description' => __( 'ID of the image uploaded as the cover, 0 for none.', 'library' ),
 				'type'        => 'integer',
@@ -326,7 +331,7 @@ class Library_Rest_API {
 
 	/**
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its names as the book gives them, each with its role, its publisher and collection, its original language and its meta.
+	 * its names as the book gives them, each with its role, its publisher and collection, its original language, its form and its meta.
 	 *
 	 * The form edits one publisher and one collection: a book given more gives its first collection, or else publisher.
 	 *
@@ -339,6 +344,7 @@ class Library_Rest_API {
 		$publishers = get_the_terms( $book, 'library_publisher' );
 		$publisher  = $collection ? get_term( $collection->parent, 'library_publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
+		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
 		$roles      = Library_Meta::get_roles( $book->ID );
 		$meta       = array();
 
@@ -363,6 +369,7 @@ class Library_Rest_API {
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? $collection->name : '',
 				'language'   => (int) current( $languages ),
+				'form'       => (int) current( $forms ),
 				'meta'       => $meta,
 			)
 		);
@@ -415,7 +422,7 @@ class Library_Rest_API {
 
 	/**
 	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its people through the rule
-	 * of their tag box, its collection, or else its publisher, and its original language. A name not found adds a term.
+	 * of their tag box, its collection, or else its publisher, its original language and its form. A name not found adds a term.
 	 *
 	 * A collection is under its publisher, and goes with it: a book in a collection has the collection only.
 	 *
@@ -438,6 +445,10 @@ class Library_Rest_API {
 
 		if ( $request->has_param( 'language' ) ) {
 			$terms['library_language'] = array_filter( array( $request['language'] ) );
+		}
+
+		if ( $request->has_param( 'form' ) ) {
+			$terms['library_form'] = array_filter( array( $request['form'] ) );
 		}
 
 		return $terms;

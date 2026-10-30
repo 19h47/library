@@ -10,7 +10,7 @@
  */
 
 /**
- * Adds a "Not kept" column to the lists of people, publishers and original languages, and names their messages.
+ * Adds a "Not kept" column to the lists of people, publishers, original languages and forms, and names their messages.
  *
  * @since      6.1.1
  * @package    Library
@@ -41,7 +41,7 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Add the messages shown when an author, a publisher or a language is added, updated or deleted.
+	 * Add the messages shown when a person, a publisher, a language or a form is added, updated or deleted.
 	 *
 	 * @param array $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
 	 *
@@ -78,6 +78,16 @@ class Library_Terms_List {
 			4 => __( 'Language not added.', 'library' ),
 			5 => __( 'Language not updated.', 'library' ),
 			6 => __( 'Languages deleted.', 'library' ),
+		);
+
+		$messages['library_form'] = array(
+			0 => '',
+			1 => __( 'Form added.', 'library' ),
+			2 => __( 'Form deleted.', 'library' ),
+			3 => __( 'Form updated.', 'library' ),
+			4 => __( 'Form not added.', 'library' ),
+			5 => __( 'Form not updated.', 'library' ),
+			6 => __( 'Forms deleted.', 'library' ),
 		);
 
 		return $messages;
