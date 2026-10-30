@@ -102,7 +102,7 @@ class Library_Stats {
 	 *
 	 * @return int
 	 */
-	public static function count_unread_books(): int {
+	private static function count_unread_books(): int {
 		global $wpdb;
 
 		[ $row ] = self::get_results(
@@ -120,7 +120,7 @@ class Library_Stats {
 	 * Books read this year and by the same date last year, the number expected by the end of the year, and the year
 	 * the books to read would all be read in; both at the pace of this year, a book read again counting once per reading.
 	 *
-	 * Kept for the request: the reading widget and the reading idea of the dashboard both ask for it.
+	 * Kept for the request: the reading and reading pile widgets and the reading idea of the dashboard all ask for it.
 	 *
 	 * @return array{year:int,this_year:int,last_year:int,projection:int|null,to_read:int,all_read_in:int|null}
 	 */

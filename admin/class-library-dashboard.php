@@ -95,7 +95,7 @@ class Library_Dashboard {
 	 * Reading pile widget: books to read, kept or not, the oldest one and the latest reads.
 	 */
 	public function render_pile(): void {
-		$to_read      = Library_Stats::count_unread_books();
+		$to_read      = Library_Stats::get_reading_year_to_date()['to_read'];
 		$oldest       = $this->get_oldest_unread_book();
 		$recent_reads = $this->get_recent_reads();
 
@@ -489,23 +489,31 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Whether the term tt of the book p counts for its taxonomy: a name counts as an author, unless it has another role, such
-	 * as a colorist, or the book is collective, which is not part of the work of its authors; every other term counts.
+	 * Joins and condition of the terms tt of the books p that count for their taxonomy: a name counts as an author, unless it
+	 * has another role, such as a colorist, or the book is collective, which is not part of the work of its authors; every
+	 * other term counts. The names with a role and the collective books are tables built once, joined to be left out.
 	 *
 	 * @param string $taxonomy Taxonomy.
-	 * @return string
+	 * @return array{join:string,where:string}
 	 */
-	private static function get_counted_condition( string $taxonomy ): string {
+	private static function build_counted_clauses( string $taxonomy ): array {
 		global $wpdb;
 
 		if ( 'library_person' !== $taxonomy ) {
-			return '1 = 1';
+			return array(
+				'join'  => '',
+				'where' => '1 = 1',
+			);
 		}
 
-		$with_role  = Library_Meta::build_with_role_condition( 'p.ID', 'tt.term_id' );
-		$collective = "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} AS collective WHERE collective.post_id = p.ID AND collective.meta_key = 'library_collective' AND collective.meta_value = '1' )";
+		$roles      = Library_Meta::build_roles_table();
+		$collective = "( SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_collective' AND meta_value = '1' )";
 
-		return "NOT {$with_role} AND NOT {$collective}";
+		return array(
+			'join'  => "LEFT JOIN {$roles} AS role ON role.post_id = p.ID AND role.term_id = tt.term_id
+				LEFT JOIN {$collective} AS collective ON collective.post_id = p.ID",
+			'where' => 'role.post_id IS NULL AND collective.post_id IS NULL',
+		);
 	}
 
 	/**
@@ -519,7 +527,7 @@ class Library_Dashboard {
 		global $wpdb;
 
 		$read_books = self::get_read_books_table();
-		$counted    = self::get_counted_condition( $taxonomy );
+		$counted    = self::build_counted_clauses( $taxonomy );
 
 		$rows = Library_Stats::get_results(
 			"SELECT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
@@ -527,7 +535,8 @@ class Library_Dashboard {
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
 			LEFT JOIN {$read_books} ON r.post_id = p.ID
-			WHERE {library} AND {$counted}
+			{$counted['join']}
+			WHERE {library} AND {$counted['where']}
 			GROUP BY 1
 			ORDER BY books DESC, books_read DESC
 			LIMIT %d",
@@ -610,14 +619,15 @@ class Library_Dashboard {
 	private function count_terms( string $taxonomy ): int {
 		global $wpdb;
 
-		$counted = self::get_counted_condition( $taxonomy );
+		$counted = self::build_counted_clauses( $taxonomy );
 
 		[ $row ] = Library_Stats::get_results(
 			"SELECT COUNT( DISTINCT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) ) AS terms
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			WHERE {library} AND {$counted}",
+			{$counted['join']}
+			WHERE {library} AND {$counted['where']}",
 			$taxonomy
 		);
 
