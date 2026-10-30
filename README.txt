@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 7.0.0
+Stable tag: 8.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,13 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.0.0 =
+* Breaking: the taxonomy `library_author` is `library_person`, as each name of a book is a person, whatever their role. Its terms are at `/wp-json/wp/v2/people` and their URLs under `library-person/`, a person at `/wp-json/library/v1/people/<id>`, and the routes `library/v1/books`, `books/<id>` and `books/cover-name` take and give `people`, a list of `{name, role}`, instead of `authors`.
+* Breaking: the translators of a book are people with the role of translator, saved in the multiple meta `library_translators` as term IDs, rather than a text of names.
+* Books: each name of a book has a role, author unless another one is chosen: translator, colorist, inker, letterer or publishing director, in the Roles row of the Information box and in the book form of the reading app. The credits, the cover name, the achievements, the reading idea and the dashboard count the authors only; the page of a person lists their other contributions.
+* Books: a collective work, a magazine or an anthology, is checked as such in the Information box and the book form. It is credited to its publishing directors, “X (dir.)”, else to no one, and counts among the books of none of its people in the dashboard and the achievements, while the search and the page of a person still find it.
+* Books list: the Authors column shows the people credited, as the credits do.
 
 = 7.0.0 =
 * Breaking: the names follow the WordPress naming. The post type is `library_book`, the taxonomies `library_author`, `library_publisher` and `library_language`, and the book meta take the `library_` prefix, such as `library_isbn` and `library_read_date`, under `meta` in the REST API too. The terms are at `/wp-json/wp/v2/authors`, `publishers` and `languages`, and `POST /wp-json/library/v1/books` takes the cover as `featured_media`. The URLs of the books and of the terms stay the same.
