@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 6.18.0
+Stable tag: 7.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -89,6 +89,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `authors` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 7.0.0 =
+* Breaking: the names follow the WordPress naming. The post type is `library_book`, the taxonomies `library_author`, `library_publisher` and `library_language`, and the book meta take the `library_` prefix, such as `library_isbn` and `library_read_date`, under `meta` in the REST API too. The terms are at `/wp-json/wp/v2/authors`, `publishers` and `languages`, and `POST /wp-json/library/v1/books` takes the cover as `featured_media`. The URLs of the books and of the terms stay the same.
+* Code only: the methods say what they give, such as `Library_Books::get_books()`, `Library_Books::build_full_title()` or `Library_Stats::get_results()`: `get_` for a value, `build_` for what is assembled from values, `format_` for a value as text.
 
 = 6.18.0 =
 * Reading app: the image of a cover is named after its book, its first author and its title as shown, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, rather than after the photo, such as `IMG_1234.jpeg`. The REST API gives this name through `GET /wp-json/library/v1/books/cover-name`.
