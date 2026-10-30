@@ -318,18 +318,18 @@ class Library_Meta {
 	}
 
 	/**
-	 * SQL condition: whether a name of a book has another role than author, such as colorist, from the columns of their IDs.
+	 * SQL derived table of the names with another role than author, such as a colorist: one row per book and name, its
+	 * post_id and term_id, to join by both. Distinct, so that MySQL 5.7 builds it once, rather than reading the meta of each
+	 * book again for each of its names, as it does for a subquery on them.
 	 *
-	 * @param string $book_id_column Column of the book ID, such as p.ID.
-	 * @param string $term_id_column Column of the term ID of the name, such as tt.term_id.
 	 * @return string
 	 */
-	public static function build_with_role_condition( string $book_id_column, string $term_id_column ): string {
+	public static function build_roles_table(): string {
 		global $wpdb;
 
 		$keys = "'" . implode( "', '", self::ROLE_KEYS ) . "'";
 
-		return "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} AS role WHERE role.post_id = {$book_id_column} AND role.meta_key IN ( {$keys} ) AND role.meta_value = {$term_id_column} )";
+		return "( SELECT DISTINCT post_id, CAST( meta_value AS UNSIGNED ) AS term_id FROM {$wpdb->postmeta} WHERE meta_key IN ( {$keys} ) )";
 	}
 
 	/**

@@ -288,9 +288,9 @@ class Library_WP_Query {
 				);
 			case 'author':
 				// A name of the book without another role, or the real name of its pseudonym: a colorist is not one of its authors.
-				$with_role = Library_Meta::build_with_role_condition( 'tr.object_id', 'tt.term_id' );
+				$roles = Library_Meta::build_roles_table();
 
-				return self::build_term_matches( array( 'library_person' ), $like, "NOT {$with_role}" );
+				return self::build_term_matches( array( 'library_person' ), $like, "LEFT JOIN {$roles} AS role ON role.post_id = tr.object_id AND role.term_id = tt.term_id", 'role.post_id IS NULL' );
 			case 'publisher':
 				return self::build_term_matches( array( 'library_publisher' ), $like );
 			case 'translator':
@@ -352,20 +352,22 @@ class Library_WP_Query {
 	 *
 	 * @param string[] $taxonomies Taxonomies.
 	 * @param string   $like       LIKE pattern.
+	 * @param string   $join       SQL joins its condition needs, without placeholder.
 	 * @param string   $condition  SQL condition the term tt of the book tr meets too, without placeholder.
 	 * @return string
 	 */
-	private static function build_term_matches( array $taxonomies, string $like, string $condition = '1 = 1' ): string {
+	private static function build_term_matches( array $taxonomies, string $like, string $join = '', string $condition = '1 = 1' ): string {
 		global $wpdb;
 
 		$values = array( ...$taxonomies, $like, $like );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $condition is built from constants, without value.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $join and $condition are built from constants, without value.
 		return $wpdb->prepare(
 			"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
 			INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
 			LEFT JOIN {$wpdb->terms} AS parent ON parent.term_id = tt.parent
+			{$join}
 			WHERE tt.taxonomy IN ( " . implode( ', ', array_fill( 0, count( $taxonomies ), '%s' ) ) . " ) AND ( t.name LIKE %s OR parent.name LIKE %s ) AND {$condition}",
 			$values
 		);
