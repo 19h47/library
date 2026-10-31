@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.3.0
+Stable tag: 8.3.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.3.1 =
+* Fixed: on a phone, the names of the book form of the reading app were squeezed to one letter by the select of their role. A name keeps room for itself, and its role goes under it once the row is too narrow.
+* Fixed: in French, the notes of a book are “Notes de lecture” in its form, rather than “Notes”, which read as its rating.
 
 = 8.3.0 =
 * Achievements: the forms have their own: 10, 25, 50, 100, 250 and 500 books read of a form, such as 100 novels; Jack of all trades, 4 forms read in a month; and Tour of the library, a book read of each form of the library, which shows the forms left to read once three or fewer are. Their subject leads to the books of the form, read or left to read.
