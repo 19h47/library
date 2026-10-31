@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-31T06:44:48+00:00\n"
+"POT-Creation-Date: 2026-10-31T08:28:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -231,14 +231,14 @@ msgid "Rating distribution"
 msgstr ""
 
 #: admin/class-library-dashboard.php:379
-#: includes/class-library-meta.php:117
+#: includes/class-library-meta.php:118
 msgid "Rating"
 msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-library-dashboard.php:404
-#: includes/class-library-meta.php:367
+#: includes/class-library-meta.php:371
 #: app/js/lib/format.js:45
 #, php-format,js-format
 msgid "%s/10"
@@ -246,7 +246,7 @@ msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #: admin/class-library-dashboard.php:404
-#: includes/class-library-meta.php:363
+#: includes/class-library-meta.php:367
 msgid "No rating"
 msgstr ""
 
@@ -636,7 +636,7 @@ msgid "Reading state"
 msgstr ""
 
 #: app/partials/library-app.php:98
-#: includes/class-library-meta.php:119
+#: includes/class-library-meta.php:120
 #: app/js/lib/format.js:100
 msgid "Read"
 msgstr ""
@@ -1219,134 +1219,144 @@ msgid_plural "%s books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-library-meta.php:106
+#: includes/class-library-meta.php:107
 msgid "Subtitle"
 msgstr ""
 
-#: includes/class-library-meta.php:107
+#: includes/class-library-meta.php:108
 msgid "Series"
 msgstr ""
 
-#: includes/class-library-meta.php:108
+#: includes/class-library-meta.php:109
 msgid "ISBN"
 msgstr ""
 
-#: includes/class-library-meta.php:109
+#: includes/class-library-meta.php:110
 msgid "ISSN"
 msgstr ""
 
-#: includes/class-library-meta.php:110
+#: includes/class-library-meta.php:111
 msgid "Volume Number"
 msgstr ""
 
-#: includes/class-library-meta.php:111
+#: includes/class-library-meta.php:112
 msgid "Collection Number"
 msgstr ""
 
-#: includes/class-library-meta.php:112
+#: includes/class-library-meta.php:113
 msgid "Translators"
 msgstr ""
 
-#: includes/class-library-meta.php:113
+#: includes/class-library-meta.php:114
 msgid "Edition date"
 msgstr ""
 
-#: includes/class-library-meta.php:114
+#: includes/class-library-meta.php:115
 msgid "Read dates"
 msgstr ""
 
-#: includes/class-library-meta.php:115
+#: includes/class-library-meta.php:116
 msgid "First published"
 msgstr ""
 
-#: includes/class-library-meta.php:116
+#: includes/class-library-meta.php:117
 msgid "Pages"
 msgstr ""
 
-#: includes/class-library-meta.php:118
+#: includes/class-library-meta.php:119
 msgid "Collective work"
 msgstr ""
 
-#: includes/class-library-meta.php:120
+#: includes/class-library-meta.php:121
 msgid "Colorists"
 msgstr ""
 
-#: includes/class-library-meta.php:121
+#: includes/class-library-meta.php:122
 msgid "Inkers"
 msgstr ""
 
-#: includes/class-library-meta.php:122
+#: includes/class-library-meta.php:123
 msgid "Letterers"
 msgstr ""
 
-#: includes/class-library-meta.php:123
+#: includes/class-library-meta.php:124
 msgid "Publishing directors"
 msgstr ""
 
-#: includes/class-library-meta.php:126
-msgid "Shown after the title, such as “The Knife: Meditations After an Attempted Murder”."
-msgstr ""
-
-#: includes/class-library-meta.php:127
-msgid "10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode."
+#: includes/class-library-meta.php:125
+msgid "Adapted authors"
 msgstr ""
 
 #: includes/class-library-meta.php:128
-msgid "Two groups of four characters, such as 0395-2649."
+msgid "Shown after the title, such as “The Knife: Meditations After an Attempted Murder”."
 msgstr ""
 
 #: includes/class-library-meta.php:129
-msgid "From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series."
+msgid "10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode."
 msgstr ""
 
 #: includes/class-library-meta.php:130
-msgid "Shown after the collection, such as “Pocket Science-fiction no. 5667”."
+msgid "Two groups of four characters, such as 0395-2649."
 msgstr ""
 
 #: includes/class-library-meta.php:131
-msgid "When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
+msgid "From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series."
 msgstr ""
 
 #: includes/class-library-meta.php:132
-msgid "Rating from 1 to 10."
+msgid "Shown after the collection, such as “Pocket Science-fiction no. 5667”."
 msgstr ""
 
 #: includes/class-library-meta.php:133
+msgid "When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
+msgstr ""
+
+#: includes/class-library-meta.php:134
+msgid "Rating from 1 to 10."
+msgstr ""
+
+#: includes/class-library-meta.php:135
 msgid "A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them."
-msgstr ""
-
-#: includes/class-library-meta.php:272
-msgctxt "role"
-msgid "Author"
-msgstr ""
-
-#: includes/class-library-meta.php:273
-msgctxt "role"
-msgid "Translator"
 msgstr ""
 
 #: includes/class-library-meta.php:274
 msgctxt "role"
-msgid "Colorist"
+msgid "Author"
 msgstr ""
 
 #: includes/class-library-meta.php:275
 msgctxt "role"
-msgid "Inker"
+msgid "Translator"
 msgstr ""
 
 #: includes/class-library-meta.php:276
 msgctxt "role"
-msgid "Letterer"
+msgid "Colorist"
 msgstr ""
 
 #: includes/class-library-meta.php:277
 msgctxt "role"
+msgid "Inker"
+msgstr ""
+
+#: includes/class-library-meta.php:278
+msgctxt "role"
+msgid "Letterer"
+msgstr ""
+
+#: includes/class-library-meta.php:279
+msgctxt "role"
 msgid "Publishing director"
 msgstr ""
 
+#. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
+#: includes/class-library-meta.php:281
+msgctxt "role"
+msgid "Adapted author"
+msgstr ""
+
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-library-meta.php:569
+#: includes/class-library-meta.php:573
 #, php-format
 msgid "The last digit of the ISBN %s, its check digit, does not match the others: check them."
 msgstr ""

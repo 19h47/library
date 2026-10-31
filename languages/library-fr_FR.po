@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-31T06:44:12+00:00\n"
+"POT-Creation-Date: 2026-10-31T08:28:10+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -226,20 +226,20 @@ msgstr "Années d’édition"
 msgid "Rating distribution"
 msgstr "Répartition des notes"
 
-#: admin/class-library-dashboard.php:379 includes/class-library-meta.php:117
+#: admin/class-library-dashboard.php:379 includes/class-library-meta.php:118
 msgid "Rating"
 msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:367
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:371
 #: app/js/lib/format.js:45
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:363
+#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:367
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -640,7 +640,7 @@ msgstr "Chargement…"
 msgid "Reading state"
 msgstr "État de lecture"
 
-#: app/partials/library-app.php:98 includes/class-library-meta.php:119
+#: app/partials/library-app.php:98 includes/class-library-meta.php:120
 #: app/js/lib/format.js:100
 msgid "Read"
 msgstr "Lu"
@@ -1215,71 +1215,75 @@ msgid_plural "%s books"
 msgstr[0] "%s livre"
 msgstr[1] "%s livres"
 
-#: includes/class-library-meta.php:106
+#: includes/class-library-meta.php:107
 msgid "Subtitle"
 msgstr "Sous-titre"
 
-#: includes/class-library-meta.php:107
+#: includes/class-library-meta.php:108
 msgid "Series"
 msgstr "Série"
 
-#: includes/class-library-meta.php:108
+#: includes/class-library-meta.php:109
 msgid "ISBN"
 msgstr "ISBN"
 
-#: includes/class-library-meta.php:109
+#: includes/class-library-meta.php:110
 msgid "ISSN"
 msgstr "ISSN"
 
-#: includes/class-library-meta.php:110
+#: includes/class-library-meta.php:111
 msgid "Volume Number"
 msgstr "Numéro de volume"
 
-#: includes/class-library-meta.php:111
+#: includes/class-library-meta.php:112
 msgid "Collection Number"
 msgstr "Numéro dans la collection"
 
-#: includes/class-library-meta.php:112
+#: includes/class-library-meta.php:113
 msgid "Translators"
 msgstr "Traducteurs"
 
-#: includes/class-library-meta.php:113
+#: includes/class-library-meta.php:114
 msgid "Edition date"
 msgstr "Date d’édition"
 
-#: includes/class-library-meta.php:114
+#: includes/class-library-meta.php:115
 msgid "Read dates"
 msgstr "Dates de lecture"
 
-#: includes/class-library-meta.php:115
+#: includes/class-library-meta.php:116
 msgid "First published"
 msgstr "Première parution"
 
-#: includes/class-library-meta.php:116
+#: includes/class-library-meta.php:117
 msgid "Pages"
 msgstr "Pages"
 
-#: includes/class-library-meta.php:118
+#: includes/class-library-meta.php:119
 msgid "Collective work"
 msgstr "Ouvrage collectif"
 
-#: includes/class-library-meta.php:120
+#: includes/class-library-meta.php:121
 msgid "Colorists"
 msgstr "Coloristes"
 
-#: includes/class-library-meta.php:121
+#: includes/class-library-meta.php:122
 msgid "Inkers"
 msgstr "Encreurs"
 
-#: includes/class-library-meta.php:122
+#: includes/class-library-meta.php:123
 msgid "Letterers"
 msgstr "Lettreurs"
 
-#: includes/class-library-meta.php:123
+#: includes/class-library-meta.php:124
 msgid "Publishing directors"
 msgstr "Directeurs de publication"
 
-#: includes/class-library-meta.php:126
+#: includes/class-library-meta.php:125
+msgid "Adapted authors"
+msgstr "Auteurs adaptés"
+
+#: includes/class-library-meta.php:128
 msgid ""
 "Shown after the title, such as “The Knife: Meditations After an Attempted "
 "Murder”."
@@ -1287,7 +1291,7 @@ msgstr ""
 "Affiché après le titre, comme « Le Couteau : Réflexions suite à une "
 "tentative d’assassinat »."
 
-#: includes/class-library-meta.php:127
+#: includes/class-library-meta.php:129
 msgid ""
 "10 or 13 digits, with or without hyphens, such as 9782070360246, which "
 "becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its "
@@ -1297,11 +1301,11 @@ msgstr ""
 "978-2-07-036024-6 ; pour un livre sans ISBN, les 13 chiffres de son code-"
 "barres."
 
-#: includes/class-library-meta.php:128
+#: includes/class-library-meta.php:130
 msgid "Two groups of four characters, such as 0395-2649."
 msgstr "Deux groupes de quatre caractères, comme 0395-2649."
 
-#: includes/class-library-meta.php:129
+#: includes/class-library-meta.php:131
 msgid ""
 "From the cycle, if any, to the series, separated with commas, such as “Star "
 "Wars, Young Jedi Knights”; the volume number goes with the series."
@@ -1309,11 +1313,11 @@ msgstr ""
 "Du cycle, s’il y en a un, à la série, séparés par des virgules, comme « Star "
 "Wars, Les Jeunes Chevaliers Jedi » ; le numéro de volume va avec la série."
 
-#: includes/class-library-meta.php:130
+#: includes/class-library-meta.php:132
 msgid "Shown after the collection, such as “Pocket Science-fiction no. 5667”."
 msgstr "Affiché après la collection, comme « Pocket Science-fiction n° 5667 »."
 
-#: includes/class-library-meta.php:131
+#: includes/class-library-meta.php:133
 msgid ""
 "When the work first came out, whatever the edition: a year, a year and "
 "month, or a date, such as 1929, 1929-11 or 1929-11-08."
@@ -1321,11 +1325,11 @@ msgstr ""
 "Date de première parution de l’œuvre, quelle que soit l’édition : une année, "
 "une année et un mois, ou une date, comme 1929, 1929-11 ou 1929-11-08."
 
-#: includes/class-library-meta.php:132
+#: includes/class-library-meta.php:134
 msgid "Rating from 1 to 10."
 msgstr "Note de 1 à 10."
 
-#: includes/class-library-meta.php:133
+#: includes/class-library-meta.php:135
 msgid ""
 "A magazine or an anthology, whose authors each give a part: it does not "
 "count among the books of any of them."
@@ -1333,38 +1337,44 @@ msgstr ""
 "Une revue ou une anthologie, dont chaque auteur signe une partie : il ne "
 "compte parmi les livres d’aucun d’eux."
 
-#: includes/class-library-meta.php:272
+#: includes/class-library-meta.php:274
 msgctxt "role"
 msgid "Author"
 msgstr "Auteur"
 
-#: includes/class-library-meta.php:273
+#: includes/class-library-meta.php:275
 msgctxt "role"
 msgid "Translator"
 msgstr "Traducteur"
 
-#: includes/class-library-meta.php:274
+#: includes/class-library-meta.php:276
 msgctxt "role"
 msgid "Colorist"
 msgstr "Coloriste"
 
-#: includes/class-library-meta.php:275
+#: includes/class-library-meta.php:277
 msgctxt "role"
 msgid "Inker"
 msgstr "Encreur"
 
-#: includes/class-library-meta.php:276
+#: includes/class-library-meta.php:278
 msgctxt "role"
 msgid "Letterer"
 msgstr "Lettreur"
 
-#: includes/class-library-meta.php:277
+#: includes/class-library-meta.php:279
 msgctxt "role"
 msgid "Publishing director"
 msgstr "Directeur de publication"
 
+#. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
+#: includes/class-library-meta.php:281
+msgctxt "role"
+msgid "Adapted author"
+msgstr "Auteur adapté"
+
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-library-meta.php:569
+#: includes/class-library-meta.php:573
 #, php-format
 msgid ""
 "The last digit of the ISBN %s, its check digit, does not match the others: "
