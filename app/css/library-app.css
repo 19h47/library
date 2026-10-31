@@ -405,8 +405,13 @@ library-person > .library-person {
 	min-width: 0;
 }
 
+/* A name keeps room for itself: once a row is too narrow, its role goes under it, as wide as the row beside its button */
 .library-input-list__item input {
-	flex: 1;
+	flex: 1 1 12em;
+}
+
+.library-input-list__item select {
+	flex: 1 1 auto;
 }
 
 /* A field of a form, such as a read date or the title of a book */
