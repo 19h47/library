@@ -289,7 +289,7 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-item</code>: with a cover, without, with an excerpt and a form, not kept with a form, to buy, long, bare</figcaption>
+				<figcaption><code>.library-item</code>: with a cover, without, with an excerpt and a form, not kept with a form in its original language, to buy, long, bare</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list__items" data-sample="books"></ul>
 				</div>

@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.3.1
+Stable tag: 8.4.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.4.0 =
+* Reading app: the card of a book read in its original language says so in a tag, “Original”, after the one of its form: a book whose original language is not the one of the app, and that no one translated, as the achievement In the original counts it.
 
 = 8.3.1 =
 * Fixed: on a phone, the names of the book form of the reading app were squeezed to one letter by the select of their role. A name keeps room for itself, and its role goes under it once the row is too narrow.
