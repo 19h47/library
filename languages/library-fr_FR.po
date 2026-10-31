@@ -704,7 +704,7 @@ msgstr "Extrait"
 
 #: app/partials/library-app.php:432
 msgid "Notes"
-msgstr "Notes"
+msgstr "Notes de lecture"
 
 #: app/partials/library-app.php:444
 msgid "Add a person"
