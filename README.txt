@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.5.0
+Stable tag: 8.5.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.5.1 =
+* French translation: the roles are functions, as the credits of a comic print them, such as “Couleurs” or “D’après” rather than “Coloriste” or “Auteur adapté”, and the other names of people say both genders, as WordPress does, such as “Auteur/autrice”, without middle dot, which screen readers read badly.
 
 = 8.5.0 =
 * Books: a name has a new role, adapted author, as the BnF names the author of the work a book is adapted from or continues, such as Goscinny and Uderzo for an Asterix by Ferri and Conrad, or Richard Stark for the Parker of Darwyn Cooke. An adapted author is not one of the authors of the book: they are left out of its credits and of the books counted for them, and the book is on their page and in a row of the book open. The REST API saves them in the meta `library_adapted_authors`.
