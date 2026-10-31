@@ -59,11 +59,12 @@ class Library_Meta {
 	 * @var array<string,string>
 	 */
 	public const ROLE_KEYS = array(
-		'translator' => 'library_translators',
-		'colorist'   => 'library_colorists',
-		'inker'      => 'library_inkers',
-		'letterer'   => 'library_letterers',
-		'director'   => 'library_directors',
+		'translator'     => 'library_translators',
+		'colorist'       => 'library_colorists',
+		'inker'          => 'library_inkers',
+		'letterer'       => 'library_letterers',
+		'director'       => 'library_directors',
+		'adapted_author' => 'library_adapted_authors',
 	);
 
 	/**
@@ -121,6 +122,7 @@ class Library_Meta {
 			'library_inkers'            => __( 'Inkers', 'library' ),
 			'library_letterers'         => __( 'Letterers', 'library' ),
 			'library_directors'         => __( 'Publishing directors', 'library' ),
+			'library_adapted_authors'   => __( 'Adapted authors', 'library' ),
 		);
 		$descriptions = array(
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
@@ -269,12 +271,14 @@ class Library_Meta {
 	 */
 	public static function get_role_choices(): array {
 		return array(
-			'author'     => _x( 'Author', 'role', 'library' ),
-			'translator' => _x( 'Translator', 'role', 'library' ),
-			'colorist'   => _x( 'Colorist', 'role', 'library' ),
-			'inker'      => _x( 'Inker', 'role', 'library' ),
-			'letterer'   => _x( 'Letterer', 'role', 'library' ),
-			'director'   => _x( 'Publishing director', 'role', 'library' ),
+			'author'         => _x( 'Author', 'role', 'library' ),
+			'translator'     => _x( 'Translator', 'role', 'library' ),
+			'colorist'       => _x( 'Colorist', 'role', 'library' ),
+			'inker'          => _x( 'Inker', 'role', 'library' ),
+			'letterer'       => _x( 'Letterer', 'role', 'library' ),
+			'director'       => _x( 'Publishing director', 'role', 'library' ),
+			/* translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri. */
+			'adapted_author' => _x( 'Adapted author', 'role', 'library' ),
 		);
 	}
 

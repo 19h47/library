@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.4.0
+Stable tag: 8.5.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,7 +19,7 @@ Library adds a **Book** post type and four taxonomies, **People**, **Publishers*
 = Features =
 
 * **Books** – Cover, subtitle, series and volume, number in its collection, ISBN, ISSN, number of pages, edition date and date first published, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. The number in its collection follows the collection: “Pocket Science-fiction no. 5667”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13. Its form, such as a novel, a comic or a magazine, is one of those added in **Books > Forms**.
-* **People** – Each name of a book is a person, the author unless a role is chosen: translator, colorist, inker, letterer or publishing director. A collective work, a magazine or an anthology, is credited to its publishing directors, “X (dir.)”, else to no one: it is found through each of its people, but counts among the books of none of them.
+* **People** – Each name of a book is a person, the author unless a role is chosen: translator, colorist, inker, letterer, publishing director or adapted author, the author of the work a book is adapted from or continues, as Goscinny for an Asterix by Ferri. A collective work, a magazine or an anthology, is credited to its publishing directors, “X (dir.)”, else to no one: it is found through each of its people, but counts among the books of none of them.
 * **People, publishers and languages** – Pseudonyms are children of a person's real name, collections children of their publisher: filtering by a person or a publisher includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 8.5.0 =
+* Books: a name has a new role, adapted author, as the BnF names the author of the work a book is adapted from or continues, such as Goscinny and Uderzo for an Asterix by Ferri and Conrad, or Richard Stark for the Parker of Darwyn Cooke. An adapted author is not one of the authors of the book: they are left out of its credits and of the books counted for them, and the book is on their page and in a row of the book open. The REST API saves them in the meta `library_adapted_authors`.
 
 = 8.4.0 =
 * Reading app: the card of a book read in its original language says so in a tag, “Original”, after the one of its form: a book whose original language is not the one of the app, and that no one translated, as the achievement In the original counts it.
