@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-31T08:28:10+00:00\n"
+"POT-Creation-Date: 2026-10-31T08:29:03+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -77,7 +77,7 @@ msgstr "Formes"
 
 #: admin/class-library-achievements-page.php:101
 msgid "Languages and translators"
-msgstr "Langues et traducteurs"
+msgstr "Langues et traductions"
 
 #: admin/class-library-achievements-page.php:102
 msgid "Easter eggs"
@@ -89,7 +89,7 @@ msgstr "Miniature"
 
 #: admin/class-library-books-list.php:57
 msgid "Authors"
-msgstr "Auteurs"
+msgstr "Auteurs/autrices"
 
 #: admin/class-library-books-list.php:62 app/partials/library-app.php:569
 msgid "Read date"
@@ -158,7 +158,7 @@ msgstr "Pile à lire"
 
 #: admin/class-library-dashboard.php:112
 msgid "Most present authors"
-msgstr "Auteurs les plus présents"
+msgstr "Autrices et auteurs les plus présents"
 
 #: admin/class-library-dashboard.php:116
 msgid "Most present publishers"
@@ -449,7 +449,7 @@ msgstr "%1$s : %2$s"
 #: admin/partials/library-dashboard-collection.php:26
 #, php-format
 msgid "%1$s books, %2$s authors, %3$s publishers"
-msgstr "%1$s livres, %2$s auteurs, %3$s éditeurs"
+msgstr "%1$s livres, %2$s auteurs/autrices, %3$s éditeurs"
 
 #. translators: 1: number of translated books, 2: percent of the books.
 #: admin/partials/library-dashboard-collection.php:37
@@ -590,9 +590,9 @@ msgid ""
 "its authors. A name just added is an author: save the book to choose another "
 "role."
 msgstr ""
-"Le rôle de chaque nom du livre : un coloriste, par exemple, n’est pas l’un "
-"de ses auteurs. Un nom tout juste ajouté est un auteur : enregistrez le "
-"livre pour lui choisir un autre rôle."
+"Le rôle de chaque nom du livre : la personne aux couleurs, par exemple, n’en "
+"est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
+"autrice : enregistrez le livre pour lui choisir un autre rôle."
 
 #: app/class-library-app.php:73
 msgid "App"
@@ -630,7 +630,7 @@ msgstr "Rechercher dans la bibliothèque"
 
 #: app/partials/library-app.php:83
 msgid "Title, author, series, ISBN…"
-msgstr "Titre, auteur, série, ISBN…"
+msgstr "Titre, nom, série, ISBN…"
 
 #: app/partials/library-app.php:88 app/js/bricks/library-count.js:14
 msgid "Loading…"
@@ -747,8 +747,8 @@ msgstr[1] "%s séries terminées"
 #, php-format
 msgid "%s complete author"
 msgid_plural "%s complete authors"
-msgstr[0] "%s auteur complet"
-msgstr[1] "%s auteurs complets"
+msgstr[0] "%s œuvre complète"
+msgstr[1] "%s œuvres complètes"
 
 #. translators: %s: number of collections read in full.
 #: includes/class-library-achievements.php:496
@@ -760,7 +760,7 @@ msgstr[1] "%s collections terminées"
 
 #: includes/class-library-achievements.php:603
 msgid "Complete author"
-msgstr "Auteur complet"
+msgstr "Œuvre complète"
 
 #: includes/class-library-achievements.php:604
 msgid "Series finished"
@@ -909,15 +909,15 @@ msgstr "Encore à lire : %s"
 
 #: includes/class-library-achievements.php:1215
 msgid "Faithful to a translator"
-msgstr "Fidèle à un traducteur"
+msgstr "Fidèle à un traducteur/une traductrice"
 
 #. translators: %s: number of translators with many books read.
 #: includes/class-library-achievements.php:1225
 #, php-format
 msgid "Faithful to %s translator"
 msgid_plural "Faithful to %s translators"
-msgstr[0] "Fidèle à %s traducteur"
-msgstr[1] "Fidèle à %s traducteurs"
+msgstr[0] "Fidèle à %s traducteur/traductrice"
+msgstr[1] "Fidèle à %s traducteurs/traductrices"
 
 #. translators: %s: number of original languages read.
 #: includes/class-library-achievements.php:1254
@@ -940,7 +940,7 @@ msgstr "En VO"
 
 #: includes/class-library-achievements.php:1297
 msgid "Read in its original language, without translator"
-msgstr "Lu dans sa langue d’origine, sans traducteur"
+msgstr "Lu dans sa langue d’origine, sans traduction"
 
 #: includes/class-library-achievements.php:1311
 msgid "Polyglot of the month"
@@ -1172,7 +1172,7 @@ msgstr "Homonymes"
 
 #: includes/class-library-achievements.php:1773
 msgid "The same title, different authors"
-msgstr "Même titre, auteurs différents"
+msgstr "Même titre, signatures différentes"
 
 #: includes/class-library-achievements.php:1808
 msgid "Back to the start"
@@ -1241,7 +1241,7 @@ msgstr "Numéro dans la collection"
 
 #: includes/class-library-meta.php:113
 msgid "Translators"
-msgstr "Traducteurs"
+msgstr "Traduction"
 
 #: includes/class-library-meta.php:114
 msgid "Edition date"
@@ -1265,23 +1265,23 @@ msgstr "Ouvrage collectif"
 
 #: includes/class-library-meta.php:121
 msgid "Colorists"
-msgstr "Coloristes"
+msgstr "Couleurs"
 
 #: includes/class-library-meta.php:122
 msgid "Inkers"
-msgstr "Encreurs"
+msgstr "Encrage"
 
 #: includes/class-library-meta.php:123
 msgid "Letterers"
-msgstr "Lettreurs"
+msgstr "Lettrage"
 
 #: includes/class-library-meta.php:124
 msgid "Publishing directors"
-msgstr "Directeurs de publication"
+msgstr "Direction de publication"
 
 #: includes/class-library-meta.php:125
 msgid "Adapted authors"
-msgstr "Auteurs adaptés"
+msgstr "D’après"
 
 #: includes/class-library-meta.php:128
 msgid ""
@@ -1334,44 +1334,44 @@ msgid ""
 "A magazine or an anthology, whose authors each give a part: it does not "
 "count among the books of any of them."
 msgstr ""
-"Une revue ou une anthologie, dont chaque auteur signe une partie : il ne "
-"compte parmi les livres d’aucun d’eux."
+"Une revue ou une anthologie, dont chaque autrice ou auteur signe une "
+"partie : elle ne compte parmi les livres d’aucune de ces personnes."
 
 #: includes/class-library-meta.php:274
 msgctxt "role"
 msgid "Author"
-msgstr "Auteur"
+msgstr "Auteur/autrice"
 
 #: includes/class-library-meta.php:275
 msgctxt "role"
 msgid "Translator"
-msgstr "Traducteur"
+msgstr "Traduction"
 
 #: includes/class-library-meta.php:276
 msgctxt "role"
 msgid "Colorist"
-msgstr "Coloriste"
+msgstr "Couleurs"
 
 #: includes/class-library-meta.php:277
 msgctxt "role"
 msgid "Inker"
-msgstr "Encreur"
+msgstr "Encrage"
 
 #: includes/class-library-meta.php:278
 msgctxt "role"
 msgid "Letterer"
-msgstr "Lettreur"
+msgstr "Lettrage"
 
 #: includes/class-library-meta.php:279
 msgctxt "role"
 msgid "Publishing director"
-msgstr "Directeur de publication"
+msgstr "Direction de publication"
 
 #. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
 #: includes/class-library-meta.php:281
 msgctxt "role"
 msgid "Adapted author"
-msgstr "Auteur adapté"
+msgstr "D’après"
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
 #: includes/class-library-meta.php:573
@@ -1642,8 +1642,8 @@ msgid ""
 "Credits of the book, to show under its title: authors · publisher, "
 "collection · edition year."
 msgstr ""
-"Crédits du livre, à afficher sous son titre : auteurs · éditeur, collection "
-"· année d’édition."
+"Crédits du livre, à afficher sous son titre : auteurs/autrices · éditeur, "
+"collection · année d’édition."
 
 #: includes/class-library-rest-api.php:79
 msgid "ID of the book."
@@ -1689,7 +1689,7 @@ msgid ""
 "as colorist; a name not found adds a person."
 msgstr ""
 "Personnes du livre, sous leur nom ou un pseudonyme, chacune avec son rôle, "
-"comme coloriste ; un nom introuvable ajoute une personne."
+"comme les couleurs ; un nom introuvable ajoute une personne."
 
 #: includes/class-library-rest-api.php:246
 msgid "Name of the publisher; a name not found adds a publisher."
@@ -2051,7 +2051,7 @@ msgstr "une série, ou un cycle avec ses séries, par son nom exact"
 
 #: includes/class-library-wp-query.php:222
 msgid "an author, with their pseudonyms"
-msgstr "un auteur, avec ses pseudonymes"
+msgstr "un auteur ou une autrice, avec ses pseudonymes"
 
 #: includes/class-library-wp-query.php:223
 msgid "a publisher, with its collections"
@@ -2059,7 +2059,7 @@ msgstr "un éditeur, avec ses collections"
 
 #: includes/class-library-wp-query.php:224
 msgid "a translator"
-msgstr "un traducteur"
+msgstr "un traducteur ou une traductrice"
 
 #: includes/class-library-wp-query.php:225
 msgid "the original language, by its code or the start of its name"
