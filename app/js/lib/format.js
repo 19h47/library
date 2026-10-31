@@ -73,6 +73,16 @@ export function formatTranslation( book ) {
 	return sprintf( format, andFormat.format( languages ), andFormat.format( translators ) );
 }
 
+/**
+ * Whether a book is in its original language, as the achievement "In the original" counts it: none of its original
+ * languages is the one of the page, and no one translated it. A book without original language says nothing.
+ */
+export function formatOriginal( book ) {
+	const isOriginal = book.languages.length && ! book.languages.includes( pageLanguage ) && ! book.translators.length;
+
+	return isOriginal ? _x( 'Original', 'book in its original language, short tag', 'library' ) : '';
+}
+
 /** Whether a book is kept: shown only when it is not, not kept or to buy. */
 export function formatStatus( book ) {
 	const labels = {

@@ -552,6 +552,7 @@
 					<p class="app-item__meta">
 						<span data-field="state"></span>
 						<span class="library-item__tag" data-field="form" hidden></span>
+						<span class="library-item__tag" data-field="original" hidden></span>
 						<span class="library-item__tag library-item__status" data-field="status" hidden></span>
 					</p>
 				</div>

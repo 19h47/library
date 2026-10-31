@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-31T06:29:47+00:00\n"
+"POT-Creation-Date: 2026-10-31T06:44:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -90,7 +90,7 @@ msgid "Authors"
 msgstr ""
 
 #: admin/class-library-books-list.php:62
-#: app/partials/library-app.php:568
+#: app/partials/library-app.php:569
 msgid "Read date"
 msgstr ""
 
@@ -391,7 +391,7 @@ msgstr ""
 #: admin/class-library-terms-list.php:103
 #: includes/class-library-posts.php:83
 #: includes/class-library-posts.php:109
-#: app/js/lib/format.js:79
+#: app/js/lib/format.js:89
 msgctxt "book status"
 msgid "Not kept"
 msgstr ""
@@ -401,7 +401,7 @@ msgstr ""
 #: admin/partials/library-achievement-close.php:22
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:56
-#: app/js/lib/render.js:161
+#: app/js/lib/render.js:164
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -637,12 +637,12 @@ msgstr ""
 
 #: app/partials/library-app.php:98
 #: includes/class-library-meta.php:119
-#: app/js/lib/format.js:90
+#: app/js/lib/format.js:100
 msgid "Read"
 msgstr ""
 
 #: app/partials/library-app.php:99
-#: app/js/lib/format.js:88
+#: app/js/lib/format.js:98
 msgid "To read"
 msgstr ""
 
@@ -722,17 +722,17 @@ msgstr ""
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:578
 #: app/partials/library-app.php:579
+#: app/partials/library-app.php:580
 msgid "Remove this reading"
 msgstr ""
 
-#: app/partials/library-app.php:603
+#: app/partials/library-app.php:604
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:613
 #: app/partials/library-app.php:614
+#: app/partials/library-app.php:615
 msgid "Remove this person"
 msgstr ""
 
@@ -1361,7 +1361,7 @@ msgstr[1] ""
 
 #: includes/class-library-posts.php:92
 #: includes/class-library-posts.php:110
-#: app/js/lib/format.js:80
+#: app/js/lib/format.js:90
 msgctxt "book status"
 msgid "To buy"
 msgstr ""
@@ -2088,6 +2088,11 @@ msgstr ""
 #, js-format
 msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
+msgstr ""
+
+#: app/js/lib/format.js:83
+msgctxt "book in its original language, short tag"
+msgid "Original"
 msgstr ""
 
 #: app/js/library-app-store.js:166

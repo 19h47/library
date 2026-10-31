@@ -6,7 +6,7 @@
  */
 
 import { __, personUrl, bookUrl, searchUrl, sprintf } from 'library-app/app';
-import { formatDate, formatNumber, formatStatus, join, listFormat } from 'library-app/format';
+import { formatDate, formatNumber, formatOriginal, formatStatus, join, listFormat } from 'library-app/format';
 
 /**
  * Sets the text of the [data-field] elements of `$root`; an empty one is hidden, with its [data-row].
@@ -95,10 +95,13 @@ export function clone( id ) {
 	return document.getElementById( id ).content.firstElementChild.cloneNode( true );
 }
 
-/** Fills the card of a book; `state` is the line under its title, followed by the tags of its form and of a book not kept or to buy. */
+/**
+ * Fills the card of a book; `state` is the line under its title, followed by the tags of its form, of a book in its
+ * original language and of a book not kept or to buy.
+ */
 export function fillBook( $item, book, state ) {
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, form: book.form, status: formatStatus( book ) } );
+	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, form: book.form, original: formatOriginal( book ), status: formatStatus( book ) } );
 }
 
 /** The cover of a book, which opens it; a book without cover shows its title instead. */

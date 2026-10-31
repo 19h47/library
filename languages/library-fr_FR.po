@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-10-30T19:57:40+00:00\n"
+"POT-Creation-Date: 2026-10-31T06:44:12+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -91,7 +91,7 @@ msgstr "Miniature"
 msgid "Authors"
 msgstr "Auteurs"
 
-#: admin/class-library-books-list.php:62 app/partials/library-app.php:568
+#: admin/class-library-books-list.php:62 app/partials/library-app.php:569
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -389,7 +389,7 @@ msgid "Forms deleted."
 msgstr "Formes supprimées."
 
 #: admin/class-library-terms-list.php:103 includes/class-library-posts.php:83
-#: includes/class-library-posts.php:109 app/js/lib/format.js:79
+#: includes/class-library-posts.php:109 app/js/lib/format.js:89
 msgctxt "book status"
 msgid "Not kept"
 msgstr "De passage"
@@ -398,7 +398,7 @@ msgstr "De passage"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:22
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:161
+#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:164
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -641,11 +641,11 @@ msgid "Reading state"
 msgstr "État de lecture"
 
 #: app/partials/library-app.php:98 includes/class-library-meta.php:119
-#: app/js/lib/format.js:90
+#: app/js/lib/format.js:100
 msgid "Read"
 msgstr "Lu"
 
-#: app/partials/library-app.php:99 app/js/lib/format.js:88
+#: app/partials/library-app.php:99 app/js/lib/format.js:98
 msgid "To read"
 msgstr "À lire"
 
@@ -722,15 +722,15 @@ msgstr "Plus de détails"
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:578 app/partials/library-app.php:579
+#: app/partials/library-app.php:579 app/partials/library-app.php:580
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/partials/library-app.php:603
+#: app/partials/library-app.php:604
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:613 app/partials/library-app.php:614
+#: app/partials/library-app.php:614 app/partials/library-app.php:615
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -1382,7 +1382,7 @@ msgstr[0] "De passage <span class=\"count\">(%s)</span>"
 msgstr[1] "De passage <span class=\"count\">(%s)</span>"
 
 #: includes/class-library-posts.php:92 includes/class-library-posts.php:110
-#: app/js/lib/format.js:80
+#: app/js/lib/format.js:90
 msgctxt "book status"
 msgid "To buy"
 msgstr "Envie"
@@ -2149,6 +2149,11 @@ msgstr "Traduit de l’%1$s par %2$s"
 msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr "Traduit du %1$s par %2$s"
+
+#: app/js/lib/format.js:83
+msgctxt "book in its original language, short tag"
+msgid "Original"
+msgstr "VO"
 
 #: app/js/library-app-store.js:166
 msgid "The books could not be loaded."
