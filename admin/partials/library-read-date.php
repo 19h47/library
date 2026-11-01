@@ -8,7 +8,7 @@
  * @package    Library
  * @subpackage Library/admin/partials
  *
- * @var string $read_date Read date, Y-m-d, or empty.
+ * @var string $read_date Read date, Y-m-d, with its time or not, or empty: the field gives its day, which keeps its time once saved.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		array(
 			'name'       => 'library_read_date[]',
 			'max'        => current_time( 'Y-m-d' ),
-			'value'      => $read_date,
+			'value'      => substr( $read_date, 0, 10 ),
 			'aria-label' => __( 'Read date', 'library' ),
 		)
 	);

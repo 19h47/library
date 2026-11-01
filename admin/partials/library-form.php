@@ -19,7 +19,8 @@
 <table class="form-table" role="presentation">
 
 	<?php
-	foreach ( array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_pages', 'library_edition_date', 'library_published_date', 'library_read', 'library_in_progress' ) as $key ) {
+	// As the form of the reading app: the fields most books have, then the ones few have, then the reading.
+	foreach ( array( 'library_isbn', 'library_series', 'library_volume_number', 'library_collection_number', 'library_edition_date', 'library_subtitle', 'library_published_date', 'library_pages', 'library_collective', 'library_issn', 'library_read', 'library_in_progress' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
@@ -54,9 +55,9 @@
 	</tr>
 
 	<?php
-	foreach ( array( 'library_rating', 'library_collective' ) as $key ) {
-		include __DIR__ . '/library-form-field.php';
-	}
+	$key = 'library_rating';
+
+	require __DIR__ . '/library-form-field.php';
 	?>
 
 	<?php if ( $names ) : ?>

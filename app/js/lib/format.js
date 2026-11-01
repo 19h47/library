@@ -29,12 +29,13 @@ export function formatBooks( books ) {
 	return sprintf( _n( '%s book', '%s books', books, 'library' ), formatNumber( books ) );
 }
 
-/** A date of the API: "2024-05-12", or "1929-11" and "1929" for a date first published. */
+/** A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a date first published. */
 export function formatDate( date, format = dateFormat ) {
-	const [ year, month, day ] = date.split( '-' );
+	const day = date.slice( 0, 10 );
+	const [ year, month, dayOfMonth ] = day.split( '-' );
 
-	if ( day ) {
-		return format.format( new Date( `${ date }T00:00` ) );
+	if ( dayOfMonth ) {
+		return format.format( new Date( `${ day }T00:00` ) );
 	}
 
 	return month ? monthFormat.format( new Date( Number( year ), Number( month ) - 1 ) ) : year;

@@ -319,6 +319,7 @@
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
 					<library-book class="library-book">
+						<p class="app-status" data-field="status" role="status" hidden></p>
 						<img class="library-book__cover" data-field="cover" alt="" hidden>
 						<p class="library-book__meta" data-field="credits"></p>
 						<h2 class="library-book__title" data-field="title" tabindex="-1"></h2>
@@ -386,7 +387,7 @@
 								?>
 								<p class="app-status" data-field="error" role="alert" hidden></p>
 								<p>
-									<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+									<button class="app-pill app-pill--primary" type="submit" data-saving="<?php esc_attr_e( 'Saving…', 'library' ); ?>"><?php esc_html_e( 'Save', 'library' ); ?></button>
 								</p>
 							</form>
 						</library-reading>
@@ -485,6 +486,7 @@
 				></h2>
 				<form class="library-edit__form">
 					<?php
+					// The fields a book has most, in the order a book in hand gives them: its ISBN first, which tells a book added already.
 					Library::render_component(
 						'image-field',
 						array(
@@ -494,6 +496,17 @@
 							'remove' => __( 'Remove the cover', 'library' ),
 						)
 					);
+					// An ISBN takes hyphens, which a numeric keyboard may not have.
+					Library::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
+					?>
+					<p class="library-edit__duplicate" role="status">
+						<span data-row="duplicate" hidden>
+							<?php esc_html_e( 'Already added:', 'library' ); ?>
+							<a data-field="duplicate" href=""></a>
+							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
+						</span>
+					</p>
+					<?php
 					Library::render_component(
 						'field',
 						array(
@@ -507,30 +520,6 @@
 						)
 					);
 					Library::render_component(
-						'field',
-						array(
-							'id'         => 'library-edit-excerpt',
-							'label'      => __( 'Excerpt', 'library' ),
-							'control'    => '<textarea></textarea>',
-							'attributes' => array(
-								'name' => 'excerpt',
-								'rows' => 3,
-							),
-						)
-					);
-					Library::render_component(
-						'field',
-						array(
-							'id'         => 'library-edit-content',
-							'label'      => __( 'Notes', 'library' ),
-							'control'    => '<textarea></textarea>',
-							'attributes' => array(
-								'name' => 'content',
-								'rows' => 3,
-							),
-						)
-					);
-					Library::render_component(
 						'input-list',
 						array(
 							'legend' => $person_labels->name,
@@ -539,6 +528,8 @@
 							'list'   => array( 'data-list' => 'people' ),
 						)
 					);
+					Library::render_component( 'meta-field', array( 'key' => 'library_series' ) );
+					Library::render_component( 'meta-field', array( 'key' => 'library_volume_number' ) );
 					Library::render_component(
 						'field',
 						array(
@@ -564,17 +555,7 @@
 							),
 						)
 					);
-					// An ISBN takes hyphens, which a numeric keyboard may not have.
-					Library::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
-					?>
-					<p class="library-edit__duplicate" role="status">
-						<span data-row="duplicate" hidden>
-							<?php esc_html_e( 'Already added:', 'library' ); ?>
-							<a data-field="duplicate" href=""></a>
-							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
-						</span>
-					</p>
-					<?php
+					Library::render_component( 'meta-field', array( 'key' => 'library_collection_number' ) );
 					Library::render_component(
 						'field',
 						array(
@@ -584,6 +565,7 @@
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
+					Library::render_component( 'meta-field', array( 'key' => 'library_edition_date' ) );
 					Library::render_component(
 						'field',
 						array(
@@ -594,10 +576,11 @@
 						)
 					);
 					?>
+					<?php // The fields few books have, closed: its summary counts the ones filled in. ?>
 					<details class="library-edit__details">
-						<summary><?php esc_html_e( 'More details', 'library' ); ?></summary>
+						<summary data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'library_subtitle', 'library_series', 'library_volume_number', 'library_collection_number', 'library_issn', 'library_pages', 'library_edition_date', 'library_published_date' ) as $key ) {
+						foreach ( array( 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
 							Library::render_component(
 								'meta-field',
 								array(
@@ -609,15 +592,6 @@
 						}
 
 						Library::render_component(
-							'pill-checkbox',
-							array(
-								'id'      => 'library-edit-collective',
-								'label'   => Library_Meta::get_label( 'library_collective' ),
-								'control' => Library_Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
-							)
-						);
-
-						Library::render_component(
 							'field',
 							array(
 								'id'         => 'library-edit-language',
@@ -626,11 +600,44 @@
 								'attributes' => array( 'name' => 'language' ),
 							)
 						);
+						Library::render_component(
+							'pill-checkbox',
+							array(
+								'id'      => 'library-edit-collective',
+								'label'   => Library_Meta::get_label( 'library_collective' ),
+								'control' => Library_Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
+							)
+						);
+						Library::render_component( 'meta-field', array( 'key' => 'library_issn' ) );
+						Library::render_component(
+							'field',
+							array(
+								'id'         => 'library-edit-excerpt',
+								'label'      => __( 'Excerpt', 'library' ),
+								'control'    => '<textarea></textarea>',
+								'attributes' => array(
+									'name' => 'excerpt',
+									'rows' => 3,
+								),
+							)
+						);
+						Library::render_component(
+							'field',
+							array(
+								'id'         => 'library-edit-content',
+								'label'      => __( 'Notes', 'library' ),
+								'control'    => '<textarea></textarea>',
+								'attributes' => array(
+									'name' => 'content',
+									'rows' => 3,
+								),
+							)
+						);
 						?>
 					</details>
 					<p class="app-status" data-field="error" role="alert" hidden></p>
 					<p>
-						<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+						<button class="app-pill app-pill--primary" type="submit" data-saving="<?php esc_attr_e( 'Saving…', 'library' ); ?>"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
 				<p class="library-book__actions" hidden>

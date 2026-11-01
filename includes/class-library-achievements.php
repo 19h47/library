@@ -289,8 +289,18 @@ class Library_Achievements {
 	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool,done:int,total:int}>}
 	 */
 	public function get_achievements(): array {
-		// A book is dated by its first reading.
-		$books    = array_map( fn( array $book ) => $book + array( 'read_date' => $book['read_dates'][0] ?? '' ), Library_Books::get_books() );
+		// A book is dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
+		$books    = array_map(
+			function ( array $book ): array {
+				$read_dates = array_map( fn( string $read_date ) => substr( $read_date, 0, 10 ), $book['read_dates'] );
+
+				return array(
+					'read_dates' => $read_dates,
+					'read_date'  => $read_dates[0] ?? '',
+				) + $book;
+			},
+			Library_Books::get_books()
+		);
 		$reads    = self::get_reads( $books );
 		$readings = self::get_readings( $books );
 

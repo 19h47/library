@@ -2,12 +2,14 @@ import { store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatState } from 'library-app/format';
 import { renderBook } from 'library-app/render';
-import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
+import { followBooks, observeEnd, openBooks, renderKeyed, showBusy } from 'library-app/behaviors';
 
-/** The books of a list, those found or the one its `list` attribute names, such as `toBuy`, loading the next ones as the end of the list comes. */
+/**
+ * The books of a list, those found or the one its `list` attribute names, such as `toBuy`, loading the next ones as the
+ * end of the list comes: a card per book, kept while the book stays in the list. Loading again from its start, as for
+ * another search, the list shows its books faded and busy until the new ones come.
+ */
 class LibraryListElement extends Brick {
-	#ids = [];
-
 	connect( signal ) {
 		const list = this.getAttribute( 'list' ) ?? 'search';
 		const $items = this.querySelector( '.app-list__items' );
@@ -21,38 +23,18 @@ class LibraryListElement extends Brick {
 				( state ) => state[ list ].items,
 				( ids ) => {
 					const { books } = store.get();
-					const found = new Set( ids );
-					const kept = this.#ids.filter( ( id ) => found.has( id ) );
-					// The list goes on from the books still found: a book no longer found leaves it, the next ones add to it.
-					const goesOn = kept.every( ( id, index ) => id === ids[ index ] );
 
-					if ( goesOn ) {
-						$items.querySelectorAll( '.library-item' ).forEach( ( $item ) => {
-							if ( ! found.has( Number( $item.dataset.id ) ) ) {
-								this.#remove( $item );
-							}
-						} );
-					} else {
-						$items.replaceChildren();
-					}
-
-					$items.append( ...ids.slice( goesOn ? kept.length : 0 ).map( ( id ) => renderBook( books[ id ], formatState( books[ id ] ) ) ) );
-					this.#ids = ids;
+					renderKeyed( $items, ids, ( id ) => renderBook( books[ id ], formatState( books[ id ] ) ) );
 					observe();
 				}
 			),
+			store.select(
+				( state ) => state[ list ].renewing,
+				( renewing ) => {
+					showBusy( $items, renewing );
+				}
+			),
 		];
-	}
-
-	/** Removes a card; the focus it holds, back from the book opened, goes to the next card, or else the previous one. */
-	#remove( $item ) {
-		const $sibling = $item.nextElementSibling ?? $item.previousElementSibling;
-
-		if ( $item.contains( document.activeElement ) ) {
-			$sibling?.querySelector( '.library-item__button' ).focus();
-		}
-
-		$item.remove();
 	}
 }
 customElements.define( 'library-list', LibraryListElement );

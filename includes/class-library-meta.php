@@ -28,11 +28,19 @@ class Library_Meta {
 	public const TEXT_KEYS = array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
 
 	/**
-	 * Date meta keys, stored as Y-m-d; a book has one read date per reading, empty when it is unknown.
+	 * Date meta keys, stored as Y-m-d; a book has one read date per reading, empty when it is unknown, and with its time
+	 * when it was read today, as READ_TIME_FORMAT, so that the readings of a day follow one another.
 	 *
 	 * @var string[]
 	 */
 	private const DATE_KEYS = array( 'library_edition_date', 'library_read_date' );
+
+	/**
+	 * Format of a read date with its time, which sorts after the day alone: 2026-11-01T21:40.
+	 *
+	 * @var string
+	 */
+	public const READ_TIME_FORMAT = 'Y-m-d\TH:i';
 
 	/**
 	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
@@ -169,12 +177,15 @@ class Library_Meta {
 					'single'            => 'library_read_date' !== $key,
 					'show_in_rest'      => array(
 						'schema' => array(
-							// A read date may be unknown.
-							'pattern' => 'library_read_date' === $key ? '^(\d{4}-\d{2}-\d{2})?$' : '^\d{4}-\d{2}-\d{2}$',
+							// A read date may be unknown, or have its time.
+							'pattern' => 'library_read_date' === $key ? '^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?$' : '^\d{4}-\d{2}-\d{2}$',
 							'format'  => 'date',
 						),
 					),
-					'sanitize_callback' => array( self::class, 'sanitize_date' ),
+					'sanitize_callback' => array( self::class, 'library_read_date' === $key ? 'sanitize_read_date' : 'sanitize_date' ),
+					// The read dates are written at once, through Library_Meta::save(), as the book route does: the core
+					// REST API removes a value by value, and an unknown date, empty, would remove them all.
+					'auth_callback'     => 'library_read_date' === $key ? '__return_false' : null,
 				)
 			);
 		}
@@ -466,13 +477,25 @@ class Library_Meta {
 	}
 
 	/**
-	 * Read dates of a book, one per reading, from the first to the latest: an unknown one, empty, comes first.
+	 * Read dates of a book, one per reading, from the first to the latest: the unknown ones, empty, come first.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return string[]
 	 */
 	public static function get_read_dates( int $post_id ): array {
-		$read_dates = array_unique( get_post_meta( $post_id, 'library_read_date', false ) );
+		return self::to_readings( get_post_meta( $post_id, 'library_read_date', false ) );
+	}
+
+	/**
+	 * Read dates as readings, from the first to the latest: each unknown date, empty, is a reading of its own, first; a
+	 * known date is one reading, as a date saved twice by an old import.
+	 *
+	 * @param string[] $read_dates Read dates, Y-m-d, or empty.
+	 * @return string[]
+	 */
+	private static function to_readings( array $read_dates ): array {
+		$unknown    = array_filter( $read_dates, fn( string $read_date ) => '' === $read_date );
+		$read_dates = array( ...$unknown, ...array_unique( array_filter( $read_dates ) ) );
 
 		sort( $read_dates );
 
@@ -536,27 +559,66 @@ class Library_Meta {
 		}
 
 		if ( get_post_meta( $post_id, 'library_read', true ) && ! self::get_read_dates( $post_id ) ) {
-			add_post_meta( $post_id, 'library_read_date', $was_read ? '' : current_time( 'Y-m-d' ) );
+			add_post_meta( $post_id, 'library_read_date', $was_read ? '' : current_time( self::READ_TIME_FORMAT ) );
 		}
 
-		if ( array_diff( self::get_read_dates( $post_id ), $read_dates ) ) {
+		if ( self::adds_a_reading( $read_dates, self::get_read_dates( $post_id ) ) ) {
 			delete_post_meta( $post_id, 'library_in_progress' );
 		}
 	}
 
 	/**
-	 * Replace the read dates of a book, one row per reading; an empty or invalid date is an unknown one, and a date,
-	 * known or not, is kept once.
+	 * Whether read dates have a reading the former ones have not: a date more, known or not, such as a second unknown one.
+	 *
+	 * @param string[] $before Read dates before.
+	 * @param string[] $after  Read dates after.
+	 * @return bool
+	 */
+	private static function adds_a_reading( array $before, array $after ): bool {
+		$counts = array_count_values( $before );
+
+		foreach ( array_count_values( $after ) as $read_date => $count ) {
+			if ( $count > ( $counts[ $read_date ] ?? 0 ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Replace the read dates of a book, one row per reading; an empty or invalid date is an unknown one, each a reading,
+	 * and a known date is kept once. A form gives the day of a reading: one of a day saved with its time keeps it, and
+	 * one added today takes the time now, which orders the readings of a day.
 	 *
 	 * @param int   $post_id    Post ID.
-	 * @param array $read_dates Read dates, Y-m-d, or empty.
+	 * @param array $read_dates Read dates, Y-m-d, or with their time, or empty.
 	 * @return void
 	 */
 	private static function save_read_dates( int $post_id, array $read_dates ): void {
 		$read_dates = array_map( fn( $read_date ) => sanitize_meta( 'library_read_date', $read_date, 'post', 'library_book' ), $read_dates );
-		$read_dates = array_unique( $read_dates );
+		// The readings saved that a day given alone may stand for: not the ones given whole, with their time.
+		$saved      = array_diff( self::get_read_dates( $post_id ), $read_dates );
+		$read_dates = array_map(
+			function ( string $read_date ) use ( &$saved ): string {
+				if ( 10 !== strlen( $read_date ) ) {
+					return $read_date;
+				}
 
-		sort( $read_dates );
+				// A reading saved that day keeps its time, once.
+				foreach ( $saved as $index => $saved_date ) {
+					if ( str_starts_with( $saved_date, $read_date ) ) {
+						unset( $saved[ $index ] );
+
+						return $saved_date;
+					}
+				}
+
+				return current_time( 'Y-m-d' ) === $read_date ? current_time( self::READ_TIME_FORMAT ) : $read_date;
+			},
+			$read_dates
+		);
+		$read_dates = self::to_readings( $read_dates );
 
 		if ( self::get_read_dates( $post_id ) === $read_dates ) {
 			return;
@@ -614,6 +676,20 @@ class Library_Meta {
 		$date  = DateTimeImmutable::createFromFormat( '!Y-m-d', $value );
 
 		return $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
+	}
+
+	/**
+	 * Keep a valid read date, its day alone or with its time, as READ_TIME_FORMAT; anything else becomes empty, an unknown one.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_read_date( $value ): string {
+		$value  = (string) $value;
+		$format = 10 === strlen( $value ) ? 'Y-m-d' : self::READ_TIME_FORMAT;
+		$date   = DateTimeImmutable::createFromFormat( "!$format", $value );
+
+		return $date && $date->format( $format ) === $value ? $value : '';
 	}
 
 	/**

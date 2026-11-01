@@ -1,13 +1,14 @@
-import { roles, store } from 'library-app/app';
+import { __, roles, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
 import { fill, fillCover, linkPeople } from 'library-app/render';
-import { openLinks } from 'library-app/behaviors';
+import { openLinks, showBusy } from 'library-app/behaviors';
 
 /**
- * The page of a book: its cover, credits and title, its notes, its reading, its series and its fields. Another book
- * opened from it, such as a volume of its series, takes the focus to its title, as the view does when it opens. Its
- * button Edit book opens the form of the book over it.
+ * The page of a book: its cover, credits and title, its notes, its reading, its series and its fields; a book not
+ * loaded yet, such as one of an achievement, says it is loading, the page open already. Another book opened from it,
+ * such as a volume of its series, takes the focus to its title, as the view does when it opens. Its button Edit book
+ * opens the form of the book over it.
  */
 class LibraryBookElement extends Brick {
 	connect( signal ) {
@@ -18,26 +19,33 @@ class LibraryBookElement extends Brick {
 		$edit.addEventListener( 'click', () => store.openEdit( store.get().book ), { signal } );
 		openLinks( this, signal );
 
-		return [
-			store.select(
-				( state ) => state.books[ state.book ] ?? null,
-				( book ) => {
-					if ( ! book ) {
-						shown = 0;
-						return;
-					}
+		// The book open, or the one to open while it loads.
+		const show = () => {
+			const { book: id, books, moved } = store.get();
+			const book = books[ id ];
+			const isLoading = Boolean( id ) && ! book;
 
-					this.#render( book );
+			// The book before it, if any, stays out of sight.
+			showBusy( this, isLoading );
+			fill( this, { status: isLoading ? __( 'Loading…', 'library' ) : '' } );
 
-					// The same book saved keeps the focus where it is; a book gone back to, the view gives it.
-					if ( book.id !== shown && 'forward' === store.get().moved ) {
-						requestAnimationFrame( () => $title.focus( { preventScroll: true } ) );
-					}
+			if ( ! book ) {
+				shown = 0;
+				return;
+			}
 
-					shown = book.id;
-				}
-			),
-		];
+			this.#render( book );
+
+			// The same book saved keeps the focus where it is; a book gone back to, the view gives it.
+			if ( book.id !== shown && 'forward' === moved ) {
+				requestAnimationFrame( () => $title.focus( { preventScroll: true } ) );
+			}
+
+			shown = book.id;
+		};
+
+		// The book open once loaded, else its ID while it loads: each changes once.
+		return [ store.select( ( state ) => state.books[ state.book ] ?? state.book, show ) ];
 	}
 
 	#render( book ) {

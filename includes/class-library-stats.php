@@ -45,7 +45,7 @@ class Library_Stats {
 	 * Run a SELECT on the books; "{books}", "{at_hand}" and "{library}" in the SQL stand for the BOOKS, AT_HAND and LIBRARY conditions.
 	 *
 	 * "{readings}" stands for the readings with a date: a table aliased "r" of a `book` and its read `date`, once per book
-	 * and date, kept or not. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one,
+	 * and date, kept or not; a date of a reading of the day may have its time, 2026-11-01T21:40, its day is its first 10 characters. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one,
 	 * which keeps an unknown date too.
 	 *
 	 * @param string $sql  SQL, with placeholders for the arguments.
@@ -139,8 +139,8 @@ class Library_Stats {
 
 		[ $row ] = self::get_results(
 			'SELECT
-				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS this_year,
-				COUNT( IF( r.date BETWEEN %s AND %s, 1, NULL ) ) AS last_year
+				COUNT( IF( LEFT( r.date, 10 ) BETWEEN %s AND %s, 1, NULL ) ) AS this_year,
+				COUNT( IF( LEFT( r.date, 10 ) BETWEEN %s AND %s, 1, NULL ) ) AS last_year
 			FROM {readings}',
 			$this_year_from,
 			$today->format( 'Y-m-d' ),

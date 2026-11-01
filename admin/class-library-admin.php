@@ -59,7 +59,6 @@ class Library_Admin {
 		[ $read_url, $read_version ] = Library::get_asset( 'admin/js/library-admin-read.js' );
 		wp_enqueue_script( $read_handle, $read_url, array( 'wp-api-fetch', 'wp-i18n' ), $read_version, true );
 		wp_set_script_translations( $read_handle, 'library', LIBRARY_DIR_PATH . 'languages' );
-		wp_localize_script( $read_handle, 'libraryAdminRead', array( 'today' => current_time( 'Y-m-d' ) ) );
 
 		[ $inline_edit_url, $inline_edit_version ] = Library::get_asset( 'admin/js/library-admin-inline-edit.js' );
 		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );

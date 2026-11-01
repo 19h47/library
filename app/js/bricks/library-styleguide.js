@@ -53,6 +53,7 @@ class LibraryStyleguideElement extends Brick {
 			books: () => BOOKS.map( ( book ) => renderBook( book, formatState( book ) ) ),
 			month: () => [ this.#renderMonth() ],
 			covers: () => [ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map( ( book ) => renderCover( book ) ),
+			series: () => this.#renderSeries(),
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
 			people: () => [ 'A Person', '' ].map( ( name ) => this.#renderInput( 'library-edit-person', name ) ),
@@ -80,6 +81,15 @@ class LibraryStyleguideElement extends Brick {
 		} );
 
 		return [];
+	}
+
+	/** The volumes of a series, as the page of the second one shows them. */
+	#renderSeries() {
+		const $covers = [ [ BOOKS[ 0 ], 'Read' ], [ BOOKS[ 4 ], 'In progress' ], [ BOOKS[ 1 ], '' ] ].map( ( [ book, caption ] ) => renderCover( book, caption ) );
+
+		$covers[ 1 ].querySelector( 'button' ).setAttribute( 'aria-current', 'true' );
+
+		return $covers;
 	}
 
 	/** A month of the diary, with two readings. */
