@@ -91,7 +91,7 @@
 							<?php
 							// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
 							$search_keywords = array(
-								'series:""'              => Library_Meta::get_label( 'library_series' ),
+								'series:""'              => get_taxonomy( 'library_series' )->labels->singular_name,
 								'author:""'              => Library_Meta::get_role_choices()['author'],
 								'publisher:""'           => $publisher_labels->singular_name,
 								/* translators: %s: current year. */
@@ -314,6 +314,28 @@
 					</library-person>
 				</library-view>
 
+				<library-view name="series" <?php echo Library_App::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-back class="library-back">
+						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+					</library-back>
+					<library-series>
+						<p class="app-status" data-field="status" hidden></p>
+						<header class="library-person">
+							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
+							<p data-row="cycle" hidden><?php echo esc_html( get_taxonomy( 'library_series' )->labels->parent_item_colon ); ?> <a data-field="cycle" href=""></a></p>
+							<div class="library-person__description" data-html="description" hidden></div>
+							<p data-field="summary"></p>
+						</header>
+						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
+						<section class="library-section" data-row="parts" hidden>
+							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
+							<ul class="library-series__parts" data-list="parts"></ul>
+						</section>
+						<ul class="app-list__items" data-list="books"></ul>
+						<div class="library-list__more"></div>
+					</library-series>
+				</library-view>
+
 				<library-view name="book" <?php echo Library_App::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
@@ -391,14 +413,13 @@
 								</p>
 							</form>
 						</library-reading>
-						<library-series class="library-book__series" hidden>
+						<library-volumes class="library-book__series" hidden>
 							<h3 class="library-title">
-								<span data-field="name"></span>
+								<a data-field="name" href=""></a>
 								<span class="library-title__count" data-field="count"></span>
-								<a class="library-title__link" data-link="series" href=""><?php esc_html_e( 'See the list', 'library' ); ?></a>
 							</h3>
 							<ul class="library-covers"></ul>
-						</library-series>
+						</library-volumes>
 						<dl class="library-book__fields">
 							<div data-row="authors">
 								<dt><?php echo esc_html( $person_labels->name ); ?></dt>
@@ -528,7 +549,19 @@
 							'list'   => array( 'data-list' => 'people' ),
 						)
 					);
-					Library::render_component( 'meta-field', array( 'key' => 'library_series' ) );
+					Library::render_component(
+						'field',
+						array(
+							'id'          => 'library-edit-series',
+							'label'       => get_taxonomy( 'library_series' )->labels->singular_name,
+							'description' => get_taxonomy( 'library_series' )->description,
+							'attributes'  => array(
+								'name'         => 'series',
+								'list'         => 'library-edit-series-paths',
+								'autocomplete' => 'off',
+							),
+						)
+					);
 					Library::render_component( 'meta-field', array( 'key' => 'library_volume_number' ) );
 					Library::render_component(
 						'field',
@@ -646,6 +679,7 @@
 				<datalist id="library-edit-people"></datalist>
 				<datalist id="library-edit-publishers"></datalist>
 				<datalist id="library-edit-collections"></datalist>
+				<datalist id="library-edit-series-paths"></datalist>
 			</dialog>
 		</library-edit>
 

@@ -41,7 +41,7 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Add the messages shown when a person, a publisher, a language or a form is added, updated or deleted.
+	 * Add the messages shown when a person, a publisher, a series, a language or a form is added, updated or deleted.
 	 *
 	 * @param array $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
 	 *
@@ -68,6 +68,16 @@ class Library_Terms_List {
 			4 => __( 'Publisher not added.', 'library' ),
 			5 => __( 'Publisher not updated.', 'library' ),
 			6 => __( 'Publishers deleted.', 'library' ),
+		);
+
+		$messages['library_series'] = array(
+			0 => '',
+			1 => __( 'Series added.', 'library' ),
+			2 => __( 'Series deleted.', 'library' ),
+			3 => __( 'Series updated.', 'library' ),
+			4 => __( 'Series not added.', 'library' ),
+			5 => __( 'Series not updated.', 'library' ),
+			6 => __( 'Series deleted.', 'library' ),
 		);
 
 		$messages['library_language'] = array(

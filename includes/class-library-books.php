@@ -45,7 +45,7 @@ class Library_Books {
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>,forms:string[]}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>,forms:string[]}>
 	 */
 	public static function get_books(): array {
 		if ( null !== self::$books ) {
@@ -64,7 +64,7 @@ class Library_Books {
 
 		foreach ( $posts as $post ) {
 			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'library_volume_number', true ), $match ) ? (int) $match[0] : null;
-			$series         = (string) get_post_meta( $post->ID, 'library_series', true );
+			$series         = Library_Taxonomies::get_series( $post->ID );
 			$rating         = get_post_meta( $post->ID, 'library_rating', true );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
@@ -76,16 +76,14 @@ class Library_Books {
 			$languages      = get_the_terms( $post->ID, 'library_language' );
 			$forms          = get_the_terms( $post->ID, 'library_form' );
 
-			if ( '' === $series && null !== $volume ) {
-				$series = $post->post_title;
-			}
-
 			self::$books[ $post->ID ] = array(
 				'id'              => $post->ID,
 				'title'           => $post->post_title,
 				'full_title'      => self::get_full_title( $post->ID, $post->post_title ),
 				'status'          => $post->post_status,
-				'series'          => $series,
+				// From its cycle, as typed: "Star Wars, Young Jedi Knights".
+				'series'          => $series ? Library_Taxonomies::get_series_path( $series ) : '',
+				'series_id'       => $series ? $series->term_id : 0,
 				'volume'          => $volume,
 				'read'            => Library_Posts::is_read( $post->ID ),
 				'collective'      => Library_Posts::is_collective( $post->ID ),
@@ -174,29 +172,38 @@ class Library_Books {
 	 * @return string
 	 */
 	public static function get_full_title( int $book_id, string $title ): string {
-		$meta = array();
+		$series = Library_Taxonomies::get_series( $book_id );
+		$meta   = array();
 
-		foreach ( array( 'library_series', 'library_volume_number', 'library_subtitle' ) as $key ) {
+		foreach ( array( 'library_volume_number', 'library_subtitle' ) as $key ) {
 			$meta[ $key ] = get_post_meta( $book_id, $key, true );
 		}
 
-		return self::build_full_title( $title, $meta );
+		return self::build_full_title( $title, $series ? Library_Taxonomies::get_series_path( $series ) : '', $meta );
 	}
 
 	/**
 	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
 	 *
-	 * A book without series but with a volume number is a volume of the series named by its title: "City Hunter, vol. 3".
-	 * A volume typed "Tome 08" shows as "vol. 8", a number alone as "no. 8", anything else as typed, e.g. "Chant II".
+	 * A volume whose title is its series, as a volume of a manga, shows it once: "City Hunter, vol. 3"; so does a volume
+	 * without series. A volume typed "Tome 08" shows as "vol. 8", a number alone as "no. 8", anything else as typed, e.g.
+	 * "Chant II".
 	 *
-	 * @param string $title Title of the book.
-	 * @param array  $meta  Meta of the book, saved or as its form sends them: series, volume_number and subtitle.
+	 * @param string $title  Title of the book.
+	 * @param string $series Series of the book, from its cycle, or empty.
+	 * @param array  $meta   Meta of the book, saved or as its form sends them: volume_number and subtitle.
 	 * @return string
 	 */
-	public static function build_full_title( string $title, array $meta ): string {
-		$series   = (string) ( $meta['library_series'] ?? '' );
+	public static function build_full_title( string $title, string $series, array $meta ): string {
 		$volume   = (string) ( $meta['library_volume_number'] ?? '' );
 		$subtitle = (string) ( $meta['library_subtitle'] ?? '' );
+		$parts    = self::split( $series );
+
+		// The series, from its cycle, stands for the title, the same as the slugs of terms tell, case, accents and apostrophes aside.
+		if ( '' !== $volume && $parts && sanitize_title( end( $parts ) ) === sanitize_title( $title ) ) {
+			$title  = implode( ', ', $parts );
+			$series = '';
+		}
 
 		if ( '' !== $subtitle ) {
 			/* translators: 1: title, 2: subtitle. */
@@ -236,11 +243,12 @@ class Library_Books {
 	 *
 	 * @param string   $title   Title of the book.
 	 * @param string[] $authors Names of its authors.
-	 * @param array    $meta    Meta of the book: series, volume_number, subtitle and collective.
+	 * @param string   $series  Series of the book, from its cycle, or empty.
+	 * @param array    $meta    Meta of the book: volume_number, subtitle and collective.
 	 * @param string   $photo   File name of the photo.
 	 * @return string
 	 */
-	public static function build_cover_name( string $title, array $authors, array $meta, string $photo ): string {
+	public static function build_cover_name( string $title, array $authors, string $series, array $meta, string $photo ): string {
 		$slug = fn( string $text ): string => trim( preg_replace( array( '/%[0-9a-f]{2}/', '/-{2,}/' ), array( '', '-' ), sanitize_title( $text ) ), '-' );
 
 		// By name, case and accents aside, as the books list their authors.
@@ -248,7 +256,7 @@ class Library_Books {
 		sort( $authors );
 
 		$author    = rest_sanitize_boolean( $meta['library_collective'] ?? false ) ? '' : ( $authors[0] ?? '' );
-		$name      = $slug( implode( ' ', array( $author, self::build_full_title( $title, $meta ) ) ) );
+		$name      = $slug( implode( ' ', array( $author, self::build_full_title( $title, $series, $meta ) ) ) );
 		$extension = strtolower( pathinfo( $photo, PATHINFO_EXTENSION ) );
 
 		if ( '' === $name ) {

@@ -2,7 +2,7 @@
  * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
  *
  * The views and their navigation, the home, the book cards with their cover, the reading idea,
- * the stats and the achievements, the page of a person, and the dialog of a book with its reading.
+ * the stats and the achievements, the pages of a person and of a series, and the page of a book with its reading.
  */
 
 :root {
@@ -42,6 +42,7 @@ library-nav,
 library-view,
 library-home,
 library-in-progress,
+library-volumes,
 library-series,
 library-offline,
 library-read-filter,
@@ -117,7 +118,7 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
-:is(library-view, library-idea, library-diary, library-achievements, library-person) > .app-status {
+:is(library-view, library-idea, library-diary, library-achievements, library-person, library-series) > .app-status {
 	margin-bottom: var(--app-gap);
 }
 
@@ -134,7 +135,7 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /* A title heads what follows it: the view, the section or the brick that holds them spaces them */
-:is(library-view, library-home, library-idea, library-series, library-styleguide, .library-section) > .library-title {
+:is(library-view, library-home, library-idea, library-volumes, library-styleguide, .library-section) > .library-title {
 	margin-bottom: var(--app-u1);
 }
 
@@ -162,7 +163,7 @@ library-home:not([hidden]) + .library-books__title {
 	text-transform: uppercase;
 }
 
-/* The large text: the title of a book open, the name of a person, tightened as the title of the page */
+/* The large text: the title of a book open, the name of a person or of a series, tightened as the title of the page */
 .library-book__title,
 .library-person__name {
 	font-size: var(--app-font-large);
@@ -207,7 +208,7 @@ library-home:not([hidden]) + .library-books__title {
 	background: color-mix(in oklab, currentColor 10%, transparent);
 }
 
-/* Text written in the admin, the notes of a book or the description of a person: its paragraphs a step apart */
+/* Text written in the admin, the notes of a book or the description of a person or of a series: its paragraphs a step apart */
 .library-book__content,
 .library-person__description {
 	display: grid;
@@ -437,8 +438,8 @@ library-view > .library-back {
 	gap: var(--app-gap-small);
 }
 
-/* The page of a person spaces their names and their reading from what follows */
-library-person > .library-person {
+/* The page of a person or of a series spaces its names and its reading from what follows */
+:is(library-person, library-series) > .library-person {
 	margin-bottom: var(--app-u2);
 }
 
@@ -665,6 +666,18 @@ library-latest {
 	scroll-snap-align: start;
 }
 
+/* The series of a cycle, on its page, before its books: links side by side */
+library-series > .library-section {
+	margin-bottom: var(--app-u2);
+}
+
+.library-series__parts {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-gap);
+}
+
 /* The keywords of the search, a gap under its field */
 .library-search__keywords {
 	margin-top: calc(var(--app-gap) - var(--library-focus-room));
@@ -685,8 +698,8 @@ library-latest {
 	border-color: var(--app-text);
 }
 
-/* The series of the book open: a container, as the latest readings, its covers going out to the edges of the viewport */
-library-series {
+/* The volumes of the series of the book open: a container, as the latest readings, its covers going out to the edges of the viewport */
+library-volumes {
 	container-type: inline-size;
 }
 

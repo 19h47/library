@@ -16,7 +16,8 @@ function renderOptions( terms, value = ( term ) => term.name ) {
  * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
  * the ones filled in: subtitle, first published, pages, original language, collective work, ISSN, excerpt and notes.
  * The names typed are suggested
- * among those of the library, the collections among those of the publisher; a name not found is added. For a book to add,
+ * among those of the library, the collections among those of the publisher, the series after their cycles; a name not
+ * found is added. For a book to add,
  * an ISBN typed that a book has already shows it, which opens, and a book to buy is bought from there.
  * Closing the form drops it.
  */
@@ -29,7 +30,18 @@ class LibraryEditElement extends Brick {
 		const $dialog = this.querySelector( 'dialog' );
 		const $heading = this.querySelector( '#library-edit-heading' );
 		const $form = this.querySelector( '.library-edit__form' );
-		const { title: $title, excerpt: $excerpt, content: $content, publisher: $publisher, collection: $collection, language: $language, form: $bookForm, cover: $cover, status: $status } = $form.elements;
+		const {
+			title: $title,
+			excerpt: $excerpt,
+			content: $content,
+			publisher: $publisher,
+			collection: $collection,
+			series: $series,
+			language: $language,
+			form: $bookForm,
+			cover: $cover,
+			status: $status,
+		} = $form.elements;
 		// The fields of the meta are named after them.
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
@@ -49,6 +61,7 @@ class LibraryEditElement extends Brick {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
 			collections: this.querySelector( '#library-edit-collections' ),
+			series: this.querySelector( '#library-edit-series-paths' ),
 		};
 
 		const addPerson = inputList( { $list: $people, $add: $addPerson, id: 'library-edit-person', signal } );
@@ -143,6 +156,8 @@ class LibraryEditElement extends Brick {
 						.filter( ( person ) => person.name ),
 					publisher: data.get( 'publisher' ),
 					collection: data.get( 'collection' ) ?? '',
+					// After its cycles, as typed: a name not found adds it.
+					series: data.get( 'series' ).trim(),
 					language: Number( data.get( 'language' ) ),
 					form: Number( data.get( 'form' ) ),
 					meta: Object.fromEntries( $meta.map( ( $field ) => [ $field.name, getValue( $field ) ] ) ),
@@ -201,6 +216,7 @@ class LibraryEditElement extends Brick {
 						$content.value = book.content;
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
+						$series.value = book.series;
 						$language.value = ( book.language || '' ).toString();
 						$bookForm.value = ( book.form || '' ).toString();
 						$meta.forEach( ( $field ) => {
@@ -249,6 +265,7 @@ class LibraryEditElement extends Brick {
 
 					$suggestions.people.replaceChildren( ...renderOptions( terms.people ) );
 					$suggestions.publishers.replaceChildren( ...renderOptions( terms.publishers.filter( ( term ) => ! term.parent ) ) );
+					$suggestions.series.replaceChildren( ...renderOptions( terms.series ) );
 					$language.replaceChildren( $none, ...renderOptions( terms.languages, ( term ) => term.id ) );
 					// The languages may come once the form is open, the first time.
 					$language.value = ( store.get().editing.book?.language || '' ).toString();
