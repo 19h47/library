@@ -436,7 +436,7 @@ with its line breaks.</p>
 						array(
 							'id'          => 'library-styleguide-dates',
 							'legend'      => 'Read dates',
-							'description' => 'One date per reading, left empty when it is unknown.',
+							'description' => 'One date per reading; a reading whose date is unknown has none.',
 							'add'         => 'Add a reading',
 							'action'      => 'add',
 							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
