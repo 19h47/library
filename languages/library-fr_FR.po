@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-01T16:59:53+00:00\n"
+"POT-Creation-Date: 2026-11-01T17:47:54+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,8 +27,8 @@ msgstr ""
 #: admin/class-library-metaboxes.php:206 app/class-library-app.php:107
 #: app/class-library-app.php:316 app/class-library-app.php:317
 #: app/partials/library-app.php:38 app/partials/library-app.php:57
-#: app/partials/library-app.php:123 app/partials/library-app.php:384
-#: app/partials/library-app.php:606
+#: app/partials/library-app.php:123 app/partials/library-app.php:393
+#: app/partials/library-app.php:615
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -87,12 +87,12 @@ msgstr "Succès cachés"
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: admin/class-library-books-list.php:57
+#: admin/class-library-books-list.php:57 app/partials/library-app.php:336
 msgid "Authors"
 msgstr "Auteurs/autrices"
 
 #: admin/class-library-books-list.php:62
-#: admin/partials/library-read-date.php:27 app/partials/library-app.php:710
+#: admin/partials/library-read-date.php:27 app/partials/library-app.php:719
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -102,7 +102,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-library-books-list.php:120 app/partials/library-app.php:728
+#: admin/class-library-books-list.php:120 app/partials/library-app.php:737
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -423,7 +423,7 @@ msgstr "De passage"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:22
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:174
+#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:188
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -491,7 +491,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:875
+#: includes/class-library-rest-api.php:905
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -584,7 +584,7 @@ msgstr[1] "%1$s pages lues en %2$d, sur %3$s livres renseignés"
 msgid "View all books"
 msgstr "Voir tous les livres"
 
-#: admin/partials/library-form.php:65 app/partials/library-app.php:399
+#: admin/partials/library-form.php:65 app/partials/library-app.php:408
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
@@ -611,9 +611,9 @@ msgstr ""
 "est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
 "autrice : enregistrez le livre pour lui choisir un autre rôle."
 
-#: admin/partials/library-read-date.php:33 app/partials/library-app.php:719
-#: app/partials/library-app.php:720 app/partials/library-app.php:733
-#: app/partials/library-app.php:734
+#: admin/partials/library-read-date.php:33 app/partials/library-app.php:728
+#: app/partials/library-app.php:729 app/partials/library-app.php:742
+#: app/partials/library-app.php:743
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
@@ -696,7 +696,7 @@ msgstr "Filtres"
 msgid "Remove the filter:"
 msgstr "Retirer le filtre :"
 
-#: app/partials/library-app.php:152 app/partials/library-app.php:500
+#: app/partials/library-app.php:152 app/partials/library-app.php:509
 msgid "Close"
 msgstr "Fermer"
 
@@ -708,7 +708,7 @@ msgstr "Ordre"
 msgid "Latest added"
 msgstr "Ajout récent"
 
-#: app/partials/library-app.php:183 app/partials/library-app.php:535
+#: app/partials/library-app.php:183 app/partials/library-app.php:544
 msgid "Title"
 msgstr "Titre"
 
@@ -731,83 +731,83 @@ msgid "Loading…"
 msgstr "Chargement…"
 
 #: app/partials/library-app.php:301 app/partials/library-app.php:319
-#: app/partials/library-app.php:341
+#: app/partials/library-app.php:350
 msgid "Back"
 msgstr "Retour"
 
-#: app/partials/library-app.php:402
+#: app/partials/library-app.php:411
 msgid "Add a reading with an unknown date"
 msgstr "Ajouter une lecture sans date"
 
-#: app/partials/library-app.php:412 app/partials/library-app.php:673
+#: app/partials/library-app.php:421 app/partials/library-app.php:682
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: app/partials/library-app.php:412 app/partials/library-app.php:673
+#: app/partials/library-app.php:421 app/partials/library-app.php:682
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:466
+#: app/partials/library-app.php:475
 msgid "Top"
 msgstr "Haut"
 
-#: app/partials/library-app.php:482 app/partials/library-app.php:483
+#: app/partials/library-app.php:491 app/partials/library-app.php:492
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: app/partials/library-app.php:489
+#: app/partials/library-app.php:498
 msgid "Dark theme"
 msgstr "Thème sombre"
 
-#: app/partials/library-app.php:490
+#: app/partials/library-app.php:499
 msgid "Light or dark theme"
 msgstr "Thème clair ou sombre"
 
-#: app/partials/library-app.php:516
+#: app/partials/library-app.php:525
 msgid "Choose a cover"
 msgstr "Choisir une couverture"
 
-#: app/partials/library-app.php:517
+#: app/partials/library-app.php:526
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:525
+#: app/partials/library-app.php:534
 msgid "Already added:"
 msgstr "Déjà ajouté :"
 
-#: app/partials/library-app.php:527
+#: app/partials/library-app.php:536
 msgid "I bought it"
 msgstr "Je l’ai acheté"
 
-#: app/partials/library-app.php:547
+#: app/partials/library-app.php:556
 msgid "Add a person"
 msgstr "Ajouter une personne"
 
-#: app/partials/library-app.php:582
+#: app/partials/library-app.php:591
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:614
+#: app/partials/library-app.php:623
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:649
+#: app/partials/library-app.php:658
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:661
+#: app/partials/library-app.php:670
 msgid "Notes"
 msgstr "Notes de lecture"
 
-#: app/partials/library-app.php:677
+#: app/partials/library-app.php:686
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:759
+#: app/partials/library-app.php:768
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:769 app/partials/library-app.php:770
+#: app/partials/library-app.php:778 app/partials/library-app.php:779
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -2342,7 +2342,7 @@ msgstr[1] "Pseudonymes : %s"
 
 #. translators: %s: number of books read, after the number of books of a person.
 #. translators: %s: number of books read, after the number of books of a series.
-#: app/js/bricks/library-person.js:33 app/js/bricks/library-series.js:31
+#: app/js/bricks/library-person.js:33 app/js/bricks/library-series.js:36
 #: app/js/bricks/library-volumes.js:30
 msgid "%s read"
 msgid_plural "%s read"
@@ -2354,8 +2354,8 @@ msgstr[1] "%s lus"
 msgid "%s/10 on average"
 msgstr "%s/10 en moyenne"
 
-#: app/js/bricks/library-person.js:40 app/js/bricks/library-series.js:34
-#: app/js/bricks/library-status.js:11 app/js/library-app-store.js:918
+#: app/js/bricks/library-person.js:40 app/js/bricks/library-series.js:39
+#: app/js/bricks/library-status.js:11 app/js/library-app-store.js:920
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
@@ -2363,6 +2363,13 @@ msgstr "Aucun livre trouvé."
 #: app/js/bricks/library-person.js:97
 msgid "First published in %s"
 msgstr "Paru en %s"
+
+#. translators: %s: number of authors of a series, after the first ones.
+#: app/js/bricks/library-series.js:76
+msgid "%s other author"
+msgid_plural "%s other authors"
+msgstr[0] "%s autre auteur/autrice"
+msgstr[1] "%s autres auteurs/autrices"
 
 #. translators: %s: list of the translators of a book.
 #: app/js/lib/format.js:65
@@ -2397,7 +2404,7 @@ msgstr[1] "Lu %s fois"
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#: app/js/library-app-store.js:834
+#: app/js/library-app-store.js:836
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
 

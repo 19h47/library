@@ -1,7 +1,7 @@
 import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, formatState, join } from 'library-app/format';
-import { clone, fill, fillCover, renderAchievement, renderBook, renderCloseAchievement, renderCover } from 'library-app/render';
+import { clone, fill, fillCover, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, renderCover } from 'library-app/render';
 import { showError } from 'library-app/behaviors';
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
@@ -36,6 +36,17 @@ const BOOKS = [
 	{ title: 'A title alone' },
 ].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, read_date: [], rating: 0, form: '', languages: [], translators: [], ...book } ) );
 
+const AUTHORS = [
+	{
+		id: 1,
+		name: 'An Author',
+		description:
+			'<p>A description long enough to be clamped at three lines, as on the page of a series, where the page of the author shows it in full, with its paragraphs.</p>\n<p>Its second paragraph.</p>',
+		books: 12,
+	},
+	{ id: 2, name: 'An Author Without Description', description: '', books: 1 },
+];
+
 const ACHIEVEMENTS = [
 	{ title: 'An achievement', subject: 'Its subject', detail: 'Its detail', date: '2026-10-28' },
 	{ title: 'An achievement whose subject is a link', subject: 'Tintin', detail: '24 books', date: '2026-10-28', target: { type: 'search', search: 'Tintin' } },
@@ -54,6 +65,7 @@ class LibraryStyleguideElement extends Brick {
 			month: () => [ this.#renderMonth() ],
 			covers: () => [ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map( ( book ) => renderCover( book ) ),
 			series: () => this.#renderSeries(),
+			authors: () => AUTHORS.map( ( author ) => renderAuthor( author, formatBooks( author.books ) ) ),
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
 			people: () => [ 'A Person', '' ].map( ( name ) => this.#renderInput( 'library-edit-person', name ) ),

@@ -371,10 +371,11 @@
 
 	/**
 	 * The series open, or the cycle: its name after its cycles, its `cycle`, its `parts`, the series of a cycle, its
-	 * `books` in reading order, those of its series with them, loaded as those of a person; `completion` is an achievement.
+	 * `authors`, who wrote the most first, its `books` in reading order, those of its series with them, loaded as those
+	 * of a person; `completion` is an achievement; a `description` is HTML.
 	 */
 	function series( id = 0 ) {
-		return { ...pages(), id, name: '', cycle: null, parts: [], description: '', books: [], read: 0, completion: null };
+		return { ...pages(), id, name: '', cycle: null, parts: [], authors: [], description: '', books: [], read: 0, completion: null };
 	}
 
 	/** The pages of a person and of a series: their route, and what their state takes from it. */
@@ -397,6 +398,7 @@
 				name: text( data.name ),
 				cycle: data.cycle && { id: data.cycle.id, name: text( data.cycle.name ) },
 				parts: data.series.map( ( part ) => ( { id: part.id, name: text( part.name ) } ) ),
+				authors: data.authors.map( ( author ) => ( { ...author, name: text( author.name ) } ) ),
 				description: data.description,
 				read: data.read,
 				completion: data.completion,

@@ -137,6 +137,20 @@ export function renderBook( book, state ) {
 	return $item;
 }
 
+/** The card of an author of a series: their name, which leads to their page, their description, then `books`, the line under it. */
+export function renderAuthor( author, books ) {
+	const $item = clone( 'library-author' );
+	const $description = $item.querySelector( '[data-html="description"]' );
+
+	fill( $item, { books } );
+	$item.querySelector( '.library-author__name' ).append( personLink( author.id, author.name ) );
+	// HTML as the API renders it, among the few tags core keeps when it saves a description.
+	$description.innerHTML = author.description;
+	$description.hidden = ! author.description;
+
+	return $item;
+}
+
 /** An achievement earned: its title, its subject, its detail and date, as on the Achievements page. */
 export function renderAchievement( achievement ) {
 	const $item = clone( 'library-achievement' );
