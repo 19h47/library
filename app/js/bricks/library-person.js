@@ -15,7 +15,7 @@ class LibraryPersonElement extends Brick {
 		const $name = this.querySelector( '[data-field="name"]' );
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
-		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePersonBooks() );
+		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( 'person' ) );
 
 		openBooks( $items, signal );
 

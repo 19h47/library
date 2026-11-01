@@ -5,7 +5,7 @@
  * @subpackage Library/app
  */
 
-import { __, personUrl, bookUrl, searchUrl, sprintf } from 'library-app/app';
+import { __, personUrl, bookUrl, seriesUrl, searchUrl, sprintf } from 'library-app/app';
 import { formatDate, formatNumber, formatOriginal, formatStatus, join, listFormat } from 'library-app/format';
 
 /**
@@ -43,6 +43,11 @@ function personLink( id, name ) {
 	return link( personUrl + id, { person: id }, name );
 }
 
+/** A link to the page of a series, or of a cycle. */
+export function seriesLink( id, name ) {
+	return link( seriesUrl + id, { series: id }, name );
+}
+
 /** Turns the names of people in `$field` into links to their pages, listed as the language lists them. */
 export function linkPeople( $field, people ) {
 	const $links = people.map( ( person ) => personLink( person.id, person.name ) );
@@ -55,14 +60,16 @@ export function linkPeople( $field, people ) {
 }
 
 /**
- * Links the subject of an achievement to what it leads to in the app: its book, the page of its author, or the books
- * its search finds. A collection stays as it is: the keyword publisher: would also find the collections named like it.
+ * Links the subject of an achievement to what it leads to in the app: its book, the page of its author or of its series,
+ * or the books its search finds. A collection stays as it is: the keyword publisher: would also find the collections
+ * named like it.
  */
 function linkAchievement( $field, { target } ) {
 	const text = $field.textContent;
 	const links = {
 		book: () => link( bookUrl + target.id, { book: target.id }, text ),
 		author: () => personLink( target.id, text ),
+		series: () => seriesLink( target.id, text ),
 		search: () => link( searchUrl + encodeURIComponent( target.search ), { search: target.search }, text ),
 	};
 

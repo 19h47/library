@@ -119,25 +119,27 @@ export function openViews( $root, signal ) {
 }
 
 /**
- * Follows the links clicked in `$root` without reloading: to the page of a person, to a book, or to the books
- * a search finds. A new tab or window stays a link.
+ * Follows the links clicked in `$root` without reloading: to the page of a person, of a series or of a book, or to the
+ * books a search finds. A new tab or window stays a link.
  */
 export function openLinks( $root, signal ) {
 	$root.addEventListener(
 		'click',
 		( event ) => {
-			const $link = event.target.closest( 'a[data-person], a[data-book], a[data-search]' );
+			const $link = event.target.closest( 'a[data-person], a[data-series], a[data-book], a[data-search]' );
 
 			if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
 				return;
 			}
 
-			const { person, book, search } = $link.dataset;
+			const { person, series, book, search } = $link.dataset;
 
 			event.preventDefault();
 
 			if ( person ) {
 				store.openPerson( Number( person ) );
+			} else if ( series ) {
+				store.openSeries( Number( series ) );
 			} else if ( book ) {
 				store.openBook( Number( book ) );
 			} else {

@@ -86,6 +86,9 @@ class Library_Metaboxes {
 		}
 
 		$values['library_read_date'] = Library_Meta::get_read_dates( $post->ID );
+		$series                      = Library_Taxonomies::get_series( $post->ID );
+		$series                      = $series ? Library_Taxonomies::get_series_path( $series ) : '';
+		$paths                       = Library_Taxonomies::get_series_paths();
 		$names                       = get_the_terms( $post->ID, 'library_person' );
 		$names                       = is_array( $names ) ? $names : array();
 		$roles                       = Library_Meta::get_roles( $post->ID );
@@ -114,6 +117,11 @@ class Library_Metaboxes {
 		$values['library_read_date'] ??= array();
 
 		Library_Meta::save( $post_id, $values );
+
+		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.
+		if ( isset( $values['series'] ) ) {
+			wp_set_object_terms( $post_id, array_filter( array( Library_Taxonomies::get_series_id( sanitize_text_field( $values['series'] ), true ) ) ), 'library_series' );
+		}
 
 		// The names of the book are saved first: a name just added is an author, its role chosen once it is saved.
 		if ( isset( $values['library_roles'] ) ) {

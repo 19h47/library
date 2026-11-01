@@ -25,8 +25,10 @@
 	const PERSON_VIEW = 'person';
 	// The page of a book, opened from its card, its cover or a link.
 	const BOOK_VIEW = 'book';
-	// The views of a person or a book, each with its ID in the argument of the same name: ?view=book&book=564.
-	const PAGE_VIEWS = [ PERSON_VIEW, BOOK_VIEW ];
+	// The page of a series or a cycle, opened from a book, an achievement or another series.
+	const SERIES_VIEW = 'series';
+	// The views of a person, a book or a series, each with its ID in the argument of the same name: ?view=book&book=564.
+	const PAGE_VIEWS = [ PERSON_VIEW, BOOK_VIEW, SERIES_VIEW ];
 	// The components of the app, for development: a view out of the navigation, opened by searching its name.
 	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
@@ -178,6 +180,9 @@
 			// Its names without another role, then the others by role, such as its colorists, in place of their IDs.
 			authors: names.filter( ( name ) => ! roleIds.includes( name.id ) ),
 			...Object.fromEntries( config.roles.map( ( role ) => [ role, names.filter( ( name ) => meta[ role ].includes( name.id ) ) ] ) ),
+			// After its cycles, as typed, "Star Wars, Young Jedi Knights", and its ID, for its page.
+			series: item.series_name,
+			series_id: item.series[ 0 ] ?? 0,
 			// As their ISO 639 codes: the app names them in a sentence.
 			languages: item.language_codes,
 			// Its name, for the tag of its card.
@@ -332,8 +337,8 @@
 		return { earned: [], close: [], loading: false, loaded: false, error: '' };
 	}
 
-	/** The books of the series `name` of the book open, in reading order. */
-	function series( name = '' ) {
+	/** The volumes of the series `name` of the book open, in reading order. */
+	function volumes( name = '' ) {
 		return { ...pages(), name };
 	}
 
@@ -352,7 +357,7 @@
 
 	/** The names the form of a book suggests, as terms: people and pseudonyms, publishers and collections, original languages. */
 	function terms() {
-		return { people: [], publishers: [], languages: [], loading: false, loaded: false };
+		return { people: [], publishers: [], series: [], languages: [], loading: false, loaded: false };
 	}
 
 	/**
@@ -365,10 +370,45 @@
 	}
 
 	/**
+	 * The series open, or the cycle: its name after its cycles, its `cycle`, its `parts`, the series of a cycle, its
+	 * `books` in reading order, those of its series with them, loaded as those of a person; `completion` is an achievement.
+	 */
+	function series( id = 0 ) {
+		return { ...pages(), id, name: '', cycle: null, parts: [], description: '', books: [], read: 0, completion: null };
+	}
+
+	/** The pages of a person and of a series: their route, and what their state takes from it. */
+	const PAGES = {
+		person: {
+			route: 'people',
+			from: ( data ) => ( {
+				name: text( data.name ),
+				pseudonyms: data.pseudonyms.map( text ),
+				description: data.description,
+				read: data.read,
+				rating: data.rating,
+				bookPages: data.pages,
+				completion: data.completion,
+			} ),
+		},
+		series: {
+			route: 'series',
+			from: ( data ) => ( {
+				name: text( data.name ),
+				cycle: data.cycle && { id: data.cycle.id, name: text( data.cycle.name ) },
+				parts: data.series.map( ( part ) => ( { id: part.id, name: text( part.name ) } ) ),
+				description: data.description,
+				read: data.read,
+				completion: data.completion,
+			} ),
+		},
+	};
+
+	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
 	 * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
-	 * `person` the books of the person open, `book` the book open, `series` the books of its series,
+	 * `person` the person open, `series` the series open, `book` the book open, `volumes` the books of its series,
 	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
 	 * `notice` what an action done says, such as a reading saved, once: a new object each time,
 	 * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
@@ -377,8 +417,9 @@
 		#timeout = 0;
 		// The request of each list running, `search` or `toBuy`: another one cancels it.
 		#controllers = {};
-		#personController = null;
-		#seriesController = null;
+		// The request of the page of a person or a series running: another one cancels it.
+		#pageControllers = {};
+		#volumesController = null;
 
 		constructor() {
 			super( {
@@ -392,8 +433,9 @@
 				toBuy: pages(),
 				stats: null,
 				person: person(),
-				book: 0,
 				series: series(),
+				book: 0,
+				volumes: volumes(),
 				saving: saving(),
 				editing: editing(),
 				terms: terms(),
@@ -491,6 +533,15 @@
 			}
 		}
 
+		/** Opens the page of a series or a cycle, at its top, with its URL in the history, unless it shows already. */
+		openSeries( id ) {
+			const { view, series: current } = this.get();
+
+			if ( SERIES_VIEW !== view || id !== current.id ) {
+				this.#go( SERIES_VIEW, id );
+			}
+		}
+
 		/** Goes back to where the view shown was opened from; a view opened first, as from a link, goes to the home. */
 		back() {
 			if ( history.state?.app ) {
@@ -561,12 +612,12 @@
 			}
 		}
 
-		/** The next page of the books of the person, unless one is loading or none is left. */
-		loadMorePersonBooks() {
-			const { loading, page, pages: last } = this.get().person;
+		/** The next page of the books of the page `key`, `person` or `series`, unless one is loading or none is left. */
+		loadMorePageBooks( key ) {
+			const { loading, page, pages: last } = this.get()[ key ];
 
 			if ( ! loading && page < last ) {
-				this.#fetchPersonBooks( page + 1 );
+				this.#fetchPageBooks( key, page + 1 );
 			}
 		}
 
@@ -796,8 +847,8 @@
 		}
 
 		/** Uploads the photo of a cover, named and titled after its book as its form sends it, and returns the ID of its image. */
-		async #uploadCover( file, { title, people, meta } ) {
-			const query = { title, people, meta, photo: file.name };
+		async #uploadCover( file, { title, people, series, meta } ) {
+			const query = { title, people, series, meta, photo: file.name };
 			const { name } = await apiFetch( { path: addQueryArgs( '/library/v1/books/cover-name', query ) } );
 			const body = new FormData();
 
@@ -860,7 +911,7 @@
 			}
 
 			if ( id in this.get().books ) {
-				this.#loadSeries();
+				this.#loadVolumes();
 				return;
 			}
 
@@ -872,26 +923,27 @@
 		}
 
 		/** Loads the books of the series of the book open, unless they are loaded or loading. */
-		#loadSeries() {
-			const { books, book, series: current } = this.get();
+		#loadVolumes() {
+			const { books, book, volumes: current } = this.get();
 			const name = books[ book ]?.series ?? '';
 
 			if ( name && name !== current.name ) {
-				this.#fetchSeries( name );
+				this.#fetchVolumes( name );
 			}
 		}
 
 		/**
-		 * Shows a view, and loads its data the first time: the page of a person starts again for another person `id`, the
-		 * page of a book shows the book `id`, its reading not saved left behind.
+		 * Shows a view, and loads its data the first time: the page of a person or a series starts again for another `id`,
+		 * the page of a book shows the book `id`, its reading not saved left behind.
 		 */
 		#show( view, id = 0 ) {
 			const book = BOOK_VIEW === view ? id : 0;
+			const fresh = { [ PERSON_VIEW ]: { person: person( id ) }, [ SERIES_VIEW ]: { series: series( id ) } }[ view ];
 
 			this.set( ( state ) => {
 				const next = state.view === view && state.book === book ? state : { ...state, view, book, saving: saving() };
 
-				return PERSON_VIEW !== view || id === state.person.id ? next : { ...next, person: person( id ) };
+				return ! fresh || id === state[ view ].id ? next : { ...next, ...fresh };
 			} );
 
 			if ( BOOK_VIEW === view ) {
@@ -927,7 +979,8 @@
 				idea: [ state.idea, () => this.#fetchIdea( 0 ) ],
 				achievements: [ state.achievements, () => this.#fetchAchievements() ],
 				'to-buy': [ state.toBuy, () => this.#fetchList( 'toBuy' ) ],
-				[ PERSON_VIEW ]: [ state.person, () => this.#fetchPerson() ],
+				[ PERSON_VIEW ]: [ state.person, () => this.#fetchPage( 'person' ) ],
+				[ SERIES_VIEW ]: [ state.series, () => this.#fetchPage( 'series' ) ],
 			};
 			const [ data, fetchData ] = loaders[ view ];
 
@@ -948,10 +1001,10 @@
 
 		/**
 		 * Back to the app after a while: what was loaded loads again in place, as after a book saved, the books found as
-		 * many as they were, and so do the book open, the books of the person open and the names to suggest.
+		 * many as they were, and so do the book open, the books of the person or the series open and the names to suggest.
 		 */
 		#refresh() {
-			const { book, search: found, person: current } = this.get();
+			const { book, search: found, person: shownPerson, series: shownSeries } = this.get();
 
 			this.set( ( state ) => ( { ...state, terms: terms() } ) );
 			this.#reloadLoaded( () => this.#fetchList( 'search', { count: found.items.length, inPlace: true } ) );
@@ -960,17 +1013,17 @@
 				this.#refetchBook( book );
 			}
 
-			this.#fetchBooks( current.items, { fresh: true } ).catch( () => {} );
+			this.#fetchBooks( [ ...shownPerson.items, ...shownSeries.items ], { fresh: true } ).catch( () => {} );
 		}
 
 		/** The stats, and what was loaded, again in place; `refreshSearch` the books found. */
 		#reloadLoaded( refreshSearch ) {
-			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned, person: current } = this.get();
+			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned, person: shownPerson, series: shownSeries } = this.get();
 
 			// Its reading states may have changed.
-			this.set( ( state ) => ( { ...state, series: series() } ) );
+			this.set( ( state ) => ( { ...state, volumes: volumes() } ) );
 			this.#fetchStats();
-			this.#loadSeries();
+			this.#loadVolumes();
 
 			if ( this.get().search.loaded ) {
 				refreshSearch();
@@ -997,8 +1050,12 @@
 				this.#fetchAchievements();
 			}
 
-			if ( current.loaded ) {
-				this.#fetchPerson();
+			if ( shownPerson.loaded ) {
+				this.#fetchPage( 'person' );
+			}
+
+			if ( shownSeries.loaded ) {
+				this.#fetchPage( 'series' );
 			}
 		}
 
@@ -1023,6 +1080,7 @@
 				toBuy: pages(),
 				person: person(),
 				series: series(),
+				volumes: volumes(),
 				terms: terms(),
 			} ) );
 			this.#fetchStats();
@@ -1237,29 +1295,27 @@
 			}
 		}
 
-		/** The person open, then the first page of their books, unless it is loaded already. Another person cancels the one loading. */
-		async #fetchPerson() {
-			this.#personController?.abort();
-			this.#personController = new AbortController();
+		/**
+		 * The page `key` open, `person` or `series`, then the first page of its books, unless it is loaded already. Another
+		 * person or series cancels the one loading.
+		 */
+		async #fetchPage( key ) {
+			this.#pageControllers[ key ]?.abort();
+			this.#pageControllers[ key ] = new AbortController();
 
-			const { signal } = this.#personController;
+			const { signal } = this.#pageControllers[ key ];
+			const { route, from } = PAGES[ key ];
 
-			this.#update( 'person', () => ( { loading: true, error: '' } ) );
+			this.#update( key, () => ( { loading: true, error: '' } ) );
 
 			try {
-				const data = await apiFetch( { path: `/library/v1/people/${ this.get().person.id }`, signal } );
+				const data = await apiFetch( { path: `/library/v1/${ route }/${ this.get()[ key ].id }`, signal } );
 
-				this.#update( 'person', ( current ) => ( {
-					// A book saved without the person leaves their books.
+				this.#update( key, ( current ) => ( {
+					// A book saved out of it leaves its books.
 					items: current.items.filter( ( book ) => data.books.includes( book ) ),
-					name: text( data.name ),
-					pseudonyms: data.pseudonyms.map( text ),
-					description: data.description,
+					...from( data ),
 					books: data.books,
-					read: data.read,
-					rating: data.rating,
-					bookPages: data.pages,
-					completion: data.completion,
 					total: data.books.length,
 					pages: Math.ceil( data.books.length / PER_PAGE ),
 					loading: false,
@@ -1267,28 +1323,28 @@
 				} ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( 'person', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( key, () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 
 				return;
 			}
 
-			if ( ! this.get().person.page ) {
-				await this.#fetchPersonBooks( 1 );
+			if ( ! this.get()[ key ].page ) {
+				await this.#fetchPageBooks( key, 1 );
 			}
 		}
 
-		/** A page of the books of the person open, from their IDs. */
-		async #fetchPersonBooks( page ) {
-			const { signal } = this.#personController;
-			const ids = this.get().person.books.slice( ( page - 1 ) * PER_PAGE, page * PER_PAGE );
+		/** A page of the books of the page `key` open, from their IDs. */
+		async #fetchPageBooks( key, page ) {
+			const { signal } = this.#pageControllers[ key ];
+			const ids = this.get()[ key ].books.slice( ( page - 1 ) * PER_PAGE, page * PER_PAGE );
 
-			this.#update( 'person', () => ( { loading: true, error: '' } ) );
+			this.#update( key, () => ( { loading: true, error: '' } ) );
 
 			try {
 				await this.#fetchBooks( ids, { signal } );
 
-				this.#update( 'person', ( current ) => ( {
+				this.#update( key, ( current ) => ( {
 					items: [ ...current.items, ...ids ],
 					page,
 					loading: false,
@@ -1296,17 +1352,17 @@
 				} ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( 'person', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( key, () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 			}
 		}
 
 		/** The books of the series `name`, in reading order, as a search for it lists them. Another series cancels the one loading. */
-		async #fetchSeries( name ) {
-			this.#seriesController?.abort();
-			this.#seriesController = new AbortController();
+		async #fetchVolumes( name ) {
+			this.#volumesController?.abort();
+			this.#volumesController = new AbortController();
 
-			const { signal } = this.#seriesController;
+			const { signal } = this.#volumesController;
 			const params = new URLSearchParams( {
 				...BOOK_QUERY,
 				search: `series:"${ name }"`,
@@ -1314,15 +1370,15 @@
 				per_page: MAX_PER_PAGE,
 			} );
 
-			this.set( ( state ) => ( { ...state, series: { ...series( name ), loading: true } } ) );
+			this.set( ( state ) => ( { ...state, volumes: { ...volumes( name ), loading: true } } ) );
 
 			try {
 				const ids = this.#addBooks( await apiFetch( { path: `/wp/v2/books?${ params }`, signal } ) );
 
-				this.#update( 'series', () => ( { items: ids, total: ids.length, loading: false, loaded: true } ) );
+				this.#update( 'volumes', () => ( { items: ids, total: ids.length, loading: false, loaded: true } ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( 'series', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( 'volumes', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 			}
 		}
@@ -1339,20 +1395,27 @@
 			}
 		}
 
-		/** Every person and pseudonym, publisher and collection, and original language: apiFetch loads all their pages. */
+		/**
+		 * Every person and pseudonym, publisher and collection, series after its cycles, and original language: apiFetch loads
+		 * all their pages.
+		 */
 		async #fetchTerms() {
 			this.#update( 'terms', () => ( { loading: true } ) );
 
 			try {
-				const bases = [ 'people', 'publishers', 'languages' ];
-				const [ people, publishers, languages ] = await Promise.all(
+				const bases = [ 'people', 'publishers', 'series', 'languages' ];
+				const [ people, publishers, series, languages ] = await Promise.all(
 					bases.map( ( base ) => apiFetch( { path: `/wp/v2/${ base }?per_page=-1&_fields=id,name,parent` } ) )
 				);
 				const toTerm = ( { id, name, parent } ) => ( { id, name: text( name ), parent } );
+				const byId = Object.fromEntries( series.map( ( term ) => [ term.id, toTerm( term ) ] ) );
+				// A series after its cycles, as a book types it.
+				const pathOf = ( term ) => ( term.parent in byId ? `${ pathOf( byId[ term.parent ] ) }, ${ term.name }` : term.name );
 
 				this.#update( 'terms', () => ( {
 					people: people.map( toTerm ),
 					publishers: publishers.map( toTerm ),
+					series: Object.values( byId ).map( ( term ) => ( { ...term, name: pathOf( term ) } ) ),
 					languages: languages.map( toTerm ),
 					loading: false,
 					loaded: true,

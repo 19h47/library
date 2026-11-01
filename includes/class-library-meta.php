@@ -25,7 +25,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
+	public const TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d; a book has one read date per reading, empty when it is unknown, and with its time
@@ -113,7 +113,6 @@ class Library_Meta {
 	public function register_meta(): void {
 		$labels       = array(
 			'library_subtitle'          => __( 'Subtitle', 'library' ),
-			'library_series'            => __( 'Series', 'library' ),
 			'library_isbn'              => __( 'ISBN', 'library' ),
 			'library_issn'              => __( 'ISSN', 'library' ),
 			'library_volume_number'     => __( 'Volume Number', 'library' ),
@@ -137,7 +136,6 @@ class Library_Meta {
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
 			'library_isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
 			'library_issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
-			'library_series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
 			'library_read_date'         => __( 'One date per reading; a reading whose date is unknown has none.', 'library' ),

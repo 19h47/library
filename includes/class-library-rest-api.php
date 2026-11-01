@@ -79,6 +79,17 @@ class Library_Rest_API {
 					'items'       => array( 'type' => 'string' ),
 				),
 			),
+			'series_name'    => array(
+				'get_callback' => function ( array $book ): string {
+					$series = Library_Taxonomies::get_series( $book['id'] );
+
+					return $series ? Library_Taxonomies::get_series_path( $series ) : '';
+				},
+				'schema'       => array(
+					'description' => __( 'Series of the book, after its cycles, in plain text, such as “Star Wars, Young Jedi Knights”, or empty.', 'library' ),
+					'type'        => 'string',
+				),
+			),
 			'form_name'      => array(
 				'get_callback' => fn( array $book ) => (string) ( current( $this->get_book_terms( $book['id'], 'library_form' ) )->name ?? '' ),
 				'schema'       => array(
@@ -200,7 +211,7 @@ class Library_Rest_API {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_cover_name' ),
 				'permission_callback' => fn() => current_user_can( 'upload_files' ),
-				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'meta' ) ) ) + array(
+				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'series', 'meta' ) ) ) + array(
 					'photo' => array(
 						'description' => __( 'File name of the photo picked, whose extension the cover keeps.', 'library' ),
 						'type'        => 'string',
@@ -270,6 +281,23 @@ class Library_Rest_API {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( ( new Library_Achievements() )->get_achievements() ),
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
+			'series/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_series' ),
+				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'args'                => array(
+					'id' => array(
+						'description' => __( 'Term ID of the series, or of the cycle.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
+				),
 			),
 		);
 
@@ -347,6 +375,11 @@ class Library_Rest_API {
 			),
 			'collection'     => array(
 				'description' => __( 'Name of the collection, under the publisher and sent with it; a name not found adds a collection.', 'library' ),
+				'type'        => 'string',
+				'default'     => '',
+			),
+			'series'         => array(
+				'description' => __( 'Series, after its cycles, separated with commas, such as “Star Wars, Young Jedi Knights”; a name not found adds a series, or a cycle.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
@@ -442,6 +475,7 @@ class Library_Rest_API {
 		$publisher  = $collection ? get_term( $collection->parent, 'library_publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
+		$series     = Library_Taxonomies::get_series( $book->ID );
 		$roles      = Library_Meta::get_roles( $book->ID );
 		$meta       = array();
 
@@ -465,6 +499,7 @@ class Library_Rest_API {
 				),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? $collection->name : '',
+				'series'     => $series ? Library_Taxonomies::get_series_path( $series ) : '',
 				'language'   => (int) current( $languages ),
 				'form'       => (int) current( $forms ),
 				'meta'       => $meta,
@@ -542,6 +577,10 @@ class Library_Rest_API {
 			$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library_publisher', (string) $request['collection'], $publisher_id ) : 0;
 
 			$terms['library_publisher'] = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
+		}
+
+		if ( $request->has_param( 'series' ) ) {
+			$terms['library_series'] = array_filter( array( Library_Taxonomies::get_series_id( $request['series'], true ) ) );
 		}
 
 		if ( $request->has_param( 'language' ) ) {
@@ -657,7 +696,7 @@ class Library_Rest_API {
 	 */
 	public function get_cover_name( WP_REST_Request $request ): WP_REST_Response {
 		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
-		$name    = Library_Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (array) $request['meta'], $request['photo'] );
+		$name    = Library_Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], (array) $request['meta'], $request['photo'] );
 
 		return rest_ensure_response( array( 'name' => $name ) );
 	}
@@ -770,6 +809,55 @@ class Library_Rest_API {
 				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => ( new Library_Achievements() )->get_author_completion( $person->term_id ),
+			)
+		);
+	}
+
+	/**
+	 * A series, or a cycle: its name after its cycles, its cycle, its description, its series if it is a cycle, its books
+	 * in reading order, those of its series with them, how many are read, and the completion they count for.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_series( WP_REST_Request $request ) {
+		$series = get_term( $request['id'], 'library_series' );
+
+		if ( ! $series instanceof WP_Term ) {
+			return new WP_Error( 'library_no_series', get_taxonomy( 'library_series' )->labels->not_found, array( 'status' => 404 ) );
+		}
+
+		$series_ids = array( $series->term_id, ...get_term_children( $series->term_id, 'library_series' ) );
+		$books      = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $book['series_id'], $series_ids, true ) );
+		$cycle      = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
+		$parts      = get_terms(
+			array(
+				'taxonomy'   => 'library_series',
+				'parent'     => $series->term_id,
+				'hide_empty' => false,
+			)
+		);
+		$path       = Library_Taxonomies::get_series_path( $series );
+
+		return rest_ensure_response(
+			array(
+				'id'          => $series->term_id,
+				'name'        => $path,
+				'cycle'       => $cycle instanceof WP_Term ? array(
+					'id'   => $cycle->term_id,
+					'name' => Library_Taxonomies::get_series_path( $cycle ),
+				) : null,
+				'description' => term_description( $series ),
+				'series'      => array_map(
+					fn( WP_Term $part ) => array(
+						'id'   => $part->term_id,
+						'name' => wp_specialchars_decode( $part->name, ENT_QUOTES ),
+					),
+					is_array( $parts ) ? $parts : array()
+				),
+				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
+				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'completion'  => ( new Library_Achievements() )->get_series_completion( $path ),
 			)
 		);
 	}

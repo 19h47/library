@@ -10,6 +10,8 @@
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
  * @var array             $values Values of the book, by meta key; the read dates as a list.
+ * @var string            $series Series of the book, after its cycles, or empty.
+ * @var string[]          $paths  Every series, after its cycles, to suggest.
  * @var WP_Term[]         $names  Names of the book, authors or with another role.
  * @var array<int,string> $roles  Roles of the names with another role than author, by term ID.
  */
@@ -20,7 +22,29 @@
 
 	<?php
 	// As the form of the reading app: the fields most books have, then the ones few have, then the reading.
-	foreach ( array( 'library_isbn', 'library_series', 'library_volume_number', 'library_collection_number', 'library_edition_date', 'library_subtitle', 'library_published_date', 'library_pages', 'library_collective', 'library_issn', 'library_read', 'library_in_progress' ) as $key ) {
+	$key = 'library_isbn';
+
+	require __DIR__ . '/library-form-field.php';
+	?>
+
+	<!-- Series -->
+	<tr>
+		<th scope="row">
+			<label for="library-series"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->singular_name ); ?></label>
+		</th>
+		<td>
+			<input id="library-series" class="regular-text" type="text" name="series" value="<?php echo esc_attr( $series ); ?>" list="library-series-paths" autocomplete="off" aria-describedby="library-series-description">
+			<datalist id="library-series-paths">
+				<?php foreach ( $paths as $series_path ) : ?>
+					<option value="<?php echo esc_attr( $series_path ); ?>"></option>
+				<?php endforeach; ?>
+			</datalist>
+			<p class="description" id="library-series-description"><?php echo esc_html( get_taxonomy( 'library_series' )->description ); ?></p>
+		</td>
+	</tr>
+
+	<?php
+	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_edition_date', 'library_subtitle', 'library_published_date', 'library_pages', 'library_collective', 'library_issn', 'library_read', 'library_in_progress' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>

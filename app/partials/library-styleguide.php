@@ -129,6 +129,19 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-series__parts</code>, the series of a cycle on its page, under its <code>.library-person</code> header</figcaption>
+				<div class="library-styleguide__frame">
+					<header class="library-person">
+						<h4 class="library-person__name">A Cycle</h4>
+						<p>20 books · 14 read</p>
+					</header>
+					<ul class="library-series__parts">
+						<li><a class="app-pill" href="#top">A Series</a></li>
+						<li><a class="app-pill" href="#top">Another Series, with a longer name</a></li>
+					</ul>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-idea__reason</code>, <code>.library-idea__actions</code></figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-idea__reason">Added 2 weeks ago.</p>
@@ -215,7 +228,7 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-back</code>, above the page of a book or of a person</figcaption>
+				<figcaption><code>.library-back</code>, above the page of a book, of a person or of a series</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-back">
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> Back</button>

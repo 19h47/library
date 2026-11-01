@@ -44,11 +44,18 @@ class Library_App {
 	public const BOOK_VIEW = 'book';
 
 	/**
+	 * View of a series or a cycle, opened from a book, an achievement or another series.
+	 *
+	 * @var string
+	 */
+	public const SERIES_VIEW = 'series';
+
+	/**
 	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded.
 	 *
 	 * @var string
 	 */
-	public const BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,language_codes,form_name';
+	public const BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,series,series_name,language_codes,form_name';
 
 	/**
 	 * Books a list of the app loads at once, then as its end comes.
@@ -147,7 +154,7 @@ class Library_App {
 		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12.
 		$id = absint( $_GET[ $view ] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
 		$this->preload( $view, $id );
 
@@ -158,8 +165,8 @@ class Library_App {
 	/**
 	 * Give the app the data it asks for first, in the page itself, as the editor of WordPress does: the server runs those
 	 * requests of the REST API while it renders the page, and wp.apiFetch answers them from it, without network. They
-	 * are the stats, the books to buy and, as the view needs them, the books found and the home, or the book shown and
-	 * its series. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
+	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown and
+	 * its series, or the page of a series. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
 	 * which goes to the network. The reading idea and the achievements load after, as they take longer than the rest.
 	 *
 	 * @param string $view View shown.
@@ -197,6 +204,10 @@ class Library_App {
 			$paths[] = $this->get_books_path( $books, array( $id ), $statuses );
 		}
 
+		if ( self::SERIES_VIEW === $view ) {
+			$paths[] = "/library/v1/series/$id";
+		}
+
 		$data = array_reduce( $paths, 'rest_preload_api_request', array() );
 
 		// The books of the first readings of the diary, as the store asks for them.
@@ -208,9 +219,10 @@ class Library_App {
 		}
 
 		// The series of the book shown, in reading order.
-		$series = (string) get_post_meta( $id, 'library_series', true );
+		$series = self::BOOK_VIEW === $view ? Library_Taxonomies::get_series( $id ) : null;
+		$series = $series ? Library_Taxonomies::get_series_path( $series ) : '';
 
-		if ( self::BOOK_VIEW === $view && '' !== $series ) {
+		if ( '' !== $series ) {
 			$data = rest_preload_api_request(
 				$data,
 				$books(
@@ -420,6 +432,7 @@ JS;
 			// add_query_arg() drops the "=" of an empty value.
 			'personUrl'        => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
 			'bookUrl'          => add_query_arg( 'view', self::BOOK_VIEW, self::get_url() ) . '&book=',
+			'seriesUrl'        => add_query_arg( 'view', self::SERIES_VIEW, self::get_url() ) . '&series=',
 			'searchUrl'        => self::get_url() . '&q=',
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.

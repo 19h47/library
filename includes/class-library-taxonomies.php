@@ -1,6 +1,6 @@
 <?php
 /**
- * Book taxonomies: person, publisher, original language and form.
+ * Book taxonomies: person, publisher, series, original language and form.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -10,7 +10,7 @@
  */
 
 /**
- * Registers library_person, library_publisher, library_language and library_form taxonomies.
+ * Registers library_person, library_publisher, library_series, library_language and library_form taxonomies.
  *
  * @since      1.0.0
  * @package    Library
@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	public const TAXONOMIES = array( 'library_person', 'library_publisher', 'library_language', 'library_form' );
+	public const TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
 
 	/**
 	 * Register hooks.
@@ -49,6 +49,7 @@ class Library_Taxonomies {
 	public function register_taxonomies(): void {
 		$this->register_person();
 		$this->register_publisher();
+		$this->register_series();
 		$this->register_language();
 		$this->register_form();
 	}
@@ -213,6 +214,162 @@ class Library_Taxonomies {
 		);
 
 		register_taxonomy( 'library_publisher', 'library_book', $args );
+	}
+
+	/**
+	 * Register series
+	 *
+	 * A series of a book, under its cycle, if any, as a collection is under its publisher: "Les Jeunes Chevaliers Jedi"
+	 * under "Star Wars". A book has one series, the narrowest; its volume number is a meta of the book. Its description
+	 * shows on the page of the series in the reading app.
+	 *
+	 * @return void
+	 */
+	public function register_series() {
+		$labels = array(
+			'name'                     => _x( 'Series', 'library series general name', 'library' ),
+			'singular_name'            => _x( 'Series', 'library series singular name', 'library' ),
+			'search_items'             => __( 'Search Series', 'library' ),
+			'all_items'                => __( 'All Series', 'library' ),
+			'edit_item'                => __( 'Edit Series', 'library' ),
+			'view_item'                => __( 'View Series', 'library' ),
+			'update_item'              => __( 'Update Series', 'library' ),
+			'add_new_item'             => __( 'Add New Series', 'library' ),
+			'new_item_name'            => __( 'New Series Name', 'library' ),
+			'not_found'                => __( 'No series found.', 'library' ),
+			'no_terms'                 => __( 'No series', 'library' ),
+			'items_list_navigation'    => __( 'Series list navigation', 'library' ),
+			'items_list'               => __( 'Series list', 'library' ),
+			'back_to_items'            => __( '&larr; Back to Series', 'library' ),
+			'parent_item'              => __( 'Cycle', 'library' ),
+			'parent_item_colon'        => __( 'Cycle:', 'library' ),
+			'parent_field_description' => __( 'Pick the cycle of a series, such as Star Wars for Young Jedi Knights. A series without cycle has none.', 'library' ),
+		);
+
+		$args = array(
+			'labels'             => $labels,
+			// Typed in the Information box of a book, from its cycle to its series, rather than ticked in a box.
+			'description'        => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
+			'hierarchical'       => true, // Parent = cycle, children = its series.
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'show_in_nav_menus'  => true,
+			'show_in_quick_edit' => false,
+			'show_admin_column'  => false,
+			'meta_box_cb'        => false,
+			'show_in_rest'       => true,
+			'rest_base'          => 'series',
+			'rewrite'            => array( 'slug' => 'library-series' ),
+		);
+
+		register_taxonomy( 'library_series', 'library_book', $args );
+	}
+
+	/**
+	 * The series of a book, the narrowest one, or null.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return WP_Term|null
+	 */
+	public static function get_series( int $book_id ): ?WP_Term {
+		$terms = get_the_terms( $book_id, 'library_series' );
+
+		return is_array( $terms ) ? $terms[0] : null;
+	}
+
+	/**
+	 * A series from its cycle, as a book types it, in plain text: "Star Wars, Young Jedi Knights".
+	 *
+	 * @param WP_Term $series Series.
+	 * @return string
+	 */
+	public static function get_series_path( WP_Term $series ): string {
+		return implode( ', ', self::get_series_names( $series ) );
+	}
+
+	/**
+	 * Every series and cycle, after its cycles, in plain text, in order, as a form suggests them.
+	 *
+	 * @return string[]
+	 */
+	public static function get_series_paths(): array {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'library_series',
+				'hide_empty' => false,
+			)
+		);
+		$paths = array_map( array( self::class, 'get_series_path' ), is_array( $terms ) ? $terms : array() );
+
+		natcasesort( $paths );
+
+		return array_values( $paths );
+	}
+
+	/**
+	 * Names of a series from its widest cycle, in plain text: the names of terms keep their & as &amp;.
+	 *
+	 * @param WP_Term $series Series.
+	 * @return string[]
+	 */
+	private static function get_series_names( WP_Term $series ): array {
+		$cycles = array_map( fn( int $term_id ) => get_term( $term_id, 'library_series' ), array_reverse( get_ancestors( $series->term_id, 'library_series', 'taxonomy' ) ) );
+
+		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array( ...$cycles, $series ) );
+	}
+
+	/**
+	 * The series a search names, case aside, with the series of their cycles: "Star Wars" the cycle and its series, "Star
+	 * Wars, Young Jedi Knights" this one, "Young Jedi Knights" any series of that name.
+	 *
+	 * @param string $value Name of a series, or of a series after its cycles, separated with commas.
+	 * @return int[] Term IDs.
+	 */
+	public static function find_series_ids( string $value ): array {
+		$names = array_map( 'mb_strtolower', Library_Books::split( $value ) );
+		$terms = $names ? get_terms(
+			array(
+				'taxonomy'   => 'library_series',
+				'name'       => end( $names ),
+				'hide_empty' => false,
+			)
+		) : array();
+		$ids   = array();
+
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			$path = array_map( 'mb_strtolower', self::get_series_names( $term ) );
+
+			if ( array_slice( $path, -count( $names ) ) === $names ) {
+				$ids = array( ...$ids, $term->term_id, ...get_term_children( $term->term_id, 'library_series' ) );
+			}
+		}
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * The series a book types, from its cycle, such as "Star Wars, Young Jedi Knights", each name under the one before:
+	 * the existing one, else a new one when `$add`, else 0.
+	 *
+	 * @param string $path Cycles and series, separated with commas.
+	 * @param bool   $add  Whether to add the names missing.
+	 * @return int Term ID, or 0 for an empty path or a series not found.
+	 */
+	public static function get_series_id( string $path, bool $add = false ): int {
+		$parent_id = 0;
+
+		foreach ( Library_Books::split( $path ) as $name ) {
+			$term      = term_exists( $name, 'library_series', $parent_id );
+			$parent_id = is_array( $term ) ? (int) $term['term_id'] : ( $add ? self::get_term_id( 'library_series', $name, $parent_id ) : 0 );
+
+			if ( ! $parent_id ) {
+				return 0;
+			}
+		}
+
+		return $parent_id;
 	}
 
 	/**

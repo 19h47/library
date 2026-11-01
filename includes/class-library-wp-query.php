@@ -345,22 +345,17 @@ class Library_WP_Query {
 
 		switch ( $keyword ) {
 			case 'series':
-				// A series is found from one comma to the next, so that a cycle finds the books of its series: "Star Wars"
-				// those of "Star Wars, Young Jedi Knights". A volume without series is a volume of the series named by its
-				// title, as in Library_Books.
-				$series_like = '%,' . $wpdb->esc_like( str_replace( ', ', ',', $value ) ) . ',%';
+				// A series by its name, or after its cycles, with the series of a cycle: "Star Wars" finds those of
+				// "Star Wars, Young Jedi Knights".
+				$series_ids = Library_Taxonomies::find_series_ids( $value );
 
-				return $wpdb->prepare(
-					"SELECT post_id FROM {$wpdb->postmeta}
-					WHERE meta_key = 'library_series' AND CONCAT( ',', LOWER( REPLACE( meta_value, ', ', ',' ) ), ',' ) LIKE %s
-					UNION
-					SELECT p.ID FROM {$wpdb->posts} AS p
-					INNER JOIN {$wpdb->postmeta} AS v ON v.post_id = p.ID AND v.meta_key = 'library_volume_number' AND v.meta_value REGEXP '[0-9]'
-					LEFT JOIN {$wpdb->postmeta} AS s ON s.post_id = p.ID AND s.meta_key = 'library_series' AND s.meta_value != ''
-					WHERE s.post_id IS NULL AND LOWER( p.post_title ) = %s",
-					$series_like,
-					$value
-				);
+				if ( ! $series_ids ) {
+					return $none;
+				}
+
+				return "SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
+					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+					WHERE tt.taxonomy = 'library_series' AND tt.term_id IN ( " . implode( ', ', array_map( 'intval', $series_ids ) ) . ' )';
 			case 'author':
 				// A name of the book without another role, or the real name of its pseudonym: a colorist is not one of its authors.
 				$roles = Library_Meta::build_roles_table();
