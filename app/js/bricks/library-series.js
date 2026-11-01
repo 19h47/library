@@ -5,7 +5,7 @@ import { fill, renderCover } from 'library-app/render';
 import { openBooks } from 'library-app/behaviors';
 
 /**
- * The series of the book open, in its dialog: its covers in reading order, each with its reading state, the book open
+ * The series of the book open, on its page: its covers in reading order, each with its reading state, the book open
  * among them and in view, which open the others; its name links to the list of its books. Hidden for a book alone.
  */
 class LibrarySeriesElement extends Brick {
@@ -33,7 +33,7 @@ class LibrarySeriesElement extends Brick {
 			const $current = $list.querySelector( `[data-id="${ id }"]` );
 
 			$current.querySelector( 'button' ).setAttribute( 'aria-current', 'true' );
-			// Once the dialog shows it: the book open where the first one starts.
+			// Once the page shows it: the book open where the first one starts.
 			requestAnimationFrame( () => {
 				$list.scrollLeft = $current.offsetLeft - $list.firstElementChild.offsetLeft;
 			} );

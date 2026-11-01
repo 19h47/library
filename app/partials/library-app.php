@@ -297,10 +297,13 @@
 				</library-view>
 
 				<library-view name="person" <?php echo Library_App::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-back class="library-back">
+						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+					</library-back>
 					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
 						<header class="library-person">
-							<h2 class="library-person__name" data-field="name"></h2>
+							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
 							<p data-field="pseudonyms"></p>
 							<div class="library-person__description" data-html="description" hidden></div>
 							<p data-field="summary"></p>
@@ -309,6 +312,126 @@
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-person>
+				</library-view>
+
+				<library-view name="book" <?php echo Library_App::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-back class="library-back">
+						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+					</library-back>
+					<library-book class="library-book">
+						<img class="library-book__cover" data-field="cover" alt="" hidden>
+						<p class="library-book__meta" data-field="credits"></p>
+						<h2 class="library-book__title" data-field="title" tabindex="-1"></h2>
+						<p class="library-book__excerpt" data-field="excerpt"></p>
+						<div class="library-book__content" data-html="content" hidden></div>
+						<p class="library-book__translation" data-field="translation"></p>
+						<library-reading>
+							<form class="library-reading">
+								<div class="library-reading__pills">
+									<?php
+									Library::render_component(
+										'pill-checkbox',
+										array(
+											'id'      => 'library-reading-read',
+											'label'   => Library_Meta::get_label( 'library_read' ),
+											'control' => Library_Meta::get_control( 'library_read' ),
+										)
+									);
+									Library::render_component(
+										'pill-checkbox',
+										array(
+											'id'      => 'library-reading-in-progress',
+											'label'   => Library_Meta::get_label( 'library_in_progress' ),
+											'control' => Library_Meta::get_control( 'library_in_progress' ),
+										)
+									);
+									Library::render_component(
+										'pill-select',
+										array(
+											'id'         => 'library-reading-rating',
+											'label'      => Library_Meta::get_label( 'library_rating' ),
+											'options'    => $rating_choices,
+											'attributes' => array( 'name' => 'library_rating' ),
+										)
+									);
+									Library::render_component(
+										'pill-select',
+										array(
+											'id'         => 'library-reading-status',
+											'label'      => __( 'Library', 'library' ),
+											'options'    => $status_choices,
+											'attributes' => array( 'name' => 'status' ),
+										)
+									);
+									?>
+								</div>
+								<?php
+								Library::render_component(
+									'input-list',
+									array(
+										'id'          => 'library-reading-dates',
+										'class'       => 'library-reading__dates',
+										'legend'      => Library_Meta::get_label( 'library_read_date' ),
+										'description' => Library_Meta::get_description( 'library_read_date' ),
+										'add'         => __( 'Add a reading', 'library' ),
+										'action'      => 'add',
+										// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
+										'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
+										'attributes'  => array(
+											'hidden'   => true,
+											'disabled' => true,
+										),
+									)
+								);
+								?>
+								<p class="app-status" data-field="error" role="alert" hidden></p>
+								<p>
+									<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
+								</p>
+							</form>
+						</library-reading>
+						<library-series class="library-book__series" hidden>
+							<h3 class="library-title">
+								<span data-field="name"></span>
+								<span class="library-title__count" data-field="count"></span>
+								<a class="library-title__link" data-link="series" href=""><?php esc_html_e( 'See the list', 'library' ); ?></a>
+							</h3>
+							<ul class="library-covers"></ul>
+						</library-series>
+						<dl class="library-book__fields">
+							<div data-row="authors">
+								<dt><?php echo esc_html( $person_labels->name ); ?></dt>
+								<dd data-field="authors"></dd>
+							</div>
+							<?php // The translators are named by the translation line. ?>
+							<?php foreach ( array_diff( Library_Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
+								<?php $role_field = str_replace( 'library_', '', $key ); ?>
+								<div data-row="<?php echo esc_attr( $role_field ); ?>">
+									<dt><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></dt>
+									<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
+								</div>
+							<?php endforeach; ?>
+							<div data-row="isbn">
+								<dt><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
+								<dd data-field="isbn"></dd>
+							</div>
+							<div data-row="pages">
+								<dt><?php echo esc_html( Library_Meta::get_label( 'library_pages' ) ); ?></dt>
+								<dd data-field="pages"></dd>
+							</div>
+							<div data-row="edition_date">
+								<dt><?php echo esc_html( Library_Meta::get_label( 'library_edition_date' ) ); ?></dt>
+								<dd data-field="edition_date"></dd>
+							</div>
+							<div data-row="published_date">
+								<dt><?php echo esc_html( Library_Meta::get_label( 'library_published_date' ) ); ?></dt>
+								<dd data-field="published_date"></dd>
+							</div>
+						</dl>
+						<p class="library-book__actions">
+							<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
+						</p>
+					</library-book>
 				</library-view>
 
 				<library-view name="styleguide" <?php echo Library_App::STYLEGUIDE_VIEW === $view ? '' : 'hidden'; ?>>
@@ -349,128 +472,8 @@
 
 		<library-notice class="library-notice app-pill" role="status"></library-notice>
 
-		<library-book>
-			<dialog class="library-book" aria-labelledby="library-book-title">
-				<form class="app-toolbar" method="dialog">
-					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
-				</form>
-				<img class="library-book__cover" data-field="cover" alt="" hidden>
-				<p class="library-book__meta" data-field="credits"></p>
-				<h2 class="library-book__title" id="library-book-title" data-field="title"></h2>
-				<p class="library-book__excerpt" data-field="excerpt"></p>
-				<div class="library-book__content" data-html="content" hidden></div>
-				<p class="library-book__translation" data-field="translation"></p>
-				<library-reading>
-					<form class="library-reading">
-						<div class="library-reading__pills">
-							<?php
-							Library::render_component(
-								'pill-checkbox',
-								array(
-									'id'      => 'library-reading-read',
-									'label'   => Library_Meta::get_label( 'library_read' ),
-									'control' => Library_Meta::get_control( 'library_read' ),
-								)
-							);
-							Library::render_component(
-								'pill-checkbox',
-								array(
-									'id'      => 'library-reading-in-progress',
-									'label'   => Library_Meta::get_label( 'library_in_progress' ),
-									'control' => Library_Meta::get_control( 'library_in_progress' ),
-								)
-							);
-							Library::render_component(
-								'pill-select',
-								array(
-									'id'         => 'library-reading-rating',
-									'label'      => Library_Meta::get_label( 'library_rating' ),
-									'options'    => $rating_choices,
-									'attributes' => array( 'name' => 'library_rating' ),
-								)
-							);
-							Library::render_component(
-								'pill-select',
-								array(
-									'id'         => 'library-reading-status',
-									'label'      => __( 'Library', 'library' ),
-									'options'    => $status_choices,
-									'attributes' => array( 'name' => 'status' ),
-								)
-							);
-							?>
-						</div>
-						<?php
-						Library::render_component(
-							'input-list',
-							array(
-								'id'          => 'library-reading-dates',
-								'class'       => 'library-reading__dates',
-								'legend'      => Library_Meta::get_label( 'library_read_date' ),
-								'description' => Library_Meta::get_description( 'library_read_date' ),
-								'add'         => __( 'Add a reading', 'library' ),
-								'action'      => 'add',
-								// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
-								'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
-								'attributes'  => array(
-									'hidden'   => true,
-									'disabled' => true,
-								),
-							)
-						);
-						?>
-						<p class="app-status" data-field="error" role="alert" hidden></p>
-						<p>
-							<button class="app-pill app-pill--primary" type="submit"><?php esc_html_e( 'Save', 'library' ); ?></button>
-						</p>
-					</form>
-				</library-reading>
-				<library-series class="library-book__series" hidden>
-					<h3 class="library-title">
-						<span data-field="name"></span>
-						<span class="library-title__count" data-field="count"></span>
-						<a class="library-title__link" data-link="series" href=""><?php esc_html_e( 'See the list', 'library' ); ?></a>
-					</h3>
-					<ul class="library-covers"></ul>
-				</library-series>
-				<dl class="library-book__fields">
-					<div data-row="authors">
-						<dt><?php echo esc_html( $person_labels->name ); ?></dt>
-						<dd data-field="authors"></dd>
-					</div>
-					<?php // The translators are named by the translation line. ?>
-					<?php foreach ( array_diff( Library_Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
-						<?php $role_field = str_replace( 'library_', '', $key ); ?>
-						<div data-row="<?php echo esc_attr( $role_field ); ?>">
-							<dt><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></dt>
-							<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
-						</div>
-					<?php endforeach; ?>
-					<div data-row="isbn">
-						<dt><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
-						<dd data-field="isbn"></dd>
-					</div>
-					<div data-row="pages">
-						<dt><?php echo esc_html( Library_Meta::get_label( 'library_pages' ) ); ?></dt>
-						<dd data-field="pages"></dd>
-					</div>
-					<div data-row="edition_date">
-						<dt><?php echo esc_html( Library_Meta::get_label( 'library_edition_date' ) ); ?></dt>
-						<dd data-field="edition_date"></dd>
-					</div>
-					<div data-row="published_date">
-						<dt><?php echo esc_html( Library_Meta::get_label( 'library_published_date' ) ); ?></dt>
-						<dd data-field="published_date"></dd>
-					</div>
-				</dl>
-				<p class="library-book__actions">
-					<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
-				</p>
-			</dialog>
-		</library-book>
-
 		<library-edit>
-			<dialog class="library-book library-edit" aria-labelledby="library-edit-heading">
+			<dialog class="library-dialog library-edit" aria-labelledby="library-edit-heading">
 				<form class="app-toolbar" method="dialog">
 					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 				</form>

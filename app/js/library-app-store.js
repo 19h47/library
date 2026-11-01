@@ -23,6 +23,10 @@
 	// The views of the navigation; the page of a person is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
 	const PERSON_VIEW = 'person';
+	// The page of a book, opened from its card, its cover or a link.
+	const BOOK_VIEW = 'book';
+	// The views of a person or a book, each with its ID in the argument of the same name: ?view=book&book=564.
+	const PAGE_VIEWS = [ PERSON_VIEW, BOOK_VIEW ];
 	// The components of the app, for development: a view out of the navigation, opened by searching its name.
 	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
@@ -30,6 +34,8 @@
 	const PER_PAGE = 24;
 	// A search waits for a pause in the typing.
 	const SEARCH_DELAY = 250;
+	// The place in a view is kept in its entry of the history once the scrolling pauses.
+	const SCROLL_DELAY = 150;
 	// Back to the app after this long, as from another app, its data load again: they may have changed in the admin or on another device.
 	const REFRESH_AFTER_MS = 5 * 60 * 1000;
 	// The most books a page of the API gives.
@@ -173,12 +179,12 @@
 		return error?.message ?? __( 'The books could not be loaded.', 'library' );
 	}
 
-	/** The view of a URL, the books by default; the page of a person needs a person. */
+	/** The view of a URL, the books by default; the page of a person or a book needs its ID. */
 	function viewOf( url ) {
 		const view = new URL( url ).searchParams.get( 'view' );
 
-		if ( PERSON_VIEW === view ) {
-			return idOf( url, 'person' ) ? view : 'books';
+		if ( PAGE_VIEWS.includes( view ) ) {
+			return idOf( url, view ) ? view : 'books';
 		}
 
 		return isNamedView( view ) ? view : 'books';
@@ -224,6 +230,11 @@
 			// "" for the latest added, or one of SORTS.
 			sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
 		};
+	}
+
+	/** Keeps the place in the view shown in its entry of the history, to put it back there. */
+	function keepScroll() {
+		history.replaceState( { ...history.state, scroll: scrollY }, '' );
 	}
 
 	/** Goes to the top of a view opened, at once: the smooth scroll of the page is for its links, such as "Top". */
@@ -338,7 +349,8 @@
 	 * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
 	 * `person` the books of the person open, `book` the book open, `series` the books of its series,
 	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
-	 * `notice` what an action done says, such as a reading saved, once: a new object each time.
+	 * `notice` what an action done says, such as a reading saved, once: a new object each time,
+	 * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
@@ -365,6 +377,7 @@
 				editing: editing(),
 				terms: terms(),
 				notice: null,
+				moved: '',
 			} );
 
 			darkQuery.addEventListener( 'change', ( { matches } ) => {
@@ -373,17 +386,37 @@
 				);
 			} );
 
-			// Back and forward between the views; they open and close the book too, and take back the search of their URL.
+			// The app puts each view back where it was, from its entry of the history, rather than the browser, which would
+			// before the view shows.
+			history.scrollRestoration = 'manual';
+
+			let scrolling = 0;
+
+			addEventListener(
+				'scroll',
+				() => {
+					clearTimeout( scrolling );
+					scrolling = setTimeout( () => keepScroll(), SCROLL_DELAY );
+				},
+				{ passive: true }
+			);
+
+			// Back and forward between the views, a book or a person among them: each takes back the search of its URL and its place.
 			addEventListener( 'popstate', () => {
+				const view = viewOf( location.href );
 				const query = new URLSearchParams( location.search ).get( 'q' ) ?? '';
+
+				clearTimeout( scrolling );
+				this.set( ( state ) => ( { ...state, moved: 'back' } ) );
 
 				// The books found load again once the books view shows.
 				if ( query !== this.get().query ) {
 					this.set( ( state ) => ( { ...state, query, search: pages() } ) );
 				}
 
-				this.#show( viewOf( location.href ), idOf( location.href, 'person' ) );
-				this.#showBook( idOf( location.href, 'book' ) );
+				this.#show( view, idOf( location.href, view ) );
+				// Once the view shows.
+				requestAnimationFrame( () => scrollTo( { top: history.state?.scroll ?? 0, behavior: 'instant' } ) );
 			} );
 
 			this.subscribe( ( state, previous ) => {
@@ -402,8 +435,7 @@
 				}
 			} );
 
-			this.#show( this.get().view, idOf( location.href, 'person' ) );
-			this.#showBook( idOf( location.href, 'book' ) );
+			this.#show( this.get().view, idOf( location.href, this.get().view ) );
 			this.#fetchStats();
 			this.#load( 'to-buy' );
 		}
@@ -426,42 +458,25 @@
 				return;
 			}
 
-			const url = new URL( location.href );
-
-			if ( 'books' === view ) {
-				url.searchParams.delete( 'view' );
-			} else {
-				url.searchParams.set( 'view', view );
-			}
-
-			url.searchParams.delete( 'person' );
-			url.searchParams.delete( 'book' );
-			history.pushState( null, '', url );
-			this.#show( view );
-			scrollToTop();
+			this.#go( view );
 		}
 
-		/**
-		 * Opens the page of a person, at its top, with its URL in the history. The book open closes, its URL
-		 * staying in the history: going back opens it again. On the page of the person already, it just closes.
-		 */
+		/** Opens the page of a person, at its top, with its URL in the history, unless it shows already. */
 		openPerson( id ) {
 			const { view, person: current } = this.get();
 
-			if ( PERSON_VIEW === view && id === current.id ) {
-				this.closeBook();
-				return;
+			if ( PERSON_VIEW !== view || id !== current.id ) {
+				this.#go( PERSON_VIEW, id );
 			}
+		}
 
-			const url = new URL( location.href );
-
-			this.#hideBook();
-			url.searchParams.set( 'view', PERSON_VIEW );
-			url.searchParams.set( 'person', id );
-			url.searchParams.delete( 'book' );
-			history.pushState( null, '', url );
-			this.#show( PERSON_VIEW, id );
-			scrollToTop();
+		/** Goes back to where the view shown was opened from; a view opened first, as from a link, goes to the home. */
+		back() {
+			if ( history.state?.app ) {
+				history.back();
+			} else {
+				this.goHome();
+			}
 		}
 
 		/** The home, as the name of the app leads to it: the books view without its search, at its top. */
@@ -507,16 +522,10 @@
 
 		/**
 		 * Shows the books a search finds, read or not, of any status and form, in the default order, at the top of the books view, such as the books
-		 * of a series from an achievement or from the book open, which closes, its URL staying in the history. The view comes
-		 * first, so that the query goes to its URL.
+		 * of a series from an achievement or from a book. The view comes first, so that the query goes to its URL.
 		 */
 		searchBooks( query ) {
-			const url = new URL( location.href );
-
-			this.#hideBook();
-			[ 'view', 'person', 'book' ].forEach( ( name ) => url.searchParams.delete( name ) );
-			history.pushState( null, '', url );
-			this.#show( 'books' );
+			this.#go( 'books' );
 			this.set( ( state ) => ( { ...state, query, read: '', status: '', form: '', sort: '' } ) );
 			this.#fetchList( 'search' );
 			scrollToTop();
@@ -559,8 +568,8 @@
 		}
 
 		/**
-		 * Opens a book, loaded first when it is not yet, such as the book of an achievement,
-		 * with its URL in the history: going back closes it.
+		 * Opens the page of a book, loaded first when it is not yet, such as the book of an achievement, at its top, with
+		 * its URL in the history, unless it shows already.
 		 */
 		async openBook( id ) {
 			try {
@@ -569,39 +578,11 @@
 				return;
 			}
 
-			const { books, book } = this.get();
+			const { books, book, view } = this.get();
 
-			if ( ! ( id in books ) || id === book ) {
-				return;
+			if ( id in books && ( BOOK_VIEW !== view || id !== book ) ) {
+				this.#go( BOOK_VIEW, id );
 			}
-
-			const url = new URL( location.href );
-
-			url.searchParams.set( 'book', id );
-			history.pushState( { book: id }, '', url );
-			this.set( ( state ) => ( { ...state, book: id, saving: saving() } ) );
-			this.#loadSeries();
-		}
-
-		/** Closes the book open: back in the history when it was opened there, else its URL loses it, so that the app stays. */
-		closeBook() {
-			const { book } = this.get();
-
-			if ( ! book ) {
-				return;
-			}
-
-			this.#hideBook();
-
-			if ( book === history.state?.book ) {
-				history.back();
-				return;
-			}
-
-			const url = new URL( location.href );
-
-			url.searchParams.delete( 'book' );
-			history.replaceState( history.state, '', url );
 		}
 
 		/**
@@ -740,7 +721,7 @@
 		}
 
 		/**
-		 * Saves the reading of the book open, then closes it. Only what changed is sent, so a value the form
+		 * Saves the reading of the book open, which says so. Only what changed is sent, so a value the form
 		 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
 		 * It goes through the route of the book form, which writes the read dates at once: the core API, which
 		 * removes a meta value by value, would remove them all with an unknown date, empty.
@@ -772,7 +753,6 @@
 			}
 
 			if ( ! Object.keys( meta ).length && status === book.status ) {
-				this.closeBook();
 				return;
 			}
 
@@ -784,9 +764,7 @@
 			try {
 				await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data } );
 				this.#addBooks( [ await apiFetch( { path: `/wp/v2/books/${ id }?${ params }` } ) ] );
-				this.closeBook();
-				// The book closes: the page says it was saved.
-				this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading saved.', 'library' ) } } ) );
+				this.set( ( state ) => ( { ...state, saving: saving(), notice: { text: __( 'Reading saved.', 'library' ) } } ) );
 				this.#reload( id );
 			} catch ( error ) {
 				this.#update( 'saving', () => ( { loading: false, error: errorMessage( error ) } ) );
@@ -820,29 +798,55 @@
 			}
 		}
 
-		/** The book open closes, the history left as it is. */
-		#hideBook() {
-			this.set( ( state ) => ( state.book ? { ...state, book: 0, saving: saving() } : state ) );
+		/**
+		 * Opens a view, at its top, with its URL in the history: a view of the navigation, or the page of the person or the
+		 * book `id`. The search stays in the URL; the place in the view left is kept in its entry, to come back to it.
+		 */
+		#go( view, id = 0 ) {
+			const url = new URL( location.href );
+
+			PAGE_VIEWS.forEach( ( name ) => url.searchParams.delete( name ) );
+
+			if ( 'books' === view ) {
+				url.searchParams.delete( 'view' );
+			} else {
+				url.searchParams.set( 'view', view );
+			}
+
+			if ( id ) {
+				url.searchParams.set( view, id );
+			}
+
+			keepScroll();
+			// An entry of the app, which going back leads to.
+			history.pushState( { app: true }, '', url );
+			this.set( ( state ) => ( { ...state, moved: 'forward' } ) );
+			this.#show( view, id );
+			scrollToTop();
 		}
 
-		/** Shows the book `id` of the URL, loaded first when it is not yet; 0 closes the book open. */
-		async #showBook( id ) {
-			if ( ! id ) {
-				this.#hideBook();
-				return;
-			}
-
+		/**
+		 * Loads the book `id` of the page of a book, unless it is loaded, then its series. A book not found, as from a link
+		 * to a book deleted, leaves its page for the home, which says so.
+		 */
+		async #loadBook( id ) {
 			try {
 				await this.#fetchBooks( [ id ] );
-			} catch {
+			} catch {}
+
+			// The URL may have changed meanwhile.
+			if ( BOOK_VIEW !== this.get().view || id !== this.get().book ) {
 				return;
 			}
 
-			// The URL may have changed meanwhile, and a book not found does not open.
-			if ( id === idOf( location.href, 'book' ) && id in this.get().books ) {
-				this.set( ( state ) => ( { ...state, book: id, saving: saving() } ) );
+			if ( id in this.get().books ) {
 				this.#loadSeries();
+				return;
 			}
+
+			history.replaceState( null, '', config.appUrl );
+			this.#show( 'books' );
+			this.set( ( state ) => ( { ...state, notice: { text: __( 'No book found.', 'library' ) } } ) );
 		}
 
 		/** Loads the books of the series of the book open, unless they are loaded or loading. */
@@ -855,14 +859,25 @@
 			}
 		}
 
-		/** Shows a view, and loads its data the first time; the page of a person starts again for another person `id`. */
+		/**
+		 * Shows a view, and loads its data the first time: the page of a person starts again for another person `id`, the
+		 * page of a book shows the book `id`, its reading not saved left behind.
+		 */
 		#show( view, id = 0 ) {
+			const book = BOOK_VIEW === view ? id : 0;
+
 			this.set( ( state ) => {
-				const next = state.view === view ? state : { ...state, view };
+				const next = state.view === view && state.book === book ? state : { ...state, view, book, saving: saving() };
 
 				return PERSON_VIEW !== view || id === state.person.id ? next : { ...next, person: person( id ) };
 			} );
-			this.#load( view );
+
+			if ( BOOK_VIEW === view ) {
+				this.#loadBook( id );
+			} else {
+				this.#load( view );
+			}
+
 			this.#loadHome();
 		}
 
@@ -900,110 +915,79 @@
 		}
 
 		/**
-		 * After the book `id` was saved: the stats, and the views but the one shown, load again. The list shown follows
-		 * the book where it is: the books found lose it when the search no longer finds it, the books to buy when it is
-		 * bought, the diary takes its readings added or removed, the page of a person updates their books and their reading,
-		 * the achievements load again, and the home its readings and achievements; elsewhere its card follows it.
+		 * After the book `id` was saved: the stats load again, and so does what was loaded, in place, so that a view gone
+		 * back to shows the book as it is, where it was. The books found lose it when the search no longer finds it; the
+		 * books to buy, the books being read, the diary, the reading idea, the achievements, the page of the person open and
+		 * the series of the book load again.
 		 */
 		#reload( id ) {
-			const { view } = this.get();
-			const home = isHome( this.get() );
+			this.#reloadLoaded( () => this.#refreshList( 'search', id ) );
+		}
 
-			this.set( ( state ) => ( {
-				...state,
-				search: 'books' === view ? state.search : pages(),
-				inProgress: home ? state.inProgress : pages(),
-				toBuy: 'to-buy' === view ? state.toBuy : pages(),
-				diary: 'diary' === view || home ? state.diary : pages(),
-				idea: 'idea' === view || home ? state.idea : idea(),
-				achievements: 'achievements' === view || home ? state.achievements : achievements(),
-				person: PERSON_VIEW === view ? state.person : person(),
-				// Its reading states may have changed.
-				series: series(),
-			} ) );
+		/**
+		 * Back to the app after a while: what was loaded loads again in place, as after a book saved, the books found as
+		 * many as they were, and so do the book open and the names to suggest.
+		 */
+		#refresh() {
+			const { book, search: found } = this.get();
+
+			this.set( ( state ) => ( { ...state, terms: terms() } ) );
+			this.#reloadLoaded( () => this.#fetchList( 'search', 0, found.items.length ) );
+
+			if ( book ) {
+				this.#refetchBook( book );
+			}
+		}
+
+		/** The stats, and what was loaded, again in place; `refreshSearch` the books found. */
+		#reloadLoaded( refreshSearch ) {
+			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned, person: current } = this.get();
+
+			// Its reading states may have changed.
+			this.set( ( state ) => ( { ...state, series: series() } ) );
 			this.#fetchStats();
-			this.#load( 'to-buy' );
+			this.#loadSeries();
 
-			if ( 'books' === view ) {
-				this.#refreshList( 'search', id );
+			if ( this.get().search.loaded ) {
+				refreshSearch();
 			}
 
-			if ( 'to-buy' === view ) {
-				this.#refreshList( 'toBuy', id );
+			// The books to buy load at once, whatever the view: they show without network.
+			if ( bought.loaded ) {
+				this.#fetchList( 'toBuy', 0, bought.items.length );
 			}
 
-			if ( home ) {
+			if ( inProgress.loaded ) {
 				this.#fetchList( 'inProgress' );
 			}
 
-			if ( 'diary' === view || home ) {
+			if ( diary.loaded ) {
 				this.#refreshDiary();
 			}
 
-			if ( 'achievements' === view || home ) {
+			if ( shown.loaded ) {
+				this.#fetchIdea( shown.position );
+			}
+
+			if ( earned.loaded ) {
 				this.#fetchAchievements();
 			}
 
-			if ( PERSON_VIEW === view ) {
+			if ( current.loaded ) {
 				this.#fetchPerson();
 			}
 		}
 
-		/**
-		 * Back to the app after a while: the stats and the views but the one shown load again, as after a book saved, and so do the
-		 * names to suggest; the view shown loads again in place, a list as long as it was.
-		 */
-		#refresh() {
-			const { view, search: found, toBuy: bought, idea: shown } = this.get();
-			const home = isHome( this.get() );
-
-			this.set( ( state ) => ( {
-				...state,
-				search: 'books' === view ? state.search : pages(),
-				inProgress: home ? state.inProgress : pages(),
-				toBuy: 'to-buy' === view ? state.toBuy : pages(),
-				diary: 'diary' === view || home ? state.diary : pages(),
-				idea: 'idea' === view || home ? state.idea : idea(),
-				achievements: 'achievements' === view || home ? state.achievements : achievements(),
-				person: PERSON_VIEW === view ? state.person : person(),
-				series: series(),
-				terms: terms(),
-			} ) );
-			this.#fetchStats();
-			this.#load( 'to-buy' );
-
-			if ( 'books' === view ) {
-				this.#fetchList( 'search', 0, found.items.length );
-			}
-
-			if ( 'to-buy' === view ) {
-				this.#fetchList( 'toBuy', 0, bought.items.length );
-			}
-
-			if ( home ) {
-				this.#fetchList( 'inProgress' );
-			}
-
-			if ( 'diary' === view || home ) {
-				this.#refreshDiary();
-			}
-
-			if ( 'idea' === view || home ) {
-				this.#fetchIdea( shown.position );
-			}
-
-			if ( 'achievements' === view || home ) {
-				this.#fetchAchievements();
-			}
-
-			if ( PERSON_VIEW === view ) {
-				this.#fetchPerson();
-			}
+		/** The book `id` from the API, though it is loaded, as it may have changed elsewhere. */
+		async #refetchBook( id ) {
+			try {
+				this.#addBooks( [ await apiFetch( { path: `/wp/v2/books/${ id }?${ new URLSearchParams( BOOK_QUERY ) }` } ) ] );
+			} catch {}
 		}
 
 		/** After a book was added: the stats, every view and the names to suggest load again; the view shown at once. */
 		#reloadAll() {
-			const { view, person: current } = this.get();
+			const { view } = this.get();
 
 			this.set( ( state ) => ( {
 				...state,
@@ -1013,13 +997,13 @@
 				idea: idea(),
 				achievements: achievements(),
 				toBuy: pages(),
-				person: person( current.id ),
+				person: person(),
 				series: series(),
 				terms: terms(),
 			} ) );
 			this.#fetchStats();
 			this.#load( 'to-buy' );
-			this.#show( view, current.id );
+			this.#show( view, idOf( location.href, view ) );
 		}
 
 		/** Sets a part of the state, such as `search`, from its current value. */

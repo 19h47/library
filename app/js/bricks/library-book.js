@@ -5,45 +5,46 @@ import { fill, fillCover, linkPeople } from 'library-app/render';
 import { openLinks } from 'library-app/behaviors';
 
 /**
- * The book open, in a modal dialog; closing it, with its button or Escape, closes the book.
- * Its button Edit book opens the form of the book over it.
+ * The page of a book: its cover, credits and title, its notes, its reading, its series and its fields. Another book
+ * opened from it, such as a volume of its series, takes the focus to its title, as the view does when it opens. Its
+ * button Edit book opens the form of the book over it.
  */
 class LibraryBookElement extends Brick {
 	connect( signal ) {
-		const $dialog = this.querySelector( 'dialog' );
-		const $edit = $dialog.querySelector( '[data-action="edit"]' );
+		const $title = this.querySelector( '.library-book__title' );
+		const $edit = this.querySelector( '[data-action="edit"]' );
+		let shown = 0;
 
-		$dialog.addEventListener( 'close', () => store.closeBook(), { signal } );
 		$edit.addEventListener( 'click', () => store.openEdit( store.get().book ), { signal } );
-		openLinks( $dialog, signal );
+		openLinks( this, signal );
 
 		return [
 			store.select(
 				( state ) => state.books[ state.book ] ?? null,
 				( book ) => {
 					if ( ! book ) {
-						$dialog.close();
+						shown = 0;
 						return;
 					}
 
-					this.#render( $dialog, book );
+					this.#render( book );
 
-					// Another book may open in it, such as a volume of its series.
-					if ( ! $dialog.open ) {
-						$dialog.showModal();
+					// The same book saved keeps the focus where it is; a book gone back to, the view gives it.
+					if ( book.id !== shown && 'forward' === store.get().moved ) {
+						requestAnimationFrame( () => $title.focus( { preventScroll: true } ) );
 					}
 
-					$dialog.scrollTop = 0;
+					shown = book.id;
 				}
 			),
 		];
 	}
 
-	#render( $dialog, book ) {
-		const $content = $dialog.querySelector( '[data-html="content"]' );
+	#render( book ) {
+		const $content = this.querySelector( '[data-html="content"]' );
 
-		fillCover( $dialog.querySelector( '[data-field="cover"]' ), book.cover );
-		fill( $dialog, {
+		fillCover( this.querySelector( '[data-field="cover"]' ), book.cover );
+		fill( this, {
 			credits: book.credits,
 			title: book.title,
 			translation: formatTranslation( book ),
@@ -54,11 +55,11 @@ class LibraryBookElement extends Brick {
 			edition_date: book.edition_date ? formatDate( book.edition_date ) : '',
 			published_date: book.published_date ? formatDate( book.published_date ) : '',
 		} );
-		linkPeople( $dialog.querySelector( '[data-field="authors"]' ), book.authors );
+		linkPeople( this.querySelector( '[data-field="authors"]' ), book.authors );
 		// The other names of the book, by role, such as its colorists; the translators, in the translation line, have no field.
-		fill( $dialog, Object.fromEntries( roles.map( ( role ) => [ role, listFormat.format( book[ role ].map( ( name ) => name.name ) ) ] ) ) );
+		fill( this, Object.fromEntries( roles.map( ( role ) => [ role, listFormat.format( book[ role ].map( ( name ) => name.name ) ) ] ) ) );
 		roles.forEach( ( role ) => {
-			const $field = $dialog.querySelector( `[data-field="${ role }"]` );
+			const $field = this.querySelector( `[data-field="${ role }"]` );
 
 			if ( $field ) {
 				linkPeople( $field, book[ role ] );

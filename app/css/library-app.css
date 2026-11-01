@@ -37,6 +37,7 @@
 
 /* Custom elements are inline: these hold blocks */
 library-app-name,
+library-back,
 library-nav,
 library-view,
 library-home,
@@ -330,8 +331,20 @@ library-home:not([hidden]) + .library-books__title {
 	accent-color: var(--app-text);
 }
 
-/* The book open: full screen on a phone, its close control where the toolbar is; a panel beyond. */
+/* The book open, a view: its parts a step apart */
 .library-book {
+	display: grid;
+	gap: var(--app-u1);
+	align-content: start;
+}
+
+/* A view goes back with a button above it, as the history does */
+library-view > .library-back {
+	margin-bottom: var(--app-u1);
+}
+
+/* The form of a book, in a dialog: full screen on a phone, its close control where the toolbar is; a panel beyond. */
+.library-dialog {
 	width: 100%;
 	max-width: none;
 	height: 100%;
@@ -343,18 +356,18 @@ library-home:not([hidden]) + .library-books__title {
 	color: var(--app-text);
 }
 
-.library-book[open] {
+.library-dialog[open] {
 	display: grid;
 	gap: var(--app-u1);
 	align-content: start;
 }
 
-.library-book::backdrop {
+.library-dialog::backdrop {
 	background: color-mix(in srgb, var(--app-bg) 70%, transparent);
 }
 
 @media (min-width: 42rem) {
-	.library-book {
+	.library-dialog {
 		width: min(100% - 2 * var(--app-u2), var(--app-max-width));
 		height: auto;
 		max-height: calc(100% - 2 * var(--app-u2));
@@ -667,19 +680,9 @@ library-latest {
 	border-color: var(--app-text);
 }
 
-/* The series of the book open: a container, its covers going out to the edges of the dialog, across its padding */
+/* The series of the book open: a container, as the latest readings, its covers going out to the edges of the viewport */
 library-series {
 	container-type: inline-size;
-}
-
-.library-book__series .library-covers {
-	--library-bleed: var(--app-u2);
-}
-
-@media (min-width: 42rem) {
-	.library-book__series .library-covers {
-		--library-bleed: var(--app-u3);
-	}
 }
 
 /* A book without cover: its title from its start, in a frame of the size of a cover, a golden rectangle */
