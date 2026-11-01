@@ -2,7 +2,7 @@
  * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
  * Uses wp.apiFetch, which handles the REST root and nonce, wp.i18n, and libraryAdminRead (today).
- * Checking a book without a read date sets it to today; unchecking it clears its read dates.
+ * Checking a book without a read date sets it to today and ends its reading in progress; unchecking it clears its read dates.
  *
  * @package    Library
  * @subpackage Library/admin
@@ -59,8 +59,10 @@
 		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
 		const meta       = { library_read: checkbox.checked };
 
+		// Read today, unless a date is there already: the reading in progress ends.
 		if ( checkbox.checked && ! inlineDate?.textContent ) {
 			meta.library_read_date = [ config.today ];
+			meta.library_in_progress = false;
 		}
 
 		try {
@@ -70,8 +72,7 @@
 				data: { meta },
 			} );
 
-			// A date stored empty comes back as null.
-			updateReadDates( id, book.meta.library_read_date.filter( Boolean ) );
+			updateReadDates( id, book.meta.library_read_date );
 
 			const stats = await apiFetch( { path: '/library/v1/books/reading-stats' } );
 

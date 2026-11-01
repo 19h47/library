@@ -11,7 +11,8 @@
 
 /**
  * Extends book searches to the book text meta (ISBN, series…) and terms (people, publishers, collections),
- * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi"; the REST API lists a series in reading order.
+ * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi"; the REST API lists a series in reading order,
+ * and books by rating or by latest reading too.
  *
  * @since      1.0.0
  * @package    Library
@@ -25,7 +26,14 @@ class Library_WP_Query {
 	 *
 	 * @var string[]
 	 */
-	public const KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'rating' );
+	public const KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'progress', 'rating' );
+
+	/**
+	 * Orders of the books the REST API takes besides those of core, highest or latest first: by rating, by latest read date.
+	 *
+	 * @var string[]
+	 */
+	public const ORDERS = array( 'rating', 'read' );
 
 	/**
 	 * Register hooks.
@@ -37,7 +45,10 @@ class Library_WP_Query {
 		add_filter( 'posts_search', array( $this, 'search_meta_and_terms' ), 10, 2 );
 		add_filter( 'posts_where', array( $this, 'search_keywords' ), 10, 2 );
 		add_filter( 'rest_library_book_query', array( $this, 'allow_reading_order' ), 10, 2 );
+		add_filter( 'rest_library_book_collection_params', array( $this, 'add_orders' ) );
+		add_filter( 'rest_library_book_query', array( $this, 'pass_order' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'order_series_search' ), 10, 2 );
+		add_filter( 'posts_clauses', array( $this, 'order_books' ), 10, 2 );
 		add_filter( 'get_search_query', array( $this, 'show_typed_search' ) );
 		add_action( 'load-edit.php', array( $this, 'add_help_tab' ) );
 	}
@@ -167,6 +178,59 @@ class Library_WP_Query {
 	}
 
 	/**
+	 * Let the REST API order the books by rating or by latest read date.
+	 *
+	 * @param array $params Collection parameters.
+	 * @return array
+	 */
+	public function add_orders( array $params ): array {
+		$params['orderby']['enum'] = array( ...$params['orderby']['enum'], ...self::ORDERS );
+
+		return $params;
+	}
+
+	/**
+	 * Pass an order of ORDERS to the query, which core does not know: order_books() reads it.
+	 *
+	 * @param array           $args    WP_Query arguments.
+	 * @param WP_REST_Request $request Request.
+	 * @return array
+	 */
+	public function pass_order( array $args, WP_REST_Request $request ): array {
+		if ( in_array( $request['orderby'], self::ORDERS, true ) ) {
+			$args['library_order'] = $request['orderby'];
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Order the books by rating, highest first, or by latest read date, latest first; the books without come last, by
+	 * date added. A read date unknown orders nothing.
+	 *
+	 * @param array    $clauses Query clauses.
+	 * @param WP_Query $query   Query instance.
+	 * @return array
+	 */
+	public function order_books( array $clauses, WP_Query $query ): array {
+		global $wpdb;
+
+		$order = $query->get( 'library_order' );
+
+		if ( 'rating' === $order ) {
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS library_order ON library_order.post_id = {$wpdb->posts}.ID AND library_order.meta_key = 'library_rating'";
+			$clauses['orderby'] = "library_order.meta_value IS NULL, CAST( library_order.meta_value AS DECIMAL(3,1) ) DESC, {$wpdb->posts}.post_date DESC";
+		}
+
+		if ( 'read' === $order ) {
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( meta_value ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date' AND meta_value != '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['orderby'] = "library_order.read_date IS NULL, library_order.read_date DESC, {$wpdb->posts}.post_date DESC";
+		}
+
+		return $clauses;
+	}
+
+	/**
 	 * List the books a search for a series finds in reading order, as Library_Books::sort_in_reading_order() sorts them,
 	 * when the search lets it.
 	 *
@@ -226,6 +290,7 @@ class Library_WP_Query {
 			array( array( $form_example ), __( 'the form, by its name', 'library' ) ),
 			array( array( 'isbn:9782070368228' ), __( 'the ISBN, with or without hyphens', 'library' ) ),
 			array( array( 'read:yes', 'read:no', 'read:2024', 'read:2024-05' ), __( 'read or not, or read in a year or a month, rereads included', 'library' ) ),
+			array( array( 'progress:yes', 'progress:no' ), __( 'being read or not, for the first time or again', 'library' ) ),
 			array( array( 'rating:9' ), __( 'rated 9 or more; a half point with a dot: 8.5', 'library' ) ),
 		);
 		$items        = '';
@@ -336,6 +401,14 @@ class Library_WP_Query {
 				}
 
 				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date' AND meta_value LIKE %s", $value . '%' );
+			case 'progress':
+				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_in_progress' AND meta_value = '1'";
+
+				if ( 'yes' === $value ) {
+					return $in_progress;
+				}
+
+				return 'no' === $value ? "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'library_book' AND ID NOT IN ( $in_progress )" : $none;
 			case 'rating':
 				if ( ! is_numeric( $value ) ) {
 					return $none;

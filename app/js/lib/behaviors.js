@@ -127,11 +127,13 @@ export function observeEnd( $more, signal, callback ) {
 /**
  * A list of inputs in `$list`, one per clone of the template `id`, each one with a button to remove it, and `$add` to add one,
  * such as the people of a book or its read dates. Removing an input gives the focus to `$add`, adding one gives it the focus.
+ * `id` may be a function of the value, for a row whose template depends on it, such as a reading whose date is unknown.
  * `value` gives the value of a new input, `setup` prepares each one. Returns the function that adds an input, with a value.
  */
 export function inputList( { $list, $add, id, signal, value = () => '', setup = () => {} } ) {
+	const templateOf = typeof id === 'function' ? id : () => id;
 	const add = ( text = value() ) => {
-		const $item = clone( id );
+		const $item = clone( templateOf( text ) );
 		const $input = $item.querySelector( 'input' );
 
 		$input.value = text;

@@ -383,8 +383,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * The readings of the books read, one per read date and one for a book read without date,
-	 * those without date first, then by date.
+	 * The readings of the books read, one per read date, those whose date is unknown first, then by date.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array> Books read, each one with the date of a reading as read date.
@@ -393,7 +392,7 @@ class Library_Achievements {
 		$readings = array();
 
 		foreach ( self::get_reads( $books ) as $book ) {
-			foreach ( $book['read_dates'] ? $book['read_dates'] : array( '' ) as $read_date ) {
+			foreach ( $book['read_dates'] as $read_date ) {
 				$readings[] = array( 'read_date' => $read_date ) + $book;
 			}
 		}

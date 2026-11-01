@@ -104,15 +104,15 @@ export function fillBook( $item, book, state ) {
 	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, form: book.form, original: formatOriginal( book ), status: formatStatus( book ) } );
 }
 
-/** The cover of a book, which opens it; a book without cover shows its title instead. */
-export function renderCover( book ) {
+/** The cover of a book, which opens it, with a caption under it, such as its reading state; a book without cover shows its title instead. */
+export function renderCover( book, caption = '' ) {
 	const $item = clone( 'library-cover' );
 	const $image = $item.querySelector( '[data-field="cover"]' );
 
 	$item.dataset.id = book.id;
 	$image.alt = book.title;
 	fillCover( $image, book.cover );
-	fill( $item, { title: book.cover ? '' : book.title } );
+	fill( $item, { title: book.cover ? '' : book.title, caption } );
 
 	return $item;
 }

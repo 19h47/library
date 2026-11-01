@@ -29,7 +29,8 @@ class Library_Admin {
 	}
 
 	/**
-	 * Enqueue the styles of the books, people and publishers lists, and the books list scripts.
+	 * Enqueue the styles of the books, people and publishers lists, the books list scripts, and the script of the read
+	 * dates of a book.
 	 *
 	 * @since 1.0.0
 	 * @return void
@@ -37,6 +38,11 @@ class Library_Admin {
 	public function enqueue_assets(): void {
 		$screen  = get_current_screen();
 		$screens = array( 'edit-library_book', 'edit-library_person', 'edit-library_publisher' );
+
+		if ( $screen && 'library_book' === $screen->id ) {
+			[ $read_dates_url, $read_dates_version ] = Library::get_asset( 'admin/js/library-admin-read-dates.js' );
+			wp_enqueue_script( 'library-admin-read-dates', $read_dates_url, array(), $read_dates_version, true );
+		}
 
 		if ( ! $screen || ! in_array( $screen->id, $screens, true ) ) {
 			return;

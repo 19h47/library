@@ -19,7 +19,7 @@
 <table class="form-table" role="presentation">
 
 	<?php
-	foreach ( array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_pages', 'library_edition_date', 'library_published_date', 'library_read' ) as $key ) {
+	foreach ( array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number', 'library_pages', 'library_edition_date', 'library_published_date', 'library_read', 'library_in_progress' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
@@ -30,34 +30,25 @@
 			<?php echo esc_html( Library_Meta::get_label( 'library_read_date' ) ); ?>
 		</th>
 		<td>
-			<fieldset>
+			<fieldset class="library-read-dates" aria-describedby="library-read-date-description">
 				<legend class="screen-reader-text"><?php echo esc_html( Library_Meta::get_label( 'library_read_date' ) ); ?></legend>
-				<?php foreach ( array( ...$values['library_read_date'], '' ) as $index => $read_date ) : ?>
-					<label for="library-read-date-<?php echo esc_attr( $index ); ?>" class="screen-reader-text">
-						<?php
-						/* translators: %d: number of the reading, e.g. 2 for the second one. */
-						echo esc_html( '' !== $read_date ? sprintf( __( 'Reading %d', 'library' ), $index + 1 ) : __( 'New reading', 'library' ) );
-						?>
-					</label>
+				<ul>
+					<?php foreach ( $values['library_read_date'] as $read_date ) : ?>
+						<?php include __DIR__ . '/library-read-date.php'; ?>
+					<?php endforeach; ?>
+				</ul>
+				<button class="button" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
+				<template>
 					<?php
-					$control = Library_Meta::get_control(
-						'library_read_date',
-						array(
-							'id'               => "library-read-date-$index",
-							'name'             => 'library_read_date[]',
-							'class'            => 'regular-text',
-							'aria-describedby' => 'library-read-date-description',
-							'value'            => $read_date,
-						)
-					);
+					// A reading added is today, unless changed.
+					$read_date = current_time( 'Y-m-d' );
 
-					echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+					require __DIR__ . '/library-read-date.php';
 					?>
-					<br>
-				<?php endforeach; ?>
+				</template>
 			</fieldset>
 			<p class="description" id="library-read-date-description">
-				<?php esc_html_e( 'Optional. One date per reading: fill in the empty one to add a reading, empty a date to remove it. Setting a date marks the book as read; marking it as read without a date sets today.', 'library' ); ?>
+				<?php esc_html_e( 'Optional. One date per reading, left empty when it is unknown. Setting a date marks the book as read; marking it as read without a date sets today.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>

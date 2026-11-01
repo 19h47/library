@@ -27,7 +27,12 @@ class LibraryBookElement extends Brick {
 					}
 
 					this.#render( $dialog, book );
-					$dialog.showModal();
+
+					// Another book may open in it, such as a volume of its series.
+					if ( ! $dialog.open ) {
+						$dialog.showModal();
+					}
+
 					$dialog.scrollTop = 0;
 				}
 			),

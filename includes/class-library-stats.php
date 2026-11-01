@@ -44,8 +44,9 @@ class Library_Stats {
 	/**
 	 * Run a SELECT on the books; "{books}", "{at_hand}" and "{library}" in the SQL stand for the BOOKS, AT_HAND and LIBRARY conditions.
 	 *
-	 * "{readings}" stands for the readings: a table aliased "r" of a `book` and its read `date`, once per book and date,
-	 * kept or not. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one.
+	 * "{readings}" stands for the readings with a date: a table aliased "r" of a `book` and its read `date`, once per book
+	 * and date, kept or not. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one,
+	 * which keeps an unknown date too.
 	 *
 	 * @param string $sql  SQL, with placeholders for the arguments.
 	 * @param mixed  ...$args Values for the placeholders.

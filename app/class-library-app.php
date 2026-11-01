@@ -82,16 +82,22 @@ class Library_App {
 	}
 
 	/**
-	 * Render the app, or its manifest, then stop before the admin header.
+	 * Render the app, its manifest or its service worker, then stop before the admin header.
 	 *
 	 * @return void
 	 */
 	public function render_page(): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads which file to serve, changes nothing.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which file to serve, changes nothing.
 		if ( isset( $_GET['manifest'] ) ) {
 			$this->render_manifest();
 			exit;
 		}
+
+		if ( isset( $_GET['service-worker'] ) ) {
+			$this->render_service_worker();
+			exit;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$this->register_assets();
 
@@ -183,6 +189,20 @@ class Library_App {
 	}
 
 	/**
+	 * Render the service worker, which keeps the app and what it loaded for a visit without network.
+	 *
+	 * Served from the URL of the app rather than from the plugin folder: a service worker controls the pages under its own
+	 * folder only, and the app is in the admin. Its scope is the URL of the app, so that it controls no other admin page.
+	 *
+	 * @return void
+	 */
+	private function render_service_worker(): void {
+		nocache_headers();
+		header( 'Content-Type: text/javascript; charset=' . get_option( 'blog_charset' ) );
+		readfile( LIBRARY_DIR_PATH . 'app/js/library-app-service-worker.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- A file of the plugin, served as is.
+	}
+
+	/**
 	 * Register the styles and scripts the page prints: the store in the head, before the first paint, the bricks after the markup.
 	 *
 	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
@@ -249,18 +269,21 @@ class Library_App {
 		[ $favicon_dark_url ] = Library::get_asset( 'app/favicon-dark.svg' );
 
 		return array(
-			'statuses'  => implode( ',', Library_Books::get_statuses() ),
-			'forms'     => implode( ',', array_keys( self::get_form_choices() ) ),
-			'notKept'   => Library_Posts::NOT_KEPT,
-			'toBuy'     => Library_Posts::TO_BUY,
+			'statuses'         => implode( ',', Library_Books::get_statuses() ),
+			'forms'            => implode( ',', array_keys( self::get_form_choices() ) ),
+			'notKept'          => Library_Posts::NOT_KEPT,
+			'toBuy'            => Library_Posts::TO_BUY,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
-			'roles'     => array_values( str_replace( 'library_', '', Library_Meta::ROLE_KEYS ) ),
-			'editUrl'   => admin_url( 'post.php?action=edit&post=' ),
+			'roles'            => array_values( str_replace( 'library_', '', Library_Meta::ROLE_KEYS ) ),
+			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
-			'personUrl' => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
-			'bookUrl'   => self::get_url() . '&book=',
-			'searchUrl' => self::get_url() . '&q=',
-			'icons'     => array(
+			'personUrl'        => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
+			'bookUrl'          => self::get_url() . '&book=',
+			'searchUrl'        => self::get_url() . '&q=',
+			'appUrl'           => self::get_url(),
+			// The URL of the app is the scope of its service worker.
+			'serviceWorkerUrl' => add_query_arg( 'service-worker', '1', self::get_url() ),
+			'icons'            => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,
 			),

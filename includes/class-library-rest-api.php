@@ -272,17 +272,16 @@ class Library_Rest_API {
 				'type'        => 'object',
 				'default'     => array(),
 			),
+			'status'         => array(
+				'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
+				'type'        => 'string',
+				'enum'        => array_keys( Library_Posts::get_status_choices() ),
+				'default'     => 'publish',
+			),
 		);
 
 		if ( $adding ) {
-			return $args + array(
-				'status' => array(
-					'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
-					'type'        => 'string',
-					'enum'        => array_keys( Library_Posts::get_status_choices() ),
-					'default'     => 'publish',
-				),
-			);
+			return $args;
 		}
 
 		return array_map( fn( array $arg ) => array_diff_key( $arg, array_flip( array( 'required', 'default' ) ) ), $args );
@@ -407,6 +406,10 @@ class Library_Rest_API {
 
 		if ( $request->has_param( 'content' ) ) {
 			$post['post_content'] = $request['content'];
+		}
+
+		if ( $request->has_param( 'status' ) ) {
+			$post['post_status'] = $request['status'];
 		}
 
 		$updated = wp_update_post( wp_slash( $post ), true );
