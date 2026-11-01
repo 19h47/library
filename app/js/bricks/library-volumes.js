@@ -1,13 +1,13 @@
-import { __, seriesUrl, store } from 'library-app/app';
+import { __, _n, seriesUrl, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { formatBooks } from 'library-app/format';
+import { formatBooks, formatNumber, join } from 'library-app/format';
 import { fill, renderCover } from 'library-app/render';
 import { openBooks } from 'library-app/behaviors';
 
 /**
- * The volumes of the series of the book open, on its page: their covers in reading order, each with its reading state,
- * the book open among them and in view, which open the others; the name of the series links to its page. Hidden for a
- * book alone.
+ * The volumes of the series of the book open, on its page: their covers in reading order, as the home shows covers,
+ * the book open among them and in view, which open the others; the name of the series links to its page, its count says
+ * how many are read, and each cover says its reading state to assistive technologies. Hidden for a book alone.
  */
 class LibraryVolumesElement extends Brick {
 	connect( signal ) {
@@ -25,8 +25,11 @@ class LibraryVolumesElement extends Brick {
 			}
 
 			const { series_id: seriesId } = books[ id ];
+			const readCount = series.items.filter( ( item ) => books[ item ].read ).length;
+			/* translators: %s: number of books read, after the number of books of a series. */
+			const read = sprintf( _n( '%s read', '%s read', readCount, 'library' ), formatNumber( readCount ) );
 
-			fill( this, { name: series.name, count: formatBooks( series.total ) } );
+			fill( this, { name: series.name, count: join( [ formatBooks( series.total ), read ] ) } );
 			$name.href = seriesUrl + seriesId;
 			$name.dataset.series = seriesId;
 			$list.replaceChildren( ...series.items.map( ( item ) => renderCover( this.#volume( books[ item ], series.name ), this.#state( books[ item ] ) ) ) );

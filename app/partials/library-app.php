@@ -743,8 +743,8 @@
 					<span class="library-cover__frame" data-row="title">
 						<span class="library-cover__title" data-field="title"></span>
 					</span>
+					<span class="sr-only" data-field="state" hidden></span>
 				</button>
-				<span class="library-cover__caption app-item__meta" data-field="caption" hidden></span>
 			</li>
 		</template>
 

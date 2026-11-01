@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-01T16:28:59+00:00\n"
+"POT-Creation-Date: 2026-11-01T16:59:53+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -423,7 +423,7 @@ msgstr "De passage"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:22
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:171
+#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:174
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -675,7 +675,7 @@ msgid "Reading state"
 msgstr "État de lecture"
 
 #: app/partials/library-app.php:116 includes/class-library-meta.php:127
-#: app/js/bricks/library-volumes.js:64 app/js/lib/format.js:105
+#: app/js/bricks/library-volumes.js:67 app/js/lib/format.js:105
 msgid "Read"
 msgstr "Lu"
 
@@ -1336,7 +1336,7 @@ msgstr "Pages"
 msgid "Collective work"
 msgstr "Ouvrage collectif"
 
-#: includes/class-library-meta.php:128 app/js/bricks/library-volumes.js:61
+#: includes/class-library-meta.php:128 app/js/bricks/library-volumes.js:64
 #: app/js/lib/format.js:108
 msgid "In progress"
 msgstr "En cours"
@@ -2343,6 +2343,7 @@ msgstr[1] "Pseudonymes : %s"
 #. translators: %s: number of books read, after the number of books of a person.
 #. translators: %s: number of books read, after the number of books of a series.
 #: app/js/bricks/library-person.js:33 app/js/bricks/library-series.js:31
+#: app/js/bricks/library-volumes.js:30
 msgid "%s read"
 msgid_plural "%s read"
 msgstr[0] "%s lu"

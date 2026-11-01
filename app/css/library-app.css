@@ -501,17 +501,17 @@ library-view > .library-back {
 	gap: var(--app-gap);
 }
 
+/* A row: its input, then the button that removes it */
 .library-input-list__item {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
 	gap: var(--app-gap);
-	min-width: 0;
 }
 
-/* A name keeps room for itself: once a row is too narrow, its role goes under it, as wide as the row beside its button */
-.library-input-list__item :is(input, .library-input-list__text) {
-	flex: 1 1 12em;
+/* A row with a role, such as a person: its name on a line of its own, as long as a name may be, its role under it beside its button */
+.library-input-list__item:has(select) > input {
+	grid-column: 1 / -1;
 }
 
 /* A row without input, such as a reading whose date is unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
@@ -530,10 +530,6 @@ library-view > .library-back {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--app-gap);
-}
-
-.library-input-list__item select {
-	flex: 1 1 auto;
 }
 
 /* A field of a form, such as a read date or the title of a book */
@@ -582,7 +578,7 @@ library-view > .library-back {
 
 /* In a row of a list of inputs, such as a read date, it takes a line of its own */
 .library-input-list__item > .library-error {
-	flex-basis: 100%;
+	grid-column: 1 / -1;
 }
 
 /* An error of the server, at the end of a form: in the color of an error, on its tint */
@@ -683,14 +679,10 @@ library-series > .library-section {
 	margin-top: calc(var(--app-gap) - var(--library-focus-room));
 }
 
+/* A cover holds its reading state, out of sight: it stays in the row of covers, which scrolls, rather than widening the page */
 .library-cover__button {
+	position: relative;
 	display: block;
-}
-
-/* The caption of a cover, such as the reading state of a volume of a series, under it */
-.library-cover__caption {
-	display: block;
-	margin-top: var(--app-gap-small);
 }
 
 /* The book open among the covers of its series: its line as firm as the text */
