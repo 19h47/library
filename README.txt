@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.5.0
+Stable tag: 9.5.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,7 +26,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, forms, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search, with its keywords at hand, filtered by reading state, by status and by form in a panel, the filters chosen shown as pills that remove them, ordered by date added, title, rating or latest reading, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person and of each series: its cycle, its description, its reading, the series of a cycle, then its books in reading order. A book opens as a page, as a person or a series does, with a button to go back where it was opened from, the place in the list kept; it shows the volumes of its series, read or not, and leads to the page of its series. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover; an ISBN already in the library shows its book, and a book to buy is bought from there. Back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search, with its keywords at hand, filtered by reading state, by status and by form in a panel, the filters chosen shown as pills that remove them, ordered by date added, title, rating or latest reading, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person and of each series: its cycle, its description, its reading, the series of a cycle, then its books in reading order. A book opens as a page, as a person or a series does, with a button to go back where it was opened from, the place in the list kept; it shows the covers of the volumes of its series, with how many are read, and leads to the page of its series. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover; an ISBN already in the library shows its book, and a book to buy is bought from there. Back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements, the people and the series: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -95,6 +95,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.5.1 =
+* Reading app: the volumes of a series on the page of a book show their covers as the home does, without a caption under each one; their title counts the ones read, “21 books · 21 read”, and each cover says its reading state to assistive technologies only.
+* Reading app: in the form of a book, a person takes a line for their name, then their role beside the button that removes them, rather than that button alone on a line on a phone.
 
 = 9.5.0 =
 * Breaking: series are terms of the hierarchical taxonomy `library_series`, a series a child of its cycle, rather than the `library_series` meta, which is no longer read. A book with a volume number but no series, as a manga, no longer counts as a series of its title: it needs a series of that name. Migration: give each book its series, the path of its meta, else its title, with `series` through `POST /wp-json/library/v1/books/<id>`, then delete the meta, with your table prefix: `wp db query "DELETE FROM wp_postmeta WHERE meta_key = 'library_series'"`.
