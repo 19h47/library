@@ -27,27 +27,125 @@ class Library_Rest_API {
 	public function hooks(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_fields' ) );
+		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
 	}
 
 	/**
-	 * Register the fields added to the books of the core REST API.
+	 * Register the fields added to the books of the core REST API: its credits, and what a list of books shows of its
+	 * cover and terms, so that it needs to embed neither the image nor the terms, whole.
 	 *
 	 * @return void
 	 */
 	public function register_rest_fields(): void {
-		register_rest_field(
-			'library_book',
-			'credits',
-			array(
+		$fields = array(
+			'credits'        => array(
 				'get_callback' => fn( array $book ) => Library_Books::get_credits( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Credits of the book, to show under its title: authors · publisher, collection · edition year.', 'library' ),
 					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
 				),
-			)
+			),
+			'cover'          => array(
+				'get_callback' => fn( array $book ) => $this->get_cover( $book['id'] ),
+				'schema'       => array(
+					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height; null without cover.', 'library' ),
+					'type'        => array( 'object', 'null' ),
+					'properties'  => array(
+						'url'    => array( 'type' => 'string' ),
+						'width'  => array( 'type' => 'integer' ),
+						'height' => array( 'type' => 'integer' ),
+					),
+				),
+			),
+			'names'          => array(
+				'get_callback' => fn( array $book ) => array_map(
+					fn( WP_Term $term ) => array(
+						'id'   => $term->term_id,
+						'name' => $term->name,
+					),
+					$this->get_book_terms( $book['id'], 'library_person' )
+				),
+				'schema'       => array(
+					'description' => __( 'Names of the book, as named on it, each with its term ID; the role meta tell the ones with another role than author.', 'library' ),
+					'type'        => 'array',
+					'items'       => array( 'type' => 'object' ),
+				),
+			),
+			'language_codes' => array(
+				'get_callback' => fn( array $book ) => wp_list_pluck( $this->get_book_terms( $book['id'], 'library_language' ), 'slug' ),
+				'schema'       => array(
+					'description' => __( 'Original languages of the book, as ISO 639 codes, the slugs of their terms.', 'library' ),
+					'type'        => 'array',
+					'items'       => array( 'type' => 'string' ),
+				),
+			),
+			'form_name'      => array(
+				'get_callback' => fn( array $book ) => (string) ( current( $this->get_book_terms( $book['id'], 'library_form' ) )->name ?? '' ),
+				'schema'       => array(
+					'description' => __( 'Name of the form of the book, such as a novel, or empty.', 'library' ),
+					'type'        => 'string',
+				),
+			),
 		);
+
+		foreach ( $fields as $name => $field ) {
+			$field['schema'] += array(
+				'context'  => array( 'view', 'edit' ),
+				'readonly' => true,
+			);
+
+			register_rest_field( 'library_book', $name, $field );
+		}
+	}
+
+	/**
+	 * Load the covers of the books a query found at once, with their image meta, rather than one by one as the cover
+	 * field of each book reads them.
+	 *
+	 * @param WP_Post[] $posts Posts found.
+	 * @param WP_Query  $query Query.
+	 * @return WP_Post[]
+	 */
+	public function load_covers( array $posts, WP_Query $query ): array {
+		if ( 'library_book' === $query->get( 'post_type' ) && $posts ) {
+			update_post_thumbnail_cache( $query );
+		}
+
+		return $posts;
+	}
+
+	/**
+	 * The cover of a book as a list shows it: its medium size, else the image itself, as for an AVIF the server cannot
+	 * resize, with its size, which gives the image its place before it loads.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return array{url:string,width:int,height:int}|null
+	 */
+	private function get_cover( int $book_id ): ?array {
+		$image = wp_get_attachment_image_src( (int) get_post_thumbnail_id( $book_id ), 'medium' );
+
+		if ( ! $image ) {
+			return null;
+		}
+
+		return array(
+			'url'    => $image[0],
+			'width'  => (int) $image[1],
+			'height' => (int) $image[2],
+		);
+	}
+
+	/**
+	 * Terms of a book in a taxonomy, from the cache the query of the books filled.
+	 *
+	 * @param int    $book_id  Book ID.
+	 * @param string $taxonomy Taxonomy.
+	 * @return WP_Term[]
+	 */
+	private function get_book_terms( int $book_id, string $taxonomy ): array {
+		$terms = get_the_terms( $book_id, $taxonomy );
+
+		return is_array( $terms ) ? $terms : array();
 	}
 
 	/**

@@ -31,15 +31,12 @@
 	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 	const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
-	const PER_PAGE = 24;
 	// A search waits for a pause in the typing.
 	const SEARCH_DELAY = 250;
 	// The place in a view is kept in its entry of the history once the scrolling pauses.
 	const SCROLL_DELAY = 150;
 	// Back to the app after this long, as from another app, its data load again: they may have changed in the admin or on another device.
 	const REFRESH_AFTER_MS = 5 * 60 * 1000;
-	// The most books a page of the API gives.
-	const MAX_PER_PAGE = 100;
 
 	const { apiFetch } = window.wp;
 	const { __ } = window.wp.i18n;
@@ -51,19 +48,26 @@
 	const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
 	const parser = new DOMParser();
 
-	// The fields of a book the app reads, and its cover and terms.
-	const BOOK_QUERY = {
-		_embed: 'wp:featuredmedia,wp:term',
-		_fields: 'id,title,excerpt,content,credits,status,meta,_links,_embedded',
-	};
+	// The fields of a book the app reads, its cover and terms as the plugin gives them: nothing embedded, a list stays light.
+	const BOOK_QUERY = { _fields: config.bookFields };
+	// The books a list loads at once, as the page preloads them, and the most books a page of the API gives.
+	const { perPage: PER_PAGE, maxPerPage: MAX_PER_PAGE } = config;
 
-	/** Observable state: the part of @agencecinq/store used here. */
+	/**
+	 * Observable state, as @agencecinq/store, but for its listeners: they are called once the task that changed the
+	 * state is done, with the last state, rather than at each change. An action that changes several parts of the state,
+	 * such as the view and the book shown, reaches the bricks as one change, and a brick reads a state the others have drawn.
+	 */
 	class Store {
 		#state;
+		// The state the listeners were last called with.
+		#notified;
+		#pending = false;
 		#listeners = new Set();
 
 		constructor( initial ) {
 			this.#state = initial;
+			this.#notified = initial;
 		}
 
 		get() {
@@ -72,14 +76,32 @@
 
 		/** A function is called with the current state and returns the next one. */
 		set( update ) {
-			const previous = this.#state;
-			const next = typeof update === 'function' ? update( previous ) : update;
+			const next = typeof update === 'function' ? update( this.#state ) : update;
+
+			if ( Object.is( next, this.#state ) ) {
+				return;
+			}
+
+			this.#state = next;
+
+			if ( ! this.#pending ) {
+				this.#pending = true;
+				queueMicrotask( () => this.#notify() );
+			}
+		}
+
+		/** Calls the listeners with the state, and the one they were last called with; a listener that changes it calls them again after. */
+		#notify() {
+			const previous = this.#notified;
+			const next = this.#state;
+
+			this.#pending = false;
+			this.#notified = next;
 
 			if ( Object.is( next, previous ) ) {
 				return;
 			}
 
-			this.#state = next;
 			this.#listeners.forEach( ( listener ) => {
 				try {
 					listener( next, previous );
@@ -89,7 +111,7 @@
 			} );
 		}
 
-		/** Called on every change, not right away. Returns the unsubscribe function. */
+		/** Called once per change of a task, not right away. Returns the unsubscribe function. */
 		subscribe( listener ) {
 			this.#listeners.add( listener );
 
@@ -120,6 +142,14 @@
 		}
 	}
 
+	/**
+	 * Read dates as readings, from the first to the latest: each unknown date, empty, is a reading of its own, first; a
+	 * known date is one reading, as a date saved twice by an old import. As the server counts them.
+	 */
+	function toReadings( dates ) {
+		return [ ...dates.filter( ( date ) => '' === date ), ...new Set( dates.filter( Boolean ) ) ].sort();
+	}
+
 	/** Plain text of an HTML string of the API, such as a title with &#8217;: never parsed as markup in the page. */
 	function text( html ) {
 		return parser.parseFromString( html, 'text/html' ).body.textContent;
@@ -127,24 +157,15 @@
 
 	/** A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and the names with another role, its original languages and its form. */
 	function toBook( item ) {
-		const media = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
-		const details = media?.media_details;
-		// The image itself when the server made no size of it, as for an AVIF it cannot resize: the API then gives no full size either.
-		const original = media?.source_url && { source_url: media.source_url, width: details.width, height: details.height };
-		const size = details?.sizes?.medium ?? original;
-		const terms = ( item._embedded?.[ 'wp:term' ] ?? [] ).flat();
 		// Its meta without the prefix of their keys: library_rating is its rating.
 		const meta = Object.fromEntries( Object.entries( item.meta ).map( ( [ key, value ] ) => [ key.replace( /^library_/, '' ), value ] ) );
 		// As named on the book: a pseudonym opens the page of the person too.
-		const names = terms
-			.filter( ( term ) => 'library_person' === term.taxonomy )
-			.map( ( term ) => ( { id: term.id, name: text( term.name ) } ) );
+		const names = item.names.map( ( { id, name } ) => ( { id, name: text( name ) } ) );
 		const roleIds = config.roles.flatMap( ( role ) => meta[ role ] );
 
 		return {
 			...meta,
-			// An unknown date, empty, comes first.
-			read_date: [ ...new Set( meta.read_date ) ].sort(),
+			read_date: toReadings( meta.read_date ),
 			id: item.id,
 			title: text( item.title.rendered ),
 			excerpt: text( item.excerpt.rendered ),
@@ -153,14 +174,14 @@
 			credits: text( item.credits ),
 			status: item.status,
 			// Its size gives the image its place before it loads.
-			cover: size ? { url: size.source_url, width: size.width, height: size.height } : null,
+			cover: item.cover,
 			// Its names without another role, then the others by role, such as its colorists, in place of their IDs.
 			authors: names.filter( ( name ) => ! roleIds.includes( name.id ) ),
 			...Object.fromEntries( config.roles.map( ( role ) => [ role, names.filter( ( name ) => meta[ role ].includes( name.id ) ) ] ) ),
-			// As their ISO 639 codes, the slugs of their terms: the app names them in a sentence.
-			languages: terms.filter( ( term ) => 'library_language' === term.taxonomy ).map( ( term ) => term.slug ),
+			// As their ISO 639 codes: the app names them in a sentence.
+			languages: item.language_codes,
 			// Its name, for the tag of its card.
-			form: text( terms.find( ( term ) => 'library_form' === term.taxonomy )?.name ?? '' ),
+			form: text( item.form_name ),
 		};
 	}
 
@@ -298,9 +319,9 @@
 		history.replaceState( history.state, '', url );
 	}
 
-	/** A list loaded by pages: its items so far, and where it stands. */
+	/** A list loaded by pages: its items so far, and where it stands; `renewing` when it loads again from its start, its items shown until then. */
 	function pages( items = [] ) {
-		return { items, total: 0, page: 0, pages: 0, loading: false, loaded: false, error: '' };
+		return { items, total: 0, page: 0, pages: 0, loading: false, renewing: false, loaded: false, error: '' };
 	}
 
 	function idea() {
@@ -536,7 +557,7 @@
 			const { loading, items, total } = this.get()[ list ];
 
 			if ( ! loading && items.length < total ) {
-				this.#fetchList( list, items.length );
+				this.#fetchList( list, { offset: items.length } );
 			}
 		}
 
@@ -568,19 +589,13 @@
 		}
 
 		/**
-		 * Opens the page of a book, loaded first when it is not yet, such as the book of an achievement, at its top, with
-		 * its URL in the history, unless it shows already.
+		 * Opens the page of a book, at its top, with its URL in the history, unless it shows already: a book not loaded yet,
+		 * such as the book of an achievement, loads on its page, which says so.
 		 */
-		async openBook( id ) {
-			try {
-				await this.#fetchBooks( [ id ] );
-			} catch {
-				return;
-			}
+		openBook( id ) {
+			const { book, view } = this.get();
 
-			const { books, book, view } = this.get();
-
-			if ( id in books && ( BOOK_VIEW !== view || id !== book ) ) {
+			if ( BOOK_VIEW !== view || id !== book ) {
 				this.#go( BOOK_VIEW, id );
 			}
 		}
@@ -729,7 +744,7 @@
 		async saveReading( { read, inProgress, readDates, rating, status: chosen } ) {
 			const { book: id, books } = this.get();
 			const book = books[ id ];
-			const dates = [ ...new Set( readDates ) ].sort();
+			const dates = toReadings( readDates );
 			// As in the "Library" menu of the book form, a book in another status than not kept or to buy, such as a draft,
 			// shows as in the library, and stays in it unless another one is chosen.
 			const shown = [ config.notKept, config.toBuy ].includes( book.status ) ? book.status : 'publish';
@@ -744,7 +759,8 @@
 				meta.library_in_progress = inProgress;
 			}
 
-			if ( read && dates.join() !== book.read_date.join() ) {
+			// By their days, as the form gives them: the server keeps the time of a reading of the day.
+			if ( read && dates.join() !== toReadings( book.read_date.map( ( date ) => date.slice( 0, 10 ) ) ).join() ) {
 				meta.library_read_date = dates;
 			}
 
@@ -827,12 +843,16 @@
 
 		/**
 		 * Loads the book `id` of the page of a book, unless it is loaded, then its series. A book not found, as from a link
-		 * to a book deleted, leaves its page for the home, which says so.
+		 * to a book deleted, or that could not load, leaves its page for the home, which says why.
 		 */
 		async #loadBook( id ) {
+			let failure = null;
+
 			try {
 				await this.#fetchBooks( [ id ] );
-			} catch {}
+			} catch ( error ) {
+				failure = error;
+			}
 
 			// The URL may have changed meanwhile.
 			if ( BOOK_VIEW !== this.get().view || id !== this.get().book ) {
@@ -844,9 +864,11 @@
 				return;
 			}
 
+			const text = failure ? errorMessage( failure ) : __( 'No book found.', 'library' );
+
 			history.replaceState( null, '', config.appUrl );
 			this.#show( 'books' );
-			this.set( ( state ) => ( { ...state, notice: { text: __( 'No book found.', 'library' ) } } ) );
+			this.set( ( state ) => ( { ...state, notice: { text } } ) );
 		}
 
 		/** Loads the books of the series of the book open, unless they are loaded or loading. */
@@ -926,17 +948,19 @@
 
 		/**
 		 * Back to the app after a while: what was loaded loads again in place, as after a book saved, the books found as
-		 * many as they were, and so do the book open and the names to suggest.
+		 * many as they were, and so do the book open, the books of the person open and the names to suggest.
 		 */
 		#refresh() {
-			const { book, search: found } = this.get();
+			const { book, search: found, person: current } = this.get();
 
 			this.set( ( state ) => ( { ...state, terms: terms() } ) );
-			this.#reloadLoaded( () => this.#fetchList( 'search', 0, found.items.length ) );
+			this.#reloadLoaded( () => this.#fetchList( 'search', { count: found.items.length, inPlace: true } ) );
 
 			if ( book ) {
 				this.#refetchBook( book );
 			}
+
+			this.#fetchBooks( current.items, { fresh: true } ).catch( () => {} );
 		}
 
 		/** The stats, and what was loaded, again in place; `refreshSearch` the books found. */
@@ -954,11 +978,11 @@
 
 			// The books to buy load at once, whatever the view: they show without network.
 			if ( bought.loaded ) {
-				this.#fetchList( 'toBuy', 0, bought.items.length );
+				this.#fetchList( 'toBuy', { count: bought.items.length, inPlace: true } );
 			}
 
 			if ( inProgress.loaded ) {
-				this.#fetchList( 'inProgress' );
+				this.#fetchList( 'inProgress', { inPlace: true } );
 			}
 
 			if ( diary.loaded ) {
@@ -1023,32 +1047,45 @@
 			return books.map( ( book ) => book.id );
 		}
 
-		/** Loads the books not loaded yet among `ids`. */
-		async #fetchBooks( ids, signal ) {
+		/**
+		 * Loads the books not loaded yet among `ids`, or all of them when `fresh`, in the order of their IDs, as the page
+		 * preloads the books of the diary: whatever is loaded already, the request is the same. A page of the API at a time.
+		 */
+		async #fetchBooks( ids, { signal, fresh = false } = {} ) {
 			const { books } = this.get();
-			const missing = [ ...new Set( ids ) ].filter( ( id ) => ! ( id in books ) );
+			const missing = [ ...new Set( ids ) ].filter( ( id ) => fresh || ! ( id in books ) ).sort( ( a, b ) => a - b );
 
 			if ( ! missing.length ) {
 				return;
 			}
 
-			const params = new URLSearchParams( {
-				...BOOK_QUERY,
-				status: config.statuses,
-				include: missing.join( ',' ),
-				per_page: missing.length,
-			} );
+			const chunks = Array.from( { length: Math.ceil( missing.length / MAX_PER_PAGE ) }, ( value, index ) =>
+				missing.slice( index * MAX_PER_PAGE, ( index + 1 ) * MAX_PER_PAGE )
+			);
+			const loaded = await Promise.all(
+				chunks.map( ( chunk ) => {
+					const params = new URLSearchParams( {
+						...BOOK_QUERY,
+						status: config.statuses,
+						include: chunk.join( ',' ),
+						per_page: chunk.length,
+					} );
 
-			this.#addBooks( await apiFetch( { path: `/wp/v2/books?${ params }`, signal } ) );
+					return apiFetch( { path: `/wp/v2/books?${ params }`, signal } );
+				} )
+			);
+
+			this.#addBooks( loaded.flat() );
 		}
 
 		/**
 		 * The books of a list from `offset`, `search`, `inProgress` or `toBuy`: from 0 they replace the books of the list, from further they
 		 * add to them. An offset rather than a page, as a book may have left the list. A new request of the list cancels the
 		 * one running; for the search, it cancels the one waiting for a pause in the typing. `count` books at least load, up to
-		 * a page of the API, so that a list loaded again keeps its length.
+		 * a page of the API, so that a list loaded again keeps its length; `inPlace`, the list loads again as it is, such as
+		 * after a book saved, rather than for another search, which it shows faded until then.
 		 */
-		async #fetchList( list, offset = 0, count = PER_PAGE ) {
+		async #fetchList( list, { offset = 0, count = PER_PAGE, inPlace = false } = {} ) {
 			if ( 'search' === list ) {
 				clearTimeout( this.#timeout );
 			}
@@ -1064,7 +1101,7 @@
 				offset,
 			} );
 
-			this.#update( list, () => ( { loading: true, error: '' } ) );
+			this.#update( list, () => ( { loading: true, renewing: ! offset && ! inPlace, error: '' } ) );
 
 			try {
 				const response = await apiFetch( { path: `/wp/v2/books?${ params }`, parse: false, signal } );
@@ -1074,11 +1111,12 @@
 					items: offset ? [ ...current.items, ...ids ] : ids,
 					total: Number( response.headers.get( 'X-WP-Total' ) ),
 					loading: false,
+					renewing: false,
 					loaded: true,
 				} ) );
 			} catch ( error ) {
 				if ( 'AbortError' !== error?.name ) {
-					this.#update( list, () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+					this.#update( list, () => ( { loading: false, renewing: false, loaded: true, error: errorMessage( error ) } ) );
 				}
 			}
 		}
@@ -1111,15 +1149,18 @@
 			} catch {}
 		}
 
-		/** A page of the diary: whole months, latest first, each with its readings and their books; the totals count months. */
-		async #fetchReadings( page ) {
+		/**
+		 * A page of the diary: whole months, latest first, each with its readings and their books; the totals count months.
+		 * `fresh`, its books load all, as the page preloads them, rather than the ones not loaded yet.
+		 */
+		async #fetchReadings( page, fresh = false ) {
 			const response = await apiFetch( { path: `/library/v1/books/readings?page=${ page }`, parse: false } );
 			const months = ( await response.json() ).map( ( { month, readings } ) => ( {
 				month,
 				readings: readings.map( ( { date, book } ) => ( { date, id: book } ) ),
 			} ) );
 
-			await this.#fetchBooks( months.flatMap( ( { readings } ) => readings.map( ( reading ) => reading.id ) ) );
+			await this.#fetchBooks( months.flatMap( ( { readings } ) => readings.map( ( reading ) => reading.id ) ), { fresh } );
 
 			return {
 				months,
@@ -1128,12 +1169,14 @@
 			};
 		}
 
-		/** The next page of the diary. */
+		/** The next page of the diary; the first one, as the page preloads it. */
 		async #fetchDiary( page ) {
+			const isFirst = 1 === page;
+
 			this.#update( 'diary', () => ( { loading: true, error: '' } ) );
 
 			try {
-				const { months, total, pages: last } = await this.#fetchReadings( page );
+				const { months, total, pages: last } = await this.#fetchReadings( page, isFirst );
 
 				this.#update( 'diary', ( current ) => ( {
 					items: [ ...current.items, ...months ],
@@ -1243,7 +1286,7 @@
 			this.#update( 'person', () => ( { loading: true, error: '' } ) );
 
 			try {
-				await this.#fetchBooks( ids, signal );
+				await this.#fetchBooks( ids, { signal } );
 
 				this.#update( 'person', ( current ) => ( {
 					items: [ ...current.items, ...ids ],

@@ -93,9 +93,15 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-status</code></figcaption>
+				<figcaption><code>.app-status</code>, such as no book found, or the app offline</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="app-status">A message, such as no book found.</p>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-notice</code>, what an action done says, such as a reading saved, at the bottom of the screen in the app</figcaption>
+				<div class="library-styleguide__frame">
+					<p class="library-notice app-pill">Reading saved.</p>
 				</div>
 			</figure>
 			<figure>
@@ -209,6 +215,14 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-back</code>, above the page of a book or of a person</figcaption>
+				<div class="library-styleguide__frame">
+					<p class="library-back">
+						<button class="app-pill" type="button"><span aria-hidden="true">←</span> Back</button>
+					</p>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.app-search</code></figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-search">
@@ -217,24 +231,59 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-controls</code>: the search on its own line, the pills under it</figcaption>
+				<figcaption><code>.app-controls</code>: the search on its own line, its keywords under it while it is used, then the button of the filters, the order and the filters chosen, which remove them</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
 						<div class="app-search">
 							<input type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
+							<p class="library-search__keywords">
+								<button class="app-pill" type="button">Series</button>
+								<button class="app-pill" type="button">Author</button>
+								<button class="app-pill" type="button">Publisher</button>
+								<button class="app-pill" type="button">Read in 2026</button>
+								<button class="app-pill" type="button">Rated 9 or more</button>
+							</p>
 						</div>
-						<p class="app-pill">12 books</p>
+						<button class="app-pill" type="button">Filters · 2</button>
 						<?php
 						Library::render_component(
 							'pill-select',
 							array(
 								'id'      => 'library-styleguide-controls-select',
-								'label'   => 'A filter',
-								'options' => array( '' => 'All books' ),
+								'label'   => 'An order',
+								'options' => array( '' => 'Latest added' ),
 							)
 						);
 						?>
+						<p class="library-filters__chosen">
+							<button class="app-pill" type="button">To read <span aria-hidden="true">×</span></button>
+							<button class="app-pill" type="button">A form <span aria-hidden="true">×</span></button>
+						</p>
 					</div>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-filters__dialog</code>, the filters, a sheet from the bottom of the screen on a phone, a dialog beyond, drawn here in its place</figcaption>
+				<div class="library-styleguide__frame">
+					<dialog class="library-filters__dialog" open>
+						<p class="app-toolbar">
+							<button class="app-control" type="button" aria-label="Close">×</button>
+						</p>
+						<h4 class="library-book__title">Filters</h4>
+						<?php
+						Library::render_component(
+							'field',
+							array(
+								'id'      => 'library-styleguide-filter',
+								'label'   => 'Reading state',
+								'control' => Library::get_select( array( 'no' => 'To read' ) ),
+							)
+						);
+						?>
+						<p>
+							<button class="app-pill app-pill--primary" type="button">Show 15 books</button>
+						</p>
+					</dialog>
 				</div>
 			</figure>
 			<figure>
@@ -299,9 +348,15 @@ with its line breaks.</p>
 				<div class="library-styleguide__frame" data-sample="month"></div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-cover</code>: with a cover, without, with a long title</figcaption>
+				<figcaption><code>.library-cover</code>: with a cover, without, with a long title, as the books being read and the latest readings show them</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="covers"></ul>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-cover</code> with <code>__caption</code>, the volumes of a series: read, being read, to read, the book open framed</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="library-styleguide__row" data-sample="series"></ul>
 				</div>
 			</figure>
 			<figure>
@@ -444,6 +499,14 @@ with its line breaks.</p>
 						)
 					);
 					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-edit__duplicate</code>, under the ISBN of a book to add that a book has already; a book to buy is bought from there</figcaption>
+				<div class="library-styleguide__frame">
+					<p class="library-edit__duplicate">
+						<span>Already added: <a href="#top">A title</a> <button class="app-pill" type="button" data-action="buy">I bought it</button></span>
+					</p>
 				</div>
 			</figure>
 			<figure>

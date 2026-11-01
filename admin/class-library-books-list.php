@@ -196,8 +196,8 @@ class Library_Books_List {
 		$read_dates = Library_Meta::get_read_dates( $post->ID );
 
 		foreach ( Library_Meta::QUICK_EDIT_KEYS as $key ) {
-			// Quick edit edits the latest reading.
-			$value = 'library_read_date' === $key ? (string) end( $read_dates ) : (string) get_post_meta( $post->ID, $key, true );
+			// Quick edit edits the latest reading, by its day, as its field takes it: its time stays once saved.
+			$value = 'library_read_date' === $key ? substr( (string) end( $read_dates ), 0, 10 ) : (string) get_post_meta( $post->ID, $key, true );
 
 			printf( '<div class="%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
 		}

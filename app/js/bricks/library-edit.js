@@ -1,7 +1,8 @@
 import { bookUrl, editUrl, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
-import { inputList, showErrors } from 'library-app/behaviors';
+import { join } from 'library-app/format';
+import { inputList, showErrors, showSaving } from 'library-app/behaviors';
 
 /** Options of a datalist or a select, such as the names to suggest. */
 function renderOptions( terms, value = ( term ) => term.name ) {
@@ -10,8 +11,11 @@ function renderOptions( terms, value = ( term ) => term.name ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * Its cover, title, excerpt, notes, people, publisher and collection, ISBN, form, its status when it is added, the one of the
- * list shown (the reading of a book changes it after), and more details. The names typed are suggested
+ * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
+ * publisher, collection and its number, form and edition date, its status when it is added, the one of the list shown
+ * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
+ * the ones filled in: subtitle, first published, pages, original language, collective work, ISSN, excerpt and notes.
+ * The names typed are suggested
  * among those of the library, the collections among those of the publisher; a name not found is added. For a book to add,
  * an ISBN typed that a book has already shows it, which opens, and a book to buy is bought from there.
  * Closing the form drops it.
@@ -35,6 +39,7 @@ class LibraryEditElement extends Brick {
 		const $preview = this.querySelector( '.library-image-field__preview' );
 		const $removeCover = this.querySelector( '[data-action="remove-cover"]' );
 		const $details = this.querySelector( '.library-edit__details' );
+		const $summary = $details.querySelector( 'summary' );
 		const $admin = this.querySelector( '[data-link="admin"]' );
 		const $submit = $form.querySelector( '[type="submit"]' );
 		const $isbn = $form.elements.library_isbn;
@@ -48,6 +53,15 @@ class LibraryEditElement extends Brick {
 
 		const addPerson = inputList( { $list: $people, $add: $addPerson, id: 'library-edit-person', signal } );
 		const clearErrors = showErrors( $form, signal );
+
+		// The summary of the details counts the fields filled in, as the button of the filters does.
+		const countDetails = () => {
+			const filled = [ ...$details.querySelectorAll( 'input, select, textarea' ) ].filter( getValue ).length;
+
+			$summary.textContent = join( [ $summary.dataset.label, filled && filled.toString() ] );
+		};
+
+		$details.addEventListener( 'input', countDetails, { signal } );
 
 		// The collections of the publisher typed, when the library has it; a collection needs a publisher.
 		const suggestCollections = () => {
@@ -159,7 +173,7 @@ class LibraryEditElement extends Brick {
 					// A book added joins the list shown: to buy from the books to buy, of the status and form chosen from the books.
 					const listedStatus = { books: status, 'to-buy': toBuy }[ view ];
 
-					// The form opens on the values of the book, or empty, its details folded unless they hold some.
+					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
 					clearErrors();
 					this.#removed = false;
@@ -200,7 +214,8 @@ class LibraryEditElement extends Brick {
 						} );
 					}
 
-					$details.open = [ ...$details.querySelectorAll( 'input, select' ) ].some( getValue );
+					$details.open = false;
+					countDetails();
 					showCover();
 					suggestCollections();
 					$dialog.showModal();
@@ -212,6 +227,7 @@ class LibraryEditElement extends Brick {
 				( editing ) => {
 					// A book whose values could not be loaded is not saved.
 					$submit.disabled = editing.loading || Boolean( editing.id && ! editing.book );
+					showSaving( $submit, editing.loading );
 					fill( this, { error: editing.error } );
 				}
 			),
@@ -236,6 +252,7 @@ class LibraryEditElement extends Brick {
 					$language.replaceChildren( $none, ...renderOptions( terms.languages, ( term ) => term.id ) );
 					// The languages may come once the form is open, the first time.
 					$language.value = ( store.get().editing.book?.language || '' ).toString();
+					countDetails();
 					suggestCollections();
 				}
 			),

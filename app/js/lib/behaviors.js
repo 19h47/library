@@ -1,6 +1,7 @@
 /**
- * What bricks share: a book, a view, a person or a search opened on a click, the cards following the books,
- * the next page as the end of a list comes, a list of inputs to add and remove, the errors of a form at its fields.
+ * What bricks share: a book, a view, a person or a search opened on a click, the cards following the books, a list
+ * drawn by keys, the next page as the end of a list comes, a list of inputs to add and remove, the errors of a form at
+ * its fields and the button that sends it while it saves.
  *
  * @package    Library
  * @subpackage Library/app
@@ -36,6 +37,52 @@ export function followBooks( $root, stateOf ) {
 			previous = books;
 		}
 	);
+}
+
+/**
+ * Draws in `$list` an element per key of `keys`, in their order, such as a card per book: an element drawn already for
+ * a key, its data-id, stays as it is, its focus too, even moved; a new one comes from `render( key )`. An element whose
+ * key left goes, its focus to the nearest one that stays, after it, or else before it.
+ */
+export function renderKeyed( $list, keys, render ) {
+	const $drawn = new Map( [ ...$list.children ].map( ( $item ) => [ $item.dataset.id, $item ] ) );
+	const kept = new Set( keys.map( ( key ) => key.toString() ) );
+	const $kept = [ ...$list.children ].filter( ( $item ) => kept.has( $item.dataset.id ) );
+	const $focused = document.activeElement;
+	const $left = [ ...$drawn.values() ].find( ( $item ) => ! kept.has( $item.dataset.id ) && $item.contains( $focused ) );
+
+	if ( $left ) {
+		const $after = $kept.find( ( $item ) => $left.compareDocumentPosition( $item ) & Node.DOCUMENT_POSITION_FOLLOWING );
+
+		( $after ?? $kept.at( -1 ) )?.querySelector( 'button, a' )?.focus();
+	}
+
+	$drawn.forEach( ( $item, key ) => {
+		if ( ! kept.has( key ) ) {
+			$item.remove();
+		}
+	} );
+
+	const $active = document.activeElement;
+	let $next = $list.firstElementChild;
+
+	keys.forEach( ( key ) => {
+		const $item = $drawn.get( key.toString() ) ?? render( key );
+
+		if ( $item === $next ) {
+			$next = $next.nextElementSibling;
+		} else if ( $list.moveBefore && $item.isConnected ) {
+			// Moved, an element keeps its focus where the browser can.
+			$list.moveBefore( $item, $next );
+		} else {
+			$list.insertBefore( $item, $next );
+		}
+	} );
+
+	// Moved elsewhere, an element loses its focus: it gets it back.
+	if ( $active !== document.activeElement && $list.contains( $active ) ) {
+		$active.focus( { preventScroll: true } );
+	}
 }
 
 /** Opens the book of a card or a cover clicked in `$root`: the button of an element with the ID of a book. */
@@ -201,8 +248,23 @@ export function showError( $field, message = $field.validationMessage ) {
 	describe( $field, $message, true );
 }
 
+/** Marks `$element` as busy while it loads, as assistive technologies read it: aria-busy true, or no attribute. */
+export function showBusy( $element, isBusy ) {
+	if ( isBusy ) {
+		$element.setAttribute( 'aria-busy', 'true' );
+	} else {
+		$element.removeAttribute( 'aria-busy' );
+	}
+}
+
+/** Says on the button that sends a form that it is saving, its `data-saving`, or its label once saved. */
+export function showSaving( $submit, isSaving ) {
+	$submit.dataset.label ??= $submit.textContent;
+	$submit.textContent = isSaving ? $submit.dataset.saving : $submit.dataset.label;
+}
+
 /** Clears the error of `$field`, its message gone. */
-export function clearError( $field ) {
+function clearError( $field ) {
 	const $message = errorMessages.get( $field );
 
 	$field.removeAttribute( 'aria-invalid' );

@@ -44,6 +44,27 @@ class Library_App {
 	public const BOOK_VIEW = 'book';
 
 	/**
+	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded.
+	 *
+	 * @var string
+	 */
+	public const BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,language_codes,form_name';
+
+	/**
+	 * Books a list of the app loads at once, then as its end comes.
+	 *
+	 * @var int
+	 */
+	public const PER_PAGE = 24;
+
+	/**
+	 * Most books a page of the REST API gives, as for the series of a book.
+	 *
+	 * @var int
+	 */
+	public const MAX_PER_PAGE = 100;
+
+	/**
 	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
 	 *
 	 * @var string
@@ -128,8 +149,117 @@ class Library_App {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
+		$this->preload( $view, $id );
+
 		require LIBRARY_DIR_PATH . 'app/partials/library-app.php';
 		exit;
+	}
+
+	/**
+	 * Give the app the data it asks for first, in the page itself, as the editor of WordPress does: the server runs those
+	 * requests of the REST API while it renders the page, and wp.apiFetch answers them from it, without network. They
+	 * are the stats, the books to buy and, as the view needs them, the books found and the home, or the book shown and
+	 * its series. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
+	 * which goes to the network. The reading idea and the achievements load after, as they take longer than the rest.
+	 *
+	 * @param string $view View shown.
+	 * @param int    $id   ID of the book shown, in its view.
+	 * @return void
+	 */
+	private function preload( string $view, int $id ): void {
+		$statuses = implode( ',', Library_Books::get_statuses() );
+		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args );
+		$list     = fn( array $args ) => $books(
+			$args + array(
+				'per_page' => self::PER_PAGE,
+				'offset'   => 0,
+			)
+		);
+		$paths    = array( '/library/v1/books/reading-stats', $list( array( 'status' => Library_Posts::TO_BUY ) ) );
+
+		if ( 'books' === $view ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads the search shown, changes nothing.
+			$query   = trim( sanitize_text_field( wp_unslash( $_GET['q'] ?? '' ) ) );
+			$paths[] = $list( ( '' !== $query ? array( 'search' => $query ) : array() ) + array( 'status' => $statuses ) );
+
+			if ( '' === $query ) {
+				$paths[] = $list(
+					array(
+						'search' => 'progress:yes',
+						'status' => $statuses,
+					)
+				);
+				$paths[] = '/library/v1/books/readings?page=1';
+			}
+		}
+
+		if ( self::BOOK_VIEW === $view ) {
+			$paths[] = $this->get_books_path( $books, array( $id ), $statuses );
+		}
+
+		$data = array_reduce( $paths, 'rest_preload_api_request', array() );
+
+		// The books of the first readings of the diary, as the store asks for them.
+		$months = $data['/library/v1/books/readings?page=1']['body'] ?? array();
+		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book' ), $months ) );
+
+		if ( $read ) {
+			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $read, $statuses ) );
+		}
+
+		// The series of the book shown, in reading order.
+		$series = (string) get_post_meta( $id, 'library_series', true );
+
+		if ( self::BOOK_VIEW === $view && '' !== $series ) {
+			$data = rest_preload_api_request(
+				$data,
+				$books(
+					array(
+						'search'   => sprintf( 'series:"%s"', $series ),
+						'status'   => $statuses,
+						'per_page' => self::MAX_PER_PAGE,
+					)
+				)
+			);
+		}
+
+		// Only the first requests of the page, until it has loaded: a request after, such as a search again without a filter
+		// kept on the phone, would get a preloaded answer left unused, as the page loaded.
+		$script = <<<'JS'
+( () => {
+	const preloading = wp.apiFetch.createPreloadingMiddleware( %s );
+	let isLoading = true;
+
+	addEventListener( 'load', () => {
+		isLoading = false;
+	} );
+	wp.apiFetch.use( ( options, next ) => ( isLoading ? preloading( options, next ) : next( options ) ) );
+} )();
+JS;
+
+		wp_add_inline_script( 'wp-api-fetch', sprintf( $script, wp_json_encode( $data ) ), 'after' );
+	}
+
+	/**
+	 * The path the store asks for books with: their IDs once each and in order, of any status, as many as they are.
+	 *
+	 * @param callable $books    Path of books, from its arguments.
+	 * @param int[]    $book_ids Book IDs.
+	 * @param string   $statuses Statuses, separated with commas.
+	 * @return string
+	 */
+	private function get_books_path( callable $books, array $book_ids, string $statuses ): string {
+		$book_ids = array_unique( array_map( 'intval', $book_ids ) );
+
+		sort( $book_ids );
+
+		return $books(
+			array(
+				'status'   => $statuses,
+				'include'  => implode( ',', $book_ids ),
+				'per_page' => count( $book_ids ),
+			)
+		);
 	}
 
 	/**
@@ -278,6 +408,9 @@ class Library_App {
 
 		return array(
 			'statuses'         => implode( ',', Library_Books::get_statuses() ),
+			'bookFields'       => self::BOOK_FIELDS,
+			'perPage'          => self::PER_PAGE,
+			'maxPerPage'       => self::MAX_PER_PAGE,
 			'forms'            => implode( ',', array_keys( self::get_form_choices() ) ),
 			'notKept'          => Library_Posts::NOT_KEPT,
 			'toBuy'            => Library_Posts::TO_BUY,

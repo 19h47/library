@@ -1,19 +1,18 @@
 /**
  * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
- * Uses wp.apiFetch, which handles the REST root and nonce, wp.i18n, and libraryAdminRead (today).
- * Checking a book without a read date sets it to today and ends its reading in progress; unchecking it clears its read dates.
+ * Uses wp.apiFetch, which handles the REST root and nonce, and wp.i18n.
+ * Checking a book without a read date reads it now and ends its reading in progress; unchecking it clears its read dates.
  *
  * @package    Library
  * @subpackage Library/admin
- * @global     wp, libraryAdminRead
+ * @global     wp
  */
 ( () => {
 	'use strict';
 
 	const { apiFetch }     = window.wp;
 	const { __, sprintf }  = window.wp.i18n;
-	const config           = window.libraryAdminRead;
 	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
 	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
 
@@ -36,7 +35,8 @@
 			return;
 		}
 
-		const [ readDate = '' ] = readDates;
+		// Its day: a reading of today has its time too.
+		const [ readDate = '' ] = readDates.map( ( date ) => date.slice( 0, 10 ) );
 		const label             = readDate
 			? new Date( `${ readDate }T00:00` ).toLocaleDateString( document.documentElement.lang, { dateStyle: 'long' } )
 			: '—';
@@ -56,21 +56,14 @@
 		checkbox.disabled = true;
 		readPercentageEl.textContent = readPercentageEl.dataset.loadingText;
 
-		const inlineDate = document.querySelector( `#inline_${ id } .library_read_date` );
-		const meta       = { library_read: checkbox.checked };
-
-		// Read today, unless a date is there already: the reading in progress ends.
-		if ( checkbox.checked && ! inlineDate?.textContent ) {
-			meta.library_read_date = [ config.today ];
-			meta.library_in_progress = false;
-		}
+		// Through the route of the book form, as the reading app saves: marked as read without a read date, a book is read
+		// now, its time with it, and its reading in progress ends.
+		const meta = { library_read: checkbox.checked };
 
 		try {
-			const book = await apiFetch( {
-				path: `/wp/v2/books/${ id }`,
-				method: 'POST',
-				data: { meta },
-			} );
+			await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: { meta } } );
+
+			const book = await apiFetch( { path: `/wp/v2/books/${ id }?_fields=meta` } );
 
 			updateReadDates( id, book.meta.library_read_date );
 

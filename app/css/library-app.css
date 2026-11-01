@@ -214,6 +214,12 @@ library-home:not([hidden]) + .library-books__title {
 	gap: var(--app-u1);
 }
 
+/* A list loading again from its start, such as for another search: its books faded until the new ones come */
+.app-list__items[aria-busy="true"] {
+	opacity: var(--app-control-opacity);
+	transition: opacity var(--app-transition-1);
+}
+
 /* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
 .library-item {
 	position: relative;
@@ -331,11 +337,15 @@ library-home:not([hidden]) + .library-books__title {
 	accent-color: var(--app-text);
 }
 
-/* The book open, a view: its parts a step apart */
+/* The book open, a view: its parts a step apart; loading, its status alone */
 .library-book {
 	display: grid;
 	gap: var(--app-u1);
 	align-content: start;
+
+	&[aria-busy="true"] > :not(.app-status) {
+		display: none;
+	}
 }
 
 /* A view goes back with a button above it, as the history does */
@@ -521,11 +531,6 @@ library-person > .library-person {
 	gap: var(--app-gap);
 }
 
-/* A book has one reading whose date is unknown */
-.library-reading__dates:has(input[type="hidden"]) [data-action="add-unknown"] {
-	display: none;
-}
-
 .library-input-list__item select {
 	flex: 1 1 auto;
 }
@@ -621,7 +626,7 @@ library-person > .library-person {
 
 /* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
 library-nav,
-library-search,
+.app-search,
 library-in-progress,
 library-latest {
 	container-type: inline-size;
@@ -758,6 +763,14 @@ library-series {
 	padding: var(--app-u1);
 	border: 1px dashed var(--app-line);
 	border-radius: var(--app-radius);
+}
+
+/* What the app places over the page, the notice and the filters, drawn in its frame */
+.library-styleguide__frame :is(.library-notice, .library-filters__dialog) {
+	position: relative;
+	inset: auto;
+	translate: none;
+	margin: 0;
 }
 
 /* Components side by side, or one under the other, as the place that holds them in the app sets them */

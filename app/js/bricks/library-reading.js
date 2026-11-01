@@ -2,7 +2,7 @@ import { notKept, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
 import { fill } from 'library-app/render';
-import { inputList, showErrors } from 'library-app/behaviors';
+import { inputList, showErrors, showSaving } from 'library-app/behaviors';
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in
@@ -33,7 +33,7 @@ class LibraryReadingElement extends Brick {
 
 		const clearErrors = showErrors( $form, signal );
 
-		// Its row has no input to focus: its button does. A book has one reading whose date is unknown, the style hides the button once it is there.
+		// Its row has no input to focus: its button does. A book may have been read several times at dates unknown.
 		$addUnknown.addEventListener( 'click', () => addDate( '' ).closest( 'li' ).querySelector( '[data-action="remove"]' ).focus(), { signal } );
 
 		[ $add, $addUnknown ].forEach( ( $button ) =>
@@ -96,7 +96,8 @@ class LibraryReadingElement extends Brick {
 					$read.checked = book.read;
 					$inProgress.checked = book.in_progress;
 					$list.replaceChildren();
-					book.read_date.forEach( ( date ) => addDate( date ) );
+					// By its day, as a date field takes it: a reading of the day keeps its time once saved.
+					book.read_date.forEach( ( date ) => addDate( date.slice( 0, 10 ) ) );
 					showDates();
 					$rating.value = ( book.rating || '' ).toString();
 					// A book in another status, such as a draft, shows as in the library.
@@ -107,6 +108,7 @@ class LibraryReadingElement extends Brick {
 				( state ) => state.saving,
 				( saving ) => {
 					$submit.disabled = saving.loading;
+					showSaving( $submit, saving.loading );
 					fill( this, { error: saving.error } );
 				}
 			),

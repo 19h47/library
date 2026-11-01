@@ -2,7 +2,7 @@ import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join, listFormat } from 'library-app/format';
 import { fill, renderAchievement, renderBook, renderCloseAchievement } from 'library-app/render';
-import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
+import { followBooks, observeEnd, openBooks, renderKeyed } from 'library-app/behaviors';
 
 /**
  * The page of a person: their names, their description, their reading, the pages of their books and the completion
@@ -10,9 +10,6 @@ import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
  * Opened, their name takes the focus once it is loaded.
  */
 class LibraryPersonElement extends Brick {
-	#id = 0;
-	#ids = [];
-
 	connect( signal ) {
 		const $description = this.querySelector( '[data-html="description"]' );
 		const $name = this.querySelector( '[data-field="name"]' );
@@ -80,23 +77,14 @@ class LibraryPersonElement extends Brick {
 			store.select(
 				( state ) => state.person.items,
 				( ids ) => {
-					const { books, person } = store.get();
-					// A next page adds to the list; another person, or a book that left their books, starts it again.
-					const isNextPage = person.id === this.#id && this.#ids.every( ( id, index ) => id === ids[ index ] );
-					const start = isNextPage ? this.#ids.length : 0;
+					const { books } = store.get();
 
-					if ( ! start ) {
-						$items.replaceChildren();
-					}
-
-					$items.append(
-						...ids
-							.slice( start )
-							.filter( ( id ) => id in books )
-							.map( ( id ) => renderBook( books[ id ], this.#state( books[ id ] ) ) )
+					// A card per book of the person, kept from a page to the next one, as from a person to another one who shares it.
+					renderKeyed(
+						$items,
+						ids.filter( ( id ) => id in books ),
+						( id ) => renderBook( books[ id ], this.#state( books[ id ] ) )
 					);
-					this.#id = person.id;
-					this.#ids = ids;
 					observe();
 				}
 			),
