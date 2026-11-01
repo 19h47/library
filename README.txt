@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.5.1
+Stable tag: 9.6.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -95,6 +95,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.6.0 =
+* Reading app: the page of a series shows its authors as cards, other roles left out, those who wrote the most first: their name, which leads to their page, their description, clamped at three lines, and how many of its books they wrote, unless it has only one. Past four, three show and the others fold under a pill that counts them, “56 other authors”.
+* REST API: `GET /wp-json/library/v1/series/<id>` gives its `authors`, with their description and how many of its books they wrote.
 
 = 9.5.1 =
 * Reading app: the volumes of a series on the page of a book show their covers as the home does, without a caption under each one; their title counts the ones read, “21 books · 21 read”, and each cover says its reading state to assistive technologies only.
