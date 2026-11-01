@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.2.0
+Stable tag: 9.3.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,13 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.3.0 =
+* Reading app: faster. A list of books weighs 25 KB rather than 169 KB, the page brings the first data of the home or of a book with it, and the reading order of a series is kept until a book changes. A list loading again fades, a book not loaded yet opens at once, saying it loads, and a save button says it saves.
+* Reading app: the form of a book shows first the fields most books have, its ISBN first, then its title, people, series and volume, publisher, collection and its number, form and edition date, and folds the others under “More details”, which counts the ones filled in. The Information box of the admin follows the same order.
+* Readings: a book may have several readings whose date is unknown, such as a book read several times as a child, and a reading added on its day keeps its time, which orders the readings of a day.
+* REST API: the books give `cover`, `names`, `language_codes` and `form_name`, so that a list needs not embed their image and terms. The read dates are written through `POST /wp-json/library/v1/books/<id>` only.
+* Fixed: a book not found could say so in English.
 
 = 9.2.0 =
 * Reading app: a book opens as a page, as a person does, rather than in a dialog: its URL is `?view=book&book=<id>`, a button goes back where it was opened from, on the page of a person too, and going back puts each view back where it was, its focus included. Saving the reading stays on the book. The form of a book stays a dialog over the page.
