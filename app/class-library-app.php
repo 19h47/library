@@ -37,6 +37,13 @@ class Library_App {
 	public const PERSON_VIEW = 'person';
 
 	/**
+	 * View of a book, opened from its card, its cover or a link rather than from the navigation.
+	 *
+	 * @var string
+	 */
+	public const BOOK_VIEW = 'book';
+
+	/**
 	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
 	 *
 	 * @var string
@@ -115,10 +122,11 @@ class Library_App {
 		$views              = $this->get_views( $labels->name );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
-		$view   = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
-		$person = absint( $_GET['person'] ?? 0 );
+		$view = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
+		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12.
+		$id = absint( $_GET[ $view ] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( self::PERSON_VIEW === $view && $person ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
 		require LIBRARY_DIR_PATH . 'app/partials/library-app.php';
 		exit;
@@ -278,7 +286,7 @@ class Library_App {
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),
 			// add_query_arg() drops the "=" of an empty value.
 			'personUrl'        => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
-			'bookUrl'          => self::get_url() . '&book=',
+			'bookUrl'          => add_query_arg( 'view', self::BOOK_VIEW, self::get_url() ) . '&book=',
 			'searchUrl'        => self::get_url() . '&q=',
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.

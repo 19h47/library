@@ -44,7 +44,7 @@ class LibraryListElement extends Brick {
 		];
 	}
 
-	/** Removes a card; the focus it holds, back from the book closed, goes to the next card, or else the previous one. */
+	/** Removes a card; the focus it holds, back from the book opened, goes to the next card, or else the previous one. */
 	#remove( $item ) {
 		const $sibling = $item.nextElementSibling ?? $item.previousElementSibling;
 

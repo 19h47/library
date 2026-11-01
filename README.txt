@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.1.0
+Stable tag: 9.2.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,7 +26,7 @@ Library adds a **Book** post type and four taxonomies, **People**, **Publishers*
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, forms, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search, with its keywords at hand, filtered by reading state, by status and by form in a panel, the filters chosen shown as pills that remove them, ordered by date added, title, rating or latest reading, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book shows the volumes of its series, read or not. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover; an ISBN already in the library shows its book, and a book to buy is bought from there. Back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search, with its keywords at hand, filtered by reading state, by status and by form in a panel, the filters chosen shown as pills that remove them, ordered by date added, title, rating or latest reading, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book opens as a page, as a person does, with a button to go back where it was opened from, the place in the list kept; it shows the volumes of its series, read or not. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover; an ISBN already in the library shows its book, and a book to buy is bought from there. Back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the people: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.2.0 =
+* Reading app: a book opens as a page, as a person does, rather than in a dialog: its URL is `?view=book&book=<id>`, a button goes back where it was opened from, on the page of a person too, and going back puts each view back where it was, its focus included. Saving the reading stays on the book. The form of a book stays a dialog over the page.
 
 = 9.1.0 =
 * Reading app: the card of a book read more than once says how many times, “Read 2 times”, an unknown date included.

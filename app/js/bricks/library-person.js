@@ -7,6 +7,7 @@ import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
 /**
  * The page of a person: their names, their description, their reading, the pages of their books and the completion
  * their books count for, then their books, in the order they first came out, loading as the end of the list comes.
+ * Opened, their name takes the focus once it is loaded.
  */
 class LibraryPersonElement extends Brick {
 	#id = 0;
@@ -14,6 +15,7 @@ class LibraryPersonElement extends Brick {
 
 	connect( signal ) {
 		const $description = this.querySelector( '[data-html="description"]' );
+		const $name = this.querySelector( '[data-field="name"]' );
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePersonBooks() );
@@ -47,6 +49,14 @@ class LibraryPersonElement extends Brick {
 					// HTML as the API renders it, among the few tags core keeps when it saves a description.
 					$description.innerHTML = person.description;
 					$description.hidden = ! person.description;
+				}
+			),
+			store.select(
+				( state ) => state.person.name,
+				( name ) => {
+					if ( name && 'forward' === store.get().moved ) {
+						$name.focus( { preventScroll: true } );
+					}
 				}
 			),
 			store.select(

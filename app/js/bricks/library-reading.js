@@ -6,8 +6,8 @@ import { inputList, showErrors } from 'library-app/behaviors';
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in
- * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Saving closes the book; closing it
- * drops what was not saved.
+ * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Saved, it shows the reading saved; leaving the
+ * book drops what was not saved.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
