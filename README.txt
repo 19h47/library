@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.5.1
+Stable tag: 9.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,15 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.0.0 =
+* Breaking: every reading of a book is a read date, an unknown one left empty and first: a book read without date needs an empty read date, and the empty read dates of unread books go. A book read long ago and read again then shows the new reading as a reread. In the reading app, a reading whose date is unknown is added with its own button, as a date field fills in today once touched on an iPhone; in the admin, the read dates are a list with a button to add a reading and one to remove each.
+* Books: a book is in progress, for the first time or again, until a read date ends it. The reading app shows the books in progress first on its home, filters them, and says so on their card; the search keyword is `progress:yes`.
+* Reading app: the dialog of a book shows the volumes of its series in reading order, read or not, which open, and links to their list.
+* Reading app: the filters of the books are in a panel, which counts the books found, and the filters chosen show as pills that remove them; the number of books found is in the title of the list, and the books are ordered by date added, title, rating or latest reading.
+* Reading app: the search keywords show under the search while it is used; an ISBN typed for a book to add shows the book that has it already, and a book to buy is bought from there; a reading saved says so.
+* Reading app: back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop; its name leads back to its home, and back and forward take back the search of their URL.
+* REST API: `POST /wp-json/library/v1/books/<id>` takes a `status`, and the books are ordered by `orderby=rating` or `orderby=read`.
 
 = 8.5.1 =
 * French translation: the roles are functions, as the credits of a comic print them, such as “Couleurs” or “D’après” rather than “Coloriste” or “Auteur adapté”, and the other names of people say both genders, as WordPress does, such as “Auteur/autrice”, without middle dot, which screen readers read badly.
