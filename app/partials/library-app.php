@@ -331,6 +331,15 @@
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<ul class="library-series__parts" data-list="parts"></ul>
 						</section>
+						<?php // The first authors, then the others folded, once there are enough of them. ?>
+						<section class="library-section" data-row="authors" hidden>
+							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
+							<ul class="app-list__items" data-list="authors"></ul>
+							<details class="library-series__more" data-row="more" hidden>
+								<summary class="app-pill" data-field="more"></summary>
+								<ul class="app-list__items" data-list="more"></ul>
+							</details>
+						</section>
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-series>
@@ -780,6 +789,14 @@
 				</h2>
 				<ul class="app-list__items"></ul>
 			</section>
+		</template>
+
+		<template id="library-author">
+			<li class="app-item library-author">
+				<h4 class="library-author__name"></h4>
+				<div class="library-author__description" data-html="description" hidden></div>
+				<p class="app-item__meta" data-field="books"></p>
+			</li>
 		</template>
 
 		<template id="library-achievement">

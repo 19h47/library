@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.5.1
+Stable tag: 9.6.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -88,13 +88,17 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
 * `GET /wp-json/library/v1/people/<id>` – a person, their pseudonyms, their description, their books in the order they first came out, whatever their role, and their reading.
-* `GET /wp-json/library/v1/series/<id>` – a series or a cycle, its cycle, its description, the series of a cycle, its books in reading order, those of its series with them, its reading and its completion.
+* `GET /wp-json/library/v1/series/<id>` – a series or a cycle, its cycle, its description, the series of a cycle, its authors with their description and how many of its books they wrote, its books in reading order, those of its series with them, its reading and its completion.
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
 * `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its people by name with their role, its series after its cycles, its publisher and collection by name, its original language, its form and its meta, to users who can edit it.
 * `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `featured_media` of 0 removes the cover.
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.6.0 =
+* Reading app: the page of a series shows its authors as cards, other roles left out, those who wrote the most first: their name, which leads to their page, their description, clamped at three lines, and how many of its books they wrote, unless it has only one. Past four, three show and the others fold under a pill that counts them, “56 other authors”.
+* REST API: `GET /wp-json/library/v1/series/<id>` gives its `authors`, with their description and how many of its books they wrote.
 
 = 9.5.1 =
 * Reading app: the volumes of a series on the page of a book show their covers as the home does, without a caption under each one; their title counts the ones read, “21 books · 21 read”, and each cover says its reading state to assistive technologies only.

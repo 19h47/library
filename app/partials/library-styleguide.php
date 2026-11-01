@@ -373,6 +373,12 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-author</code>, the authors of a series: with a description, clamped, without</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="app-list__items" data-sample="authors"></ul>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-achievement</code>, earned</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list__items" data-sample="achievements"></ul>

@@ -814,8 +814,11 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * A series, or a cycle: its name after its cycles, its cycle, its description, its series if it is a cycle, its books
-	 * in reading order, those of its series with them, how many are read, and the completion they count for.
+	 * A series, or a cycle: its name after its cycles, its cycle, its description, its series if it is a cycle, its
+	 * authors, its books in reading order, those of its series with them, how many are read, and the completion they count for.
+	 *
+	 * The authors are those of its books under their real name, other roles left out, with their description and how
+	 * many of its books they wrote: those who wrote the most first, then by name.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -838,6 +841,24 @@ class Library_Rest_API {
 			)
 		);
 		$path       = Library_Taxonomies::get_series_path( $series );
+		$book_count = array_count_values( array_merge( ...array_column( $books, 'author_ids' ) ) );
+		$authors    = $book_count ? get_terms(
+			array(
+				'taxonomy'   => 'library_person',
+				'include'    => array_keys( $book_count ),
+				'hide_empty' => false,
+			)
+		) : array();
+		$authors    = is_array( $authors ) ? $authors : array();
+
+		usort(
+			$authors,
+			function ( WP_Term $a, WP_Term $b ) use ( $book_count ): int {
+				$order = $book_count[ $b->term_id ] <=> $book_count[ $a->term_id ];
+
+				return 0 !== $order ? $order : strnatcasecmp( $a->name, $b->name );
+			}
+		);
 
 		return rest_ensure_response(
 			array(
@@ -854,6 +875,15 @@ class Library_Rest_API {
 						'name' => wp_specialchars_decode( $part->name, ENT_QUOTES ),
 					),
 					is_array( $parts ) ? $parts : array()
+				),
+				'authors'     => array_map(
+					fn( WP_Term $author ) => array(
+						'id'          => $author->term_id,
+						'name'        => wp_specialchars_decode( $author->name, ENT_QUOTES ),
+						'description' => term_description( $author ),
+						'books'       => $book_count[ $author->term_id ],
+					),
+					$authors
 				),
 				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),

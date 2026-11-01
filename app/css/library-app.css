@@ -252,14 +252,17 @@ library-home:not([hidden]) + .library-books__title {
 	min-width: 0;
 }
 
-.library-item__title {
+/* The card of an author of a series is the one of a book: their name as its title, their description as its excerpt */
+.library-item__title,
+.library-author__name {
 	font-size: inherit;
 	font-weight: normal;
 	overflow-wrap: anywhere;
 }
 
 /* Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box */
-.library-item__excerpt {
+.library-item__excerpt,
+.library-author__description {
 	display: -webkit-box;
 	overflow: hidden;
 	-webkit-box-orient: vertical;
@@ -672,6 +675,24 @@ library-series > .library-section {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--app-gap);
+}
+
+/* The authors of a series past the first ones, folded under a pill, their cards a gap under it as under the first ones */
+.library-series__more {
+	margin-top: var(--app-gap);
+}
+
+.library-series__more > summary {
+	cursor: pointer;
+}
+
+.library-series__more > summary:hover {
+	color: var(--app-text);
+	border-color: var(--app-line);
+}
+
+.library-series__more > .app-list__items {
+	margin-top: var(--app-gap);
 }
 
 /* The keywords of the search, a gap under its field */
