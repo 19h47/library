@@ -93,12 +93,18 @@ export function formatStatus( book ) {
 	return labels[ book.status ] ?? '';
 }
 
-/** Whether a book is being read, read, or to read unless it is to buy, and its rating. */
+/** Whether a book is being read, read, how many times from two readings, or to read unless it is to buy, and its rating. */
 export function formatState( book ) {
+	const readings = book.read_date.length;
 	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
-	const read = book.read ? __( 'Read', 'library' ) : toRead;
+	const read =
+		readings > 1
+			? /* translators: %s: number of readings of a book, an unknown date included, 2 or more. */
+			  sprintf( _n( 'Read %s time', 'Read %s times', readings, 'library' ), formatNumber( readings ) )
+			: __( 'Read', 'library' );
+	const state = book.read ? read : toRead;
 
-	return join( [ book.in_progress ? __( 'In progress', 'library' ) : read, formatRating( book.rating ) ] );
+	return join( [ book.in_progress ? __( 'In progress', 'library' ) : state, formatRating( book.rating ) ] );
 }
 
 export function join( parts ) {

@@ -15,7 +15,7 @@ const COVER = {
 
 // The cases of a card: the samples are written in English, as code is.
 const BOOKS = [
-	{ title: 'A book with a cover', credits: 'An Author · A Publisher, A Collection · 2024', cover: COVER, read: true, rating: 8 },
+	{ title: 'A book with a cover, read again', credits: 'An Author · A Publisher, A Collection · 2024', cover: COVER, read: true, read_date: [ '', '2026-10-28' ], rating: 8 },
 	{ title: 'A book without a cover', credits: 'An Author · A Publisher · 2024' },
 	{
 		title: 'A book with an excerpt',
@@ -34,7 +34,7 @@ const BOOKS = [
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
-].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, rating: 0, form: '', languages: [], translators: [], ...book } ) );
+].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, read_date: [], rating: 0, form: '', languages: [], translators: [], ...book } ) );
 
 const ACHIEVEMENTS = [
 	{ title: 'An achievement', subject: 'Its subject', detail: 'Its detail', date: '2026-10-28' },
