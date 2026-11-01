@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 8.5.1
+Stable tag: 9.0.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -21,12 +21,12 @@ Library adds a **Book** post type and four taxonomies, **People**, **Publishers*
 * **Books** – Cover, subtitle, series and volume, number in its collection, ISBN, ISSN, number of pages, edition date and date first published, a summary in a few words, notes, read dates and rating from 1 to 10 by half points. A series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”. The number in its collection follows the collection: “Pocket Science-fiction no. 5667”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13. Its form, such as a novel, a comic or a magazine, is one of those added in **Books > Forms**.
 * **People** – Each name of a book is a person, the author unless a role is chosen: translator, colorist, inker, letterer, publishing director or adapted author, the author of the work a book is adapted from or continues, as Goscinny for an Asterix by Ferri. A collective work, a magazine or an anthology, is credited to its publishing directors, “X (dir.)”, else to no one: it is found through each of its people, but counts among the books of none of them.
 * **People, publishers and languages** – Pseudonyms are children of a person's real name, collections children of their publisher: filtering by a person or a publisher includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
-* **Readings** – A book is read or not, with a date per reading: a book read again keeps each one. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
+* **Readings** – A book is read or not, with a date per reading: a book read again keeps each one, and a reading whose date is unknown, left empty, comes first. A book being read, for the first time or again, is in progress until a read date ends it. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, forms, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the search, filtered by reading state, by status and by form, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search, with its keywords at hand, filtered by reading state, by status and by form in a panel, the filters chosen shown as pills that remove them, ordered by date added, title, rating or latest reading, a series in reading order, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person. A book shows the volumes of its series, read or not. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover; an ISBN already in the library shows its book, and a book to buy is bought from there. Back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop.
 * **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, the reading stats, the readings, the reading idea, the achievements and the people: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -51,7 +51,7 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. A book edits its reading: read, read dates, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, with the status of the books shown: to buy from the **To buy** view, or the status the books are filtered by, and the form they are filtered by.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. Its name, at the top, leads back to its home, the books without their search; a view touched again goes back to its top. A book edits its reading: read, in progress, read dates, a date unknown included, rating, and in the library, not kept or to buy; **Edit book** edits the rest, its cover, excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, with the status of the books shown: to buy from the **To buy** view, or the status the books are filtered by, and the form they are filtered by.
 
 = Can several readers share the library? =
 
@@ -59,7 +59,7 @@ No, the plugin has one reader per site. The readings, ratings and statuses like 
 
 = How do I log a book read again? =
 
-In the Information box, fill in the empty field under the read dates: each date is a reading, and a field emptied removes its reading. A book read again counts once per reading in the reading stats, and once, by its first reading, in the achievements that count books.
+In the Information box, or in the reading of the book in the app, add a reading under the read dates: each date is a reading, and its button removes it. A date left empty is an unknown one, such as a reading long ago: the reading counts, before any other, and the first dated one shows as read again. A book read again counts once per reading in the reading stats, and once, by its first reading, in the achievements that count books.
 
 = How do I add a pseudonym or a collection? =
 
@@ -75,7 +75,7 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. People, publishers, original languages and forms are at `/wp-json/wp/v2/people`, `publishers`, `languages` and `forms`; a collection is a publisher with a `parent`. The books of a form are listed with `?forms=<id>`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given.
+Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`. People, publishers, original languages and forms are at `/wp-json/wp/v2/people`, `publishers`, `languages` and `forms`; a collection is a publisher with a `parent`. The books of a form are listed with `?forms=<id>`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given. Besides the orders of core, `orderby=rating` lists the books by rating and `orderby=read` by latest read date, the books without last.
 
 The routes of the plugin, to users who can edit posts:
 
@@ -90,6 +90,15 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.0.0 =
+* Breaking: every reading of a book is a read date, an unknown one left empty and first: a book read without date needs an empty read date, and the empty read dates of unread books go. A book read long ago and read again then shows the new reading as a reread. In the reading app, a reading whose date is unknown is added with its own button, as a date field fills in today once touched on an iPhone; in the admin, the read dates are a list with a button to add a reading and one to remove each.
+* Books: a book is in progress, for the first time or again, until a read date ends it. The reading app shows the books in progress first on its home, filters them, and says so on their card; the search keyword is `progress:yes`.
+* Reading app: the dialog of a book shows the volumes of its series in reading order, read or not, which open, and links to their list.
+* Reading app: the filters of the books are in a panel, which counts the books found, and the filters chosen show as pills that remove them; the number of books found is in the title of the list, and the books are ordered by date added, title, rating or latest reading.
+* Reading app: the search keywords show under the search while it is used; an ISBN typed for a book to add shows the book that has it already, and a book to buy is bought from there; a reading saved says so.
+* Reading app: back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop; its name leads back to its home, and back and forward take back the search of their URL.
+* REST API: `POST /wp-json/library/v1/books/<id>` takes a `status`, and the books are ordered by `orderby=rating` or `orderby=read`.
 
 = 8.5.1 =
 * French translation: the roles are functions, as the credits of a comic print them, such as “Couleurs” or “D’après” rather than “Coloriste” or “Auteur adapté”, and the other names of people say both genders, as WordPress does, such as “Auteur/autrice”, without middle dot, which screen readers read badly.

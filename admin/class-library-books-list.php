@@ -116,7 +116,8 @@ class Library_Books_List {
 					break;
 				}
 
-				$output .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( end( $read_dates ) ) ) );
+				$read_date = end( $read_dates );
+				$output   .= esc_html( '' !== $read_date ? date_i18n( get_option( 'date_format' ), strtotime( $read_date ) ) : __( 'Unknown date', 'library' ) );
 
 				if ( $readings > 1 ) {
 					/* translators: %s: number of readings of a book. */

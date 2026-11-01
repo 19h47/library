@@ -56,7 +56,7 @@ class LibraryStyleguideElement extends Brick {
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
 			people: () => [ 'A Person', '' ].map( ( name ) => this.#renderInput( 'library-edit-person', name ) ),
-			dates: () => [ '2026-10-28', '2126-10-28' ].map( ( date ) => this.#renderInput( 'library-read-date', date ) ),
+			dates: () => [ '', '2026-10-28', '2126-10-28' ].map( ( date ) => this.#renderInput( date ? 'library-read-date' : 'library-read-date-unknown', date ) ),
 		};
 
 		Object.entries( samples ).forEach( ( [ name, render ] ) => this.querySelector( `[data-sample="${ name }"]` ).replaceChildren( ...render() ) );

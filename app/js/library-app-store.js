@@ -4,8 +4,9 @@
  * Created in the head, before the first paint, so the document takes its theme from it.
  * The data come from the REST API through wp.apiFetch, which handles the root URL and the nonce;
  * the store turns the books into plain text once, so no brick parses what the API returns.
- * Each view loads its data the first time it shows. A book saved, its reading or its form, loads every view again,
- * but the one shown; a book added loads them all again.
+ * Each view loads its data the first time it shows, but the books to buy, which load at once and again after a book
+ * saved, whatever the view: kept by the service worker, they show without network, as in a bookshop. A book saved, its
+ * reading or its form, loads every view again, but the one shown; a book added loads them all again.
  *
  * @package    Library
  * @subpackage Library/app
@@ -16,17 +17,23 @@
 
 	const STORAGE_KEY = 'library-app';
 	// Kept between visits. The query, the view, the person and the book open are in the URL only, as ?q=, ?view=, ?person= and ?book=.
-	const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form' ];
+	const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
+	// The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
+	const SORTS = [ 'title', 'rating', 'read' ];
 	// The views of the navigation; the page of a person is another one, opened from a book or an achievement.
 	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
 	const PERSON_VIEW = 'person';
 	// The components of the app, for development: a view out of the navigation, opened by searching its name.
 	const STYLEGUIDE_VIEW = 'styleguide';
-	// The home, the books view without a query, shows the latest readings, the reading idea and the achievements close to be earned.
-	const HOME = [ 'diary', 'idea', 'achievements' ];
+	// The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
+	const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
 	const PER_PAGE = 24;
 	// A search waits for a pause in the typing.
 	const SEARCH_DELAY = 250;
+	// Back to the app after this long, as from another app, its data load again: they may have changed in the admin or on another device.
+	const REFRESH_AFTER_MS = 5 * 60 * 1000;
+	// The most books a page of the API gives.
+	const MAX_PER_PAGE = 100;
 
 	const { apiFetch } = window.wp;
 	const { __ } = window.wp.i18n;
@@ -130,8 +137,8 @@
 
 		return {
 			...meta,
-			// A date stored empty comes back as null.
-			read_date: [ ...new Set( meta.read_date.filter( Boolean ) ) ].sort(),
+			// An unknown date, empty, comes first.
+			read_date: [ ...new Set( meta.read_date ) ].sort(),
 			id: item.id,
 			title: text( item.title.rendered ),
 			excerpt: text( item.excerpt.rendered ),
@@ -208,12 +215,14 @@
 			themeChosen: null !== theme,
 			view: viewOf( location.href ),
 			query: new URLSearchParams( location.search ).get( 'q' ) ?? '',
-			// "", "yes" or "no": the search keyword read:.
-			read: [ 'yes', 'no' ].includes( saved?.read ) ? saved.read : '',
+			// "", "yes" or "no", the search keyword read:, or "progress", the keyword progress:.
+			read: [ 'yes', 'no', 'progress' ].includes( saved?.read ) ? saved.read : '',
 			// "" for any, or the status of the books shown, such as not kept.
 			status: config.statuses.split( ',' ).includes( saved?.status ) ? saved.status : '',
 			// "" for any, or the term ID of the form of the books shown, such as comics.
 			form: config.forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
+			// "" for the latest added, or one of SORTS.
+			sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
 		};
 	}
 
@@ -227,25 +236,34 @@
 		return 'books' === state.view && ! state.query.trim();
 	}
 
-	/** The search sent to the API: the query, and the read state as the keyword read:. */
+	/** The search sent to the API: the query, and the read state as the keyword read:, or the reading in progress as progress:. */
 	function searchOf( { query, read } ) {
-		return [ query.trim(), read && `read:${ read }` ].filter( Boolean ).join( ' ' );
+		const keyword = 'progress' === read ? 'progress:yes' : read && `read:${ read }`;
+
+		return [ query.trim(), keyword ].filter( Boolean ).join( ' ' );
 	}
 
 	/**
 	 * What a list asks the API for: `search` the books the search finds, of the status chosen, else of any status but
-	 * to buy for the books to read, which are not at hand, and of the form chosen; `toBuy` the books to buy.
+	 * to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen; `toBuy` the books
+	 * to buy; `inProgress` the books being read.
 	 */
 	function queryOf( list, state ) {
 		if ( 'toBuy' === list ) {
 			return { status: config.toBuy };
 		}
 
+		if ( 'inProgress' === list ) {
+			return { search: 'progress:yes', status: config.statuses };
+		}
+
 		const search = searchOf( state );
 		const atHand = config.statuses.split( ',' ).filter( ( item ) => config.toBuy !== item ).join();
 		const status = state.status || ( 'no' === state.read ? atHand : config.statuses );
 
-		return { ...( search && { search } ), status, ...( state.form && { forms: state.form } ) };
+		const order = state.sort && { orderby: state.sort, order: 'title' === state.sort ? 'asc' : 'desc' };
+
+		return { ...( search && { search } ), status, ...( state.form && { forms: state.form } ), ...order };
 	}
 
 	/** SAVED goes to localStorage, the query to the URL. */
@@ -282,14 +300,22 @@
 		return { earned: [], close: [], loading: false, loaded: false, error: '' };
 	}
 
+	/** The books of the series `name` of the book open, in reading order. */
+	function series( name = '' ) {
+		return { ...pages(), name };
+	}
+
 	/** The saving of the reading of the book open. */
 	function saving() {
 		return { loading: false, error: '' };
 	}
 
-	/** The form of a book, to add one or to edit the book `id`, whose values it holds as `book`, and its saving. */
+	/**
+	 * The form of a book, to add one or to edit the book `id`, whose values it holds as `book`, and its saving; `duplicate`
+	 * the book that has the ISBN typed for a book to add.
+	 */
 	function editing( id = 0, book = null ) {
-		return { id, book, open: false, loading: false, error: '' };
+		return { id, book, open: false, loading: false, error: '', duplicate: 0 };
 	}
 
 	/** The names the form of a book suggests, as terms: people and pseudonyms, publishers and collections, original languages. */
@@ -309,21 +335,24 @@
 	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
-	 * `search` the books found, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
-	 * `person` the books of the person open, `book` the book open,
-	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests.
+	 * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
+	 * `person` the books of the person open, `book` the book open, `series` the books of its series,
+	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
+	 * `notice` what an action done says, such as a reading saved, once: a new object each time.
 	 */
 	class LibraryStore extends Store {
 		#timeout = 0;
 		// The request of each list running, `search` or `toBuy`: another one cancels it.
 		#controllers = {};
 		#personController = null;
+		#seriesController = null;
 
 		constructor() {
 			super( {
 				...load(),
 				books: {},
 				search: pages(),
+				inProgress: pages(),
 				diary: pages(),
 				idea: idea(),
 				achievements: achievements(),
@@ -331,9 +360,11 @@
 				stats: null,
 				person: person(),
 				book: 0,
+				series: series(),
 				saving: saving(),
 				editing: editing(),
 				terms: terms(),
+				notice: null,
 			} );
 
 			darkQuery.addEventListener( 'change', ( { matches } ) => {
@@ -342,8 +373,15 @@
 				);
 			} );
 
-			// Back and forward between the views; they open and close the book too.
+			// Back and forward between the views; they open and close the book too, and take back the search of their URL.
 			addEventListener( 'popstate', () => {
+				const query = new URLSearchParams( location.search ).get( 'q' ) ?? '';
+
+				// The books found load again once the books view shows.
+				if ( query !== this.get().query ) {
+					this.set( ( state ) => ( { ...state, query, search: pages() } ) );
+				}
+
 				this.#show( viewOf( location.href ), idOf( location.href, 'person' ) );
 				this.#showBook( idOf( location.href, 'book' ) );
 			} );
@@ -354,14 +392,37 @@
 				}
 			} );
 
+			let hiddenAt = 0;
+
+			document.addEventListener( 'visibilitychange', () => {
+				if ( document.hidden ) {
+					hiddenAt = Date.now();
+				} else if ( hiddenAt && Date.now() - hiddenAt > REFRESH_AFTER_MS ) {
+					this.#refresh();
+				}
+			} );
+
 			this.#show( this.get().view, idOf( location.href, 'person' ) );
 			this.#showBook( idOf( location.href, 'book' ) );
 			this.#fetchStats();
+			this.#load( 'to-buy' );
 		}
 
-		/** Shows a view, at its top, with its URL in the history. */
+		/**
+		 * Shows a view, at its top, with its URL in the history. The view shown, its link touched again, goes back to its
+		 * top; the books to their home, without their search.
+		 */
 		setView( view ) {
-			if ( ! isNamedView( view ) || view === this.get().view ) {
+			if ( ! isNamedView( view ) ) {
+				return;
+			}
+
+			if ( view === this.get().view ) {
+				if ( 'books' === view ) {
+					this.#clearQuery();
+				}
+
+				scrollToTop();
 				return;
 			}
 
@@ -403,6 +464,12 @@
 			scrollToTop();
 		}
 
+		/** The home, as the name of the app leads to it: the books view without its search, at its top. */
+		goHome() {
+			this.setView( 'books' );
+			this.#clearQuery();
+		}
+
 		/** The search of the books; the name of the styleguide opens it, the search left empty behind it. */
 		setQuery( query ) {
 			if ( STYLEGUIDE_VIEW === query.trim().toLowerCase() ) {
@@ -433,13 +500,24 @@
 			this.#fetchList( 'search' );
 		}
 
+		setSort( sort ) {
+			this.set( ( state ) => ( { ...state, sort } ) );
+			this.#fetchList( 'search' );
+		}
+
 		/**
-		 * Shows the books a search finds, read or not, of any status and form, at the top of the books view, such as the books
-		 * of a series from an achievement. The view comes first, so that the query goes to its URL.
+		 * Shows the books a search finds, read or not, of any status and form, in the default order, at the top of the books view, such as the books
+		 * of a series from an achievement or from the book open, which closes, its URL staying in the history. The view comes
+		 * first, so that the query goes to its URL.
 		 */
 		searchBooks( query ) {
-			this.setView( 'books' );
-			this.set( ( state ) => ( { ...state, query, read: '', status: '', form: '' } ) );
+			const url = new URL( location.href );
+
+			this.#hideBook();
+			[ 'view', 'person', 'book' ].forEach( ( name ) => url.searchParams.delete( name ) );
+			history.pushState( null, '', url );
+			this.#show( 'books' );
+			this.set( ( state ) => ( { ...state, query, read: '', status: '', form: '', sort: '' } ) );
 			this.#fetchList( 'search' );
 			scrollToTop();
 		}
@@ -502,6 +580,7 @@
 			url.searchParams.set( 'book', id );
 			history.pushState( { book: id }, '', url );
 			this.set( ( state ) => ( { ...state, book: id, saving: saving() } ) );
+			this.#loadSeries();
 		}
 
 		/** Closes the book open: back in the history when it was opened there, else its URL loses it, so that the app stays. */
@@ -552,6 +631,42 @@
 
 		closeEdit() {
 			this.set( ( state ) => ( state.editing.open ? { ...state, editing: editing() } : state ) );
+		}
+
+		/**
+		 * Looks for the book that has the ISBN typed in the form of a book to add, such as a book to buy found in a bookshop.
+		 * An ISBN has 10 or 13 digits, hyphens aside.
+		 */
+		async checkIsbn( isbn ) {
+			const digits = isbn.replace( /[\s-]/g, '' );
+			const params = new URLSearchParams( { search: `isbn:${ digits }`, status: config.statuses, per_page: 1, _fields: 'id' } );
+			let duplicate = 0;
+
+			if ( [ 10, 13 ].includes( digits.length ) ) {
+				try {
+					const [ found ] = await apiFetch( { path: `/wp/v2/books?${ params }` } );
+
+					await this.#fetchBooks( found ? [ found.id ] : [] );
+					duplicate = found?.id ?? 0;
+				} catch {}
+			}
+
+			this.#update( 'editing', ( current ) => ( current.open && ! current.id ? { duplicate } : {} ) );
+		}
+
+		/** The book to buy `id`, bought: it joins the library, then opens, the form of a book to add closed. Every view loads again. */
+		async buyBook( id ) {
+			this.#update( 'editing', () => ( { loading: true, error: '' } ) );
+
+			try {
+				await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: { status: 'publish' } } );
+				this.#addBooks( [ await apiFetch( { path: `/wp/v2/books/${ id }?${ new URLSearchParams( BOOK_QUERY ) }` } ) ] );
+				this.closeEdit();
+				this.#reloadAll();
+				this.openBook( id );
+			} catch ( error ) {
+				this.#update( 'editing', () => ( { loading: false, error: errorMessage( error ) } ) );
+			}
 		}
 
 		/**
@@ -627,8 +742,10 @@
 		/**
 		 * Saves the reading of the book open, then closes it. Only what changed is sent, so a value the form
 		 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
+		 * It goes through the route of the book form, which writes the read dates at once: the core API, which
+		 * removes a meta value by value, would remove them all with an unknown date, empty.
 		 */
-		async saveReading( { read, readDates, rating, status: chosen } ) {
+		async saveReading( { read, inProgress, readDates, rating, status: chosen } ) {
 			const { book: id, books } = this.get();
 			const book = books[ id ];
 			const dates = [ ...new Set( readDates ) ].sort();
@@ -640,6 +757,10 @@
 
 			if ( read !== book.read ) {
 				meta.library_read = read;
+			}
+
+			if ( inProgress !== book.in_progress ) {
+				meta.library_in_progress = inProgress;
 			}
 
 			if ( read && dates.join() !== book.read_date.join() ) {
@@ -661,10 +782,11 @@
 			this.#update( 'saving', () => ( { loading: true, error: '' } ) );
 
 			try {
-				const item = await apiFetch( { path: `/wp/v2/books/${ id }?${ params }`, method: 'POST', data } );
-
-				this.#addBooks( [ item ] );
+				await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data } );
+				this.#addBooks( [ await apiFetch( { path: `/wp/v2/books/${ id }?${ params }` } ) ] );
 				this.closeBook();
+				// The book closes: the page says it was saved.
+				this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading saved.', 'library' ) } } ) );
 				this.#reload( id );
 			} catch ( error ) {
 				this.#update( 'saving', () => ( { loading: false, error: errorMessage( error ) } ) );
@@ -691,6 +813,13 @@
 			return ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
 		}
 
+		/** Empties the search of the books, unless it is empty. */
+		#clearQuery() {
+			if ( this.get().query ) {
+				this.setQuery( '' );
+			}
+		}
+
 		/** The book open closes, the history left as it is. */
 		#hideBook() {
 			this.set( ( state ) => ( state.book ? { ...state, book: 0, saving: saving() } : state ) );
@@ -712,6 +841,17 @@
 			// The URL may have changed meanwhile, and a book not found does not open.
 			if ( id === idOf( location.href, 'book' ) && id in this.get().books ) {
 				this.set( ( state ) => ( { ...state, book: id, saving: saving() } ) );
+				this.#loadSeries();
+			}
+		}
+
+		/** Loads the books of the series of the book open, unless they are loaded or loading. */
+		#loadSeries() {
+			const { books, book, series: current } = this.get();
+			const name = books[ book ]?.series ?? '';
+
+			if ( name && name !== current.name ) {
+				this.#fetchSeries( name );
 			}
 		}
 
@@ -733,7 +873,10 @@
 			}
 		}
 
-		/** Loads the data of a view, unless they are loaded or loading; the styleguide has none, its samples are written in it. */
+		/**
+		 * Loads the data of a view, or of a part of the home such as the books being read, unless they are loaded or loading;
+		 * the styleguide has none, its samples are written in it.
+		 */
 		#load( view ) {
 			if ( STYLEGUIDE_VIEW === view ) {
 				return;
@@ -742,6 +885,7 @@
 			const state = this.get();
 			const loaders = {
 				books: [ state.search, () => this.#fetchList( 'search' ) ],
+				inProgress: [ state.inProgress, () => this.#fetchList( 'inProgress' ) ],
 				diary: [ state.diary, () => this.#fetchDiary( 1 ) ],
 				idea: [ state.idea, () => this.#fetchIdea( 0 ) ],
 				achievements: [ state.achievements, () => this.#fetchAchievements() ],
@@ -768,13 +912,17 @@
 			this.set( ( state ) => ( {
 				...state,
 				search: 'books' === view ? state.search : pages(),
+				inProgress: home ? state.inProgress : pages(),
 				toBuy: 'to-buy' === view ? state.toBuy : pages(),
 				diary: 'diary' === view || home ? state.diary : pages(),
 				idea: 'idea' === view || home ? state.idea : idea(),
 				achievements: 'achievements' === view || home ? state.achievements : achievements(),
 				person: PERSON_VIEW === view ? state.person : person(),
+				// Its reading states may have changed.
+				series: series(),
 			} ) );
 			this.#fetchStats();
+			this.#load( 'to-buy' );
 
 			if ( 'books' === view ) {
 				this.#refreshList( 'search', id );
@@ -784,8 +932,64 @@
 				this.#refreshList( 'toBuy', id );
 			}
 
+			if ( home ) {
+				this.#fetchList( 'inProgress' );
+			}
+
 			if ( 'diary' === view || home ) {
 				this.#refreshDiary();
+			}
+
+			if ( 'achievements' === view || home ) {
+				this.#fetchAchievements();
+			}
+
+			if ( PERSON_VIEW === view ) {
+				this.#fetchPerson();
+			}
+		}
+
+		/**
+		 * Back to the app after a while: the stats and the views but the one shown load again, as after a book saved, and so do the
+		 * names to suggest; the view shown loads again in place, a list as long as it was.
+		 */
+		#refresh() {
+			const { view, search: found, toBuy: bought, idea: shown } = this.get();
+			const home = isHome( this.get() );
+
+			this.set( ( state ) => ( {
+				...state,
+				search: 'books' === view ? state.search : pages(),
+				inProgress: home ? state.inProgress : pages(),
+				toBuy: 'to-buy' === view ? state.toBuy : pages(),
+				diary: 'diary' === view || home ? state.diary : pages(),
+				idea: 'idea' === view || home ? state.idea : idea(),
+				achievements: 'achievements' === view || home ? state.achievements : achievements(),
+				person: PERSON_VIEW === view ? state.person : person(),
+				series: series(),
+				terms: terms(),
+			} ) );
+			this.#fetchStats();
+			this.#load( 'to-buy' );
+
+			if ( 'books' === view ) {
+				this.#fetchList( 'search', 0, found.items.length );
+			}
+
+			if ( 'to-buy' === view ) {
+				this.#fetchList( 'toBuy', 0, bought.items.length );
+			}
+
+			if ( home ) {
+				this.#fetchList( 'inProgress' );
+			}
+
+			if ( 'diary' === view || home ) {
+				this.#refreshDiary();
+			}
+
+			if ( 'idea' === view || home ) {
+				this.#fetchIdea( shown.position );
 			}
 
 			if ( 'achievements' === view || home ) {
@@ -804,14 +1008,17 @@
 			this.set( ( state ) => ( {
 				...state,
 				search: pages(),
+				inProgress: pages(),
 				diary: pages(),
 				idea: idea(),
 				achievements: achievements(),
 				toBuy: pages(),
 				person: person( current.id ),
+				series: series(),
 				terms: terms(),
 			} ) );
 			this.#fetchStats();
+			this.#load( 'to-buy' );
 			this.#show( view, current.id );
 		}
 
@@ -852,11 +1059,12 @@
 		}
 
 		/**
-		 * The books of a list from `offset`, `search` or `toBuy`: from 0 they replace the books of the list, from further they
+		 * The books of a list from `offset`, `search`, `inProgress` or `toBuy`: from 0 they replace the books of the list, from further they
 		 * add to them. An offset rather than a page, as a book may have left the list. A new request of the list cancels the
-		 * one running; for the search, it cancels the one waiting for a pause in the typing.
+		 * one running; for the search, it cancels the one waiting for a pause in the typing. `count` books at least load, up to
+		 * a page of the API, so that a list loaded again keeps its length.
 		 */
-		async #fetchList( list, offset = 0 ) {
+		async #fetchList( list, offset = 0, count = PER_PAGE ) {
 			if ( 'search' === list ) {
 				clearTimeout( this.#timeout );
 			}
@@ -868,7 +1076,7 @@
 			const params = new URLSearchParams( {
 				...BOOK_QUERY,
 				...queryOf( list, this.get() ),
-				per_page: PER_PAGE,
+				per_page: Math.min( Math.max( count, PER_PAGE ), MAX_PER_PAGE ),
 				offset,
 			} );
 
@@ -1066,6 +1274,32 @@
 			}
 		}
 
+		/** The books of the series `name`, in reading order, as a search for it lists them. Another series cancels the one loading. */
+		async #fetchSeries( name ) {
+			this.#seriesController?.abort();
+			this.#seriesController = new AbortController();
+
+			const { signal } = this.#seriesController;
+			const params = new URLSearchParams( {
+				...BOOK_QUERY,
+				search: `series:"${ name }"`,
+				status: config.statuses,
+				per_page: MAX_PER_PAGE,
+			} );
+
+			this.set( ( state ) => ( { ...state, series: { ...series( name ), loading: true } } ) );
+
+			try {
+				const ids = this.#addBooks( await apiFetch( { path: `/wp/v2/books?${ params }`, signal } ) );
+
+				this.#update( 'series', () => ( { items: ids, total: ids.length, loading: false, loaded: true } ) );
+			} catch ( error ) {
+				if ( 'AbortError' !== error?.name ) {
+					this.#update( 'series', () => ( { loading: false, loaded: true, error: errorMessage( error ) } ) );
+				}
+			}
+		}
+
 		async #fetchAchievements() {
 			this.#update( 'achievements', () => ( { loading: true, error: '' } ) );
 
@@ -1123,4 +1357,7 @@
 	);
 
 	window.store = store;
+
+	// The app and what it loaded, kept for a visit without network: the URL of the app is the scope of its service worker.
+	navigator.serviceWorker?.register( config.serviceWorkerUrl, { scope: config.appUrl } ).catch( reportError );
 } )();

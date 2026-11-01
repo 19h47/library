@@ -53,7 +53,9 @@
 		<main class="app-page" id="top">
 			<div class="app-content">
 				<header class="app-header">
-					<h1><?php esc_html_e( 'Library', 'library' ); ?></h1>
+					<library-app-name>
+						<h1><a href="<?php echo esc_url( $views['books']['url'] ); ?>"><?php esc_html_e( 'Library', 'library' ); ?></a></h1>
+					</library-app-name>
 					<library-nav>
 						<nav>
 							<ul class="library-nav">
@@ -72,6 +74,8 @@
 					</library-nav>
 				</header>
 
+				<library-offline class="app-status" role="status" hidden><?php esc_html_e( 'Offline: the books shown are the ones loaded before, and nothing can be saved.', 'library' ); ?></library-offline>
+
 				<library-view name="books" <?php echo 'books' === $view ? '' : 'hidden'; ?>>
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
 					<div class="app-controls">
@@ -84,50 +88,108 @@
 								autocomplete="off"
 								enterkeyhint="search"
 							>
+							<?php
+							// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
+							$search_keywords = array(
+								'series:""'              => Library_Meta::get_label( 'library_series' ),
+								'author:""'              => Library_Meta::get_role_choices()['author'],
+								'publisher:""'           => $publisher_labels->singular_name,
+								/* translators: %s: current year. */
+								'read:' . wp_date( 'Y' ) => sprintf( __( 'Read in %s', 'library' ), wp_date( 'Y' ) ),
+								'rating:9'               => __( 'Rated 9 or more', 'library' ),
+							);
+							?>
+							<p class="library-search__keywords" hidden>
+								<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
+								<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
+									<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
+								<?php endforeach; ?>
+							</p>
 						</library-search>
-						<library-count class="app-pill" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
-						<library-read-filter>
+						<?php
+						// The filters of the books and their choices: their fields in a dialog, the choices made as pills that remove them.
+						$book_filters = array(
+							'read'   => array(
+								'label'   => __( 'Reading state', 'library' ),
+								'options' => array(
+									''         => $labels->all_items,
+									'yes'      => __( 'Read', 'library' ),
+									'no'       => __( 'To read', 'library' ),
+									// Apart from the read state: the keyword progress:.
+									'progress' => Library_Meta::get_label( 'library_in_progress' ),
+								),
+							),
+							'status' => array(
+								'label'   => __( 'Library', 'library' ),
+								'options' => array( '' => _x( 'Everywhere', 'books of any status', 'library' ) ) + $status_choices,
+							),
+						);
+
+						if ( $form_choices ) {
+							$book_filters['form'] = array(
+								'label'   => $form_labels->singular_name,
+								'options' => array( '' => $form_labels->all_items ) + $form_choices,
+							);
+						}
+						?>
+						<library-filters>
+							<button class="app-pill" type="button" data-action="open-filters" aria-haspopup="dialog">
+								<span data-field="label"><?php esc_html_e( 'Filters', 'library' ); ?></span>
+							</button>
+							<p class="library-filters__chosen" hidden>
+								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
+									<?php foreach ( array_filter( $filter_args['options'], 'strlen', ARRAY_FILTER_USE_KEY ) as $value => $label ) : ?>
+										<button class="app-pill" type="button" data-filter="<?php echo esc_attr( $book_filter ); ?>" data-value="<?php echo esc_attr( $value ); ?>" hidden>
+											<span class="sr-only"><?php esc_html_e( 'Remove the filter:', 'library' ); ?></span>
+											<?php echo esc_html( $label ); ?>
+											<span aria-hidden="true">×</span>
+										</button>
+									<?php endforeach; ?>
+								<?php endforeach; ?>
+							</p>
+							<dialog class="library-filters__dialog" aria-labelledby="library-filters-title">
+								<form class="app-toolbar" method="dialog">
+									<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+								</form>
+								<h2 class="library-book__title" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
+								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
+									<?php echo '<library-' . esc_attr( $book_filter ) . '-filter>'; ?>
+										<?php
+										Library::render_component(
+											'field',
+											array(
+												'id'      => "library-{$book_filter}-filter",
+												'label'   => $filter_args['label'],
+												'control' => Library::get_select( $filter_args['options'] ),
+											)
+										);
+										?>
+									<?php echo '</library-' . esc_attr( $book_filter ) . '-filter>'; ?>
+								<?php endforeach; ?>
+								<form method="dialog">
+									<button class="app-pill app-pill--primary" type="submit" data-field="show"></button>
+								</form>
+							</dialog>
+						</library-filters>
+						<library-sort>
 							<?php
 							Library::render_component(
 								'pill-select',
 								array(
-									'id'      => 'library-read-filter',
-									'label'   => __( 'Reading state', 'library' ),
-									'options' => array(
-										''    => $labels->all_items,
-										'yes' => __( 'Read', 'library' ),
-										'no'  => __( 'To read', 'library' ),
+									'id'         => 'library-sort',
+									'label'      => __( 'Order', 'library' ),
+									'options'    => array(
+										''       => __( 'Latest added', 'library' ),
+										'title'  => __( 'Title', 'library' ),
+										'rating' => Library_Meta::get_label( 'library_rating' ),
+										'read'   => __( 'Latest read', 'library' ),
 									),
+									// The order of a search for a series, which lists it in reading order.
+									'attributes' => array( 'data-series' => __( 'Reading order', 'library' ) ),
 								)
 							);
 							?>
-						</library-read-filter>
-						<library-status-filter>
-							<?php
-							Library::render_component(
-								'pill-select',
-								array(
-									'id'      => 'library-status-filter',
-									'label'   => __( 'Library', 'library' ),
-									'options' => array( '' => _x( 'Everywhere', 'books of any status', 'library' ) ) + $status_choices,
-								)
-							);
-							?>
-						</library-status-filter>
-						<?php if ( $form_choices ) : ?>
-							<library-form-filter>
-								<?php
-								Library::render_component(
-									'pill-select',
-									array(
-										'id'      => 'library-form-filter',
-										'label'   => $form_labels->singular_name,
-										'options' => array( '' => $form_labels->all_items ) + $form_choices,
-									)
-								);
-								?>
-							</library-form-filter>
-						<?php endif; ?>
+						</library-sort>
 					</div>
 
 					<library-home>
@@ -136,6 +198,10 @@
 							<p data-field="projection"></p>
 							<p data-field="toRead"></p>
 						</library-year>
+						<library-in-progress class="library-section" hidden>
+							<h3 class="library-title"><?php echo esc_html( Library_Meta::get_label( 'library_in_progress' ) ); ?></h3>
+							<ul class="library-covers"></ul>
+						</library-in-progress>
 						<library-latest class="library-section" hidden>
 							<h3 class="library-title">
 								<?php esc_html_e( 'Latest readings', 'library' ); ?>
@@ -159,8 +225,11 @@
 							</h3>
 							<ul class="app-list__items"></ul>
 						</library-close>
-						<h3 class="library-title library-section"><?php echo esc_html( $labels->name ); ?></h3>
 					</library-home>
+					<h3 class="library-title library-books__title">
+						<?php echo esc_html( $labels->name ); ?>
+						<library-count class="library-title__count" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+					</h3>
 
 					<library-status class="app-status" hidden></library-status>
 					<library-list>
@@ -278,6 +347,8 @@
 			</library-theme-toggle>
 		</div>
 
+		<library-notice class="library-notice app-pill" role="status"></library-notice>
+
 		<library-book>
 			<dialog class="library-book" aria-labelledby="library-book-title">
 				<form class="app-toolbar" method="dialog">
@@ -299,6 +370,14 @@
 									'id'      => 'library-reading-read',
 									'label'   => Library_Meta::get_label( 'library_read' ),
 									'control' => Library_Meta::get_control( 'library_read' ),
+								)
+							);
+							Library::render_component(
+								'pill-checkbox',
+								array(
+									'id'      => 'library-reading-in-progress',
+									'label'   => Library_Meta::get_label( 'library_in_progress' ),
+									'control' => Library_Meta::get_control( 'library_in_progress' ),
 								)
 							);
 							Library::render_component(
@@ -325,12 +404,15 @@
 						Library::render_component(
 							'input-list',
 							array(
-								'class'      => 'library-reading__dates',
-								'legend'     => Library_Meta::get_label( 'library_read_date' ),
-								'required'   => true,
-								'add'        => __( 'Add a reading', 'library' ),
-								'action'     => 'add',
-								'attributes' => array(
+								'id'          => 'library-reading-dates',
+								'class'       => 'library-reading__dates',
+								'legend'      => Library_Meta::get_label( 'library_read_date' ),
+								'description' => Library_Meta::get_description( 'library_read_date' ),
+								'add'         => __( 'Add a reading', 'library' ),
+								'action'      => 'add',
+								// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
+								'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
+								'attributes'  => array(
 									'hidden'   => true,
 									'disabled' => true,
 								),
@@ -343,6 +425,14 @@
 						</p>
 					</form>
 				</library-reading>
+				<library-series class="library-book__series" hidden>
+					<h3 class="library-title">
+						<span data-field="name"></span>
+						<span class="library-title__count" data-field="count"></span>
+						<a class="library-title__link" data-link="series" href=""><?php esc_html_e( 'See the list', 'library' ); ?></a>
+					</h3>
+					<ul class="library-covers"></ul>
+				</library-series>
 				<dl class="library-book__fields">
 					<div data-row="authors">
 						<dt><?php echo esc_html( $person_labels->name ); ?></dt>
@@ -473,6 +563,15 @@
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Library::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
+					?>
+					<p class="library-edit__duplicate" role="status">
+						<span data-row="duplicate" hidden>
+							<?php esc_html_e( 'Already added:', 'library' ); ?>
+							<a data-field="duplicate" href=""></a>
+							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
+						</span>
+					</p>
+					<?php
 					Library::render_component(
 						'field',
 						array(
@@ -564,14 +663,25 @@
 				<?php
 				$control = Library_Meta::get_control(
 					'library_read_date',
-					array(
-						'required'   => true,
-						'aria-label' => __( 'Read date', 'library' ),
-					)
+					array( 'aria-label' => __( 'Read date', 'library' ) )
 				);
 
 				echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 				?>
+				<button
+					class="app-control"
+					type="button"
+					data-action="remove"
+					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
+					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
+				>×</button>
+			</li>
+		</template>
+
+		<template id="library-read-date-unknown">
+			<li class="library-input-list__item">
+				<input type="hidden" name="library_read_date" value="">
+				<span class="library-input-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
 				<button
 					class="app-control"
 					type="button"
@@ -590,6 +700,7 @@
 						<span class="library-cover__title" data-field="title"></span>
 					</span>
 				</button>
+				<span class="library-cover__caption app-item__meta" data-field="caption" hidden></span>
 			</li>
 		</template>
 

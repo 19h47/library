@@ -428,17 +428,19 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>input-list</code>, the read dates of a book, required, the second one in error</figcaption>
+				<figcaption><code>input-list</code>, the read dates of a book, with a description, the first one unknown, the last one in error</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Library::render_component(
 						'input-list',
 						array(
-							'legend'   => 'Read dates',
-							'required' => true,
-							'add'      => 'Add a reading',
-							'action'   => 'add',
-							'list'     => array( 'data-sample' => 'dates' ),
+							'id'          => 'library-styleguide-dates',
+							'legend'      => 'Read dates',
+							'description' => 'One date per reading, left empty when it is unknown.',
+							'add'         => 'Add a reading',
+							'action'      => 'add',
+							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
+							'list'        => array( 'data-sample' => 'dates' ),
 						)
 					);
 					?>

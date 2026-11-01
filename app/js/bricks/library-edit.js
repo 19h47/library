@@ -1,4 +1,4 @@
-import { editUrl, store, toBuy } from 'library-app/app';
+import { bookUrl, editUrl, store, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
 import { inputList, showErrors } from 'library-app/behaviors';
@@ -12,7 +12,8 @@ function renderOptions( terms, value = ( term ) => term.name ) {
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
  * Its cover, title, excerpt, notes, people, publisher and collection, ISBN, form, its status when it is added, the one of the
  * list shown (the reading of a book changes it after), and more details. The names typed are suggested
- * among those of the library, the collections among those of the publisher; a name not found is added.
+ * among those of the library, the collections among those of the publisher; a name not found is added. For a book to add,
+ * an ISBN typed that a book has already shows it, which opens, and a book to buy is bought from there.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
@@ -36,6 +37,9 @@ class LibraryEditElement extends Brick {
 		const $details = this.querySelector( '.library-edit__details' );
 		const $admin = this.querySelector( '[data-link="admin"]' );
 		const $submit = $form.querySelector( '[type="submit"]' );
+		const $isbn = $form.elements.library_isbn;
+		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
+		const $buy = this.querySelector( '[data-action="buy"]' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -68,6 +72,31 @@ class LibraryEditElement extends Brick {
 		};
 
 		$dialog.addEventListener( 'close', () => store.closeEdit(), { signal } );
+
+		$isbn.addEventListener(
+			'change',
+			() => {
+				if ( ! store.get().editing.id ) {
+					store.checkIsbn( $isbn.value );
+				}
+			},
+			{ signal }
+		);
+
+		$duplicate.addEventListener(
+			'click',
+			( event ) => {
+				const id = Number( $duplicate.dataset.book );
+
+				event.preventDefault();
+				// The form closed forgets the book.
+				store.closeEdit();
+				store.openBook( id );
+			},
+			{ signal }
+		);
+
+		$buy.addEventListener( 'click', () => store.buyBook( Number( $duplicate.dataset.book ) ), { signal } );
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
 		$cover.addEventListener( 'change', showCover, { signal } );
 
@@ -184,6 +213,17 @@ class LibraryEditElement extends Brick {
 					// A book whose values could not be loaded is not saved.
 					$submit.disabled = editing.loading || Boolean( editing.id && ! editing.book );
 					fill( this, { error: editing.error } );
+				}
+			),
+			store.select(
+				( state ) => state.editing.duplicate,
+				( id ) => {
+					const book = store.get().books[ id ];
+
+					fill( this, { duplicate: book?.title ?? '' } );
+					$duplicate.href = bookUrl + id;
+					$duplicate.dataset.book = id;
+					$buy.hidden = toBuy !== book?.status;
 				}
 			),
 			store.select(

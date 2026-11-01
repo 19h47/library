@@ -28,7 +28,7 @@ class Library_Meta {
 	public const TEXT_KEYS = array( 'library_subtitle', 'library_series', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
 
 	/**
-	 * Date meta keys, stored as Y-m-d; a book has one read date per reading.
+	 * Date meta keys, stored as Y-m-d; a book has one read date per reading, empty when it is unknown.
 	 *
 	 * @var string[]
 	 */
@@ -82,7 +82,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_read' );
+	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_read', 'library_in_progress' );
 
 	/**
 	 * Register hooks.
@@ -118,6 +118,7 @@ class Library_Meta {
 			'library_rating'            => __( 'Rating', 'library' ),
 			'library_collective'        => __( 'Collective work', 'library' ),
 			'library_read'              => __( 'Read', 'library' ),
+			'library_in_progress'       => __( 'In progress', 'library' ),
 			'library_colorists'         => __( 'Colorists', 'library' ),
 			'library_inkers'            => __( 'Inkers', 'library' ),
 			'library_letterers'         => __( 'Letterers', 'library' ),
@@ -131,6 +132,8 @@ class Library_Meta {
 			'library_series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'library_read_date'         => __( 'One date per reading, left empty when it is unknown.', 'library' ),
+			'library_in_progress'       => __( 'Being read, for the first time or again: a read date added ends the reading.', 'library' ),
 			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 		);
@@ -162,10 +165,12 @@ class Library_Meta {
 				array(
 					'type'              => 'string',
 					'label'             => $labels[ $key ],
+					'description'       => $descriptions[ $key ] ?? '',
 					'single'            => 'library_read_date' !== $key,
 					'show_in_rest'      => array(
 						'schema' => array(
-							'pattern' => '^\d{4}-\d{2}-\d{2}$',
+							// A read date may be unknown.
+							'pattern' => 'library_read_date' === $key ? '^(\d{4}-\d{2}-\d{2})?$' : '^\d{4}-\d{2}-\d{2}$',
 							'format'  => 'date',
 						),
 					),
@@ -243,6 +248,20 @@ class Library_Meta {
 			array(
 				'type'              => 'boolean',
 				'label'             => $labels['library_read'],
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+
+		// Apart from the read state: a book read may be read again.
+		register_post_meta(
+			'library_book',
+			'library_in_progress',
+			array(
+				'type'              => 'boolean',
+				'label'             => $labels['library_in_progress'],
+				'description'       => $descriptions['library_in_progress'],
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -447,13 +466,13 @@ class Library_Meta {
 	}
 
 	/**
-	 * Read dates of a book, one per reading, from the first to the latest.
+	 * Read dates of a book, one per reading, from the first to the latest: an unknown one, empty, comes first.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return string[]
 	 */
 	public static function get_read_dates( int $post_id ): array {
-		$read_dates = array_unique( array_filter( get_post_meta( $post_id, 'library_read_date', false ) ) );
+		$read_dates = array_unique( get_post_meta( $post_id, 'library_read_date', false ) );
 
 		sort( $read_dates );
 
@@ -461,8 +480,8 @@ class Library_Meta {
 	}
 
 	/**
-	 * Read dates of a book with the latest one replaced by the given date, or removed when it is empty:
-	 * quick edit edits the latest reading.
+	 * Read dates of a book with the latest one replaced by the given date, empty when it is unknown:
+	 * quick edit edits the latest reading. A book without reading gets one only when a date is given.
 	 *
 	 * @param int    $post_id   Post ID.
 	 * @param string $read_date Date of the latest reading, Y-m-d, or empty.
@@ -470,6 +489,10 @@ class Library_Meta {
 	 */
 	public static function replace_latest_read_date( int $post_id, string $read_date ): array {
 		$read_dates = self::get_read_dates( $post_id );
+
+		if ( ! $read_dates ) {
+			return array_filter( array( $read_date ) );
+		}
 
 		array_pop( $read_dates );
 
@@ -481,14 +504,16 @@ class Library_Meta {
 	 *
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
 	 * Values are saved in the order of KEYS, whatever the order of the form fields.
-	 * A book marked as read without a read date gets today.
+	 * A book read keeps a reading: marked as read without a read date, it gets today; read already and its read dates
+	 * all removed, it gets an unknown one. A read date added ends the reading in progress.
 	 *
 	 * @param int   $post_id Post ID.
 	 * @param array $values  Unslashed values keyed by meta key.
 	 * @return void
 	 */
 	public static function save( int $post_id, array $values ): void {
-		$was_read = (bool) get_post_meta( $post_id, 'library_read', true );
+		$was_read   = (bool) get_post_meta( $post_id, 'library_read', true );
+		$read_dates = self::get_read_dates( $post_id );
 
 		foreach ( self::KEYS as $key ) {
 			if ( ! array_key_exists( $key, $values ) ) {
@@ -510,23 +535,26 @@ class Library_Meta {
 			update_post_meta( $post_id, $key, wp_slash( $value ) );
 		}
 
-		$marked_read = ! $was_read && (bool) get_post_meta( $post_id, 'library_read', true );
+		if ( get_post_meta( $post_id, 'library_read', true ) && ! self::get_read_dates( $post_id ) ) {
+			add_post_meta( $post_id, 'library_read_date', $was_read ? '' : current_time( 'Y-m-d' ) );
+		}
 
-		if ( $marked_read && ! self::get_read_dates( $post_id ) ) {
-			add_post_meta( $post_id, 'library_read_date', current_time( 'Y-m-d' ) );
+		if ( array_diff( self::get_read_dates( $post_id ), $read_dates ) ) {
+			delete_post_meta( $post_id, 'library_in_progress' );
 		}
 	}
 
 	/**
-	 * Replace the read dates of a book, one row per reading; empty and invalid dates are dropped, a date is kept once.
+	 * Replace the read dates of a book, one row per reading; an empty or invalid date is an unknown one, and a date,
+	 * known or not, is kept once.
 	 *
 	 * @param int   $post_id    Post ID.
-	 * @param array $read_dates Read dates, Y-m-d.
+	 * @param array $read_dates Read dates, Y-m-d, or empty.
 	 * @return void
 	 */
 	private static function save_read_dates( int $post_id, array $read_dates ): void {
 		$read_dates = array_map( fn( $read_date ) => sanitize_meta( 'library_read_date', $read_date, 'post', 'library_book' ), $read_dates );
-		$read_dates = array_unique( array_filter( $read_dates ) );
+		$read_dates = array_unique( $read_dates );
 
 		sort( $read_dates );
 

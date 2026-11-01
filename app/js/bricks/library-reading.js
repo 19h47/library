@@ -5,23 +5,25 @@ import { fill } from 'library-app/render';
 import { inputList, showErrors } from 'library-app/behaviors';
 
 /**
- * The reading of the book open, as a form: whether it is read, its read dates, its rating and whether it is in the library, not kept or to buy.
- * Saving closes the book; closing it drops what was not saved.
+ * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in
+ * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Saving closes the book; closing it
+ * drops what was not saved.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
 		const $form = this.querySelector( 'form' );
-		const { library_read: $read, library_rating: $rating, status: $status } = $form.elements;
+		const { library_read: $read, library_in_progress: $inProgress, library_rating: $rating, status: $status } = $form.elements;
 		const $dates = this.querySelector( '.library-reading__dates' );
 		const $list = $dates.querySelector( 'ul' );
 		const $add = $dates.querySelector( '[data-action="add"]' );
+		const $addUnknown = $dates.querySelector( '[data-action="add-unknown"]' );
 		const $submit = $form.querySelector( '[type="submit"]' );
 
-		// A reading is today, unless changed, and never later.
+		// A reading is today, unless changed, and never later; a reading whose date is unknown has no date input.
 		const addDate = inputList( {
 			$list,
 			$add,
-			id: 'library-read-date',
+			id: ( date ) => ( date ? 'library-read-date' : 'library-read-date-unknown' ),
 			signal,
 			value: today,
 			setup: ( $input ) => {
@@ -30,6 +32,19 @@ class LibraryReadingElement extends Brick {
 		} );
 
 		const clearErrors = showErrors( $form, signal );
+
+		// Its row has no input to focus: its button does. A book has one reading whose date is unknown, the style hides the button once it is there.
+		$addUnknown.addEventListener( 'click', () => addDate( '' ).closest( 'li' ).querySelector( '[data-action="remove"]' ).focus(), { signal } );
+
+		[ $add, $addUnknown ].forEach( ( $button ) =>
+			$button.addEventListener(
+				'click',
+				() => {
+					$inProgress.checked = false;
+				},
+				{ signal }
+			)
+		);
 
 		// Unread, the book has no read dates: they are left out of the form.
 		const showDates = () => {
@@ -43,6 +58,7 @@ class LibraryReadingElement extends Brick {
 				// Read today, unless a date is there already.
 				if ( $read.checked && ! $list.children.length ) {
 					addDate();
+					$inProgress.checked = false;
 				}
 
 				showDates();
@@ -59,6 +75,7 @@ class LibraryReadingElement extends Brick {
 				event.preventDefault();
 				store.saveReading( {
 					read: data.has( 'library_read' ),
+					inProgress: data.has( 'library_in_progress' ),
 					readDates: data.getAll( 'library_read_date' ),
 					rating: rating ? Number( rating ) : null,
 					status: data.get( 'status' ),
@@ -77,6 +94,7 @@ class LibraryReadingElement extends Brick {
 
 					clearErrors();
 					$read.checked = book.read;
+					$inProgress.checked = book.in_progress;
 					$list.replaceChildren();
 					book.read_date.forEach( ( date ) => addDate( date ) );
 					showDates();

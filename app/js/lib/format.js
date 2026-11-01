@@ -93,11 +93,12 @@ export function formatStatus( book ) {
 	return labels[ book.status ] ?? '';
 }
 
-/** Whether a book is read, or to read unless it is to buy, and its rating. */
+/** Whether a book is being read, read, or to read unless it is to buy, and its rating. */
 export function formatState( book ) {
 	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
+	const read = book.read ? __( 'Read', 'library' ) : toRead;
 
-	return join( [ book.read ? __( 'Read', 'library' ) : toRead, formatRating( book.rating ) ] );
+	return join( [ book.in_progress ? __( 'In progress', 'library' ) : read, formatRating( book.rating ) ] );
 }
 
 export function join( parts ) {

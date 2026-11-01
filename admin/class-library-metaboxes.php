@@ -110,6 +110,9 @@ class Library_Metaboxes {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Library_Meta.
 		$values = wp_unslash( $_POST );
 
+		// A book whose readings were all removed sends none.
+		$values['library_read_date'] ??= array();
+
 		Library_Meta::save( $post_id, $values );
 
 		// The names of the book are saved first: a name just added is an author, its role chosen once it is saved.

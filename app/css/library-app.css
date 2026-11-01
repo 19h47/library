@@ -29,10 +29,23 @@
 	hyphens: auto;
 }
 
+/* The name of the app, a link to its home, as its title */
+.app-header h1 a {
+	color: inherit;
+	text-decoration: none;
+}
+
 /* Custom elements are inline: these hold blocks */
+library-app-name,
 library-nav,
 library-view,
 library-home,
+library-in-progress,
+library-series,
+library-offline,
+library-read-filter,
+library-status-filter,
+library-form-filter,
 library-latest,
 library-idea,
 library-close,
@@ -43,6 +56,63 @@ library-styleguide {
 /* A view spaces its controls from what they act on, as the content of the page does */
 library-view > .app-controls {
 	margin-bottom: var(--app-u3);
+}
+
+/* The button of the filters and their choices made take their place among the controls: the choices on a line of their own, after the order */
+library-filters {
+	display: contents;
+}
+
+.library-filters__chosen {
+	order: 1;
+	flex-basis: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-gap);
+}
+
+/* The filters: on a phone, a sheet from the bottom of the screen; beyond, a dialog in the middle, as the one of a book */
+.library-filters__dialog {
+	width: 100%;
+	max-width: none;
+	max-height: calc(100dvh - var(--app-u3));
+	margin: auto 0 0;
+	padding: var(--app-u2);
+	padding-top: calc(var(--app-u2) + var(--app-control-size) + var(--app-u1));
+	border: 0;
+	border-top: 1px solid var(--app-line);
+	border-radius: var(--app-radius) var(--app-radius) 0 0;
+	background: var(--app-bg);
+	color: var(--app-text);
+
+	&[open] {
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	&::backdrop {
+		background: color-mix(in srgb, var(--app-bg) 70%, transparent);
+	}
+
+	/* Its button that closes it at its corner, rather than at the one of the screen */
+	& > .app-toolbar {
+		position: absolute;
+	}
+}
+
+@media (min-width: 42rem) {
+	.library-filters__dialog {
+		width: min(100% - 2 * var(--app-u2), var(--app-max-width));
+		margin: auto;
+		padding: var(--app-u3);
+		border: 1px solid var(--app-line);
+		border-radius: var(--app-radius);
+	}
+}
+
+/* The title of the books, with their number: under the home when it shows */
+library-home:not([hidden]) + .library-books__title {
+	margin-top: var(--app-u3);
 }
 
 /* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
@@ -63,7 +133,7 @@ library-view > .app-controls {
 }
 
 /* A title heads what follows it: the view, the section or the brick that holds them spaces them */
-:is(library-view, library-home, library-idea, library-styleguide, .library-section) > .library-title {
+:is(library-view, library-home, library-idea, library-series, library-styleguide, .library-section) > .library-title {
 	margin-bottom: var(--app-u1);
 }
 
@@ -315,8 +385,9 @@ library-view > .app-controls {
 	overflow-wrap: anywhere;
 }
 
-/* The reading of the book open and its fields: a line above each */
+/* The reading of the book open, its series and its fields: a line above each */
 .library-reading,
+.library-book__series,
 .library-book__fields {
 	padding-top: var(--app-u1);
 	border-top: 1px solid var(--app-line-soft);
@@ -370,6 +441,15 @@ library-person > .library-person {
 	gap: var(--app-u1);
 }
 
+/* The book that has the ISBN typed already: its message stays in the page, to be read once it shows, out of the flow until then */
+.library-edit__duplicate:has(> [hidden]) {
+	position: absolute;
+}
+
+.library-edit__duplicate [data-action="buy"] {
+	margin-inline-start: var(--app-gap);
+}
+
 .library-reading__pills {
 	display: flex;
 	flex-wrap: wrap;
@@ -378,7 +458,7 @@ library-person > .library-person {
 
 /*
  * A list of inputs, such as the people of a book or its read dates: its legend above it as the label of a field, then
- * its rows and the button that adds one, a gap apart. A row holds its input and the control that removes it.
+ * its rows, its description and the button that adds one, a gap apart. A row holds its input and the control that removes it.
  */
 .library-input-list {
 	display: grid;
@@ -406,8 +486,28 @@ library-person > .library-person {
 }
 
 /* A name keeps room for itself: once a row is too narrow, its role goes under it, as wide as the row beside its button */
-.library-input-list__item input {
+.library-input-list__item :is(input, .library-input-list__text) {
 	flex: 1 1 12em;
+}
+
+/* A row without input, such as a reading whose date is unknown: its text where the input would be, as high as it */
+.library-input-list__text {
+	display: flex;
+	align-items: center;
+	min-block-size: var(--app-control-size);
+	color: var(--app-text-muted);
+}
+
+/* The buttons under the rows, side by side */
+.library-input-list > p {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-gap);
+}
+
+/* A book has one reading whose date is unknown */
+.library-reading__dates:has(input[type="hidden"]) [data-action="add-unknown"] {
+	display: none;
 }
 
 .library-input-list__item select {
@@ -482,7 +582,7 @@ library-person > .library-person {
 	border: 0;
 }
 
-.library-field small {
+:is(.library-field, .library-input-list) > small {
 	color: var(--app-text-muted);
 	font-size: var(--app-font-small);
 }
@@ -503,17 +603,20 @@ library-person > .library-person {
 	margin-top: var(--app-u1);
 }
 
-/* The views and the latest readings: containers, whose width is the one of the content */
+/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
 library-nav,
+library-search,
+library-in-progress,
 library-latest {
 	container-type: inline-size;
 }
 
 /*
- * The views and the covers of the latest readings, in a row that scrolls sideways across the viewport:
+ * The views, the keywords of the search and the covers of the latest readings, in a row that scrolls sideways across the viewport:
  * the first item starts where the content does, the last one ends where it does.
  */
 .library-nav,
+.library-search__keywords,
 .library-covers {
 	/*
 	 * From an edge of the content to the one of the viewport: the page is centered, and has no scrollbar.
@@ -535,13 +638,45 @@ library-latest {
 }
 
 .library-nav li,
+.library-search__keywords > *,
 .library-cover {
 	flex: none;
 	scroll-snap-align: start;
 }
 
+/* The keywords of the search, a gap under its field */
+.library-search__keywords {
+	margin-top: calc(var(--app-gap) - var(--library-focus-room));
+}
+
 .library-cover__button {
 	display: block;
+}
+
+/* The caption of a cover, such as the reading state of a volume of a series, under it */
+.library-cover__caption {
+	display: block;
+	margin-top: var(--app-gap-small);
+}
+
+/* The book open among the covers of its series: its line as firm as the text */
+.library-cover__button[aria-current="true"] :is(.library-cover__image, .library-cover__frame) {
+	border-color: var(--app-text);
+}
+
+/* The series of the book open: a container, its covers going out to the edges of the dialog, across its padding */
+library-series {
+	container-type: inline-size;
+}
+
+.library-book__series .library-covers {
+	--library-bleed: var(--app-u2);
+}
+
+@media (min-width: 42rem) {
+	.library-book__series .library-covers {
+		--library-bleed: var(--app-u3);
+	}
 }
 
 /* A book without cover: its title from its start, in a frame of the size of a cover, a golden rectangle */
@@ -565,6 +700,21 @@ library-latest {
 	overflow: hidden;
 	overflow-wrap: anywhere;
 	hyphens: auto;
+}
+
+/* What an action done says, at the bottom of the screen, over the page; empty, it has no box */
+.library-notice {
+	position: fixed;
+	inset-block-end: var(--app-u2);
+	inset-inline-start: 50%;
+	translate: -50%;
+	background: var(--app-bg);
+	color: var(--app-text);
+
+	&:empty {
+		padding: 0;
+		border: 0;
+	}
 }
 
 /* The styleguide: the tokens, then the components, each in a frame */
