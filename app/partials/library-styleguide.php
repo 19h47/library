@@ -367,7 +367,7 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-cover</code> with <code>__caption</code>, the volumes of a series: read, being read, to read, the book open framed</figcaption>
+				<figcaption><code>.library-cover</code>, the volumes of a series: read, being read, to read, which only assistive technologies hear, the book open framed</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="series"></ul>
 				</div>

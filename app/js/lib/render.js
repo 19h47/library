@@ -111,15 +111,18 @@ export function fillBook( $item, book, state ) {
 	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, form: book.form, original: formatOriginal( book ), status: formatStatus( book ) } );
 }
 
-/** The cover of a book, which opens it, with a caption under it, such as its reading state; a book without cover shows its title instead. */
-export function renderCover( book, caption = '' ) {
+/**
+ * The cover of a book, which opens it, its `state`, such as read, said after its title to assistive technologies only, as
+ * the covers count them above; a book without cover shows its title instead.
+ */
+export function renderCover( book, state = '' ) {
 	const $item = clone( 'library-cover' );
 	const $image = $item.querySelector( '[data-field="cover"]' );
 
 	$item.dataset.id = book.id;
 	$image.alt = book.title;
 	fillCover( $image, book.cover );
-	fill( $item, { title: book.cover ? '' : book.title, caption } );
+	fill( $item, { title: book.cover ? '' : book.title, state } );
 
 	return $item;
 }

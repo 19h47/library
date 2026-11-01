@@ -85,7 +85,7 @@ class LibraryStyleguideElement extends Brick {
 
 	/** The volumes of a series, as the page of the second one shows them. */
 	#renderSeries() {
-		const $covers = [ [ BOOKS[ 0 ], 'Read' ], [ BOOKS[ 4 ], 'In progress' ], [ BOOKS[ 1 ], '' ] ].map( ( [ book, caption ] ) => renderCover( book, caption ) );
+		const $covers = [ [ BOOKS[ 0 ], 'Read' ], [ BOOKS[ 4 ], 'In progress' ], [ BOOKS[ 1 ], '' ] ].map( ( [ book, state ] ) => renderCover( book, state ) );
 
 		$covers[ 1 ].querySelector( 'button' ).setAttribute( 'aria-current', 'true' );
 
