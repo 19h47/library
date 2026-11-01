@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.1.0
+Stable tag: 9.2.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.2.0 =
+* Reading app: a book opens as a page, as a person does, rather than in a dialog: its URL is `?view=book&book=<id>`, a button goes back where it was opened from, on the page of a person too, and going back puts each view back where it was, its focus included. Saving the reading stays on the book. The form of a book stays a dialog over the page.
 
 = 9.1.0 =
 * Reading app: the card of a book read more than once says how many times, “Read 2 times”, an unknown date included.
