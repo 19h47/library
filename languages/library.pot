@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 9.0.0\n"
+"Project-Id-Version: Library 9.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-01T08:49:25+00:00\n"
+"POT-Creation-Date: 2026-11-01T11:30:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -652,12 +652,12 @@ msgstr ""
 #: app/partials/library-app.php:116
 #: includes/class-library-meta.php:120
 #: app/js/bricks/library-series.js:63
-#: app/js/lib/format.js:99
+#: app/js/lib/format.js:104
 msgid "Read"
 msgstr ""
 
 #: app/partials/library-app.php:117
-#: app/js/lib/format.js:98
+#: app/js/lib/format.js:99
 msgid "To read"
 msgstr ""
 
@@ -1325,7 +1325,7 @@ msgstr ""
 
 #: includes/class-library-meta.php:121
 #: app/js/bricks/library-series.js:60
-#: app/js/lib/format.js:101
+#: app/js/lib/format.js:107
 msgid "In progress"
 msgstr ""
 
@@ -1374,7 +1374,7 @@ msgid "When the work first came out, whatever the edition: a year, a year and mo
 msgstr ""
 
 #: includes/class-library-meta.php:135
-msgid "One date per reading, left empty when it is unknown."
+msgid "One date per reading; a reading whose date is unknown has none."
 msgstr ""
 
 #: includes/class-library-meta.php:136
@@ -2183,6 +2183,14 @@ msgstr ""
 msgctxt "book in its original language, short tag"
 msgid "Original"
 msgstr ""
+
+#. translators: %s: number of readings of a book, an unknown date included, 2 or more.
+#: app/js/lib/format.js:103
+#, js-format
+msgid "Read %s time"
+msgid_plural "Read %s times"
+msgstr[0] ""
+msgstr[1] ""
 
 #: app/js/library-app-store.js:173
 msgid "The books could not be loaded."

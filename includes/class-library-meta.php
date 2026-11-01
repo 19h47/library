@@ -132,7 +132,7 @@ class Library_Meta {
 			'library_series'            => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
-			'library_read_date'         => __( 'One date per reading, left empty when it is unknown.', 'library' ),
+			'library_read_date'         => __( 'One date per reading; a reading whose date is unknown has none.', 'library' ),
 			'library_in_progress'       => __( 'Being read, for the first time or again: a read date added ends the reading.', 'library' ),
 			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),

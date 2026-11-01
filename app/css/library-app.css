@@ -490,11 +490,14 @@ library-person > .library-person {
 	flex: 1 1 12em;
 }
 
-/* A row without input, such as a reading whose date is unknown: its text where the input would be, as high as it */
+/* A row without input, such as a reading whose date is unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
 .library-input-list__text {
 	display: flex;
 	align-items: center;
 	min-block-size: var(--app-control-size);
+	padding-inline: 1em;
+	border: 1px solid var(--app-line-soft);
+	border-radius: var(--app-radius);
 	color: var(--app-text-muted);
 }
 

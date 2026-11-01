@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.0.0
+Stable tag: 9.1.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.1.0 =
+* Reading app: the card of a book read more than once says how many times, “Read 2 times”, an unknown date included.
+* Reading app: a reading whose date is unknown shows in the box of a field, as the read dates do, and the read dates say that such a reading has none.
 
 = 9.0.0 =
 * Breaking: every reading of a book is a read date, an unknown one left empty and first: a book read without date needs an empty read date, and the empty read dates of unread books go. A book read long ago and read again then shows the new reading as a reread. In the reading app, a reading whose date is unknown is added with its own button, as a date field fills in today once touched on an iPhone; in the admin, the read dates are a list with a button to add a reading and one to remove each.
