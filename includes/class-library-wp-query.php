@@ -36,20 +36,6 @@ class Library_WP_Query {
 	public const ORDERS = array( 'rating', 'read' );
 
 	/**
-	 * Transient of the IDs of the books in reading order, which every search for a series reads.
-	 *
-	 * @var string
-	 */
-	private const READING_ORDER = 'library_reading_order';
-
-	/**
-	 * Meta of a book its place in reading order depends on, with its title and status: its series, volume, subtitle and dates.
-	 *
-	 * @var string[]
-	 */
-	private const READING_ORDER_KEYS = array( 'library_series', 'library_volume_number', 'library_subtitle', 'library_published_date', 'library_edition_date' );
-
-	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -63,11 +49,6 @@ class Library_WP_Query {
 		add_filter( 'rest_library_book_query', array( $this, 'pass_order' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'order_series_search' ), 10, 2 );
 		add_filter( 'posts_clauses', array( $this, 'order_books' ), 10, 2 );
-		add_action( 'save_post_library_book', array( $this, 'forget_reading_order' ) );
-		add_action( 'delete_post', array( $this, 'forget_reading_order' ) );
-		add_action( 'added_post_meta', array( $this, 'forget_reading_order_of_meta' ), 10, 3 );
-		add_action( 'updated_post_meta', array( $this, 'forget_reading_order_of_meta' ), 10, 3 );
-		add_action( 'deleted_post_meta', array( $this, 'forget_reading_order_of_meta' ), 10, 3 );
 		add_filter( 'get_search_query', array( $this, 'show_typed_search' ) );
 		add_action( 'load-edit.php', array( $this, 'add_help_tab' ) );
 	}
@@ -281,41 +262,7 @@ class Library_WP_Query {
 	 * @return string IDs, separated with commas.
 	 */
 	private static function get_reading_order(): string {
-		$book_ids = get_transient( self::READING_ORDER );
-
-		if ( false === $book_ids ) {
-			$book_ids = implode( ', ', array_column( Library_Books::sort_in_reading_order( Library_Books::get_books() ), 'id' ) );
-			// An expiration keeps it out of the options loaded on every page.
-			set_transient( self::READING_ORDER, $book_ids, DAY_IN_SECONDS );
-		}
-
-		return $book_ids;
-	}
-
-	/**
-	 * Forget the reading order once a book is saved or deleted, its title or status changed with it.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return void
-	 */
-	public function forget_reading_order( int $post_id ): void {
-		if ( 'library_book' === get_post_type( $post_id ) ) {
-			delete_transient( self::READING_ORDER );
-		}
-	}
-
-	/**
-	 * Forget the reading order once a meta it depends on changes, whatever wrote it, such as the REST API.
-	 *
-	 * @param int|int[] $meta_ids Meta ID(s).
-	 * @param int       $post_id  Post ID.
-	 * @param string    $meta_key Meta key.
-	 * @return void
-	 */
-	public function forget_reading_order_of_meta( $meta_ids, int $post_id, string $meta_key ): void {
-		if ( in_array( $meta_key, self::READING_ORDER_KEYS, true ) ) {
-			$this->forget_reading_order( $post_id );
-		}
+		return Library_Cache::remember( 'reading_order', fn() => implode( ', ', array_column( Library_Books::sort_in_reading_order( Library_Books::get_books() ), 'id' ) ) );
 	}
 
 	/**

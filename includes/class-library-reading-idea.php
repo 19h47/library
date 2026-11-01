@@ -103,7 +103,8 @@ class Library_Reading_Idea {
 	 * @return array{id:int,reason:string,position:int,total:int,week:string}|null Null when there is nothing to suggest.
 	 */
 	public function get_idea( int $position = 0 ): ?array {
-		$ideas = $this->get_ideas();
+		// Kept until a book changes, for the day: some ideas read the date, such as the books added lately.
+		$ideas = Library_Cache::remember( 'reading_ideas_' . wp_date( 'Y-m-d' ), fn() => $this->get_ideas() );
 
 		if ( ! $ideas ) {
 			return null;

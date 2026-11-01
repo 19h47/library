@@ -28,6 +28,7 @@ class Library {
 		'includes/class-library-readme.php',
 		'includes/class-library-updater.php',
 		'includes/class-library-books.php',
+		'includes/class-library-cache.php',
 		'includes/class-library-isbn.php',
 		'includes/class-library-meta.php',
 		'includes/class-library-stats.php',
@@ -125,6 +126,7 @@ class Library {
 
 		$plugin_file = plugin_basename( LIBRARY_FILE );
 
+		( new Library_Cache() )->hooks();
 		( new Library_Posts() )->hooks();
 		( new Library_Taxonomies() )->hooks();
 		( new Library_Meta() )->hooks();

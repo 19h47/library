@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.3.0
+Stable tag: 9.4.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.4.0 =
+* Reading app: the reading idea and the achievements come at once, kept until a book changes, as the reading order of the series, rather than computed from every book at each request.
 
 = 9.3.0 =
 * Reading app: faster. A list of books weighs 25 KB rather than 169 KB, the page brings the first data of the home or of a book with it, and the reading order of a series is kept until a book changes. A list loading again fades, a book not loaded yet opens at once, saying it loads, and a save button says it saves.

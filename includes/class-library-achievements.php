@@ -284,11 +284,20 @@ class Library_Achievements {
 
 	/**
 	 * Achievements earned, latest first and undated last, and those close to be earned, with what is done
-	 * and the total, books or pages, closest first.
+	 * and the total, books or pages, closest first; kept until a book changes, as they take every book.
 	 *
 	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool,done:int,total:int}>}
 	 */
 	public function get_achievements(): array {
+		return Library_Cache::remember( 'achievements', fn() => $this->compute_achievements() );
+	}
+
+	/**
+	 * Achievements, from every book: see get_achievements().
+	 *
+	 * @return array
+	 */
+	private function compute_achievements(): array {
 		// A book is dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
 		$books    = array_map(
 			function ( array $book ): array {
