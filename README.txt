@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.7.0
+Stable tag: 9.8.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,7 +87,7 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months, `_embed` adds the books.
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
-* `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their books in the order they first came out, whatever their role, and their reading.
+* `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their series with how many of their books they hold and are read, their books in the order they first came out, whatever their role, and their reading.
 * `GET /wp-json/library/v1/series/<id>` – a series or a cycle, its cycle, its description, the series of a cycle, its authors with their description and how many of its books they wrote, its books in reading order, those of its series with them, its reading and its completion.
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
 * `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its people by name with their role, its series after its cycles, its publisher and collection by name, its original language, its form and its meta, to users who can edit it.
@@ -95,6 +95,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.8.0 =
+* Reading app: the page of a person shows their series as cards, before their books, whatever their role, those with the most of their books first: its name after its cycles, which leads to its page, its description, clamped at three lines, and how many of their books it holds and are read, “9 books · 9 read”. Past four, three show and the others fold under a pill that counts them, “5 other series”.
+* REST API: `GET /wp-json/library/v1/people/<id>` gives their `series`, with their description and how many of their books they hold and are read.
 
 = 9.7.0 =
 * Breaking: `GET /wp-json/library/v1/people/<id>` gives the `other_names` of a person, no longer `pseudonyms`.

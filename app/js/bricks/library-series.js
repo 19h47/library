@@ -1,11 +1,8 @@
 import { __, _n, seriesUrl, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
-import { fill, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, seriesLink } from 'library-app/render';
+import { fill, fillFolded, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, seriesLink } from 'library-app/render';
 import { followBooks, observeEnd, openBooks, openLinks, renderKeyed } from 'library-app/behaviors';
-
-// The authors shown before the others fold: four show all, five fold two.
-const SHOWN_AUTHORS = 3;
 
 /**
  * The page of a series, or of a cycle: its name after its cycles, its cycle, its description, how many of its books are
@@ -19,8 +16,7 @@ class LibrarySeriesElement extends Brick {
 		const $description = this.querySelector( '[data-html="description"]' );
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $parts = this.querySelector( '[data-list="parts"]' );
-		const $authors = this.querySelector( '[data-list="authors"]' );
-		const $more = this.querySelector( '[data-list="more"]' );
+		const $authors = this.querySelector( '[data-row="authors"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( 'series' ) );
 
@@ -70,19 +66,14 @@ class LibrarySeriesElement extends Brick {
 				( authors ) => {
 					// Loaded with its authors.
 					const { total } = store.get().series;
-					const shown = authors.length > SHOWN_AUTHORS + 1 ? SHOWN_AUTHORS : authors.length;
-					const folded = authors.length - shown;
-					/* translators: %s: number of authors of a series, after the first ones. */
-					const more = sprintf( _n( '%s other author', '%s other authors', folded, 'library' ), formatNumber( folded ) );
 
 					// How many of its books an author wrote, unless it has only one.
-					const render = ( author ) => renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' );
-
-					$authors.replaceChildren( ...authors.slice( 0, shown ).map( render ) );
-					$more.replaceChildren( ...authors.slice( shown ).map( render ) );
-					$more.closest( 'details' ).open = false;
-					fill( this, { more: folded ? more : '' } );
-					$authors.closest( '[data-row]' ).hidden = ! authors.length;
+					fillFolded(
+						$authors,
+						authors.map( ( author ) => renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' ) ),
+						/* translators: %s: number of authors of a series, after the first ones. */
+						( folded ) => sprintf( _n( '%s other author', '%s other authors', folded, 'library' ), formatNumber( folded ) )
+					);
 				}
 			),
 			store.select(

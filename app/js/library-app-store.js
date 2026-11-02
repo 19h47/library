@@ -361,12 +361,13 @@
 	}
 
 	/**
-	 * The person open, under the name they are known by: `books` all their book IDs, in order,
+	 * The person open, under the name they are known by: `series` theirs, those with the most of their books first,
+	 * `books` all their book IDs, in order,
 	 * `items` the ones loaded so far, a page at a time; `bookPages` the pages of their books,
 	 * as `pages` counts the pages of the list; `completion` is an achievement; `description` is HTML.
 	 */
 	function person( id = 0 ) {
-		return { ...pages(), id, name: '', otherNames: [], description: '', books: [], read: 0, rating: null, bookPages: 0, completion: null };
+		return { ...pages(), id, name: '', otherNames: [], description: '', series: [], books: [], read: 0, rating: null, bookPages: 0, completion: null };
 	}
 
 	/**
@@ -386,6 +387,7 @@
 				name: text( data.name ),
 				otherNames: data.other_names.map( text ),
 				description: data.description,
+				series: data.series.map( ( item ) => ( { ...item, name: text( item.name ) } ) ),
 				read: data.read,
 				rating: data.rating,
 				bookPages: data.pages,

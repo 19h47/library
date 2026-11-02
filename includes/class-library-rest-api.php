@@ -755,8 +755,8 @@ class Library_Rest_API {
 
 	/**
 	 * A person under the name they are known by, with their other names, such as a pseudonym or their birth name,
-	 * their description, their books and their reading: the books read, the average rating, the pages of their books
-	 * and the completion their books count for.
+	 * their description, their series, their books and their reading: the books read, the average rating, the pages of
+	 * their books and the completion their books count for.
 	 *
 	 * The description is the one of the term, as a theme shows it: its paragraphs and line breaks become HTML,
 	 * among the few tags core keeps when it saves a description.
@@ -765,6 +765,9 @@ class Library_Rest_API {
 	 *
 	 * The books are those of the person under any of their names, kept or not, whatever their role, author or another one,
 	 * such as colorist, as IDs of the core API: in the order they first came out, then by title, those without date last.
+	 *
+	 * The series are those of these books, each one the narrowest, named after its cycles, with its description and how
+	 * many of these books it holds and are read: those with the most first, then by name.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -787,6 +790,25 @@ class Library_Rest_API {
 				'fields'     => 'names',
 			)
 		);
+		$book_count  = array_count_values( array_filter( array_column( $books, 'series_id' ) ) );
+		$read_count  = array_count_values( array_filter( array_column( array_filter( $books, fn( array $book ) => $book['read'] ), 'series_id' ) ) );
+		$series      = $book_count ? get_terms(
+			array(
+				'taxonomy'   => 'library_series',
+				'include'    => array_keys( $book_count ),
+				'hide_empty' => false,
+			)
+		) : array();
+		$series      = is_array( $series ) ? $series : array();
+
+		usort(
+			$series,
+			function ( WP_Term $a, WP_Term $b ) use ( $book_count ): int {
+				$order = $book_count[ $b->term_id ] <=> $book_count[ $a->term_id ];
+
+				return 0 !== $order ? $order : strnatcasecmp( Library_Taxonomies::get_series_path( $a ), Library_Taxonomies::get_series_path( $b ) );
+			}
+		);
 
 		usort(
 			$books,
@@ -805,6 +827,16 @@ class Library_Rest_API {
 				'name'        => $person->name,
 				'other_names' => is_array( $other_names ) ? $other_names : array(),
 				'description' => term_description( $person ),
+				'series'      => array_map(
+					fn( WP_Term $term ) => array(
+						'id'          => $term->term_id,
+						'name'        => Library_Taxonomies::get_series_path( $term ),
+						'description' => term_description( $term ),
+						'books'       => $book_count[ $term->term_id ],
+						'read'        => $read_count[ $term->term_id ] ?? 0,
+					),
+					$series
+				),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
 				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
