@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-02T14:41:14+00:00\n"
+"POT-Creation-Date: 2026-11-02T14:43:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -506,7 +506,7 @@ msgstr ""
 
 #. translators: %s: number of pages.
 #: admin/partials/library-dashboard-idea.php:28
-#: app/js/bricks/library-person.js:38
+#: app/js/bricks/library-person.js:17
 #, php-format,js-format
 msgid "%s page"
 msgid_plural "%s pages"
@@ -2267,44 +2267,34 @@ msgstr ""
 msgid "Show %s"
 msgstr ""
 
+#. translators: %s: average rating of the books of a person, e.g. 7.5.
+#: app/js/bricks/library-person.js:15
+#, js-format
+msgid "%s/10 on average"
+msgstr ""
+
 #. translators: %s: list of the other names of a person, such as a pseudonym or their birth name.
-#: app/js/bricks/library-person.js:30
+#: app/js/bricks/library-person.js:25
 #, js-format
 msgid "Other name: %s"
 msgid_plural "Other names: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: %s: number of books read, after the number of books of a person.
 #. translators: %s: number of books read, after the number of books of a person in a series.
 #. translators: %s: number of books read, after the number of books of a series.
-#: app/js/bricks/library-person.js:34
-#: app/js/bricks/library-person.js:71
-#: app/js/bricks/library-publisher.js:36
-#: app/js/bricks/library-series.js:32
+#. translators: %s: number of books read, after the number of books of a person, a series or a collection.
+#: app/js/bricks/library-person.js:43
 #: app/js/bricks/library-volumes.js:31
+#: app/js/lib/term-page.js:40
 #, js-format
 msgid "%s read"
 msgid_plural "%s read"
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: %s: average rating of the books of a person, e.g. 7.5.
-#: app/js/bricks/library-person.js:36
-#, js-format
-msgid "%s/10 on average"
-msgstr ""
-
-#: app/js/bricks/library-person.js:41
-#: app/js/bricks/library-publisher.js:39
-#: app/js/bricks/library-series.js:35
-#: app/js/bricks/library-status.js:11
-#: app/js/lib/store.js:620
-msgid "No book found."
-msgstr ""
-
 #. translators: %s: number of series of a person, after the first ones.
-#: app/js/bricks/library-person.js:76
+#: app/js/bricks/library-person.js:48
 #, js-format
 msgid "%s other series"
 msgid_plural "%s other series"
@@ -2312,9 +2302,15 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: year a book first came out.
-#: app/js/bricks/library-person.js:99
+#: app/js/bricks/library-person.js:57
 #, js-format
 msgid "First published in %s"
+msgstr ""
+
+#: app/js/bricks/library-status.js:11
+#: app/js/lib/store.js:620
+#: app/js/lib/term-page.js:43
+msgid "No book found."
 msgstr ""
 
 #: app/js/lib/api.js:38
