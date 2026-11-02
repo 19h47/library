@@ -364,12 +364,12 @@ JS;
 	}
 
 	/**
-	 * Register the styles and scripts the page prints: the store in the head, before the first paint, the router then the bricks after the markup.
+	 * Register the styles and scripts the page prints: the theme in the head, before the first paint, the router then the bricks after the markup.
 	 *
 	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
 	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
-	 * all, so that the import map gives them all, with versioned URLs that an update loads again. WordPress gives the store
-	 * and each module their translations.
+	 * all, so that the import map gives them all, with versioned URLs that an update loads again, the store among them.
+	 * WordPress gives each module its translations.
 	 *
 	 * @return void
 	 */
@@ -380,10 +380,10 @@ JS;
 		[ $style_url, $style_version ] = Library::get_asset( 'app/css/library-app.css' );
 		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
 
-		[ $store_url, $store_version ] = Library::get_asset( 'app/js/library-app-store.js' );
-		wp_register_script( 'library-app-store', $store_url, array( 'wp-api-fetch', 'wp-i18n', 'wp-url' ), $store_version, false );
-		wp_set_script_translations( 'library-app-store', 'library', LIBRARY_DIR_PATH . 'languages' );
-		wp_localize_script( 'library-app-store', 'libraryApp', $this->get_config() );
+		// The theme before the first paint, with what the modules take from WordPress: wp.apiFetch, wp.i18n, wp.url and the config.
+		[ $theme_url, $theme_version ] = Library::get_asset( 'app/js/library-app-theme.js' );
+		wp_register_script( 'library-app-theme', $theme_url, array( 'wp-api-fetch', 'wp-i18n', 'wp-url' ), $theme_version, false );
+		wp_localize_script( 'library-app-theme', 'libraryApp', $this->get_config() );
 
 		$shared = array();
 

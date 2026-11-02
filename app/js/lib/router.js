@@ -18,6 +18,8 @@ const PAGE_VIEWS = [ 'book', 'person', 'series', 'publisher' ];
 const app = new URL( appUrl );
 // Where each entry of the history was left, by its key, to put a view gone back to there.
 const places = new Map();
+// Whether the router writes the search in the URL itself: the navigation it makes shows nothing new.
+let isWritingSearch = false;
 
 /** Whether `url` is in the app: its page, whatever it shows. */
 function isApp( url ) {
@@ -63,11 +65,14 @@ export function urlOf( { view = 'books', id = 0, query = '' } ) {
 	return url.href;
 }
 
-/** Goes back to where the view shown was opened from, in the app; a view opened first, as from a link, goes to the home. */
+/**
+ * Goes back to where the view shown was opened from, in the app as it is open; a view opened first, as from a link or
+ * once reloaded, goes to the home.
+ */
 export function back() {
 	const previous = navigation.entries()[ navigation.currentEntry.index - 1 ];
 
-	if ( previous && isApp( previous.url ) ) {
+	if ( previous?.sameDocument ) {
 		navigation.back();
 	} else {
 		navigation.navigate( appUrl );
@@ -76,7 +81,7 @@ export function back() {
 
 navigation.addEventListener( 'navigate', ( event ) => {
 	// A reload loads the page again; a download, a form sent or a page out of the app are the browser's.
-	if ( ! event.canIntercept || event.hashChange || event.downloadRequest || event.formData || 'reload' === event.navigationType || ! isApp( event.destination.url ) ) {
+	if ( isWritingSearch || ! event.canIntercept || event.hashChange || event.downloadRequest || event.formData || 'reload' === event.navigationType || ! isApp( event.destination.url ) ) {
 		return;
 	}
 
@@ -100,6 +105,8 @@ navigation.addEventListener( 'navigate', ( event ) => {
 	} );
 } );
 
+store.show( routeOf( location.href ) );
+
 // The search typed goes to the URL of the books, in place, as a link to the books it finds has it.
 store.select(
 	( state ) => state.query.trim(),
@@ -108,9 +115,9 @@ store.select(
 		const url = urlOf( { ...route, query } );
 
 		if ( 'books' === route.view && url !== location.href ) {
+			isWritingSearch = true;
 			history.replaceState( history.state, '', url );
+			isWritingSearch = false;
 		}
 	}
 );
-
-store.show( routeOf( location.href ) );
