@@ -517,7 +517,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Terms with the most books; pseudonyms count for their real name and collections for their publisher, i.e. their parent,
+	 * Terms with the most books; other names of a person count for their name and collections for their publisher, i.e. their parent,
 	 * and only the terms that count for their taxonomy do.
 	 *
 	 * @param string $taxonomy Taxonomy.
@@ -610,7 +610,7 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Number of terms of a taxonomy with at least one book kept; pseudonyms count for their real name and collections for their publisher,
+	 * Number of terms of a taxonomy with at least one book kept; other names of a person count for their name and collections for their publisher,
 	 * and only the terms that count for their taxonomy do.
 	 *
 	 * @param string $taxonomy Taxonomy.

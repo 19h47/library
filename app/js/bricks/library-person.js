@@ -24,10 +24,10 @@ class LibraryPersonElement extends Brick {
 			store.select(
 				( state ) => state.person,
 				( person ) => {
-					const pseudonyms = sprintf(
-						/* translators: %s: list of the pseudonyms of a person. */
-						_n( 'Pseudonym: %s', 'Pseudonyms: %s', person.pseudonyms.length, 'library' ),
-						listFormat.format( person.pseudonyms )
+					const otherNames = sprintf(
+						/* translators: %s: list of the other names of a person, such as a pseudonym or their birth name. */
+						_n( 'Other name: %s', 'Other names: %s', person.otherNames.length, 'library' ),
+						listFormat.format( person.otherNames )
 					);
 					/* translators: %s: number of books read, after the number of books of a person. */
 					const read = sprintf( _n( '%s read', '%s read', person.read, 'library' ), formatNumber( person.read ) );
@@ -39,7 +39,7 @@ class LibraryPersonElement extends Brick {
 					fill( this, {
 						status: person.error || ( person.loaded && ! person.total ? __( 'No book found.', 'library' ) : '' ),
 						name: person.name,
-						pseudonyms: person.pseudonyms.length ? pseudonyms : '',
+						otherNames: person.otherNames.length ? otherNames : '',
 						summary: person.name ? join( [ formatBooks( person.total ), read, rating, bookPages ] ) : '',
 					} );
 

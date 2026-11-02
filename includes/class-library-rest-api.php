@@ -310,7 +310,7 @@ class Library_Rest_API {
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 				'args'                => array(
 					'id' => array(
-						'description' => __( 'Term ID of the person, or of one of their pseudonyms.', 'library' ),
+						'description' => __( 'Term ID of the person, or of one of their other names.', 'library' ),
 						'type'        => 'integer',
 						'minimum'     => 1,
 					),
@@ -349,7 +349,7 @@ class Library_Rest_API {
 				'default'     => '',
 			),
 			'people'         => array(
-				'description' => __( 'People of the book, by their name or a pseudonym, each with its role, such as colorist; a name not found adds a person.', 'library' ),
+				'description' => __( 'People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person.', 'library' ),
 				'type'        => 'array',
 				'items'       => array(
 					'type'                 => 'object',
@@ -754,15 +754,16 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * A person under their real name, with their pseudonyms, their description, their books and their reading: the books read,
-	 * the average rating, the pages of their books and the completion their books count for.
+	 * A person under the name they are known by, with their other names, such as a pseudonym or their birth name,
+	 * their description, their books and their reading: the books read, the average rating, the pages of their books
+	 * and the completion their books count for.
 	 *
 	 * The description is the one of the term, as a theme shows it: its paragraphs and line breaks become HTML,
 	 * among the few tags core keeps when it saves a description.
 	 *
 	 * The pages add up those of the books with a number of pages, read or not, each book once: 0 when none has one.
 	 *
-	 * The books are those of the person and of their pseudonyms, kept or not, whatever their role, author or another one,
+	 * The books are those of the person under any of their names, kept or not, whatever their role, author or another one,
 	 * such as colorist, as IDs of the core API: in the order they first came out, then by title, those without date last.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -776,9 +777,9 @@ class Library_Rest_API {
 			return new WP_Error( 'library_no_person', get_taxonomy( 'library_person' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books      = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $person->term_id, array( ...$book['author_ids'], ...$book['contributor_ids'] ), true ) );
-		$ratings    = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
-		$pseudonyms = get_terms(
+		$books       = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $person->term_id, array( ...$book['author_ids'], ...$book['contributor_ids'] ), true ) );
+		$ratings     = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
+		$other_names = get_terms(
 			array(
 				'taxonomy'   => 'library_person',
 				'parent'     => $person->term_id,
@@ -802,7 +803,7 @@ class Library_Rest_API {
 			array(
 				'id'          => $person->term_id,
 				'name'        => $person->name,
-				'pseudonyms'  => is_array( $pseudonyms ) ? $pseudonyms : array(),
+				'other_names' => is_array( $other_names ) ? $other_names : array(),
 				'description' => term_description( $person ),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
@@ -817,7 +818,7 @@ class Library_Rest_API {
 	 * A series, or a cycle: its name after its cycles, its cycle, its description, its series if it is a cycle, its
 	 * authors, its books in reading order, those of its series with them, how many are read, and the completion they count for.
 	 *
-	 * The authors are those of its books under their real name, other roles left out, with their description and how
+	 * The authors are those of its books under the name they are known by, other roles left out, with their description and how
 	 * many of its books they wrote: those who wrote the most first, then by name.
 	 *
 	 * @param WP_REST_Request $request Request.

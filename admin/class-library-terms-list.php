@@ -20,7 +20,7 @@
 class Library_Terms_List {
 
 	/**
-	 * Books not kept by term ID, with the pseudonyms counted for their real name.
+	 * Books not kept by term ID, with the other names of a person counted for their name.
 	 *
 	 * @var array<int,int>|null
 	 */
@@ -148,7 +148,7 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Count the books not kept of every term in one query; a real name also counts its pseudonyms' books.
+	 * Count the books not kept of every term in one query; the name of a person also counts the books of their other names.
 	 *
 	 * @return array<int,int>
 	 */
@@ -161,7 +161,7 @@ class Library_Terms_List {
 
 		$this->not_kept_counts = array();
 
-		// Each term, then each real name over itself and its pseudonyms, which overrides its own count.
+		// Each term, then each person over their name and their other names, which overrides its own count.
 		foreach ( array( 'tt.term_id', 'COALESCE( NULLIF( tt.parent, 0 ), tt.term_id )' ) as $group ) {
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $group is one of the two constant expressions above.
 			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.

@@ -119,7 +119,7 @@ class Library_WP_Query {
 
 	/**
 	 * Also match books whose text meta or terms contain the search phrase; a term matches by its parent too,
-	 * so searching for a real name finds its pseudonyms' books and a publisher its collections' books.
+	 * so searching for the name of a person finds the books of their other names and a publisher its collections' books.
 	 *
 	 * @param string   $search Search SQL, starting with " AND ".
 	 * @param WP_Query $query  Query instance.
@@ -293,7 +293,7 @@ class Library_WP_Query {
 		$form_example = _x( 'form:novel', 'search example', 'library' );
 		$keywords     = array(
 			array( array( 'series:SAS' ), __( 'a series, or a cycle with its series, by its exact name', 'library' ) ),
-			array( array( 'author:Tabucchi' ), __( 'an author, with their pseudonyms', 'library' ) ),
+			array( array( 'author:Tabucchi' ), __( 'an author, with their other names', 'library' ) ),
 			array( array( 'publisher:Gallimard' ), __( 'a publisher, with its collections', 'library' ) ),
 			array( array( 'translator:Bruneau' ), __( 'a translator', 'library' ) ),
 			array( array( 'language:it' ), __( 'the original language, by its code or the start of its name', 'library' ) ),
@@ -357,14 +357,14 @@ class Library_WP_Query {
 					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
 					WHERE tt.taxonomy = 'library_series' AND tt.term_id IN ( " . implode( ', ', array_map( 'intval', $series_ids ) ) . ' )';
 			case 'author':
-				// A name of the book without another role, or the real name of its pseudonym: a colorist is not one of its authors.
+				// A name of the book without another role, or the name its person is known by: a colorist is not one of its authors.
 				$roles = Library_Meta::build_roles_table();
 
 				return self::build_term_matches( array( 'library_person' ), $like, "LEFT JOIN {$roles} AS role ON role.post_id = tr.object_id AND role.term_id = tt.term_id", 'role.post_id IS NULL' );
 			case 'publisher':
 				return self::build_term_matches( array( 'library_publisher' ), $like );
 			case 'translator':
-				// A name of the book with the role of translator, or the real name of its pseudonym.
+				// A name of the book with the role of translator, or the name its person is known by.
 				return $wpdb->prepare(
 					"SELECT tr.object_id FROM {$wpdb->postmeta} AS m
 					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_id = m.meta_value AND tt.taxonomy = 'library_person'

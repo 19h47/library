@@ -525,7 +525,7 @@ class Library_Achievements {
 	/**
 	 * The completion the books of an author count for, however many are left; none when they are too few.
 	 *
-	 * @param int $author_id Term ID of the author, under their real name.
+	 * @param int $author_id Term ID of the author, under the name they are known by.
 	 * @return array|null
 	 */
 	public function get_author_completion( int $author_id ): ?array {

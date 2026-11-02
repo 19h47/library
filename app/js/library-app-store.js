@@ -161,7 +161,7 @@
 	function toBook( item ) {
 		// Its meta without the prefix of their keys: library_rating is its rating.
 		const meta = Object.fromEntries( Object.entries( item.meta ).map( ( [ key, value ] ) => [ key.replace( /^library_/, '' ), value ] ) );
-		// As named on the book: a pseudonym opens the page of the person too.
+		// As named on the book: another name opens the page of the person too.
 		const names = item.names.map( ( { id, name } ) => ( { id, name: text( name ) } ) );
 		const roleIds = config.roles.flatMap( ( role ) => meta[ role ] );
 
@@ -355,18 +355,18 @@
 		return { id, book, open: false, loading: false, error: '', duplicate: 0 };
 	}
 
-	/** The names the form of a book suggests, as terms: people and pseudonyms, publishers and collections, original languages. */
+	/** The names the form of a book suggests, as terms: people and their other names, publishers and collections, original languages. */
 	function terms() {
 		return { people: [], publishers: [], series: [], languages: [], loading: false, loaded: false };
 	}
 
 	/**
-	 * The person open, under their real name: `books` all their book IDs, in order,
+	 * The person open, under the name they are known by: `books` all their book IDs, in order,
 	 * `items` the ones loaded so far, a page at a time; `bookPages` the pages of their books,
 	 * as `pages` counts the pages of the list; `completion` is an achievement; `description` is HTML.
 	 */
 	function person( id = 0 ) {
-		return { ...pages(), id, name: '', pseudonyms: [], description: '', books: [], read: 0, rating: null, bookPages: 0, completion: null };
+		return { ...pages(), id, name: '', otherNames: [], description: '', books: [], read: 0, rating: null, bookPages: 0, completion: null };
 	}
 
 	/**
@@ -384,7 +384,7 @@
 			route: 'people',
 			from: ( data ) => ( {
 				name: text( data.name ),
-				pseudonyms: data.pseudonyms.map( text ),
+				otherNames: data.other_names.map( text ),
 				description: data.description,
 				read: data.read,
 				rating: data.rating,
@@ -1398,7 +1398,7 @@
 		}
 
 		/**
-		 * Every person and pseudonym, publisher and collection, series after its cycles, and original language: apiFetch loads
+		 * Every person and their other names, publisher and collection, series after its cycles, and original language: apiFetch loads
 		 * all their pages.
 		 */
 		async #fetchTerms() {
