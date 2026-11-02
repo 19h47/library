@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.9.1
+Stable tag: 9.10.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,12 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.10.0 =
+* Reading app: the page of a collection, or of a publisher, opened from the achievements of a collection and from one collection to another: its name, its publisher and the collection it is part of, its description, how many of its books are read and the completion they count for, its collections, its authors, then its books by collection, each in the order of its number, “Folio no. 1, 2, 4…”.
+* Publishers: collections at any depth, a sub-collection under its collection as the BnF has it, such as Science-fiction under Folio under Gallimard. The credits name it after its collection, “Gallimard, Folio, Science-fiction no. 271”; a search for a publisher or a collection finds the books of its sub-collections; the achievements, the reading idea and the dashboard count them in their collection; the form of the app types a sub-collection after its collection, “Folio, Science-fiction”.
+* REST API: `GET /wp-json/library/v1/publishers/<id>` gives the page of a collection, or of a publisher; the `collection` of `library/v1/books` and `books/<id>` is typed after its collection.
+* Code only: `Library_Taxonomies::get_path_id()` replaces `get_series_id()`, for a series as for a collection; the ranges of the ISBN from the message of 2 November 2026.
 
 = 9.9.1 =
 * Fixed: the dashboard runs faster on MySQL 5.7: the oldest unread book and the average rating by year read took 133 and 59 ms on production, and the achievements, computed again once a day or after a book changes, looked each series up by its name, one query each, 307 in all.
