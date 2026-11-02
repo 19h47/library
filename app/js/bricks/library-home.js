@@ -1,12 +1,9 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { openViews } from 'library-app/behaviors';
 
 /** The home: the books view without a query, above the books. */
 class LibraryHomeElement extends Brick {
-	connect( signal ) {
-		openViews( this, signal );
-
+	connect() {
 		return [
 			store.select(
 				( state ) => ! state.query.trim(),

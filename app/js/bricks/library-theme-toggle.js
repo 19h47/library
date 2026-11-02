@@ -1,4 +1,4 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 
 /** The button that switches between the light and dark themes. */

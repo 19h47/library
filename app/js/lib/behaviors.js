@@ -1,5 +1,5 @@
 /**
- * What bricks share: a book, a view, a person or a search opened on a click, the cards following the books, a list
+ * What bricks share: a book opened from its card or its cover, the cards following the books, a list
  * drawn by keys, the next page as the end of a list comes, a list of inputs to add and remove, the errors of a form at
  * its fields and the button that sends it while it saves.
  *
@@ -7,8 +7,9 @@
  * @subpackage Library/app
  */
 
-import { store } from 'library-app/app';
-import { clone, fillBook, PAGE_LINKS } from 'library-app/render';
+import { store } from 'library-app/store';
+import { clone, fillBook } from 'library-app/render';
+import { urlOf } from 'library-app/router';
 
 // The next page loads before the end of the list shows.
 const LOAD_MARGIN_PX = 800;
@@ -93,56 +94,7 @@ export function openBooks( $root, signal ) {
 			const $book = event.target.closest( 'button' )?.closest( '[data-id]' );
 
 			if ( $book && $root.contains( $book ) ) {
-				store.openBook( Number( $book.dataset.id ) );
-			}
-		},
-		{ signal }
-	);
-}
-
-/** Switches to the view of a link clicked in `$root`, without reloading; a new tab or window stays a link. */
-export function openViews( $root, signal ) {
-	$root.addEventListener(
-		'click',
-		( event ) => {
-			const $link = event.target.closest( 'a[data-view]' );
-
-			if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
-				return;
-			}
-
-			event.preventDefault();
-			store.setView( $link.dataset.view );
-		},
-		{ signal }
-	);
-}
-
-/**
- * Follows the links clicked in `$root` without reloading: to the page of a person, of a series, of a collection or of a
- * book, or to the books a search finds. A new tab or window stays a link.
- */
-export function openLinks( $root, signal ) {
-	$root.addEventListener(
-		'click',
-		( event ) => {
-			const $link = event.target.closest( [ ...PAGE_LINKS, 'book', 'search' ].map( ( key ) => `a[data-${ key }]` ).join( ', ' ) );
-
-			if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
-				return;
-			}
-
-			const { book, search } = $link.dataset;
-			const page = PAGE_LINKS.find( ( key ) => key in $link.dataset );
-
-			event.preventDefault();
-
-			if ( page ) {
-				store.openPage( page, Number( $link.dataset[ page ] ) );
-			} else if ( book ) {
-				store.openBook( Number( book ) );
-			} else {
-				store.searchBooks( search );
+				navigation.navigate( urlOf( { view: 'book', id: Number( $book.dataset.id ) } ) );
 			}
 		},
 		{ signal }

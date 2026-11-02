@@ -1,4 +1,5 @@
-import { notKept, store, toBuy } from 'library-app/app';
+import { notKept, toBuy } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
 import { fill } from 'library-app/render';

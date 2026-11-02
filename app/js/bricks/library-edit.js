@@ -1,8 +1,17 @@
-import { bookUrl, editUrl, store, toBuy } from 'library-app/app';
+import { editUrl, toBuy } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
 import { join } from 'library-app/format';
 import { inputList, showErrors, showSaving } from 'library-app/behaviors';
+import { urlOf } from 'library-app/router';
+
+/** Opens the page of the book `id`, added or bought, for its reading; none, its form says why. */
+function openBook( id ) {
+	if ( id ) {
+		navigation.navigate( urlOf( { view: 'book', id } ) );
+	}
+}
 
 /** Options of a datalist or a select, such as the names to suggest. */
 function renderOptions( terms, value = ( term ) => term.name ) {
@@ -110,20 +119,9 @@ class LibraryEditElement extends Brick {
 			{ signal }
 		);
 
-		$duplicate.addEventListener(
-			'click',
-			( event ) => {
-				const id = Number( $duplicate.dataset.book );
-
-				event.preventDefault();
-				// The form closed forgets the book.
-				store.closeEdit();
-				store.openBook( id );
-			},
-			{ signal }
-		);
-
-		$buy.addEventListener( 'click', () => store.buyBook( Number( $duplicate.dataset.book ) ), { signal } );
+		// The link to the book leaves the form, which forgets the book.
+		$duplicate.addEventListener( 'click', () => store.closeEdit(), { signal } );
+		$buy.addEventListener( 'click', async () => openBook( await store.buyBook( Number( $duplicate.dataset.book ) ) ), { signal } );
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
 		$cover.addEventListener( 'change', showCover, { signal } );
 
@@ -168,7 +166,7 @@ class LibraryEditElement extends Brick {
 				if ( store.get().editing.id ) {
 					store.editBook( { ...book, cover, coverRemoved: this.#removed } );
 				} else {
-					store.addBook( { ...book, cover, status: $status.value } );
+					store.addBook( { ...book, cover, status: $status.value } ).then( openBook );
 				}
 			},
 			{ signal }
@@ -253,7 +251,7 @@ class LibraryEditElement extends Brick {
 					const book = store.get().books[ id ];
 
 					fill( this, { duplicate: book?.title ?? '' } );
-					$duplicate.href = bookUrl + id;
+					$duplicate.href = urlOf( { view: 'book', id } );
 					$duplicate.dataset.book = id;
 					$buy.hidden = toBuy !== book?.status;
 				}

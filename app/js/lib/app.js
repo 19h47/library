@@ -1,12 +1,14 @@
 /**
- * What the page gives the bricks: the store, created in the head, wp.i18n, which WordPress gives the translations
- * of the modules, and the config of the server.
+ * What the page gives the modules, from WordPress: wp.apiFetch, which handles the root URL and the nonce and answers the
+ * requests the page preloads, wp.i18n, which WordPress gives the translations of each module, wp.url, and the config of
+ * the server. No other module reads the page for them.
  *
  * @package    Library
  * @subpackage Library/app
- * @global     wp, store, libraryApp
+ * @global     wp, libraryApp
  */
 
-export const { store } = window;
+export const { apiFetch } = window.wp;
 export const { __, _n, _x, sprintf } = window.wp.i18n;
-export const { editUrl, personUrl, bookUrl, seriesUrl, publisherUrl, searchUrl, notKept, toBuy, roles } = window.libraryApp;
+export const { addQueryArgs } = window.wp.url;
+export const { appUrl, bookFields, editUrl, forms, icons, maxPerPage, notKept, perPage, roles, serviceWorkerUrl, statuses, toBuy } = window.libraryApp;

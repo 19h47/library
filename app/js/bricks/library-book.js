@@ -1,8 +1,9 @@
-import { __, roles, store } from 'library-app/app';
+import { __, roles } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
 import { fill, fillCover, linkPeople } from 'library-app/render';
-import { openLinks, showBusy } from 'library-app/behaviors';
+import { showBusy } from 'library-app/behaviors';
 
 /**
  * The page of a book: its cover, credits and title, its notes, its reading, its series and its fields; a book not
@@ -15,9 +16,10 @@ class LibraryBookElement extends Brick {
 		const $title = this.querySelector( '.library-book__title' );
 		const $edit = this.querySelector( '[data-action="edit"]' );
 		let shown = 0;
+		// The book drawn, drawn again only once changed: gone back to, its page keeps its links, and the focus one had.
+		let drawn = null;
 
 		$edit.addEventListener( 'click', () => store.openEdit( store.get().book ), { signal } );
-		openLinks( this, signal );
 
 		// The book open, or the one to open while it loads.
 		const show = () => {
@@ -34,7 +36,10 @@ class LibraryBookElement extends Brick {
 				return;
 			}
 
-			this.#render( book );
+			if ( book !== drawn ) {
+				this.#render( book );
+				drawn = book;
+			}
 
 			// The same book saved keeps the focus where it is; a book gone back to, the view gives it.
 			if ( book.id !== shown && 'forward' === moved ) {

@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.11.0
+Stable tag: 9.12.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -35,7 +35,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_series`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn`, `library_read_date` and so on, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
 * The hyphens of an ISBN come from `includes/isbn-ranges.json`, the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation) for every group, refreshed before each release with `php bin/update-isbn-ranges.php`. Another EAN-13 keeps its 13 digits; an ISBN of a range missing from it, or a code whose check digit is wrong, is kept as typed.
-* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library::render_component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
+* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its router follows its links on the Navigation API, which it needs: Safari 26.2, Firefox 147 or Chrome 105 at least. Its store, a module too, holds the state the bricks read, which `library-app/api` fills from the REST API. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library::render_component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
 
 == Installation ==
 
@@ -96,6 +96,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.12.0 =
+* Reading app: its links are links, as the browser has them: one opens in a new tab or window, from a long press on a phone too. Going back puts a view back where it was at once, rather than scrolling to it, and the page of a book gone back to gives the focus back to the link that left it. The link to the books keeps their search, the name of the app leads to the home without it. It needs the Navigation API: Safari 26.2, Firefox 147 or Chrome 105 at least.
+* Code only: the reading app has a router, `library-app/router`, on the Navigation API: the URL says what shows, and `urlOf()` and `routeOf()` build and read it; the store shows it through `show( route, navigationType )` and no longer reads nor writes the URL or the history. The store is a module, `library-app/store`, on `library-app/api`, which asks the REST API and turns what comes back into plain text, and `library-app/state`, the observable store; its resources are described once, their empty state, their first load and how they load again in place. The pages of a person, a series and a collection stand on `TermPage`, `library-app/term-page`. `library-app/app` is the only module that reads what the page gives, `wp.apiFetch`, `wp.i18n`, `wp.url` and the config, and no longer gives the store: the bricks import it from `library-app/store`. `library-app-store.js` gives way to `library-app-theme.js`, the theme chosen before the first paint; the links lose their `data-view`, `data-person`, `data-series`, `data-publisher`, `data-book` and `data-search`, and the config its URLs but `appUrl`.
 
 = 9.11.0 =
 * Faster: the books are kept in the cache, as the achievements and the reading idea are, until a book changes: the page of Gallimard in the reading app took 492 ms and 48 queries, 22 ms and 9 once kept; the page of a person or a series as much. A new version of the plugin empties the cache, which no longer keeps what a request computed after it changed a book.

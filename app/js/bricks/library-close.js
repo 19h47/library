@@ -1,7 +1,6 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { renderCloseAchievement } from 'library-app/render';
-import { openLinks } from 'library-app/behaviors';
 
 // How many achievements show.
 const CLOSE_ACHIEVEMENTS = 3;
@@ -11,7 +10,6 @@ class LibraryCloseElement extends Brick {
 	connect( signal ) {
 		const $list = this.querySelector( 'ul' );
 
-		openLinks( this, signal );
 
 		return [
 			store.select(

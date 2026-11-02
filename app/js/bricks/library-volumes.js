@@ -1,8 +1,10 @@
-import { __, _n, sprintf, store } from 'library-app/app';
+import { __, _n, sprintf } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, join } from 'library-app/format';
-import { fill, renderCover, setPageLink } from 'library-app/render';
+import { fill, renderCover } from 'library-app/render';
 import { openBooks } from 'library-app/behaviors';
+import { urlOf } from 'library-app/router';
 
 /**
  * The volumes of the series of the book open, on its page: their covers in reading order, as the home shows covers,
@@ -30,7 +32,7 @@ class LibraryVolumesElement extends Brick {
 			const read = sprintf( _n( '%s read', '%s read', readCount, 'library' ), formatNumber( readCount ) );
 
 			fill( this, { name: series.name, count: join( [ formatBooks( series.total ), read ] ) } );
-			setPageLink( $name, 'series', seriesId );
+			$name.href = urlOf( { view: 'series', id: seriesId } );
 			$list.replaceChildren( ...series.items.map( ( item ) => renderCover( this.#volume( books[ item ], series.name ), this.#state( books[ item ] ) ) ) );
 
 			const $current = $list.querySelector( `[data-id="${ id }"]` );
