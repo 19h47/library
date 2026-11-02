@@ -364,7 +364,7 @@ JS;
 	}
 
 	/**
-	 * Register the styles and scripts the page prints: the store in the head, before the first paint, the bricks after the markup.
+	 * Register the styles and scripts the page prints: the store in the head, before the first paint, the router then the bricks after the markup.
 	 *
 	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
 	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
@@ -394,6 +394,9 @@ JS;
 			wp_register_script_module( "library-app/$name", $url, array(), $version );
 			wp_set_script_module_translations( "library-app/$name", 'library', LIBRARY_DIR_PATH . 'languages' );
 		}
+
+		// Before the bricks: it reads the URL, which says what they show.
+		wp_enqueue_script_module( 'library-app/router' );
 
 		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' ) as $file ) {
 			$name              = basename( $file, '.js' );
@@ -440,12 +443,7 @@ JS;
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
 			'roles'            => array_values( str_replace( 'library_', '', Library_Meta::ROLE_KEYS ) ),
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),
-			// add_query_arg() drops the "=" of an empty value.
-			'personUrl'        => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
-			'bookUrl'          => add_query_arg( 'view', self::BOOK_VIEW, self::get_url() ) . '&book=',
-			'seriesUrl'        => add_query_arg( 'view', self::SERIES_VIEW, self::get_url() ) . '&series=',
-			'publisherUrl'     => add_query_arg( 'view', self::PUBLISHER_VIEW, self::get_url() ) . '&publisher=',
-			'searchUrl'        => self::get_url() . '&q=',
+			// The router builds the URLs of the views from it.
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.
 			'serviceWorkerUrl' => add_query_arg( 'service-worker', '1', self::get_url() ),

@@ -1,8 +1,12 @@
 import { store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
+import { urlOf } from 'library-app/router';
+
+// The components of the app, for development: a view out of the navigation, opened by searching its name.
+const STYLEGUIDE = 'styleguide';
 
 /**
- * The search of the books: what is typed is the query. Its keywords show under it while it is used, as a search
+ * The search of the books: what is typed is the query; the name of the styleguide opens it, the search left empty. Its keywords show under it while it is used, as a search
  * field shows its suggestions; one taken adds to the query, the cursor in its quotes, if any, for the name to type.
  */
 class LibrarySearchElement extends Brick {
@@ -13,7 +17,19 @@ class LibrarySearchElement extends Brick {
 			$keywords.hidden = true;
 		};
 
-		$input.addEventListener( 'input', () => store.setQuery( $input.value ), { signal } );
+		$input.addEventListener(
+			'input',
+			() => {
+				if ( STYLEGUIDE !== $input.value.trim().toLowerCase() ) {
+					store.setQuery( $input.value );
+					return;
+				}
+
+				store.setQuery( '' );
+				navigation.navigate( urlOf( { view: STYLEGUIDE } ) );
+			},
+			{ signal }
+		);
 		this.addEventListener(
 			'focusin',
 			() => {

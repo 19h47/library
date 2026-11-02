@@ -4,7 +4,7 @@
  * the page of a person, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
- * The view asked for in the URL shows from the first paint; the store then switches views without reloading.
+ * The view asked for in the URL shows from the first paint; the router then switches views without reloading.
  *
  * @link       https://github.com/19h47/library
  * @since      4.4.0
@@ -64,7 +64,6 @@
 										<a
 											class="app-pill"
 											href="<?php echo esc_url( $item['url'] ); ?>"
-											data-view="<?php echo esc_attr( $name ); ?>"
 											<?php echo $name === $view ? 'aria-current="page"' : ''; ?>
 										><?php echo esc_html( $item['label'] ); ?></a>
 									</li>
@@ -205,7 +204,7 @@
 						<library-latest class="library-section" hidden>
 							<h3 class="library-title">
 								<?php esc_html_e( 'Latest readings', 'library' ); ?>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>" data-view="diary"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
 							</h3>
 							<ul class="library-covers"></ul>
 						</library-latest>
@@ -221,7 +220,7 @@
 						<library-close class="library-section" hidden>
 							<h3 class="library-title">
 								<?php esc_html_e( 'Close to it', 'library' ); ?>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>" data-view="achievements"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
 							</h3>
 							<ul class="app-list__items"></ul>
 						</library-close>

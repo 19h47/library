@@ -5,14 +5,9 @@
  * @subpackage Library/app
  */
 
-import { __, _n, personUrl, bookUrl, seriesUrl, publisherUrl, searchUrl, sprintf } from 'library-app/app';
+import { __, _n, sprintf } from 'library-app/app';
 import { formatBooks, formatDate, formatNumber, formatOriginal, formatStatus, join, listFormat } from 'library-app/format';
-
-// The URL of the page of a person, of a series and of a collection, by the data of its links.
-const PAGE_URLS = { person: personUrl, series: seriesUrl, publisher: publisherUrl };
-
-/** The data of the links to the pages of a person, of a series and of a collection, whose value is the ID of their term. */
-export const PAGE_LINKS = Object.keys( PAGE_URLS );
+import { urlOf } from 'library-app/router';
 
 /**
  * Sets the text of the [data-field] elements of `$root`; an empty one is hidden, with its [data-row].
@@ -33,31 +28,19 @@ export function fill( $root, fields ) {
 	} );
 }
 
-/** A link the app follows without reloading, as its data say: to the page of a book, or to the books a search finds. */
-function link( href, data, text ) {
+/** A link to what `route` shows, which the router opens without reloading, such as the books a search finds. */
+function link( route, text ) {
 	const $link = document.createElement( 'a' );
 
-	$link.href = href;
-	Object.assign( $link.dataset, data );
+	$link.href = urlOf( route );
 	$link.textContent = text;
 
 	return $link;
 }
 
-/** Points `$link` to the `page` of the term `id`, "person", "series" or "publisher", which the app opens without reloading. */
-export function setPageLink( $link, page, id ) {
-	$link.href = PAGE_URLS[ page ] + id;
-	$link.dataset[ page ] = id;
-}
-
-/** A link to the `page` of the term `id`: of a person, of a series or a cycle, of a collection or a publisher. */
-export function pageLink( page, id, name ) {
-	const $link = document.createElement( 'a' );
-
-	setPageLink( $link, page, id );
-	$link.textContent = name;
-
-	return $link;
+/** A link to the page `view` of `id`: of a book, of a person, of a series or a cycle, of a collection or a publisher. */
+export function pageLink( view, id, name ) {
+	return link( { view, id }, name );
 }
 
 /** Fills `$list` with `$links` as pills, one per item, such as the series of a cycle; its [data-row] hides without one. */
@@ -93,11 +76,11 @@ export function linkPeople( $field, people ) {
 function linkAchievement( $field, { target } ) {
 	const text = $field.textContent;
 	const links = {
-		book: () => link( bookUrl + target.id, { book: target.id }, text ),
+		book: () => pageLink( 'book', target.id, text ),
 		author: () => pageLink( 'person', target.id, text ),
 		series: () => pageLink( 'series', target.id, text ),
 		collection: () => pageLink( 'publisher', target.id, text ),
-		search: () => link( searchUrl + encodeURIComponent( target.search ), { search: target.search }, text ),
+		search: () => link( { query: target.search }, text ),
 	};
 
 	if ( text && target?.type in links ) {

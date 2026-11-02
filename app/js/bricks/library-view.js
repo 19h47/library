@@ -13,6 +13,11 @@ class LibraryViewElement extends Brick {
 			store.select(
 				( state ) => state.view,
 				( view ) => {
+					// As the server shows it, until the router reads the URL.
+					if ( ! view ) {
+						return;
+					}
+
 					const isShown = view === this.getAttribute( 'name' );
 					const appears = isShown && this.hidden;
 

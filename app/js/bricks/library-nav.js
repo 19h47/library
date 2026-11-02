@@ -1,24 +1,29 @@
 import { store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { openViews } from 'library-app/behaviors';
+import { routeOf, urlOf } from 'library-app/router';
 
 /**
- * The links to the views: they switch views without reloading, and mark the current one. Their row scrolls sideways:
- * it scrolls as little as it takes for the current one to show whole, the page staying where it is.
+ * The links to the views, which mark the current one; the one to the books leads to their search. Their row scrolls
+ * sideways: it scrolls as little as it takes for the current one to show whole, the page staying where it is.
  */
 class LibraryNavElement extends Brick {
-	connect( signal ) {
+	connect() {
 		const $row = this.querySelector( '.library-nav' );
-		const $links = [ ...this.querySelectorAll( 'a[data-view]' ) ];
-
-		openViews( this, signal );
+		const $links = [ ...this.querySelectorAll( 'a' ) ];
+		const $books = $links.find( ( $link ) => 'books' === routeOf( $link.href ).view );
 
 		return [
+			store.select(
+				( state ) => state.query.trim(),
+				( query ) => {
+					$books.href = urlOf( { query } );
+				}
+			),
 			store.select(
 				( state ) => state.view,
 				( view ) =>
 					$links.forEach( ( $link ) => {
-						if ( view !== $link.dataset.view ) {
+						if ( view !== routeOf( $link.href ).view ) {
 							$link.removeAttribute( 'aria-current' );
 							return;
 						}

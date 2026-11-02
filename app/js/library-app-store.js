@@ -4,8 +4,8 @@
  * Created in the head, before the first paint, so the document takes its theme from it.
  * The data come from the REST API through wp.apiFetch, which handles the root URL and the nonce;
  * the store turns the books into plain text once, so no brick parses what the API returns.
- * Each view loads its data the first time it shows, but the books to buy, which load at once and again after a book
- * saved, whatever the view: kept by the service worker, they show without network, as in a bookshop. A book saved, its
+ * What shows comes from the URL, as the router reads it, through show(). Each view loads its data the first time it
+ * shows, but the books to buy, which load at once and again after a book saved, whatever the view: kept by the service worker, they show without network, as in a bookshop. A book saved, its
  * reading or its form, loads every view again, but the one shown; a book added loads them all again.
  *
  * @package    Library
@@ -16,12 +16,11 @@
 	'use strict';
 
 	const STORAGE_KEY = 'library-app';
-	// Kept between visits. The query, the view, the person and the book open are in the URL only, as ?q=, ?view=, ?person= and ?book=.
+	// Kept between visits. The query, the view and the page open are in the URL only, which the router reads.
 	const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
 	// The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 	const SORTS = [ 'title', 'rating', 'read' ];
-	// The views of the navigation; the page of a person is another one, opened from a book or an achievement.
-	const VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy' ];
+	// The page of a person, opened from a book or an achievement.
 	const PERSON_VIEW = 'person';
 	// The page of a book, opened from its card, its cover or a link.
 	const BOOK_VIEW = 'book';
@@ -29,16 +28,12 @@
 	const SERIES_VIEW = 'series';
 	// The page of a collection or a publisher, opened from an achievement or another collection.
 	const PUBLISHER_VIEW = 'publisher';
-	// The views of a person, a book, a series or a collection, each with its ID in the argument of the same name: ?view=book&book=564.
-	const PAGE_VIEWS = [ PERSON_VIEW, BOOK_VIEW, SERIES_VIEW, PUBLISHER_VIEW ];
 	// The components of the app, for development: a view out of the navigation, opened by searching its name.
 	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 	const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
 	// A search waits for a pause in the typing.
 	const SEARCH_DELAY = 250;
-	// The place in a view is kept in its entry of the history once the scrolling pauses.
-	const SCROLL_DELAY = 150;
 	// Back to the app after this long, as from another app, its data load again: they may have changed in the admin or on another device.
 	const REFRESH_AFTER_MS = 5 * 60 * 1000;
 
@@ -207,30 +202,7 @@
 		return error?.message ?? __( 'The books could not be loaded.', 'library' );
 	}
 
-	/** The view of a URL, the books by default; the page of a person or a book needs its ID. */
-	function viewOf( url ) {
-		const view = new URL( url ).searchParams.get( 'view' );
-
-		if ( PAGE_VIEWS.includes( view ) ) {
-			return idOf( url, view ) ? view : 'books';
-		}
-
-		return isNamedView( view ) ? view : 'books';
-	}
-
-	/** Whether a view opens by its name alone: one of the navigation, or the styleguide. */
-	function isNamedView( view ) {
-		return VIEWS.includes( view ) || STYLEGUIDE_VIEW === view;
-	}
-
-	/** The ID a URL gives as `name`, such as the person of ?person= or the book of ?book=, or 0. */
-	function idOf( url, name ) {
-		const id = Number( new URL( url ).searchParams.get( name ) );
-
-		return Number.isInteger( id ) && id > 0 ? id : 0;
-	}
-
-	/** What localStorage and the URL hold, checked: anything else falls back. */
+	/** What localStorage holds, checked: anything else falls back. */
 	function load() {
 		let saved = null;
 
@@ -247,8 +219,6 @@
 			// The theme shown, and whether it was chosen over the system one.
 			theme: theme ?? ( darkQuery.matches ? 'dark' : 'light' ),
 			themeChosen: null !== theme,
-			view: viewOf( location.href ),
-			query: new URLSearchParams( location.search ).get( 'q' ) ?? '',
 			// "", "yes" or "no", the search keyword read:, or "progress", the keyword progress:.
 			read: [ 'yes', 'no', 'progress' ].includes( saved?.read ) ? saved.read : '',
 			// "" for any, or the status of the books shown, such as not kept.
@@ -258,16 +228,6 @@
 			// "" for the latest added, or one of SORTS.
 			sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
 		};
-	}
-
-	/** Keeps the place in the view shown in its entry of the history, to put it back there. */
-	function keepScroll() {
-		history.replaceState( { ...history.state, scroll: scrollY }, '' );
-	}
-
-	/** Goes to the top of a view opened, at once: the smooth scroll of the page is for its links, such as "Top". */
-	function scrollToTop() {
-		scrollTo( { top: 0, behavior: 'instant' } );
 	}
 
 	/** Whether the home shows: the books view, without a query. */
@@ -305,7 +265,7 @@
 		return { ...( search && { search } ), status, ...( state.form && { forms: state.form } ), ...order };
 	}
 
-	/** SAVED goes to localStorage, the query to the URL. */
+	/** SAVED goes to localStorage. */
 	function save( state ) {
 		try {
 			localStorage.setItem(
@@ -313,17 +273,6 @@
 				JSON.stringify( Object.fromEntries( SAVED.map( ( key ) => [ key, state[ key ] ] ) ) )
 			);
 		} catch {}
-
-		const query = state.query.trim();
-		const url = new URL( location.href );
-
-		if ( query ) {
-			url.searchParams.set( 'q', query );
-		} else {
-			url.searchParams.delete( 'q' );
-		}
-
-		history.replaceState( history.state, '', url );
 	}
 
 	/** A list loaded by pages: its items so far, and where it stands; `renewing` when it loads again from its start, its items shown until then. */
@@ -457,6 +406,7 @@
 	 * `person` the person open, `series` the series open, `publisher` the collection open, `book` the book open, `volumes` the books of its series,
 	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
 	 * `notice` what an action done says, such as a reading saved, once: a new object each time,
+	 * `view` the view shown, none until the router shows the one of the URL, `query` the search of the books,
 	 * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
 	 */
 	class LibraryStore extends Store {
@@ -470,6 +420,8 @@
 		constructor() {
 			super( {
 				...load(),
+				view: '',
+				query: '',
 				books: {},
 				search: pages(),
 				inProgress: pages(),
@@ -494,41 +446,8 @@
 				);
 			} );
 
-			// The app puts each view back where it was, from its entry of the history, rather than the browser, which would
-			// before the view shows.
-			history.scrollRestoration = 'manual';
-
-			let scrolling = 0;
-
-			addEventListener(
-				'scroll',
-				() => {
-					clearTimeout( scrolling );
-					scrolling = setTimeout( () => keepScroll(), SCROLL_DELAY );
-				},
-				{ passive: true }
-			);
-
-			// Back and forward between the views, a book or a person among them: each takes back the search of its URL and its place.
-			addEventListener( 'popstate', () => {
-				const view = viewOf( location.href );
-				const query = new URLSearchParams( location.search ).get( 'q' ) ?? '';
-
-				clearTimeout( scrolling );
-				this.set( ( state ) => ( { ...state, moved: 'back' } ) );
-
-				// The books found load again once the books view shows.
-				if ( query !== this.get().query ) {
-					this.set( ( state ) => ( { ...state, query, search: pages() } ) );
-				}
-
-				this.#show( view, idOf( location.href, view ) );
-				// Once the view shows.
-				requestAnimationFrame( () => scrollTo( { top: history.state?.scroll ?? 0, behavior: 'instant' } ) );
-			} );
-
 			this.subscribe( ( state, previous ) => {
-				if ( [ ...SAVED, 'query' ].some( ( key ) => state[ key ] !== previous[ key ] ) ) {
+				if ( SAVED.some( ( key ) => state[ key ] !== previous[ key ] ) ) {
 					save( state );
 				}
 			} );
@@ -543,67 +462,31 @@
 				}
 			} );
 
-			this.#show( this.get().view, idOf( location.href, this.get().view ) );
 			this.#fetchStats();
 			this.#load( 'to-buy' );
 		}
 
 		/**
-		 * Shows a view, at its top, with its URL in the history. The view shown, its link touched again, goes back to its
-		 * top; the books to their home, without their search.
+		 * Shows what the URL says, as the router reads it: its view, the book or the page open, and the search of the books;
+		 * the data of a view load the first time it shows. `navigationType` is how it came, as the Navigation API names it:
+		 * a link to a search, pushed, shows all the books it finds, whatever the filters chosen; gone back to, through the
+		 * history, a view gives back the focus it had.
 		 */
-		setView( view ) {
-			if ( ! isNamedView( view ) ) {
-				return;
-			}
+		show( { view, id, query }, navigationType = '' ) {
+			const isSearchLink = 'books' === view && 'push' === navigationType && query && query !== this.get().query;
 
-			if ( view === this.get().view ) {
-				if ( 'books' === view ) {
-					this.#clearQuery();
-				}
-
-				scrollToTop();
-				return;
-			}
-
-			this.#go( view );
+			this.set( ( state ) => ( {
+				...state,
+				moved: { push: 'forward', replace: 'forward', traverse: 'back' }[ navigationType ] ?? '',
+				// The books found load again once the books view shows.
+				...( 'books' === view && query !== state.query && { query, search: pages() } ),
+				...( isSearchLink && { read: '', status: '', form: '', sort: '' } ),
+			} ) );
+			this.#show( view, id );
 		}
 
-		/**
-		 * Opens the page `view` of the term `id`, of a person, of a series or a cycle, of a collection or a publisher, at its
-		 * top, with its URL in the history, unless it shows already.
-		 */
-		openPage( view, id ) {
-			const { view: shown, [ view ]: current } = this.get();
-
-			if ( view !== shown || id !== current.id ) {
-				this.#go( view, id );
-			}
-		}
-
-		/** Goes back to where the view shown was opened from; a view opened first, as from a link, goes to the home. */
-		back() {
-			if ( history.state?.app ) {
-				history.back();
-			} else {
-				this.goHome();
-			}
-		}
-
-		/** The home, as the name of the app leads to it: the books view without its search, at its top. */
-		goHome() {
-			this.setView( 'books' );
-			this.#clearQuery();
-		}
-
-		/** The search of the books; the name of the styleguide opens it, the search left empty behind it. */
+		/** The search of the books, as typed. */
 		setQuery( query ) {
-			if ( STYLEGUIDE_VIEW === query.trim().toLowerCase() ) {
-				this.setQuery( '' );
-				this.setView( STYLEGUIDE_VIEW );
-				return;
-			}
-
 			this.set( ( state ) => ( { ...state, query } ) );
 			this.#loadHome();
 
@@ -629,17 +512,6 @@
 		setSort( sort ) {
 			this.set( ( state ) => ( { ...state, sort } ) );
 			this.#fetchList( 'search' );
-		}
-
-		/**
-		 * Shows the books a search finds, read or not, of any status and form, in the default order, at the top of the books view, such as the books
-		 * of a series from an achievement or from a book. The view comes first, so that the query goes to its URL.
-		 */
-		searchBooks( query ) {
-			this.#go( 'books' );
-			this.set( ( state ) => ( { ...state, query, read: '', status: '', form: '', sort: '' } ) );
-			this.#fetchList( 'search' );
-			scrollToTop();
 		}
 
 		/** The next books of a list, `search` or `toBuy`, unless some are loading or none is left. */
@@ -675,18 +547,6 @@
 
 			if ( ! loading && total ) {
 				this.#fetchIdea( ( position + 1 ) % total );
-			}
-		}
-
-		/**
-		 * Opens the page of a book, at its top, with its URL in the history, unless it shows already: a book not loaded yet,
-		 * such as the book of an achievement, loads on its page, which says so.
-		 */
-		openBook( id ) {
-			const { book, view } = this.get();
-
-			if ( BOOK_VIEW !== view || id !== book ) {
-				this.#go( BOOK_VIEW, id );
 			}
 		}
 
@@ -740,7 +600,10 @@
 			this.#update( 'editing', ( current ) => ( current.open && ! current.id ? { duplicate } : {} ) );
 		}
 
-		/** The book to buy `id`, bought: it joins the library, then opens, the form of a book to add closed. Every view loads again. */
+		/**
+		 * The book to buy `id`, bought: it joins the library, the form of a book to add closed. Every view loads again.
+		 * Returns its ID once bought, for its page to open, else 0.
+		 */
 		async buyBook( id ) {
 			this.#update( 'editing', () => ( { loading: true, error: '' } ) );
 
@@ -749,15 +612,19 @@
 				this.#addBooks( [ await apiFetch( { path: `/wp/v2/books/${ id }?${ new URLSearchParams( BOOK_QUERY ) }` } ) ] );
 				this.closeEdit();
 				this.#reloadAll();
-				this.openBook( id );
+
+				return id;
 			} catch ( error ) {
 				this.#update( 'editing', () => ( { loading: false, error: errorMessage( error ) } ) );
+
+				return 0;
 			}
 		}
 
 		/**
-		 * Adds a book, the image of its cover uploaded first, then opens it, for its reading. Every view loads
-		 * again, so the book comes first among the books, and so do the names to suggest, with the ones it added.
+		 * Adds a book, the image of its cover uploaded first. Every view loads again, so the book comes first among the
+		 * books, and so do the names to suggest, with the ones it added. Returns its ID, for its page to open, for its
+		 * reading, else 0.
 		 */
 		async addBook( { cover, ...book } ) {
 			this.#update( 'editing', () => ( { loading: true, error: '' } ) );
@@ -769,9 +636,12 @@
 				await this.#fetchBooks( [ id ] );
 				this.closeEdit();
 				this.#reloadAll();
-				this.openBook( id );
+
+				return id;
 			} catch ( error ) {
 				this.#update( 'editing', () => ( { loading: false, error: errorMessage( error ) } ) );
+
+				return 0;
 			}
 		}
 
@@ -897,40 +767,6 @@
 			return ( await apiFetch( { path: '/wp/v2/media', method: 'POST', body } ) ).id;
 		}
 
-		/** Empties the search of the books, unless it is empty. */
-		#clearQuery() {
-			if ( this.get().query ) {
-				this.setQuery( '' );
-			}
-		}
-
-		/**
-		 * Opens a view, at its top, with its URL in the history: a view of the navigation, or the page of the person or the
-		 * book `id`. The search stays in the URL; the place in the view left is kept in its entry, to come back to it.
-		 */
-		#go( view, id = 0 ) {
-			const url = new URL( location.href );
-
-			PAGE_VIEWS.forEach( ( name ) => url.searchParams.delete( name ) );
-
-			if ( 'books' === view ) {
-				url.searchParams.delete( 'view' );
-			} else {
-				url.searchParams.set( 'view', view );
-			}
-
-			if ( id ) {
-				url.searchParams.set( view, id );
-			}
-
-			keepScroll();
-			// An entry of the app, which going back leads to.
-			history.pushState( { app: true }, '', url );
-			this.set( ( state ) => ( { ...state, moved: 'forward' } ) );
-			this.#show( view, id );
-			scrollToTop();
-		}
-
 		/**
 		 * Loads the book `id` of the page of a book, unless it is loaded, then its series. A book not found, as from a link
 		 * to a book deleted, or that could not load, leaves its page for the home, which says why.
@@ -956,8 +792,7 @@
 
 			const text = failure ? errorMessage( failure ) : __( 'No book found.', 'library' );
 
-			history.replaceState( null, '', config.appUrl );
-			this.#show( 'books' );
+			navigation.navigate( config.appUrl, { history: 'replace' } );
 			this.set( ( state ) => ( { ...state, notice: { text } } ) );
 		}
 
@@ -1102,7 +937,8 @@
 
 		/** After a book was added: the stats, every view and the names to suggest load again; the view shown at once. */
 		#reloadAll() {
-			const { view } = this.get();
+			const { view, book } = this.get();
+			const id = BOOK_VIEW === view ? book : this.get()[ view ]?.id ?? 0;
 
 			this.set( ( state ) => ( {
 				...state,
@@ -1118,7 +954,7 @@
 			} ) );
 			this.#fetchStats();
 			this.#load( 'to-buy' );
-			this.#show( view, idOf( location.href, view ) );
+			this.#show( view, id );
 		}
 
 		/** Sets a part of the state, such as `search`, from its current value. */

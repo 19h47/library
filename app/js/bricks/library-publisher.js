@@ -1,8 +1,9 @@
 import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
-import { fill, fillAuthors, fillCompletion, fillPills, pageLink, renderBook, setPageLink } from 'library-app/render';
-import { followBooks, observeEnd, openBooks, openLinks, renderKeyed } from 'library-app/behaviors';
+import { fill, fillAuthors, fillCompletion, fillPills, pageLink, renderBook } from 'library-app/render';
+import { followBooks, observeEnd, openBooks, renderKeyed } from 'library-app/behaviors';
+import { urlOf } from 'library-app/router';
 
 /**
  * The page of a collection, or of a publisher: its name, a sub-collection after the collections it is part of, its
@@ -25,7 +26,6 @@ class LibraryPublisherElement extends Brick {
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( 'publisher' ) );
 
 		openBooks( $items, signal );
-		openLinks( this, signal );
 
 		return [
 			followBooks( $items, formatState ),
@@ -46,7 +46,7 @@ class LibraryPublisherElement extends Brick {
 					// The publisher above, and the collection above a sub-collection.
 					Object.entries( $links ).forEach( ( [ key, $link ] ) => {
 						if ( publisher[ key ] ) {
-							setPageLink( $link, 'publisher', publisher[ key ].id );
+							$link.href = urlOf( { view: 'publisher', id: publisher[ key ].id } );
 						}
 					} );
 

@@ -1,8 +1,9 @@
 import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
-import { fill, fillAuthors, fillCompletion, fillPills, pageLink, renderBook, setPageLink } from 'library-app/render';
-import { followBooks, observeEnd, openBooks, openLinks, renderKeyed } from 'library-app/behaviors';
+import { fill, fillAuthors, fillCompletion, fillPills, pageLink, renderBook } from 'library-app/render';
+import { followBooks, observeEnd, openBooks, renderKeyed } from 'library-app/behaviors';
+import { urlOf } from 'library-app/router';
 
 /**
  * The page of a series, or of a cycle: its name after its cycles, its cycle, its description, how many of its books are
@@ -21,7 +22,6 @@ class LibrarySeriesElement extends Brick {
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( 'series' ) );
 
 		openBooks( $items, signal );
-		openLinks( this, signal );
 
 		return [
 			followBooks( $items, formatState ),
@@ -39,7 +39,7 @@ class LibrarySeriesElement extends Brick {
 					} );
 
 					if ( series.cycle ) {
-						setPageLink( $cycle, 'series', series.cycle.id );
+						$cycle.href = urlOf( { view: 'series', id: series.cycle.id } );
 					}
 
 					// HTML as the API renders it, among the few tags core keeps when it saves a description.
