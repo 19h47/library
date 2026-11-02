@@ -85,7 +85,7 @@ class Library_Taxonomies {
 
 		$args = array(
 			'labels'               => $labels,
-			'hierarchical'         => true, // Parent = nom réel, enfants = pseudonymes.
+			'hierarchical'         => true, // Parent = nom sous lequel la personne est connue, enfants = ses autres noms.
 			'public'               => true,
 			'publicly_queryable'   => true,
 			'show_ui'              => true,
@@ -636,7 +636,7 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Terms as they count, each one once: a pseudonym for its real name, a collection for its publisher, i.e. their parent.
+	 * Terms as they count, each one once: another name for the name of its person, a collection for its publisher, i.e. their parent.
 	 *
 	 * @param WP_Term[] $terms Terms of a taxonomy.
 	 * @return WP_Term[]
@@ -656,7 +656,7 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Include children (pseudonyms, collections) in term counts.
+	 * Include children (other names of a person, collections) in term counts.
 	 *
 	 * @param array    $args       Arguments of get_terms().
 	 * @param string[] $taxonomies Taxonomies queried.

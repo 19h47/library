@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-01T17:47:54+00:00\n"
+"POT-Creation-Date: 2026-11-02T02:05:16+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -491,7 +491,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:905
+#: includes/class-library-rest-api.php:906
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -1788,8 +1788,8 @@ msgid "Term ID of the series, or of the cycle."
 msgstr "ID du terme de la série, ou du cycle."
 
 #: includes/class-library-rest-api.php:313
-msgid "Term ID of the person, or of one of their pseudonyms."
-msgstr "ID du terme de la personne, ou de l’un de ses pseudonymes."
+msgid "Term ID of the person, or of one of their other names."
+msgstr "ID du terme de la personne, ou de l’un de ses autres noms."
 
 #: includes/class-library-rest-api.php:333
 msgid "Title of the book."
@@ -1805,11 +1805,11 @@ msgstr "Notes sur le livre, son contenu."
 
 #: includes/class-library-rest-api.php:352
 msgid ""
-"People of the book, by their name or a pseudonym, each with its role, such "
+"People of the book, by their name or another one, each with its role, such "
 "as colorist; a name not found adds a person."
 msgstr ""
-"Personnes du livre, sous leur nom ou un pseudonyme, chacune avec son rôle, "
-"comme les couleurs ; un nom introuvable ajoute une personne."
+"Personnes du livre, sous leur nom ou un autre, chacune avec son rôle, comme "
+"les couleurs ; un nom introuvable ajoute une personne."
 
 #: includes/class-library-rest-api.php:372
 msgid "Name of the publisher; a name not found adds a publisher."
@@ -2260,8 +2260,8 @@ msgid "a series, or a cycle with its series, by its exact name"
 msgstr "une série, ou un cycle avec ses séries, par son nom exact"
 
 #: includes/class-library-wp-query.php:296
-msgid "an author, with their pseudonyms"
-msgstr "un auteur ou une autrice, avec ses pseudonymes"
+msgid "an author, with their other names"
+msgstr "un auteur ou une autrice, avec ses autres noms"
 
 #: includes/class-library-wp-query.php:297
 msgid "a publisher, with its collections"
@@ -2333,12 +2333,12 @@ msgstr "Relu"
 msgid "Show %s"
 msgstr "Voir %s"
 
-#. translators: %s: list of the pseudonyms of a person.
+#. translators: %s: list of the other names of a person, such as a pseudonym or their birth name.
 #: app/js/bricks/library-person.js:29
-msgid "Pseudonym: %s"
-msgid_plural "Pseudonyms: %s"
-msgstr[0] "Pseudonyme : %s"
-msgstr[1] "Pseudonymes : %s"
+msgid "Other name: %s"
+msgid_plural "Other names: %s"
+msgstr[0] "Autre nom : %s"
+msgstr[1] "Autres noms : %s"
 
 #. translators: %s: number of books read, after the number of books of a person.
 #. translators: %s: number of books read, after the number of books of a series.
@@ -2407,6 +2407,24 @@ msgstr "Les livres n’ont pas pu être chargés."
 #: app/js/library-app-store.js:836
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
+
+#~ msgid "Term ID of the person, or of one of their pseudonyms."
+#~ msgstr "ID du terme de la personne, ou de l’un de ses pseudonymes."
+
+#~ msgid ""
+#~ "People of the book, by their name or a pseudonym, each with its role, "
+#~ "such as colorist; a name not found adds a person."
+#~ msgstr ""
+#~ "Personnes du livre, sous leur nom ou un pseudonyme, chacune avec son "
+#~ "rôle, comme les couleurs ; un nom introuvable ajoute une personne."
+
+#~ msgid "an author, with their pseudonyms"
+#~ msgstr "un auteur ou une autrice, avec ses pseudonymes"
+
+#~ msgid "Pseudonym: %s"
+#~ msgid_plural "Pseudonyms: %s"
+#~ msgstr[0] "Pseudonyme : %s"
+#~ msgstr[1] "Pseudonymes : %s"
 
 #~ msgid "See the list"
 #~ msgstr "Voir la liste"

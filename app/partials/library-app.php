@@ -304,7 +304,7 @@
 						<p class="app-status" data-field="status" hidden></p>
 						<header class="library-person">
 							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
-							<p data-field="pseudonyms"></p>
+							<p data-field="otherNames"></p>
 							<div class="library-person__description" data-html="description" hidden></div>
 							<p data-field="summary"></p>
 						</header>

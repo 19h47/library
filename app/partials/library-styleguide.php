@@ -119,7 +119,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<header class="library-person">
 						<h4 class="library-person__name">A Person</h4>
-						<p>Also known as A Pseudonym</p>
+						<p>Other names: A Pseudonym, A Birth Name</p>
 						<div class="library-person__description">
 							<p>Their description, as written in the admin.</p>
 							<p>A second paragraph, with <em>a word in italics</em>.</p>

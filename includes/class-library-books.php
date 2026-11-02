@@ -40,7 +40,7 @@ class Library_Books {
 	 * All the books, kept, not kept or to buy.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
-	 * Authors are counted for their real name, and so are its contributors, its names with another role, such as a
+	 * Authors are counted under the name they are known by, and so are its contributors, its names with another role, such as a
 	 * colorist. The read dates go from the first reading to the latest.
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
