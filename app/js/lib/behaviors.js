@@ -8,7 +8,7 @@
  */
 
 import { store } from 'library-app/app';
-import { clone, fillBook } from 'library-app/render';
+import { clone, fillBook, PAGE_LINKS } from 'library-app/render';
 
 // The next page loads before the end of the list shows.
 const LOAD_MARGIN_PX = 800;
@@ -126,22 +126,19 @@ export function openLinks( $root, signal ) {
 	$root.addEventListener(
 		'click',
 		( event ) => {
-			const $link = event.target.closest( 'a[data-person], a[data-series], a[data-publisher], a[data-book], a[data-search]' );
+			const $link = event.target.closest( [ ...PAGE_LINKS, 'book', 'search' ].map( ( key ) => `a[data-${ key }]` ).join( ', ' ) );
 
 			if ( ! $link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
 				return;
 			}
 
-			const { person, series, publisher, book, search } = $link.dataset;
+			const { book, search } = $link.dataset;
+			const page = PAGE_LINKS.find( ( key ) => key in $link.dataset );
 
 			event.preventDefault();
 
-			if ( person ) {
-				store.openPerson( Number( person ) );
-			} else if ( series ) {
-				store.openSeries( Number( series ) );
-			} else if ( publisher ) {
-				store.openPublisher( Number( publisher ) );
+			if ( page ) {
+				store.openPage( page, Number( $link.dataset[ page ] ) );
 			} else if ( book ) {
 				store.openBook( Number( book ) );
 			} else {

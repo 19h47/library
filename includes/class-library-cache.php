@@ -1,6 +1,6 @@
 <?php
 /**
- * Cache of what is computed from every book: the reading idea, the achievements and the reading order.
+ * Cache of what is computed from every book: the books themselves, the reading idea, the achievements and the reading order.
  *
  * @link       https://github.com/19h47/library
  * @since      9.4.0
@@ -35,6 +35,13 @@ class Library_Cache {
 	private static bool $changed = false;
 
 	/**
+	 * Version of the plugin, as its header says, once read.
+	 *
+	 * @var string|null
+	 */
+	private static ?string $version = null;
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -51,9 +58,11 @@ class Library_Cache {
 	}
 
 	/**
-	 * The value of `$key`, as `$compute` returns it, kept until a book changes, in the language of the request: the reading
-	 * idea and the achievements say their reasons and titles in it. A value of the day, such as the reading idea, which
-	 * reads the date, has the day in its key.
+	 * The value of `$key`, as `$compute` returns it, kept until a book changes, in the language of the request and for the
+	 * version of the plugin: the reading idea and the achievements say their reasons and titles in it, and a new version
+	 * may change what a value holds. A value of the day, such as the reading idea, which reads the date, has the day in its
+	 * key. A request that changed a book keeps nothing: the generation changes once, at its first change, and the value may
+	 * predate the next ones.
 	 *
 	 * @param string   $key     Key, such as achievements.
 	 * @param callable $compute Function that computes the value.
@@ -61,16 +70,32 @@ class Library_Cache {
 	 */
 	public static function remember( string $key, callable $compute ) {
 		$generation = (int) get_option( self::GENERATION, 0 );
-		$name       = sprintf( 'library_%s_%s', $key, md5( $generation . determine_locale() ) );
+		$name       = sprintf( 'library_%s_%s', $key, md5( $generation . determine_locale() . self::get_version() ) );
 		$value      = get_transient( $name );
 
-		if ( false === $value ) {
-			$value = $compute();
+		if ( false !== $value ) {
+			return $value;
+		}
+
+		$value = $compute();
+
+		if ( ! self::$changed ) {
 			// An expiration keeps it out of the options loaded on every page, and lets the transients of former generations go.
 			set_transient( $name, $value, DAY_IN_SECONDS );
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Version of the plugin, from its header.
+	 *
+	 * @return string
+	 */
+	private static function get_version(): string {
+		self::$version ??= get_file_data( LIBRARY_FILE, array( 'Version' => 'Version' ) )['Version'];
+
+		return self::$version;
 	}
 
 	/**

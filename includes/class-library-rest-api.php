@@ -860,7 +860,7 @@ class Library_Rest_API {
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
 				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
-				'completion'  => ( new Library_Achievements() )->get_author_completion( $person->term_id ),
+				'completion'  => ( new Library_Achievements() )->get_completion( 'author', $person->term_id ),
 			)
 		);
 	}
@@ -879,38 +879,27 @@ class Library_Rest_API {
 			return new WP_Error( 'library_no_series', get_taxonomy( 'library_series' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$series_ids = array( $series->term_id, ...get_term_children( $series->term_id, 'library_series' ) );
-		$books      = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $book['series_id'], $series_ids, true ) );
-		$cycle      = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
-		$parts      = get_terms(
+		$books = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $series->term_id, $book['series_ids'], true ) );
+		$cycle = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
+		$parts = get_terms(
 			array(
 				'taxonomy'   => 'library_series',
 				'parent'     => $series->term_id,
 				'hide_empty' => false,
 			)
 		);
-		$path       = Library_Taxonomies::get_series_path( $series );
 
 		return rest_ensure_response(
 			array(
 				'id'          => $series->term_id,
-				'name'        => $path,
-				'cycle'       => $cycle instanceof WP_Term ? array(
-					'id'   => $cycle->term_id,
-					'name' => Library_Taxonomies::get_series_path( $cycle ),
-				) : null,
+				'name'        => Library_Taxonomies::get_series_path( $series ),
+				'cycle'       => self::build_term_link( $cycle, array( Library_Taxonomies::class, 'get_series_path' ) ),
 				'description' => term_description( $series ),
-				'series'      => array_map(
-					fn( WP_Term $part ) => array(
-						'id'   => $part->term_id,
-						'name' => wp_specialchars_decode( $part->name, ENT_QUOTES ),
-					),
-					is_array( $parts ) ? $parts : array()
-				),
+				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
-				'completion'  => ( new Library_Achievements() )->get_series_completion( $path ),
+				'completion'  => ( new Library_Achievements() )->get_completion( 'series', $series->term_id ),
 			)
 		);
 	}
@@ -933,9 +922,10 @@ class Library_Rest_API {
 			return new WP_Error( 'library_no_publisher', get_taxonomy( 'library_publisher' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$places      = array_flip( self::get_collection_order( $publisher ) );
-		$book_ids    = get_objects_in_term( array_keys( $places ), 'library_publisher' );
-		$books       = array_intersect_key( Library_Books::get_books(), array_flip( array_map( 'intval', is_array( $book_ids ) ? $book_ids : array() ) ) );
+		$places = array_flip( self::get_collection_order( $publisher ) );
+		// Every term of a book and every one it is under: its publishers and its collections.
+		$terms_of    = fn( array $book ): array => array( ...$book['publisher_ids'], ...$book['collection_ids'] );
+		$books       = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $publisher->term_id, $terms_of( $book ), true ) );
 		$books       = Library_Books::sort_in_reading_order( $books );
 		$ancestors   = array_map( fn( int $term_id ) => get_term( $term_id, 'library_publisher' ), get_ancestors( $publisher->term_id, 'library_publisher', 'taxonomy' ) );
 		$top         = end( $ancestors );
@@ -947,31 +937,17 @@ class Library_Rest_API {
 				'hide_empty' => false,
 			)
 		);
-		$link        = fn( $term ) => $term instanceof WP_Term ? array(
-			'id'   => $term->term_id,
-			'name' => Library_Taxonomies::get_collection_name( $term ),
-		) : null;
-		$sort_keys   = array();
-
-		// A book is in the narrowest of its collections here.
-		foreach ( $books as $book ) {
-			$terms = get_the_terms( $book['id'], 'library_publisher' );
-
-			$sort_keys[ $book['id'] ] = array(
-				max( array_intersect_key( $places, array_flip( wp_list_pluck( is_array( $terms ) ? $terms : array(), 'term_id' ) ) ) ),
-				(string) get_post_meta( $book['id'], 'library_collection_number', true ),
-			);
-		}
+		$path        = array( Library_Taxonomies::class, 'get_collection_name' );
+		// A book is in the narrowest of its collections here: the last one in their order, after those it is part of.
+		$place = fn( array $book ): int => max( array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
 
 		// A stable sort: the books without number stay in reading order.
 		usort(
 			$books,
-			function ( array $a, array $b ) use ( $sort_keys ): int {
-				[ $a_place, $a_number ] = $sort_keys[ $a['id'] ];
-				[ $b_place, $b_number ] = $sort_keys[ $b['id'] ];
-				$order                  = array( $a_place, '' === $a_number ) <=> array( $b_place, '' === $b_number );
+			function ( array $a, array $b ) use ( $place ): int {
+				$order = array( $place( $a ), '' === $a['collection_number'] ) <=> array( $place( $b ), '' === $b['collection_number'] );
 
-				return 0 !== $order ? $order : strnatcasecmp( $a_number, $b_number );
+				return 0 !== $order ? $order : strnatcasecmp( $a['collection_number'], $b['collection_number'] );
 			}
 		);
 
@@ -979,21 +955,34 @@ class Library_Rest_API {
 			array(
 				'id'          => $publisher->term_id,
 				'name'        => Library_Taxonomies::get_collection_name( $publisher ),
-				'publisher'   => $link( $top ),
-				'collection'  => $link( $parent ),
+				'publisher'   => self::build_term_link( $top, $path ),
+				'collection'  => self::build_term_link( $parent, $path ),
 				'description' => term_description( $publisher ),
-				'collections' => array_map(
-					fn( WP_Term $collection ) => array(
-						'id'   => $collection->term_id,
-						'name' => wp_specialchars_decode( $collection->name, ENT_QUOTES ),
-					),
-					is_array( $collections ) ? $collections : array()
-				),
+				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
-				'completion'  => ( new Library_Achievements() )->get_collection_completion( $publisher->term_id ),
+				'completion'  => ( new Library_Achievements() )->get_completion( 'collection', $publisher->term_id ),
 			)
+		);
+	}
+
+	/**
+	 * A term as a page links to it: its ID and its name, in plain text unless `$name` says it otherwise, such as a series
+	 * after its cycles; none for no term.
+	 *
+	 * @param WP_Term|mixed $term Term, or what get_term() gives for none.
+	 * @param callable|null $name Name of the term, from the term.
+	 * @return array{id:int,name:string}|null
+	 */
+	private static function build_term_link( $term, ?callable $name = null ): ?array {
+		if ( ! $term instanceof WP_Term ) {
+			return null;
+		}
+
+		return array(
+			'id'   => $term->term_id,
+			'name' => $name ? $name( $term ) : wp_specialchars_decode( $term->name, ENT_QUOTES ),
 		);
 	}
 
@@ -1004,15 +993,31 @@ class Library_Rest_API {
 	 * @return int[] Term IDs.
 	 */
 	private static function get_collection_order( WP_Term $publisher ): array {
-		$collections = get_terms(
+		// Every collection under it, at any depth, by name.
+		$parents  = get_terms(
 			array(
 				'taxonomy'   => 'library_publisher',
-				'parent'     => $publisher->term_id,
+				'child_of'   => $publisher->term_id,
 				'hide_empty' => false,
+				'fields'     => 'id=>parent',
 			)
 		);
+		$children = array();
 
-		return array( $publisher->term_id, ...array_merge( ...array_map( array( self::class, 'get_collection_order' ), is_array( $collections ) ? $collections : array() ) ) );
+		foreach ( is_array( $parents ) ? $parents : array() as $term_id => $parent_id ) {
+			$children[ $parent_id ][] = $term_id;
+		}
+
+		$order = array();
+		$next  = array( $publisher->term_id );
+
+		while ( $next ) {
+			$term_id = array_shift( $next );
+			$order[] = $term_id;
+			$next    = array( ...( $children[ $term_id ] ?? array() ), ...$next );
+		}
+
+		return $order;
 	}
 
 	/**

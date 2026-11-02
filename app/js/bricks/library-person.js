@@ -1,7 +1,7 @@
 import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join, listFormat } from 'library-app/format';
-import { fill, fillFolded, renderAchievement, renderBook, renderCloseAchievement, renderSeries } from 'library-app/render';
+import { fill, fillCompletion, fillFolded, renderBook, renderSeries } from 'library-app/render';
 import { followBooks, observeEnd, openBooks, renderKeyed } from 'library-app/behaviors';
 
 /**
@@ -59,21 +59,7 @@ class LibraryPersonElement extends Brick {
 			),
 			store.select(
 				( state ) => state.person.completion,
-				( completion ) => {
-					$completion.hidden = ! completion;
-
-					if ( ! completion ) {
-						$completion.replaceChildren();
-						return;
-					}
-
-					// The page is the person's: their completion links nowhere.
-					const achievement = { ...completion, target: null };
-
-					$completion.replaceChildren(
-						'total' in achievement ? renderCloseAchievement( achievement, 'library-person-completion' ) : renderAchievement( achievement )
-					);
-				}
+				( completion ) => fillCompletion( $completion, completion, 'library-person-completion' )
 			),
 			store.select(
 				( state ) => state.person.series,

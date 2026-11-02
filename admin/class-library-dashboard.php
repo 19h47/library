@@ -106,33 +106,38 @@ class Library_Dashboard {
 	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and edition years.
 	 */
 	public function render_collection(): void {
-		$stats    = Library_Stats::get_reading_stats();
-		$rankings = array(
+		$stats       = Library_Stats::get_reading_stats();
+		$books       = self::get_kept_books();
+		$authors     = self::count_books_by( $books, 'author_ids' );
+		$publishers  = self::count_books_by( $books, 'publisher_ids' );
+		$collections = self::count_books_by( $books, 'collection_ids' );
+		$languages   = self::count_books_by( $books, 'language_ids' );
+		$rankings    = array(
 			array(
 				'title' => __( 'Most present authors', 'library' ),
-				'items' => $this->get_top_terms( 'library_person' ),
+				'items' => self::build_term_items( 'library_person', $authors ),
 			),
 			array(
 				'title' => __( 'Most present publishers', 'library' ),
-				'items' => $this->get_top_terms( 'library_publisher' ),
+				'items' => self::build_term_items( 'library_publisher', $publishers ),
 			),
 			array(
 				'title' => __( 'Most present collections', 'library' ),
-				'items' => $this->get_top_collections(),
+				'items' => self::build_term_items( 'library_publisher', $collections ),
 			),
 			array(
 				'title' => __( 'Most present original languages', 'library' ),
-				'items' => $this->get_top_terms( 'library_language' ),
+				'items' => self::build_term_items( 'library_language', $languages ),
 			),
 		);
-		$counts   = array(
+		$counts      = array(
 			'books'      => $stats['total'],
-			'authors'    => $this->count_terms( 'library_person' ),
-			'publishers' => $this->count_terms( 'library_publisher' ),
-			'languages'  => $this->count_terms( 'library_language' ),
-			'translated' => $this->count_translated_books(),
+			'authors'    => count( $authors ),
+			'publishers' => count( $publishers ),
+			'languages'  => count( $languages ),
+			'translated' => count( array_filter( $books, fn( array $book ) => $book['translators'] ) ),
 		);
-		$charts   = array( $this->get_edition_chart() );
+		$charts      = array( $this->get_edition_chart() );
 
 		$this->render_partial( 'collection', compact( 'counts', 'rankings', 'charts' ) );
 	}
@@ -462,144 +467,81 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * "39 books, 30 read".
+	 * Books and books read of a ranked term, e.g. "12 books, 3 read".
 	 *
-	 * @param object $row Row with books and books_read.
+	 * @param array{books:int,books_read:int} $count Books and books read.
 	 * @return string
 	 */
-	private static function format_books_read( object $row ): string {
+	private static function format_books_read( array $count ): string {
 		return sprintf(
 			/* translators: 1: number of books, 2: number of books read. */
-			_n( '%1$s book, %2$s read', '%1$s books, %2$s read', (int) $row->books, 'library' ),
-			number_format_i18n( (int) $row->books ),
-			number_format_i18n( (int) $row->books_read )
+			_n( '%1$s book, %2$s read', '%1$s books, %2$s read', $count['books'], 'library' ),
+			number_format_i18n( $count['books'] ),
+			number_format_i18n( $count['books_read'] )
 		);
 	}
 
 	/**
-	 * The books read, as a table aliased "r" of their post_id, for the rankings to join on their books.
+	 * The books in the library, i.e. kept, from Library_Books::get_books().
 	 *
-	 * Read at once, rather than looked for among all the meta of each book of a ranking: WordPress indexes the meta
-	 * by post or by key, not by both.
-	 *
-	 * @return string
+	 * @return array<int,array>
 	 */
-	private static function get_read_books_table(): string {
-		global $wpdb;
-
-		return "( SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read' AND meta_value = '1' ) AS r";
+	private static function get_kept_books(): array {
+		return array_filter( Library_Books::get_books(), fn( array $book ) => ! in_array( $book['status'], array( Library_Posts::TO_BUY, Library_Posts::NOT_KEPT ), true ) );
 	}
 
 	/**
-	 * Joins and condition of the terms tt of the books p that count for their taxonomy: a name counts as an author, unless it
-	 * has another role, such as a colorist, or the book is collective, which is not part of the work of its authors; every
-	 * other term counts. The names with a role and the collective books are tables built once, joined to be left out.
+	 * Books and books read of each term the books count for, as their field of term IDs gives them, such as author_ids: an
+	 * author under the name they are known by, a publisher with its collections, a collection with its sub-collections. A
+	 * collective book is not part of the work of its authors. The terms with the most books come first, then the most read,
+	 * then the oldest.
 	 *
-	 * @param string $taxonomy Taxonomy.
-	 * @return array{join:string,where:string}
+	 * @param array<int,array> $books Books, from Library_Books::get_books().
+	 * @param string           $field Field of term IDs: author_ids, publisher_ids, collection_ids or language_ids.
+	 * @return array<int,array{books:int,books_read:int}> Keyed by term ID.
 	 */
-	private static function build_counted_clauses( string $taxonomy ): array {
-		global $wpdb;
+	private static function count_books_by( array $books, string $field ): array {
+		$counts = array();
 
-		if ( 'library_person' !== $taxonomy ) {
-			return array(
-				'join'  => '',
-				'where' => '1 = 1',
-			);
+		foreach ( $books as $book ) {
+			if ( 'author_ids' === $field && $book['collective'] ) {
+				continue;
+			}
+
+			foreach ( $book[ $field ] as $term_id ) {
+				$counts[ $term_id ] = array(
+					'books'      => ( $counts[ $term_id ]['books'] ?? 0 ) + 1,
+					'books_read' => ( $counts[ $term_id ]['books_read'] ?? 0 ) + (int) $book['read'],
+				);
+			}
 		}
 
-		$roles      = Library_Meta::build_roles_table();
-		$collective = "( SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_collective' AND meta_value = '1' )";
+		uksort( $counts, fn( int $a, int $b ) => array( $counts[ $b ]['books'], $counts[ $b ]['books_read'], $a ) <=> array( $counts[ $a ]['books'], $counts[ $a ]['books_read'], $b ) );
 
-		return array(
-			'join'  => "LEFT JOIN {$roles} AS role ON role.post_id = p.ID AND role.term_id = tt.term_id
-				LEFT JOIN {$collective} AS collective ON collective.post_id = p.ID",
-			'where' => 'role.post_id IS NULL AND collective.post_id IS NULL',
-		);
+		return $counts;
 	}
 
 	/**
-	 * Terms with the most books; other names of a person count for their name and collections for their publisher, i.e. their
-	 * widest ancestor, and only the terms that count for their taxonomy do.
+	 * Ranking items of the first terms counted, each one linked to its books.
 	 *
-	 * @param string $taxonomy Taxonomy.
+	 * @param string                                     $taxonomy Taxonomy.
+	 * @param array<int,array{books:int,books_read:int}> $counts   Books and books read, by term ID, in their order.
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
-	private function get_top_terms( string $taxonomy ): array {
-		global $wpdb;
-
-		$read_books = self::get_read_books_table();
-		$counted    = self::build_counted_clauses( $taxonomy );
-		$top_level  = Library_Taxonomies::build_top_level_table( $taxonomy );
-
-		$rows = Library_Stats::get_results(
-			"SELECT COALESCE( top.top_id, tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
-			FROM {$wpdb->term_relationships} AS tr
-			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
-			LEFT JOIN {$top_level} AS top ON top.term_id = tt.term_id
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			LEFT JOIN {$read_books} ON r.post_id = p.ID
-			{$counted['join']}
-			WHERE {library} AND {$counted['where']}
-			GROUP BY 1
-			ORDER BY books DESC, books_read DESC
-			LIMIT %d",
-			$taxonomy,
-			self::LIST_LENGTH
-		);
-
-		return self::build_term_items( $taxonomy, $rows );
-	}
-
-	/**
-	 * Collections with the most books, i.e. the publishers that have a parent, those of their sub-collections with them.
-	 *
-	 * @return array<int,array{name:string,url:string,text:string}>
-	 */
-	private function get_top_collections(): array {
-		global $wpdb;
-
-		$read_books  = self::get_read_books_table();
-		$collections = Library_Taxonomies::build_collections_table();
-
-		$rows = Library_Stats::get_results(
-			"SELECT c.collection_id AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
-			FROM {$wpdb->term_relationships} AS tr
-			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library_publisher'
-			INNER JOIN {$collections} AS c ON c.term_id = tt.term_id
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			LEFT JOIN {$read_books} ON r.post_id = p.ID
-			WHERE {library}
-			GROUP BY c.collection_id
-			ORDER BY books DESC, books_read DESC
-			LIMIT %d",
-			self::LIST_LENGTH
-		);
-
-		return self::build_term_items( 'library_publisher', $rows );
-	}
-
-	/**
-	 * Ranking items from rows of term IDs with their number of books and books read, each one linked to its books.
-	 *
-	 * @param string   $taxonomy Taxonomy.
-	 * @param object[] $rows     Rows with term_id, books and books_read.
-	 * @return array<int,array{name:string,url:string,text:string}>
-	 */
-	private static function build_term_items( string $taxonomy, array $rows ): array {
-		$term_ids = array_map( 'intval', wp_list_pluck( $rows, 'term_id' ) );
-		$terms    = get_terms(
+	private static function build_term_items( string $taxonomy, array $counts ): array {
+		$counts = array_slice( $counts, 0, self::LIST_LENGTH, true );
+		$terms  = $counts ? get_terms(
 			array(
 				'taxonomy'   => $taxonomy,
-				'include'    => $term_ids ? $term_ids : array( 0 ),
+				'include'    => array_keys( $counts ),
 				'hide_empty' => false,
 			)
-		);
-		$terms    = is_array( $terms ) ? array_column( $terms, null, 'term_id' ) : array();
-		$items    = array();
+		) : array();
+		$terms  = is_array( $terms ) ? array_column( $terms, null, 'term_id' ) : array();
+		$items  = array();
 
-		foreach ( $rows as $row ) {
-			$term = $terms[ (int) $row->term_id ] ?? null;
+		foreach ( $counts as $term_id => $count ) {
+			$term = $terms[ $term_id ] ?? null;
 
 			if ( ! $term ) {
 				continue;
@@ -608,58 +550,11 @@ class Library_Dashboard {
 			$items[] = array(
 				'name' => 'library_publisher' === $taxonomy ? Library_Taxonomies::get_collection_name( $term ) : $term->name,
 				'url'  => admin_url( 'edit.php?post_type=library_book&' . $taxonomy . '=' . $term->slug ),
-				'text' => self::format_books_read( $row ),
+				'text' => self::format_books_read( $count ),
 			);
 		}
 
 		return $items;
-	}
-
-	/**
-	 * Number of terms of a taxonomy with at least one book kept; other names of a person count for their name and collections for their publisher,
-	 * i.e. their widest ancestor, and only the terms that count for their taxonomy do.
-	 *
-	 * @param string $taxonomy Taxonomy.
-	 * @return int
-	 */
-	private function count_terms( string $taxonomy ): int {
-		global $wpdb;
-
-		$counted   = self::build_counted_clauses( $taxonomy );
-		$top_level = Library_Taxonomies::build_top_level_table( $taxonomy );
-
-		[ $row ] = Library_Stats::get_results(
-			"SELECT COUNT( DISTINCT COALESCE( top.top_id, tt.term_id ) ) AS terms
-			FROM {$wpdb->term_relationships} AS tr
-			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
-			LEFT JOIN {$top_level} AS top ON top.term_id = tt.term_id
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			{$counted['join']}
-			WHERE {library} AND {$counted['where']}",
-			$taxonomy
-		);
-
-		return (int) $row->terms;
-	}
-
-	/**
-	 * Number of books kept with a translator.
-	 *
-	 * @return int
-	 */
-	private function count_translated_books(): int {
-		global $wpdb;
-
-		[ $row ] = Library_Stats::get_results(
-			"SELECT COUNT( DISTINCT p.ID ) AS books
-			FROM {$wpdb->postmeta} AS t
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = t.post_id
-			WHERE t.meta_key = 'library_translators'
-				AND t.meta_value != ''
-				AND {library}"
-		);
-
-		return (int) $row->books;
 	}
 
 	/**

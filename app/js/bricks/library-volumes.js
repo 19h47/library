@@ -1,7 +1,7 @@
-import { __, _n, seriesUrl, sprintf, store } from 'library-app/app';
+import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, join } from 'library-app/format';
-import { fill, renderCover } from 'library-app/render';
+import { fill, renderCover, setPageLink } from 'library-app/render';
 import { openBooks } from 'library-app/behaviors';
 
 /**
@@ -30,8 +30,7 @@ class LibraryVolumesElement extends Brick {
 			const read = sprintf( _n( '%s read', '%s read', readCount, 'library' ), formatNumber( readCount ) );
 
 			fill( this, { name: series.name, count: join( [ formatBooks( series.total ), read ] ) } );
-			$name.href = seriesUrl + seriesId;
-			$name.dataset.series = seriesId;
+			setPageLink( $name, 'series', seriesId );
 			$list.replaceChildren( ...series.items.map( ( item ) => renderCover( this.#volume( books[ item ], series.name ), this.#state( books[ item ] ) ) ) );
 
 			const $current = $list.querySelector( `[data-id="${ id }"]` );

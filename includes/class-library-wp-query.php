@@ -140,7 +140,7 @@ class Library_WP_Query {
 			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( Library_Meta::TEXT_KEYS ), '%s' ) ) . ' ) AND meta_value LIKE %s',
 			$meta_values
 		);
-		$term_matches = self::build_term_matches( Library_Taxonomies::TAXONOMIES, $like );
+		$term_matches = self::build_term_matches( Library_Taxonomies::TAXONOMIES, $query->get( 's' ) );
 
 		return " AND ( {$wpdb->posts}.ID IN ( $meta_matches ) OR {$wpdb->posts}.ID IN ( $term_matches ) OR ( 1 = 1 $search ) )";
 	}
@@ -339,7 +339,6 @@ class Library_WP_Query {
 	private static function build_keyword_matches( string $keyword, string $value ): string {
 		global $wpdb;
 
-		$like  = '%' . $wpdb->esc_like( $value ) . '%';
 		$none  = 'SELECT 0';
 		$value = mb_strtolower( $value );
 
@@ -360,23 +359,14 @@ class Library_WP_Query {
 				// A name of the book without another role, or the name its person is known by: a colorist is not one of its authors.
 				$roles = Library_Meta::build_roles_table();
 
-				return self::build_term_matches( array( 'library_person' ), $like, "LEFT JOIN {$roles} AS role ON role.post_id = tr.object_id AND role.term_id = tt.term_id", 'role.post_id IS NULL' );
+				return self::build_term_matches( array( 'library_person' ), $value, "LEFT JOIN {$roles} AS role ON role.post_id = tr.object_id AND role.term_id = tt.term_id", 'role.post_id IS NULL' );
 			case 'publisher':
-				return self::build_term_matches( array( 'library_publisher' ), $like );
+				return self::build_term_matches( array( 'library_publisher' ), $value );
 			case 'translator':
 				// A name of the book with the role of translator, or the name its person is known by.
-				return $wpdb->prepare(
-					"SELECT tr.object_id FROM {$wpdb->postmeta} AS m
-					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_id = m.meta_value AND tt.taxonomy = 'library_person'
-					INNER JOIN {$wpdb->term_relationships} AS tr ON tr.object_id = m.post_id AND tr.term_taxonomy_id = tt.term_taxonomy_id
-					INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
-					LEFT JOIN {$wpdb->terms} AS parent ON parent.term_id = tt.parent
-					WHERE m.meta_key = 'library_translators' AND ( t.name LIKE %s OR parent.name LIKE %s )",
-					$like,
-					$like
-				);
+				return self::build_term_matches( array( 'library_person' ), $value, "INNER JOIN {$wpdb->postmeta} AS m ON m.post_id = tr.object_id AND m.meta_key = 'library_translators' AND m.meta_value = tt.term_id" );
 			case 'form':
-				return self::build_term_matches( array( 'library_form' ), $like );
+				return self::build_term_matches( array( 'library_form' ), $value );
 			case 'language':
 				return $wpdb->prepare(
 					"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
@@ -426,18 +416,19 @@ class Library_WP_Query {
 	}
 
 	/**
-	 * SQL selecting the IDs of the books with a term of the given taxonomies whose name, or one of its ancestors', matches.
+	 * SQL selecting the IDs of the books with a term of the given taxonomies whose name, or one of its ancestors', contains
+	 * the text.
 	 *
 	 * @param string[] $taxonomies Taxonomies.
-	 * @param string   $like       LIKE pattern.
+	 * @param string   $text       Text the name contains, whatever its case.
 	 * @param string   $join       SQL joins its condition needs, without placeholder.
 	 * @param string   $condition  SQL condition the term tt of the book tr meets too, without placeholder.
 	 * @return string
 	 */
-	private static function build_term_matches( array $taxonomies, string $like, string $join = '', string $condition = '1 = 1' ): string {
+	private static function build_term_matches( array $taxonomies, string $text, string $join = '', string $condition = '1 = 1' ): string {
 		global $wpdb;
 
-		$term_ids = self::find_term_ids( $taxonomies, $like );
+		$term_ids = self::find_term_ids( $taxonomies, $text );
 
 		if ( ! $term_ids ) {
 			return 'SELECT 0';
@@ -451,32 +442,30 @@ class Library_WP_Query {
 	}
 
 	/**
-	 * IDs of the terms of the given taxonomies whose name matches, with the terms under them: the other names of a person,
-	 * the collections of a publisher and their sub-collections.
+	 * IDs of the terms of the given taxonomies whose name contains the text, with the terms under them: the other names of
+	 * a person, the collections of a publisher and their sub-collections.
 	 *
 	 * @param string[] $taxonomies Taxonomies.
-	 * @param string   $like       LIKE pattern.
+	 * @param string   $text       Text the name contains, whatever its case.
 	 * @return int[]
 	 */
-	private static function find_term_ids( array $taxonomies, string $like ): array {
-		global $wpdb;
-
-		$values = array( ...$taxonomies, $like );
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- A search on the names of terms, which get_terms() matches only from their start or by word.
-		$terms    = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT tt.term_id, tt.taxonomy FROM {$wpdb->term_taxonomy} AS tt
-				INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
-				WHERE tt.taxonomy IN ( " . implode( ', ', array_fill( 0, count( $taxonomies ), '%s' ) ) . ' ) AND t.name LIKE %s',
-				$values
-			)
-		);
+	private static function find_term_ids( array $taxonomies, string $text ): array {
 		$term_ids = array();
 
-		foreach ( $terms as $term ) {
-			$children = is_taxonomy_hierarchical( $term->taxonomy ) ? get_term_children( (int) $term->term_id, $term->taxonomy ) : array();
-			$term_ids = array( ...$term_ids, (int) $term->term_id, ...( is_array( $children ) ? $children : array() ) );
+		foreach ( $taxonomies as $taxonomy ) {
+			$found = get_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'name__like' => $text,
+					'hide_empty' => false,
+					'fields'     => 'ids',
+				)
+			);
+
+			foreach ( is_array( $found ) ? $found : array() as $term_id ) {
+				$children = is_taxonomy_hierarchical( $taxonomy ) ? get_term_children( $term_id, $taxonomy ) : array();
+				$term_ids = array( ...$term_ids, $term_id, ...( is_array( $children ) ? $children : array() ) );
+			}
 		}
 
 		return array_values( array_unique( array_map( 'intval', $term_ids ) ) );

@@ -365,8 +365,7 @@ class Library_Taxonomies {
 		$names = Library_Books::split( $path );
 
 		foreach ( $names as $name ) {
-			$term      = term_exists( $name, $taxonomy, $parent_id );
-			$parent_id = is_array( $term ) ? (int) $term['term_id'] : ( $add ? self::get_term_id( $taxonomy, $name, $parent_id ) : 0 );
+			$parent_id = $add ? self::get_term_id( $taxonomy, $name, $parent_id ) : (int) ( term_exists( $name, $taxonomy, $parent_id )['term_id'] ?? 0 );
 
 			if ( ! $parent_id ) {
 				return 0;
@@ -660,6 +659,25 @@ class Library_Taxonomies {
 	}
 
 	/**
+	 * IDs of the terms of a book in a hierarchical taxonomy and of every one they are under, each one once: a book of
+	 * Folio's Science-fiction is in Folio and in Gallimard too.
+	 *
+	 * @param int    $book_id  Book ID.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return int[]
+	 */
+	public static function get_term_ids_and_ancestors( int $book_id, string $taxonomy ): array {
+		$terms = get_the_terms( $book_id, $taxonomy );
+		$ids   = array();
+
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			$ids = array( ...$ids, $term->term_id, ...get_ancestors( $term->term_id, $taxonomy, 'taxonomy' ) );
+		}
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
 	 * Name of a collection after the collections it is part of, without its publisher, in plain text: "Folio,
 	 * Science-fiction"; a publisher by its name.
 	 *
@@ -692,65 +710,6 @@ class Library_Taxonomies {
 		}
 
 		return array_values( $top_level_terms );
-	}
-
-	/**
-	 * SQL derived table of the terms under another one, each with its widest ancestor, term_id and top_id: another name
-	 * counts for the name of its person, a collection for its publisher, at any depth, which MySQL 5.7 cannot follow.
-	 *
-	 * @param string $taxonomy Taxonomy name.
-	 * @return string
-	 */
-	public static function build_top_level_table( string $taxonomy ): string {
-		$parents = self::get_parents( $taxonomy );
-		$rows    = array();
-
-		foreach ( array_filter( $parents ) as $term_id => $top_id ) {
-			while ( ! empty( $parents[ $top_id ] ) ) {
-				$top_id = $parents[ $top_id ];
-			}
-
-			$rows[] = sprintf( 'SELECT %d AS term_id, %d AS top_id', $term_id, $top_id );
-		}
-
-		return '( ' . ( $rows ? implode( ' UNION ALL ', $rows ) : 'SELECT 0 AS term_id, 0 AS top_id' ) . ' )';
-	}
-
-	/**
-	 * SQL derived table of the collections, each with itself and the collections it is part of, term_id and collection_id:
-	 * a book of Folio's Science-fiction counts for Folio too.
-	 *
-	 * @return string
-	 */
-	public static function build_collections_table(): string {
-		$parents = self::get_parents( 'library_publisher' );
-		$rows    = array();
-
-		foreach ( array_keys( array_filter( $parents ) ) as $term_id ) {
-			for ( $collection_id = $term_id; ! empty( $parents[ $collection_id ] ); $collection_id = $parents[ $collection_id ] ) {
-				$rows[] = sprintf( 'SELECT %d AS term_id, %d AS collection_id', $term_id, $collection_id );
-			}
-		}
-
-		return '( ' . ( $rows ? implode( ' UNION ALL ', $rows ) : 'SELECT 0 AS term_id, 0 AS collection_id' ) . ' )';
-	}
-
-	/**
-	 * Parent of each term of a taxonomy, by term ID, 0 for a top-level term.
-	 *
-	 * @param string $taxonomy Taxonomy name.
-	 * @return array<int,int>
-	 */
-	private static function get_parents( string $taxonomy ): array {
-		$parents = get_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'hide_empty' => false,
-				'fields'     => 'id=>parent',
-			)
-		);
-
-		return is_array( $parents ) ? array_map( 'intval', $parents ) : array();
 	}
 
 	/**

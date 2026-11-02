@@ -297,6 +297,19 @@ class Library_Reading_Idea {
 	}
 
 	/**
+	 * The cycle of the series of a book, after its own cycles, or empty: "Star Wars" for "Star Wars, Young Jedi Knights".
+	 *
+	 * @param array $book Book.
+	 * @return string
+	 */
+	private static function get_cycle( array $book ): string {
+		$series = $book['series_id'] ? get_term( $book['series_id'], 'library_series' ) : null;
+		$cycle  = $series instanceof WP_Term && $series->parent ? get_term( $series->parent, 'library_series' ) : null;
+
+		return $cycle instanceof WP_Term ? Library_Taxonomies::get_series_path( $cycle ) : '';
+	}
+
+	/**
 	 * The parts of cycles that come next, keyed by their series, with their cycle, the volumes read in it and the date of
 	 * the last one read: a part none of whose books is read, after a part read in full, in reading order.
 	 *
@@ -307,7 +320,7 @@ class Library_Reading_Idea {
 		$parts = array();
 
 		foreach ( Library_Books::sort_in_reading_order( $books ) as $book ) {
-			$cycle = Library_Books::get_cycle( $book['series'] );
+			$cycle = self::get_cycle( $book );
 
 			if ( '' !== $cycle ) {
 				$parts[ $cycle ][ $book['series'] ][] = $book;
