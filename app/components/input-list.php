@@ -36,7 +36,7 @@ $fieldset       = Library::set_attributes(
 
 echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 ?>
-	<legend><?php echo esc_html( $args['legend'] ); ?></legend>
+	<legend class="app-meta"><?php echo esc_html( $args['legend'] ); ?></legend>
 	<?php echo Library::set_attributes( '<ul></ul>', $args['list'] + array( 'class' => 'library-input-list__items' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
 	<?php if ( '' !== $args['description'] ) : ?>
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>

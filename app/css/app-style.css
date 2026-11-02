@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 19d84b2.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision a778521.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -224,13 +224,19 @@ select {
   color: var(--app-text-muted);
 }
 
-/* The small text of the interface, a pill, the meta line of an item or the footer: muted, in capitals, half a step below the text */
+/*
+ * The small text of the interface, a pill, the meta line of an item or the footer, and .app-meta on any other element,
+ * such as the label of a field or a count beside a title: muted, in capitals, half a step below the text, never bold,
+ * even in a heading.
+ */
 .app-pill,
 .app-item__meta,
-.app-footer {
+.app-footer,
+.app-meta {
   color: var(--app-text-muted);
   font-family: var(--app-font-ui);
   font-size: var(--app-font-small);
+  font-weight: normal;
   text-transform: uppercase;
 }
 
