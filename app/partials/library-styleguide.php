@@ -87,8 +87,8 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<h4 class="library-title">
 						A section title
-						<span class="library-title__count">12 books</span>
-						<a class="library-title__link" href="#top">A link</a>
+						<span class="app-meta">12 books</span>
+						<a class="app-meta library-push-end" href="#top">A link</a>
 					</h4>
 				</div>
 			</figure>
@@ -154,7 +154,7 @@ $sizes = array(
 				<figcaption><code>.library-book__*</code>, the book open: its cover, its meta line, its title, its excerpt, its notes, its translation, its fields, its actions</figcaption>
 				<div class="library-styleguide__frame library-styleguide__stack">
 					<img class="library-book__cover" alt="" hidden>
-					<p class="library-book__meta">An Author · A Publisher, A Collection · 2024</p>
+					<p class="app-meta library-book__meta">An Author · A Publisher, A Collection · 2024</p>
 					<h4 class="library-book__title">The title of a book</h4>
 					<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
 					<div class="library-book__content">
@@ -164,18 +164,18 @@ $sizes = array(
 					<p class="library-book__translation">Translated from Italian by A Translator</p>
 					<dl class="library-book__fields">
 						<div>
-							<dt>ISBN</dt>
+							<dt class="app-meta">ISBN</dt>
 							<dd>978-2-07-036024-6</dd>
 						</div>
 						<div>
-							<dt>Pages</dt>
+							<dt class="app-meta">Pages</dt>
 							<dd>320</dd>
 						</div>
 					</dl>
-					<p class="library-book__actions">
+					<p>
 						<button class="app-pill" type="button">Edit book</button>
 					</p>
-					<p class="library-book__actions">
+					<p class="app-meta">
 						<a href="#top">Edit in the dashboard</a>
 					</p>
 				</div>
@@ -532,7 +532,7 @@ with its line breaks.</p>
 				<figcaption><code>.library-edit__details</code></figcaption>
 				<div class="library-styleguide__frame">
 					<details class="library-edit__details">
-						<summary>More details</summary>
+						<summary class="app-meta">More details</summary>
 						<?php
 						Library::render_component(
 							'field',

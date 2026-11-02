@@ -205,7 +205,7 @@
 						<library-latest class="library-section" hidden>
 							<h3 class="library-title">
 								<?php esc_html_e( 'Latest readings', 'library' ); ?>
-								<a class="library-title__link" href="<?php echo esc_url( $views['diary']['url'] ); ?>" data-view="diary"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>" data-view="diary"><?php echo esc_html( $views['diary']['label'] ); ?></a>
 							</h3>
 							<ul class="library-covers"></ul>
 						</library-latest>
@@ -221,14 +221,14 @@
 						<library-close class="library-section" hidden>
 							<h3 class="library-title">
 								<?php esc_html_e( 'Close to it', 'library' ); ?>
-								<a class="library-title__link" href="<?php echo esc_url( $views['achievements']['url'] ); ?>" data-view="achievements"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>" data-view="achievements"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
 							</h3>
 							<ul class="app-list__items"></ul>
 						</library-close>
 					</library-home>
 					<h3 class="library-title library-books__title">
 						<?php echo esc_html( $labels->name ); ?>
-						<library-count class="library-title__count" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+						<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 					</h3>
 
 					<library-status class="app-status" hidden></library-status>
@@ -270,14 +270,14 @@
 						<section class="library-section" data-row="close">
 							<h2 class="library-title">
 								<?php esc_html_e( 'Close to it', 'library' ); ?>
-								<span class="library-title__count" data-field="closeCount"></span>
+								<span class="app-meta" data-field="closeCount"></span>
 							</h2>
 							<ul class="app-list__items" data-list="close"></ul>
 						</section>
 						<section class="library-section" data-row="earned">
 							<h2 class="library-title">
 								<?php esc_html_e( 'Achievements', 'library' ); ?>
-								<span class="library-title__count" data-field="earnedCount"></span>
+								<span class="app-meta" data-field="earnedCount"></span>
 							</h2>
 							<ul class="app-list__items" data-list="earned"></ul>
 						</section>
@@ -287,7 +287,7 @@
 				<library-view name="to-buy" <?php echo 'to-buy' === $view ? '' : 'hidden'; ?>>
 					<h2 class="library-title">
 						<?php echo esc_html( $views['to-buy']['label'] ); ?>
-						<library-count class="library-title__count" list="toBuy"></library-count>
+						<library-count class="app-meta" list="toBuy"></library-count>
 					</h2>
 					<library-status class="app-status" list="toBuy" hidden></library-status>
 					<library-list list="toBuy">
@@ -361,7 +361,7 @@
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
 						<img class="library-book__cover" data-field="cover" alt="" hidden>
-						<p class="library-book__meta" data-field="credits"></p>
+						<p class="app-meta library-book__meta" data-field="credits"></p>
 						<h2 class="library-book__title" data-field="title" tabindex="-1"></h2>
 						<p class="library-book__excerpt" data-field="excerpt"></p>
 						<div class="library-book__content" data-html="content" hidden></div>
@@ -434,41 +434,41 @@
 						<library-volumes class="library-book__series" hidden>
 							<h3 class="library-title">
 								<a data-field="name" href=""></a>
-								<span class="library-title__count" data-field="count"></span>
+								<span class="app-meta" data-field="count"></span>
 							</h3>
 							<ul class="library-covers"></ul>
 						</library-volumes>
 						<dl class="library-book__fields">
 							<div data-row="authors">
-								<dt><?php echo esc_html( $person_labels->name ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( $person_labels->name ); ?></dt>
 								<dd data-field="authors"></dd>
 							</div>
 							<?php // The translators are named by the translation line. ?>
 							<?php foreach ( array_diff( Library_Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
 								<?php $role_field = str_replace( 'library_', '', $key ); ?>
 								<div data-row="<?php echo esc_attr( $role_field ); ?>">
-									<dt><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></dt>
+									<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></dt>
 									<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
 								</div>
 							<?php endforeach; ?>
 							<div data-row="isbn">
-								<dt><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
 								<dd data-field="isbn"></dd>
 							</div>
 							<div data-row="pages">
-								<dt><?php echo esc_html( Library_Meta::get_label( 'library_pages' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_pages' ) ); ?></dt>
 								<dd data-field="pages"></dd>
 							</div>
 							<div data-row="edition_date">
-								<dt><?php echo esc_html( Library_Meta::get_label( 'library_edition_date' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_edition_date' ) ); ?></dt>
 								<dd data-field="edition_date"></dd>
 							</div>
 							<div data-row="published_date">
-								<dt><?php echo esc_html( Library_Meta::get_label( 'library_published_date' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_published_date' ) ); ?></dt>
 								<dd data-field="published_date"></dd>
 							</div>
 						</dl>
-						<p class="library-book__actions">
+						<p>
 							<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
 						</p>
 					</library-book>
@@ -629,7 +629,7 @@
 					?>
 					<?php // The fields few books have, closed: its summary counts the ones filled in. ?>
 					<details class="library-edit__details">
-						<summary data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
+						<summary class="app-meta" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
 						foreach ( array( 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
 							Library::render_component(
@@ -691,7 +691,7 @@
 						<button class="app-pill app-pill--primary" type="submit" data-saving="<?php esc_attr_e( 'Saving…', 'library' ); ?>"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
-				<p class="library-book__actions" hidden>
+				<p class="app-meta" hidden>
 					<a data-link="admin" href=""><?php esc_html_e( 'Edit in the dashboard', 'library' ); ?></a>
 				</p>
 				<datalist id="library-edit-people"></datalist>
@@ -794,7 +794,7 @@
 			<section class="library-section">
 				<h2 class="library-title">
 					<span data-field="month"></span>
-					<span class="library-title__count" data-field="count"></span>
+					<span class="app-meta" data-field="count"></span>
 				</h2>
 				<ul class="app-list__items"></ul>
 			</section>

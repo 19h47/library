@@ -139,28 +139,9 @@ library-home:not([hidden]) + .library-books__title {
 	margin-bottom: var(--app-u1);
 }
 
-/* A link at the end of a title, to the view it sums up */
-.library-title__link {
+/* Pushed to the end of its row, such as a link at the end of a title, to the view it sums up */
+.library-push-end {
 	margin-inline-start: auto;
-}
-
-/*
- * The small text of the interface, as the pills and the meta lines of the cards: the count or the link of a title,
- * the meta line and the names of the fields of a book open, the label of a field. Muted, in capitals, half a step
- * below the text, never bold, even in a title.
- */
-.library-title__link,
-.library-title__count,
-.library-book__meta,
-.library-book__fields dt,
-.library-field label,
-.library-input-list legend,
-.library-edit__details summary {
-	color: var(--app-text-muted);
-	font-family: var(--app-font-ui);
-	font-size: var(--app-font-small);
-	font-weight: normal;
-	text-transform: uppercase;
 }
 
 /* The large text: the title of a book open, the name of a person or of a series, tightened as the title of the page */
@@ -427,12 +408,6 @@ library-view > .library-back {
 
 .library-book__fields dd {
 	overflow-wrap: anywhere;
-}
-
-.library-book__actions {
-	font-family: var(--app-font-ui);
-	font-size: var(--app-font-small);
-	text-transform: uppercase;
 }
 
 /* The page of a person: their names and their reading, then the completion their books count for, then their books */
