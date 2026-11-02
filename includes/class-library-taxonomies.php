@@ -365,8 +365,7 @@ class Library_Taxonomies {
 		$names = Library_Books::split( $path );
 
 		foreach ( $names as $name ) {
-			$term      = term_exists( $name, $taxonomy, $parent_id );
-			$parent_id = is_array( $term ) ? (int) $term['term_id'] : ( $add ? self::get_term_id( $taxonomy, $name, $parent_id ) : 0 );
+			$parent_id = $add ? self::get_term_id( $taxonomy, $name, $parent_id ) : (int) ( term_exists( $name, $taxonomy, $parent_id )['term_id'] ?? 0 );
 
 			if ( ! $parent_id ) {
 				return 0;
@@ -657,6 +656,25 @@ class Library_Taxonomies {
 		}
 
 		return array_values( $collections );
+	}
+
+	/**
+	 * IDs of the terms of a book in a hierarchical taxonomy and of every one they are under, each one once: a book of
+	 * Folio's Science-fiction is in Folio and in Gallimard too.
+	 *
+	 * @param int    $book_id  Book ID.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return int[]
+	 */
+	public static function get_term_ids_and_ancestors( int $book_id, string $taxonomy ): array {
+		$terms = get_the_terms( $book_id, $taxonomy );
+		$ids   = array();
+
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			$ids = array( ...$ids, $term->term_id, ...get_ancestors( $term->term_id, $taxonomy, 'taxonomy' ) );
+		}
+
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

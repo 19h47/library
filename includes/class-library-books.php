@@ -10,7 +10,7 @@
  */
 
 /**
- * Loads all the books once per request, with their meta and terms, and says a book, a number of books and a rating the same way everywhere.
+ * Loads all the books, with their meta and terms, kept until a book changes, and says a book, a number of books and a rating the same way everywhere.
  *
  * @since      2.2.0
  * @package    Library
@@ -20,7 +20,7 @@
 class Library_Books {
 
 	/**
-	 * Books of the current request.
+	 * Books of the current request, from the cache.
 	 *
 	 * @var array<int,array>|null
 	 */
@@ -45,14 +45,26 @@ class Library_Books {
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
 	 * Collections are those of the book and the ones they are part of, named after them: "Folio, Science-fiction", "Folio".
+	 * Series IDs are those of its series and of the cycles it is part of, from the series to the widest cycle; publisher IDs
+	 * those of its publishers and collections and of every one they are part of, its publisher included.
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>,forms:string[]}>
+	 * Kept until a book changes, as they take every book: see Library_Cache.
+	 *
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,series_ids:int[],volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],publisher_ids:int[],collection_number:string,languages:array<string,string>,forms:string[]}>
 	 */
 	public static function get_books(): array {
-		if ( null !== self::$books ) {
-			return self::$books;
-		}
+		self::$books ??= Library_Cache::remember( 'books', fn() => self::compute_books() );
 
+		return self::$books;
+	}
+
+	/**
+	 * All the books, from their posts: see get_books().
+	 *
+	 * @return array<int,array>
+	 */
+	private static function compute_books(): array {
+		$books = array();
 		$posts = get_posts(
 			array(
 				'post_type'   => 'library_book',
@@ -60,8 +72,6 @@ class Library_Books {
 				'numberposts' => -1,
 			)
 		);
-
-		self::$books = array();
 
 		foreach ( $posts as $post ) {
 			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'library_volume_number', true ), $match ) ? (int) $match[0] : null;
@@ -74,38 +84,42 @@ class Library_Books {
 			$contributors   = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID ) );
 			$translators    = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID, 'translator' ) );
 			$collections    = Library_Taxonomies::get_collections_and_parents( $post->ID );
+			$publisher_ids  = Library_Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_publisher' );
 			$languages      = get_the_terms( $post->ID, 'library_language' );
 			$forms          = get_the_terms( $post->ID, 'library_form' );
 
-			self::$books[ $post->ID ] = array(
-				'id'              => $post->ID,
-				'title'           => $post->post_title,
-				'full_title'      => self::get_full_title( $post->ID, $post->post_title ),
-				'status'          => $post->post_status,
+			$books[ $post->ID ] = array(
+				'id'                => $post->ID,
+				'title'             => $post->post_title,
+				'full_title'        => self::get_full_title( $post->ID, $post->post_title ),
+				'status'            => $post->post_status,
 				// From its cycle, as typed: "Star Wars, Young Jedi Knights".
-				'series'          => $series ? Library_Taxonomies::get_series_path( $series ) : '',
-				'series_id'       => $series ? $series->term_id : 0,
-				'volume'          => $volume,
-				'read'            => Library_Posts::is_read( $post->ID ),
-				'collective'      => Library_Posts::is_collective( $post->ID ),
-				'read_dates'      => Library_Meta::get_read_dates( $post->ID ),
-				'rating'          => '' !== $rating ? (float) $rating : null,
-				'pages'           => $pages ? $pages : null,
-				'edition_date'    => $edition_date,
-				'published_date'  => $published_date,
-				'added'           => $post->post_date,
-				'authors'         => wp_list_pluck( $authors, 'name' ),
-				'author_ids'      => wp_list_pluck( $authors, 'term_id' ),
-				'contributor_ids' => wp_list_pluck( $contributors, 'term_id' ),
-				'translators'     => wp_list_pluck( $translators, 'name' ),
-				'collections'     => array_map( array( Library_Taxonomies::class, 'get_collection_name' ), $collections ),
-				'collection_ids'  => wp_list_pluck( $collections, 'term_id' ),
-				'languages'       => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
-				'forms'           => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
+				'series'            => $series ? Library_Taxonomies::get_series_path( $series ) : '',
+				'series_id'         => $series ? $series->term_id : 0,
+				'series_ids'        => Library_Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' ),
+				'volume'            => $volume,
+				'read'              => Library_Posts::is_read( $post->ID ),
+				'collective'        => Library_Posts::is_collective( $post->ID ),
+				'read_dates'        => Library_Meta::get_read_dates( $post->ID ),
+				'rating'            => '' !== $rating ? (float) $rating : null,
+				'pages'             => $pages ? $pages : null,
+				'edition_date'      => $edition_date,
+				'published_date'    => $published_date,
+				'added'             => $post->post_date,
+				'authors'           => wp_list_pluck( $authors, 'name' ),
+				'author_ids'        => wp_list_pluck( $authors, 'term_id' ),
+				'contributor_ids'   => wp_list_pluck( $contributors, 'term_id' ),
+				'translators'       => wp_list_pluck( $translators, 'name' ),
+				'collections'       => array_map( array( Library_Taxonomies::class, 'get_collection_name' ), $collections ),
+				'collection_ids'    => wp_list_pluck( $collections, 'term_id' ),
+				'publisher_ids'     => $publisher_ids,
+				'collection_number' => (string) get_post_meta( $post->ID, 'library_collection_number', true ),
+				'languages'         => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
+				'forms'             => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
 			);
 		}
 
-		return self::$books;
+		return $books;
 	}
 
 	/**
@@ -152,17 +166,6 @@ class Library_Books {
 		);
 
 		return $books;
-	}
-
-	/**
-	 * Cycle of a series, the names before its last one: "Star Wars" for "Star Wars, Young Jedi Knights", empty for a series
-	 * without cycle.
-	 *
-	 * @param string $series Series, after its cycles.
-	 * @return string
-	 */
-	public static function get_cycle( string $series ): string {
-		return implode( ', ', array_slice( self::split( $series ), 0, -1 ) );
 	}
 
 	/**

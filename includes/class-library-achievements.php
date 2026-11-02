@@ -378,7 +378,7 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Key of a name typed by hand, such as a series or a translator, the same whatever its case.
+	 * Key of a name, such as a translator or a title, the same whatever its case.
 	 *
 	 * @param string $name Name.
 	 * @return string
@@ -523,70 +523,21 @@ class Library_Achievements {
 	}
 
 	/**
-	 * The completion the books of an author count for, however many are left; none when they are too few.
+	 * The completion the books of an author, a series or a cycle, or a collection count for, however many are left; none
+	 * when they are too few, or for a publisher.
 	 *
-	 * @param int $author_id Term ID of the author, under the name they are known by.
+	 * @param string $kind    "author", "series" or "collection".
+	 * @param int    $term_id Term ID: an author under the name they are known by.
 	 * @return array|null
 	 */
-	public function get_author_completion( int $author_id ): ?array {
+	public function get_completion( string $kind, int $term_id ): ?array {
 		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
-			if ( isset( $kinds['author'][ $author_id ] ) ) {
+			if ( isset( $kinds[ $kind ][ $term_id ] ) ) {
 				return self::get_group_completion( $kinds );
 			}
 		}
 
 		return null;
-	}
-
-	/**
-	 * The completion the books of a collection count for, however many are left; none when they are too few, or for a publisher.
-	 *
-	 * @param int $collection_id Term ID of the collection.
-	 * @return array|null
-	 */
-	public function get_collection_completion( int $collection_id ): ?array {
-		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
-			if ( isset( $kinds['collection'][ $collection_id ] ) ) {
-				return self::get_group_completion( $kinds );
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * The completion the books of a series, or a cycle, count for, however many are left; none when they are too few.
-	 *
-	 * @param string $series Series, after its cycles.
-	 * @return array|null
-	 */
-	public function get_series_completion( string $series ): ?array {
-		$key = self::get_name_key( $series );
-
-		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
-			if ( isset( $kinds['series'][ $key ] ) ) {
-				return self::get_group_completion( $kinds );
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * The series of a book and the cycles it belongs to, keyed by their key, from the series to the widest cycle: a series
-	 * is typed after its cycles, such as "Star Wars, Young Jedi Knights", a series of the cycle "Star Wars".
-	 *
-	 * @param string $series Series of a book, after its cycles.
-	 * @return array<string,string>
-	 */
-	private static function get_series_and_cycles( string $series ): array {
-		$series_and_cycles = array();
-
-		for ( $name = implode( ', ', Library_Books::split( $series ) ); '' !== $name; $name = Library_Books::get_cycle( $name ) ) {
-			$series_and_cycles[ self::get_name_key( $name ) ] = $name;
-		}
-
-		return $series_and_cycles;
 	}
 
 	/**
@@ -607,7 +558,7 @@ class Library_Achievements {
 	 * collection, else for the collection it is part of.
 	 *
 	 * @param array<int,array> $books All the books.
-	 * @return array<string,array<string,array<int|string,array<int,array>>>>
+	 * @return array<string,array<string,array<int,array<int,array>>>>
 	 */
 	private static function get_completion_groups( array $books ): array {
 		$groups = array(
@@ -617,8 +568,8 @@ class Library_Achievements {
 		);
 
 		foreach ( $books as $book ) {
-			foreach ( array_keys( self::get_series_and_cycles( $book['series'] ) ) as $series_key ) {
-				$groups['series'][ $series_key ][] = $book;
+			foreach ( $book['series_ids'] as $series_id ) {
+				$groups['series'][ $series_id ][] = $book;
 			}
 
 			foreach ( self::get_work_author_ids( $book ) as $author_id ) {
@@ -648,7 +599,7 @@ class Library_Achievements {
 	 *
 	 * Authors with the same books are named together; the completion of an author leads to the first one.
 	 *
-	 * @param array<string,array<int|string,array<int,array>>> $kinds Groups of the same books, by kind, then by key.
+	 * @param array<string,array<int,array<int,array>>> $kinds Groups of the same books, by kind, then by key.
 	 * @return array
 	 */
 	private static function get_group_completion( array $kinds ): array {
@@ -664,19 +615,21 @@ class Library_Achievements {
 		$read   = array_filter( $group, fn( array $book ) => $book['read'] );
 		$left   = $total - count( $read );
 
-		if ( 'series' === $kind ) {
-			$series_and_cycles = self::get_series_and_cycles( $group[0]['series'] );
-			// The series of the book, then its cycles, in the order of their keys.
-			$term_ids = array( $group[0]['series_id'], ...get_ancestors( $group[0]['series_id'], 'library_series', 'taxonomy' ) );
-			$term_id  = $term_ids[ array_search( $key, array_keys( $series_and_cycles ), true ) ];
-			$subject  = $series_and_cycles[ $key ];
-			$target   = self::build_term_target( 'series', $term_id, $group );
-		} else {
-			$taxonomy = 'author' === $kind ? 'library_person' : 'library_publisher';
-			$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) ), fn( $term ) => $term instanceof WP_Term );
-			$subject  = wp_sprintf( '%l', 'author' === $kind ? wp_list_pluck( $terms, 'name' ) : array_map( array( Library_Taxonomies::class, 'get_collection_name' ), $terms ) );
-			$target   = self::build_term_target( $kind, (int) $key, $group );
-		}
+		$taxonomies = array(
+			'author'     => 'library_person',
+			'series'     => 'library_series',
+			'collection' => 'library_publisher',
+		);
+		$names      = array(
+			'author'     => fn( WP_Term $term ) => $term->name,
+			'series'     => array( Library_Taxonomies::class, 'get_series_path' ),
+			'collection' => array( Library_Taxonomies::class, 'get_collection_name' ),
+		);
+		// A series is named alone, without the cycles of the same books.
+		$term_ids = 'series' === $kind ? array( $key ) : array_keys( $kinds[ $kind ] );
+		$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $taxonomies[ $kind ] ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
+		$subject  = wp_sprintf( '%l', array_map( $names[ $kind ], $terms ) );
+		$target   = self::build_term_target( $kind, (int) $key, $group );
 
 		if ( 0 === $left ) {
 			return self::build_achievement( $kind, $titles[ $kind ], $subject, Library_Books::format_books( $total ), $target, self::get_latest_read_date( $read ) );
@@ -1847,14 +1800,14 @@ class Library_Achievements {
 		$found = null;
 
 		foreach ( $dated as $book ) {
-			if ( null === $book['volume'] || '' === $book['series'] ) {
+			if ( null === $book['volume'] || ! $book['series_id'] ) {
 				continue;
 			}
 
-			if ( 1 === $book['volume'] && isset( $later[ self::get_name_key( $book['series'] ) ] ) ) {
+			if ( 1 === $book['volume'] && isset( $later[ $book['series_id'] ] ) ) {
 				$found = $book;
 			} elseif ( $book['volume'] > 1 ) {
-				$later[ self::get_name_key( $book['series'] ) ] = true;
+				$later[ $book['series_id'] ] = true;
 			}
 		}
 
