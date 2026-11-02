@@ -5,8 +5,14 @@
  * @subpackage Library/app
  */
 
-import { __, personUrl, bookUrl, seriesUrl, publisherUrl, searchUrl, sprintf } from 'library-app/app';
-import { formatDate, formatNumber, formatOriginal, formatStatus, join, listFormat } from 'library-app/format';
+import { __, _n, personUrl, bookUrl, seriesUrl, publisherUrl, searchUrl, sprintf } from 'library-app/app';
+import { formatBooks, formatDate, formatNumber, formatOriginal, formatStatus, join, listFormat } from 'library-app/format';
+
+// The URL of the page of a person, of a series and of a collection, by the data of its links.
+const PAGE_URLS = { person: personUrl, series: seriesUrl, publisher: publisherUrl };
+
+/** The data of the links to the pages of a person, of a series and of a collection, whose value is the ID of their term. */
+export const PAGE_LINKS = Object.keys( PAGE_URLS );
 
 /**
  * Sets the text of the [data-field] elements of `$root`; an empty one is hidden, with its [data-row].
@@ -27,7 +33,7 @@ export function fill( $root, fields ) {
 	} );
 }
 
-/** A link the app follows without reloading, as its data say: to the page of a person, a book, a series, a collection, or the books a search finds. */
+/** A link the app follows without reloading, as its data say: to the page of a book, or to the books a search finds. */
 function link( href, data, text ) {
 	const $link = document.createElement( 'a' );
 
@@ -38,24 +44,40 @@ function link( href, data, text ) {
 	return $link;
 }
 
-/** A link to the page of a person. */
-function personLink( id, name ) {
-	return link( personUrl + id, { person: id }, name );
+/** Points `$link` to the `page` of the term `id`, "person", "series" or "publisher", which the app opens without reloading. */
+export function setPageLink( $link, page, id ) {
+	$link.href = PAGE_URLS[ page ] + id;
+	$link.dataset[ page ] = id;
 }
 
-/** A link to the page of a series, or of a cycle. */
-export function seriesLink( id, name ) {
-	return link( seriesUrl + id, { series: id }, name );
+/** A link to the `page` of the term `id`: of a person, of a series or a cycle, of a collection or a publisher. */
+export function pageLink( page, id, name ) {
+	const $link = document.createElement( 'a' );
+
+	setPageLink( $link, page, id );
+	$link.textContent = name;
+
+	return $link;
 }
 
-/** A link to the page of a collection, or of a publisher. */
-export function publisherLink( id, name ) {
-	return link( publisherUrl + id, { publisher: id }, name );
+/** Fills `$list` with `$links` as pills, one per item, such as the series of a cycle; its [data-row] hides without one. */
+export function fillPills( $list, $links ) {
+	$list.replaceChildren(
+		...$links.map( ( $link ) => {
+			const $item = document.createElement( 'li' );
+
+			$link.className = 'app-pill';
+			$item.append( $link );
+
+			return $item;
+		} )
+	);
+	$list.closest( '[data-row]' ).hidden = ! $links.length;
 }
 
 /** Turns the names of people in `$field` into links to their pages, listed as the language lists them. */
 export function linkPeople( $field, people ) {
-	const $links = people.map( ( person ) => personLink( person.id, person.name ) );
+	const $links = people.map( ( person ) => pageLink( 'person', person.id, person.name ) );
 
 	$field.replaceChildren(
 		...listFormat
@@ -72,9 +94,9 @@ function linkAchievement( $field, { target } ) {
 	const text = $field.textContent;
 	const links = {
 		book: () => link( bookUrl + target.id, { book: target.id }, text ),
-		author: () => personLink( target.id, text ),
-		series: () => seriesLink( target.id, text ),
-		collection: () => publisherLink( target.id, text ),
+		author: () => pageLink( 'person', target.id, text ),
+		series: () => pageLink( 'series', target.id, text ),
+		collection: () => pageLink( 'publisher', target.id, text ),
 		search: () => link( searchUrl + encodeURIComponent( target.search ), { search: target.search }, text ),
 	};
 
@@ -158,12 +180,12 @@ function renderTerm( $link, description, line ) {
 
 /** The card of an author of a series: their name, which leads to their page, their description, then `line`. */
 export function renderAuthor( author, line ) {
-	return renderTerm( personLink( author.id, author.name ), author.description, line );
+	return renderTerm( pageLink( 'person', author.id, author.name ), author.description, line );
 }
 
 /** The card of a series of a person: its name after its cycles, which leads to its page, its description, then `line`. */
 export function renderSeries( series, line ) {
-	return renderTerm( seriesLink( series.id, series.name ), series.description, line );
+	return renderTerm( pageLink( 'series', series.id, series.name ), series.description, line );
 }
 
 // The cards of a section shown before the others fold: four show all, five fold two.
@@ -183,6 +205,19 @@ export function fillFolded( $section, $cards, more ) {
 	$more.closest( 'details' ).open = false;
 	fill( $section, { more: folded ? more( folded ) : '' } );
 	$section.hidden = ! $cards.length;
+}
+
+/**
+ * Fills `$section` with the cards of the authors of the `total` books of a series or a collection, who wrote the most
+ * first: how many of its books each one wrote, unless it has only one.
+ */
+export function fillAuthors( $section, authors, total ) {
+	fillFolded(
+		$section,
+		authors.map( ( author ) => renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' ) ),
+		/* translators: %s: number of authors of a series or a collection, after the first ones. */
+		( folded ) => sprintf( _n( '%s other author', '%s other authors', folded, 'library' ), formatNumber( folded ) )
+	);
 }
 
 /** An achievement earned: its title, its subject, its detail and date, as on the Achievements page. */
@@ -222,4 +257,21 @@ export function renderCloseAchievement( achievement, id ) {
 	$progress.setAttribute( 'aria-valuetext', sprintf( __( '%1$s of %2$s', 'library' ), done, total ) );
 
 	return $item;
+}
+
+/**
+ * Fills `$completion` with the completion the books of a page count for, earned or close, whose progress the element
+ * `id` labels; it links nowhere, the page being its subject. Hidden without one.
+ */
+export function fillCompletion( $completion, completion, id ) {
+	$completion.hidden = ! completion;
+
+	if ( ! completion ) {
+		$completion.replaceChildren();
+		return;
+	}
+
+	const achievement = { ...completion, target: null };
+
+	$completion.replaceChildren( 'total' in achievement ? renderCloseAchievement( achievement, id ) : renderAchievement( achievement ) );
 }

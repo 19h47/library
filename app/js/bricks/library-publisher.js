@@ -1,7 +1,7 @@
-import { __, _n, publisherUrl, sprintf, store } from 'library-app/app';
+import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
-import { fill, fillFolded, publisherLink, renderAchievement, renderAuthor, renderBook, renderCloseAchievement } from 'library-app/render';
+import { fill, fillAuthors, fillCompletion, fillPills, pageLink, renderBook, setPageLink } from 'library-app/render';
 import { followBooks, observeEnd, openBooks, openLinks, renderKeyed } from 'library-app/behaviors';
 
 /**
@@ -46,8 +46,7 @@ class LibraryPublisherElement extends Brick {
 					// The publisher above, and the collection above a sub-collection.
 					Object.entries( $links ).forEach( ( [ key, $link ] ) => {
 						if ( publisher[ key ] ) {
-							$link.href = publisherUrl + publisher[ key ].id;
-							$link.dataset.publisher = publisher[ key ].id;
+							setPageLink( $link, 'publisher', publisher[ key ].id );
 						}
 					} );
 
@@ -55,52 +54,20 @@ class LibraryPublisherElement extends Brick {
 					$description.innerHTML = publisher.description;
 					$description.hidden = ! publisher.description;
 
-					$collections.replaceChildren(
-						...publisher.collections.map( ( collection ) => {
-							const $item = document.createElement( 'li' );
-							const $link = publisherLink( collection.id, collection.name );
-
-							$link.className = 'app-pill';
-							$item.append( $link );
-
-							return $item;
-						} )
+					fillPills(
+						$collections,
+						publisher.collections.map( ( collection ) => pageLink( 'publisher', collection.id, collection.name ) )
 					);
-					$collections.closest( '[data-row]' ).hidden = ! publisher.collections.length;
 				}
 			),
 			store.select(
 				( state ) => state.publisher.authors,
-				( authors ) => {
-					// Loaded with its authors.
-					const { total } = store.get().publisher;
-
-					// How many of its books an author wrote, unless it has only one.
-					fillFolded(
-						$authors,
-						authors.map( ( author ) => renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' ) ),
-						/* translators: %s: number of authors of a series, after the first ones. */
-						( folded ) => sprintf( _n( '%s other author', '%s other authors', folded, 'library' ), formatNumber( folded ) )
-					);
-				}
+				// Loaded with its authors.
+				( authors ) => fillAuthors( $authors, authors, store.get().publisher.total )
 			),
 			store.select(
 				( state ) => state.publisher.completion,
-				( completion ) => {
-					$completion.hidden = ! completion;
-
-					if ( ! completion ) {
-						$completion.replaceChildren();
-						return;
-					}
-
-					// The page is the collection's: its completion links nowhere.
-					const achievement = { ...completion, target: null };
-
-					$completion.replaceChildren(
-						'total' in achievement ? renderCloseAchievement( achievement, 'library-publisher-completion' ) : renderAchievement( achievement )
-					);
-				}
+				( completion ) => fillCompletion( $completion, completion, 'library-publisher-completion' )
 			),
 			store.select(
 				( state ) => state.publisher.name,

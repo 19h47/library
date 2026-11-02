@@ -893,18 +893,9 @@ class Library_Rest_API {
 			array(
 				'id'          => $series->term_id,
 				'name'        => Library_Taxonomies::get_series_path( $series ),
-				'cycle'       => $cycle instanceof WP_Term ? array(
-					'id'   => $cycle->term_id,
-					'name' => Library_Taxonomies::get_series_path( $cycle ),
-				) : null,
+				'cycle'       => self::build_term_link( $cycle, array( Library_Taxonomies::class, 'get_series_path' ) ),
 				'description' => term_description( $series ),
-				'series'      => array_map(
-					fn( WP_Term $part ) => array(
-						'id'   => $part->term_id,
-						'name' => wp_specialchars_decode( $part->name, ENT_QUOTES ),
-					),
-					is_array( $parts ) ? $parts : array()
-				),
+				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
@@ -946,10 +937,7 @@ class Library_Rest_API {
 				'hide_empty' => false,
 			)
 		);
-		$link        = fn( $term ) => $term instanceof WP_Term ? array(
-			'id'   => $term->term_id,
-			'name' => Library_Taxonomies::get_collection_name( $term ),
-		) : null;
+		$path        = array( Library_Taxonomies::class, 'get_collection_name' );
 		// A book is in the narrowest of its collections here: the last one in their order, after those it is part of.
 		$place = fn( array $book ): int => max( array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
 
@@ -967,21 +955,34 @@ class Library_Rest_API {
 			array(
 				'id'          => $publisher->term_id,
 				'name'        => Library_Taxonomies::get_collection_name( $publisher ),
-				'publisher'   => $link( $top ),
-				'collection'  => $link( $parent ),
+				'publisher'   => self::build_term_link( $top, $path ),
+				'collection'  => self::build_term_link( $parent, $path ),
 				'description' => term_description( $publisher ),
-				'collections' => array_map(
-					fn( WP_Term $collection ) => array(
-						'id'   => $collection->term_id,
-						'name' => wp_specialchars_decode( $collection->name, ENT_QUOTES ),
-					),
-					is_array( $collections ) ? $collections : array()
-				),
+				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
 				'completion'  => ( new Library_Achievements() )->get_completion( 'collection', $publisher->term_id ),
 			)
+		);
+	}
+
+	/**
+	 * A term as a page links to it: its ID and its name, in plain text unless `$name` says it otherwise, such as a series
+	 * after its cycles; none for no term.
+	 *
+	 * @param WP_Term|mixed $term Term, or what get_term() gives for none.
+	 * @param callable|null $name Name of the term, from the term.
+	 * @return array{id:int,name:string}|null
+	 */
+	private static function build_term_link( $term, ?callable $name = null ): ?array {
+		if ( ! $term instanceof WP_Term ) {
+			return null;
+		}
+
+		return array(
+			'id'   => $term->term_id,
+			'name' => $name ? $name( $term ) : wp_specialchars_decode( $term->name, ENT_QUOTES ),
 		);
 	}
 

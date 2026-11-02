@@ -391,47 +391,64 @@
 		return { ...pages(), id, name: '', publisher: null, collection: null, collections: [], authors: [], description: '', books: [], read: 0, completion: null };
 	}
 
-	/** The pages of a person, of a series and of a collection: their route, and what their state takes from it. */
+	/** A term the API gives, such as an author or a cycle, with its name in plain text; none stays none. */
+	function toPlainName( term ) {
+		return term && { ...term, name: text( term.name ) };
+	}
+
+	/**
+	 * The pages of a person, of a series and of a collection, by their view: their route, their `state` for the term `id`,
+	 * and what it takes from the API.
+	 */
 	const PAGES = {
-		person: {
+		[ PERSON_VIEW ]: {
 			route: 'people',
+			state: person,
 			from: ( data ) => ( {
 				name: text( data.name ),
 				otherNames: data.other_names.map( text ),
 				description: data.description,
-				series: data.series.map( ( item ) => ( { ...item, name: text( item.name ) } ) ),
+				series: data.series.map( toPlainName ),
 				read: data.read,
 				rating: data.rating,
 				bookPages: data.pages,
 				completion: data.completion,
 			} ),
 		},
-		series: {
+		[ SERIES_VIEW ]: {
 			route: 'series',
+			state: series,
 			from: ( data ) => ( {
 				name: text( data.name ),
-				cycle: data.cycle && { id: data.cycle.id, name: text( data.cycle.name ) },
-				parts: data.series.map( ( part ) => ( { id: part.id, name: text( part.name ) } ) ),
-				authors: data.authors.map( ( author ) => ( { ...author, name: text( author.name ) } ) ),
+				cycle: toPlainName( data.cycle ),
+				parts: data.series.map( toPlainName ),
+				authors: data.authors.map( toPlainName ),
 				description: data.description,
 				read: data.read,
 				completion: data.completion,
 			} ),
 		},
-		publisher: {
+		[ PUBLISHER_VIEW ]: {
 			route: 'publishers',
+			state: publisher,
 			from: ( data ) => ( {
 				name: text( data.name ),
-				publisher: data.publisher && { id: data.publisher.id, name: text( data.publisher.name ) },
-				collection: data.collection && { id: data.collection.id, name: text( data.collection.name ) },
-				collections: data.collections.map( ( collection ) => ( { id: collection.id, name: text( collection.name ) } ) ),
-				authors: data.authors.map( ( author ) => ( { ...author, name: text( author.name ) } ) ),
+				publisher: toPlainName( data.publisher ),
+				collection: toPlainName( data.collection ),
+				collections: data.collections.map( toPlainName ),
+				authors: data.authors.map( toPlainName ),
 				description: data.description,
 				read: data.read,
 				completion: data.completion,
 			} ),
 		},
 	};
+	const PAGE_KEYS = Object.keys( PAGES );
+
+	/** The pages of a person, of a series and of a collection, empty. */
+	function emptyPages() {
+		return Object.fromEntries( PAGE_KEYS.map( ( key ) => [ key, PAGES[ key ].state() ] ) );
+	}
 
 	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
@@ -461,9 +478,7 @@
 				achievements: achievements(),
 				toBuy: pages(),
 				stats: null,
-				person: person(),
-				series: series(),
-				publisher: publisher(),
+				...emptyPages(),
 				book: 0,
 				volumes: volumes(),
 				saving: saving(),
@@ -554,30 +569,15 @@
 			this.#go( view );
 		}
 
-		/** Opens the page of a person, at its top, with its URL in the history, unless it shows already. */
-		openPerson( id ) {
-			const { view, person: current } = this.get();
+		/**
+		 * Opens the page `view` of the term `id`, of a person, of a series or a cycle, of a collection or a publisher, at its
+		 * top, with its URL in the history, unless it shows already.
+		 */
+		openPage( view, id ) {
+			const { view: shown, [ view ]: current } = this.get();
 
-			if ( PERSON_VIEW !== view || id !== current.id ) {
-				this.#go( PERSON_VIEW, id );
-			}
-		}
-
-		/** Opens the page of a series or a cycle, at its top, with its URL in the history, unless it shows already. */
-		openSeries( id ) {
-			const { view, series: current } = this.get();
-
-			if ( SERIES_VIEW !== view || id !== current.id ) {
-				this.#go( SERIES_VIEW, id );
-			}
-		}
-
-		/** Opens the page of a collection or a publisher, at its top, with its URL in the history, unless it shows already. */
-		openPublisher( id ) {
-			const { view, publisher: current } = this.get();
-
-			if ( PUBLISHER_VIEW !== view || id !== current.id ) {
-				this.#go( PUBLISHER_VIEW, id );
+			if ( view !== shown || id !== current.id ) {
+				this.#go( view, id );
 			}
 		}
 
@@ -977,7 +977,7 @@
 		 */
 		#show( view, id = 0 ) {
 			const book = BOOK_VIEW === view ? id : 0;
-			const fresh = { [ PERSON_VIEW ]: { person: person( id ) }, [ SERIES_VIEW ]: { series: series( id ) }, [ PUBLISHER_VIEW ]: { publisher: publisher( id ) } }[ view ];
+			const fresh = view in PAGES && { [ view ]: PAGES[ view ].state( id ) };
 
 			this.set( ( state ) => {
 				const next = state.view === view && state.book === book ? state : { ...state, view, book, saving: saving() };
@@ -1018,9 +1018,7 @@
 				idea: [ state.idea, () => this.#fetchIdea( 0 ) ],
 				achievements: [ state.achievements, () => this.#fetchAchievements() ],
 				'to-buy': [ state.toBuy, () => this.#fetchList( 'toBuy' ) ],
-				[ PERSON_VIEW ]: [ state.person, () => this.#fetchPage( 'person' ) ],
-				[ SERIES_VIEW ]: [ state.series, () => this.#fetchPage( 'series' ) ],
-				[ PUBLISHER_VIEW ]: [ state.publisher, () => this.#fetchPage( 'publisher' ) ],
+				...Object.fromEntries( PAGE_KEYS.map( ( key ) => [ key, [ state[ key ], () => this.#fetchPage( key ) ] ] ) ),
 			};
 			const [ data, fetchData ] = loaders[ view ];
 
@@ -1044,7 +1042,8 @@
 		 * many as they were, and so do the book open, the books of the person, the series or the collection open and the names to suggest.
 		 */
 		#refresh() {
-			const { book, search: found, person: shownPerson, series: shownSeries, publisher: shownPublisher } = this.get();
+			const { book, search: found } = this.get();
+			const pageBooks = PAGE_KEYS.flatMap( ( key ) => this.get()[ key ].items );
 
 			this.set( ( state ) => ( { ...state, terms: terms() } ) );
 			this.#reloadLoaded( () => this.#fetchList( 'search', { count: found.items.length, inPlace: true } ) );
@@ -1053,12 +1052,13 @@
 				this.#refetchBook( book );
 			}
 
-			this.#fetchBooks( [ ...shownPerson.items, ...shownSeries.items, ...shownPublisher.items ], { fresh: true } ).catch( () => {} );
+			this.#fetchBooks( pageBooks, { fresh: true } ).catch( () => {} );
 		}
 
 		/** The stats, and what was loaded, again in place; `refreshSearch` the books found. */
 		#reloadLoaded( refreshSearch ) {
-			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned, person: shownPerson, series: shownSeries, publisher: shownPublisher } = this.get();
+			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned } = this.get();
+			const loadedPages = PAGE_KEYS.filter( ( key ) => this.get()[ key ].loaded );
 
 			// Its reading states may have changed.
 			this.set( ( state ) => ( { ...state, volumes: volumes() } ) );
@@ -1090,17 +1090,7 @@
 				this.#fetchAchievements();
 			}
 
-			if ( shownPerson.loaded ) {
-				this.#fetchPage( 'person' );
-			}
-
-			if ( shownSeries.loaded ) {
-				this.#fetchPage( 'series' );
-			}
-
-			if ( shownPublisher.loaded ) {
-				this.#fetchPage( 'publisher' );
-			}
+			loadedPages.forEach( ( key ) => this.#fetchPage( key ) );
 		}
 
 		/** The book `id` from the API, though it is loaded, as it may have changed elsewhere. */
@@ -1122,9 +1112,7 @@
 				idea: idea(),
 				achievements: achievements(),
 				toBuy: pages(),
-				person: person(),
-				series: series(),
-				publisher: publisher(),
+				...emptyPages(),
 				volumes: volumes(),
 				terms: terms(),
 			} ) );
