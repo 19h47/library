@@ -388,10 +388,12 @@ class Library_Dashboard {
 	private function get_average_rating_chart(): array {
 		global $wpdb;
 
+		// The ratings first: from the readings, MySQL 5.7 would search the meta of each book read for its rating.
 		$rows = Library_Stats::get_results(
 			"SELECT LEFT( r.date, 4 ) AS year, AVG( n.meta_value ) AS average
-			FROM {readings}
-			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = r.book AND n.meta_key = 'library_rating'
+			FROM {$wpdb->postmeta} AS n
+			STRAIGHT_JOIN {readings} ON r.book = n.post_id
+			WHERE n.meta_key = 'library_rating'
 			GROUP BY year"
 		);
 
@@ -427,12 +429,12 @@ class Library_Dashboard {
 	private function get_oldest_unread_book(): ?WP_Post {
 		global $wpdb;
 
+		// NOT IN lists the books read once; a LEFT JOIN would search the meta of each book, five times slower on MySQL 5.7.
 		$rows = Library_Stats::get_results(
 			"SELECT p.ID
 			FROM {$wpdb->posts} AS p
 			INNER JOIN {$wpdb->postmeta} AS d ON d.post_id = p.ID AND d.meta_key = 'library_edition_date' AND d.meta_value != ''
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'library_read' AND r.meta_value = '1'
-			WHERE r.post_id IS NULL
+			WHERE p.ID NOT IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read' AND meta_value = '1' )
 				AND {at_hand}
 			ORDER BY d.meta_value ASC
 			LIMIT 1"
