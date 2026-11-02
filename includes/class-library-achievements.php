@@ -539,6 +539,22 @@ class Library_Achievements {
 	}
 
 	/**
+	 * The completion the books of a collection count for, however many are left; none when they are too few, or for a publisher.
+	 *
+	 * @param int $collection_id Term ID of the collection.
+	 * @return array|null
+	 */
+	public function get_collection_completion( int $collection_id ): ?array {
+		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
+			if ( isset( $kinds['collection'][ $collection_id ] ) ) {
+				return self::get_group_completion( $kinds );
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * The completion the books of a series, or a cycle, count for, however many are left; none when they are too few.
 	 *
 	 * @param string $series Series, after its cycles.
@@ -584,10 +600,11 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Series and their cycles, authors and collections with enough books to be completed, keyed by their books, then by kind.
+	 * Series and their cycles, authors, collections and the collections they are part of with enough books to be completed,
+	 * keyed by their books, then by kind.
 	 *
 	 * The same books count once: for their series, else for their cycle, else for their authors together, else for their
-	 * collection.
+	 * collection, else for the collection it is part of.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<string,array<string,array<int|string,array<int,array>>>>
@@ -656,8 +673,8 @@ class Library_Achievements {
 			$target   = self::build_term_target( 'series', $term_id, $group );
 		} else {
 			$taxonomy = 'author' === $kind ? 'library_person' : 'library_publisher';
-			$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
-			$subject  = wp_sprintf( '%l', wp_list_pluck( array_filter( $terms, fn( $term ) => $term instanceof WP_Term ), 'name' ) );
+			$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) ), fn( $term ) => $term instanceof WP_Term );
+			$subject  = wp_sprintf( '%l', 'author' === $kind ? wp_list_pluck( $terms, 'name' ) : array_map( array( Library_Taxonomies::class, 'get_collection_name' ), $terms ) );
 			$target   = self::build_term_target( $kind, (int) $key, $group );
 		}
 
@@ -733,7 +750,7 @@ class Library_Achievements {
 			$earned[] = self::build_achievement(
 				'collection-step',
 				'',
-				$term instanceof WP_Term ? $term->name : '',
+				$term instanceof WP_Term ? Library_Taxonomies::get_collection_name( $term ) : '',
 				/* translators: 1: number of books read, 2: number of books. */
 				sprintf( __( '%1$s read of %2$s', 'library' ), number_format_i18n( count( $reads ) ), number_format_i18n( $total ) ),
 				self::build_term_target( 'collection', $collection_id, $group ),

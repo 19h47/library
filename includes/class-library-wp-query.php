@@ -118,8 +118,8 @@ class Library_WP_Query {
 	}
 
 	/**
-	 * Also match books whose text meta or terms contain the search phrase; a term matches by its parent too,
-	 * so searching for the name of a person finds the books of their other names and a publisher its collections' books.
+	 * Also match books whose text meta or terms contain the search phrase; a term matches by its ancestors too, so searching
+	 * for the name of a person finds the books of their other names and a publisher the books of its collections.
 	 *
 	 * @param string   $search Search SQL, starting with " AND ".
 	 * @param WP_Query $query  Query instance.
@@ -426,7 +426,7 @@ class Library_WP_Query {
 	}
 
 	/**
-	 * SQL selecting the IDs of the books with a term of the given taxonomies whose name, or its parent's, matches.
+	 * SQL selecting the IDs of the books with a term of the given taxonomies whose name, or one of its ancestors', matches.
 	 *
 	 * @param string[] $taxonomies Taxonomies.
 	 * @param string   $like       LIKE pattern.
@@ -437,18 +437,48 @@ class Library_WP_Query {
 	private static function build_term_matches( array $taxonomies, string $like, string $join = '', string $condition = '1 = 1' ): string {
 		global $wpdb;
 
-		$values = array( ...$taxonomies, $like, $like );
+		$term_ids = self::find_term_ids( $taxonomies, $like );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $join and $condition are built from constants, without value.
-		return $wpdb->prepare(
-			"SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
+		if ( ! $term_ids ) {
+			return 'SELECT 0';
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $join and $condition are built from constants, the IDs are integers.
+		return "SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
-			INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
-			LEFT JOIN {$wpdb->terms} AS parent ON parent.term_id = tt.parent
 			{$join}
-			WHERE tt.taxonomy IN ( " . implode( ', ', array_fill( 0, count( $taxonomies ), '%s' ) ) . " ) AND ( t.name LIKE %s OR parent.name LIKE %s ) AND {$condition}",
-			$values
+			WHERE tt.term_id IN ( " . implode( ', ', $term_ids ) . " ) AND {$condition}";
+	}
+
+	/**
+	 * IDs of the terms of the given taxonomies whose name matches, with the terms under them: the other names of a person,
+	 * the collections of a publisher and their sub-collections.
+	 *
+	 * @param string[] $taxonomies Taxonomies.
+	 * @param string   $like       LIKE pattern.
+	 * @return int[]
+	 */
+	private static function find_term_ids( array $taxonomies, string $like ): array {
+		global $wpdb;
+
+		$values = array( ...$taxonomies, $like );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- A search on the names of terms, which get_terms() matches only from their start or by word.
+		$terms    = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT tt.term_id, tt.taxonomy FROM {$wpdb->term_taxonomy} AS tt
+				INNER JOIN {$wpdb->terms} AS t ON t.term_id = tt.term_id
+				WHERE tt.taxonomy IN ( " . implode( ', ', array_fill( 0, count( $taxonomies ), '%s' ) ) . ' ) AND t.name LIKE %s',
+				$values
+			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$term_ids = array();
+
+		foreach ( $terms as $term ) {
+			$children = is_taxonomy_hierarchical( $term->taxonomy ) ? get_term_children( (int) $term->term_id, $term->taxonomy ) : array();
+			$term_ids = array( ...$term_ids, (int) $term->term_id, ...( is_array( $children ) ? $children : array() ) );
+		}
+
+		return array_values( array_unique( array_map( 'intval', $term_ids ) ) );
 	}
 }

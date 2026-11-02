@@ -303,6 +303,23 @@ class Library_Rest_API {
 
 		register_rest_route(
 			'library/v1',
+			'publishers/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_publisher' ),
+				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'args'                => array(
+					'id' => array(
+						'description' => __( 'Term ID of the collection, or of the publisher.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
+				),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
 			'people/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -374,7 +391,7 @@ class Library_Rest_API {
 				'default'     => '',
 			),
 			'collection'     => array(
-				'description' => __( 'Name of the collection, under the publisher and sent with it; a name not found adds a collection.', 'library' ),
+				'description' => __( 'Collection, under the publisher and sent with it, a sub-collection after its collection, separated with commas, such as “Folio, Science-fiction”; a name not found adds a collection.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
@@ -463,7 +480,8 @@ class Library_Rest_API {
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
 	 * its names as the book gives them, each with its role, its publisher and collection, its original language, its form and its meta.
 	 *
-	 * The form edits one publisher and one collection: a book given more gives its first collection, or else publisher.
+	 * The form edits one publisher and one collection, after the collections it is part of: a book given more gives its first
+	 * collection, or else publisher.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
@@ -472,7 +490,7 @@ class Library_Rest_API {
 		$book       = get_post( $request['id'] );
 		$collection = current( Library_Taxonomies::get_collections( $book->ID ) );
 		$publishers = get_the_terms( $book, 'library_publisher' );
-		$publisher  = $collection ? get_term( $collection->parent, 'library_publisher' ) : current( is_array( $publishers ) ? $publishers : array() );
+		$publisher  = current( Library_Taxonomies::get_top_level_terms( $collection ? array( $collection ) : ( is_array( $publishers ) ? $publishers : array() ) ) );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
 		$series     = Library_Taxonomies::get_series( $book->ID );
@@ -498,7 +516,7 @@ class Library_Rest_API {
 					wp_get_post_terms( $book->ID, 'library_person' )
 				),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
-				'collection' => $collection ? $collection->name : '',
+				'collection' => $collection ? Library_Taxonomies::get_collection_name( $collection ) : '',
 				'series'     => $series ? Library_Taxonomies::get_series_path( $series ) : '',
 				'language'   => (int) current( $languages ),
 				'form'       => (int) current( $forms ),
@@ -560,7 +578,8 @@ class Library_Rest_API {
 	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its people through the rule
 	 * of their tag box, its collection, or else its publisher, its original language and its form. A name not found adds a term.
 	 *
-	 * A collection is under its publisher, and goes with it: a book in a collection has the collection only.
+	 * A collection is under its publisher, a sub-collection under its collection, and goes with them: a book in a collection
+	 * has the narrowest one only.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return array<string,int[]>
@@ -574,13 +593,13 @@ class Library_Rest_API {
 
 		if ( $request->has_param( 'publisher' ) ) {
 			$publisher_id  = Library_Taxonomies::get_term_id( 'library_publisher', $request['publisher'] );
-			$collection_id = $publisher_id ? Library_Taxonomies::get_term_id( 'library_publisher', (string) $request['collection'], $publisher_id ) : 0;
+			$collection_id = $publisher_id ? Library_Taxonomies::get_path_id( 'library_publisher', (string) $request['collection'], true, $publisher_id ) : 0;
 
 			$terms['library_publisher'] = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
 		}
 
 		if ( $request->has_param( 'series' ) ) {
-			$terms['library_series'] = array_filter( array( Library_Taxonomies::get_series_id( $request['series'], true ) ) );
+			$terms['library_series'] = array_filter( array( Library_Taxonomies::get_path_id( 'library_series', $request['series'], true ) ) );
 		}
 
 		if ( $request->has_param( 'language' ) ) {
@@ -850,9 +869,6 @@ class Library_Rest_API {
 	 * A series, or a cycle: its name after its cycles, its cycle, its description, its series if it is a cycle, its
 	 * authors, its books in reading order, those of its series with them, how many are read, and the completion they count for.
 	 *
-	 * The authors are those of its books under the name they are known by, other roles left out, with their description and how
-	 * many of its books they wrote: those who wrote the most first, then by name.
-	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -874,6 +890,139 @@ class Library_Rest_API {
 			)
 		);
 		$path       = Library_Taxonomies::get_series_path( $series );
+
+		return rest_ensure_response(
+			array(
+				'id'          => $series->term_id,
+				'name'        => $path,
+				'cycle'       => $cycle instanceof WP_Term ? array(
+					'id'   => $cycle->term_id,
+					'name' => Library_Taxonomies::get_series_path( $cycle ),
+				) : null,
+				'description' => term_description( $series ),
+				'series'      => array_map(
+					fn( WP_Term $part ) => array(
+						'id'   => $part->term_id,
+						'name' => wp_specialchars_decode( $part->name, ENT_QUOTES ),
+					),
+					is_array( $parts ) ? $parts : array()
+				),
+				'authors'     => self::get_authors_of( $books ),
+				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
+				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'completion'  => ( new Library_Achievements() )->get_series_completion( $path ),
+			)
+		);
+	}
+
+	/**
+	 * A collection, or a publisher: its name, a sub-collection after the collections it is part of, its publisher and the
+	 * collection it is part of, its description, its collections, its authors, its books, those of its collections with
+	 * them, how many are read, and the completion they count for.
+	 *
+	 * The books are grouped by collection, each one followed by its own collections, by name: those of the publisher, or of
+	 * the collection, first; in each one, in the order of their number in it, those without number last, in reading order.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_publisher( WP_REST_Request $request ) {
+		$publisher = get_term( $request['id'], 'library_publisher' );
+
+		if ( ! $publisher instanceof WP_Term ) {
+			return new WP_Error( 'library_no_publisher', get_taxonomy( 'library_publisher' )->labels->not_found, array( 'status' => 404 ) );
+		}
+
+		$places      = array_flip( self::get_collection_order( $publisher ) );
+		$book_ids    = get_objects_in_term( array_keys( $places ), 'library_publisher' );
+		$books       = array_intersect_key( Library_Books::get_books(), array_flip( array_map( 'intval', is_array( $book_ids ) ? $book_ids : array() ) ) );
+		$books       = Library_Books::sort_in_reading_order( $books );
+		$ancestors   = array_map( fn( int $term_id ) => get_term( $term_id, 'library_publisher' ), get_ancestors( $publisher->term_id, 'library_publisher', 'taxonomy' ) );
+		$top         = end( $ancestors );
+		$parent      = count( $ancestors ) > 1 ? $ancestors[0] : null;
+		$collections = get_terms(
+			array(
+				'taxonomy'   => 'library_publisher',
+				'parent'     => $publisher->term_id,
+				'hide_empty' => false,
+			)
+		);
+		$link        = fn( $term ) => $term instanceof WP_Term ? array(
+			'id'   => $term->term_id,
+			'name' => Library_Taxonomies::get_collection_name( $term ),
+		) : null;
+		$sort_keys   = array();
+
+		// A book is in the narrowest of its collections here.
+		foreach ( $books as $book ) {
+			$terms = get_the_terms( $book['id'], 'library_publisher' );
+
+			$sort_keys[ $book['id'] ] = array(
+				max( array_intersect_key( $places, array_flip( wp_list_pluck( is_array( $terms ) ? $terms : array(), 'term_id' ) ) ) ),
+				(string) get_post_meta( $book['id'], 'library_collection_number', true ),
+			);
+		}
+
+		// A stable sort: the books without number stay in reading order.
+		usort(
+			$books,
+			function ( array $a, array $b ) use ( $sort_keys ): int {
+				[ $a_place, $a_number ] = $sort_keys[ $a['id'] ];
+				[ $b_place, $b_number ] = $sort_keys[ $b['id'] ];
+				$order                  = array( $a_place, '' === $a_number ) <=> array( $b_place, '' === $b_number );
+
+				return 0 !== $order ? $order : strnatcasecmp( $a_number, $b_number );
+			}
+		);
+
+		return rest_ensure_response(
+			array(
+				'id'          => $publisher->term_id,
+				'name'        => Library_Taxonomies::get_collection_name( $publisher ),
+				'publisher'   => $link( $top ),
+				'collection'  => $link( $parent ),
+				'description' => term_description( $publisher ),
+				'collections' => array_map(
+					fn( WP_Term $collection ) => array(
+						'id'   => $collection->term_id,
+						'name' => wp_specialchars_decode( $collection->name, ENT_QUOTES ),
+					),
+					is_array( $collections ) ? $collections : array()
+				),
+				'authors'     => self::get_authors_of( $books ),
+				'books'       => array_column( $books, 'id' ),
+				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'completion'  => ( new Library_Achievements() )->get_collection_completion( $publisher->term_id ),
+			)
+		);
+	}
+
+	/**
+	 * A publisher, or a collection, then each of its collections by name, each one followed by its own: the order of their books.
+	 *
+	 * @param WP_Term $publisher Term of the publishers.
+	 * @return int[] Term IDs.
+	 */
+	private static function get_collection_order( WP_Term $publisher ): array {
+		$collections = get_terms(
+			array(
+				'taxonomy'   => 'library_publisher',
+				'parent'     => $publisher->term_id,
+				'hide_empty' => false,
+			)
+		);
+
+		return array( $publisher->term_id, ...array_merge( ...array_map( array( self::class, 'get_collection_order' ), is_array( $collections ) ? $collections : array() ) ) );
+	}
+
+	/**
+	 * The authors of books under the name they are known by, other roles left out, with their description and how many
+	 * of the books they wrote: those who wrote the most first, then by name.
+	 *
+	 * @param array<int,array> $books Books, from Library_Books::get_books().
+	 * @return array<int,array{id:int,name:string,description:string,books:int}>
+	 */
+	private static function get_authors_of( array $books ): array {
 		$book_count = array_count_values( array_merge( ...array_column( $books, 'author_ids' ) ) );
 		$authors    = $book_count ? get_terms(
 			array(
@@ -893,35 +1042,14 @@ class Library_Rest_API {
 			}
 		);
 
-		return rest_ensure_response(
-			array(
-				'id'          => $series->term_id,
-				'name'        => $path,
-				'cycle'       => $cycle instanceof WP_Term ? array(
-					'id'   => $cycle->term_id,
-					'name' => Library_Taxonomies::get_series_path( $cycle ),
-				) : null,
-				'description' => term_description( $series ),
-				'series'      => array_map(
-					fn( WP_Term $part ) => array(
-						'id'   => $part->term_id,
-						'name' => wp_specialchars_decode( $part->name, ENT_QUOTES ),
-					),
-					is_array( $parts ) ? $parts : array()
-				),
-				'authors'     => array_map(
-					fn( WP_Term $author ) => array(
-						'id'          => $author->term_id,
-						'name'        => wp_specialchars_decode( $author->name, ENT_QUOTES ),
-						'description' => term_description( $author ),
-						'books'       => $book_count[ $author->term_id ],
-					),
-					$authors
-				),
-				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
-				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
-				'completion'  => ( new Library_Achievements() )->get_series_completion( $path ),
-			)
+		return array_map(
+			fn( WP_Term $author ) => array(
+				'id'          => $author->term_id,
+				'name'        => wp_specialchars_decode( $author->name, ENT_QUOTES ),
+				'description' => term_description( $author ),
+				'books'       => $book_count[ $author->term_id ],
+			),
+			$authors
 		);
 	}
 

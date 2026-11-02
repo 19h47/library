@@ -27,8 +27,10 @@
 	const BOOK_VIEW = 'book';
 	// The page of a series or a cycle, opened from a book, an achievement or another series.
 	const SERIES_VIEW = 'series';
-	// The views of a person, a book or a series, each with its ID in the argument of the same name: ?view=book&book=564.
-	const PAGE_VIEWS = [ PERSON_VIEW, BOOK_VIEW, SERIES_VIEW ];
+	// The page of a collection or a publisher, opened from an achievement or another collection.
+	const PUBLISHER_VIEW = 'publisher';
+	// The views of a person, a book, a series or a collection, each with its ID in the argument of the same name: ?view=book&book=564.
+	const PAGE_VIEWS = [ PERSON_VIEW, BOOK_VIEW, SERIES_VIEW, PUBLISHER_VIEW ];
 	// The components of the app, for development: a view out of the navigation, opened by searching its name.
 	const STYLEGUIDE_VIEW = 'styleguide';
 	// The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
@@ -379,7 +381,17 @@
 		return { ...pages(), id, name: '', cycle: null, parts: [], authors: [], description: '', books: [], read: 0, completion: null };
 	}
 
-	/** The pages of a person and of a series: their route, and what their state takes from it. */
+	/**
+	 * The collection open, or the publisher: its name, a sub-collection after the collections it is part of, its
+	 * `publisher`, the `collection` it is part of, its `collections`, its `authors`, who wrote the most first, its `books`
+	 * by collection, in the order of their number, loaded as those of a person; `completion` is an achievement; a
+	 * `description` is HTML.
+	 */
+	function publisher( id = 0 ) {
+		return { ...pages(), id, name: '', publisher: null, collection: null, collections: [], authors: [], description: '', books: [], read: 0, completion: null };
+	}
+
+	/** The pages of a person, of a series and of a collection: their route, and what their state takes from it. */
 	const PAGES = {
 		person: {
 			route: 'people',
@@ -406,13 +418,26 @@
 				completion: data.completion,
 			} ),
 		},
+		publisher: {
+			route: 'publishers',
+			from: ( data ) => ( {
+				name: text( data.name ),
+				publisher: data.publisher && { id: data.publisher.id, name: text( data.publisher.name ) },
+				collection: data.collection && { id: data.collection.id, name: text( data.collection.name ) },
+				collections: data.collections.map( ( collection ) => ( { id: collection.id, name: text( collection.name ) } ) ),
+				authors: data.authors.map( ( author ) => ( { ...author, name: text( author.name ) } ) ),
+				description: data.description,
+				read: data.read,
+				completion: data.completion,
+			} ),
+		},
 	};
 
 	/**
 	 * The app state. Every brick reads and writes it, none knows the others.
 	 * `books` holds every book loaded, by ID; the views refer to them by ID:
 	 * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
-	 * `person` the person open, `series` the series open, `book` the book open, `volumes` the books of its series,
+	 * `person` the person open, `series` the series open, `publisher` the collection open, `book` the book open, `volumes` the books of its series,
 	 * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
 	 * `notice` what an action done says, such as a reading saved, once: a new object each time,
 	 * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
@@ -421,7 +446,7 @@
 		#timeout = 0;
 		// The request of each list running, `search` or `toBuy`: another one cancels it.
 		#controllers = {};
-		// The request of the page of a person or a series running: another one cancels it.
+		// The request of the page of a person, a series or a collection running: another one cancels it.
 		#pageControllers = {};
 		#volumesController = null;
 
@@ -438,6 +463,7 @@
 				stats: null,
 				person: person(),
 				series: series(),
+				publisher: publisher(),
 				book: 0,
 				volumes: volumes(),
 				saving: saving(),
@@ -546,6 +572,15 @@
 			}
 		}
 
+		/** Opens the page of a collection or a publisher, at its top, with its URL in the history, unless it shows already. */
+		openPublisher( id ) {
+			const { view, publisher: current } = this.get();
+
+			if ( PUBLISHER_VIEW !== view || id !== current.id ) {
+				this.#go( PUBLISHER_VIEW, id );
+			}
+		}
+
 		/** Goes back to where the view shown was opened from; a view opened first, as from a link, goes to the home. */
 		back() {
 			if ( history.state?.app ) {
@@ -616,7 +651,7 @@
 			}
 		}
 
-		/** The next page of the books of the page `key`, `person` or `series`, unless one is loading or none is left. */
+		/** The next page of the books of the page `key`, `person`, `series` or `publisher`, unless one is loading or none is left. */
 		loadMorePageBooks( key ) {
 			const { loading, page, pages: last } = this.get()[ key ];
 
@@ -937,12 +972,12 @@
 		}
 
 		/**
-		 * Shows a view, and loads its data the first time: the page of a person or a series starts again for another `id`,
+		 * Shows a view, and loads its data the first time: the page of a person, a series or a collection starts again for another `id`,
 		 * the page of a book shows the book `id`, its reading not saved left behind.
 		 */
 		#show( view, id = 0 ) {
 			const book = BOOK_VIEW === view ? id : 0;
-			const fresh = { [ PERSON_VIEW ]: { person: person( id ) }, [ SERIES_VIEW ]: { series: series( id ) } }[ view ];
+			const fresh = { [ PERSON_VIEW ]: { person: person( id ) }, [ SERIES_VIEW ]: { series: series( id ) }, [ PUBLISHER_VIEW ]: { publisher: publisher( id ) } }[ view ];
 
 			this.set( ( state ) => {
 				const next = state.view === view && state.book === book ? state : { ...state, view, book, saving: saving() };
@@ -985,6 +1020,7 @@
 				'to-buy': [ state.toBuy, () => this.#fetchList( 'toBuy' ) ],
 				[ PERSON_VIEW ]: [ state.person, () => this.#fetchPage( 'person' ) ],
 				[ SERIES_VIEW ]: [ state.series, () => this.#fetchPage( 'series' ) ],
+				[ PUBLISHER_VIEW ]: [ state.publisher, () => this.#fetchPage( 'publisher' ) ],
 			};
 			const [ data, fetchData ] = loaders[ view ];
 
@@ -996,8 +1032,8 @@
 		/**
 		 * After the book `id` was saved: the stats load again, and so does what was loaded, in place, so that a view gone
 		 * back to shows the book as it is, where it was. The books found lose it when the search no longer finds it; the
-		 * books to buy, the books being read, the diary, the reading idea, the achievements, the page of the person open and
-		 * the series of the book load again.
+		 * books to buy, the books being read, the diary, the reading idea, the achievements, the page of the person, the
+		 * series or the collection open and the series of the book load again.
 		 */
 		#reload( id ) {
 			this.#reloadLoaded( () => this.#refreshList( 'search', id ) );
@@ -1005,10 +1041,10 @@
 
 		/**
 		 * Back to the app after a while: what was loaded loads again in place, as after a book saved, the books found as
-		 * many as they were, and so do the book open, the books of the person or the series open and the names to suggest.
+		 * many as they were, and so do the book open, the books of the person, the series or the collection open and the names to suggest.
 		 */
 		#refresh() {
-			const { book, search: found, person: shownPerson, series: shownSeries } = this.get();
+			const { book, search: found, person: shownPerson, series: shownSeries, publisher: shownPublisher } = this.get();
 
 			this.set( ( state ) => ( { ...state, terms: terms() } ) );
 			this.#reloadLoaded( () => this.#fetchList( 'search', { count: found.items.length, inPlace: true } ) );
@@ -1017,12 +1053,12 @@
 				this.#refetchBook( book );
 			}
 
-			this.#fetchBooks( [ ...shownPerson.items, ...shownSeries.items ], { fresh: true } ).catch( () => {} );
+			this.#fetchBooks( [ ...shownPerson.items, ...shownSeries.items, ...shownPublisher.items ], { fresh: true } ).catch( () => {} );
 		}
 
 		/** The stats, and what was loaded, again in place; `refreshSearch` the books found. */
 		#reloadLoaded( refreshSearch ) {
-			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned, person: shownPerson, series: shownSeries } = this.get();
+			const { toBuy: bought, inProgress, diary, idea: shown, achievements: earned, person: shownPerson, series: shownSeries, publisher: shownPublisher } = this.get();
 
 			// Its reading states may have changed.
 			this.set( ( state ) => ( { ...state, volumes: volumes() } ) );
@@ -1061,6 +1097,10 @@
 			if ( shownSeries.loaded ) {
 				this.#fetchPage( 'series' );
 			}
+
+			if ( shownPublisher.loaded ) {
+				this.#fetchPage( 'publisher' );
+			}
 		}
 
 		/** The book `id` from the API, though it is loaded, as it may have changed elsewhere. */
@@ -1084,6 +1124,7 @@
 				toBuy: pages(),
 				person: person(),
 				series: series(),
+				publisher: publisher(),
 				volumes: volumes(),
 				terms: terms(),
 			} ) );
@@ -1300,8 +1341,8 @@
 		}
 
 		/**
-		 * The page `key` open, `person` or `series`, then the first page of its books, unless it is loaded already. Another
-		 * person or series cancels the one loading.
+		 * The page `key` open, `person`, `series` or `publisher`, then the first page of its books, unless it is loaded
+		 * already. Another person, series or collection cancels the one loading.
 		 */
 		async #fetchPage( key ) {
 			this.#pageControllers[ key ]?.abort();
@@ -1400,8 +1441,8 @@
 		}
 
 		/**
-		 * Every person and their other names, publisher and collection, series after its cycles, and original language: apiFetch loads
-		 * all their pages.
+		 * Every person and their other names, publisher and collection, with its publisher and after the collections it is part of,
+		 * series after its cycles, and original language: apiFetch loads all their pages.
 		 */
 		async #fetchTerms() {
 			this.#update( 'terms', () => ( { loading: true } ) );
@@ -1415,10 +1456,15 @@
 				const byId = Object.fromEntries( series.map( ( term ) => [ term.id, toTerm( term ) ] ) );
 				// A series after its cycles, as a book types it.
 				const pathOf = ( term ) => ( term.parent in byId ? `${ pathOf( byId[ term.parent ] ) }, ${ term.name }` : term.name );
+				const publishersById = Object.fromEntries( publishers.map( ( term ) => [ term.id, toTerm( term ) ] ) );
+				const publisherOf = ( term ) => ( term.parent in publishersById ? publisherOf( publishersById[ term.parent ] ) : term );
+				// A collection after the collections it is part of, without its publisher, as a book types it.
+				const collectionOf = ( term ) =>
+					publishersById[ term.parent ]?.parent ? `${ collectionOf( publishersById[ term.parent ] ) }, ${ term.name }` : term.name;
 
 				this.#update( 'terms', () => ( {
 					people: people.map( toTerm ),
-					publishers: publishers.map( toTerm ),
+					publishers: Object.values( publishersById ).map( ( term ) => ( { ...term, publisher: publisherOf( term ).id, collection: collectionOf( term ) } ) ),
 					series: Object.values( byId ).map( ( term ) => ( { ...term, name: pathOf( term ) } ) ),
 					languages: languages.map( toTerm ),
 					loading: false,
