@@ -648,8 +648,12 @@ class Library_Achievements {
 		$left   = $total - count( $read );
 
 		if ( 'series' === $kind ) {
-			$subject = self::get_series_and_cycles( $group[0]['series'] )[ $key ];
-			$target  = self::build_term_target( 'series', Library_Taxonomies::get_series_id( $subject ), $group );
+			$series_and_cycles = self::get_series_and_cycles( $group[0]['series'] );
+			// The series of the book, then its cycles, in the order of their keys.
+			$term_ids = array( $group[0]['series_id'], ...get_ancestors( $group[0]['series_id'], 'library_series', 'taxonomy' ) );
+			$term_id  = $term_ids[ array_search( $key, array_keys( $series_and_cycles ), true ) ];
+			$subject  = $series_and_cycles[ $key ];
+			$target   = self::build_term_target( 'series', $term_id, $group );
 		} else {
 			$taxonomy = 'author' === $kind ? 'library_person' : 'library_publisher';
 			$terms    = array_map( fn( int $term_id ) => get_term( $term_id, $taxonomy ), array_keys( $kinds[ $kind ] ) );
