@@ -87,7 +87,7 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months, `_embed` adds the books.
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
-* `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their books in the order they first came out, whatever their role, and their reading.
+* `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their series with how many of their books they hold and are read, their books in the order they first came out, whatever their role, and their reading.
 * `GET /wp-json/library/v1/series/<id>` – a series or a cycle, its cycle, its description, the series of a cycle, its authors with their description and how many of its books they wrote, its books in reading order, those of its series with them, its reading and its completion.
 * `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts.
 * `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its people by name with their role, its series after its cycles, its publisher and collection by name, its original language, its form and its meta, to users who can edit it.

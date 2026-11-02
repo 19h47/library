@@ -1,7 +1,7 @@
 import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, formatState, join } from 'library-app/format';
-import { clone, fill, fillCover, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, renderCover } from 'library-app/render';
+import { clone, fill, fillCover, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, renderCover, renderSeries } from 'library-app/render';
 import { showError } from 'library-app/behaviors';
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
@@ -47,6 +47,8 @@ const AUTHORS = [
 	{ id: 2, name: 'An Author Without Description', description: '', books: 1 },
 ];
 
+const SERIES = { id: 1, name: 'A Cycle, A Series', description: '<p>The description of a series, on the page of a person.</p>', books: 3, read: 2 };
+
 const ACHIEVEMENTS = [
 	{ title: 'An achievement', subject: 'Its subject', detail: 'Its detail', date: '2026-10-28' },
 	{ title: 'An achievement whose subject is a link', subject: 'Tintin', detail: '24 books', date: '2026-10-28', target: { type: 'search', search: 'Tintin' } },
@@ -64,8 +66,11 @@ class LibraryStyleguideElement extends Brick {
 			books: () => BOOKS.map( ( book ) => renderBook( book, formatState( book ) ) ),
 			month: () => [ this.#renderMonth() ],
 			covers: () => [ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map( ( book ) => renderCover( book ) ),
-			series: () => this.#renderSeries(),
-			authors: () => AUTHORS.map( ( author ) => renderAuthor( author, formatBooks( author.books ) ) ),
+			volumes: () => this.#renderVolumes(),
+			terms: () => [
+				...AUTHORS.map( ( author ) => renderAuthor( author, formatBooks( author.books ) ) ),
+				renderSeries( SERIES, join( [ formatBooks( SERIES.books ), `${ SERIES.read } read` ] ) ),
+			],
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
 			people: () => [ 'A Person', '' ].map( ( name ) => this.#renderInput( 'library-edit-person', name ) ),
@@ -96,7 +101,7 @@ class LibraryStyleguideElement extends Brick {
 	}
 
 	/** The volumes of a series, as the page of the second one shows them. */
-	#renderSeries() {
+	#renderVolumes() {
 		const $covers = [ [ BOOKS[ 0 ], 'Read' ], [ BOOKS[ 4 ], 'In progress' ], [ BOOKS[ 1 ], '' ] ].map( ( [ book, state ] ) => renderCover( book, state ) );
 
 		$covers[ 1 ].querySelector( 'button' ).setAttribute( 'aria-current', 'true' );

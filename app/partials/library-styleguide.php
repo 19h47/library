@@ -369,13 +369,13 @@ with its line breaks.</p>
 			<figure>
 				<figcaption><code>.library-cover</code>, the volumes of a series: read, being read, to read, which only assistive technologies hear, the book open framed</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="library-styleguide__row" data-sample="series"></ul>
+					<ul class="library-styleguide__row" data-sample="volumes"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-author</code>, the authors of a series: with a description, clamped, without</figcaption>
+				<figcaption><code>.library-term</code>, the authors of a series, the series of a person: with a description, clamped, without</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="authors"></ul>
+					<ul class="app-list__items" data-sample="terms"></ul>
 				</div>
 			</figure>
 			<figure>

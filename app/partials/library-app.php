@@ -309,6 +309,15 @@
 							<p data-field="summary"></p>
 						</header>
 						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
+						<?php // The first series, then the others folded, once there are enough of them. ?>
+						<section class="library-section" data-row="series" hidden>
+							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
+							<ul class="app-list__items" data-list="shown"></ul>
+							<details class="library-section__more" data-row="more" hidden>
+								<summary class="app-pill" data-field="more"></summary>
+								<ul class="app-list__items" data-list="more"></ul>
+							</details>
+						</section>
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-person>
@@ -334,8 +343,8 @@
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="authors"></ul>
-							<details class="library-series__more" data-row="more" hidden>
+							<ul class="app-list__items" data-list="shown"></ul>
+							<details class="library-section__more" data-row="more" hidden>
 								<summary class="app-pill" data-field="more"></summary>
 								<ul class="app-list__items" data-list="more"></ul>
 							</details>
@@ -791,11 +800,11 @@
 			</section>
 		</template>
 
-		<template id="library-author">
-			<li class="app-item library-author">
-				<h4 class="library-author__name"></h4>
-				<div class="library-author__description" data-html="description" hidden></div>
-				<p class="app-item__meta" data-field="books"></p>
+		<template id="library-term">
+			<li class="app-item library-term">
+				<h4 class="library-term__name"></h4>
+				<div class="library-term__description" data-html="description" hidden></div>
+				<p class="app-item__meta" data-field="line"></p>
 			</li>
 		</template>
 

@@ -1,19 +1,20 @@
 import { __, _n, sprintf, store } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join, listFormat } from 'library-app/format';
-import { fill, renderAchievement, renderBook, renderCloseAchievement } from 'library-app/render';
+import { fill, fillFolded, renderAchievement, renderBook, renderCloseAchievement, renderSeries } from 'library-app/render';
 import { followBooks, observeEnd, openBooks, renderKeyed } from 'library-app/behaviors';
 
 /**
  * The page of a person: their names, their description, their reading, the pages of their books and the completion
- * their books count for, then their books, in the order they first came out, loading as the end of the list comes.
- * Opened, their name takes the focus once it is loaded.
+ * their books count for, their series, then their books, in the order they first came out, loading as the end of the
+ * list comes. Opened, their name takes the focus once it is loaded.
  */
 class LibraryPersonElement extends Brick {
 	connect( signal ) {
 		const $description = this.querySelector( '[data-html="description"]' );
 		const $name = this.querySelector( '[data-field="name"]' );
 		const $completion = this.querySelector( '[data-list="completion"]' );
+		const $series = this.querySelector( '[data-row="series"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( 'person' ) );
 
@@ -73,6 +74,21 @@ class LibraryPersonElement extends Brick {
 						'total' in achievement ? renderCloseAchievement( achievement, 'library-person-completion' ) : renderAchievement( achievement )
 					);
 				}
+			),
+			store.select(
+				( state ) => state.person.series,
+				( series ) =>
+					fillFolded(
+						$series,
+						series.map( ( item ) => {
+							/* translators: %s: number of books read, after the number of books of a person in a series. */
+							const read = sprintf( _n( '%s read', '%s read', item.read, 'library' ), formatNumber( item.read ) );
+
+							return renderSeries( item, join( [ formatBooks( item.books ), read ] ) );
+						} ),
+						/* translators: %s: number of series of a person, after the first ones. */
+						( folded ) => sprintf( _n( '%s other series', '%s other series', folded, 'library' ), formatNumber( folded ) )
+					)
 			),
 			store.select(
 				( state ) => state.person.items,

@@ -137,18 +137,47 @@ export function renderBook( book, state ) {
 	return $item;
 }
 
-/** The card of an author of a series: their name, which leads to their page, their description, then `books`, the line under it. */
-export function renderAuthor( author, books ) {
-	const $item = clone( 'library-author' );
+/** The card of a person or a series: its name, `$link` to its page, its description, then `line`, the line under it. */
+function renderTerm( $link, description, line ) {
+	const $item = clone( 'library-term' );
 	const $description = $item.querySelector( '[data-html="description"]' );
 
-	fill( $item, { books } );
-	$item.querySelector( '.library-author__name' ).append( personLink( author.id, author.name ) );
+	fill( $item, { line } );
+	$item.querySelector( '.library-term__name' ).append( $link );
 	// HTML as the API renders it, among the few tags core keeps when it saves a description.
-	$description.innerHTML = author.description;
-	$description.hidden = ! author.description;
+	$description.innerHTML = description;
+	$description.hidden = ! description;
 
 	return $item;
+}
+
+/** The card of an author of a series: their name, which leads to their page, their description, then `line`. */
+export function renderAuthor( author, line ) {
+	return renderTerm( personLink( author.id, author.name ), author.description, line );
+}
+
+/** The card of a series of a person: its name after its cycles, which leads to its page, its description, then `line`. */
+export function renderSeries( series, line ) {
+	return renderTerm( seriesLink( series.id, series.name ), series.description, line );
+}
+
+// The cards of a section shown before the others fold: four show all, five fold two.
+const SHOWN_CARDS = 3;
+
+/**
+ * Fills `$section` with `$cards`: the first ones in its [data-list="shown"], the others folded in its [data-list="more"],
+ * closed, under a pill that `more( count )` names; the section hides without cards.
+ */
+export function fillFolded( $section, $cards, more ) {
+	const $more = $section.querySelector( '[data-list="more"]' );
+	const shown = $cards.length > SHOWN_CARDS + 1 ? SHOWN_CARDS : $cards.length;
+	const folded = $cards.length - shown;
+
+	$section.querySelector( '[data-list="shown"]' ).replaceChildren( ...$cards.slice( 0, shown ) );
+	$more.replaceChildren( ...$cards.slice( shown ) );
+	$more.closest( 'details' ).open = false;
+	fill( $section, { more: folded ? more( folded ) : '' } );
+	$section.hidden = ! $cards.length;
 }
 
 /** An achievement earned: its title, its subject, its detail and date, as on the Achievements page. */

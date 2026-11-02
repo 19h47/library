@@ -252,9 +252,9 @@ library-home:not([hidden]) + .library-books__title {
 	min-width: 0;
 }
 
-/* The card of an author of a series is the one of a book: their name as its title, their description as its excerpt */
+/* The card of a person or a series is the one of a book: its name as its title, its description as its excerpt */
 .library-item__title,
-.library-author__name {
+.library-term__name {
 	font-size: inherit;
 	font-weight: normal;
 	overflow-wrap: anywhere;
@@ -262,7 +262,7 @@ library-home:not([hidden]) + .library-books__title {
 
 /* Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box */
 .library-item__excerpt,
-.library-author__description {
+.library-term__description {
 	display: -webkit-box;
 	overflow: hidden;
 	-webkit-box-orient: vertical;
@@ -665,8 +665,8 @@ library-latest {
 	scroll-snap-align: start;
 }
 
-/* The series of a cycle, on its page, before its books: links side by side */
-library-series > .library-section {
+/* The sections of the page of a series or a person, before its books: the series of a cycle, the authors, the series of a person */
+:is(library-series, library-person) > .library-section {
 	margin-bottom: var(--app-u2);
 }
 
@@ -677,21 +677,21 @@ library-series > .library-section {
 	gap: var(--app-gap);
 }
 
-/* The authors of a series past the first ones, folded under a pill, their cards a gap under it as under the first ones */
-.library-series__more {
+/* The cards of a section past the first ones, folded under a pill, a gap under it as under the first ones */
+.library-section__more {
 	margin-top: var(--app-gap);
 }
 
-.library-series__more > summary {
+.library-section__more > summary {
 	cursor: pointer;
 }
 
-.library-series__more > summary:hover {
+.library-section__more > summary:hover {
 	color: var(--app-text);
 	border-color: var(--app-line);
 }
 
-.library-series__more > .app-list__items {
+.library-section__more > .app-list__items {
 	margin-top: var(--app-gap);
 }
 
