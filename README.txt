@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.9.0
+Stable tag: 9.9.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -95,6 +95,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.9.1 =
+* Fixed: the dashboard runs faster on MySQL 5.7: the oldest unread book and the average rating by year read took 133 and 59 ms on production, and the achievements, computed again once a day or after a book changes, looked each series up by its name, one query each, 307 in all.
 
 = 9.9.0 =
 * Reading app: the link to the dashboard under the form of a book is muted, as the other small text of the interface.
