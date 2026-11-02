@@ -1,4 +1,5 @@
-import { __, _n, sprintf, store } from 'library-app/app';
+import { __, _n, sprintf } from 'library-app/app';
+import { store } from 'library-app/store';
 import { formatBooks, formatNumber, formatState, join, listFormat } from 'library-app/format';
 import { fill, fillFolded, renderSeries } from 'library-app/render';
 import { TermPage } from 'library-app/term-page';

@@ -1,4 +1,4 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { urlOf } from 'library-app/router';
 

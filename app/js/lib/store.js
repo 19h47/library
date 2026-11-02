@@ -8,9 +8,9 @@
  *
  * @package    Library
  * @subpackage Library/app
- * @global     wp, libraryApp
  */
 
+import { __, appUrl, forms, icons, maxPerPage, notKept, perPage, serviceWorkerUrl, statuses, toBuy } from 'library-app/app';
 import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
@@ -37,8 +37,6 @@ const SEARCH_DELAY = 250;
 // Back to the app after this long, as from another app, its data load again: they may have changed in the admin or on another device.
 const REFRESH_AFTER_MS = 5 * 60 * 1000;
 
-const { __ } = window.wp.i18n;
-const config = window.libraryApp;
 const $root = document.documentElement;
 const $themeColor = document.querySelector( 'meta[name="theme-color"]' );
 const $favicon = document.querySelector( 'link[rel="icon"]' );
@@ -61,9 +59,9 @@ function load() {
 		// "", "yes" or "no", the search keyword read:, or "progress", the keyword progress:.
 		read: [ 'yes', 'no', 'progress' ].includes( saved?.read ) ? saved.read : '',
 		// "" for any, or the status of the books shown, such as not kept.
-		status: config.statuses.split( ',' ).includes( saved?.status ) ? saved.status : '',
+		status: statuses.split( ',' ).includes( saved?.status ) ? saved.status : '',
 		// "" for any, or the term ID of the form of the books shown, such as comics.
-		form: config.forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
+		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		// "" for the latest added, or one of SORTS.
 		sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
 	};
@@ -95,16 +93,16 @@ function searchOf( { query, read } ) {
  */
 function queryOf( list, state ) {
 	if ( 'toBuy' === list ) {
-		return { status: config.toBuy };
+		return { status: toBuy };
 	}
 
 	if ( 'inProgress' === list ) {
-		return { search: 'progress:yes', status: config.statuses };
+		return { search: 'progress:yes', status: statuses };
 	}
 
 	const search = searchOf( state );
-	const atHand = config.statuses.split( ',' ).filter( ( item ) => config.toBuy !== item ).join();
-	const status = state.status || ( 'no' === state.read ? atHand : config.statuses );
+	const atHand = statuses.split( ',' ).filter( ( item ) => toBuy !== item ).join();
+	const status = state.status || ( 'no' === state.read ? atHand : statuses );
 	const order = state.sort && { orderby: state.sort, order: 'title' === state.sort ? 'asc' : 'desc' };
 
 	return { ...( search && { search } ), status, ...( state.form && { forms: state.form } ), ...order };
@@ -506,7 +504,7 @@ class LibraryStore extends Store {
 		const dates = api.toReadings( readDates );
 		// As in the "Library" menu of the book form, a book in another status than not kept or to buy, such as a draft,
 		// shows as in the library, and stays in it unless another one is chosen.
-		const shown = [ config.notKept, config.toBuy ].includes( book.status ) ? book.status : 'publish';
+		const shown = [ notKept, toBuy ].includes( book.status ) ? book.status : 'publish';
 		const status = chosen === shown ? book.status : chosen;
 		const meta = {};
 
@@ -619,7 +617,7 @@ class LibraryStore extends Store {
 
 		const text = failure ? api.errorMessage( failure ) : __( 'No book found.', 'library' );
 
-		navigation.navigate( config.appUrl, { history: 'replace' } );
+		navigation.navigate( appUrl, { history: 'replace' } );
 		this.set( ( state ) => ( { ...state, notice: { text } } ) );
 	}
 
@@ -742,14 +740,14 @@ class LibraryStore extends Store {
 	 * a page of the API, so that a list loaded again keeps its length; `inPlace`, the list loads again as it is, such as
 	 * after a book saved, rather than for another search, which it shows faded until then.
 	 */
-	#fetchList( list, { offset = 0, count = api.PER_PAGE, inPlace = false } = {} ) {
+	#fetchList( list, { offset = 0, count = perPage, inPlace = false } = {} ) {
 		if ( 'search' === list ) {
 			clearTimeout( this.#timeout );
 		}
 
 		const signal = this.#signal( list );
 		const query = queryOf( list, this.get() );
-		const size = Math.min( Math.max( count, api.PER_PAGE ), api.MAX_PER_PAGE );
+		const size = Math.min( Math.max( count, perPage ), maxPerPage );
 
 		return this.#request(
 			list,
@@ -861,7 +859,7 @@ class LibraryStore extends Store {
 				items: current.items.filter( ( book ) => data.books.includes( book ) ),
 				...data,
 				total: data.books.length,
-				pages: Math.ceil( data.books.length / api.PER_PAGE ),
+				pages: Math.ceil( data.books.length / perPage ),
 			} );
 		} );
 
@@ -873,7 +871,7 @@ class LibraryStore extends Store {
 	/** A page of the books of the page `key` open, from their IDs. */
 	#fetchPageBooks( key, number ) {
 		const { signal } = this.#controllers[ key ];
-		const ids = this.get()[ key ].books.slice( ( number - 1 ) * api.PER_PAGE, number * api.PER_PAGE );
+		const ids = this.get()[ key ].books.slice( ( number - 1 ) * perPage, number * perPage );
 
 		return this.#request( key, async () => {
 			await this.#fetchBooks( ids, { signal } );
@@ -932,9 +930,9 @@ store.select(
 	( theme ) => {
 		$root.dataset.theme = theme;
 		$themeColor.content = getComputedStyle( $root ).backgroundColor;
-		$favicon.href = config.icons[ theme ];
+		$favicon.href = icons[ theme ];
 	}
 );
 
 // The app and what it loaded, kept for a visit without network: the URL of the app is the scope of its service worker.
-navigator.serviceWorker?.register( config.serviceWorkerUrl, { scope: config.appUrl } ).catch( reportError );
+navigator.serviceWorker?.register( serviceWorkerUrl, { scope: appUrl } ).catch( reportError );

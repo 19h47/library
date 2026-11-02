@@ -1,4 +1,4 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 
 /** The filter of the books by form, such as the comics. */

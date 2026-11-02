@@ -7,7 +7,7 @@
  * @subpackage Library/app
  */
 
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { clone, fillBook } from 'library-app/render';
 import { urlOf } from 'library-app/router';
 

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 9.11.0\n"
+"Project-Id-Version: Library 9.12.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-02T14:43:11+00:00\n"
+"POT-Creation-Date: 2026-11-02T14:52:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -135,7 +135,7 @@ msgstr ""
 #. translators: %s: reading percentage.
 #: admin/class-library-books-list.php:343
 #: admin/js/library-admin-read.js:25
-#: app/js/bricks/library-progress.js:13
+#: app/js/bricks/library-progress.js:14
 #, php-format,js-format
 msgid "%s%% read"
 msgstr ""
@@ -506,7 +506,7 @@ msgstr ""
 
 #. translators: %s: number of pages.
 #: admin/partials/library-dashboard-idea.php:28
-#: app/js/bricks/library-person.js:17
+#: app/js/bricks/library-person.js:18
 #, php-format,js-format
 msgid "%s page"
 msgid_plural "%s pages"
@@ -553,28 +553,28 @@ msgstr ""
 
 #. translators: 1: total books, 2: read books, 3: percent read.
 #: admin/partials/library-dashboard-reading.php:25
-#: app/js/bricks/library-year.js:15
+#: app/js/bricks/library-year.js:16
 #, php-format,js-format
 msgid "%1$s books, %2$s read (%3$s%%)"
 msgstr ""
 
 #. translators: 1: books read this year, 2: year, 3: books read by the same date last year.
 #: admin/partials/library-dashboard-reading.php:36
-#: app/js/bricks/library-year.js:17
+#: app/js/bricks/library-year.js:18
 #, php-format,js-format
 msgid "%1$s read in %2$d, %3$s by this date last year"
 msgstr ""
 
 #. translators: %s: number of books expected by the end of the year.
 #: admin/partials/library-dashboard-reading.php:48
-#: app/js/bricks/library-year.js:19
+#: app/js/bricks/library-year.js:20
 #, php-format,js-format
 msgid "About %s by the end of the year at this pace"
 msgstr ""
 
 #. translators: 1: number of books to read, 2: year they would all be read in.
 #: admin/partials/library-dashboard-reading.php:59
-#: app/js/bricks/library-year.js:21
+#: app/js/bricks/library-year.js:22
 #, php-format,js-format
 msgid "%1$s book to read, read in %2$d at this pace"
 msgid_plural "%1$s books to read, all read in %2$d at this pace"
@@ -674,7 +674,7 @@ msgstr ""
 
 #: app/partials/library-app.php:115
 #: includes/class-library-meta.php:127
-#: app/js/bricks/library-volumes.js:67
+#: app/js/bricks/library-volumes.js:68
 #: app/js/lib/format.js:105
 msgid "Read"
 msgstr ""
@@ -730,9 +730,9 @@ msgstr ""
 
 #. translators: %s: number of books found, e.g. 19 books.
 #: app/partials/library-app.php:230
-#: app/js/bricks/library-book.js:31
-#: app/js/bricks/library-count.js:14
-#: app/js/bricks/library-filters.js:56
+#: app/js/bricks/library-book.js:32
+#: app/js/bricks/library-count.js:15
+#: app/js/bricks/library-filters.js:57
 msgid "Loading…"
 msgstr ""
 
@@ -1363,7 +1363,7 @@ msgid "Collective work"
 msgstr ""
 
 #: includes/class-library-meta.php:128
-#: app/js/bricks/library-volumes.js:64
+#: app/js/bricks/library-volumes.js:65
 #: app/js/lib/format.js:108
 msgid "In progress"
 msgstr ""
@@ -2254,27 +2254,27 @@ msgstr ""
 msgid "Keywords add up, with the rest of the search: %1$s. A comma gives a choice, %2$s, a hyphen excludes, %3$s, and quotes keep the spaces of a value, %4$s."
 msgstr ""
 
-#: app/js/bricks/library-diary.js:18
+#: app/js/bricks/library-diary.js:19
 msgid "No readings yet."
 msgstr ""
 
-#: app/js/bricks/library-diary.js:80
+#: app/js/bricks/library-diary.js:81
 msgid "Read again"
 msgstr ""
 
-#: app/js/bricks/library-filters.js:56
+#: app/js/bricks/library-filters.js:57
 #, js-format
 msgid "Show %s"
 msgstr ""
 
 #. translators: %s: average rating of the books of a person, e.g. 7.5.
-#: app/js/bricks/library-person.js:15
+#: app/js/bricks/library-person.js:16
 #, js-format
 msgid "%s/10 on average"
 msgstr ""
 
 #. translators: %s: list of the other names of a person, such as a pseudonym or their birth name.
-#: app/js/bricks/library-person.js:25
+#: app/js/bricks/library-person.js:26
 #, js-format
 msgid "Other name: %s"
 msgid_plural "Other names: %s"
@@ -2284,9 +2284,9 @@ msgstr[1] ""
 #. translators: %s: number of books read, after the number of books of a person in a series.
 #. translators: %s: number of books read, after the number of books of a series.
 #. translators: %s: number of books read, after the number of books of a person, a series or a collection.
-#: app/js/bricks/library-person.js:43
-#: app/js/bricks/library-volumes.js:31
-#: app/js/lib/term-page.js:40
+#: app/js/bricks/library-person.js:44
+#: app/js/bricks/library-volumes.js:32
+#: app/js/lib/term-page.js:41
 #, js-format
 msgid "%s read"
 msgid_plural "%s read"
@@ -2294,7 +2294,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of series of a person, after the first ones.
-#: app/js/bricks/library-person.js:48
+#: app/js/bricks/library-person.js:49
 #, js-format
 msgid "%s other series"
 msgid_plural "%s other series"
@@ -2302,18 +2302,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: year a book first came out.
-#: app/js/bricks/library-person.js:57
+#: app/js/bricks/library-person.js:58
 #, js-format
 msgid "First published in %s"
 msgstr ""
 
-#: app/js/bricks/library-status.js:11
-#: app/js/lib/store.js:620
-#: app/js/lib/term-page.js:43
+#: app/js/bricks/library-status.js:12
+#: app/js/lib/store.js:618
+#: app/js/lib/term-page.js:44
 msgid "No book found."
 msgstr ""
 
-#: app/js/lib/api.js:38
+#: app/js/lib/api.js:32
 msgid "The books could not be loaded."
 msgstr ""
 
@@ -2358,6 +2358,6 @@ msgid_plural "%s other authors"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/lib/store.js:538
+#: app/js/lib/store.js:536
 msgid "Reading saved."
 msgstr ""

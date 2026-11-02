@@ -1,4 +1,5 @@
-import { editUrl, store, toBuy } from 'library-app/app';
+import { editUrl, toBuy } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
 import { join } from 'library-app/format';

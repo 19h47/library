@@ -1,4 +1,5 @@
-import { __, roles, store } from 'library-app/app';
+import { __, roles } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
 import { fill, fillCover, linkPeople } from 'library-app/render';

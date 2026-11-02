@@ -1,4 +1,4 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 
 /** The name of the app, which leads to its home: the books without their search, at their top. Marked current there. */

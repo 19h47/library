@@ -1,4 +1,4 @@
-import { store } from 'library-app/app';
+import { store } from 'library-app/store';
 import { fill, fillAuthors, fillPills, pageLink } from 'library-app/render';
 import { urlOf } from 'library-app/router';
 import { TermPage } from 'library-app/term-page';

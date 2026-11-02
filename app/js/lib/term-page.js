@@ -5,7 +5,8 @@
  * @subpackage Library/app
  */
 
-import { __, _n, sprintf, store } from 'library-app/app';
+import { __, _n, sprintf } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
 import { fill, fillCompletion, renderBook } from 'library-app/render';

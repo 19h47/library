@@ -1,4 +1,5 @@
-import { __, _n, sprintf, store } from 'library-app/app';
+import { __, _n, sprintf } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, join } from 'library-app/format';
 import { fill, renderCover } from 'library-app/render';

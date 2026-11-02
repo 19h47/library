@@ -1,4 +1,5 @@
-import { __, store } from 'library-app/app';
+import { __ } from 'library-app/app';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, join } from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';

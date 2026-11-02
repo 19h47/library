@@ -8,7 +8,8 @@
  * @subpackage Library/app
  */
 
-import { appUrl, store } from 'library-app/app';
+import { appUrl } from 'library-app/app';
+import { store } from 'library-app/store';
 
 // The views of the navigation, and the styleguide, opened by searching its name: their name is enough.
 const NAMED_VIEWS = [ 'books', 'diary', 'idea', 'achievements', 'to-buy', 'styleguide' ];

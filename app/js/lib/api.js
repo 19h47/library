@@ -5,20 +5,14 @@
  *
  * @package    Library
  * @subpackage Library/app
- * @global     wp, libraryApp
  */
 
-const { apiFetch } = window.wp;
-const { __ } = window.wp.i18n;
-const { addQueryArgs } = window.wp.url;
-const config = window.libraryApp;
+import { __, addQueryArgs, apiFetch, bookFields, maxPerPage, perPage, roles, statuses } from 'library-app/app';
+
 const parser = new DOMParser();
 
 // The fields of a book the app reads, its cover and terms as the plugin gives them: nothing embedded, a list stays light.
-const BOOK_QUERY = { _fields: config.bookFields };
-
-// The books a list loads at once, as the page preloads them, and the most books a page of the API gives.
-export const { perPage: PER_PAGE, maxPerPage: MAX_PER_PAGE } = config;
+const BOOK_QUERY = { _fields: bookFields };
 
 /** Plain text of an HTML string of the API, such as a title with &#8217;: never parsed as markup in the page. */
 export function text( html ) {
@@ -49,7 +43,7 @@ function toBook( item ) {
 	const meta = Object.fromEntries( Object.entries( item.meta ).map( ( [ key, value ] ) => [ key.replace( /^library_/, '' ), value ] ) );
 	// As named on the book: another name opens the page of the person too.
 	const names = item.names.map( ( { id, name } ) => ( { id, name: text( name ) } ) );
-	const roleIds = config.roles.flatMap( ( role ) => meta[ role ] );
+	const roleIds = roles.flatMap( ( role ) => meta[ role ] );
 
 	return {
 		...meta,
@@ -65,7 +59,7 @@ function toBook( item ) {
 		cover: item.cover,
 		// Its names without another role, then the others by role, such as its colorists, in place of their IDs.
 		authors: names.filter( ( name ) => ! roleIds.includes( name.id ) ),
-		...Object.fromEntries( config.roles.map( ( role ) => [ role, names.filter( ( name ) => meta[ role ].includes( name.id ) ) ] ) ),
+		...Object.fromEntries( roles.map( ( role ) => [ role, names.filter( ( name ) => meta[ role ].includes( name.id ) ) ] ) ),
 		// After its cycles, as typed, "Star Wars, Young Jedi Knights", and its ID, for its page.
 		series: item.series_name,
 		series_id: item.series[ 0 ] ?? 0,
@@ -140,14 +134,14 @@ export const PAGE_VIEWS = Object.keys( PAGES );
  */
 export async function getBooks( ids, { signal } = {} ) {
 	const sorted = [ ...new Set( ids ) ].sort( ( a, b ) => a - b );
-	const chunks = Array.from( { length: Math.ceil( sorted.length / MAX_PER_PAGE ) }, ( value, index ) =>
-		sorted.slice( index * MAX_PER_PAGE, ( index + 1 ) * MAX_PER_PAGE )
+	const chunks = Array.from( { length: Math.ceil( sorted.length / maxPerPage ) }, ( value, index ) =>
+		sorted.slice( index * maxPerPage, ( index + 1 ) * maxPerPage )
 	);
 	const loaded = await Promise.all(
 		chunks.map( ( chunk ) => {
 			const params = new URLSearchParams( {
 				...BOOK_QUERY,
-				status: config.statuses,
+				status: statuses,
 				include: chunk.join( ',' ),
 				per_page: chunk.length,
 			} );
@@ -168,7 +162,7 @@ export async function getBook( id ) {
  * The books `query` finds from `offset`, `count` of them, and how many it finds in all: `query` as the API reads it, its
  * search, statuses, forms and order.
  */
-export async function findBooks( query, { offset = 0, count = PER_PAGE, signal } = {} ) {
+export async function findBooks( query, { offset = 0, count = perPage, signal } = {} ) {
 	const params = new URLSearchParams( { ...BOOK_QUERY, ...query, per_page: count, offset } );
 	const response = await apiFetch( { path: `/wp/v2/books?${ params }`, parse: false, signal } );
 
@@ -184,14 +178,14 @@ export async function finds( query, id ) {
 
 /** The books of the series `name`, in reading order, as a search for it lists them. */
 export async function getVolumes( name, { signal } = {} ) {
-	const params = new URLSearchParams( { ...BOOK_QUERY, search: `series:"${ name }"`, status: config.statuses, per_page: MAX_PER_PAGE } );
+	const params = new URLSearchParams( { ...BOOK_QUERY, search: `series:"${ name }"`, status: statuses, per_page: maxPerPage } );
 
 	return ( await apiFetch( { path: `/wp/v2/books?${ params }`, signal } ) ).map( toBook );
 }
 
 /** The book that has the ISBN `digits`, or none. */
 export async function findIsbn( digits ) {
-	const params = new URLSearchParams( { search: `isbn:${ digits }`, status: config.statuses, per_page: 1, _fields: 'id' } );
+	const params = new URLSearchParams( { search: `isbn:${ digits }`, status: statuses, per_page: 1, _fields: 'id' } );
 	const [ found ] = await apiFetch( { path: `/wp/v2/books?${ params }` } );
 
 	return found?.id ?? 0;
