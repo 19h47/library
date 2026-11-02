@@ -45,12 +45,13 @@ class Library_Books {
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
 	 * Collections are those of the book and the ones they are part of, named after them: "Folio, Science-fiction", "Folio".
-	 * Series IDs are those of its series and of the cycles it is part of, from the series to the widest cycle; publisher IDs
-	 * those of its publishers and collections and of every one they are part of, its publisher included.
+	 * Series IDs are those of its series and of the cycles it is part of, from the series to the widest cycle. Publishers are
+	 * counted as authors are, a collection under its publisher, i.e. their widest ancestor: with the collections, they are
+	 * every term of the book and every one it is under.
 	 *
 	 * Kept until a book changes, as they take every book: see Library_Cache.
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,series_ids:int[],volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],publisher_ids:int[],collection_number:string,languages:array<string,string>,forms:string[]}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,series_ids:int[],volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],publisher_ids:int[],collection_number:string,languages:array<string,string>,language_ids:int[],forms:string[]}>
 	 */
 	public static function get_books(): array {
 		self::$books ??= Library_Cache::remember( 'books', fn() => self::compute_books() );
@@ -84,7 +85,8 @@ class Library_Books {
 			$contributors   = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID ) );
 			$translators    = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID, 'translator' ) );
 			$collections    = Library_Taxonomies::get_collections_and_parents( $post->ID );
-			$publisher_ids  = Library_Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_publisher' );
+			$publishers     = get_the_terms( $post->ID, 'library_publisher' );
+			$publishers     = Library_Taxonomies::get_top_level_terms( is_array( $publishers ) ? $publishers : array() );
 			$languages      = get_the_terms( $post->ID, 'library_language' );
 			$forms          = get_the_terms( $post->ID, 'library_form' );
 
@@ -112,9 +114,10 @@ class Library_Books {
 				'translators'       => wp_list_pluck( $translators, 'name' ),
 				'collections'       => array_map( array( Library_Taxonomies::class, 'get_collection_name' ), $collections ),
 				'collection_ids'    => wp_list_pluck( $collections, 'term_id' ),
-				'publisher_ids'     => $publisher_ids,
+				'publisher_ids'     => wp_list_pluck( $publishers, 'term_id' ),
 				'collection_number' => (string) get_post_meta( $post->ID, 'library_collection_number', true ),
 				'languages'         => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
+				'language_ids'      => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'term_id' ),
 				'forms'             => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
 			);
 		}

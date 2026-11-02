@@ -713,65 +713,6 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * SQL derived table of the terms under another one, each with its widest ancestor, term_id and top_id: another name
-	 * counts for the name of its person, a collection for its publisher, at any depth, which MySQL 5.7 cannot follow.
-	 *
-	 * @param string $taxonomy Taxonomy name.
-	 * @return string
-	 */
-	public static function build_top_level_table( string $taxonomy ): string {
-		$parents = self::get_parents( $taxonomy );
-		$rows    = array();
-
-		foreach ( array_filter( $parents ) as $term_id => $top_id ) {
-			while ( ! empty( $parents[ $top_id ] ) ) {
-				$top_id = $parents[ $top_id ];
-			}
-
-			$rows[] = sprintf( 'SELECT %d AS term_id, %d AS top_id', $term_id, $top_id );
-		}
-
-		return '( ' . ( $rows ? implode( ' UNION ALL ', $rows ) : 'SELECT 0 AS term_id, 0 AS top_id' ) . ' )';
-	}
-
-	/**
-	 * SQL derived table of the collections, each with itself and the collections it is part of, term_id and collection_id:
-	 * a book of Folio's Science-fiction counts for Folio too.
-	 *
-	 * @return string
-	 */
-	public static function build_collections_table(): string {
-		$parents = self::get_parents( 'library_publisher' );
-		$rows    = array();
-
-		foreach ( array_keys( array_filter( $parents ) ) as $term_id ) {
-			for ( $collection_id = $term_id; ! empty( $parents[ $collection_id ] ); $collection_id = $parents[ $collection_id ] ) {
-				$rows[] = sprintf( 'SELECT %d AS term_id, %d AS collection_id', $term_id, $collection_id );
-			}
-		}
-
-		return '( ' . ( $rows ? implode( ' UNION ALL ', $rows ) : 'SELECT 0 AS term_id, 0 AS collection_id' ) . ' )';
-	}
-
-	/**
-	 * Parent of each term of a taxonomy, by term ID, 0 for a top-level term.
-	 *
-	 * @param string $taxonomy Taxonomy name.
-	 * @return array<int,int>
-	 */
-	private static function get_parents( string $taxonomy ): array {
-		$parents = get_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'hide_empty' => false,
-				'fields'     => 'id=>parent',
-			)
-		);
-
-		return is_array( $parents ) ? array_map( 'intval', $parents ) : array();
-	}
-
-	/**
 	 * Include children (other names of a person, collections) in term counts.
 	 *
 	 * @param array    $args       Arguments of get_terms().

@@ -931,8 +931,10 @@ class Library_Rest_API {
 			return new WP_Error( 'library_no_publisher', get_taxonomy( 'library_publisher' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$places      = array_flip( self::get_collection_order( $publisher ) );
-		$books       = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $publisher->term_id, $book['publisher_ids'], true ) );
+		$places = array_flip( self::get_collection_order( $publisher ) );
+		// Every term of a book and every one it is under: its publishers and its collections.
+		$terms_of    = fn( array $book ): array => array( ...$book['publisher_ids'], ...$book['collection_ids'] );
+		$books       = array_filter( Library_Books::get_books(), fn( array $book ) => in_array( $publisher->term_id, $terms_of( $book ), true ) );
 		$books       = Library_Books::sort_in_reading_order( $books );
 		$ancestors   = array_map( fn( int $term_id ) => get_term( $term_id, 'library_publisher' ), get_ancestors( $publisher->term_id, 'library_publisher', 'taxonomy' ) );
 		$top         = end( $ancestors );
@@ -949,7 +951,7 @@ class Library_Rest_API {
 			'name' => Library_Taxonomies::get_collection_name( $term ),
 		) : null;
 		// A book is in the narrowest of its collections here: the last one in their order, after those it is part of.
-		$place = fn( array $book ): int => max( array_intersect_key( $places, array_flip( $book['publisher_ids'] ) ) );
+		$place = fn( array $book ): int => max( array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
 
 		// A stable sort: the books without number stay in reading order.
 		usort(
