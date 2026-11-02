@@ -51,6 +51,13 @@ class Library_App {
 	public const SERIES_VIEW = 'series';
 
 	/**
+	 * View of a collection or a publisher, opened from an achievement or another collection.
+	 *
+	 * @var string
+	 */
+	public const PUBLISHER_VIEW = 'publisher';
+
+	/**
 	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded.
 	 *
 	 * @var string
@@ -154,7 +161,7 @@ class Library_App {
 		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12.
 		$id = absint( $_GET[ $view ] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
 		$this->preload( $view, $id );
 
@@ -166,7 +173,7 @@ class Library_App {
 	 * Give the app the data it asks for first, in the page itself, as the editor of WordPress does: the server runs those
 	 * requests of the REST API while it renders the page, and wp.apiFetch answers them from it, without network. They
 	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown and
-	 * its series, or the page of a series. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
+	 * its series, or the page of a series or of a collection. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
 	 * which goes to the network. The reading idea and the achievements load after, as they take longer than the rest.
 	 *
 	 * @param string $view View shown.
@@ -206,6 +213,10 @@ class Library_App {
 
 		if ( self::SERIES_VIEW === $view ) {
 			$paths[] = "/library/v1/series/$id";
+		}
+
+		if ( self::PUBLISHER_VIEW === $view ) {
+			$paths[] = "/library/v1/publishers/$id";
 		}
 
 		$data = array_reduce( $paths, 'rest_preload_api_request', array() );
@@ -433,6 +444,7 @@ JS;
 			'personUrl'        => add_query_arg( 'view', self::PERSON_VIEW, self::get_url() ) . '&person=',
 			'bookUrl'          => add_query_arg( 'view', self::BOOK_VIEW, self::get_url() ) . '&book=',
 			'seriesUrl'        => add_query_arg( 'view', self::SERIES_VIEW, self::get_url() ) . '&series=',
+			'publisherUrl'     => add_query_arg( 'view', self::PUBLISHER_VIEW, self::get_url() ) . '&publisher=',
 			'searchUrl'        => self::get_url() . '&q=',
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.

@@ -44,6 +44,7 @@ class Library_Books {
 	 * colorist. The read dates go from the first reading to the latest.
 	 * The date added is the post date. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
+	 * Collections are those of the book and the ones they are part of, named after them: "Folio, Science-fiction", "Folio".
 	 *
 	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],languages:array<string,string>,forms:string[]}>
 	 */
@@ -72,7 +73,7 @@ class Library_Books {
 			$authors        = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_authors( $post->ID ) );
 			$contributors   = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID ) );
 			$translators    = Library_Taxonomies::get_top_level_terms( Library_Taxonomies::get_contributors( $post->ID, 'translator' ) );
-			$collections    = Library_Taxonomies::get_collections( $post->ID );
+			$collections    = Library_Taxonomies::get_collections_and_parents( $post->ID );
 			$languages      = get_the_terms( $post->ID, 'library_language' );
 			$forms          = get_the_terms( $post->ID, 'library_form' );
 
@@ -97,7 +98,7 @@ class Library_Books {
 				'author_ids'      => wp_list_pluck( $authors, 'term_id' ),
 				'contributor_ids' => wp_list_pluck( $contributors, 'term_id' ),
 				'translators'     => wp_list_pluck( $translators, 'name' ),
-				'collections'     => wp_list_pluck( $collections, 'name' ),
+				'collections'     => array_map( array( Library_Taxonomies::class, 'get_collection_name' ), $collections ),
 				'collection_ids'  => wp_list_pluck( $collections, 'term_id' ),
 				'languages'       => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
 				'forms'           => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
@@ -278,7 +279,8 @@ class Library_Books {
 	}
 
 	/**
-	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year".
+	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year", a sub-collection
+	 * after its collection: "Gallimard, Folio, Science-fiction no. 271".
 	 *
 	 * A collective work is credited to its publishing directors, as catalogues have it, and to none of its authors:
 	 * "Benoît Mouchart (dir.) · Casterman · 2020", or "Casterman · 2020" without director.
@@ -292,8 +294,16 @@ class Library_Books {
 		$publishers        = array();
 
 		foreach ( Library_Taxonomies::get_top_level_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
-			$collections  = wp_list_filter( Library_Taxonomies::get_collections( $book_id ), array( 'parent' => $publisher->term_id ) );
-			$publishers[] = implode( ', ', array( $publisher->name, ...wp_list_pluck( $collections, 'name' ) ) );
+			$names = array( $publisher->name );
+
+			foreach ( Library_Taxonomies::get_collections( $book_id ) as $collection ) {
+				if ( in_array( $publisher->term_id, get_ancestors( $collection->term_id, 'library_publisher', 'taxonomy' ), true ) ) {
+					$names = array( ...$names, ...self::split( Library_Taxonomies::get_collection_name( $collection ) ) );
+				}
+			}
+
+			// A collection given with its sub-collection shows once.
+			$publishers[] = implode( ', ', array_unique( $names ) );
 		}
 
 		// The number goes after the collection, the last one, as the volume after the series; none without a publisher.

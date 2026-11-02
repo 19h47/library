@@ -148,7 +148,8 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Count the books not kept of every term in one query; the name of a person also counts the books of their other names.
+	 * Count the books not kept of every term in one query; a term also counts the books of the terms under it: the name of
+	 * a person those of their other names, a publisher those of its collections and their sub-collections.
 	 *
 	 * @return array<int,int>
 	 */
@@ -159,25 +160,24 @@ class Library_Terms_List {
 
 		global $wpdb;
 
-		$this->not_kept_counts = array();
+		$rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
+			$wpdb->prepare(
+				"SELECT DISTINCT tt.term_id, tt.taxonomy, p.ID AS book_id
+				FROM {$wpdb->term_relationships} AS tr
+				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status = %s",
+				Library_Posts::NOT_KEPT
+			)
+		);
+		$books = array();
 
-		// Each term, then each person over their name and their other names, which overrides its own count.
-		foreach ( array( 'tt.term_id', 'COALESCE( NULLIF( tt.parent, 0 ), tt.term_id )' ) as $group ) {
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $group is one of the two constant expressions above.
-			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
-				$wpdb->prepare(
-					"SELECT $group AS term_id, COUNT( DISTINCT p.ID ) AS books
-					FROM {$wpdb->term_relationships} AS tr
-					INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
-					INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status = %s
-					GROUP BY 1",
-					Library_Posts::NOT_KEPT
-				)
-			);
-			// phpcs:enable
-
-			$this->not_kept_counts = array_replace( $this->not_kept_counts, array_map( 'intval', wp_list_pluck( $rows, 'books', 'term_id' ) ) );
+		foreach ( $rows as $row ) {
+			foreach ( array( (int) $row->term_id, ...get_ancestors( (int) $row->term_id, $row->taxonomy, 'taxonomy' ) ) as $term_id ) {
+				$books[ $term_id ][ $row->book_id ] = true;
+			}
 		}
+
+		$this->not_kept_counts = array_map( 'count', $books );
 
 		return $this->not_kept_counts;
 	}

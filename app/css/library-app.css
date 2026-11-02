@@ -2,7 +2,7 @@
  * Reading app: what it adds to app-style.css, the base shared by 19h47's small apps.
  *
  * The views and their navigation, the home, the book cards with their cover, the reading idea,
- * the stats and the achievements, the pages of a person and of a series, and the page of a book with its reading.
+ * the stats and the achievements, the pages of a person, of a series and of a collection, and the page of a book with its reading.
  */
 
 :root {
@@ -44,6 +44,7 @@ library-home,
 library-in-progress,
 library-volumes,
 library-series,
+library-publisher,
 library-offline,
 library-read-filter,
 library-status-filter,
@@ -118,7 +119,7 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
-:is(library-view, library-idea, library-diary, library-achievements, library-person, library-series) > .app-status {
+:is(library-view, library-idea, library-diary, library-achievements, library-person, library-series, library-publisher) > .app-status {
 	margin-bottom: var(--app-gap);
 }
 
@@ -416,8 +417,8 @@ library-view > .library-back {
 	gap: var(--app-gap-small);
 }
 
-/* The page of a person or of a series spaces its names and its reading from what follows */
-:is(library-person, library-series) > .library-person {
+/* The page of a person, of a series or of a collection spaces its names and its reading from what follows */
+:is(library-person, library-series, library-publisher) > .library-person {
 	margin-bottom: var(--app-u2);
 }
 
@@ -640,12 +641,13 @@ library-latest {
 	scroll-snap-align: start;
 }
 
-/* The sections of the page of a series or a person, before its books: the series of a cycle, the authors, the series of a person */
-:is(library-series, library-person) > .library-section {
+/* The sections of a page before its books: the series of a cycle, the collections of a publisher, the authors, the series of a person */
+:is(library-series, library-publisher, library-person) > .library-section {
 	margin-bottom: var(--app-u2);
 }
 
-.library-series__parts {
+/* The series of a cycle, the collections of a publisher */
+.library-section__pills {
 	list-style: none;
 	display: flex;
 	flex-wrap: wrap;

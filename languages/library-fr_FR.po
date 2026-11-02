@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-02T02:19:49+00:00\n"
+"POT-Creation-Date: 2026-11-02T11:48:36+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,11 +24,11 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php admin/class-library-dashboard.php:69
-#: admin/class-library-metaboxes.php:206 app/class-library-app.php:107
-#: app/class-library-app.php:316 app/class-library-app.php:317
+#: admin/class-library-metaboxes.php:206 app/class-library-app.php:114
+#: app/class-library-app.php:327 app/class-library-app.php:328
 #: app/partials/library-app.php:38 app/partials/library-app.php:57
-#: app/partials/library-app.php:123 app/partials/library-app.php:402
-#: app/partials/library-app.php:624
+#: app/partials/library-app.php:123 app/partials/library-app.php:434
+#: app/partials/library-app.php:656
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -54,7 +54,7 @@ msgstr "https://www.19h47.fr"
 
 #: admin/class-library-achievements-page.php:51
 #: admin/class-library-achievements-page.php:58
-#: admin/partials/library-achievements.php:20 app/class-library-app.php:288
+#: admin/partials/library-achievements.php:20 app/class-library-app.php:299
 #: app/partials/library-app.php:279
 msgid "Achievements"
 msgstr "Succès"
@@ -88,11 +88,12 @@ msgid "Thumbnail"
 msgstr "Miniature"
 
 #: admin/class-library-books-list.php:57 app/partials/library-app.php:345
+#: app/partials/library-app.php:377
 msgid "Authors"
 msgstr "Auteurs/autrices"
 
 #: admin/class-library-books-list.php:62
-#: admin/partials/library-read-date.php:27 app/partials/library-app.php:728
+#: admin/partials/library-read-date.php:27 app/partials/library-app.php:760
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -102,7 +103,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-library-books-list.php:120 app/partials/library-app.php:746
+#: admin/class-library-books-list.php:120 app/partials/library-app.php:778
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -192,7 +193,7 @@ msgstr "Maximum : %1$s (%2$s)"
 msgid "Books read by year"
 msgstr "Livres lus par année"
 
-#: admin/class-library-dashboard.php:309 admin/class-library-dashboard.php:413
+#: admin/class-library-dashboard.php:309 admin/class-library-dashboard.php:415
 msgid "Year"
 msgstr "Année"
 
@@ -237,33 +238,33 @@ msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:399
+#: admin/class-library-dashboard.php:406 includes/class-library-meta.php:399
 #: app/js/lib/format.js:46
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:404 includes/class-library-meta.php:395
+#: admin/class-library-dashboard.php:406 includes/class-library-meta.php:395
 msgid "No rating"
 msgstr "Pas de note"
 
-#: admin/class-library-dashboard.php:412
+#: admin/class-library-dashboard.php:414
 msgid "Average rating by year read"
 msgstr "Note moyenne par année de lecture"
 
-#: admin/class-library-dashboard.php:414
+#: admin/class-library-dashboard.php:416
 msgid "Average rating"
 msgstr "Note moyenne"
 
 #. translators: 1: year, 2: average rating, e.g. "2011 (8.1/10)".
-#: admin/class-library-dashboard.php:416
+#: admin/class-library-dashboard.php:418
 #, php-format
 msgid "Best: %1$s (%2$s)"
 msgstr "Meilleure : %1$s (%2$s)"
 
 #. translators: 1: number of books, 2: number of books read.
-#: admin/class-library-dashboard.php:471
+#: admin/class-library-dashboard.php:473
 #, php-format
 msgid "%1$s book, %2$s read"
 msgid_plural "%1$s books, %2$s read"
@@ -423,7 +424,7 @@ msgstr "De passage"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:22
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:217
+#: admin/partials/library-dashboard-idea.php:56 app/js/lib/render.js:222
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -464,8 +465,8 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: title, 2: subtitle.
 #. translators: 1: series, 2: title.
 #: admin/partials/library-dashboard-chart.php:40
-#: includes/class-library-books.php:210 includes/class-library-books.php:215
-#: includes/class-library-books.php:233
+#: includes/class-library-books.php:211 includes/class-library-books.php:216
+#: includes/class-library-books.php:234
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -491,7 +492,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:22
-#: includes/class-library-rest-api.php:938
+#: includes/class-library-rest-api.php:1066
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -584,7 +585,7 @@ msgstr[1] "%1$s pages lues en %2$d, sur %3$s livres renseignés"
 msgid "View all books"
 msgstr "Voir tous les livres"
 
-#: admin/partials/library-form.php:65 app/partials/library-app.php:417
+#: admin/partials/library-form.php:65 app/partials/library-app.php:449
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
@@ -611,25 +612,25 @@ msgstr ""
 "est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
 "autrice : enregistrez le livre pour lui choisir un autre rôle."
 
-#: admin/partials/library-read-date.php:33 app/partials/library-app.php:737
-#: app/partials/library-app.php:738 app/partials/library-app.php:751
-#: app/partials/library-app.php:752
+#: admin/partials/library-read-date.php:33 app/partials/library-app.php:769
+#: app/partials/library-app.php:770 app/partials/library-app.php:783
+#: app/partials/library-app.php:784
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/class-library-app.php:108
+#: app/class-library-app.php:115
 msgid "App"
 msgstr "Application"
 
-#: app/class-library-app.php:286
+#: app/class-library-app.php:297
 msgid "Diary"
 msgstr "Journal"
 
-#: app/class-library-app.php:287
+#: app/class-library-app.php:298
 msgid "Idea"
 msgstr "Idée"
 
-#: app/class-library-app.php:289
+#: app/class-library-app.php:300
 msgid "To buy"
 msgstr "Envies"
 
@@ -696,7 +697,7 @@ msgstr "Filtres"
 msgid "Remove the filter:"
 msgstr "Retirer le filtre :"
 
-#: app/partials/library-app.php:152 app/partials/library-app.php:518
+#: app/partials/library-app.php:152 app/partials/library-app.php:550
 msgid "Close"
 msgstr "Fermer"
 
@@ -708,7 +709,7 @@ msgstr "Ordre"
 msgid "Latest added"
 msgstr "Ajout récent"
 
-#: app/partials/library-app.php:183 app/partials/library-app.php:553
+#: app/partials/library-app.php:183 app/partials/library-app.php:585
 msgid "Title"
 msgstr "Titre"
 
@@ -731,83 +732,95 @@ msgid "Loading…"
 msgstr "Chargement…"
 
 #: app/partials/library-app.php:301 app/partials/library-app.php:328
-#: app/partials/library-app.php:359
+#: app/partials/library-app.php:359 app/partials/library-app.php:391
 msgid "Back"
 msgstr "Retour"
 
-#: app/partials/library-app.php:420
+#: app/partials/library-app.php:365
+msgid "Publisher:"
+msgstr "Éditeur :"
+
+#: app/partials/library-app.php:366
+msgid "Collection:"
+msgstr "Collection :"
+
+#: app/partials/library-app.php:372
+msgid "Collections"
+msgstr "Collections"
+
+#: app/partials/library-app.php:452
 msgid "Add a reading with an unknown date"
 msgstr "Ajouter une lecture sans date"
 
-#: app/partials/library-app.php:430 app/partials/library-app.php:691
+#: app/partials/library-app.php:462 app/partials/library-app.php:723
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: app/partials/library-app.php:430 app/partials/library-app.php:691
+#: app/partials/library-app.php:462 app/partials/library-app.php:723
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:484
+#: app/partials/library-app.php:516
 msgid "Top"
 msgstr "Haut"
 
-#: app/partials/library-app.php:500 app/partials/library-app.php:501
+#: app/partials/library-app.php:532 app/partials/library-app.php:533
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: app/partials/library-app.php:507
+#: app/partials/library-app.php:539
 msgid "Dark theme"
 msgstr "Thème sombre"
 
-#: app/partials/library-app.php:508
+#: app/partials/library-app.php:540
 msgid "Light or dark theme"
 msgstr "Thème clair ou sombre"
 
-#: app/partials/library-app.php:534
+#: app/partials/library-app.php:566
 msgid "Choose a cover"
 msgstr "Choisir une couverture"
 
-#: app/partials/library-app.php:535
+#: app/partials/library-app.php:567
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:543
+#: app/partials/library-app.php:575
 msgid "Already added:"
 msgstr "Déjà ajouté :"
 
-#: app/partials/library-app.php:545
+#: app/partials/library-app.php:577
 msgid "I bought it"
 msgstr "Je l’ai acheté"
 
-#: app/partials/library-app.php:565
+#: app/partials/library-app.php:597
 msgid "Add a person"
 msgstr "Ajouter une personne"
 
-#: app/partials/library-app.php:600
+#: app/partials/library-app.php:632
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:632
+#: app/partials/library-app.php:664
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:667
+#: app/partials/library-app.php:699
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:679
+#: app/partials/library-app.php:711
 msgid "Notes"
 msgstr "Notes de lecture"
 
-#: app/partials/library-app.php:695
+#: app/partials/library-app.php:727
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:777
+#: app/partials/library-app.php:809
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:787 app/partials/library-app.php:788
+#: app/partials/library-app.php:819 app/partials/library-app.php:820
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -835,20 +848,20 @@ msgid_plural "%s collections finished"
 msgstr[0] "%s collection terminée"
 msgstr[1] "%s collections terminées"
 
-#: includes/class-library-achievements.php:639
+#: includes/class-library-achievements.php:656
 msgid "Complete author"
 msgstr "Œuvre complète"
 
-#: includes/class-library-achievements.php:640
+#: includes/class-library-achievements.php:657
 msgid "Series finished"
 msgstr "Série terminée"
 
-#: includes/class-library-achievements.php:641
+#: includes/class-library-achievements.php:658
 msgid "Collection finished"
 msgstr "Collection terminée"
 
 #. translators: 1: number of books left, 2: title of a book left.
-#: includes/class-library-achievements.php:672
+#: includes/class-library-achievements.php:693
 #, php-format
 msgid "%1$s book left: %2$s"
 msgid_plural "%1$s books left, such as %2$s"
@@ -856,13 +869,13 @@ msgstr[0] "%1$s livre restant : %2$s"
 msgstr[1] "%1$s livres restants, dont %2$s"
 
 #. translators: 1: number of books read, 2: number of books.
-#: includes/class-library-achievements.php:734
+#: includes/class-library-achievements.php:755
 #, php-format
 msgid "%1$s read of %2$s"
 msgstr "%1$s lus sur %2$s"
 
 #. translators: %s: number of collections read by half or more.
-#: includes/class-library-achievements.php:743
+#: includes/class-library-achievements.php:764
 #, php-format
 msgid "%s collection read by half or more"
 msgid_plural "%s collections read by half or more"
@@ -870,40 +883,40 @@ msgstr[0] "%s collection lue à moitié ou plus"
 msgstr[1] "%s collections lues à moitié ou plus"
 
 #. translators: %s: number of books read.
-#: includes/class-library-achievements.php:756
-#: includes/class-library-achievements.php:1115
+#: includes/class-library-achievements.php:777
+#: includes/class-library-achievements.php:1136
 #, php-format
 msgid "%s books read"
 msgstr "%s livres lus"
 
 #. translators: %s: number of pages read.
-#: includes/class-library-achievements.php:793
+#: includes/class-library-achievements.php:814
 #, php-format
 msgid "%s pages read"
 msgstr "%s pages lues"
 
-#: includes/class-library-achievements.php:839
+#: includes/class-library-achievements.php:860
 msgid "Record year"
 msgstr "Année record"
 
-#: includes/class-library-achievements.php:844
+#: includes/class-library-achievements.php:865
 msgid "Record month"
 msgstr "Mois record"
 
 #. translators: %s: number of months.
-#: includes/class-library-achievements.php:915
+#: includes/class-library-achievements.php:936
 #, php-format
 msgid "%s months in a row"
 msgstr "%s mois d’affilée"
 
 #. translators: 1: first month, 2: last month, e.g. "January 2024 to June 2025".
-#: includes/class-library-achievements.php:919
+#: includes/class-library-achievements.php:940
 #, php-format
 msgid "%1$s to %2$s"
 msgstr "De %1$s à %2$s"
 
 #. translators: %s: most times a book was read again.
-#: includes/class-library-achievements.php:958
+#: includes/class-library-achievements.php:979
 #, php-format
 msgid "Read again %s time"
 msgid_plural "Read again %s times"
@@ -911,67 +924,67 @@ msgstr[0] "Relu %s fois"
 msgstr[1] "Relu %s fois"
 
 #. translators: %s: year of the first reading of the book.
-#: includes/class-library-achievements.php:961
+#: includes/class-library-achievements.php:982
 #, php-format
 msgid "First read in %s"
 msgstr "Lu pour la première fois en %s"
 
 #. translators: 1: what the books did, e.g. "Read on 29 February", 2: number of books, e.g. "3 books".
-#: includes/class-library-achievements.php:996
+#: includes/class-library-achievements.php:1017
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
-#: includes/class-library-achievements.php:1027
+#: includes/class-library-achievements.php:1048
 msgid "Hot off the press"
 msgstr "À chaud"
 
-#: includes/class-library-achievements.php:1027
+#: includes/class-library-achievements.php:1048
 msgid "Read the year it came out"
 msgstr "Lu l’année de sa parution"
 
-#: includes/class-library-achievements.php:1028
+#: includes/class-library-achievements.php:1049
 msgid "Centenarian"
 msgstr "Centenaire"
 
-#: includes/class-library-achievements.php:1028
+#: includes/class-library-achievements.php:1049
 msgid "Read a century or more after it first came out"
 msgstr "Lu un siècle ou plus après sa première parution"
 
-#: includes/class-library-achievements.php:1029
+#: includes/class-library-achievements.php:1050
 msgid "Archaeologist"
 msgstr "Archéologue"
 
-#: includes/class-library-achievements.php:1029
+#: includes/class-library-achievements.php:1050
 msgid "Read while the oldest book of the pile"
 msgstr "Lu alors qu’il était le plus ancien de la pile"
 
-#: includes/class-library-achievements.php:1086
+#: includes/class-library-achievements.php:1107
 msgid "Tour of the 20th century"
 msgstr "Tour du XXe siècle"
 
 #. translators: %s: number of decades of the 20th century with a book read.
-#: includes/class-library-achievements.php:1088
+#: includes/class-library-achievements.php:1109
 #, php-format
 msgid "%s decades of 10"
 msgstr "%s décennies sur 10"
 
-#: includes/class-library-achievements.php:1164
+#: includes/class-library-achievements.php:1185
 msgid "Jack of all trades"
 msgstr "Touche-à-tout"
 
 #. translators: %s: number of forms, such as novel or comic.
-#: includes/class-library-achievements.php:1167
+#: includes/class-library-achievements.php:1188
 #, php-format
 msgid "%s forms in a month"
 msgstr "%s formes en un mois"
 
-#: includes/class-library-achievements.php:1194
+#: includes/class-library-achievements.php:1215
 msgid "Tour of the library"
 msgstr "Tour de la bibliothèque"
 
 #. translators: %s: number of forms, such as novel or comic.
-#: includes/class-library-achievements.php:1203
+#: includes/class-library-achievements.php:1224
 #, php-format
 msgid "%s form read"
 msgid_plural "%s forms read"
@@ -979,17 +992,17 @@ msgstr[0] "%s forme lue"
 msgstr[1] "%s formes lues"
 
 #. translators: %s: forms left to read, such as "Poetry, Drama".
-#: includes/class-library-achievements.php:1215
+#: includes/class-library-achievements.php:1236
 #, php-format
 msgid "Still to read: %s"
 msgstr "Encore à lire : %s"
 
-#: includes/class-library-achievements.php:1251
+#: includes/class-library-achievements.php:1272
 msgid "Faithful to a translator"
 msgstr "Fidèle à un traducteur/une traductrice"
 
 #. translators: %s: number of translators with many books read.
-#: includes/class-library-achievements.php:1261
+#: includes/class-library-achievements.php:1282
 #, php-format
 msgid "Faithful to %s translator"
 msgid_plural "Faithful to %s translators"
@@ -997,295 +1010,295 @@ msgstr[0] "Fidèle à %s traducteur/traductrice"
 msgstr[1] "Fidèle à %s traducteurs/traductrices"
 
 #. translators: %s: number of original languages read.
-#: includes/class-library-achievements.php:1290
-#: includes/class-library-achievements.php:1310
+#: includes/class-library-achievements.php:1311
+#: includes/class-library-achievements.php:1331
 #, php-format
 msgid "%s original languages"
 msgstr "%s langues d’origine"
 
 #. translators: %s: number of original languages read.
-#: includes/class-library-achievements.php:1312
+#: includes/class-library-achievements.php:1333
 #, php-format
 msgid "%s language read"
 msgid_plural "%s languages read"
 msgstr[0] "%s langue lue"
 msgstr[1] "%s langues lues"
 
-#: includes/class-library-achievements.php:1332
+#: includes/class-library-achievements.php:1353
 msgid "In the original"
 msgstr "En VO"
 
-#: includes/class-library-achievements.php:1333
+#: includes/class-library-achievements.php:1354
 msgid "Read in its original language, without translator"
 msgstr "Lu dans sa langue d’origine, sans traduction"
 
-#: includes/class-library-achievements.php:1347
+#: includes/class-library-achievements.php:1368
 msgid "Polyglot of the month"
 msgstr "Polyglotte du mois"
 
 #. translators: %s: number of original languages.
-#: includes/class-library-achievements.php:1350
+#: includes/class-library-achievements.php:1371
 #, php-format
 msgid "%s original languages in a month"
 msgstr "%s langues d’origine dans le même mois"
 
-#: includes/class-library-achievements.php:1361
+#: includes/class-library-achievements.php:1382
 msgid "Rosetta Stone"
 msgstr "Pierre de Rosette"
 
 #. translators: %s: number of original languages.
-#: includes/class-library-achievements.php:1364
+#: includes/class-library-achievements.php:1385
 #, php-format
 msgid "%s original languages in a week"
 msgstr "%s langues d’origine dans la même semaine"
 
-#: includes/class-library-achievements.php:1398
+#: includes/class-library-achievements.php:1419
 msgid "Go-between"
 msgstr "Passeur"
 
 #. translators: %s: original languages, e.g. "Japanese, English".
-#: includes/class-library-achievements.php:1401
+#: includes/class-library-achievements.php:1422
 #, php-format
 msgid "Translated from %s"
 msgstr "Traduit depuis %s"
 
-#: includes/class-library-achievements.php:1464
+#: includes/class-library-achievements.php:1485
 msgid "Error 404"
 msgstr "Erreur 404"
 
 #. translators: %s: number of pages.
-#: includes/class-library-achievements.php:1466
+#: includes/class-library-achievements.php:1487
 #, php-format
 msgid "Page not found: a book of %s pages"
 msgstr "Page introuvable : un livre de %s pages"
 
-#: includes/class-library-achievements.php:1471
+#: includes/class-library-achievements.php:1492
 msgid "Fahrenheit 451"
 msgstr "Fahrenheit 451"
 
 #. translators: %s: number of pages.
-#: includes/class-library-achievements.php:1473
+#: includes/class-library-achievements.php:1494
 #, php-format
 msgid "A book of %s pages, the temperature at which paper burns"
 msgstr "Un livre de %s pages, la température à laquelle le papier brûle"
 
-#: includes/class-library-achievements.php:1476
+#: includes/class-library-achievements.php:1497
 msgid "The Ultimate Question"
 msgstr "La Grande Question"
 
-#: includes/class-library-achievements.php:1476
+#: includes/class-library-achievements.php:1497
 msgid "A book of 42 pages, or the 42nd read of a year"
 msgstr "Un livre de 42 pages, ou la 42ᵉ lecture d’une année"
 
-#: includes/class-library-achievements.php:1502
+#: includes/class-library-achievements.php:1523
 msgid "The splits"
 msgstr "Grand écart"
 
 #. translators: 1: number of pages of a short book, 2: number of pages of a long one.
-#: includes/class-library-achievements.php:1506
+#: includes/class-library-achievements.php:1527
 #, php-format
 msgid "Under %1$s and over %2$s pages in the same month"
 msgstr "Moins de %1$s et plus de %2$s pages dans le même mois"
 
 #. translators: %s: number of pages.
-#: includes/class-library-achievements.php:1546
+#: includes/class-library-achievements.php:1567
 #, php-format
 msgid "%s pages read within a year"
 msgstr "%s pages lues en un an"
 
-#: includes/class-library-achievements.php:1548
+#: includes/class-library-achievements.php:1569
 msgid "Everest"
 msgstr "Everest"
 
-#: includes/class-library-achievements.php:1568
+#: includes/class-library-achievements.php:1589
 msgid "Time machine"
 msgstr "Machine à remonter le temps"
 
 #. translators: %s: number of centuries.
-#: includes/class-library-achievements.php:1571
+#: includes/class-library-achievements.php:1592
 #, php-format
 msgid "Works from %s centuries in the same month"
 msgstr "Des œuvres de %s siècles dans le même mois"
 
-#: includes/class-library-achievements.php:1607
+#: includes/class-library-achievements.php:1628
 msgid "Twins"
 msgstr "Jumeaux"
 
 #. translators: 1: title of the other book, 2: year both first came out.
-#: includes/class-library-achievements.php:1611
+#: includes/class-library-achievements.php:1632
 #, php-format
 msgid "Read the same day as %1$s, both came out in %2$s"
 msgstr "Lu le même jour que %1$s, parus tous deux en %2$s"
 
 #. translators: %s: number of books to read.
-#: includes/class-library-achievements.php:1638
+#: includes/class-library-achievements.php:1659
 msgid "Tsundoku"
 msgstr "Tsundoku"
 
 #. translators: %s: number of books to read.
-#: includes/class-library-achievements.php:1638
+#: includes/class-library-achievements.php:1659
 #, php-format
 msgid "%s books waiting to be read"
 msgstr "%s livres qui attendent d’être lus"
 
-#: includes/class-library-achievements.php:1643
+#: includes/class-library-achievements.php:1664
 msgid "Leap day"
 msgstr "29 février"
 
-#: includes/class-library-achievements.php:1643
+#: includes/class-library-achievements.php:1664
 msgid "Read on 29 February"
 msgstr "Lu un 29 février"
 
-#: includes/class-library-achievements.php:1644
+#: includes/class-library-achievements.php:1665
 msgid "Pi day"
 msgstr "Jour de π"
 
-#: includes/class-library-achievements.php:1644
+#: includes/class-library-achievements.php:1665
 msgid "Read on 14 March"
 msgstr "Lu un 14 mars"
 
-#: includes/class-library-achievements.php:1645
+#: includes/class-library-achievements.php:1666
 msgid "New Year's resolution"
 msgstr "Bonne résolution"
 
-#: includes/class-library-achievements.php:1645
+#: includes/class-library-achievements.php:1666
 msgid "Read on 1 January"
 msgstr "Lu un 1er janvier"
 
-#: includes/class-library-achievements.php:1646
+#: includes/class-library-achievements.php:1667
 msgid "Last of the year"
 msgstr "Dernier de l’année"
 
-#: includes/class-library-achievements.php:1646
+#: includes/class-library-achievements.php:1667
 msgid "Read on 31 December"
 msgstr "Lu un 31 décembre"
 
-#: includes/class-library-achievements.php:1649
+#: includes/class-library-achievements.php:1670
 msgid "Friday the 13th"
 msgstr "Vendredi 13"
 
-#: includes/class-library-achievements.php:1650
+#: includes/class-library-achievements.php:1671
 msgid "Read on a Friday the 13th"
 msgstr "Lu un vendredi 13"
 
-#: includes/class-library-achievements.php:1655
+#: includes/class-library-achievements.php:1676
 msgid "Palindrome date"
 msgstr "Date palindrome"
 
-#: includes/class-library-achievements.php:1656
+#: includes/class-library-achievements.php:1677
 msgid "Read on a date that reads the same backwards"
 msgstr "Lu un jour dont la date se lit dans les deux sens"
 
-#: includes/class-library-achievements.php:1661
+#: includes/class-library-achievements.php:1682
 msgid "Love at first sight"
 msgstr "Coup de foudre"
 
-#: includes/class-library-achievements.php:1662
+#: includes/class-library-achievements.php:1683
 msgid "Added and read the same day"
 msgstr "Ajouté et lu le même jour"
 
-#: includes/class-library-achievements.php:1667
+#: includes/class-library-achievements.php:1688
 msgid "Brick"
 msgstr "Pavé"
 
 #. translators: %s: number of pages.
-#: includes/class-library-achievements.php:1669
+#: includes/class-library-achievements.php:1690
 #, php-format
 msgid "A book of %s pages or more"
 msgstr "Un livre de %s pages ou plus"
 
-#: includes/class-library-achievements.php:1674
+#: includes/class-library-achievements.php:1695
 msgid "The one that got away"
 msgstr "Celui qui est parti"
 
 #. translators: %s: rating, out of 10.
-#: includes/class-library-achievements.php:1676
+#: includes/class-library-achievements.php:1697
 #, php-format
 msgid "Not kept, rated %s or more"
 msgstr "De passage, noté %s ou plus"
 
-#: includes/class-library-achievements.php:1681
+#: includes/class-library-achievements.php:1702
 msgid "Mouthful"
 msgstr "Titre à rallonge"
 
 #. translators: %s: number of characters.
-#: includes/class-library-achievements.php:1683
+#: includes/class-library-achievements.php:1704
 #, php-format
 msgid "A title of %s characters or more"
 msgstr "Un titre de %s caractères ou plus"
 
 #. translators: %s: number of books read the same day.
-#: includes/class-library-achievements.php:1723
+#: includes/class-library-achievements.php:1744
 msgid "Marathon"
 msgstr "Marathon"
 
 #. translators: %s: number of books read the same day.
-#: includes/class-library-achievements.php:1723
+#: includes/class-library-achievements.php:1744
 #, php-format
 msgid "%s books read the same day"
 msgstr "%s livres lus le même jour"
 
-#: includes/class-library-achievements.php:1752
+#: includes/class-library-achievements.php:1773
 msgid "Seven days a week"
 msgstr "Sept jours sur sept"
 
 #. translators: %s: number of days.
-#: includes/class-library-achievements.php:1755
+#: includes/class-library-achievements.php:1776
 #, php-format
 msgid "A book finished every day for %s days"
 msgstr "Un livre terminé chaque jour pendant %s jours"
 
-#: includes/class-library-achievements.php:1784
+#: includes/class-library-achievements.php:1805
 msgid "Hat-trick"
 msgstr "Coup du chapeau"
 
-#: includes/class-library-achievements.php:1784
+#: includes/class-library-achievements.php:1805
 msgid "Three books rated 10 in a row"
 msgstr "Trois 10/10 d’affilée"
 
-#: includes/class-library-achievements.php:1809
+#: includes/class-library-achievements.php:1830
 msgid "Namesakes"
 msgstr "Homonymes"
 
-#: includes/class-library-achievements.php:1809
+#: includes/class-library-achievements.php:1830
 msgid "The same title, different authors"
 msgstr "Même titre, signatures différentes"
 
-#: includes/class-library-achievements.php:1844
+#: includes/class-library-achievements.php:1865
 msgid "Back to the start"
 msgstr "Retour aux sources"
 
-#: includes/class-library-achievements.php:1844
+#: includes/class-library-achievements.php:1865
 msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
 #. translators: %s: volume number.
-#: includes/class-library-books.php:220
+#: includes/class-library-books.php:221
 #, php-format
 msgid "vol. %s"
 msgstr "t. %s"
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-library-books.php:220 includes/class-library-books.php:302
+#: includes/class-library-books.php:221 includes/class-library-books.php:312
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
 
 #. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
-#: includes/class-library-books.php:224
+#: includes/class-library-books.php:225
 #, php-format
 msgid "%1$s, %2$s"
 msgstr "%1$s, %2$s"
 
 #. translators: %s: names of the publishing directors of a collective work.
-#: includes/class-library-books.php:277
+#: includes/class-library-books.php:278
 #, php-format
 msgid "%s (dir.)"
 msgstr "%s (dir.)"
 
 #. translators: %s: number of books.
-#: includes/class-library-books.php:328 app/js/lib/format.js:29
+#: includes/class-library-books.php:338 app/js/lib/format.js:29
 #, php-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -1788,22 +1801,26 @@ msgid "Term ID of the series, or of the cycle."
 msgstr "ID du terme de la série, ou du cycle."
 
 #: includes/class-library-rest-api.php:313
+msgid "Term ID of the collection, or of the publisher."
+msgstr "ID du terme de la collection, ou de l’éditeur."
+
+#: includes/class-library-rest-api.php:330
 msgid "Term ID of the person, or of one of their other names."
 msgstr "ID du terme de la personne, ou de l’un de ses autres noms."
 
-#: includes/class-library-rest-api.php:333
+#: includes/class-library-rest-api.php:350
 msgid "Title of the book."
 msgstr "Titre du livre."
 
-#: includes/class-library-rest-api.php:342
+#: includes/class-library-rest-api.php:359
 msgid "Summary of the book in a few words, its excerpt."
 msgstr "Résumé du livre en quelques mots, son extrait."
 
-#: includes/class-library-rest-api.php:347
+#: includes/class-library-rest-api.php:364
 msgid "Notes on the book, its content."
 msgstr "Notes sur le livre, son contenu."
 
-#: includes/class-library-rest-api.php:352
+#: includes/class-library-rest-api.php:369
 msgid ""
 "People of the book, by their name or another one, each with its role, such "
 "as colorist; a name not found adds a person."
@@ -1811,19 +1828,21 @@ msgstr ""
 "Personnes du livre, sous leur nom ou un autre, chacune avec son rôle, comme "
 "les couleurs ; un nom introuvable ajoute une personne."
 
-#: includes/class-library-rest-api.php:372
+#: includes/class-library-rest-api.php:389
 msgid "Name of the publisher; a name not found adds a publisher."
 msgstr "Nom de l’éditeur ; un nom introuvable ajoute un éditeur."
 
-#: includes/class-library-rest-api.php:377
+#: includes/class-library-rest-api.php:394
 msgid ""
-"Name of the collection, under the publisher and sent with it; a name not "
-"found adds a collection."
+"Collection, under the publisher and sent with it, a sub-collection after its "
+"collection, separated with commas, such as “Folio, Science-fiction”; a name "
+"not found adds a collection."
 msgstr ""
-"Nom de la collection, sous l’éditeur et envoyé avec lui ; un nom introuvable "
-"ajoute une collection."
+"Collection, sous l’éditeur et envoyée avec lui, une sous-collection après sa "
+"collection, séparées par des virgules, comme « Folio, Science-fiction » ; un "
+"nom introuvable ajoute une collection."
 
-#: includes/class-library-rest-api.php:382
+#: includes/class-library-rest-api.php:399
 msgid ""
 "Series, after its cycles, separated with commas, such as “Star Wars, Young "
 "Jedi Knights”; a name not found adds a series, or a cycle."
@@ -1831,25 +1850,25 @@ msgstr ""
 "Série, après ses cycles, séparés par des virgules, comme « Star Wars, Les "
 "Jeunes Chevaliers Jedi » ; un nom introuvable ajoute une série, ou un cycle."
 
-#: includes/class-library-rest-api.php:387
+#: includes/class-library-rest-api.php:404
 msgid "Term ID of the original language."
 msgstr "ID du terme de la langue d’origine."
 
-#: includes/class-library-rest-api.php:392
+#: includes/class-library-rest-api.php:409
 msgid "Term ID of the form, such as a novel or a comic."
 msgstr "ID du terme de la forme, comme un roman ou une bande dessinée."
 
-#: includes/class-library-rest-api.php:397
+#: includes/class-library-rest-api.php:414
 msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr "ID de l’image envoyée comme couverture, 0 pour aucune."
 
-#: includes/class-library-rest-api.php:402
+#: includes/class-library-rest-api.php:419
 msgid "Book meta, such as library_isbn, as the book form saves them."
 msgstr ""
 "Métas du livre, comme library_isbn, telles que le formulaire du livre les "
 "enregistre."
 
-#: includes/class-library-rest-api.php:407
+#: includes/class-library-rest-api.php:424
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 "Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
@@ -2021,10 +2040,12 @@ msgstr "Éditeur parent :"
 
 #: includes/class-library-taxonomies.php:198
 msgid ""
-"Pick the publisher of a collection, such as Gallimard for Folio. A publisher "
-"has none."
+"Pick the publisher of a collection, such as Gallimard for Folio, or the "
+"collection of a sub-collection, such as Folio for its Science-fiction. A "
+"publisher has none."
 msgstr ""
-"Choisissez l’éditeur d’une collection, comme Gallimard pour Folio. Un "
+"Choisissez l’éditeur d’une collection, comme Gallimard pour Folio, ou la "
+"collection d’une sous-collection, comme Folio pour sa Science-fiction. Un "
 "éditeur n’en a pas."
 
 #: includes/class-library-taxonomies.php:230
@@ -2109,129 +2130,129 @@ msgstr ""
 "Du cycle, s’il y en a un, à la série, séparés par des virgules, comme « Star "
 "Wars, Les Jeunes Chevaliers Jedi » ; le numéro de volume va avec la série."
 
-#: includes/class-library-taxonomies.php:385
+#: includes/class-library-taxonomies.php:389
 msgctxt "library languages general name"
 msgid "Original languages"
 msgstr "Langues d’origine"
 
-#: includes/class-library-taxonomies.php:386
+#: includes/class-library-taxonomies.php:390
 msgctxt "library languages singular name"
 msgid "Original language"
 msgstr "Langue d’origine"
 
-#: includes/class-library-taxonomies.php:387
+#: includes/class-library-taxonomies.php:391
 msgctxt "library languages menu name"
 msgid "Languages"
 msgstr "Langues"
 
-#: includes/class-library-taxonomies.php:388
+#: includes/class-library-taxonomies.php:392
 msgid "Search Languages"
 msgstr "Rechercher des langues"
 
-#: includes/class-library-taxonomies.php:389
+#: includes/class-library-taxonomies.php:393
 msgid "All Languages"
 msgstr "Toutes les langues"
 
-#: includes/class-library-taxonomies.php:390
+#: includes/class-library-taxonomies.php:394
 msgid "Edit Language"
 msgstr "Modifier la langue"
 
-#: includes/class-library-taxonomies.php:391
+#: includes/class-library-taxonomies.php:395
 msgid "View Language"
 msgstr "Voir la langue"
 
-#: includes/class-library-taxonomies.php:392
+#: includes/class-library-taxonomies.php:396
 msgid "Update Language"
 msgstr "Mettre à jour la langue"
 
-#: includes/class-library-taxonomies.php:393
+#: includes/class-library-taxonomies.php:397
 msgid "Add New Language"
 msgstr "Ajouter une langue"
 
-#: includes/class-library-taxonomies.php:394
+#: includes/class-library-taxonomies.php:398
 msgid "New Language Name"
 msgstr "Nom de la nouvelle langue"
 
-#: includes/class-library-taxonomies.php:395
+#: includes/class-library-taxonomies.php:399
 msgid "No languages found."
 msgstr "Aucune langue trouvée."
 
-#: includes/class-library-taxonomies.php:396
+#: includes/class-library-taxonomies.php:400
 msgid "No languages"
 msgstr "Aucune langue"
 
-#: includes/class-library-taxonomies.php:397
+#: includes/class-library-taxonomies.php:401
 msgid "Languages list navigation"
 msgstr "Navigation de la liste des langues"
 
-#: includes/class-library-taxonomies.php:398
+#: includes/class-library-taxonomies.php:402
 msgid "Languages list"
 msgstr "Liste des langues"
 
-#: includes/class-library-taxonomies.php:399
+#: includes/class-library-taxonomies.php:403
 msgid "&larr; Back to Languages"
 msgstr "&larr; Retour aux langues"
 
-#: includes/class-library-taxonomies.php:429
+#: includes/class-library-taxonomies.php:433
 msgctxt "library forms general name"
 msgid "Forms"
 msgstr "Formes"
 
-#: includes/class-library-taxonomies.php:430
+#: includes/class-library-taxonomies.php:434
 msgctxt "library forms singular name"
 msgid "Form"
 msgstr "Forme"
 
-#: includes/class-library-taxonomies.php:431
+#: includes/class-library-taxonomies.php:435
 msgid "Search Forms"
 msgstr "Rechercher des formes"
 
-#: includes/class-library-taxonomies.php:432
+#: includes/class-library-taxonomies.php:436
 msgid "All Forms"
 msgstr "Toutes les formes"
 
-#: includes/class-library-taxonomies.php:433
+#: includes/class-library-taxonomies.php:437
 msgid "Edit Form"
 msgstr "Modifier la forme"
 
-#: includes/class-library-taxonomies.php:434
+#: includes/class-library-taxonomies.php:438
 msgid "View Form"
 msgstr "Voir la forme"
 
-#: includes/class-library-taxonomies.php:435
+#: includes/class-library-taxonomies.php:439
 msgid "Update Form"
 msgstr "Mettre à jour la forme"
 
-#: includes/class-library-taxonomies.php:436
+#: includes/class-library-taxonomies.php:440
 msgid "Add New Form"
 msgstr "Ajouter une forme"
 
-#: includes/class-library-taxonomies.php:437
+#: includes/class-library-taxonomies.php:441
 msgid "New Form Name"
 msgstr "Nom de la nouvelle forme"
 
-#: includes/class-library-taxonomies.php:438
+#: includes/class-library-taxonomies.php:442
 msgid "No forms found."
 msgstr "Aucune forme trouvée."
 
-#: includes/class-library-taxonomies.php:439
+#: includes/class-library-taxonomies.php:443
 msgid "No forms"
 msgstr "Aucune forme"
 
-#: includes/class-library-taxonomies.php:440
+#: includes/class-library-taxonomies.php:444
 msgid "Forms list navigation"
 msgstr "Navigation de la liste des formes"
 
-#: includes/class-library-taxonomies.php:441
+#: includes/class-library-taxonomies.php:445
 msgid "Forms list"
 msgstr "Liste des formes"
 
-#: includes/class-library-taxonomies.php:442
+#: includes/class-library-taxonomies.php:446
 msgid "&larr; Back to Forms"
 msgstr "&larr; Retour aux formes"
 
 #. translators: %s: name or slug typed for a language, e.g. Norvégien.
-#: includes/class-library-taxonomies.php:491
+#: includes/class-library-taxonomies.php:495
 #, php-format
 msgid ""
 "%s is neither the name of a language nor its ISO 639 code, such as Norwegian "
@@ -2240,7 +2261,7 @@ msgstr ""
 "%s n’est ni le nom d’une langue ni son code ISO 639, comme norvégien ou no."
 
 #. translators: %s: name of a language, e.g. Norvégien.
-#: includes/class-library-taxonomies.php:500
+#: includes/class-library-taxonomies.php:504
 #, php-format
 msgid "%s is already among the languages."
 msgstr "%s figure déjà parmi les langues."
@@ -2344,7 +2365,8 @@ msgstr[1] "Autres noms : %s"
 #. translators: %s: number of books read, after the number of books of a person in a series.
 #. translators: %s: number of books read, after the number of books of a series.
 #: app/js/bricks/library-person.js:34 app/js/bricks/library-person.js:85
-#: app/js/bricks/library-series.js:32 app/js/bricks/library-volumes.js:30
+#: app/js/bricks/library-publisher.js:36 app/js/bricks/library-series.js:32
+#: app/js/bricks/library-volumes.js:30
 msgid "%s read"
 msgid_plural "%s read"
 msgstr[0] "%s lu"
@@ -2355,8 +2377,9 @@ msgstr[1] "%s lus"
 msgid "%s/10 on average"
 msgstr "%s/10 en moyenne"
 
-#: app/js/bricks/library-person.js:41 app/js/bricks/library-series.js:35
-#: app/js/bricks/library-status.js:11 app/js/library-app-store.js:922
+#: app/js/bricks/library-person.js:41 app/js/bricks/library-publisher.js:39
+#: app/js/bricks/library-series.js:35 app/js/bricks/library-status.js:11
+#: app/js/library-app-store.js:957
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
@@ -2373,7 +2396,7 @@ msgid "First published in %s"
 msgstr "Paru en %s"
 
 #. translators: %s: number of authors of a series, after the first ones.
-#: app/js/bricks/library-series.js:75
+#: app/js/bricks/library-publisher.js:83 app/js/bricks/library-series.js:75
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
@@ -2408,13 +2431,27 @@ msgid_plural "Read %s times"
 msgstr[0] "Lu %s fois"
 msgstr[1] "Lu %s fois"
 
-#: app/js/library-app-store.js:205
+#: app/js/library-app-store.js:207
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#: app/js/library-app-store.js:838
+#: app/js/library-app-store.js:873
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
+
+#~ msgid ""
+#~ "Name of the collection, under the publisher and sent with it; a name not "
+#~ "found adds a collection."
+#~ msgstr ""
+#~ "Nom de la collection, sous l’éditeur et envoyé avec lui ; un nom "
+#~ "introuvable ajoute une collection."
+
+#~ msgid ""
+#~ "Pick the publisher of a collection, such as Gallimard for Folio. A "
+#~ "publisher has none."
+#~ msgstr ""
+#~ "Choisissez l’éditeur d’une collection, comme Gallimard pour Folio. Un "
+#~ "éditeur n’en a pas."
 
 #~ msgid "Term ID of the person, or of one of their pseudonyms."
 #~ msgstr "ID du terme de la personne, ou de l’un de ses pseudonymes."

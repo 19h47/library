@@ -195,12 +195,12 @@ class Library_Taxonomies {
 			'back_to_items'            => __( '&larr; Back to Publishers', 'library' ),
 			'parent_item'              => __( 'Parent Publisher', 'library' ),
 			'parent_item_colon'        => __( 'Parent Publisher:', 'library' ),
-			'parent_field_description' => __( 'Pick the publisher of a collection, such as Gallimard for Folio. A publisher has none.', 'library' ),
+			'parent_field_description' => __( 'Pick the publisher of a collection, such as Gallimard for Folio, or the collection of a sub-collection, such as Folio for its Science-fiction. A publisher has none.', 'library' ),
 		);
 
 		$args = array(
 			'labels'             => $labels,
-			'hierarchical'       => true, // Parent = publisher, children = collections, shown as a tree in the core checklist box.
+			'hierarchical'       => true, // Parent = publisher, children = collections, their children sub-collections, shown as a tree in the core checklist box.
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
@@ -286,7 +286,7 @@ class Library_Taxonomies {
 	 * @return string
 	 */
 	public static function get_series_path( WP_Term $series ): string {
-		return implode( ', ', self::get_series_names( $series ) );
+		return implode( ', ', self::get_path_names( $series ) );
 	}
 
 	/**
@@ -309,15 +309,16 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Names of a series from its widest cycle, in plain text: the names of terms keep their & as &amp;.
+	 * Names of a term from its widest ancestor, in plain text, such as a series from its widest cycle or a collection
+	 * from its publisher: the names of terms keep their & as &amp;.
 	 *
-	 * @param WP_Term $series Series.
+	 * @param WP_Term $term Term of a hierarchical taxonomy.
 	 * @return string[]
 	 */
-	private static function get_series_names( WP_Term $series ): array {
-		$cycles = array_map( fn( int $term_id ) => get_term( $term_id, 'library_series' ), array_reverse( get_ancestors( $series->term_id, 'library_series', 'taxonomy' ) ) );
+	private static function get_path_names( WP_Term $term ): array {
+		$ancestors = array_map( fn( int $term_id ) => get_term( $term_id, $term->taxonomy ), array_reverse( get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' ) ) );
 
-		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array( ...$cycles, $series ) );
+		return array_map( fn( WP_Term $item ) => wp_specialchars_decode( $item->name, ENT_QUOTES ), array( ...$ancestors, $term ) );
 	}
 
 	/**
@@ -339,7 +340,7 @@ class Library_Taxonomies {
 		$ids   = array();
 
 		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$path = array_map( 'mb_strtolower', self::get_series_names( $term ) );
+			$path = array_map( 'mb_strtolower', self::get_path_names( $term ) );
 
 			if ( array_slice( $path, -count( $names ) ) === $names ) {
 				$ids = array( ...$ids, $term->term_id, ...get_term_children( $term->term_id, 'library_series' ) );
@@ -350,26 +351,29 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * The series a book types, from its cycle, such as "Star Wars, Young Jedi Knights", each name under the one before:
-	 * the existing one, else a new one when `$add`, else 0.
+	 * The term a book types as a path, each name under the one before: a series from its cycle, such as "Star Wars, Young
+	 * Jedi Knights", or a collection from its parent collection under its publisher, such as "Folio, Science-fiction" under
+	 * Gallimard. The existing term, else a new one when `$add`, else 0.
 	 *
-	 * @param string $path Cycles and series, separated with commas.
-	 * @param bool   $add  Whether to add the names missing.
-	 * @return int Term ID, or 0 for an empty path or a series not found.
+	 * @param string $taxonomy  Taxonomy name.
+	 * @param string $path      Names, separated with commas.
+	 * @param bool   $add       Whether to add the names missing.
+	 * @param int    $parent_id ID of the term the path is under, 0 for the top level.
+	 * @return int Term ID, or 0 for an empty path or a term not found.
 	 */
-	public static function get_series_id( string $path, bool $add = false ): int {
-		$parent_id = 0;
+	public static function get_path_id( string $taxonomy, string $path, bool $add = false, int $parent_id = 0 ): int {
+		$names = Library_Books::split( $path );
 
-		foreach ( Library_Books::split( $path ) as $name ) {
-			$term      = term_exists( $name, 'library_series', $parent_id );
-			$parent_id = is_array( $term ) ? (int) $term['term_id'] : ( $add ? self::get_term_id( 'library_series', $name, $parent_id ) : 0 );
+		foreach ( $names as $name ) {
+			$term      = term_exists( $name, $taxonomy, $parent_id );
+			$parent_id = is_array( $term ) ? (int) $term['term_id'] : ( $add ? self::get_term_id( $taxonomy, $name, $parent_id ) : 0 );
 
 			if ( ! $parent_id ) {
 				return 0;
 			}
 		}
 
-		return $parent_id;
+		return $names ? $parent_id : 0;
 	}
 
 	/**
@@ -624,7 +628,8 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Collections of a book, i.e. its publishers that have a parent.
+	 * Collections of a book, i.e. its publishers that have a parent: a collection is under its publisher, a sub-collection
+	 * under its collection, such as Science-fiction under Folio under Gallimard.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return WP_Term[]
@@ -636,7 +641,40 @@ class Library_Taxonomies {
 	}
 
 	/**
-	 * Terms as they count, each one once: another name for the name of its person, a collection for its publisher, i.e. their parent.
+	 * Collections of a book and the collections they are part of, each one once, as a series counts for its cycles: a book
+	 * of Folio's Science-fiction is in Folio too.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return WP_Term[]
+	 */
+	public static function get_collections_and_parents( int $book_id ): array {
+		$collections = array();
+
+		foreach ( self::get_collections( $book_id ) as $collection ) {
+			for ( $term = $collection; $term instanceof WP_Term && $term->parent; $term = get_term( $term->parent, 'library_publisher' ) ) {
+				$collections[ $term->term_id ] = $term;
+			}
+		}
+
+		return array_values( $collections );
+	}
+
+	/**
+	 * Name of a collection after the collections it is part of, without its publisher, in plain text: "Folio,
+	 * Science-fiction"; a publisher by its name.
+	 *
+	 * @param WP_Term $publisher Term of the publishers.
+	 * @return string
+	 */
+	public static function get_collection_name( WP_Term $publisher ): string {
+		$names = self::get_path_names( $publisher );
+
+		return implode( ', ', count( $names ) > 1 ? array_slice( $names, 1 ) : $names );
+	}
+
+	/**
+	 * Terms as they count, each one once: another name for the name of its person, a collection for its publisher, i.e. their
+	 * widest ancestor.
 	 *
 	 * @param WP_Term[] $terms Terms of a taxonomy.
 	 * @return WP_Term[]
@@ -645,7 +683,8 @@ class Library_Taxonomies {
 		$top_level_terms = array();
 
 		foreach ( $terms as $term ) {
-			$top_level_term = $term->parent ? get_term( $term->parent, $term->taxonomy ) : $term;
+			$ancestors      = get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' );
+			$top_level_term = $ancestors ? get_term( end( $ancestors ), $term->taxonomy ) : $term;
 
 			if ( $top_level_term instanceof WP_Term ) {
 				$top_level_terms[ $top_level_term->term_id ] = $top_level_term;
@@ -653,6 +692,65 @@ class Library_Taxonomies {
 		}
 
 		return array_values( $top_level_terms );
+	}
+
+	/**
+	 * SQL derived table of the terms under another one, each with its widest ancestor, term_id and top_id: another name
+	 * counts for the name of its person, a collection for its publisher, at any depth, which MySQL 5.7 cannot follow.
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @return string
+	 */
+	public static function build_top_level_table( string $taxonomy ): string {
+		$parents = self::get_parents( $taxonomy );
+		$rows    = array();
+
+		foreach ( array_filter( $parents ) as $term_id => $top_id ) {
+			while ( ! empty( $parents[ $top_id ] ) ) {
+				$top_id = $parents[ $top_id ];
+			}
+
+			$rows[] = sprintf( 'SELECT %d AS term_id, %d AS top_id', $term_id, $top_id );
+		}
+
+		return '( ' . ( $rows ? implode( ' UNION ALL ', $rows ) : 'SELECT 0 AS term_id, 0 AS top_id' ) . ' )';
+	}
+
+	/**
+	 * SQL derived table of the collections, each with itself and the collections it is part of, term_id and collection_id:
+	 * a book of Folio's Science-fiction counts for Folio too.
+	 *
+	 * @return string
+	 */
+	public static function build_collections_table(): string {
+		$parents = self::get_parents( 'library_publisher' );
+		$rows    = array();
+
+		foreach ( array_keys( array_filter( $parents ) ) as $term_id ) {
+			for ( $collection_id = $term_id; ! empty( $parents[ $collection_id ] ); $collection_id = $parents[ $collection_id ] ) {
+				$rows[] = sprintf( 'SELECT %d AS term_id, %d AS collection_id', $term_id, $collection_id );
+			}
+		}
+
+		return '( ' . ( $rows ? implode( ' UNION ALL ', $rows ) : 'SELECT 0 AS term_id, 0 AS collection_id' ) . ' )';
+	}
+
+	/**
+	 * Parent of each term of a taxonomy, by term ID, 0 for a top-level term.
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @return array<int,int>
+	 */
+	private static function get_parents( string $taxonomy ): array {
+		$parents = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+				'fields'     => 'id=>parent',
+			)
+		);
+
+		return is_array( $parents ) ? array_map( 'intval', $parents ) : array();
 	}
 
 	/**

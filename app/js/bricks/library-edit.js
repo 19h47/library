@@ -15,10 +15,9 @@ function renderOptions( terms, value = ( term ) => term.name ) {
  * publisher, collection and its number, form and edition date, its status when it is added, the one of the list shown
  * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
  * the ones filled in: subtitle, first published, pages, original language, collective work, ISSN, excerpt and notes.
- * The names typed are suggested
- * among those of the library, the collections among those of the publisher, the series after their cycles; a name not
- * found is added. For a book to add,
- * an ISBN typed that a book has already shows it, which opens, and a book to buy is bought from there.
+ * The names typed are suggested among those of the library, the collections among those of the publisher, after the
+ * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
+ * a book has already shows it, which opens, and a book to buy is bought from there.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
@@ -76,14 +75,15 @@ class LibraryEditElement extends Brick {
 
 		$details.addEventListener( 'input', countDetails, { signal } );
 
-		// The collections of the publisher typed, when the library has it; a collection needs a publisher.
+		// The collections of the publisher typed, at any depth, when the library has it; a collection needs a publisher.
 		const suggestCollections = () => {
 			const name = $publisher.value.trim().toLowerCase();
 			const { publishers } = store.get().terms;
 			const publisher = publishers.find( ( term ) => ! term.parent && name === term.name.toLowerCase() );
+			const collections = publisher ? publishers.filter( ( term ) => term.parent && publisher.id === term.publisher ) : [];
 
 			$collection.disabled = ! name;
-			$suggestions.collections.replaceChildren( ...renderOptions( publisher ? publishers.filter( ( term ) => publisher.id === term.parent ) : [] ) );
+			$suggestions.collections.replaceChildren( ...renderOptions( collections.map( ( term ) => ( { ...term, name: term.collection } ) ) ) );
 		};
 
 		// The cover shown: the photo picked, else the one of the book, unless it was removed.

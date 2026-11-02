@@ -129,13 +129,13 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-series__parts</code>, the series of a cycle on its page, under its <code>.library-person</code> header</figcaption>
+				<figcaption><code>.library-section__pills</code>, the series of a cycle or the collections of a publisher on its page, under its <code>.library-person</code> header</figcaption>
 				<div class="library-styleguide__frame">
 					<header class="library-person">
 						<h4 class="library-person__name">A Cycle</h4>
 						<p>20 books · 14 read</p>
 					</header>
-					<ul class="library-series__parts">
+					<ul class="library-section__pills">
 						<li><a class="app-pill" href="#top">A Series</a></li>
 						<li><a class="app-pill" href="#top">Another Series, with a longer name</a></li>
 					</ul>

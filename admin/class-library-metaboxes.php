@@ -120,7 +120,7 @@ class Library_Metaboxes {
 
 		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.
 		if ( isset( $values['series'] ) ) {
-			wp_set_object_terms( $post_id, array_filter( array( Library_Taxonomies::get_series_id( sanitize_text_field( $values['series'] ), true ) ) ), 'library_series' );
+			wp_set_object_terms( $post_id, array_filter( array( Library_Taxonomies::get_path_id( 'library_series', sanitize_text_field( $values['series'] ), true ) ) ), 'library_series' );
 		}
 
 		// The names of the book are saved first: a name just added is an author, its role chosen once it is saved.

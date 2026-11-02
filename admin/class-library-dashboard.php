@@ -519,8 +519,8 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Terms with the most books; other names of a person count for their name and collections for their publisher, i.e. their parent,
-	 * and only the terms that count for their taxonomy do.
+	 * Terms with the most books; other names of a person count for their name and collections for their publisher, i.e. their
+	 * widest ancestor, and only the terms that count for their taxonomy do.
 	 *
 	 * @param string $taxonomy Taxonomy.
 	 * @return array<int,array{name:string,url:string,text:string}>
@@ -530,11 +530,13 @@ class Library_Dashboard {
 
 		$read_books = self::get_read_books_table();
 		$counted    = self::build_counted_clauses( $taxonomy );
+		$top_level  = Library_Taxonomies::build_top_level_table( $taxonomy );
 
 		$rows = Library_Stats::get_results(
-			"SELECT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
+			"SELECT COALESCE( top.top_id, tt.term_id ) AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
+			LEFT JOIN {$top_level} AS top ON top.term_id = tt.term_id
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
 			LEFT JOIN {$read_books} ON r.post_id = p.ID
 			{$counted['join']}
@@ -550,23 +552,25 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Collections with the most books, i.e. the publishers that have a parent.
+	 * Collections with the most books, i.e. the publishers that have a parent, those of their sub-collections with them.
 	 *
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
 	private function get_top_collections(): array {
 		global $wpdb;
 
-		$read_books = self::get_read_books_table();
+		$read_books  = self::get_read_books_table();
+		$collections = Library_Taxonomies::build_collections_table();
 
 		$rows = Library_Stats::get_results(
-			"SELECT tt.term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
+			"SELECT c.collection_id AS term_id, COUNT( DISTINCT p.ID ) AS books, COUNT( DISTINCT r.post_id ) AS books_read
 			FROM {$wpdb->term_relationships} AS tr
-			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library_publisher' AND tt.parent != 0
+			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library_publisher'
+			INNER JOIN {$collections} AS c ON c.term_id = tt.term_id
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
 			LEFT JOIN {$read_books} ON r.post_id = p.ID
 			WHERE {library}
-			GROUP BY tt.term_id
+			GROUP BY c.collection_id
 			ORDER BY books DESC, books_read DESC
 			LIMIT %d",
 			self::LIST_LENGTH
@@ -602,7 +606,7 @@ class Library_Dashboard {
 			}
 
 			$items[] = array(
-				'name' => $term->name,
+				'name' => 'library_publisher' === $taxonomy ? Library_Taxonomies::get_collection_name( $term ) : $term->name,
 				'url'  => admin_url( 'edit.php?post_type=library_book&' . $taxonomy . '=' . $term->slug ),
 				'text' => self::format_books_read( $row ),
 			);
@@ -613,7 +617,7 @@ class Library_Dashboard {
 
 	/**
 	 * Number of terms of a taxonomy with at least one book kept; other names of a person count for their name and collections for their publisher,
-	 * and only the terms that count for their taxonomy do.
+	 * i.e. their widest ancestor, and only the terms that count for their taxonomy do.
 	 *
 	 * @param string $taxonomy Taxonomy.
 	 * @return int
@@ -621,12 +625,14 @@ class Library_Dashboard {
 	private function count_terms( string $taxonomy ): int {
 		global $wpdb;
 
-		$counted = self::build_counted_clauses( $taxonomy );
+		$counted   = self::build_counted_clauses( $taxonomy );
+		$top_level = Library_Taxonomies::build_top_level_table( $taxonomy );
 
 		[ $row ] = Library_Stats::get_results(
-			"SELECT COUNT( DISTINCT COALESCE( NULLIF( tt.parent, 0 ), tt.term_id ) ) AS terms
+			"SELECT COUNT( DISTINCT COALESCE( top.top_id, tt.term_id ) ) AS terms
 			FROM {$wpdb->term_relationships} AS tr
 			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
+			LEFT JOIN {$top_level} AS top ON top.term_id = tt.term_id
 			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
 			{$counted['join']}
 			WHERE {library} AND {$counted['where']}",

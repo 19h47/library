@@ -338,7 +338,7 @@
 						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="library-series__parts" data-list="parts"></ul>
+							<ul class="library-section__pills" data-list="parts"></ul>
 						</section>
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
@@ -352,6 +352,38 @@
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-series>
+				</library-view>
+
+				<library-view name="publisher" <?php echo Library_App::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-back class="library-back">
+						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+					</library-back>
+					<library-publisher>
+						<p class="app-status" data-field="status" hidden></p>
+						<header class="library-person">
+							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
+							<p data-row="publisher" hidden><?php esc_html_e( 'Publisher:', 'library' ); ?> <a data-field="publisher" href=""></a></p>
+							<p data-row="collection" hidden><?php esc_html_e( 'Collection:', 'library' ); ?> <a data-field="collection" href=""></a></p>
+							<div class="library-person__description" data-html="description" hidden></div>
+							<p data-field="summary"></p>
+						</header>
+						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
+						<section class="library-section" data-row="collections" hidden>
+							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
+							<ul class="library-section__pills" data-list="collections"></ul>
+						</section>
+						<?php // The first authors, then the others folded, once there are enough of them. ?>
+						<section class="library-section" data-row="authors" hidden>
+							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
+							<ul class="app-list__items" data-list="shown"></ul>
+							<details class="library-section__more" data-row="more" hidden>
+								<summary class="app-pill" data-field="more"></summary>
+								<ul class="app-list__items" data-list="more"></ul>
+							</details>
+						</section>
+						<ul class="app-list__items" data-list="books"></ul>
+						<div class="library-list__more"></div>
+					</library-publisher>
 				</library-view>
 
 				<library-view name="book" <?php echo Library_App::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
