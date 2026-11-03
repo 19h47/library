@@ -195,21 +195,36 @@ class Test_Library_Achievements_Discoveries extends Library_TestCase {
 	}
 
 	/**
-	 * A book to buy is not on the pile.
+	 * A book to buy, or not kept, is not on the pile: a book added after it can be read first.
 	 *
+	 * @dataProvider provide_off_the_pile
+	 *
+	 * @param string $status Status of the book off the pile.
 	 * @return void
 	 */
-	public function test_a_book_to_buy_is_not_on_the_pile(): void {
+	public function test_a_book_off_the_pile_waits_for_nothing( string $status ): void {
 		$this->add_book(
 			array(
-				'title'  => 'Wished',
-				'status' => 'library-to-buy',
+				'title'  => 'Off the pile',
+				'status' => $status,
 			),
 			'2024-01-01 10:00:00'
 		);
 		$this->add_read_book( 'Second', '2024-03-01', array(), '2024-01-02 10:00:00' );
 
 		$this->assertSame( 'Second', $this->get_earned()['archaeologist'][0]['subject'] );
+	}
+
+	/**
+	 * Statuses of a book not read that is off the pile.
+	 *
+	 * @return array<string,string[]>
+	 */
+	public function provide_off_the_pile(): array {
+		return array(
+			'to buy'   => array( Library_Posts::TO_BUY ),
+			'not kept' => array( Library_Posts::NOT_KEPT ),
+		);
 	}
 
 	/**

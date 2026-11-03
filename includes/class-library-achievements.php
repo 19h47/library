@@ -18,7 +18,7 @@
  * again, whose level is the most times a book was read again), discoveries
  * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
  * and translators, and easter eggs. Books not kept count, since they are read; books to buy count as books
- * to read in a completion, which lacks them, but are not on the pile. Completions and translators
+ * to read in a completion, which lacks them. Neither they nor the books not kept are on the pile. Completions and translators
  * are one achievement each, whose level is the number of subjects that earned it. An achievement is dated
  * by the reading that earned it, when it has a date. Achievements that count books take their first
  * reading; those about readings over time count a book read again once per reading.
@@ -360,6 +360,16 @@ class Library_Achievements {
 			},
 			Library_Books::get_books()
 		);
+	}
+
+	/**
+	 * Whether a book is on the pile: not read, and at hand, neither to buy nor not kept.
+	 *
+	 * @param array $book Book.
+	 * @return bool
+	 */
+	private static function is_on_the_pile( array $book ): bool {
+		return ! $book['read'] && ! in_array( $book['status'], array( Library_Posts::TO_BUY, Library_Posts::NOT_KEPT ), true );
 	}
 
 	/**
@@ -1041,7 +1051,7 @@ class Library_Achievements {
 
 		usort( $by_added, fn( array $a, array $b ) => strcmp( $a['added'], $b['added'] ) );
 
-		// The latest date by which each book added so far was read; a book to read is never read, a book to buy is not on the pile.
+		// The latest date by which each book added so far was read; a book on the pile is never read.
 		$read_by = array();
 		$latest  = '';
 		$added   = '';
@@ -1055,7 +1065,7 @@ class Library_Achievements {
 
 			$read_by[ $book['id'] ] = $latest;
 
-			if ( $book['read'] || Library_Posts::TO_BUY !== $book['status'] ) {
+			if ( $book['read'] || self::is_on_the_pile( $book ) ) {
 				$pending = max( $pending, $book['read'] ? $book['read_date'] : '9999-12-31' );
 			}
 		}
@@ -1629,7 +1639,7 @@ class Library_Achievements {
 		$dated       = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
 		$dated_reads = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
 		$on          = fn( string $month_day ) => array_values( array_filter( $dated, fn( array $book ) => substr( $book['read_date'], 5 ) === $month_day ) );
-		$to_read     = count( array_filter( $books, fn( array $book ) => ! $book['read'] && Library_Posts::TO_BUY !== $book['status'] ) );
+		$to_read     = count( array_filter( $books, array( self::class, 'is_on_the_pile' ) ) );
 		$eggs        = array();
 
 		if ( $to_read >= self::TSUNDOKU_BOOKS ) {

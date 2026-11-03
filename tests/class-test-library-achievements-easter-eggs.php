@@ -31,18 +31,33 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
-	 * A book to buy is not on the pile: 499 books to read and one to buy earn nothing.
+	 * A book to buy, or not kept, is not on the pile: 499 books to read and one such book earn nothing.
 	 *
+	 * @dataProvider provide_off_the_pile
+	 *
+	 * @param string $status Status of the book off the pile.
 	 * @return void
 	 */
-	public function test_tsundoku_not_from_a_book_to_buy(): void {
+	public function test_tsundoku_not_from_a_book_off_the_pile( string $status ): void {
 		for ( $i = 0; $i < 499; $i++ ) {
 			$this->add_book();
 		}
 
-		$this->add_book( array( 'status' => Library_Posts::TO_BUY ) );
+		$this->add_book( array( 'status' => $status ) );
 
 		$this->assertArrayNotHasKey( 'tsundoku', $this->get_earned() );
+	}
+
+	/**
+	 * Statuses of a book not read that is off the pile.
+	 *
+	 * @return array<string,string[]>
+	 */
+	public function provide_off_the_pile(): array {
+		return array(
+			'to buy'   => array( Library_Posts::TO_BUY ),
+			'not kept' => array( Library_Posts::NOT_KEPT ),
+		);
 	}
 
 	/**
