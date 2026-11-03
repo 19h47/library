@@ -298,18 +298,7 @@ class Library_Achievements {
 	 * @return array
 	 */
 	private function compute_achievements(): array {
-		// A book is dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
-		$books    = array_map(
-			function ( array $book ): array {
-				$read_dates = array_map( fn( string $read_date ) => substr( $read_date, 0, 10 ), $book['read_dates'] );
-
-				return array(
-					'read_dates' => $read_dates,
-					'read_date'  => $read_dates[0] ?? '',
-				) + $book;
-			},
-			Library_Books::get_books()
-		);
+		$books    = self::get_dated_books();
 		$reads    = self::get_reads( $books );
 		$readings = self::get_readings( $books );
 
@@ -351,6 +340,25 @@ class Library_Achievements {
 		return array(
 			'earned' => $earned,
 			'close'  => $close,
+		);
+	}
+
+	/**
+	 * Every book, dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
+	 *
+	 * @return array<int,array>
+	 */
+	private static function get_dated_books(): array {
+		return array_map(
+			function ( array $book ): array {
+				$read_dates = array_map( fn( string $read_date ) => substr( $read_date, 0, 10 ), $book['read_dates'] );
+
+				return array(
+					'read_dates' => $read_dates,
+					'read_date'  => $read_dates[0] ?? '',
+				) + $book;
+			},
+			Library_Books::get_books()
 		);
 	}
 
@@ -531,7 +539,7 @@ class Library_Achievements {
 	 * @return array|null
 	 */
 	public function get_completion( string $kind, int $term_id ): ?array {
-		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
+		foreach ( self::get_completion_groups( self::get_dated_books() ) as $kinds ) {
 			if ( isset( $kinds[ $kind ][ $term_id ] ) ) {
 				return self::get_group_completion( $kinds );
 			}

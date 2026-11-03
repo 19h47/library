@@ -489,6 +489,19 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 	}
 
 	/**
+	 * The completion of a term read in full is dated by its latest reading, as the achievement is.
+	 *
+	 * @return void
+	 */
+	public function test_the_completion_of_a_term_read_in_full_is_dated(): void {
+		$this->add_reads( array( '2024-01-01', '2024-03-01', '2024-02-01' ), $this->by( 'Ursula K. Le Guin' ) );
+
+		$completion = ( new Library_Achievements() )->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) );
+
+		$this->assertSame( '2024-03-01', $completion['date'] );
+	}
+
+	/**
 	 * A term with too few books, or a publisher, has no completion.
 	 *
 	 * @return void
