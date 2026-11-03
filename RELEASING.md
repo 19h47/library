@@ -35,7 +35,11 @@ No update is offered when the plugin folder is a Git working copy, since updatin
    - `Version` in `library.php`;
    - `Stable tag` in `README.txt`, with an entry in its changelog: one line per change, `* Fixed: …` for a fix, `* Changed: …` or `* Breaking: …` for a change that breaks the REST API or the data;
    - `languages/library.pot`, regenerated as above.
-6. Open a pull request titled `x.y.z`, then merge it.
+6. Open a pull request titled `x.y.z`, wait for its check of the coding standards, then merge it:
+
+   ```sh
+   gh pr checks --watch
+   ```
 7. Publish the release from `main`, with the changelog entry as notes:
 
    ```sh
