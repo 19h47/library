@@ -633,8 +633,8 @@ class Library_Achievements {
 			'series'     => array( Library_Taxonomies::class, 'get_series_path' ),
 			'collection' => array( Library_Taxonomies::class, 'get_collection_name' ),
 		);
-		// A series is named alone, without the cycles of the same books.
-		$term_ids = 'series' === $kind ? array( $key ) : array_keys( $kinds[ $kind ] );
+		// A series or a collection is named alone, the narrowest, without the cycles or collections it is part of.
+		$term_ids = 'author' === $kind ? array_keys( $kinds[ $kind ] ) : array( $key );
 		$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $taxonomies[ $kind ] ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
 		$subject  = wp_sprintf( '%l', array_map( $names[ $kind ], $terms ) );
 		$target   = self::build_term_target( $kind, (int) $key, $group );

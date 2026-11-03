@@ -447,6 +447,20 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 	}
 
 	/**
+	 * A sub-collection read in full is named alone, as a series is, not with the collection of the same books.
+	 *
+	 * @return void
+	 */
+	public function test_a_sub_collection_is_named_alone(): void {
+		$this->add_reads( array( '2024-01-01', '2024-02-01', '2024-03-01' ), $this->in( 'Folio, Science-fiction' ) );
+
+		$collection = $this->get_earned()['collection'];
+
+		$this->assertSame( '1 collection finished', $collection[0]['title'] );
+		$this->assertSame( 'Folio, Science-fiction', $collection[0]['subject'] );
+	}
+
+	/**
 	 * Close completions come fewest left first, then the furthest along.
 	 *
 	 * @return void
