@@ -139,6 +139,25 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
+	 * A book read on two 29 Februaries is one book, dated by its latest reading.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_on_the_day_twice_counts_once(): void {
+		$this->add_book(
+			array(
+				'title' => 'Twice',
+				'meta'  => array( 'library_read_date' => array( '2020-02-29', '2024-02-29' ) ),
+			)
+		);
+
+		$leap_day = $this->get_earned()['leap-day'];
+
+		$this->assertSame( 'Read on 29 February', $leap_day[0]['detail'] );
+		$this->assertSame( '2024-02-29', $leap_day[0]['date'] );
+	}
+
+	/**
 	 * Of several books read on the day, the latest is the subject, and the detail says how many.
 	 *
 	 * @return void

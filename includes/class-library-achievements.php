@@ -971,7 +971,7 @@ class Library_Achievements {
 	 * @param string           $kind        Kind.
 	 * @param string           $title       Title.
 	 * @param string           $description What the book did, e.g. "Read on 29 February".
-	 * @param array<int,array> $books       Books that earned it, in reading order.
+	 * @param array<int,array> $books       Books or readings that earned it, in reading order.
 	 * @return array<int,array> The achievement, or none.
 	 */
 	private static function get_latest_achievement( string $kind, string $title, string $description, array $books ): array {
@@ -979,7 +979,16 @@ class Library_Achievements {
 			return array();
 		}
 
-		$book = end( $books );
+		// A book counts once, by its latest reading: a book read on two 29 Februaries is one book.
+		$latest = array();
+
+		foreach ( $books as $book ) {
+			unset( $latest[ $book['id'] ] );
+			$latest[ $book['id'] ] = $book;
+		}
+
+		$books = array_values( $latest );
+		$book  = end( $books );
 		/* translators: 1: what the books did, e.g. "Read on 29 February", 2: number of books, e.g. "3 books". */
 		$detail = count( $books ) > 1 ? sprintf( __( '%1$s (%2$s)', 'library' ), $description, Library_Books::format_books( count( $books ) ) ) : $description;
 
@@ -1445,15 +1454,8 @@ class Library_Achievements {
 		}
 
 		$answers = array_merge( $by_pages( self::ODD_PAGES['ultimate-question'] ), array_column( $by_year, 41 ) );
-		$books   = array();
 
 		usort( $answers, fn( array $a, array $b ) => strcmp( $a['read_date'], $b['read_date'] ) );
-
-		// A book counts once, by its latest answer: a book of 42 pages may also be the 42nd read of a year.
-		foreach ( $answers as $book ) {
-			unset( $books[ $book['id'] ] );
-			$books[ $book['id'] ] = $book;
-		}
 
 		return array_merge(
 			self::get_latest_achievement(
@@ -1470,7 +1472,7 @@ class Library_Achievements {
 				sprintf( __( 'A book of %s pages, the temperature at which paper burns', 'library' ), number_format_i18n( self::ODD_PAGES['fahrenheit-451'] ) ),
 				$by_pages( self::ODD_PAGES['fahrenheit-451'] )
 			),
-			self::get_latest_achievement( 'ultimate-question', __( 'The Ultimate Question', 'library' ), __( 'A book of 42 pages, or the 42nd read of a year', 'library' ), array_values( $books ) )
+			self::get_latest_achievement( 'ultimate-question', __( 'The Ultimate Question', 'library' ), __( 'A book of 42 pages, or the 42nd read of a year', 'library' ), $answers )
 		);
 	}
 
