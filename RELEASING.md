@@ -8,22 +8,13 @@ No update is offered when the plugin folder is a Git working copy, since updatin
 
 1. Branch `release/x.y.z` from an up-to-date `main`.
 2. Commit the changes, with a [gitmoji](https://gitmoji.dev).
-3. Update the translations, if strings changed:
+3. Update the translations, with WP-CLI and gettext:
 
    ```sh
-   wp i18n make-pot . languages/library.pot --exclude=vendor
-   msgmerge -q --no-fuzzy-matching --previous -U languages/library-fr_FR.po languages/library.pot
+   sh bin/update-translations.sh
    ```
 
-   Translate the new strings in `languages/library-fr_FR.po`, then build the files WordPress loads:
-
-   ```sh
-   msgfmt -c -o languages/library-fr_FR.mo languages/library-fr_FR.po
-   wp i18n make-php languages/library-fr_FR.po languages
-   wp i18n make-json languages/library-fr_FR.po languages --no-purge
-   ```
-
-   `make-json` writes one JSON file per script with strings: commit them too.
+   It writes `languages/library.pot` from the code, merges it into `languages/library-fr_FR.po`, then builds the files WordPress loads: the `.mo`, the `.l10n.php` and one JSON file per script with strings. It fails while a string is untranslated or fuzzy: translate it in `languages/library-fr_FR.po`, run it again, and commit every file of `languages/` it changed.
 4. Update the ranges of the ISBN, from the range message of the International ISBN Agency, and commit `includes/isbn-ranges.json` if it changed:
 
    ```sh
@@ -34,7 +25,7 @@ No update is offered when the plugin folder is a Git working copy, since updatin
 5. Bump the version in a `:bookmark: x.y.z` commit:
    - `Version` in `library.php`;
    - `Stable tag` in `README.txt`, with an entry in its changelog: one line per change, `* Fixed: …` for a fix, `* Changed: …` or `* Breaking: …` for a change that breaks the REST API or the data;
-   - `languages/library.pot`, regenerated as above.
+   - the translations, updated again by the script of step 3, which puts the version in `languages/library.pot`.
 6. Open a pull request titled `x.y.z`, wait for its check of the coding standards, then merge it:
 
    ```sh
