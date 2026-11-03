@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 9.13.0\n"
+"Project-Id-Version: Library 9.13.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-03T18:32:57+00:00\n"
+"POT-Creation-Date: 2026-11-03T19:21:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -2057,135 +2057,135 @@ msgstr ""
 msgid "From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series."
 msgstr ""
 
-#: includes/class-library-taxonomies.php:388
+#: includes/class-library-taxonomies.php:432
 msgctxt "library languages general name"
 msgid "Original languages"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:389
+#: includes/class-library-taxonomies.php:433
 msgctxt "library languages singular name"
 msgid "Original language"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:390
+#: includes/class-library-taxonomies.php:434
 msgctxt "library languages menu name"
 msgid "Languages"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:391
+#: includes/class-library-taxonomies.php:435
 msgid "Search Languages"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:392
+#: includes/class-library-taxonomies.php:436
 msgid "All Languages"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:393
+#: includes/class-library-taxonomies.php:437
 msgid "Edit Language"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:394
+#: includes/class-library-taxonomies.php:438
 msgid "View Language"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:395
+#: includes/class-library-taxonomies.php:439
 msgid "Update Language"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:396
+#: includes/class-library-taxonomies.php:440
 msgid "Add New Language"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:397
+#: includes/class-library-taxonomies.php:441
 msgid "New Language Name"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:398
+#: includes/class-library-taxonomies.php:442
 msgid "No languages found."
 msgstr ""
 
-#: includes/class-library-taxonomies.php:399
+#: includes/class-library-taxonomies.php:443
 msgid "No languages"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:400
+#: includes/class-library-taxonomies.php:444
 msgid "Languages list navigation"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:401
+#: includes/class-library-taxonomies.php:445
 msgid "Languages list"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:402
+#: includes/class-library-taxonomies.php:446
 msgid "&larr; Back to Languages"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:432
+#: includes/class-library-taxonomies.php:476
 msgctxt "library forms general name"
 msgid "Forms"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:433
+#: includes/class-library-taxonomies.php:477
 msgctxt "library forms singular name"
 msgid "Form"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:434
+#: includes/class-library-taxonomies.php:478
 msgid "Search Forms"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:435
+#: includes/class-library-taxonomies.php:479
 msgid "All Forms"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:436
+#: includes/class-library-taxonomies.php:480
 msgid "Edit Form"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:437
+#: includes/class-library-taxonomies.php:481
 msgid "View Form"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:438
+#: includes/class-library-taxonomies.php:482
 msgid "Update Form"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:439
+#: includes/class-library-taxonomies.php:483
 msgid "Add New Form"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:440
+#: includes/class-library-taxonomies.php:484
 msgid "New Form Name"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:441
+#: includes/class-library-taxonomies.php:485
 msgid "No forms found."
 msgstr ""
 
-#: includes/class-library-taxonomies.php:442
+#: includes/class-library-taxonomies.php:486
 msgid "No forms"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:443
+#: includes/class-library-taxonomies.php:487
 msgid "Forms list navigation"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:444
+#: includes/class-library-taxonomies.php:488
 msgid "Forms list"
 msgstr ""
 
-#: includes/class-library-taxonomies.php:445
+#: includes/class-library-taxonomies.php:489
 msgid "&larr; Back to Forms"
 msgstr ""
 
 #. translators: %s: name or slug typed for a language, e.g. Norvégien.
-#: includes/class-library-taxonomies.php:494
+#: includes/class-library-taxonomies.php:538
 #, php-format
 msgid "%s is neither the name of a language nor its ISO 639 code, such as Norwegian or no."
 msgstr ""
 
 #. translators: %s: name of a language, e.g. Norvégien.
-#: includes/class-library-taxonomies.php:503
+#: includes/class-library-taxonomies.php:547
 #, php-format
 msgid "%s is already among the languages."
 msgstr ""

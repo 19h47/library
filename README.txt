@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.13.0
+Stable tag: 9.13.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.13.1 =
+* Fixed: a series or a collection whose name has a comma, such as "Talli, fille de la lune", is found whole when it exists, rather than split into a cycle and a series when its book is saved; the series: search finds it too. A new name with a comma is added in Books > Series or Books > Publishers first.
 
 = 9.13.0 =
 * Changed: a hat-trick takes three different books rated 10 in a row; namesakes are the latest two books read with the same title by different authors; a book not kept and not read is off the reading pile, as a book to buy is, for the tsundoku and the archaeologist.
