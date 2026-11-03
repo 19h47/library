@@ -7,4 +7,6 @@ bin export-ignore
 composer.json export-ignore
 composer.lock export-ignore
 phpcs.xml export-ignore
+phpunit.xml.dist export-ignore
 RELEASING.md export-ignore
+tests export-ignore
