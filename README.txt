@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.12.0
+Stable tag: 9.12.1
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.12.1 =
+* Fixed: in the reading app, a book without reading, marked as read with an unknown date, kept today as its read date rather than the unknown one.
 
 = 9.12.0 =
 * Reading app: its links are links, as the browser has them: one opens in a new tab or window, from a long press on a phone too. Going back puts a view back where it was at once, rather than scrolling to it, and the page of a book gone back to gives the focus back to the link that left it. The link to the books keeps their search, the name of the app leads to the home without it. It needs the Navigation API: Safari 26.2, Firefox 147 or Chrome 105 at least.

@@ -517,7 +517,11 @@ class LibraryStore extends Store {
 		}
 
 		// By their days, as the form gives them: the server keeps the time of a reading of the day.
-		if ( read && dates.join() !== api.toReadings( book.read_date.map( ( date ) => date.slice( 0, 10 ) ) ).join() ) {
+		const saved = api.toReadings( book.read_date.map( ( date ) => date.slice( 0, 10 ) ) );
+		// One by one: an unknown date, empty, is a reading, which a book without reading has not.
+		const datesChanged = dates.length !== saved.length || dates.some( ( date, index ) => date !== saved[ index ] );
+
+		if ( read && datesChanged ) {
 			meta.library_read_date = dates;
 		}
 
