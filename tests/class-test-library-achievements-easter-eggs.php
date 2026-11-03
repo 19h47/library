@@ -801,6 +801,56 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
+	 * One book rated 10 read three times in a row is no hat-trick: it takes three books.
+	 *
+	 * @return void
+	 */
+	public function test_no_hat_trick_from_one_book_read_three_times(): void {
+		$this->add_book(
+			array(
+				'meta' => array(
+					'library_rating'    => 10,
+					'library_read_date' => array( '2024-05-01', '2024-05-02', '2024-05-03' ),
+				),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
+	}
+
+	/**
+	 * A book rated 10 read again in the run neither breaks it nor counts twice: the third book makes it.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_again_in_a_hat_trick(): void {
+		$this->add_book(
+			array(
+				'meta' => array(
+					'library_rating'    => 10,
+					'library_read_date' => array( '2024-05-01', '2024-05-02' ),
+				),
+			)
+		);
+		$this->add_read( '2024-05-03', array( 'meta' => array( 'library_rating' => 10 ) ) );
+
+		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
+
+		$this->add_read(
+			'2024-05-04',
+			array(
+				'title' => 'Third',
+				'meta'  => array( 'library_rating' => 10 ),
+			)
+		);
+
+		$hat_trick = $this->get_earned()['hat-trick'];
+
+		$this->assertSame( 'Third', $hat_trick[0]['subject'] );
+		$this->assertSame( '2024-05-04', $hat_trick[0]['date'] );
+	}
+
+	/**
 	 * Two books read with the same title, whatever its case, by different authors are namesakes.
 	 *
 	 * @return void

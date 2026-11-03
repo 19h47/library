@@ -1759,19 +1759,29 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Three books rated 10 read in a row.
+	 * Three different books rated 10 read in a row, dated by the third: a book read again in the run neither adds to it
+	 * nor breaks it.
 	 *
 	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_hat_trick( array $dated ): array {
-		$run   = 0;
+		$run   = array();
 		$found = null;
 
 		foreach ( $dated as $book ) {
-			$run = 10.0 === $book['rating'] ? $run + 1 : 0;
+			if ( 10.0 !== $book['rating'] ) {
+				$run = array();
+				continue;
+			}
 
-			if ( $run >= 3 ) {
+			if ( isset( $run[ $book['id'] ] ) ) {
+				continue;
+			}
+
+			$run[ $book['id'] ] = true;
+
+			if ( count( $run ) >= 3 ) {
 				$found = $book;
 			}
 		}
