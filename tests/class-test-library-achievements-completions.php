@@ -447,6 +447,20 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 	}
 
 	/**
+	 * A sub-collection read in full is named alone, as a series is, not with the collection of the same books.
+	 *
+	 * @return void
+	 */
+	public function test_a_sub_collection_is_named_alone(): void {
+		$this->add_reads( array( '2024-01-01', '2024-02-01', '2024-03-01' ), $this->in( 'Folio, Science-fiction' ) );
+
+		$collection = $this->get_earned()['collection'];
+
+		$this->assertSame( '1 collection finished', $collection[0]['title'] );
+		$this->assertSame( 'Folio, Science-fiction', $collection[0]['subject'] );
+	}
+
+	/**
 	 * Close completions come fewest left first, then the furthest along.
 	 *
 	 * @return void
@@ -486,6 +500,19 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 		$this->assertSame( 'Complete author', $completion['title'] );
 		$this->assertSame( 1, $completion['done'] );
 		$this->assertSame( 4, $completion['total'] );
+	}
+
+	/**
+	 * The completion of a term read in full is dated by its latest reading, as the achievement is.
+	 *
+	 * @return void
+	 */
+	public function test_the_completion_of_a_term_read_in_full_is_dated(): void {
+		$this->add_reads( array( '2024-01-01', '2024-03-01', '2024-02-01' ), $this->by( 'Ursula K. Le Guin' ) );
+
+		$completion = ( new Library_Achievements() )->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) );
+
+		$this->assertSame( '2024-03-01', $completion['date'] );
 	}
 
 	/**
@@ -564,6 +591,21 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 
 		$this->assertSame( '6 read of 11', $step[0]['detail'] );
 		$this->assertSame( '2024-06-01', $step[0]['date'] );
+	}
+
+	/**
+	 * A sub-collection read by half counts once, for itself, not for the collection of the same books.
+	 *
+	 * @return void
+	 */
+	public function test_a_sub_collection_read_by_half_counts_once(): void {
+		$this->add_reads( array( '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01' ), $this->in( 'Folio, Science-fiction' ) );
+		$this->add_books( 5, $this->in( 'Folio, Science-fiction' ) );
+
+		$step = $this->get_earned()['collection-step'];
+
+		$this->assertSame( '1 collection read by half or more', $step[0]['title'] );
+		$this->assertSame( 'Folio, Science-fiction', $step[0]['subject'] );
 	}
 
 	/**

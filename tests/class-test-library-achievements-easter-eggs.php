@@ -31,6 +31,36 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
+	 * A book to buy, or not kept, is not on the pile: 499 books to read and one such book earn nothing.
+	 *
+	 * @dataProvider provide_off_the_pile
+	 *
+	 * @param string $status Status of the book off the pile.
+	 * @return void
+	 */
+	public function test_tsundoku_not_from_a_book_off_the_pile( string $status ): void {
+		for ( $i = 0; $i < 499; $i++ ) {
+			$this->add_book();
+		}
+
+		$this->add_book( array( 'status' => $status ) );
+
+		$this->assertArrayNotHasKey( 'tsundoku', $this->get_earned() );
+	}
+
+	/**
+	 * Statuses of a book not read that is off the pile.
+	 *
+	 * @return array<string,string[]>
+	 */
+	public function provide_off_the_pile(): array {
+		return array(
+			'to buy'   => array( Library_Posts::TO_BUY ),
+			'not kept' => array( Library_Posts::NOT_KEPT ),
+		);
+	}
+
+	/**
 	 * A book read is off the pile: 499 books to read out of 500 earn nothing.
 	 *
 	 * @return void
@@ -120,6 +150,25 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 		$leap_day = $this->get_earned()['leap-day'];
 
 		$this->assertSame( 'Read again', $leap_day[0]['subject'] );
+		$this->assertSame( '2024-02-29', $leap_day[0]['date'] );
+	}
+
+	/**
+	 * A book read on two 29 Februaries is one book, dated by its latest reading.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_on_the_day_twice_counts_once(): void {
+		$this->add_book(
+			array(
+				'title' => 'Twice',
+				'meta'  => array( 'library_read_date' => array( '2020-02-29', '2024-02-29' ) ),
+			)
+		);
+
+		$leap_day = $this->get_earned()['leap-day'];
+
+		$this->assertSame( 'Read on 29 February', $leap_day[0]['detail'] );
 		$this->assertSame( '2024-02-29', $leap_day[0]['date'] );
 	}
 
@@ -370,6 +419,50 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 		$this->assertCount( 1, $answer );
 		$this->assertSame( 'The answer', $answer[0]['subject'] );
 		$this->assertSame( 'A book of 42 pages, or the 42nd read of a year', $answer[0]['detail'] );
+		$this->assertSame( '2024-12-20', $answer[0]['date'] );
+	}
+
+	/**
+	 * A book of 42 pages read as the 42nd of a year answers once.
+	 *
+	 * @return void
+	 */
+	public function test_42_pages_and_42nd_read_count_once(): void {
+		$this->add_reads( self::get_days( '2024-01-01', 41 ) );
+		$this->add_read(
+			'2024-12-20',
+			array(
+				'title' => 'The answer',
+				'meta'  => array( 'library_pages' => 42 ),
+			)
+		);
+
+		$answer = $this->get_earned()['ultimate-question'];
+
+		$this->assertSame( 'A book of 42 pages, or the 42nd read of a year', $answer[0]['detail'] );
+		$this->assertSame( '2024-12-20', $answer[0]['date'] );
+	}
+
+	/**
+	 * A book of 42 pages and another read as the 42nd of a year make two answers, by the latest.
+	 *
+	 * @return void
+	 */
+	public function test_42_pages_and_42nd_read_of_two_books(): void {
+		$this->add_read(
+			'2023-06-01',
+			array(
+				'title' => 'Short',
+				'meta'  => array( 'library_pages' => 42 ),
+			)
+		);
+		$this->add_reads( self::get_days( '2024-01-01', 41 ) );
+		$this->add_read( '2024-12-20', array( 'title' => 'The answer' ) );
+
+		$answer = $this->get_earned()['ultimate-question'];
+
+		$this->assertSame( 'The answer', $answer[0]['subject'] );
+		$this->assertSame( 'A book of 42 pages, or the 42nd read of a year (2 books)', $answer[0]['detail'] );
 		$this->assertSame( '2024-12-20', $answer[0]['date'] );
 	}
 
@@ -723,6 +816,56 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
+	 * One book rated 10 read three times in a row is no hat-trick: it takes three books.
+	 *
+	 * @return void
+	 */
+	public function test_no_hat_trick_from_one_book_read_three_times(): void {
+		$this->add_book(
+			array(
+				'meta' => array(
+					'library_rating'    => 10,
+					'library_read_date' => array( '2024-05-01', '2024-05-02', '2024-05-03' ),
+				),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
+	}
+
+	/**
+	 * A book rated 10 read again in the run neither breaks it nor counts twice: the third book makes it.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_again_in_a_hat_trick(): void {
+		$this->add_book(
+			array(
+				'meta' => array(
+					'library_rating'    => 10,
+					'library_read_date' => array( '2024-05-01', '2024-05-02' ),
+				),
+			)
+		);
+		$this->add_read( '2024-05-03', array( 'meta' => array( 'library_rating' => 10 ) ) );
+
+		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
+
+		$this->add_read(
+			'2024-05-04',
+			array(
+				'title' => 'Third',
+				'meta'  => array( 'library_rating' => 10 ),
+			)
+		);
+
+		$hat_trick = $this->get_earned()['hat-trick'];
+
+		$this->assertSame( 'Third', $hat_trick[0]['subject'] );
+		$this->assertSame( '2024-05-04', $hat_trick[0]['date'] );
+	}
+
+	/**
 	 * Two books read with the same title, whatever its case, by different authors are namesakes.
 	 *
 	 * @return void
@@ -739,6 +882,23 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 		$this->assertSame( 'The same title, different authors', $namesakes[0]['detail'] );
 		$this->assertSame( 'search', $namesakes[0]['target']['type'] );
 		$this->assertSame( '2024-05-10', $namesakes[0]['date'] );
+	}
+
+	/**
+	 * Of two pairs of namesakes, the latest one completed shows, dated by its second book.
+	 *
+	 * @return void
+	 */
+	public function test_the_latest_namesakes(): void {
+		$this->add_read( '2020-01-01', self::get_work( 'Alpha', '1990', 'First Author' ) );
+		$this->add_read( '2021-01-01', self::get_work( 'Beta', '1990', 'First Author' ) );
+		$this->add_read( '2022-01-01', self::get_work( 'Beta', '1995', 'Second Author' ) );
+		$this->add_read( '2023-01-01', self::get_work( 'Alpha', '1995', 'Second Author' ) );
+
+		$namesakes = $this->get_earned()['namesakes'];
+
+		$this->assertSame( 'Alpha', $namesakes[0]['subject'] );
+		$this->assertSame( '2023-01-01', $namesakes[0]['date'] );
 	}
 
 	/**

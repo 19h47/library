@@ -10,7 +10,7 @@
 		}
 	],
 	"require-dev": {
-		"wp-coding-standards/wpcs": "^3.3",
+		"wp-coding-standards/wpcs": "^3.4.1",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.2",
 		"wp-phpunit/wp-phpunit": "^7.1",
 		"roots/wordpress-no-content": "^7.1",

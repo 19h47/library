@@ -18,7 +18,7 @@
  * again, whose level is the most times a book was read again), discoveries
  * (hot off the press, a centenarian, the oldest of the pile, the decades of the 20th century), languages
  * and translators, and easter eggs. Books not kept count, since they are read; books to buy count as books
- * to read in a completion, which lacks them, but are not on the pile. Completions and translators
+ * to read in a completion, which lacks them. Neither they nor the books not kept are on the pile. Completions and translators
  * are one achievement each, whose level is the number of subjects that earned it. An achievement is dated
  * by the reading that earned it, when it has a date. Achievements that count books take their first
  * reading; those about readings over time count a book read again once per reading.
@@ -298,18 +298,7 @@ class Library_Achievements {
 	 * @return array
 	 */
 	private function compute_achievements(): array {
-		// A book is dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
-		$books    = array_map(
-			function ( array $book ): array {
-				$read_dates = array_map( fn( string $read_date ) => substr( $read_date, 0, 10 ), $book['read_dates'] );
-
-				return array(
-					'read_dates' => $read_dates,
-					'read_date'  => $read_dates[0] ?? '',
-				) + $book;
-			},
-			Library_Books::get_books()
-		);
+		$books    = self::get_dated_books();
 		$reads    = self::get_reads( $books );
 		$readings = self::get_readings( $books );
 
@@ -352,6 +341,35 @@ class Library_Achievements {
 			'earned' => $earned,
 			'close'  => $close,
 		);
+	}
+
+	/**
+	 * Every book, dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
+	 *
+	 * @return array<int,array>
+	 */
+	private static function get_dated_books(): array {
+		return array_map(
+			function ( array $book ): array {
+				$read_dates = array_map( fn( string $read_date ) => substr( $read_date, 0, 10 ), $book['read_dates'] );
+
+				return array(
+					'read_dates' => $read_dates,
+					'read_date'  => $read_dates[0] ?? '',
+				) + $book;
+			},
+			Library_Books::get_books()
+		);
+	}
+
+	/**
+	 * Whether a book is on the pile: not read, and at hand, neither to buy nor not kept.
+	 *
+	 * @param array $book Book.
+	 * @return bool
+	 */
+	private static function is_on_the_pile( array $book ): bool {
+		return ! $book['read'] && ! in_array( $book['status'], array( Library_Posts::TO_BUY, Library_Posts::NOT_KEPT ), true );
 	}
 
 	/**
@@ -531,7 +549,7 @@ class Library_Achievements {
 	 * @return array|null
 	 */
 	public function get_completion( string $kind, int $term_id ): ?array {
-		foreach ( self::get_completion_groups( Library_Books::get_books() ) as $kinds ) {
+		foreach ( self::get_completion_groups( self::get_dated_books() ) as $kinds ) {
 			if ( isset( $kinds[ $kind ][ $term_id ] ) ) {
 				return self::get_group_completion( $kinds );
 			}
@@ -625,8 +643,8 @@ class Library_Achievements {
 			'series'     => array( Library_Taxonomies::class, 'get_series_path' ),
 			'collection' => array( Library_Taxonomies::class, 'get_collection_name' ),
 		);
-		// A series is named alone, without the cycles of the same books.
-		$term_ids = 'series' === $kind ? array( $key ) : array_keys( $kinds[ $kind ] );
+		// A series or a collection is named alone, the narrowest, without the cycles or collections it is part of.
+		$term_ids = 'author' === $kind ? array_keys( $kinds[ $kind ] ) : array( $key );
 		$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $taxonomies[ $kind ] ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
 		$subject  = wp_sprintf( '%l', array_map( $names[ $kind ], $terms ) );
 		$target   = self::build_term_target( $kind, (int) $key, $group );
@@ -688,6 +706,10 @@ class Library_Achievements {
 				$collections[ $collection_id ][] = $book;
 			}
 		}
+
+		// The same books count once, for the narrowest collection, as in a completion.
+		$book_ids    = array_map( fn( array $group ) => implode( ',', array_column( $group, 'id' ) ), $collections );
+		$collections = array_intersect_key( $collections, array_unique( $book_ids ) );
 
 		foreach ( $collections as $collection_id => $group ) {
 			$total = count( $group );
@@ -925,6 +947,8 @@ class Library_Achievements {
 			return array();
 		}
 
+		$first_year = substr( $found['read_dates'][0], 0, 4 );
+
 		return array(
 			self::build_achievement(
 				'reread',
@@ -932,7 +956,7 @@ class Library_Achievements {
 				sprintf( _n( 'Read again %s time', 'Read again %s times', $level, 'library' ), number_format_i18n( $level ) ),
 				$found['full_title'],
 				/* translators: %s: year of the first reading of the book. */
-				sprintf( __( 'First read in %s', 'library' ), substr( $found['read_dates'][0], 0, 4 ) ),
+				'' !== $first_year ? sprintf( __( 'First read in %s', 'library' ), $first_year ) : '',
 				self::build_book_target( $found['id'] ),
 				$found['read_date']
 			),
@@ -957,7 +981,7 @@ class Library_Achievements {
 	 * @param string           $kind        Kind.
 	 * @param string           $title       Title.
 	 * @param string           $description What the book did, e.g. "Read on 29 February".
-	 * @param array<int,array> $books       Books that earned it, in reading order.
+	 * @param array<int,array> $books       Books or readings that earned it, in reading order.
 	 * @return array<int,array> The achievement, or none.
 	 */
 	private static function get_latest_achievement( string $kind, string $title, string $description, array $books ): array {
@@ -965,7 +989,16 @@ class Library_Achievements {
 			return array();
 		}
 
-		$book = end( $books );
+		// A book counts once, by its latest reading: a book read on two 29 Februaries is one book.
+		$latest = array();
+
+		foreach ( $books as $book ) {
+			unset( $latest[ $book['id'] ] );
+			$latest[ $book['id'] ] = $book;
+		}
+
+		$books = array_values( $latest );
+		$book  = end( $books );
 		/* translators: 1: what the books did, e.g. "Read on 29 February", 2: number of books, e.g. "3 books". */
 		$detail = count( $books ) > 1 ? sprintf( __( '%1$s (%2$s)', 'library' ), $description, Library_Books::format_books( count( $books ) ) ) : $description;
 
@@ -1018,7 +1051,7 @@ class Library_Achievements {
 
 		usort( $by_added, fn( array $a, array $b ) => strcmp( $a['added'], $b['added'] ) );
 
-		// The latest date by which each book added so far was read; a book to read is never read, a book to buy is not on the pile.
+		// The latest date by which each book added so far was read; a book on the pile is never read.
 		$read_by = array();
 		$latest  = '';
 		$added   = '';
@@ -1032,7 +1065,7 @@ class Library_Achievements {
 
 			$read_by[ $book['id'] ] = $latest;
 
-			if ( $book['read'] || Library_Posts::TO_BUY !== $book['status'] ) {
+			if ( $book['read'] || self::is_on_the_pile( $book ) ) {
 				$pending = max( $pending, $book['read'] ? $book['read_date'] : '9999-12-31' );
 			}
 		}
@@ -1352,12 +1385,14 @@ class Library_Achievements {
 	 */
 	private function get_go_betweens( array $reads ): array {
 		$from   = array();
+		$books  = array();
 		$names  = array();
 		$earned = array();
 
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
 				$names[ self::get_name_key( $translator ) ] ??= $translator;
+				$books[ self::get_name_key( $translator ) ][] = $book;
 
 				foreach ( $book['languages'] as $language ) {
 					$from[ self::get_name_key( $translator ) ][ $language ] ??= $book;
@@ -1373,7 +1408,7 @@ class Library_Achievements {
 				$translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), array_values( $languages ) ),
+				self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), $books[ $key ] ),
 				array_values( $languages )[1]['read_date']
 			);
 		}
@@ -1604,7 +1639,7 @@ class Library_Achievements {
 		$dated       = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
 		$dated_reads = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
 		$on          = fn( string $month_day ) => array_values( array_filter( $dated, fn( array $book ) => substr( $book['read_date'], 5 ) === $month_day ) );
-		$to_read     = count( $books ) - count( $reads );
+		$to_read     = count( array_filter( $books, array( self::class, 'is_on_the_pile' ) ) );
 		$eggs        = array();
 
 		if ( $to_read >= self::TSUNDOKU_BOOKS ) {
@@ -1734,19 +1769,29 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Three books rated 10 read in a row.
+	 * Three different books rated 10 read in a row, dated by the third: a book read again in the run neither adds to it
+	 * nor breaks it.
 	 *
 	 * @param array<int,array> $dated Readings with their date, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_hat_trick( array $dated ): array {
-		$run   = 0;
+		$run   = array();
 		$found = null;
 
 		foreach ( $dated as $book ) {
-			$run = 10.0 === $book['rating'] ? $run + 1 : 0;
+			if ( 10.0 !== $book['rating'] ) {
+				$run = array();
+				continue;
+			}
 
-			if ( $run >= 3 ) {
+			if ( isset( $run[ $book['id'] ] ) ) {
+				continue;
+			}
+
+			$run[ $book['id'] ] = true;
+
+			if ( count( $run ) >= 3 ) {
 				$found = $book;
 			}
 		}
@@ -1759,34 +1804,40 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Two books read with the same title by different authors.
+	 * The latest two books read with the same title by different authors, dated by the second one, named after the
+	 * first book of that title.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_namesakes( array $reads ): array {
 		$titles = array();
+		$found  = null;
 
 		foreach ( $reads as $book ) {
-			$titles[ self::get_name_key( $book['title'] ) ][] = $book;
-		}
+			$key        = self::get_name_key( $book['title'] );
+			$author_ids = self::get_work_author_ids( $book );
 
-		foreach ( array_reverse( $titles ) as $books ) {
-			foreach ( $books as $book ) {
-				foreach ( $books as $other ) {
-					$author_ids       = self::get_work_author_ids( $book );
-					$other_author_ids = self::get_work_author_ids( $other );
+			foreach ( $titles[ $key ] ?? array() as $other ) {
+				$other_author_ids = self::get_work_author_ids( $other );
 
-					if ( $author_ids && $other_author_ids && ! array_intersect( $author_ids, $other_author_ids ) ) {
-						$latest = max( $book['read_date'], $other['read_date'] );
-
-						return array( self::build_achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::build_search_target( $book['title'], $books ), $latest ) );
-					}
+				if ( $author_ids && $other_author_ids && ! array_intersect( $author_ids, $other_author_ids ) ) {
+					$found = $book;
+					break;
 				}
 			}
+
+			$titles[ $key ][] = $book;
 		}
 
-		return array();
+		if ( ! $found ) {
+			return array();
+		}
+
+		$books = $titles[ self::get_name_key( $found['title'] ) ];
+		$title = $books[0]['title'];
+
+		return array( self::build_achievement( 'namesakes', __( 'Namesakes', 'library' ), $title, __( 'The same title, different authors', 'library' ), self::build_search_target( $title, $books ), $found['read_date'] ) );
 	}
 
 	/**

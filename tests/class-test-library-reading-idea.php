@@ -37,6 +37,26 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	}
 
 	/**
+	 * A volume without series is one of the series named by its title: each title comes next on its own.
+	 *
+	 * @return void
+	 */
+	public function test_volumes_without_series_are_of_their_title(): void {
+		$volume      = fn( string $title, int $number, array $meta = array() ) => $this->add_book(
+			array(
+				'title' => $title,
+				'meta'  => array( 'library_volume_number' => sprintf( 'Tome %02d', $number ) ) + $meta,
+			)
+		);
+		$city_hunter = $volume( 'City Hunter', 3 );
+		$akira       = $volume( 'Akira', 1 );
+		$volume( 'Akira', 2, array( 'library_read_date' => array( '2024-01-01' ) ) );
+
+		$this->assertSame( array( $akira => array( 'Next in Akira: you have read 1 volume, in 2024.' ) ), $this->get_ideas_of( 'series' ) );
+		$this->assertArrayHasKey( $city_hunter, $this->get_ideas_of( 'pile' ) );
+	}
+
+	/**
 	 * One volume read says it in the singular, with the year it was read.
 	 *
 	 * @return void
@@ -608,6 +628,27 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 
 		$this->assertSame(
 			array( $next => array( 'To buy, next in Earthsea: you have read 2 volumes.' ) ),
+			$this->get_ideas_of( 'to_buy' )
+		);
+	}
+
+	/**
+	 * Once a part of a cycle is read in full, the first volume to buy of the next part is next in the cycle.
+	 *
+	 * @return void
+	 */
+	public function test_to_buy_the_next_part_of_a_cycle(): void {
+		$to_buy = array(
+			'status' => Library_Posts::TO_BUY,
+			'meta'   => array( 'library_published_date' => '1999' ),
+		);
+
+		$this->add_volume( 'Dune, Dune', 1, array( '2019-02-10' ), array( 'meta' => array( 'library_published_date' => '1965' ) ) );
+		$this->add_volume( 'Dune, Dune', 2, array( '2020-08-30' ), array( 'meta' => array( 'library_published_date' => '1969' ) ) );
+		$next = $this->add_volume( 'Dune, Prelude to Dune', 1, array(), $to_buy );
+
+		$this->assertSame(
+			array( $next => array( 'To buy, next in Dune: you have read 2 volumes.' ) ),
 			$this->get_ideas_of( 'to_buy' )
 		);
 	}

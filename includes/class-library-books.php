@@ -77,6 +77,7 @@ class Library_Books {
 		foreach ( $posts as $post ) {
 			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'library_volume_number', true ), $match ) ? (int) $match[0] : null;
 			$series         = Library_Taxonomies::get_series( $post->ID );
+			$series_name    = $series ? Library_Taxonomies::get_series_path( $series ) : ( null !== $volume ? $post->post_title : '' );
 			$rating         = get_post_meta( $post->ID, 'library_rating', true );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
@@ -95,8 +96,8 @@ class Library_Books {
 				'title'             => $post->post_title,
 				'full_title'        => self::get_full_title( $post->ID, $post->post_title ),
 				'status'            => $post->post_status,
-				// From its cycle, as typed: "Star Wars, Young Jedi Knights".
-				'series'            => $series ? Library_Taxonomies::get_series_path( $series ) : '',
+				// From its cycle, as typed: "Star Wars, Young Jedi Knights"; a volume without series is one of its title.
+				'series'            => $series_name,
 				'series_id'         => $series ? $series->term_id : 0,
 				'series_ids'        => Library_Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' ),
 				'volume'            => $volume,

@@ -385,6 +385,21 @@ class Test_Library_Achievements_Milestones extends Library_TestCase {
 	}
 
 	/**
+	 * A book first read on an unknown date, then again, says no year of its first reading.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_first_read_on_an_unknown_date(): void {
+		$this->add_book( array( 'meta' => array( 'library_read_date' => array( '', '2024-03-01' ) ) ) );
+
+		$reread = $this->get_earned()['reread'];
+
+		$this->assertSame( 'Read again 1 time', $reread[0]['title'] );
+		$this->assertSame( '', $reread[0]['detail'] );
+		$this->assertSame( '2024-03-01', $reread[0]['date'] );
+	}
+
+	/**
 	 * Of books read again as many times, the first to be read again earns it.
 	 *
 	 * @return void
