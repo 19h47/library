@@ -18,4 +18,4 @@ Thumbs.db
 #######
 .idea/
 .vscode/
-*.sublime-*
+*.sublime-*.phpunit.result.cache

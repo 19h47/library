@@ -27,13 +27,14 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	/**
 	 * Add a book through `POST library/v1/books`, as its form sends it, with its date added.
 	 *
-	 * Read dates go in `meta.library_read_date`, which also checks it as read: `array( '2024-03-14' )`.
+	 * Read dates go in `meta.library_read_date`, which also checks it as read: `array( '2024-03-14' )`, or `array( '' )`
+	 * for a reading on an unknown date; `library_read` alone would date it today.
 	 *
 	 * @param array  $book  Book, as the route takes it: title, people, series, meta… A title is made up when missing.
 	 * @param string $added Date added, Y-m-d H:i:s, or empty for now.
 	 * @return int Book ID.
 	 */
-	protected function add_book( array $book, string $added = '' ): int {
+	protected function add_book( array $book = array(), string $added = '' ): int {
 		$book += array( 'title' => 'Book ' . wp_generate_password( 6, false ) );
 
 		if ( ! empty( $book['meta']['library_read_date'] ) ) {
@@ -66,6 +67,18 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Add a book read, with its fields.
+	 *
+	 * @param string $read_date Read date, Y-m-d, or empty when unknown.
+	 * @param array  $book      Fields of the book, as add_book() takes them.
+	 * @param string $added     Date added, Y-m-d H:i:s, or empty for now.
+	 * @return int Book ID.
+	 */
+	protected function add_read( string $read_date, array $book = array(), string $added = '' ): int {
+		return $this->add_book( array_replace_recursive( $book, array( 'meta' => array( 'library_read_date' => array( $read_date ) ) ) ), $added );
+	}
+
+	/**
 	 * Add books read, one per read date, with the same fields.
 	 *
 	 * @param string[] $read_dates Read dates, Y-m-d.
@@ -73,10 +86,35 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	 * @return int[] Book IDs.
 	 */
 	protected function add_reads( array $read_dates, array $book = array() ): array {
-		return array_map(
-			fn( string $read_date ) => $this->add_book( array_replace_recursive( $book, array( 'meta' => array( 'library_read_date' => array( $read_date ) ) ) ) ),
-			$read_dates
+		return array_map( fn( string $read_date ) => $this->add_read( $read_date, $book ), $read_dates );
+	}
+
+	/**
+	 * The people of a book by one author.
+	 *
+	 * @param string $name Name of the author.
+	 * @return array{people:array<int,array{name:string,role:string}>}
+	 */
+	protected function by( string $name ): array {
+		return array(
+			'people' => array(
+				array(
+					'name' => $name,
+					'role' => 'author',
+				),
+			),
 		);
+	}
+
+	/**
+	 * Days in a row.
+	 *
+	 * @param string $first First day, Y-m-d.
+	 * @param int    $count Number of days.
+	 * @return string[] Days, Y-m-d.
+	 */
+	protected static function get_days( string $first, int $count ): array {
+		return array_map( fn( int $day ) => gmdate( 'Y-m-d', strtotime( "$first +$day days" ) ), range( 0, $count - 1 ) );
 	}
 
 	/**
