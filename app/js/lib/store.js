@@ -139,9 +139,9 @@ function editing( id = 0, book = null ) {
 	return { id, book, open: false, loading: false, error: '', duplicate: 0 };
 }
 
-/** The names the form of a book suggests, as terms: people and their other names, publishers and collections, original languages. */
+/** The names the form of a book suggests, as terms: people and their other names, publishers and collections, series. */
 function terms() {
-	return { people: [], publishers: [], series: [], languages: [], loading: false, loaded: false };
+	return { people: [], publishers: [], series: [], loading: false, loaded: false };
 }
 
 /**
