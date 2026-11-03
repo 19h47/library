@@ -323,26 +323,35 @@ class Library_Taxonomies {
 
 	/**
 	 * The series a search names, case aside, with the series of their cycles: "Star Wars" the cycle and its series, "Star
-	 * Wars, Young Jedi Knights" this one, "Young Jedi Knights" any series of that name.
+	 * Wars, Young Jedi Knights" this one, "Young Jedi Knights" any series of that name; a name may hold a comma, such as
+	 * "Talli, fille de la lune".
 	 *
 	 * @param string $value Name of a series, or of a series after its cycles, separated with commas.
 	 * @return int[] Term IDs.
 	 */
 	public static function find_series_ids( string $value ): array {
 		$names = array_map( 'mb_strtolower', Library_Books::split( $value ) );
-		$terms = $names ? get_terms(
+
+		if ( ! $names ) {
+			return array();
+		}
+
+		$search = implode( ', ', $names );
+		// The series is named by the last names of the search, one of them or more.
+		$last_names = array_map( fn( int $count ) => implode( ', ', array_slice( $names, -$count ) ), range( 1, count( $names ) ) );
+		$terms      = get_terms(
 			array(
 				'taxonomy'   => 'library_series',
-				'name'       => end( $names ),
+				'name'       => $last_names,
 				'hide_empty' => false,
 			)
-		) : array();
-		$ids   = array();
+		);
+		$ids        = array();
 
 		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$path = array_map( 'mb_strtolower', self::get_path_names( $term ) );
+			$path = mb_strtolower( implode( ', ', self::get_path_names( $term ) ) );
 
-			if ( array_slice( $path, -count( $names ) ) === $names ) {
+			if ( $path === $search || str_ends_with( $path, ', ' . $search ) ) {
 				$ids = array( ...$ids, $term->term_id, ...get_term_children( $term->term_id, 'library_series' ) );
 			}
 		}
@@ -355,6 +364,9 @@ class Library_Taxonomies {
 	 * Jedi Knights", or a collection from its parent collection under its publisher, such as "Folio, Science-fiction" under
 	 * Gallimard. The existing term, else a new one when `$add`, else 0.
 	 *
+	 * A name with a comma, such as the series "Talli, fille de la lune", is one name when a term has it: the longest
+	 * existing name comes first. A new name with a comma is added in the admin, since a path would split it.
+	 *
 	 * @param string $taxonomy  Taxonomy name.
 	 * @param string $path      Names, separated with commas.
 	 * @param bool   $add       Whether to add the names missing.
@@ -364,15 +376,47 @@ class Library_Taxonomies {
 	public static function get_path_id( string $taxonomy, string $path, bool $add = false, int $parent_id = 0 ): int {
 		$names = Library_Books::split( $path );
 
-		foreach ( $names as $name ) {
-			$parent_id = $add ? self::get_term_id( $taxonomy, $name, $parent_id ) : (int) ( term_exists( $name, $taxonomy, $parent_id )['term_id'] ?? 0 );
+		if ( ! $names ) {
+			return 0;
+		}
 
-			if ( ! $parent_id ) {
+		while ( $names ) {
+			[ $term_id, $length ] = self::find_name_with_commas( $taxonomy, $names, $parent_id );
+
+			if ( ! $term_id ) {
+				$term_id = $add ? self::get_term_id( $taxonomy, $names[0], $parent_id ) : (int) ( term_exists( $names[0], $taxonomy, $parent_id )['term_id'] ?? 0 );
+				$length  = 1;
+			}
+
+			if ( ! $term_id ) {
 				return 0;
+			}
+
+			$parent_id = $term_id;
+			$names     = array_slice( $names, $length );
+		}
+
+		return $parent_id;
+	}
+
+	/**
+	 * The longest name with commas that the first names make, under a term, when a term has it.
+	 *
+	 * @param string   $taxonomy  Taxonomy name.
+	 * @param string[] $names     Names of a path.
+	 * @param int      $parent_id ID of the term the names are under.
+	 * @return array{0:int,1:int} Its term ID and the number of names it takes, or 0 and 0.
+	 */
+	private static function find_name_with_commas( string $taxonomy, array $names, int $parent_id ): array {
+		for ( $length = count( $names ); $length > 1; $length-- ) {
+			$term = term_exists( implode( ', ', array_slice( $names, 0, $length ) ), $taxonomy, $parent_id );
+
+			if ( is_array( $term ) ) {
+				return array( (int) $term['term_id'], $length );
 			}
 		}
 
-		return $names ? $parent_id : 0;
+		return array( 0, 0 );
 	}
 
 	/**
