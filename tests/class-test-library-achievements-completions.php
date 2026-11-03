@@ -594,6 +594,21 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 	}
 
 	/**
+	 * A sub-collection read by half counts once, for itself, not for the collection of the same books.
+	 *
+	 * @return void
+	 */
+	public function test_a_sub_collection_read_by_half_counts_once(): void {
+		$this->add_reads( array( '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01' ), $this->in( 'Folio, Science-fiction' ) );
+		$this->add_books( 5, $this->in( 'Folio, Science-fiction' ) );
+
+		$step = $this->get_earned()['collection-step'];
+
+		$this->assertSame( '1 collection read by half or more', $step[0]['title'] );
+		$this->assertSame( 'Folio, Science-fiction', $step[0]['subject'] );
+	}
+
+	/**
 	 * A collection read in full is a completion, not a step.
 	 *
 	 * @return void

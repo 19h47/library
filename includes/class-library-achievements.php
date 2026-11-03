@@ -697,6 +697,10 @@ class Library_Achievements {
 			}
 		}
 
+		// The same books count once, for the narrowest collection, as in a completion.
+		$book_ids    = array_map( fn( array $group ) => implode( ',', array_column( $group, 'id' ) ), $collections );
+		$collections = array_intersect_key( $collections, array_unique( $book_ids ) );
+
 		foreach ( $collections as $collection_id => $group ) {
 			$total = count( $group );
 			$reads = self::get_reads( $group );
