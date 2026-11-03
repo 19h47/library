@@ -1604,7 +1604,7 @@ class Library_Achievements {
 		$dated       = array_values( array_filter( $readings, fn( array $book ) => '' !== $book['read_date'] ) );
 		$dated_reads = array_values( array_filter( $reads, fn( array $book ) => '' !== $book['read_date'] ) );
 		$on          = fn( string $month_day ) => array_values( array_filter( $dated, fn( array $book ) => substr( $book['read_date'], 5 ) === $month_day ) );
-		$to_read     = count( $books ) - count( $reads );
+		$to_read     = count( array_filter( $books, fn( array $book ) => ! $book['read'] && Library_Posts::TO_BUY !== $book['status'] ) );
 		$eggs        = array();
 
 		if ( $to_read >= self::TSUNDOKU_BOOKS ) {
