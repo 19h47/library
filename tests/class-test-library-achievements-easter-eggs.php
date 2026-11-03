@@ -870,6 +870,23 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
+	 * Of two pairs of namesakes, the latest one completed shows, dated by its second book.
+	 *
+	 * @return void
+	 */
+	public function test_the_latest_namesakes(): void {
+		$this->add_read( '2020-01-01', self::get_work( 'Alpha', '1990', 'First Author' ) );
+		$this->add_read( '2021-01-01', self::get_work( 'Beta', '1990', 'First Author' ) );
+		$this->add_read( '2022-01-01', self::get_work( 'Beta', '1995', 'Second Author' ) );
+		$this->add_read( '2023-01-01', self::get_work( 'Alpha', '1995', 'Second Author' ) );
+
+		$namesakes = $this->get_earned()['namesakes'];
+
+		$this->assertSame( 'Alpha', $namesakes[0]['subject'] );
+		$this->assertSame( '2023-01-01', $namesakes[0]['date'] );
+	}
+
+	/**
 	 * The same title by the same author, by a collective work, or not read earns nothing.
 	 *
 	 * @return void

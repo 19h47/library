@@ -1794,34 +1794,40 @@ class Library_Achievements {
 	}
 
 	/**
-	 * Two books read with the same title by different authors.
+	 * The latest two books read with the same title by different authors, dated by the second one, named after the
+	 * first book of that title.
 	 *
 	 * @param array<int,array> $reads Books read, in reading order.
 	 * @return array<int,array>
 	 */
 	private function get_namesakes( array $reads ): array {
 		$titles = array();
+		$found  = null;
 
 		foreach ( $reads as $book ) {
-			$titles[ self::get_name_key( $book['title'] ) ][] = $book;
-		}
+			$key        = self::get_name_key( $book['title'] );
+			$author_ids = self::get_work_author_ids( $book );
 
-		foreach ( array_reverse( $titles ) as $books ) {
-			foreach ( $books as $book ) {
-				foreach ( $books as $other ) {
-					$author_ids       = self::get_work_author_ids( $book );
-					$other_author_ids = self::get_work_author_ids( $other );
+			foreach ( $titles[ $key ] ?? array() as $other ) {
+				$other_author_ids = self::get_work_author_ids( $other );
 
-					if ( $author_ids && $other_author_ids && ! array_intersect( $author_ids, $other_author_ids ) ) {
-						$latest = max( $book['read_date'], $other['read_date'] );
-
-						return array( self::build_achievement( 'namesakes', __( 'Namesakes', 'library' ), $book['title'], __( 'The same title, different authors', 'library' ), self::build_search_target( $book['title'], $books ), $latest ) );
-					}
+				if ( $author_ids && $other_author_ids && ! array_intersect( $author_ids, $other_author_ids ) ) {
+					$found = $book;
+					break;
 				}
 			}
+
+			$titles[ $key ][] = $book;
 		}
 
-		return array();
+		if ( ! $found ) {
+			return array();
+		}
+
+		$books = $titles[ self::get_name_key( $found['title'] ) ];
+		$title = $books[0]['title'];
+
+		return array( self::build_achievement( 'namesakes', __( 'Namesakes', 'library' ), $title, __( 'The same title, different authors', 'library' ), self::build_search_target( $title, $books ), $found['read_date'] ) );
 	}
 
 	/**
