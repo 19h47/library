@@ -13,9 +13,9 @@ function openBook( id ) {
 	}
 }
 
-/** Options of a datalist or a select, such as the names to suggest. */
-function renderOptions( terms, value = ( term ) => term.name ) {
-	return terms.map( ( term ) => new Option( term.name, value( term ) ) );
+/** Options of a datalist, the names to suggest. */
+function renderOptions( terms ) {
+	return terms.map( ( term ) => new Option( term.name ) );
 }
 
 /**
@@ -259,15 +259,9 @@ class LibraryEditElement extends Brick {
 			store.select(
 				( state ) => state.terms,
 				( terms ) => {
-					const $none = $language.options[ 0 ];
-
 					$suggestions.people.replaceChildren( ...renderOptions( terms.people ) );
 					$suggestions.publishers.replaceChildren( ...renderOptions( terms.publishers.filter( ( term ) => ! term.parent ) ) );
 					$suggestions.series.replaceChildren( ...renderOptions( terms.series ) );
-					$language.replaceChildren( $none, ...renderOptions( terms.languages, ( term ) => term.id ) );
-					// The languages may come once the form is open, the first time.
-					$language.value = ( store.get().editing.book?.language || '' ).toString();
-					countDetails();
 					suggestCollections();
 				}
 			),

@@ -151,7 +151,8 @@ class Library_App {
 		$publisher_labels   = get_taxonomy( 'library_publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library_language' )->labels;
 		$form_labels        = get_taxonomy( 'library_form' )->labels;
-		$form_choices       = self::get_form_choices();
+		$form_choices       = self::get_term_choices( 'library_form' );
+		$language_choices   = self::get_term_choices( 'library_language' );
 		$rating_choices     = Library_Meta::get_rating_choices();
 		$status_choices     = Library_Posts::get_status_choices();
 		$views              = $this->get_views( $labels->name );
@@ -407,19 +408,21 @@ JS;
 	}
 
 	/**
-	 * Forms the filter of the books and the form of a book offer, by term ID, with their name as text.
+	 * Terms of `$taxonomy` the app offers in the page, by term ID, with their name as text: the forms, which the filter of the
+	 * books and the form of a book offer, and the original languages, which the form of a book offers.
 	 *
+	 * @param string $taxonomy Taxonomy.
 	 * @return array<int,string>
 	 */
-	private static function get_form_choices(): array {
-		$forms = get_terms(
+	private static function get_term_choices( string $taxonomy ): array {
+		$terms = get_terms(
 			array(
-				'taxonomy'   => 'library_form',
+				'taxonomy'   => $taxonomy,
 				'hide_empty' => false,
 			)
 		);
 
-		return array_map( fn( WP_Term $form ) => wp_specialchars_decode( $form->name, ENT_QUOTES ), array_column( $forms, null, 'term_id' ) );
+		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( $terms, null, 'term_id' ) );
 	}
 
 	/**
@@ -437,7 +440,7 @@ JS;
 			'bookFields'       => self::BOOK_FIELDS,
 			'perPage'          => self::PER_PAGE,
 			'maxPerPage'       => self::MAX_PER_PAGE,
-			'forms'            => implode( ',', array_keys( self::get_form_choices() ) ),
+			'forms'            => implode( ',', array_keys( self::get_term_choices( 'library_form' ) ) ),
 			'notKept'          => Library_Posts::NOT_KEPT,
 			'toBuy'            => Library_Posts::TO_BUY,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.

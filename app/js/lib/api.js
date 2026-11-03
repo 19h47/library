@@ -232,11 +232,11 @@ export function getStats() {
 
 /**
  * Every person and their other names, publisher and collection, with its publisher and after the collections it is part of,
- * series after its cycles, and original language: apiFetch loads all their pages.
+ * and series after its cycles: apiFetch loads all their pages. The original languages are in the page.
  */
 export async function getTerms() {
-	const bases = [ 'people', 'publishers', 'series', 'languages' ];
-	const [ people, publishers, series, languages ] = await Promise.all(
+	const bases = [ 'people', 'publishers', 'series' ];
+	const [ people, publishers, series ] = await Promise.all(
 		bases.map( ( base ) => apiFetch( { path: `/wp/v2/${ base }?per_page=-1&_fields=id,name,parent` } ) )
 	);
 	const toTerm = ( { id, name, parent } ) => ( { id, name: text( name ), parent } );
@@ -253,7 +253,6 @@ export async function getTerms() {
 		people: people.map( toTerm ),
 		publishers: Object.values( publishersById ).map( ( term ) => ( { ...term, publisher: publisherOf( term ).id, collection: collectionOf( term ) } ) ),
 		series: Object.values( byId ).map( ( term ) => ( { ...term, name: pathOf( term ) } ) ),
-		languages: languages.map( toTerm ),
 	};
 }
 
