@@ -1,0 +1,31 @@
+name: Translations
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  update-translations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The WP-CLI that wrote the files, which names itself in them.
+      - id: wp-cli
+        run: echo "version=$(sed -n 's/^"X-Generator: WP-CLI \(.*\)\\n"$/\1/p' languages/library.pot)" >> "$GITHUB_OUTPUT"
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: wp-cli:${{ steps.wp-cli.outputs.version }}
+
+      - run: sudo apt-get install -y gettext
+
+      - run: sh bin/update-translations.sh
+
+      - run: |
+          git status --short
+          git diff
+          test -z "$(git status --porcelain)"
