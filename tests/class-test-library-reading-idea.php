@@ -37,6 +37,26 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	}
 
 	/**
+	 * A volume without series is one of the series named by its title: each title comes next on its own.
+	 *
+	 * @return void
+	 */
+	public function test_volumes_without_series_are_of_their_title(): void {
+		$volume      = fn( string $title, int $number, array $meta = array() ) => $this->add_book(
+			array(
+				'title' => $title,
+				'meta'  => array( 'library_volume_number' => sprintf( 'Tome %02d', $number ) ) + $meta,
+			)
+		);
+		$city_hunter = $volume( 'City Hunter', 3 );
+		$akira       = $volume( 'Akira', 1 );
+		$volume( 'Akira', 2, array( 'library_read_date' => array( '2024-01-01' ) ) );
+
+		$this->assertSame( array( $akira => array( 'Next in Akira: you have read 1 volume, in 2024.' ) ), $this->get_ideas_of( 'series' ) );
+		$this->assertArrayHasKey( $city_hunter, $this->get_ideas_of( 'pile' ) );
+	}
+
+	/**
 	 * One volume read says it in the singular, with the year it was read.
 	 *
 	 * @return void
