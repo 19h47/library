@@ -349,6 +349,23 @@ class Test_Library_Achievements_Languages extends Library_TestCase {
 	}
 
 	/**
+	 * A go-between leads to every book of the translator: a book kept after the first ones, which are not kept, shows
+	 * the books kept.
+	 *
+	 * @return void
+	 */
+	public function test_a_go_between_leads_to_every_book_of_the_translator(): void {
+		$translator = array( 'people' => array( $this->get_translator( 'Corinne Atlan' ) ) );
+		$not_kept   = $translator + array( 'status' => Library_Posts::NOT_KEPT );
+
+		$this->add_read_in( 'ja', '2024-01-01', $not_kept );
+		$this->add_read_in( 'en', '2024-02-01', $not_kept );
+		$this->add_read_in( 'ja', '2024-03-01', $translator );
+
+		$this->assertFalse( $this->get_earned()['go-between'][0]['target']['not_kept'] );
+	}
+
+	/**
 	 * A translator read from one language is no go-between, a book without original language aside.
 	 *
 	 * @return void

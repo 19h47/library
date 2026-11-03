@@ -1352,12 +1352,14 @@ class Library_Achievements {
 	 */
 	private function get_go_betweens( array $reads ): array {
 		$from   = array();
+		$books  = array();
 		$names  = array();
 		$earned = array();
 
 		foreach ( $reads as $book ) {
 			foreach ( $book['translators'] as $translator ) {
 				$names[ self::get_name_key( $translator ) ] ??= $translator;
+				$books[ self::get_name_key( $translator ) ][] = $book;
 
 				foreach ( $book['languages'] as $language ) {
 					$from[ self::get_name_key( $translator ) ][ $language ] ??= $book;
@@ -1373,7 +1375,7 @@ class Library_Achievements {
 				$translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), array_values( $languages ) ),
+				self::build_search_target( Library_WP_Query::build_keyword_search( 'translator', $translator ), $books[ $key ] ),
 				array_values( $languages )[1]['read_date']
 			);
 		}
