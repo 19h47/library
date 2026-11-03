@@ -937,6 +937,8 @@ class Library_Achievements {
 			return array();
 		}
 
+		$first_year = substr( $found['read_dates'][0], 0, 4 );
+
 		return array(
 			self::build_achievement(
 				'reread',
@@ -944,7 +946,7 @@ class Library_Achievements {
 				sprintf( _n( 'Read again %s time', 'Read again %s times', $level, 'library' ), number_format_i18n( $level ) ),
 				$found['full_title'],
 				/* translators: %s: year of the first reading of the book. */
-				sprintf( __( 'First read in %s', 'library' ), substr( $found['read_dates'][0], 0, 4 ) ),
+				'' !== $first_year ? sprintf( __( 'First read in %s', 'library' ), $first_year ) : '',
 				self::build_book_target( $found['id'] ),
 				$found['read_date']
 			),
