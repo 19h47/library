@@ -389,6 +389,50 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
+	 * A book of 42 pages read as the 42nd of a year answers once.
+	 *
+	 * @return void
+	 */
+	public function test_42_pages_and_42nd_read_count_once(): void {
+		$this->add_reads( self::get_days( '2024-01-01', 41 ) );
+		$this->add_read(
+			'2024-12-20',
+			array(
+				'title' => 'The answer',
+				'meta'  => array( 'library_pages' => 42 ),
+			)
+		);
+
+		$answer = $this->get_earned()['ultimate-question'];
+
+		$this->assertSame( 'A book of 42 pages, or the 42nd read of a year', $answer[0]['detail'] );
+		$this->assertSame( '2024-12-20', $answer[0]['date'] );
+	}
+
+	/**
+	 * A book of 42 pages and another read as the 42nd of a year make two answers, by the latest.
+	 *
+	 * @return void
+	 */
+	public function test_42_pages_and_42nd_read_of_two_books(): void {
+		$this->add_read(
+			'2023-06-01',
+			array(
+				'title' => 'Short',
+				'meta'  => array( 'library_pages' => 42 ),
+			)
+		);
+		$this->add_reads( self::get_days( '2024-01-01', 41 ) );
+		$this->add_read( '2024-12-20', array( 'title' => 'The answer' ) );
+
+		$answer = $this->get_earned()['ultimate-question'];
+
+		$this->assertSame( 'The answer', $answer[0]['subject'] );
+		$this->assertSame( 'A book of 42 pages, or the 42nd read of a year (2 books)', $answer[0]['detail'] );
+		$this->assertSame( '2024-12-20', $answer[0]['date'] );
+	}
+
+	/**
 	 * Forty-two readings over two years, 41 of them in the same year, earn nothing.
 	 *
 	 * @return void

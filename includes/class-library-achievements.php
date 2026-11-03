@@ -1429,8 +1429,15 @@ class Library_Achievements {
 		}
 
 		$answers = array_merge( $by_pages( self::ODD_PAGES['ultimate-question'] ), array_column( $by_year, 41 ) );
+		$books   = array();
 
 		usort( $answers, fn( array $a, array $b ) => strcmp( $a['read_date'], $b['read_date'] ) );
+
+		// A book counts once, by its latest answer: a book of 42 pages may also be the 42nd read of a year.
+		foreach ( $answers as $book ) {
+			unset( $books[ $book['id'] ] );
+			$books[ $book['id'] ] = $book;
+		}
 
 		return array_merge(
 			self::get_latest_achievement(
@@ -1447,7 +1454,7 @@ class Library_Achievements {
 				sprintf( __( 'A book of %s pages, the temperature at which paper burns', 'library' ), number_format_i18n( self::ODD_PAGES['fahrenheit-451'] ) ),
 				$by_pages( self::ODD_PAGES['fahrenheit-451'] )
 			),
-			self::get_latest_achievement( 'ultimate-question', __( 'The Ultimate Question', 'library' ), __( 'A book of 42 pages, or the 42nd read of a year', 'library' ), $answers )
+			self::get_latest_achievement( 'ultimate-question', __( 'The Ultimate Question', 'library' ), __( 'A book of 42 pages, or the 42nd read of a year', 'library' ), array_values( $books ) )
 		);
 	}
 
