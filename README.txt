@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.12.2
+Stable tag: 9.13.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,18 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.13.0 =
+* Changed: a hat-trick takes three different books rated 10 in a row; namesakes are the latest two books read with the same title by different authors; a book not kept and not read is off the reading pile, as a book to buy is, for the tsundoku and the archaeologist.
+* Changed: the reading idea suggests to buy the first volume of the next part of a cycle once a part is read in full, as it does for a book to read.
+* Fixed: the tsundoku counted the books to buy.
+* Fixed: an easter egg of books, such as a leap day or the Ultimate Question, counted a book read on two such days, or answering twice, as two books.
+* Fixed: a go-between led to the first book of each language only, and hid the books kept when those were not kept.
+* Fixed: a volume without series is a volume of the series named by its title again, for the reading idea and the reading order, as before 9.5.0.
+* Fixed: the completion on the page of a person, a series or a collection in the reading app had no date.
+* Fixed: a collection read in full was named with the collection it is part of, and one read by half counted twice, with it.
+* Fixed: a book read again whose first reading has no date said "First read in" with no year.
+* Code only: PHPUnit tests of the achievements and the reading idea, `composer test`, run on each pull request with the coding standards and the translations (TESTING.md); WPCS 3.4.1.
 
 = 9.12.2 =
 * Fixed: in the form of a book of the reading app, the original languages show at once, rather than "No languages" until the names to suggest had loaded; a book saved meanwhile no longer loses its language.
