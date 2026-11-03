@@ -849,7 +849,8 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * Books to buy that come next: the next volume of a series with a volume read, else a book by an author rated well.
+	 * Books to buy that come next: the next volume of a series with a volume read, or the first one of the part of a cycle
+	 * that comes next, as get_series_ideas() suggests them, else a book by an author rated well.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array{id:int,reason:string}>
@@ -857,21 +858,25 @@ class Library_Reading_Idea {
 	private function get_to_buy_ideas( array $books ): array {
 		$to_buy         = array_filter( self::get_next_books( $books ), fn( array $book ) => Library_Posts::TO_BUY === $book['status'] );
 		$read_by_series = self::get_read_by_series( $books );
+		$next_parts     = self::get_next_parts( $books );
 		$ideas          = array();
 
 		foreach ( $to_buy as $book ) {
-			$read = $read_by_series[ $book['series'] ] ?? null;
+			$read = $read_by_series[ $book['series'] ] ?? $next_parts[ $book['series'] ] ?? null;
 
 			if ( ! $read || null === $book['volume'] ) {
 				continue;
 			}
+
+			// The next part of a cycle is next in the cycle.
+			$series = $next_parts[ $book['series'] ]['cycle'] ?? $book['series'];
 
 			$ideas[ $book['id'] ] = array(
 				'id'     => $book['id'],
 				'reason' => sprintf(
 					/* translators: 1: series, 2: number of volumes read. */
 					_n( 'To buy, next in %1$s: you have read %2$s volume.', 'To buy, next in %1$s: you have read %2$s volumes.', $read['volumes'], 'library' ),
-					$book['series'],
+					$series,
 					number_format_i18n( $read['volumes'] )
 				),
 			);

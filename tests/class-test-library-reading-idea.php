@@ -633,6 +633,27 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	}
 
 	/**
+	 * Once a part of a cycle is read in full, the first volume to buy of the next part is next in the cycle.
+	 *
+	 * @return void
+	 */
+	public function test_to_buy_the_next_part_of_a_cycle(): void {
+		$to_buy = array(
+			'status' => Library_Posts::TO_BUY,
+			'meta'   => array( 'library_published_date' => '1999' ),
+		);
+
+		$this->add_volume( 'Dune, Dune', 1, array( '2019-02-10' ), array( 'meta' => array( 'library_published_date' => '1965' ) ) );
+		$this->add_volume( 'Dune, Dune', 2, array( '2020-08-30' ), array( 'meta' => array( 'library_published_date' => '1969' ) ) );
+		$next = $this->add_volume( 'Dune, Prelude to Dune', 1, array(), $to_buy );
+
+		$this->assertSame(
+			array( $next => array( 'To buy, next in Dune: you have read 2 volumes.' ) ),
+			$this->get_ideas_of( 'to_buy' )
+		);
+	}
+
+	/**
 	 * A book to buy by an author rated well; the next volume of a series gives its reason first.
 	 *
 	 * @return void
