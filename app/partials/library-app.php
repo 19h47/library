@@ -106,6 +106,45 @@
 								<?php endforeach; ?>
 							</p>
 						</library-search>
+					</div>
+
+					<library-home>
+						<library-in-progress class="library-section" hidden>
+							<h3 class="library-title"><?php echo esc_html( Library_Meta::get_label( 'library_in_progress' ) ); ?></h3>
+							<ul class="app-list__items"></ul>
+						</library-in-progress>
+						<library-year class="library-year library-section">
+							<p data-field="yearToDate"></p>
+						</library-year>
+						<library-latest class="library-section" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Latest readings', 'library' ); ?>
+								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+							</h3>
+							<ul class="library-covers"></ul>
+						</library-latest>
+						<library-idea class="library-section" hidden>
+							<h3 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
+							<p class="app-status" data-field="status" hidden></p>
+							<p class="library-idea__reason" data-field="reason"></p>
+							<ul class="app-list__items" data-field="book"></ul>
+							<p class="library-idea__actions">
+								<button class="app-pill" type="button"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+							</p>
+						</library-idea>
+						<library-close class="library-section" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Close to it', 'library' ); ?>
+								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+							</h3>
+							<ul class="app-list__items"></ul>
+						</library-close>
+					</library-home>
+					<h3 class="library-title library-books__title">
+						<?php echo esc_html( $labels->name ); ?>
+						<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+					</h3>
+					<div class="app-controls library-books__controls">
 						<?php
 						// The filters of the books and their choices: their fields in a dialog, the choices made as pills that remove them.
 						$book_filters = array(
@@ -191,45 +230,6 @@
 							?>
 						</library-sort>
 					</div>
-
-					<library-home>
-						<library-year class="library-year">
-							<p data-field="yearToDate"></p>
-							<p data-field="projection"></p>
-							<p data-field="toRead"></p>
-						</library-year>
-						<library-in-progress class="library-section" hidden>
-							<h3 class="library-title"><?php echo esc_html( Library_Meta::get_label( 'library_in_progress' ) ); ?></h3>
-							<ul class="library-covers"></ul>
-						</library-in-progress>
-						<library-latest class="library-section" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'Latest readings', 'library' ); ?>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
-							</h3>
-							<ul class="library-covers"></ul>
-						</library-latest>
-						<library-idea class="library-section" hidden>
-							<h3 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
-							<p class="app-status" data-field="status" hidden></p>
-							<p class="library-idea__reason" data-field="reason"></p>
-							<ul class="app-list__items" data-field="book"></ul>
-							<p class="library-idea__actions">
-								<button class="app-pill" type="button"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
-							</p>
-						</library-idea>
-						<library-close class="library-section" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'Close to it', 'library' ); ?>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
-							</h3>
-							<ul class="app-list__items"></ul>
-						</library-close>
-					</library-home>
-					<h3 class="library-title library-books__title">
-						<?php echo esc_html( $labels->name ); ?>
-						<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
-					</h3>
 
 					<library-status class="app-status" hidden></library-status>
 					<library-list>
@@ -513,7 +513,10 @@
 
 			<footer class="app-footer">
 				<library-progress class="app-progress"></library-progress>
-				<a href="#top"><?php esc_html_e( 'Top', 'library' ); ?></a>
+				<p class="app-footer__right">
+					<a href="<?php echo esc_url( admin_url() ); ?>"><?php esc_html_e( 'Dashboard', 'library' ); ?></a>
+					<a href="#top"><?php esc_html_e( 'Top', 'library' ); ?></a>
+				</p>
 			</footer>
 		</main>
 
@@ -526,12 +529,6 @@
 					title="<?php echo esc_attr( $labels->add_new_item ); ?>"
 				>+</button>
 			</library-add-toggle>
-			<a
-				class="app-control"
-				href="<?php echo esc_url( admin_url() ); ?>"
-				aria-label="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
-				title="<?php esc_attr_e( 'Dashboard', 'library' ); ?>"
-			>⌂&#xFE0E;</a>
 			<library-theme-toggle>
 				<button
 					class="app-control"

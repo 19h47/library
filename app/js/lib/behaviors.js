@@ -86,12 +86,12 @@ export function renderKeyed( $list, keys, render ) {
 	}
 }
 
-/** Opens the book of a card or a cover clicked in `$root`: the button of an element with the ID of a book. */
+/** Opens the book of a card or a cover clicked in `$root`: the button of an element with the ID of a book, not one of its actions. */
 export function openBooks( $root, signal ) {
 	$root.addEventListener(
 		'click',
 		( event ) => {
-			const $book = event.target.closest( 'button' )?.closest( '[data-id]' );
+			const $book = event.target.closest( 'button:not([data-action])' )?.closest( '[data-id]' );
 
 			if ( $book && $root.contains( $book ) ) {
 				navigation.navigate( urlOf( { view: 'book', id: Number( $book.dataset.id ) } ) );

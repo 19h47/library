@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.14.0
+Stable tag: 9.15.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,11 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.15.0 =
+* Changed: reading app: the home opens with the books being read, each with a button Finished that reads it today; the year shows on one line, the projection and the books to read in the achievements; the filters and the order sit under the title of the books they order; one achievement close to it shows, the others in the achievements.
+* Changed: reading app: the dashboard is a link in words in the footer, rather than an icon in the toolbar.
+* Fixed: reading app: a tap below the search, such as on Filters or on a book found, reaches what it is on, rather than what the keywords of the search moved under it as they hid.
 
 = 9.14.0 =
 * Changed: the Library widget of the dashboard lists the forms of the books at hand, every one of them, by number of books then of books read, each linked to its books.

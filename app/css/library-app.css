@@ -23,9 +23,9 @@
 	--library-warning: light-dark(oklch(52% 0.09 85), oklch(76% 0.09 88));
 }
 
-/* The title leaves room for the three controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
+/* The title leaves room for the two controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
 .app-header h1 {
-	margin-inline-end: calc(3 * var(--app-control-size) + 2 * var(--app-control-gap));
+	margin-inline-end: calc(2 * var(--app-control-size) + var(--app-control-gap));
 	hyphens: auto;
 }
 
@@ -59,6 +59,11 @@ library-styleguide {
 /* A view spaces its controls from what they act on, as the content of the page does */
 library-view > .app-controls {
 	margin-bottom: var(--app-u3);
+}
+
+/* The filters and the order of the books, under their title: they head the list, as a title does */
+library-view > .library-books__controls {
+	margin-bottom: var(--app-u1);
 }
 
 /* The button of the filters and their choices made take their place among the controls: the choices on a line of their own, after the order */
@@ -281,6 +286,13 @@ library-home:not([hidden]) + .library-books__title {
 	color: var(--library-status);
 }
 
+/* An action on a card, such as a book being read finished: over the button of the title, which covers the card */
+.library-item__action {
+	position: relative;
+	justify-self: start;
+	margin-top: var(--app-gap-small);
+}
+
 .library-idea__reason {
 	margin-bottom: var(--app-u1);
 }
@@ -294,12 +306,12 @@ library-home:not([hidden]) + .library-books__title {
 	gap: var(--app-gap-small);
 }
 
-/* The year opens the home and the achievements: they space it from what follows */
-:is(library-home, library-view) > .library-year {
+/* The year opens the achievements, its first line large: they space it from what follows; on the home, it is one line among the sections */
+library-view > .library-year {
 	margin-bottom: var(--app-u3);
 }
 
-.library-year p:first-child {
+library-view > .library-year p:first-child {
 	font-size: var(--app-font-large);
 }
 
@@ -600,10 +612,9 @@ library-view > .library-back {
 	margin-top: var(--app-u1);
 }
 
-/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
+/* The views, the search and the latest readings: containers, whose width is the one of the content */
 library-nav,
 .app-search,
-library-in-progress,
 library-latest {
 	container-type: inline-size;
 }

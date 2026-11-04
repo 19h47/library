@@ -13,6 +13,7 @@
 import { __, appUrl, forms, icons, maxPerPage, notKept, perPage, serviceWorkerUrl, statuses, toBuy } from 'library-app/app';
 import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
+import { today } from 'library-app/format';
 
 const STORAGE_KEY = 'library-app';
 // Kept between visits. The query, the view and the page open are in the URL only, which the router reads.
@@ -489,6 +490,25 @@ class LibraryStore extends Store {
 			this.#reloadLoaded( id );
 		} catch ( error ) {
 			this.#update( 'editing', () => ( { loading: false, error: api.errorMessage( error ) } ) );
+		}
+	}
+
+	/**
+	 * Reads the book `id` being read today, as its reading form would with the date of the day added: no longer in
+	 * progress, read once more. Says so, or what went wrong, in a notice.
+	 */
+	async finishReading( id ) {
+		const book = this.get().books[ id ];
+		// By their days, as the form gives them: the server keeps the time of a reading of the day.
+		const readDates = api.toReadings( [ ...book.read_date.map( ( date ) => date.slice( 0, 10 ) ), today() ] );
+		const meta = { library_read: true, library_in_progress: false, library_read_date: readDates };
+
+		try {
+			this.#addBooks( [ await api.saveBook( id, { meta } ) ] );
+			this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading saved.', 'library' ) } } ) );
+			this.#reloadLoaded( id );
+		} catch ( error ) {
+			this.set( ( state ) => ( { ...state, notice: { text: api.errorMessage( error ) } } ) );
 		}
 	}
 
