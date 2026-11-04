@@ -473,12 +473,12 @@ class Library_Dashboard {
 	 * @return string
 	 */
 	private static function format_books_read( array $count ): string {
-		return sprintf(
-			/* translators: 1: number of books, 2: number of books read. */
-			_n( '%1$s book, %2$s read', '%1$s books, %2$s read', $count['books'], 'library' ),
-			number_format_i18n( $count['books'] ),
-			number_format_i18n( $count['books_read'] )
-		);
+		$books = Library_Books::format_books( $count['books'] );
+		/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
+		$read = sprintf( _n( '%s read', '%s read', $count['books_read'], 'library' ), number_format_i18n( $count['books_read'] ) );
+
+		/* translators: 1: number of books, 2: number of books read. */
+		return sprintf( __( '%1$s, %2$s', 'library' ), $books, $read );
 	}
 
 	/**
