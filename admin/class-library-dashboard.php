@@ -26,7 +26,7 @@ class Library_Dashboard {
 	 *
 	 * @var int
 	 */
-	private const LIST_LENGTH = 5;
+	private const int LIST_LENGTH = 5;
 
 	/**
 	 * Register hooks.

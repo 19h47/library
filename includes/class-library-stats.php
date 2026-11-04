@@ -25,21 +25,21 @@ class Library_Stats {
 	 *
 	 * @var string
 	 */
-	private const BOOKS = "p.post_type = 'library_book' AND p.post_status IN ( {statuses} )";
+	private const string BOOKS = "p.post_type = 'library_book' AND p.post_status IN ( {statuses} )";
 
 	/**
 	 * SQL condition on the posts table aliased "p": the books at hand, kept or not, but not those to buy, for the reading pile.
 	 *
 	 * @var string
 	 */
-	private const AT_HAND = self::BOOKS . " AND p.post_status != '" . Library_Posts::TO_BUY . "'";
+	private const string AT_HAND = self::BOOKS . " AND p.post_status != '" . Library_Posts::TO_BUY . "'";
 
 	/**
 	 * SQL condition on the posts table aliased "p": the books in the library, i.e. kept.
 	 *
 	 * @var string
 	 */
-	private const LIBRARY = self::AT_HAND . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
+	private const string LIBRARY = self::AT_HAND . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
 
 	/**
 	 * Run a SELECT on the books; "{books}", "{at_hand}" and "{library}" in the SQL stand for the BOOKS, AT_HAND and LIBRARY conditions.

@@ -15,11 +15,12 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
+	#[\Override]
 	public function set_up(): void {
 		parent::set_up();
 
 		self::forget_books();
-		( new ReflectionProperty( Library_Cache::class, 'changed' ) )->setValue( null, false );
+		new ReflectionProperty( Library_Cache::class, 'changed' )->setValue( null, false );
 
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 	}
@@ -166,7 +167,7 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	 * @return array<string,array<int,array>>
 	 */
 	protected function get_earned(): array {
-		return $this->group_by_kind( ( new Library_Achievements() )->get_achievements()['earned'] );
+		return $this->group_by_kind( new Library_Achievements()->get_achievements()['earned'] );
 	}
 
 	/**
@@ -175,7 +176,7 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	 * @return array<string,array<int,array>>
 	 */
 	protected function get_close(): array {
-		return $this->group_by_kind( ( new Library_Achievements() )->get_achievements()['close'] );
+		return $this->group_by_kind( new Library_Achievements()->get_achievements()['close'] );
 	}
 
 	/**
@@ -200,6 +201,6 @@ abstract class Library_TestCase extends WP_UnitTestCase {
 	 * @return void
 	 */
 	private static function forget_books(): void {
-		( new ReflectionProperty( Library_Books::class, 'books' ) )->setValue( null, null );
+		new ReflectionProperty( Library_Books::class, 'books' )->setValue( null, null );
 	}
 }

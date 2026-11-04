@@ -27,7 +27,7 @@ class Library_Updater {
 	 *
 	 * @var string
 	 */
-	private const CACHE_KEY = 'library_github_release';
+	private const string CACHE_KEY = 'library_github_release';
 
 	/**
 	 * Constructor.

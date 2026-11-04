@@ -17,7 +17,7 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	 *
 	 * @var string[]
 	 */
-	private const KINDS = array( 'series', 'author', 'unread_author', 'translator', 'collection', 'anniversary', 'change', 'short', 'fresh', 'reread', 'pile', 'to_buy' );
+	private const array KINDS = array( 'series', 'author', 'unread_author', 'translator', 'collection', 'anniversary', 'change', 'short', 'fresh', 'reread', 'pile', 'to_buy' );
 
 	/**
 	 * The first volume not read of a series with volumes read comes next, with the volumes read and the year of the last one.
@@ -684,11 +684,11 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	 * @return void
 	 */
 	public function test_no_idea_without_book_to_suggest(): void {
-		$this->assertNull( ( new Library_Reading_Idea() )->get_idea() );
+		$this->assertNull( new Library_Reading_Idea()->get_idea() );
 
 		$this->add_reads( array( '2024-03-01', '2024-04-01' ) );
 
-		$this->assertNull( ( new Library_Reading_Idea() )->get_idea() );
+		$this->assertNull( new Library_Reading_Idea()->get_idea() );
 	}
 
 	/**
@@ -766,7 +766,7 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	 */
 	private function get_ideas_of( string $kind ): array {
 		$books   = Library_Books::get_books();
-		$to_read = ( new ReflectionMethod( Library_Reading_Idea::class, 'get_books_to_read' ) )->invoke( null, $books );
+		$to_read = new ReflectionMethod( Library_Reading_Idea::class, 'get_books_to_read' )->invoke( null, $books );
 		$method  = new ReflectionMethod( Library_Reading_Idea::class, 'get_' . $kind . '_ideas' );
 		$args    = array_map( fn( ReflectionParameter $parameter ) => 'books' === $parameter->getName() ? $books : $to_read, $method->getParameters() );
 		$reasons = array();

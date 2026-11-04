@@ -24,14 +24,14 @@ class Library_Posts {
 	 *
 	 * @var string
 	 */
-	public const NOT_KEPT = 'library-not-kept';
+	public const string NOT_KEPT = 'library-not-kept';
 
 	/**
 	 * Status of the books not in the library yet, to buy: hidden from the books list and the site, left out of the reading pile.
 	 *
 	 * @var string
 	 */
-	public const TO_BUY = 'library-to-buy';
+	public const string TO_BUY = 'library-to-buy';
 
 	/**
 	 * Register hooks.

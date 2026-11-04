@@ -31,70 +31,70 @@ class Library_Reading_Idea {
 	 *
 	 * @var int
 	 */
-	private const WELL_RATED = 8;
+	private const int WELL_RATED = 8;
 
 	/**
 	 * Number of books rated from which an average counts.
 	 *
 	 * @var int
 	 */
-	private const MIN_RATED = 2;
+	private const int MIN_RATED = 2;
 
 	/**
 	 * Years without reading an author rated well from which the reason says when they were last read.
 	 *
 	 * @var int
 	 */
-	private const DORMANT_YEARS = 3;
+	private const int DORMANT_YEARS = 3;
 
 	/**
 	 * Number of books by an author from which not having read any of them stands out.
 	 *
 	 * @var int
 	 */
-	private const UNREAD_AUTHOR_BOOKS = 3;
+	private const int UNREAD_AUTHOR_BOOKS = 3;
 
 	/**
 	 * Years between two anniversaries suggested: 10, 20, 30… years.
 	 *
 	 * @var int
 	 */
-	private const ANNIVERSARY_YEARS = 10;
+	private const int ANNIVERSARY_YEARS = 10;
 
 	/**
 	 * Number of latest reads whose opposite is suggested.
 	 *
 	 * @var int
 	 */
-	private const LATEST_READS = 6;
+	private const int LATEST_READS = 6;
 
 	/**
 	 * Number of pages up to which a book is short.
 	 *
 	 * @var int
 	 */
-	private const SHORT_BOOK = 200;
+	private const int SHORT_BOOK = 200;
 
 	/**
 	 * Days during which a book just added is suggested.
 	 *
 	 * @var int
 	 */
-	private const FRESH_DAYS = 30;
+	private const int FRESH_DAYS = 30;
 
 	/**
 	 * Rating, out of 10, from which a book is worth reading again.
 	 *
 	 * @var int
 	 */
-	private const REREAD_RATING = 9;
+	private const int REREAD_RATING = 9;
 
 	/**
 	 * Years since the latest reading from which a book is worth reading again.
 	 *
 	 * @var int
 	 */
-	private const REREAD_YEARS = 10;
+	private const int REREAD_YEARS = 10;
 
 	/**
 	 * The idea at a position of this week's list, which loops.

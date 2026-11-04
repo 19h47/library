@@ -476,7 +476,7 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 
 		$close = array_values(
 			array_filter(
-				( new Library_Achievements() )->get_achievements()['close'],
+				new Library_Achievements()->get_achievements()['close'],
 				fn( array $achievement ) => isset( Library_Achievements::KINDS['completions'][ $achievement['kind'] ] )
 			)
 		);
@@ -495,7 +495,7 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 		$this->add_book( $this->by( 'Ursula K. Le Guin' ) );
 		$this->add_book( $this->by( 'Ursula K. Le Guin' ) );
 
-		$completion = ( new Library_Achievements() )->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) );
+		$completion = new Library_Achievements()->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) );
 
 		$this->assertSame( 'Complete author', $completion['title'] );
 		$this->assertSame( 1, $completion['done'] );
@@ -510,7 +510,7 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 	public function test_the_completion_of_a_term_read_in_full_is_dated(): void {
 		$this->add_reads( array( '2024-01-01', '2024-03-01', '2024-02-01' ), $this->by( 'Ursula K. Le Guin' ) );
 
-		$completion = ( new Library_Achievements() )->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) );
+		$completion = new Library_Achievements()->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) );
 
 		$this->assertSame( '2024-03-01', $completion['date'] );
 	}
@@ -688,7 +688,7 @@ class Test_Library_Achievements_Completions extends Library_TestCase {
 
 		$this->assertSame( 200, rest_do_request( $request )->get_status() );
 
-		( new ReflectionProperty( Library_Books::class, 'books' ) )->setValue( null, null );
+		new ReflectionProperty( Library_Books::class, 'books' )->setValue( null, null );
 	}
 
 	/**

@@ -78,11 +78,11 @@ class Test_Library_Dashboard_Collection extends Library_TestCase {
 	 */
 	private function get_ranking( string $title ): array {
 		ob_start();
-		( new Library_Dashboard() )->render_collection();
+		new Library_Dashboard()->render_collection();
 
 		$document = new DOMDocument();
 		$document->loadHTML( '<?xml encoding="utf-8"?>' . ob_get_clean(), LIBXML_NOERROR );
-		$entries = ( new DOMXPath( $document ) )->query( "//section[h3='$title']//li" );
+		$entries = new DOMXPath( $document )->query( "//section[h3='$title']//li" );
 
 		return array_map( fn( DOMElement $entry ) => trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $document->saveHTML( $entry ) ) ) ), iterator_to_array( $entries ) );
 	}

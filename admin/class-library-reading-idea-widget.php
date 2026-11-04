@@ -24,7 +24,7 @@ class Library_Reading_Idea_Widget {
 	 *
 	 * @var string
 	 */
-	private const QUERY_ARG = 'library_idea';
+	private const string QUERY_ARG = 'library_idea';
 
 	/**
 	 * Register hooks.
@@ -51,7 +51,7 @@ class Library_Reading_Idea_Widget {
 	public function render_widget(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only position in the list.
 		$position = isset( $_GET[ self::QUERY_ARG ] ) ? absint( $_GET[ self::QUERY_ARG ] ) : 0;
-		$idea     = ( new Library_Reading_Idea() )->get_idea( $position );
+		$idea     = new Library_Reading_Idea()->get_idea( $position );
 		$book     = $idea ? get_post( $idea['id'] ) : null;
 		$next_url = add_query_arg( self::QUERY_ARG, $position + 1, admin_url( 'index.php' ) );
 

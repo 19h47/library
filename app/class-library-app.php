@@ -27,63 +27,63 @@ class Library_App {
 	 *
 	 * @var string
 	 */
-	public const SLUG = 'library';
+	public const string SLUG = 'library';
 
 	/**
 	 * View of the page of a person, opened from a book or an achievement rather than from the navigation.
 	 *
 	 * @var string
 	 */
-	public const PERSON_VIEW = 'person';
+	public const string PERSON_VIEW = 'person';
 
 	/**
 	 * View of a book, opened from its card, its cover or a link rather than from the navigation.
 	 *
 	 * @var string
 	 */
-	public const BOOK_VIEW = 'book';
+	public const string BOOK_VIEW = 'book';
 
 	/**
 	 * View of a series or a cycle, opened from a book, an achievement or another series.
 	 *
 	 * @var string
 	 */
-	public const SERIES_VIEW = 'series';
+	public const string SERIES_VIEW = 'series';
 
 	/**
 	 * View of a collection or a publisher, opened from an achievement or another collection.
 	 *
 	 * @var string
 	 */
-	public const PUBLISHER_VIEW = 'publisher';
+	public const string PUBLISHER_VIEW = 'publisher';
 
 	/**
 	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded.
 	 *
 	 * @var string
 	 */
-	public const BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,series,series_name,language_codes,form_name';
+	public const string BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,series,series_name,language_codes,form_name';
 
 	/**
 	 * Books a list of the app loads at once, then as its end comes.
 	 *
 	 * @var int
 	 */
-	public const PER_PAGE = 24;
+	public const int PER_PAGE = 24;
 
 	/**
 	 * Most books a page of the REST API gives, as for the series of a book.
 	 *
 	 * @var int
 	 */
-	public const MAX_PER_PAGE = 100;
+	public const int MAX_PER_PAGE = 100;
 
 	/**
 	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
 	 *
 	 * @var string
 	 */
-	public const STYLEGUIDE_VIEW = 'styleguide';
+	public const string STYLEGUIDE_VIEW = 'styleguide';
 
 	/**
 	 * Register hooks.

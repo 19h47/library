@@ -24,7 +24,7 @@ class Library {
 	 *
 	 * @var string[]
 	 */
-	private const FILES = array(
+	private const array FILES = array(
 		'includes/class-library-readme.php',
 		'includes/class-library-updater.php',
 		'includes/class-library-books.php',
@@ -126,20 +126,20 @@ class Library {
 
 		$plugin_file = plugin_basename( LIBRARY_FILE );
 
-		( new Library_Cache() )->hooks();
-		( new Library_Posts() )->hooks();
-		( new Library_Taxonomies() )->hooks();
-		( new Library_Meta() )->hooks();
-		( new Library_WP_Query() )->hooks();
-		( new Library_Rest_API() )->hooks();
-		( new Library_Admin() )->hooks();
-		( new Library_Metaboxes() )->hooks();
-		( new Library_Books_List() )->hooks();
-		( new Library_Terms_List() )->hooks();
-		( new Library_Dashboard() )->hooks();
-		( new Library_Reading_Idea_Widget() )->hooks();
-		( new Library_Achievements_Page() )->hooks();
-		( new Library_App() )->hooks();
-		( new Library_Updater( $plugin_file ) )->hooks();
+		new Library_Cache()->hooks();
+		new Library_Posts()->hooks();
+		new Library_Taxonomies()->hooks();
+		new Library_Meta()->hooks();
+		new Library_WP_Query()->hooks();
+		new Library_Rest_API()->hooks();
+		new Library_Admin()->hooks();
+		new Library_Metaboxes()->hooks();
+		new Library_Books_List()->hooks();
+		new Library_Terms_List()->hooks();
+		new Library_Dashboard()->hooks();
+		new Library_Reading_Idea_Widget()->hooks();
+		new Library_Achievements_Page()->hooks();
+		new Library_App()->hooks();
+		new Library_Updater( $plugin_file )->hooks();
 	}
 }

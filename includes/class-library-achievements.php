@@ -35,7 +35,7 @@ class Library_Achievements {
 	 *
 	 * @var array<string,int>
 	 */
-	private const COMPLETION_BOOKS = array(
+	private const array COMPLETION_BOOKS = array(
 		'author'     => 3,
 		'series'     => 2,
 		'collection' => 3,
@@ -46,112 +46,112 @@ class Library_Achievements {
 	 *
 	 * @var int
 	 */
-	private const COLLECTION_STEP_BOOKS = 10;
+	private const int COLLECTION_STEP_BOOKS = 10;
 
 	/**
 	 * Number of books left up to which a completion is close.
 	 *
 	 * @var int
 	 */
-	private const CLOSE_BOOKS = 2;
+	private const int CLOSE_BOOKS = 2;
 
 	/**
 	 * Numbers of books read that count.
 	 *
 	 * @var int[]
 	 */
-	private const READ_MILESTONES = array( 100, 250, 500, 750, 1000, 1500, 2000, 3000 );
+	private const array READ_MILESTONES = array( 100, 250, 500, 750, 1000, 1500, 2000, 3000 );
 
 	/**
 	 * Numbers of pages read that count.
 	 *
 	 * @var int[]
 	 */
-	private const PAGE_MILESTONES = array( 10000, 25000, 50000, 100000 );
+	private const array PAGE_MILESTONES = array( 10000, 25000, 50000, 100000 );
 
 	/**
 	 * Numbers of original languages read that count.
 	 *
 	 * @var int[]
 	 */
-	private const LANGUAGE_MILESTONES = array( 5, 10, 20, 30 );
+	private const array LANGUAGE_MILESTONES = array( 5, 10, 20, 30 );
 
 	/**
 	 * Numbers of books read of a form that count, such as 50 novels.
 	 *
 	 * @var int[]
 	 */
-	private const FORM_MILESTONES = array( 10, 25, 50, 100, 250, 500 );
+	private const array FORM_MILESTONES = array( 10, 25, 50, 100, 250, 500 );
 
 	/**
 	 * Number of forms read the same month that makes a jack of all trades.
 	 *
 	 * @var int
 	 */
-	private const JACK_OF_ALL_TRADES_FORMS = 4;
+	private const int JACK_OF_ALL_TRADES_FORMS = 4;
 
 	/**
 	 * Number of forms left up to which the tour of the library is close.
 	 *
 	 * @var int
 	 */
-	private const CLOSE_FORMS = 3;
+	private const int CLOSE_FORMS = 3;
 
 	/**
 	 * Number of months in a row with a reading from which the longest run counts.
 	 *
 	 * @var int
 	 */
-	private const STREAK_MONTHS = 6;
+	private const int STREAK_MONTHS = 6;
 
 	/**
 	 * Number of books read translated by the same translator that counts.
 	 *
 	 * @var int
 	 */
-	private const TRANSLATOR_BOOKS = 10;
+	private const int TRANSLATOR_BOOKS = 10;
 
 	/**
 	 * Years between the first publication and the reading from which a work is a centenarian.
 	 *
 	 * @var int
 	 */
-	private const CENTENARIAN_YEARS = 100;
+	private const int CENTENARIAN_YEARS = 100;
 
 	/**
 	 * Number of decades of the 20th century read from which the tour is close.
 	 *
 	 * @var int
 	 */
-	private const CLOSE_DECADES = 7;
+	private const int CLOSE_DECADES = 7;
 
 	/**
 	 * Number of books to read from which the pile is a tsundoku.
 	 *
 	 * @var int
 	 */
-	private const TSUNDOKU_BOOKS = 500;
+	private const int TSUNDOKU_BOOKS = 500;
 
 	/**
 	 * Number of books read the same day that makes a marathon.
 	 *
 	 * @var int
 	 */
-	private const MARATHON_BOOKS = 3;
+	private const int MARATHON_BOOKS = 3;
 
 	/**
 	 * Number of days in a row with a book finished each day that counts.
 	 *
 	 * @var int
 	 */
-	private const SEVEN_DAYS_A_WEEK_DAYS = 7;
+	private const int SEVEN_DAYS_A_WEEK_DAYS = 7;
 
 	/**
 	 * Numbers of pages of the odd books: an error, the temperature at which paper burns, the answer.
 	 *
 	 * @var array<string,int>
 	 */
-	private const ODD_PAGES = array(
+	private const array ODD_PAGES = array(
 		'page-404'          => 404,
 		'fahrenheit-451'    => 451,
 		'ultimate-question' => 42,
@@ -162,7 +162,7 @@ class Library_Achievements {
 	 *
 	 * @var array{short:int,long:int}
 	 */
-	private const SPLITS_PAGES = array(
+	private const array SPLITS_PAGES = array(
 		'short' => 50,
 		'long'  => 800,
 	);
@@ -172,56 +172,56 @@ class Library_Achievements {
 	 *
 	 * @var int
 	 */
-	private const EVEREST_PAGES = 8848;
+	private const int EVEREST_PAGES = 8848;
 
 	/**
 	 * Number of original languages read the same month that makes a polyglot.
 	 *
 	 * @var int
 	 */
-	private const POLYGLOT_LANGUAGES = 5;
+	private const int POLYGLOT_LANGUAGES = 5;
 
 	/**
 	 * Number of original languages read the same week, as on the Rosetta Stone.
 	 *
 	 * @var int
 	 */
-	private const ROSETTA_STONE_LANGUAGES = 3;
+	private const int ROSETTA_STONE_LANGUAGES = 3;
 
 	/**
 	 * Number of centuries of works read the same month for the time machine.
 	 *
 	 * @var int
 	 */
-	private const TIME_MACHINE_CENTURIES = 3;
+	private const int TIME_MACHINE_CENTURIES = 3;
 
 	/**
 	 * Number of pages from which a book is a brick.
 	 *
 	 * @var int
 	 */
-	private const BRICK_PAGES = 1000;
+	private const int BRICK_PAGES = 1000;
 
 	/**
 	 * Rating, out of 10, from which a book not kept is one that got away.
 	 *
 	 * @var int
 	 */
-	private const ONE_THAT_GOT_AWAY_RATING = 9;
+	private const int ONE_THAT_GOT_AWAY_RATING = 9;
 
 	/**
 	 * Number of characters from which a title is a mouthful.
 	 *
 	 * @var int
 	 */
-	private const MOUTHFUL_CHARACTERS = 60;
+	private const int MOUTHFUL_CHARACTERS = 60;
 
 	/**
 	 * Kinds of achievement by family, in the order of the achievements page, with their dashicon.
 	 *
 	 * @var array<string,array<string,string>>
 	 */
-	public const KINDS = array(
+	public const array KINDS = array(
 		'completions' => array(
 			'author'          => 'admin-users',
 			'series'          => 'book',
@@ -653,7 +653,7 @@ class Library_Achievements {
 			return self::build_achievement( $kind, $titles[ $kind ], $subject, Library_Books::format_books( $total ), $target, self::get_latest_read_date( $read ) );
 		}
 
-		$next = current( array_filter( $group, fn( array $book ) => ! $book['read'] ) );
+		$next = array_find( $group, fn( array $book ) => ! $book['read'] );
 
 		return self::build_achievement(
 			$kind,
