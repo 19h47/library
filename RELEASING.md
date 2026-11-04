@@ -21,7 +21,7 @@ No update is offered when the plugin folder is a Git working copy, since updatin
    php bin/update-isbn-ranges.php
    ```
 
-   The agency adds ranges as it gives prefixes to new publishers: the hyphens of an ISBN of a range missing from the file are not placed.
+   The agency adds ranges as it gives prefixes to new publishers: the hyphens of an ISBN of a range missing from the file are not placed. It dates its message as it sends it: the script writes the file only when the ranges change.
 5. Bump the version in a `:bookmark: x.y.z` commit:
    - `Version` in `library.php`;
    - `Stable tag` in `README.txt`, with an entry in its changelog: one line per change, `* Fixed: …` for a fix, `* Changed: …` or `* Breaking: …` for a change that breaks the REST API or the data;
