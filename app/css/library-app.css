@@ -342,8 +342,8 @@ library-home:not([hidden]) + .library-books__title {
 
 /*
  * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
- * wide as the cover, and its button Finished over the corner of the cover, opaque whatever the cover, beside the button
- * that opens the book rather than in it.
+ * wide as the cover, and its button Finished over the corner of the cover, a control floating as any other, beside the
+ * button that opens the book rather than in it.
  */
 .library-current {
 	--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
@@ -375,7 +375,6 @@ library-home:not([hidden]) + .library-books__title {
 		position: absolute;
 		inset-block-start: calc(var(--library-current-height) - var(--app-control-size) - var(--app-gap));
 		inset-inline-end: var(--app-gap);
-		opacity: 1;
 	}
 }
 
@@ -765,7 +764,8 @@ library-latest {
 		z-index: 1;
 		padding: var(--app-gap) var(--app-u2) calc(var(--app-gap) + env(safe-area-inset-bottom));
 		border-top: 1px solid var(--app-line-soft);
-		background: var(--app-bg);
+		background: var(--app-bg-floating);
+		backdrop-filter: var(--app-blur-floating);
 	}
 
 	.app-page {
@@ -864,7 +864,8 @@ library-volumes {
 	max-width: calc(100vw - 2 * var(--app-u2));
 	border-radius: calc(var(--app-line-height) * 1em / 2 + var(--app-pill-padding-block));
 	white-space: normal;
-	background: var(--app-bg);
+	background: var(--app-bg-floating);
+	backdrop-filter: var(--app-blur-floating);
 	color: var(--app-text);
 
 	& .library-link {
@@ -1011,12 +1012,22 @@ library-styleguide > .library-styleguide__intro {
 
 /*
  * The bar at the bottom: its background goes across the viewport, as the covers of the latest readings
- * pass under it out to its edges; its line stays as wide as the content. The shadow spreads the background,
- * the clip keeps it to the height of the bar.
+ * pass under it out to its edges; its line stays as wide as the content. The background and its blur move
+ * to a box under the bar, from an edge of the viewport to the other: the page is centered, and has no scrollbar.
  */
 @media screen {
 	.app-footer {
-		box-shadow: 0 0 0 100vmax var(--app-bg);
-		clip-path: inset(0 -100vmax);
+		background: none;
+		backdrop-filter: none;
+
+		&::before {
+			content: "";
+			position: absolute;
+			z-index: -1;
+			inset-block: 0;
+			inset-inline: calc(50% - 50vw);
+			background: var(--app-bg-floating);
+			backdrop-filter: var(--app-blur-floating);
+		}
 	}
 }
