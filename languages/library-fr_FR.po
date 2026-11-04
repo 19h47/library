@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-04T07:11:32+00:00\n"
+"POT-Creation-Date: 2026-11-04T07:21:22+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -162,114 +162,130 @@ msgstr "Notes"
 msgid "Reading pile"
 msgstr "Pile à lire"
 
-#: admin/class-library-dashboard.php:117
+#: admin/class-library-dashboard.php:118
+#: includes/class-library-taxonomies.php:476
+msgctxt "library forms general name"
+msgid "Forms"
+msgstr "Formes"
+
+#: admin/class-library-dashboard.php:123
 msgid "Most present authors"
 msgstr "Autrices et auteurs les plus présents"
 
-#: admin/class-library-dashboard.php:121
+#: admin/class-library-dashboard.php:127
 msgid "Most present publishers"
 msgstr "Éditeurs les plus présents"
 
-#: admin/class-library-dashboard.php:125
+#: admin/class-library-dashboard.php:131
 msgid "Most present collections"
 msgstr "Collections les plus présentes"
 
-#: admin/class-library-dashboard.php:129
+#: admin/class-library-dashboard.php:135
 msgid "Most present original languages"
 msgstr "Langues d’origine les plus présentes"
 
-#: admin/class-library-dashboard.php:218 includes/class-library-posts.php:189
+#: admin/class-library-dashboard.php:224 includes/class-library-posts.php:189
 #: includes/class-library-posts.php:191 includes/class-library-posts.php:224
 msgid "Books"
 msgstr "Livres"
 
 #. translators: 1: year, month or rating, 2: number of books, e.g. "2022 (71 books)".
-#: admin/class-library-dashboard.php:220
+#: admin/class-library-dashboard.php:226
 #, php-format
 msgid "Most: %1$s (%2$s)"
 msgstr "Maximum : %1$s (%2$s)"
 
-#: admin/class-library-dashboard.php:314
+#: admin/class-library-dashboard.php:320
 msgid "Books read by year"
 msgstr "Livres lus par année"
 
-#: admin/class-library-dashboard.php:314 admin/class-library-dashboard.php:420
+#: admin/class-library-dashboard.php:320 admin/class-library-dashboard.php:426
 msgid "Year"
 msgstr "Année"
 
 #. translators: %d: year.
-#: admin/class-library-dashboard.php:316
+#: admin/class-library-dashboard.php:322
 #, php-format
 msgid "Books read in %d by month"
 msgstr "Livres lus en %d par mois"
 
 #. translators: %d: year.
-#: admin/class-library-dashboard.php:316 admin/class-library-dashboard.php:317
+#: admin/class-library-dashboard.php:322 admin/class-library-dashboard.php:323
 msgid "Month"
 msgstr "Mois"
 
-#: admin/class-library-dashboard.php:317
+#: admin/class-library-dashboard.php:323
 msgid "Reading distribution by month"
 msgstr "Répartition des lectures par mois"
 
-#: admin/class-library-dashboard.php:336
+#: admin/class-library-dashboard.php:342
 msgid "Edition year distribution"
 msgstr "Répartition par année d’édition"
 
-#: admin/class-library-dashboard.php:336
+#: admin/class-library-dashboard.php:342
 msgid "Edition year"
 msgstr "Année d’édition"
 
-#: admin/class-library-dashboard.php:353
+#: admin/class-library-dashboard.php:359
 msgid "Edition year distribution (by decade)"
 msgstr "Répartition par année d’édition (par décennie)"
 
-#: admin/class-library-dashboard.php:353
+#: admin/class-library-dashboard.php:359
 msgid "Edition years"
 msgstr "Années d’édition"
 
-#: admin/class-library-dashboard.php:384
+#: admin/class-library-dashboard.php:390
 msgid "Rating distribution"
 msgstr "Répartition des notes"
 
-#: admin/class-library-dashboard.php:384 includes/class-library-meta.php:125
+#: admin/class-library-dashboard.php:390 includes/class-library-meta.php:125
 msgid "Rating"
 msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:411 includes/class-library-meta.php:399
+#: admin/class-library-dashboard.php:417 includes/class-library-meta.php:399
 #: app/js/lib/format.js:46
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-library-dashboard.php:411 includes/class-library-meta.php:395
+#: admin/class-library-dashboard.php:417 includes/class-library-meta.php:395
 msgid "No rating"
 msgstr "Pas de note"
 
-#: admin/class-library-dashboard.php:419
+#: admin/class-library-dashboard.php:425
 msgid "Average rating by year read"
 msgstr "Note moyenne par année de lecture"
 
-#: admin/class-library-dashboard.php:421
+#: admin/class-library-dashboard.php:427
 msgid "Average rating"
 msgstr "Note moyenne"
 
 #. translators: 1: year, 2: average rating, e.g. "2011 (8.1/10)".
-#: admin/class-library-dashboard.php:423
+#: admin/class-library-dashboard.php:429
 #, php-format
 msgid "Best: %1$s (%2$s)"
 msgstr "Meilleure : %1$s (%2$s)"
 
-#. translators: 1: number of books, 2: number of books read.
-#: admin/class-library-dashboard.php:478
+#. translators: %s: number of books read, after the number of books of a person, a series or a collection.
+#. translators: %s: number of books read, after the number of books of a person in a series.
+#. translators: %s: number of books read, after the number of books of a series.
+#: admin/class-library-dashboard.php:484 app/js/bricks/library-person.js:44
+#: app/js/bricks/library-volumes.js:32 app/js/lib/term-page.js:41
 #, php-format
-msgid "%1$s book, %2$s read"
-msgid_plural "%1$s books, %2$s read"
-msgstr[0] "%1$s livre, %2$s lu"
-msgstr[1] "%1$s livres, %2$s lus"
+msgid "%s read"
+msgid_plural "%s read"
+msgstr[0] "%s lu"
+msgstr[1] "%s lus"
+
+#. translators: 1: number of books, 2: number of books read.
+#. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
+#: admin/class-library-dashboard.php:487 includes/class-library-books.php:236
+#, php-format
+msgid "%1$s, %2$s"
+msgstr "%1$s, %2$s"
 
 #: admin/class-library-metaboxes.php:60
 msgid "Information"
@@ -465,8 +481,8 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: title, 2: subtitle.
 #. translators: 1: series, 2: title.
 #: admin/partials/library-dashboard-chart.php:40
-#: includes/class-library-books.php:221 includes/class-library-books.php:226
-#: includes/class-library-books.php:244
+#: includes/class-library-books.php:222 includes/class-library-books.php:227
+#: includes/class-library-books.php:245
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -1273,32 +1289,26 @@ msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
 #. translators: %s: volume number.
-#: includes/class-library-books.php:231
+#: includes/class-library-books.php:232
 #, php-format
 msgid "vol. %s"
 msgstr "t. %s"
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-library-books.php:231 includes/class-library-books.php:322
+#: includes/class-library-books.php:232 includes/class-library-books.php:323
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
 
-#. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
-#: includes/class-library-books.php:235
-#, php-format
-msgid "%1$s, %2$s"
-msgstr "%1$s, %2$s"
-
 #. translators: %s: names of the publishing directors of a collective work.
-#: includes/class-library-books.php:288
+#: includes/class-library-books.php:289
 #, php-format
 msgid "%s (dir.)"
 msgstr "%s (dir.)"
 
 #. translators: %s: number of books.
-#: includes/class-library-books.php:348 app/js/lib/format.js:29
+#: includes/class-library-books.php:349 app/js/lib/format.js:29
 #, php-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -2193,11 +2203,6 @@ msgstr "Liste des langues"
 msgid "&larr; Back to Languages"
 msgstr "&larr; Retour aux langues"
 
-#: includes/class-library-taxonomies.php:476
-msgctxt "library forms general name"
-msgid "Forms"
-msgstr "Formes"
-
 #: includes/class-library-taxonomies.php:477
 msgctxt "library forms singular name"
 msgid "Form"
@@ -2366,16 +2371,6 @@ msgid_plural "Other names: %s"
 msgstr[0] "Autre nom : %s"
 msgstr[1] "Autres noms : %s"
 
-#. translators: %s: number of books read, after the number of books of a person in a series.
-#. translators: %s: number of books read, after the number of books of a series.
-#. translators: %s: number of books read, after the number of books of a person, a series or a collection.
-#: app/js/bricks/library-person.js:44 app/js/bricks/library-volumes.js:32
-#: app/js/lib/term-page.js:41
-msgid "%s read"
-msgid_plural "%s read"
-msgstr[0] "%s lu"
-msgstr[1] "%s lus"
-
 #. translators: %s: number of series of a person, after the first ones.
 #: app/js/bricks/library-person.js:49
 msgid "%s other series"
@@ -2436,6 +2431,12 @@ msgstr[1] "%s autres auteurs/autrices"
 #: app/js/lib/store.js:540
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
+
+#, php-format
+#~ msgid "%1$s book, %2$s read"
+#~ msgid_plural "%1$s books, %2$s read"
+#~ msgstr[0] "%1$s livre, %2$s lu"
+#~ msgstr[1] "%1$s livres, %2$s lus"
 
 #~ msgid ""
 #~ "Name of the collection, under the publisher and sent with it; a name not "

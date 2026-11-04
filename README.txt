@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.13.2
+Stable tag: 9.14.0
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.14.0 =
+* Changed: the Library widget of the dashboard lists the forms of the books at hand, every one of them, by number of books then of books read, each linked to its books.
+* Fixed: the rankings of the dashboard agree "read" with the number of books read: "7 livres, 1 lu" rather than "7 livres, 1 lus".
 
 = 9.13.2 =
 * Fixed: a volume whose title is a series with a comma, such as "Talli, fille de la lune", is named after its series only, "Talli, fille de la lune, vol. 1", rather than "Talli, fille de la lune, vol. 1: Talli, fille de la lune".

@@ -112,7 +112,13 @@ class Library_Dashboard {
 		$publishers  = self::count_books_by( $books, 'publisher_ids' );
 		$collections = self::count_books_by( $books, 'collection_ids' );
 		$languages   = self::count_books_by( $books, 'language_ids' );
+		$forms       = self::count_books_by( $books, 'form_ids' );
 		$rankings    = array(
+			array(
+				'title' => _x( 'Forms', 'library forms general name', 'library' ),
+				// Few, so every one of them: how the books are shared out.
+				'items' => self::build_term_items( 'library_form', $forms, null ),
+			),
 			array(
 				'title' => __( 'Most present authors', 'library' ),
 				'items' => self::build_term_items( 'library_person', $authors ),
@@ -473,12 +479,12 @@ class Library_Dashboard {
 	 * @return string
 	 */
 	private static function format_books_read( array $count ): string {
-		return sprintf(
-			/* translators: 1: number of books, 2: number of books read. */
-			_n( '%1$s book, %2$s read', '%1$s books, %2$s read', $count['books'], 'library' ),
-			number_format_i18n( $count['books'] ),
-			number_format_i18n( $count['books_read'] )
-		);
+		$books = Library_Books::format_books( $count['books'] );
+		/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
+		$read = sprintf( _n( '%s read', '%s read', $count['books_read'], 'library' ), number_format_i18n( $count['books_read'] ) );
+
+		/* translators: 1: number of books, 2: number of books read. */
+		return sprintf( __( '%1$s, %2$s', 'library' ), $books, $read );
 	}
 
 	/**
@@ -497,7 +503,7 @@ class Library_Dashboard {
 	 * then the oldest.
 	 *
 	 * @param array<int,array> $books Books, from Library_Books::get_books().
-	 * @param string           $field Field of term IDs: author_ids, publisher_ids, collection_ids or language_ids.
+	 * @param string           $field Field of term IDs: author_ids, publisher_ids, collection_ids, language_ids or form_ids.
 	 * @return array<int,array{books:int,books_read:int}> Keyed by term ID.
 	 */
 	private static function count_books_by( array $books, string $field ): array {
@@ -526,10 +532,11 @@ class Library_Dashboard {
 	 *
 	 * @param string                                     $taxonomy Taxonomy.
 	 * @param array<int,array{books:int,books_read:int}> $counts   Books and books read, by term ID, in their order.
+	 * @param int|null                                   $length   Number of terms, or null for all of them.
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
-	private static function build_term_items( string $taxonomy, array $counts ): array {
-		$counts = array_slice( $counts, 0, self::LIST_LENGTH, true );
+	private static function build_term_items( string $taxonomy, array $counts, ?int $length = self::LIST_LENGTH ): array {
+		$counts = array_slice( $counts, 0, $length, true );
 		$terms  = $counts ? get_terms(
 			array(
 				'taxonomy'   => $taxonomy,
