@@ -54,9 +54,12 @@
 	overflow: hidden;
 }
 
-/* Same as the core "Count" column next to it. */
-.fixed .column-library_not_kept {
-	width: 74px;
+/*
+ * The counts of a term, the one of core and the ones of each status, as wide as one another, each label on one line:
+ * padding included, which a sortable header has none of.
+ */
+.fixed :is(.column-posts, .column-library_not_kept, .column-library_to_buy) {
+	box-sizing: border-box;
+	width: 96px;
 	text-align: center;
-	hyphens: auto;
 }
