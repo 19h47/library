@@ -193,9 +193,9 @@ class Library_Books {
 	/**
 	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
 	 *
-	 * A volume whose title is its series, as a volume of a manga, shows it once: "City Hunter, vol. 3"; so does a volume
-	 * without series. A volume typed "Tome 08" shows as "vol. 8", a number alone as "no. 8", anything else as typed, e.g.
-	 * "Chant II".
+	 * A volume whose title is its series, as a volume of a manga, shows it once: "City Hunter, vol. 3", "Talli, fille de
+	 * la lune, vol. 1" for a series with a comma; so does a volume without series. A volume typed "Tome 08" shows as
+	 * "vol. 8", a number alone as "no. 8", anything else as typed, e.g. "Chant II".
 	 *
 	 * @param string $title  Title of the book.
 	 * @param string $series Series of the book, from its cycle, or empty.
@@ -206,9 +206,12 @@ class Library_Books {
 		$volume   = (string) ( $meta['library_volume_number'] ?? '' );
 		$subtitle = (string) ( $meta['library_subtitle'] ?? '' );
 		$parts    = self::split( $series );
+		// A series may have a comma in its name, such as "Talli, fille de la lune": the title takes as many names of the path.
+		$title_slugs  = array_map( 'sanitize_title', self::split( $title ) );
+		$series_slugs = array_map( 'sanitize_title', array_slice( $parts, -count( $title_slugs ) ) );
 
 		// The series, from its cycle, stands for the title, the same as the slugs of terms tell, case, accents and apostrophes aside.
-		if ( '' !== $volume && $parts && sanitize_title( end( $parts ) ) === sanitize_title( $title ) ) {
+		if ( '' !== $volume && $title_slugs && $series_slugs === $title_slugs ) {
 			$title  = implode( ', ', $parts );
 			$series = '';
 		}
