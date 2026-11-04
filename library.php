@@ -13,7 +13,7 @@
  * Description:       Enables a Book post type, taxonomy and metaboxes.
  * Version:           9.15.0
  * Requires at least: 7.1
- * Requires PHP:      8.2
+ * Requires PHP:      8.4
  * Author:            Jérémy Levron
  * Author URI:        https://www.19h47.fr
  * License:           GPL v2 or later
