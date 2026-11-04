@@ -16,6 +16,8 @@ class LibrarySearchElement extends Brick {
 		const hide = () => {
 			$keywords.hidden = true;
 		};
+		// A finger or a button down: what it is on takes the focus, but the tap has not reached it yet.
+		let isPointing = false;
 
 		$input.addEventListener(
 			'input',
@@ -37,11 +39,12 @@ class LibrarySearchElement extends Brick {
 			},
 			{ signal }
 		);
-		// Left with the keyboard, or with a tap elsewhere: a tap on a keyword may take the focus from the field first.
+		// Left with the keyboard, or with a tap elsewhere once it has reached what it was on: hidden as the finger comes
+		// down, the keywords would move it away first. A tap on a keyword may take the focus from the field first.
 		this.addEventListener(
 			'focusout',
 			( event ) => {
-				if ( event.relatedTarget && ! this.contains( event.relatedTarget ) ) {
+				if ( ! isPointing && event.relatedTarget && ! this.contains( event.relatedTarget ) ) {
 					hide();
 				}
 			},
@@ -49,6 +52,22 @@ class LibrarySearchElement extends Brick {
 		);
 		document.addEventListener(
 			'pointerdown',
+			() => {
+				isPointing = true;
+			},
+			{ signal }
+		);
+		[ 'pointerup', 'pointercancel' ].forEach( ( type ) =>
+			document.addEventListener(
+				type,
+				() => {
+					isPointing = false;
+				},
+				{ signal }
+			)
+		);
+		document.addEventListener(
+			'click',
 			( event ) => {
 				if ( ! this.contains( event.target ) ) {
 					hide();
