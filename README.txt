@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.19.0
+Stable tag: 9.19.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -97,6 +97,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.19.1 =
+* Fixed: the terms lists show their counts, of the books in the library, not kept and to buy, as wide as one another, rather than the books to buy taking the room left; the lists of series, languages and forms included.
 
 = 9.19.0 =
 * Changed: the lists of people, publishers, series, languages and forms count the books to buy of each term in a column of their own, beside the books not kept, and list the terms without books, in any status, in a view of their own, Without books.
