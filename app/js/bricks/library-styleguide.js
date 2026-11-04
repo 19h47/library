@@ -1,7 +1,7 @@
 import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, formatState, join } from 'library-app/format';
-import { clone, fill, fillCover, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, renderCover, renderSeries } from 'library-app/render';
+import { clone, fill, fillCover, fillFolded, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, renderCover, renderCurrent, renderRow, renderSeries } from 'library-app/render';
 import { showError } from 'library-app/behaviors';
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
@@ -34,7 +34,7 @@ const BOOKS = [
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
-].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, read_date: [], rating: 0, form: '', languages: [], translators: [], ...book } ) );
+].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, read_date: [], rating: 0, form: '', languages: [], authors: [ { id: 1, name: 'An Author' } ], translators: [], ...book } ) );
 
 const AUTHORS = [
 	{
@@ -64,6 +64,8 @@ class LibraryStyleguideElement extends Brick {
 	connect() {
 		const samples = {
 			books: () => BOOKS.map( ( book ) => renderBook( book, formatState( book ) ) ),
+			current: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
+			rows: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderRow ),
 			month: () => [ this.#renderMonth() ],
 			covers: () => [ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map( ( book ) => renderCover( book ) ),
 			volumes: () => this.#renderVolumes(),
@@ -78,6 +80,13 @@ class LibraryStyleguideElement extends Brick {
 		};
 
 		Object.entries( samples ).forEach( ( [ name, render ] ) => this.querySelector( `[data-sample="${ name }"]` ).replaceChildren( ...render() ) );
+
+		// Five authors, the ones past the first folded, as the page of a series folds them.
+		fillFolded(
+			this.querySelector( '[data-folded="authors"]' ),
+			Array.from( { length: 5 }, ( _, index ) => renderAuthor( AUTHORS[ index % AUTHORS.length ], formatBooks( AUTHORS[ index % AUTHORS.length ].books ) ) ),
+			( folded ) => `${ folded } other authors`
+		);
 
 		// The cover of the book open and the one of its form, drawn as the others; the form can remove it.
 		fillCover( this.querySelector( '.library-book__cover' ), COVER );

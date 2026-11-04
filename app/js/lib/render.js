@@ -1,5 +1,5 @@
 /**
- * Rendering of the bricks: the fields of the templates of the page, filled as text, and the cards, covers and achievements.
+ * Rendering of the bricks: the fields of the templates of the page, filled as text, and the cards, rows, covers, books being read and achievements.
  *
  * @package    Library
  * @subpackage Library/app
@@ -133,6 +133,34 @@ export function renderCover( book, state = '' ) {
 	$image.alt = book.title;
 	fillCover( $image, book.cover );
 	fill( $item, { title: book.cover ? '' : book.title, state } );
+
+	return $item;
+}
+
+/**
+ * A book being read, as its cover, larger than the latest readings show it, which opens it: its title and its status
+ * under it, or its title in its frame without a cover, and its button Finished over its corner, described by them.
+ */
+export function renderCurrent( book ) {
+	const $item = clone( 'library-current' );
+	const $open = $item.querySelector( '.library-cover__button' );
+
+	$item.dataset.id = book.id;
+	$open.id = `library-current-${ book.id }`;
+	$item.querySelector( '[data-action="finish"]' ).setAttribute( 'aria-describedby', $open.id );
+	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fill( $item, { frame: book.cover ? '' : book.title, title: book.cover ? book.title : '', status: formatStatus( book ) } );
+
+	return $item;
+}
+
+/** The row of a book, which opens it, as the reading idea on the home: its cover, its title, its authors and its status when it is not kept. */
+export function renderRow( book ) {
+	const $item = clone( 'library-row' );
+
+	$item.dataset.id = book.id;
+	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fill( $item, { title: book.title, authors: listFormat.format( book.authors.map( ( author ) => author.name ) ), status: formatStatus( book ) } );
 
 	return $item;
 }

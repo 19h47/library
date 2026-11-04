@@ -170,7 +170,7 @@ function page( view, id = 0 ) {
  * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
  * `person` the person open, `series` the series open, `publisher` the collection open, `book` the book open, `volumes` the books of its series,
  * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
- * `notice` what an action done says, such as a reading saved, once: a new object each time,
+ * `notice` what an action done says, such as a reading saved, with the `action` that undoes it if any, once: a new object each time,
  * `view` the view shown, none until the router shows the one of the URL, `query` the search of the books,
  * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
  */
@@ -495,20 +495,41 @@ class LibraryStore extends Store {
 
 	/**
 	 * Reads the book `id` being read today, as its reading form would with the date of the day added: no longer in
-	 * progress, read once more. Says so, or what went wrong, in a notice.
+	 * progress, read once more. Says so in a notice, whose action Undo puts its reading back as it was, or says what
+	 * went wrong.
 	 */
 	async finishReading( id ) {
 		const book = this.get().books[ id ];
 		// By their days, as the form gives them: the server keeps the time of a reading of the day.
-		const readDates = api.toReadings( [ ...book.read_date.map( ( date ) => date.slice( 0, 10 ) ), today() ] );
-		const meta = { library_read: true, library_in_progress: false, library_read_date: readDates };
+		const days = book.read_date.map( ( date ) => date.slice( 0, 10 ) );
+		// Unread before, the book loses its read dates on the server.
+		const before = { library_read: book.read, library_in_progress: true, library_read_date: api.toReadings( days ) };
+		const finished = { library_read: true, library_in_progress: false, library_read_date: api.toReadings( [ ...days, today() ] ) };
 
+		if ( ! ( await this.#saveMeta( id, finished ) ) ) {
+			return;
+		}
+
+		const undo = async () => {
+			if ( await this.#saveMeta( id, before ) ) {
+				this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading undone.', 'library' ) } } ) );
+			}
+		};
+
+		this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading saved.', 'library' ), action: { label: __( 'Undo', 'library' ), run: undo } } } ) );
+	}
+
+	/** Saves `meta` of the book `id`, then what was loaded again; says in a notice what went wrong. Whether it was saved. */
+	async #saveMeta( id, meta ) {
 		try {
 			this.#addBooks( [ await api.saveBook( id, { meta } ) ] );
-			this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading saved.', 'library' ) } } ) );
 			this.#reloadLoaded( id );
+
+			return true;
 		} catch ( error ) {
 			this.set( ( state ) => ( { ...state, notice: { text: api.errorMessage( error ) } } ) );
+
+			return false;
 		}
 	}
 
