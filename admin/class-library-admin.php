@@ -29,7 +29,7 @@ class Library_Admin {
 	}
 
 	/**
-	 * Enqueue the styles of the books, people and publishers lists, the books list scripts, and the script of the read
+	 * Enqueue the styles of the books list and of the terms lists, the books list scripts, and the script of the read
 	 * dates of a book.
 	 *
 	 * @since 1.0.0
@@ -37,7 +37,7 @@ class Library_Admin {
 	 */
 	public function enqueue_assets(): void {
 		$screen  = get_current_screen();
-		$screens = array( 'edit-library_book', 'edit-library_person', 'edit-library_publisher' );
+		$screens = array( 'edit-library_book', ...array_map( fn( string $taxonomy ) => "edit-{$taxonomy}", Library_Taxonomies::TAXONOMIES ) );
 
 		if ( $screen && 'library_book' === $screen->id ) {
 			[ $read_dates_url, $read_dates_version ] = Library::get_asset( 'admin/js/library-admin-read-dates.js' );
