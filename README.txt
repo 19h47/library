@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.18.0
+Stable tag: 9.19.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -23,6 +23,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * **People, series, publishers and languages** – The other names of a person, such as a pseudonym or their birth name, are children of the name they are known by, series children of their cycle, collections children of their publisher and sub-collections of their collection, as the BnF has them, such as Science-fiction under Folio under Gallimard: filtering by a person, a cycle, a publisher or a collection includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
 * **Readings** – A book is read or not, with a date per reading: a book read again keeps each one, and the readings whose date is unknown, left empty, come first, each a reading, such as a book read several times as a child. A reading added on its day keeps its time, which orders the readings of a day. A book being read, for the first time or again, is in progress until a read date ends it. A book read but not kept, borrowed or given away, gets the “Not kept” status: it leaves the library, its readings still count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
 * **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
+* **Terms lists** – The lists of people, publishers, series, languages and forms count the books not kept and the books to buy of each term in columns of their own, beside the count of the books in the library, and list the terms without books, in any status, in a view of their own: the books of the other names of a person, or of the collections of a publisher, count for them.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
 * **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, forms, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
@@ -96,6 +97,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.19.0 =
+* Changed: the lists of people, publishers, series, languages and forms count the books to buy of each term in a column of their own, beside the books not kept, and list the terms without books, in any status, in a view of their own, Without books.
 
 = 9.18.0 =
 * Changed: reading app: what floats over the content lets it show through, blurred: the controls, the button Finished over a cover among them, the footer, the bar of the views on a phone and the notice; a control fades its icon and its border at rest, never its background. Text keeps 4.5:1 and an icon at rest 3:1, whatever passes under it.
