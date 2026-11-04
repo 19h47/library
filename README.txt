@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.17.0
+Stable tag: 9.18.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.18.0 =
+* Changed: reading app: what floats over the content lets it show through, blurred: the controls, the button Finished over a cover among them, the footer, the bar of the views on a phone and the notice; a control fades its icon and its border at rest, never its background. Text keeps 4.5:1 and an icon at rest 3:1, whatever passes under it.
 
 = 9.17.0 =
 * Changed: reading app: the books being read show as their covers, in a row that scrolls, each with its button Finished over its corner; the notice of a reading saved offers Undo, which puts the reading back as it was, and stays while the pointer or the focus is on it.
