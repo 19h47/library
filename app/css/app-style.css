@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision a778521.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision f9ca8f9.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -29,6 +29,12 @@
   --app-line: light-dark(rgb(201, 196, 184), rgb(58, 56, 52));
   --app-line-soft: color-mix(in srgb, var(--app-line) 50%, transparent);
   --app-fill: color-mix(in srgb, var(--app-line) 8%, transparent);
+  /*
+   * What floats over the content, a control or a bar, lets it show through, blurred: 1 − 1/φ⁵ ≈ 91 % of the background
+   * keeps text at 4.5:1 and an icon at rest at 3:1 in both themes, whatever passes under it, black or white
+   */
+  --app-bg-floating: color-mix(in srgb, var(--app-bg) 91%, transparent);
+  --app-blur-floating: blur(var(--app-gap));
 
   --app-font-mono:
     "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New",
@@ -52,6 +58,7 @@
   --app-control-gap: calc(var(--app-u0) / var(--app-phi));
   /* 1/φ ≈ 0.618: icons at rest keep a 3:1 contrast in both themes */
   --app-control-opacity: calc(1 / var(--app-phi));
+  --app-control-rest: calc(var(--app-control-opacity) * 100%);
 
   --app-focus-outline: 2px solid var(--app-text);
   --app-focus-outline-offset: 2px;
@@ -392,7 +399,8 @@ button.app-pill:disabled {
   bottom: 0;
   padding-block: var(--app-u2);
   border-top: 1px solid var(--app-line-soft);
-  background: var(--app-bg);
+  background: var(--app-bg-floating);
+  backdrop-filter: var(--app-blur-floating);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -410,7 +418,10 @@ button.app-pill:disabled {
   font-variant-numeric: tabular-nums;
 }
 
-/* Toolbar: fixed controls, top-right corner; a control, a square button or link of an icon, faded at rest */
+/*
+ * Toolbar: fixed controls, top-right corner; a control, a square button or link of an icon, floating, its icon and
+ * its border faded at rest: by their color rather than by opacity, which would fade its background too
+ */
 
 .app-toolbar {
   position: fixed;
@@ -424,10 +435,11 @@ button.app-pill:disabled {
 .app-control {
   width: var(--app-control-size);
   height: var(--app-control-size);
-  border: 1px solid var(--app-line);
+  border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
   border-radius: var(--app-radius);
-  background: var(--app-bg);
-  color: var(--app-text);
+  background: var(--app-bg-floating);
+  backdrop-filter: var(--app-blur-floating);
+  color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
   cursor: pointer;
   /* Buttons don't inherit the page font, links do: set it for both */
   font-family: var(--app-font-ui);
@@ -437,13 +449,15 @@ button.app-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: var(--app-control-opacity);
-  transition: opacity var(--app-transition-1);
+  transition:
+    color var(--app-transition-1),
+    border-color var(--app-transition-1);
 }
 
 .app-control:hover,
 .app-control:focus-visible {
-  opacity: 1;
+  border-color: var(--app-line);
+  color: var(--app-text);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -467,3 +481,4 @@ button.app-pill:disabled {
     display: none;
   }
 }
+
