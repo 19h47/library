@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-03T19:21:15+00:00\n"
+"POT-Creation-Date: 2026-11-04T07:11:32+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -465,8 +465,8 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: title, 2: subtitle.
 #. translators: 1: series, 2: title.
 #: admin/partials/library-dashboard-chart.php:40
-#: includes/class-library-books.php:218 includes/class-library-books.php:223
-#: includes/class-library-books.php:241
+#: includes/class-library-books.php:221 includes/class-library-books.php:226
+#: includes/class-library-books.php:244
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -1273,32 +1273,32 @@ msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
 #. translators: %s: volume number.
-#: includes/class-library-books.php:228
+#: includes/class-library-books.php:231
 #, php-format
 msgid "vol. %s"
 msgstr "t. %s"
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-library-books.php:228 includes/class-library-books.php:319
+#: includes/class-library-books.php:231 includes/class-library-books.php:322
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
 
 #. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
-#: includes/class-library-books.php:232
+#: includes/class-library-books.php:235
 #, php-format
 msgid "%1$s, %2$s"
 msgstr "%1$s, %2$s"
 
 #. translators: %s: names of the publishing directors of a collective work.
-#: includes/class-library-books.php:285
+#: includes/class-library-books.php:288
 #, php-format
 msgid "%s (dir.)"
 msgstr "%s (dir.)"
 
 #. translators: %s: number of books.
-#: includes/class-library-books.php:345 app/js/lib/format.js:29
+#: includes/class-library-books.php:348 app/js/lib/format.js:29
 #, php-format
 msgid "%s book"
 msgid_plural "%s books"
