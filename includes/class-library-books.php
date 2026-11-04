@@ -51,7 +51,7 @@ class Library_Books {
 	 *
 	 * Kept until a book changes, as they take every book: see Library_Cache.
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,series_ids:int[],volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],publisher_ids:int[],collection_number:string,languages:array<string,string>,language_ids:int[],forms:string[]}>
+	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,series_ids:int[],volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],publisher_ids:int[],collection_number:string,languages:array<string,string>,language_ids:int[],forms:string[],form_ids:int[]}>
 	 */
 	public static function get_books(): array {
 		self::$books ??= Library_Cache::remember( 'books', fn() => self::compute_books() );
@@ -120,6 +120,7 @@ class Library_Books {
 				'languages'         => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
 				'language_ids'      => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'term_id' ),
 				'forms'             => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
+				'form_ids'          => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'term_id' ),
 			);
 		}
 
