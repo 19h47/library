@@ -1,6 +1,6 @@
 <?php
 /**
- * Terms lists of the admin: the books not kept of a term, and the messages of a term saved.
+ * Terms lists of the admin: the books not kept and to buy of a term, the terms without books, and the messages of a term saved.
  *
  * @link       https://github.com/19h47/library
  * @since      6.1.1
@@ -10,7 +10,8 @@
  */
 
 /**
- * Adds a "Not kept" column to the lists of people, publishers, original languages and forms, and names their messages.
+ * Adds "Not kept" and "To buy" columns and a "Without books" view to the lists of people, publishers, series, original
+ * languages and forms, and names their messages.
  *
  * @since      6.1.1
  * @package    Library
@@ -20,11 +21,28 @@
 class Library_Terms_List {
 
 	/**
-	 * Books not kept by term ID, with the other names of a person counted for their name.
+	 * The query var of the view of the terms without books.
 	 *
-	 * @var array<int,int>|null
+	 * @var string
 	 */
-	private ?array $not_kept_counts = null;
+	public const string WITHOUT_BOOKS = 'library_without_books';
+
+	/**
+	 * Statuses counted in a column of their own, by column: the count of core only counts the books in the library.
+	 *
+	 * @var array<string,string>
+	 */
+	private const array STATUS_COLUMNS = array(
+		'library_not_kept' => Library_Posts::NOT_KEPT,
+		'library_to_buy'   => Library_Posts::TO_BUY,
+	);
+
+	/**
+	 * Books of each status by term ID, by taxonomy; a term without books has none.
+	 *
+	 * @var array<string,array<int,array<string,int>>>
+	 */
+	private array $counts = array();
 
 	/**
 	 * Register hooks.
@@ -34,9 +52,12 @@ class Library_Terms_List {
 	public function hooks(): void {
 		add_filter( 'term_updated_messages', array( $this, 'add_term_messages' ) );
 
+		add_action( 'load-edit-tags.php', array( $this, 'show_without_books' ) );
+
 		foreach ( Library_Taxonomies::TAXONOMIES as $taxonomy ) {
-			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_not_kept_column' ) );
-			add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'render_not_kept_column' ), 10, 3 );
+			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_status_columns' ) );
+			add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'render_status_column' ), 10, 3 );
+			add_filter( "views_edit-{$taxonomy}", array( $this, 'add_views' ) );
 		}
 	}
 
@@ -104,41 +125,45 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Add a "Not kept" column after the count, which only counts the published books.
+	 * Add a column per status after the count, which only counts the books in the library, named after the status.
 	 *
 	 * @param string[] $columns Columns.
 	 * @return string[]
 	 */
-	public function add_not_kept_column( array $columns ): array {
-		$columns['library_not_kept'] = _x( 'Not kept', 'book status', 'library' );
+	public function add_status_columns( array $columns ): array {
+		foreach ( self::STATUS_COLUMNS as $column => $status ) {
+			$columns[ $column ] = get_post_status_object( $status )->label;
+		}
 
 		return $columns;
 	}
 
 	/**
-	 * Number of books not kept of a term, linked to their view.
+	 * Number of books of a term in the status of the column, linked to their view.
 	 *
 	 * @param string $content     Column content.
 	 * @param string $column_name Column name.
 	 * @param int    $term_id     Term ID.
 	 * @return string
 	 */
-	public function render_not_kept_column( string $content, string $column_name, int $term_id ): string {
-		if ( 'library_not_kept' !== $column_name ) {
+	public function render_status_column( string $content, string $column_name, int $term_id ): string {
+		$status = self::STATUS_COLUMNS[ $column_name ] ?? null;
+		$term   = get_term( $term_id );
+
+		if ( ! $status || ! $term instanceof WP_Term ) {
 			return $content;
 		}
 
-		$books = $this->get_not_kept_counts()[ $term_id ] ?? 0;
-		$term  = get_term( $term_id );
+		$books = $this->get_counts( $term->taxonomy )[ $term_id ][ $status ] ?? 0;
 
-		if ( ! $books || ! $term instanceof WP_Term ) {
+		if ( ! $books ) {
 			return number_format_i18n( $books );
 		}
 
 		$url = add_query_arg(
 			array(
 				'post_type'     => 'library_book',
-				'post_status'   => Library_Posts::NOT_KEPT,
+				'post_status'   => $status,
 				$term->taxonomy => $term->slug,
 			),
 			admin_url( 'edit.php' )
@@ -148,37 +173,132 @@ class Library_Terms_List {
 	}
 
 	/**
-	 * Count the books not kept of every term in one query; a term also counts the books of the terms under it: the name of
-	 * a person those of their other names, a publisher those of its collections and their sub-collections.
+	 * Views of the list: all the terms, and those without books, in any status, theirs or of the terms under them. The
+	 * terms without books are in alphabetical order, in a flat list: a term of a tree may be without books under a term
+	 * with some.
 	 *
-	 * @return array<int,int>
+	 * @param string[] $views Views, empty in a terms list.
+	 * @return string[]
 	 */
-	private function get_not_kept_counts(): array {
-		if ( null !== $this->not_kept_counts ) {
-			return $this->not_kept_counts;
+	public function add_views( array $views ): array {
+		$taxonomy      = get_current_screen()->taxonomy;
+		$url           = add_query_arg(
+			array(
+				'taxonomy'  => $taxonomy,
+				'post_type' => 'library_book',
+			),
+			admin_url( 'edit-tags.php' )
+		);
+		$without_url   = add_query_arg(
+			array(
+				self::WITHOUT_BOOKS => 1,
+				'orderby'           => 'name',
+				'order'             => 'asc',
+			),
+			$url
+		);
+		$terms         = (int) wp_count_terms( array( 'taxonomy' => $taxonomy ) );
+		$without_books = $terms - count( $this->get_counts( $taxonomy ) );
+		/* translators: %s: number of terms. */
+		$without_label = _n_noop( 'Without books <span class="count">(%s)</span>', 'Without books <span class="count">(%s)</span>', 'library' );
+		$all_label     = sprintf( '%s <span class="count">(%s)</span>', esc_html( get_taxonomy( $taxonomy )->labels->all_items ), number_format_i18n( $terms ) );
+
+		$views['all']                 = $this->get_view_link( $url, $all_label, ! self::is_without_books() );
+		$views[ self::WITHOUT_BOOKS ] = $this->get_view_link( $without_url, sprintf( translate_nooped_plural( $without_label, $without_books, 'library' ), number_format_i18n( $without_books ) ), self::is_without_books() );
+
+		return $views;
+	}
+
+	/**
+	 * In the view of the terms without books, leave out of the list the terms with some.
+	 *
+	 * @return void
+	 */
+	public function show_without_books(): void {
+		if ( ! in_array( get_current_screen()->taxonomy, Library_Taxonomies::TAXONOMIES, true ) || ! self::is_without_books() ) {
+			return;
+		}
+
+		add_filter( 'get_terms_args', array( $this, 'exclude_terms_with_books' ), 10, 2 );
+
+		// The list queries its terms and counts them before the header of the page; the form beside it then offers them all as parents.
+		add_action( 'admin_enqueue_scripts', fn() => remove_filter( 'get_terms_args', array( $this, 'exclude_terms_with_books' ) ) );
+	}
+
+	/**
+	 * Leave the terms with books out of a query of the terms of one taxonomy.
+	 *
+	 * @param array    $args       Arguments of the query.
+	 * @param string[] $taxonomies Taxonomies of the query.
+	 * @return array
+	 */
+	public function exclude_terms_with_books( array $args, array $taxonomies ): array {
+		if ( 1 !== count( $taxonomies ) || ! in_array( $taxonomies[0], Library_Taxonomies::TAXONOMIES, true ) ) {
+			return $args;
+		}
+
+		$args['exclude'] = array( ...wp_parse_id_list( $args['exclude'] ), ...array_keys( $this->get_counts( $taxonomies[0] ) ) );
+
+		return $args;
+	}
+
+	/**
+	 * Whether the list shows the terms without books.
+	 *
+	 * @return bool
+	 */
+	private static function is_without_books(): bool {
+		return ! empty( $_GET[ self::WITHOUT_BOOKS ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- A view, which changes nothing.
+	}
+
+	/**
+	 * Link of a view of the list, current or not.
+	 *
+	 * @param string $url     URL of the view.
+	 * @param string $label   Label of the view, HTML.
+	 * @param bool   $current Whether the list shows it.
+	 * @return string
+	 */
+	private function get_view_link( string $url, string $label, bool $current ): string {
+		$attributes = $current ? ' class="current" aria-current="page"' : '';
+
+		return sprintf( '<a href="%s"%s>%s</a>', esc_url( $url ), $attributes, $label );
+	}
+
+	/**
+	 * Count the books of every term of a taxonomy by status in one query, those in the trash left out; a term also counts
+	 * the books of the terms under it: the name of a person those of their other names, a publisher those of its
+	 * collections and their sub-collections.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 * @return array<int,array<string,int>>
+	 */
+	private function get_counts( string $taxonomy ): array {
+		if ( isset( $this->counts[ $taxonomy ] ) ) {
+			return $this->counts[ $taxonomy ];
 		}
 
 		global $wpdb;
 
 		$rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
 			$wpdb->prepare(
-				"SELECT DISTINCT tt.term_id, tt.taxonomy, p.ID AS book_id
+				"SELECT DISTINCT tt.term_id, p.ID AS book_id, p.post_status
 				FROM {$wpdb->term_relationships} AS tr
-				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
-				INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status = %s",
-				Library_Posts::NOT_KEPT
+				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )",
+				$taxonomy
 			)
 		);
 		$books = array();
 
 		foreach ( $rows as $row ) {
-			foreach ( array( (int) $row->term_id, ...get_ancestors( (int) $row->term_id, $row->taxonomy, 'taxonomy' ) ) as $term_id ) {
-				$books[ $term_id ][ $row->book_id ] = true;
+			foreach ( array( (int) $row->term_id, ...get_ancestors( (int) $row->term_id, $taxonomy, 'taxonomy' ) ) as $term_id ) {
+				$books[ $term_id ][ $row->post_status ][ $row->book_id ] = true;
 			}
 		}
 
-		$this->not_kept_counts = array_map( 'count', $books );
+		$this->counts[ $taxonomy ] = array_map( fn( array $statuses ) => array_map( 'count', $statuses ), $books );
 
-		return $this->not_kept_counts;
+		return $this->counts[ $taxonomy ];
 	}
 }

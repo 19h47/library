@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-04T11:14:54+00:00\n"
+"POT-Creation-Date: 2026-11-04T13:36:32+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -314,127 +314,129 @@ msgstr ""
 msgid "Reading idea of the week"
 msgstr "Idée de lecture de la semaine"
 
-#: admin/class-library-terms-list.php:55
+#: admin/class-library-terms-list.php:76
 msgid "Person added."
 msgstr "Personne ajoutée."
 
-#: admin/class-library-terms-list.php:56
+#: admin/class-library-terms-list.php:77
 msgid "Person deleted."
 msgstr "Personne supprimée."
 
-#: admin/class-library-terms-list.php:57
+#: admin/class-library-terms-list.php:78
 msgid "Person updated."
 msgstr "Personne mise à jour."
 
-#: admin/class-library-terms-list.php:58
+#: admin/class-library-terms-list.php:79
 msgid "Person not added."
 msgstr "Personne non ajoutée."
 
-#: admin/class-library-terms-list.php:59
+#: admin/class-library-terms-list.php:80
 msgid "Person not updated."
 msgstr "Personne non mise à jour."
 
-#: admin/class-library-terms-list.php:60
+#: admin/class-library-terms-list.php:81
 msgid "People deleted."
 msgstr "Personnes supprimées."
 
-#: admin/class-library-terms-list.php:65
+#: admin/class-library-terms-list.php:86
 msgid "Publisher added."
 msgstr "Éditeur ajouté."
 
-#: admin/class-library-terms-list.php:66
+#: admin/class-library-terms-list.php:87
 msgid "Publisher deleted."
 msgstr "Éditeur supprimé."
 
-#: admin/class-library-terms-list.php:67
+#: admin/class-library-terms-list.php:88
 msgid "Publisher updated."
 msgstr "Éditeur mis à jour."
 
-#: admin/class-library-terms-list.php:68
+#: admin/class-library-terms-list.php:89
 msgid "Publisher not added."
 msgstr "Éditeur non ajouté."
 
-#: admin/class-library-terms-list.php:69
+#: admin/class-library-terms-list.php:90
 msgid "Publisher not updated."
 msgstr "Éditeur non mis à jour."
 
-#: admin/class-library-terms-list.php:70
+#: admin/class-library-terms-list.php:91
 msgid "Publishers deleted."
 msgstr "Éditeurs supprimés."
 
-#: admin/class-library-terms-list.php:75
+#: admin/class-library-terms-list.php:96
 msgid "Series added."
 msgstr "Série ajoutée."
 
-#: admin/class-library-terms-list.php:76 admin/class-library-terms-list.php:80
+#: admin/class-library-terms-list.php:97 admin/class-library-terms-list.php:101
 msgid "Series deleted."
 msgstr "Série supprimée."
 
-#: admin/class-library-terms-list.php:77
+#: admin/class-library-terms-list.php:98
 msgid "Series updated."
 msgstr "Série mise à jour."
 
-#: admin/class-library-terms-list.php:78
+#: admin/class-library-terms-list.php:99
 msgid "Series not added."
 msgstr "Série non ajoutée."
 
-#: admin/class-library-terms-list.php:79
+#: admin/class-library-terms-list.php:100
 msgid "Series not updated."
 msgstr "Série non mise à jour."
 
-#: admin/class-library-terms-list.php:85
+#: admin/class-library-terms-list.php:106
 msgid "Language added."
 msgstr "Langue ajoutée."
 
-#: admin/class-library-terms-list.php:86
+#: admin/class-library-terms-list.php:107
 msgid "Language deleted."
 msgstr "Langue supprimée."
 
-#: admin/class-library-terms-list.php:87
+#: admin/class-library-terms-list.php:108
 msgid "Language updated."
 msgstr "Langue mise à jour."
 
-#: admin/class-library-terms-list.php:88
+#: admin/class-library-terms-list.php:109
 msgid "Language not added."
 msgstr "Langue non ajoutée."
 
-#: admin/class-library-terms-list.php:89
+#: admin/class-library-terms-list.php:110
 msgid "Language not updated."
 msgstr "Langue non mise à jour."
 
-#: admin/class-library-terms-list.php:90
+#: admin/class-library-terms-list.php:111
 msgid "Languages deleted."
 msgstr "Langues supprimées."
 
-#: admin/class-library-terms-list.php:95
+#: admin/class-library-terms-list.php:116
 msgid "Form added."
 msgstr "Forme ajoutée."
 
-#: admin/class-library-terms-list.php:96
+#: admin/class-library-terms-list.php:117
 msgid "Form deleted."
 msgstr "Forme supprimée."
 
-#: admin/class-library-terms-list.php:97
+#: admin/class-library-terms-list.php:118
 msgid "Form updated."
 msgstr "Forme mise à jour."
 
-#: admin/class-library-terms-list.php:98
+#: admin/class-library-terms-list.php:119
 msgid "Form not added."
 msgstr "Forme non ajoutée."
 
-#: admin/class-library-terms-list.php:99
+#: admin/class-library-terms-list.php:120
 msgid "Form not updated."
 msgstr "Forme non mise à jour."
 
-#: admin/class-library-terms-list.php:100
+#: admin/class-library-terms-list.php:121
 msgid "Forms deleted."
 msgstr "Formes supprimées."
 
-#: admin/class-library-terms-list.php:113 includes/class-library-posts.php:83
-#: includes/class-library-posts.php:109 app/js/lib/format.js:90
-msgctxt "book status"
-msgid "Not kept"
-msgstr "De passage"
+#. translators: %s: number of terms.
+#: admin/class-library-terms-list.php:203
+#, php-format
+msgid "Without books <span class=\"count\">(%s)</span>"
+msgid_plural "Without books <span class=\"count\">(%s)</span>"
+msgstr[0] "Sans livre <span class=\"count\">(%s)</span>"
+msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 
 #. translators: 1: number done, 2: total, e.g. "13 of 14".
 #. translators: 1: position of the idea, 2: number of ideas.
@@ -1491,6 +1493,12 @@ msgid ""
 msgstr ""
 "Le dernier chiffre de l’ISBN %s, sa clé de contrôle, ne correspond pas aux "
 "autres : vérifiez-les."
+
+#: includes/class-library-posts.php:83 includes/class-library-posts.php:109
+#: app/js/lib/format.js:90
+msgctxt "book status"
+msgid "Not kept"
+msgstr "De passage"
 
 #. translators: %s: number of books.
 #: includes/class-library-posts.php:85
