@@ -99,9 +99,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-notice</code>, what an action done says, such as a reading saved, at the bottom of the screen in the app</figcaption>
+				<figcaption><code>.library-notice</code>, what an action done says, such as a reading saved, with its action Undo, at the bottom of the screen in the app</figcaption>
 				<div class="library-styleguide__frame">
-					<p class="library-notice app-pill">Reading saved.</p>
+					<p class="library-notice app-pill"><span>Reading saved.</span> <button class="library-link" type="button">Undo</button></p>
 				</div>
 			</figure>
 			<figure>
@@ -152,7 +152,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption><code>.library-book__*</code>, the book open: its cover, its meta line, its title, its excerpt, its notes, its translation, its fields, its actions</figcaption>
-				<div class="library-styleguide__frame library-styleguide__stack">
+				<div class="library-styleguide__frame">
 					<img class="library-book__cover" alt="" hidden>
 					<p class="app-meta library-book__meta">An Author · A Publisher, A Collection · 2024</p>
 					<h4 class="library-book__title">The title of a book</h4>
@@ -218,13 +218,25 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-control</code>, the controls of a toolbar: add, home, the theme in light then in dark, close</figcaption>
+				<figcaption><code>.app-control</code>, the controls of the toolbar and of a row: add, finished, the theme in light then in dark, close</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="app-control" type="button" aria-label="Add">+</button>
-					<a class="app-control" href="#top" aria-label="Home">⌂&#xFE0E;</a>
+					<button class="app-control" type="button" aria-label="Finished">✓&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false">☽&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="true">☀&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Close">×</button>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-nav</code>, the views, a row of pills that scrolls sideways: under the title, or on a phone in a bar at the bottom of the screen</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="library-nav">
+						<li><a class="app-pill" href="#top" aria-current="page">Books</a></li>
+						<li><a class="app-pill" href="#top">Diary</a></li>
+						<li><a class="app-pill" href="#top">Idea</a></li>
+						<li><a class="app-pill" href="#top">Achievements</a></li>
+						<li><a class="app-pill" href="#top">To buy</a></li>
+					</ul>
 				</div>
 			</figure>
 			<figure>
@@ -244,7 +256,7 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-controls</code>: the search on its own line, its keywords under it while it is used, then the button of the filters, the order and the filters chosen, which remove them</figcaption>
+				<figcaption><code>.app-controls</code>: the search on its own line, its keywords under it while it is used; under the title of the books, the button of the filters, the order and the filters chosen, which remove them</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
 						<div class="app-search">
@@ -257,6 +269,12 @@ $sizes = array(
 								<button class="app-pill" type="button">Rated 9 or more</button>
 							</p>
 						</div>
+					</div>
+					<h4 class="library-title library-books__title">
+						Books
+						<span class="app-meta">15 books</span>
+					</h4>
+					<div class="app-controls library-books__controls">
 						<button class="app-pill" type="button">Filters · 2</button>
 						<?php
 						Library::render_component(
@@ -357,11 +375,35 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished over its cover</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="library-styleguide__row" data-sample="current"></ul>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-row</code>, a book as the reading idea on the home shows it: with a cover, not kept without, with a long title</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="app-list__items" data-sample="rows"></ul>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-section__more</code>: past four cards, the others folded under a pill, as the authors of a series and the series of a person</figcaption>
+				<div class="library-styleguide__frame">
+					<section class="library-section" data-folded="authors">
+						<ul class="app-list__items" data-list="shown"></ul>
+						<details class="library-section__more" data-row="more" hidden>
+							<summary class="app-pill" data-field="more"></summary>
+							<ul class="app-list__items" data-list="more"></ul>
+						</details>
+					</section>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>#library-month</code>, a month of the diary</figcaption>
 				<div class="library-styleguide__frame" data-sample="month"></div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-cover</code>: with a cover, without, with a long title, as the books being read and the latest readings show them</figcaption>
+				<figcaption><code>.library-cover</code>: with a cover, without, with a long title, as the latest readings show them</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="covers"></ul>
 				</div>
@@ -398,7 +440,7 @@ with its line breaks.</p>
 		<div class="library-styleguide__samples">
 			<figure>
 				<figcaption><code>field</code>: a text with a description, a select, a textarea, disabled</figcaption>
-				<div class="library-styleguide__frame library-styleguide__stack">
+				<div class="library-styleguide__frame">
 					<?php
 					Library::render_component(
 						'field',
@@ -438,7 +480,7 @@ with its line breaks.</p>
 			</figure>
 			<figure>
 				<figcaption><code>field</code>: required, in error with <code>.library-error</code>; pointed at and focused, live</figcaption>
-				<div class="library-styleguide__frame library-styleguide__stack">
+				<div class="library-styleguide__frame">
 					<?php
 					Library::render_component(
 						'field',

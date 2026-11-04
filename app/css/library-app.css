@@ -124,8 +124,14 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
-:is(library-view, library-idea, library-diary, library-achievements, library-person, library-series, library-publisher) > .app-status {
+:is(library-view, library-diary, library-achievements, library-person, library-series, library-publisher) > .app-status {
 	margin-bottom: var(--app-gap);
+}
+
+/* A section, its title then what it holds, a step apart; the sections, one after the other, a step and a half apart */
+.library-section {
+	display: grid;
+	gap: var(--app-u1);
 }
 
 .library-section + .library-section {
@@ -140,8 +146,8 @@ library-home:not([hidden]) + .library-books__title {
 	font-size: var(--app-u1);
 }
 
-/* A title heads what follows it: the view, the section or the brick that holds them spaces them */
-:is(library-view, library-home, library-idea, library-volumes, library-styleguide, .library-section) > .library-title {
+/* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
+:is(library-view, library-home, library-volumes, library-styleguide) > .library-title {
 	margin-bottom: var(--app-u1);
 }
 
@@ -161,6 +167,7 @@ library-home:not([hidden]) + .library-books__title {
 
 /* A cover, wherever it shows, or the frame that stands for it: a soft line and small corners */
 .library-item__cover,
+.library-row__cover,
 .library-book__cover,
 .library-image-field__preview,
 .library-cover__image,
@@ -286,19 +293,107 @@ library-home:not([hidden]) + .library-books__title {
 	color: var(--library-status);
 }
 
-/* An action on a card, such as a book being read finished: over the button of the title, which covers the card */
-.library-item__action {
+/* The row of a book, the idea of the week on the home: its cover, when it has one, its title and authors; the button of the title covers the row to open the book */
+.library-row {
 	position: relative;
-	justify-self: start;
-	margin-top: var(--app-gap-small);
+	display: flex;
+	align-items: center;
+	gap: var(--app-u1);
 }
 
-.library-idea__reason {
-	margin-bottom: var(--app-u1);
+.library-row:hover {
+	border-color: var(--app-line);
 }
 
-.library-idea__actions {
-	margin-top: var(--app-u1);
+.library-row:has(.library-item__button:focus-visible) {
+	outline: var(--app-focus-outline);
+	outline-offset: var(--app-focus-outline-offset);
+}
+
+.library-row__cover {
+	flex: none;
+	width: var(--library-cover-width);
+	height: auto;
+}
+
+.library-row__body {
+	flex: 1;
+	display: grid;
+	gap: var(--app-gap-small);
+	min-width: 0;
+}
+
+.library-row__title {
+	font-size: inherit;
+	font-weight: normal;
+}
+
+/*
+ * Two lines of the title, in the button that holds it: a longer one ends in an ellipsis. Unprefixed line-clamp is in
+ * no stable browser yet: the prefixed one needs its box.
+ */
+.library-row__name {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
+/*
+ * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
+ * wide as the cover, and its button Finished over the corner of the cover, opaque whatever the cover, beside the button
+ * that opens the book rather than in it.
+ */
+.library-current {
+	--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
+
+	position: relative;
+	display: grid;
+	justify-items: start;
+	align-content: start;
+	gap: var(--app-gap);
+	width: min-content;
+
+	& .library-cover__button {
+		display: grid;
+		justify-items: start;
+		gap: var(--app-gap-small);
+		text-align: start;
+	}
+
+	& .library-cover__image {
+		height: var(--library-current-height);
+	}
+
+	& .library-cover__frame {
+		width: calc(var(--library-current-height) / var(--app-phi));
+		height: var(--library-current-height);
+	}
+
+	& [data-action="finish"] {
+		position: absolute;
+		inset-block-start: calc(var(--library-current-height) - var(--app-control-size) - var(--app-gap));
+		inset-inline-end: var(--app-gap);
+		opacity: 1;
+	}
+}
+
+/* Two lines of the title, small: a longer one ends in an ellipsis. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
+.library-current__title {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	font-size: var(--app-font-small);
+	overflow-wrap: anywhere;
+	hyphens: auto;
+}
+
+/* The reading idea: its title, its reason, its book and the action for another one, a step apart */
+library-idea {
+	display: grid;
+	gap: var(--app-u1);
 }
 
 .library-year {
@@ -429,8 +524,8 @@ library-view > .library-back {
 	gap: var(--app-gap-small);
 }
 
-/* The page of a person, of a series or of a collection spaces its names and its reading from what follows */
-:is(library-person, library-series, library-publisher) > .library-person {
+/* The page of a person, of a series or of a collection spaces its names and its reading, then its completion, from what follows */
+:is(library-person, library-series, library-publisher) > :is(.library-person, .library-person__completion) {
 	margin-bottom: var(--app-u2);
 }
 
@@ -438,12 +533,9 @@ library-view > .library-back {
 	color: var(--app-text-muted);
 }
 
-.library-person__description {
+/* The names spaces the description from the lines around it */
+.library-person > .library-person__description {
 	margin-block: var(--app-gap);
-}
-
-.library-person__completion {
-	margin-bottom: var(--app-u2);
 }
 
 /*
@@ -612,9 +704,10 @@ library-view > .library-back {
 	margin-top: var(--app-u1);
 }
 
-/* The views, the search and the latest readings: containers, whose width is the one of the content */
+/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
 library-nav,
 .app-search,
+library-in-progress,
 library-latest {
 	container-type: inline-size;
 }
@@ -647,9 +740,41 @@ library-latest {
 
 .library-nav li,
 .library-search__keywords > *,
-.library-cover {
+.library-cover,
+.library-current {
 	flex: none;
 	scroll-snap-align: start;
+}
+
+/*
+ * On a phone, the views in a bar at the bottom of the screen, at hand, as the tabs of an app: their row of pills, as at
+ * the top beyond, which scrolls sideways from the padding of the page; the page and what shows over it, such as a notice,
+ * above the bar. The footer then ends the page rather than staying at its bottom, under the bar.
+ */
+@media (width < 42rem) {
+	:root {
+		/* A pill, its text, its padding and its lines, a gap above and under it, and the line of the bar */
+		--library-tab-bar-height: calc(var(--app-font-small) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2 * var(--app-gap) + 3px);
+		--library-notice-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom) + var(--app-u1));
+	}
+
+	library-nav {
+		position: fixed;
+		inset-inline: 0;
+		inset-block-end: 0;
+		z-index: 1;
+		padding: var(--app-gap) var(--app-u2) calc(var(--app-gap) + env(safe-area-inset-bottom));
+		border-top: 1px solid var(--app-line-soft);
+		background: var(--app-bg);
+	}
+
+	.app-page {
+		padding-block-end: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
+	}
+
+	.app-footer {
+		position: static;
+	}
 }
 
 /* The sections of a page before its books: the series of a cycle, the collections of a publisher, the authors, the series of a person */
@@ -665,11 +790,7 @@ library-latest {
 	gap: var(--app-gap);
 }
 
-/* The cards of a section past the first ones, folded under a pill, a gap under it as under the first ones */
-.library-section__more {
-	margin-top: var(--app-gap);
-}
-
+/* The cards of a section past the first ones, folded under a pill, which the section spaces as its other parts */
 .library-section__more > summary {
 	cursor: pointer;
 }
@@ -683,9 +804,10 @@ library-latest {
 	margin-top: var(--app-gap);
 }
 
-/* The keywords of the search, a gap under its field */
-.library-search__keywords {
-	margin-top: calc(var(--app-gap) - var(--library-focus-room));
+/* The field of the search, then its keywords a gap under it: the room of their focus, out of their row, comes off it */
+.app-search {
+	display: grid;
+	gap: var(--app-gap);
 }
 
 /* A cover holds its reading state, out of sight: it stays in the row of covers, which scrolls, rather than widening the page */
@@ -730,21 +852,55 @@ library-volumes {
 /* What an action done says, at the bottom of the screen, over the page; empty, it has no box */
 .library-notice {
 	position: fixed;
-	inset-block-end: var(--app-u2);
+	/* Above the bar of the views, on a phone */
+	inset-block-end: var(--library-notice-bottom, var(--app-u2));
 	inset-inline-start: 50%;
 	translate: -50%;
+	display: flex;
+	align-items: baseline;
+	gap: var(--app-gap);
+	/* A long one on several lines, within the screen, its corners as round as the ends of a pill of one line; its action whole */
+	width: max-content;
+	max-width: calc(100vw - 2 * var(--app-u2));
+	border-radius: calc(var(--app-line-height) * 1em / 2 + var(--app-pill-padding-block));
+	white-space: normal;
 	background: var(--app-bg);
 	color: var(--app-text);
 
-	&:empty {
+	& .library-link {
+		white-space: nowrap;
+	}
+
+	&:has([data-field="text"]:empty) {
 		padding: 0;
 		border: 0;
 	}
 }
 
-/* The styleguide: the tokens, then the components, each in a frame */
-.library-styleguide__intro {
+/* A button in words, as the links of the page: the action of a notice, such as Undo, or another reading idea on the home */
+.library-link {
+	padding: 0;
+	border: 0;
+	background: none;
+	text-decoration: underline;
+	text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+	text-underline-offset: 0.2em;
+	cursor: pointer;
+}
+
+/* Its text as the one around it, unless its own class sets it, as .app-meta does */
+:where(.library-link) {
+	color: inherit;
+	font: inherit;
+	text-transform: inherit;
+}
+
+/* The styleguide: its introduction, then the tokens and the components, each in a frame */
+library-styleguide > .library-styleguide__intro {
 	margin-bottom: var(--app-u2);
+}
+
+.library-styleguide__intro {
 	color: var(--app-text-muted);
 }
 
@@ -763,8 +919,10 @@ library-volumes {
 	font-size: var(--app-font-small);
 }
 
-.library-styleguide__samples figcaption {
-	margin-bottom: var(--app-gap);
+/* A sample: its caption, then its frame, a gap under it */
+.library-styleguide__samples > figure {
+	display: grid;
+	gap: var(--app-gap);
 }
 
 .library-styleguide__samples code {
@@ -773,7 +931,10 @@ library-volumes {
 }
 
 /* A frame around a component, to see its box */
+/* A frame spaces the components it holds, one under the other, rather than their margins */
 .library-styleguide__frame {
+	display: grid;
+	gap: var(--app-u1);
 	padding: var(--app-u1);
 	border: 1px dashed var(--app-line);
 	border-radius: var(--app-radius);
@@ -794,11 +955,6 @@ library-volumes {
 	flex-wrap: wrap;
 	align-items: start;
 	gap: var(--app-gap);
-}
-
-.library-styleguide__stack {
-	display: grid;
-	gap: var(--app-u1);
 }
 
 .library-styleguide__tokens {

@@ -110,8 +110,11 @@
 
 					<library-home>
 						<library-in-progress class="library-section" hidden>
-							<h3 class="library-title"><?php echo esc_html( Library_Meta::get_label( 'library_in_progress' ) ); ?></h3>
-							<ul class="app-list__items"></ul>
+							<h3 class="library-title">
+								<?php echo esc_html( Library_Meta::get_label( 'library_in_progress' ) ); ?>
+								<span class="app-meta" data-field="count"></span>
+							</h3>
+							<ul class="library-covers"></ul>
 						</library-in-progress>
 						<library-year class="library-year library-section">
 							<p data-field="yearToDate"></p>
@@ -123,14 +126,15 @@
 							</h3>
 							<ul class="library-covers"></ul>
 						</library-latest>
-						<library-idea class="library-section" hidden>
-							<h3 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
+						<?php // As a row, its next idea at the end of its title, as the view of the idea has it in full. ?>
+						<library-idea class="library-section" compact hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'Reading idea of the week', 'library' ); ?>
+								<button class="app-meta library-link library-push-end" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+							</h3>
 							<p class="app-status" data-field="status" hidden></p>
 							<p class="library-idea__reason" data-field="reason"></p>
 							<ul class="app-list__items" data-field="book"></ul>
-							<p class="library-idea__actions">
-								<button class="app-pill" type="button"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
-							</p>
 						</library-idea>
 						<library-close class="library-section" hidden>
 							<h3 class="library-title">
@@ -253,7 +257,7 @@
 						<p class="library-idea__reason" data-field="reason"></p>
 						<ul class="app-list__items" data-field="book"></ul>
 						<p class="library-idea__actions">
-							<button class="app-pill" type="button"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+							<button class="app-pill" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
 						</p>
 					</library-idea>
 				</library-view>
@@ -539,7 +543,10 @@
 			</library-theme-toggle>
 		</div>
 
-		<library-notice class="library-notice app-pill" role="status"></library-notice>
+		<library-notice class="library-notice app-pill" tabindex="-1">
+			<span role="status" data-field="text"></span>
+			<button class="library-link" type="button" hidden></button>
+		</library-notice>
 
 		<library-edit>
 			<dialog class="library-dialog library-edit" aria-labelledby="library-edit-heading">
@@ -746,6 +753,43 @@
 						<span class="library-item__tag library-item__status" data-field="status" hidden></span>
 					</p>
 				</div>
+			</li>
+		</template>
+
+		<template id="library-row">
+			<li class="app-item library-row">
+				<img class="library-row__cover" data-field="cover" alt="" loading="lazy" hidden>
+				<div class="library-row__body">
+					<h4 class="library-row__title">
+						<button class="library-item__button" type="button">
+							<span class="library-row__name" data-field="title"></span>
+						</button>
+					</h4>
+					<p class="app-item__meta">
+						<span data-field="authors"></span>
+						<span class="library-item__tag library-item__status" data-field="status" hidden></span>
+					</p>
+				</div>
+			</li>
+		</template>
+
+		<template id="library-current">
+			<li class="library-current">
+				<button class="library-cover__button" type="button">
+					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
+					<span class="library-cover__frame" data-row="frame">
+						<span class="library-cover__title" data-field="frame"></span>
+					</span>
+					<span class="library-current__title" data-field="title"></span>
+					<span class="app-meta library-item__tag library-item__status" data-field="status" hidden></span>
+				</button>
+				<button
+					class="app-control"
+					type="button"
+					data-action="finish"
+					aria-label="<?php esc_attr_e( 'Finished', 'library' ); ?>"
+					title="<?php esc_attr_e( 'Finished', 'library' ); ?>"
+				>✓&#xFE0E;</button>
 			</li>
 		</template>
 

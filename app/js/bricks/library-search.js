@@ -6,8 +6,9 @@ import { urlOf } from 'library-app/router';
 const STYLEGUIDE = 'styleguide';
 
 /**
- * The search of the books: what is typed is the query; the name of the styleguide opens it, the search left empty. Its keywords show under it while it is used, as a search
- * field shows its suggestions; one taken adds to the query, the cursor in its quotes, if any, for the name to type.
+ * The search of the books: what is typed is the query; the name of the styleguide opens it, the search left empty. Its
+ * keywords show under it while it is used, as a search field shows its suggestions; one taken adds to the query, the
+ * cursor in its quotes, if any, for the name to type.
  */
 class LibrarySearchElement extends Brick {
 	connect( signal ) {
@@ -16,7 +17,8 @@ class LibrarySearchElement extends Brick {
 		const hide = () => {
 			$keywords.hidden = true;
 		};
-		// A finger or a button down: what it is on takes the focus, but the tap has not reached it yet.
+		// A finger or a button down, until its click: what it is on takes the focus, but the tap has not reached it yet. A
+		// finger lifts before the focus moves, so the tap lasts until its click, or until it turns into a scroll.
 		let isPointing = false;
 
 		$input.addEventListener(
@@ -27,6 +29,8 @@ class LibrarySearchElement extends Brick {
 					return;
 				}
 
+				// The query may be empty already, as when the word comes at once: the field does not follow it then.
+				$input.value = '';
 				store.setQuery( '' );
 				navigation.navigate( urlOf( { view: STYLEGUIDE } ) );
 			},
@@ -57,7 +61,8 @@ class LibrarySearchElement extends Brick {
 			},
 			{ signal }
 		);
-		[ 'pointerup', 'pointercancel' ].forEach( ( type ) =>
+		// Nor does a press that ends elsewhere, whose click never comes: the keyboard ends it.
+		[ 'pointercancel', 'keydown' ].forEach( ( type ) =>
 			document.addEventListener(
 				type,
 				() => {
@@ -69,6 +74,8 @@ class LibrarySearchElement extends Brick {
 		document.addEventListener(
 			'click',
 			( event ) => {
+				isPointing = false;
+
 				if ( ! this.contains( event.target ) ) {
 					hide();
 				}

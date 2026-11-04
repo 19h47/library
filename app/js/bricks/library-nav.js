@@ -3,8 +3,9 @@ import { Brick } from 'library-app/brick';
 import { routeOf, urlOf } from 'library-app/router';
 
 /**
- * The links to the views, which mark the current one; the one to the books leads to their search. Their row scrolls
- * sideways: it scrolls as little as it takes for the current one to show whole, the page staying where it is.
+ * The links to the views, which mark the current one; the one to the books leads to their search. Their row, at the top
+ * of the page, or on a phone in a bar at the bottom of the screen, scrolls sideways: it scrolls as little as it takes for
+ * the current one to show whole, the page staying where it is.
  */
 class LibraryNavElement extends Brick {
 	connect() {
