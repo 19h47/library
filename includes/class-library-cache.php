@@ -25,7 +25,7 @@ class Library_Cache {
 	 *
 	 * @var string
 	 */
-	private const GENERATION = 'library_cache_generation';
+	private const string GENERATION = 'library_cache_generation';
 
 	/**
 	 * Whether the books changed during the current request: the generation changes once.

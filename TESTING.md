@@ -32,7 +32,7 @@ composer install
 composer test
 ```
 
-`composer test -- --filter Test_Library_Reading_Idea` runs one class. A pull request runs them on MySQL 8.0 and PHP 8.2.
+`composer test -- --filter Test_Library_Reading_Idea` runs one class. A pull request runs them on MySQL 8.0, with PHP 8.4 and 8.5.
 
 ## Writing a test
 

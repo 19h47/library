@@ -27,7 +27,7 @@ class Library_Readme {
 	 *
 	 * @var array<string,string>
 	 */
-	private const SECTIONS = array(
+	private const array SECTIONS = array(
 		'Description'                => 'description',
 		'Installation'               => 'installation',
 		'Frequently Asked Questions' => 'faq',
@@ -39,7 +39,7 @@ class Library_Readme {
 	 *
 	 * @var string
 	 */
-	private const LIST_ITEM = '/^( *)(\*|\d+\.) +(.*)$/';
+	private const string LIST_ITEM = '/^( *)(\*|\d+\.) +(.*)$/';
 
 	/**
 	 * HTML sections of a readme, keyed as the plugin information expects them.

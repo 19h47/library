@@ -279,7 +279,7 @@ class Library_Rest_API {
 			'books/achievements',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => fn() => rest_ensure_response( ( new Library_Achievements() )->get_achievements() ),
+				'callback'            => fn() => rest_ensure_response( new Library_Achievements()->get_achievements() ),
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 			),
 		);
@@ -860,7 +860,7 @@ class Library_Rest_API {
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
 				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
-				'completion'  => ( new Library_Achievements() )->get_completion( 'author', $person->term_id ),
+				'completion'  => new Library_Achievements()->get_completion( 'author', $person->term_id ),
 			)
 		);
 	}
@@ -899,7 +899,7 @@ class Library_Rest_API {
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
-				'completion'  => ( new Library_Achievements() )->get_completion( 'series', $series->term_id ),
+				'completion'  => new Library_Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
 	}
@@ -962,7 +962,7 @@ class Library_Rest_API {
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
-				'completion'  => ( new Library_Achievements() )->get_completion( 'collection', $publisher->term_id ),
+				'completion'  => new Library_Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);
 	}
@@ -1065,7 +1065,7 @@ class Library_Rest_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_reading_idea( WP_REST_Request $request ) {
-		$idea = ( new Library_Reading_Idea() )->get_idea( $request['position'] );
+		$idea = new Library_Reading_Idea()->get_idea( $request['position'] );
 
 		if ( ! $idea ) {
 			return new WP_Error( 'library_no_idea', __( 'No book to read.', 'library' ), array( 'status' => 404 ) );

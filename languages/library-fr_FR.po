@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-04T08:47:26+00:00\n"
+"POT-Creation-Date: 2026-11-04T08:51:49+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1479,7 +1479,7 @@ msgid "Adapted author"
 msgstr "D’après"
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-library-meta.php:661
+#: includes/class-library-meta.php:655
 #, php-format
 msgid ""
 "The last digit of the ISBN %s, its check digit, does not match the others: "

@@ -25,7 +25,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
+	public const array TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d; a book has one read date per reading, empty when it is unknown, and with its time
@@ -33,14 +33,14 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	private const DATE_KEYS = array( 'library_edition_date', 'library_read_date' );
+	private const array DATE_KEYS = array( 'library_edition_date', 'library_read_date' );
 
 	/**
 	 * Format of a read date with its time, which sorts after the day alone: 2026-11-01T21:40.
 	 *
 	 * @var string
 	 */
-	public const READ_TIME_FORMAT = 'Y-m-d\TH:i';
+	public const string READ_TIME_FORMAT = 'Y-m-d\TH:i';
 
 	/**
 	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
@@ -50,14 +50,14 @@ class Library_Meta {
 	 *
 	 * @var string
 	 */
-	private const ISBN_PATTERN = '^(?:(?=.{17}$)97[89][ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|[0-9]{13}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
+	private const string ISBN_PATTERN = '^(?:(?=.{17}$)97[89][ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|[0-9]{13}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
 
 	/**
 	 * Pattern of an ISSN, such as 1234-5678.
 	 *
 	 * @var string
 	 */
-	private const ISSN_PATTERN = '^\\S{4}-\\S{4}$';
+	private const string ISSN_PATTERN = '^\\S{4}-\\S{4}$';
 
 	/**
 	 * Meta of the names of a book with another role than author, by role, such as its colorists: the term IDs of these
@@ -66,7 +66,7 @@ class Library_Meta {
 	 *
 	 * @var array<string,string>
 	 */
-	public const ROLE_KEYS = array(
+	public const array ROLE_KEYS = array(
 		'translator'     => 'library_translators',
 		'colorist'       => 'library_colorists',
 		'inker'          => 'library_inkers',
@@ -80,7 +80,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
+	public const array QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
 
 	/**
 	 * All book meta keys.
@@ -90,7 +90,7 @@ class Library_Meta {
 	 *
 	 * @var string[]
 	 */
-	public const KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_read', 'library_in_progress' );
+	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_read', 'library_in_progress' );
 
 	/**
 	 * Register hooks.
@@ -575,13 +575,7 @@ class Library_Meta {
 	private static function adds_a_reading( array $before, array $after ): bool {
 		$counts = array_count_values( $before );
 
-		foreach ( array_count_values( $after ) as $read_date => $count ) {
-			if ( $count > ( $counts[ $read_date ] ?? 0 ) ) {
-				return true;
-			}
-		}
-
-		return false;
+		return array_any( array_count_values( $after ), fn( int $count, int|string $read_date ) => $count > ( $counts[ $read_date ] ?? 0 ) );
 	}
 
 	/**

@@ -25,14 +25,14 @@ class Library_Achievements_Page {
 	 *
 	 * @var int
 	 */
-	private const LIST_LENGTH = 5;
+	private const int LIST_LENGTH = 5;
 
 	/**
 	 * Slug of the achievements page, under the books menu.
 	 *
 	 * @var string
 	 */
-	private const PAGE = 'library-achievements';
+	private const string PAGE = 'library-achievements';
 
 	/**
 	 * Register hooks.
@@ -64,7 +64,7 @@ class Library_Achievements_Page {
 	 * Render the widget: the latest achievements as badges, the closest with their progress, and a link to the page.
 	 */
 	public function render_widget(): void {
-		$achievements = ( new Library_Achievements() )->get_achievements();
+		$achievements = new Library_Achievements()->get_achievements();
 		$earned       = $achievements['earned'];
 		$latest       = array_slice( $earned, 0, self::LIST_LENGTH );
 		$close        = array_slice( $achievements['close'], 0, self::LIST_LENGTH );
@@ -77,7 +77,7 @@ class Library_Achievements_Page {
 	 * Render the page: all the achievements close to be earned, then those earned by family.
 	 */
 	public function render_page(): void {
-		$achievements     = ( new Library_Achievements() )->get_achievements();
+		$achievements     = new Library_Achievements()->get_achievements();
 		$earned           = $achievements['earned'];
 		$close            = $achievements['close'];
 		$families         = self::group_by_family( $earned );

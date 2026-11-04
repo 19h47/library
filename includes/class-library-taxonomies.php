@@ -24,7 +24,7 @@ class Library_Taxonomies {
 	 *
 	 * @var string[]
 	 */
-	public const TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
+	public const array TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
 
 	/**
 	 * Register hooks.

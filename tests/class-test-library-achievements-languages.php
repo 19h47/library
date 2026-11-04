@@ -15,7 +15,7 @@ class Test_Library_Achievements_Languages extends Library_TestCase {
 	 *
 	 * @var array<string,string>
 	 */
-	private const LANGUAGES = array(
+	private const array LANGUAGES = array(
 		'ja' => 'Japanese',
 		'it' => 'Italian',
 		'de' => 'German',

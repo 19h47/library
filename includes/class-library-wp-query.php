@@ -26,14 +26,14 @@ class Library_WP_Query {
 	 *
 	 * @var string[]
 	 */
-	public const KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'progress', 'rating' );
+	public const array KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'progress', 'rating' );
 
 	/**
 	 * Orders of the books the REST API takes besides those of core, highest or latest first: by rating, by latest read date.
 	 *
 	 * @var string[]
 	 */
-	public const ORDERS = array( 'rating', 'read' );
+	public const array ORDERS = array( 'rating', 'read' );
 
 	/**
 	 * Register hooks.
