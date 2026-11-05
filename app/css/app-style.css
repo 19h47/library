@@ -1,10 +1,10 @@
 /**
- * App style: the base shared by 19h47's small apps (Tumblr, Messenger, SMS, Tweets, Typewriter, Library, Letterhead).
+ * App style: the base shared by 19h47's small apps (Tumblr, Messenger, SMS, Tweets, Typewriter, Library, Letterhead, Overlay).
  *
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision f9ca8f9.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision f97c956.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -217,7 +217,14 @@ select {
 
 .app-search input[type="search"] {
   width: 100%;
-  /* As a field: as high as a control, its text centered in it, and its text on each side */
+}
+
+/*
+ * A field of one line, the search or .app-field on any other, such as a number: as high as a control, its text
+ * centered in it, and its text on each side
+ */
+.app-search input[type="search"],
+.app-field {
   block-size: var(--app-control-size);
   padding: 0 1em;
   border-radius: var(--app-radius);
@@ -227,7 +234,8 @@ select {
   font: inherit;
 }
 
-.app-search input[type="search"]::placeholder {
+.app-search input[type="search"]::placeholder,
+.app-field::placeholder {
   color: var(--app-text-muted);
 }
 
@@ -341,6 +349,68 @@ button.app-pill:disabled {
   font: inherit;
   text-transform: inherit;
   cursor: pointer;
+}
+
+/*
+ * Where the browser allows it, the select of a pill is customizable: the button it holds first shows the name of the
+ * select, in a strong, before the selected content, so that a click on the name opens it too. The name is hidden from
+ * assistive technologies, which take it from the label, hidden in its turn: a classic select shows its value only.
+ *
+ *   <label class="app-pill">
+ *     <span class="sr-only">Format</span>
+ *     <select>
+ *       <button><strong aria-hidden="true">Format</strong> <selectedcontent></selectedcontent></button>
+ *       <option>A3</option>
+ *     </select>
+ *   </label>
+ *
+ * Its picker floats as a panel, a gap away: the browser keeps it within the screen, below or above its select, and
+ * lets it scroll. The chevron of the select stands for the icon of the picker.
+ */
+@supports (appearance: base-select) {
+  .app-pill select,
+  .app-pill select::picker(select) {
+    appearance: base-select;
+  }
+
+  .app-pill select > button {
+    display: flex;
+    align-items: baseline;
+    gap: var(--app-gap);
+  }
+
+  .app-pill select::picker-icon {
+    display: none;
+  }
+
+  .app-pill select::picker(select) {
+    margin-block: var(--app-gap);
+    padding: var(--app-gap-small);
+    border: 1px solid var(--app-line-soft);
+    border-radius: var(--app-radius);
+    background: var(--app-bg);
+    color: var(--app-text-muted);
+    /* An option reads as it is written */
+    text-transform: none;
+  }
+
+  .app-pill option {
+    padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
+    border-radius: calc(var(--app-radius) - var(--app-gap-small));
+  }
+
+  .app-pill option:is(:hover, :focus-visible, :checked) {
+    color: var(--app-text);
+  }
+
+  .app-pill option:is(:hover, :focus-visible) {
+    background: var(--app-fill);
+  }
+
+  /* Inside the picker, which would clip it */
+  .app-pill option:focus-visible {
+    outline-offset: calc(-1 * var(--app-focus-outline-offset));
+  }
 }
 
 .app-status {
@@ -460,6 +530,16 @@ button.app-pill:disabled {
   color: var(--app-text);
 }
 
+/*
+ * A control pressed, such as a mode switched on, stands out as the pill of the current page does: the color of the
+ * text, a firmer line and the fill, laid over its floating background
+ */
+.app-control[aria-pressed="true"] {
+  border-color: var(--app-line);
+  color: var(--app-text);
+  background-image: linear-gradient(var(--app-fill), var(--app-fill));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -481,4 +561,3 @@ button.app-pill:disabled {
     display: none;
   }
 }
-
