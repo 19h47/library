@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision f97c956.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 50b2bea.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -383,7 +383,15 @@ button.app-pill:disabled {
     display: none;
   }
 
+  /*
+   * Written rather than left to the browser, which does not keep a long picker within the screen everywhere, such as
+   * Safari 27 with twenty options: the side of its select with the most room, as high as that room, scrolling beyond.
+   */
   .app-pill select::picker(select) {
+    position-area: block-end span-inline-end;
+    position-try: most-block-size flip-block, flip-inline, flip-block flip-inline;
+    max-block-size: calc(100% - 2 * var(--app-gap));
+    overflow-y: auto;
     margin-block: var(--app-gap);
     padding: var(--app-gap-small);
     border: 1px solid var(--app-line-soft);
