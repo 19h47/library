@@ -159,6 +159,10 @@ class LibraryStyleguideElement extends Brick {
 				BOOKS.map( ( book ) =>
 					renderBook( book, formatState( book ) )
 				),
+			grid: () =>
+				BOOKS.map( ( book ) =>
+					renderBook( book, formatState( book ) )
+				),
 			current: () =>
 				[ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
 			rows: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderRow ),

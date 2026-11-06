@@ -124,34 +124,47 @@ use Library\Meta;
 							<p data-field="yearToDate"></p>
 						</library-year>
 						<library-latest class="library-section" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'Latest readings', 'library' ); ?>
+							<div class="library-title">
+								<h3 class="library-title__heading"><?php esc_html_e( 'Latest readings', 'library' ); ?></h3>
 								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
-							</h3>
+							</div>
 							<ul class="library-covers"></ul>
 						</library-latest>
 						<?php // As a row, its next idea at the end of its title, as the view of the idea has it in full. ?>
 						<library-idea class="library-section" compact hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'Reading idea of the week', 'library' ); ?>
+							<div class="library-title">
+								<h3 class="library-title__heading"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
 								<button class="app-meta library-link library-push-end" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
-							</h3>
+							</div>
 							<p class="app-status" data-field="status" hidden></p>
 							<p class="library-idea__reason" data-field="reason"></p>
 							<ul class="app-list__items" data-field="book"></ul>
 						</library-idea>
 						<library-close class="library-section" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'Close to it', 'library' ); ?>
+							<div class="library-title">
+								<h3 class="library-title__heading"><?php esc_html_e( 'Close to it', 'library' ); ?></h3>
 								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
-							</h3>
+							</div>
 							<ul class="app-list__items"></ul>
 						</library-close>
 					</library-home>
-					<h3 class="library-title library-books__title">
-						<?php echo esc_html( $labels->name ); ?>
-						<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
-					</h3>
+					<div class="library-title library-books__title">
+						<h3 class="library-title__heading">
+							<?php echo esc_html( $labels->name ); ?>
+							<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+						</h3>
+						<library-covers-toggle class="library-push-end">
+							<?php
+							Markup::render_component(
+								'pill-checkbox',
+								array(
+									'id'    => 'library-covers-books',
+									'label' => __( 'Covers', 'library' ),
+								)
+							);
+							?>
+						</library-covers-toggle>
+					</div>
 					<div class="app-controls library-books__controls">
 						<?php
 						// The filters of the books and their choices: their fields in a dialog, the choices made as pills that remove them.
@@ -293,10 +306,23 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="to-buy" <?php echo 'to-buy' === $view ? '' : 'hidden'; ?>>
-					<h2 class="library-title">
-						<?php echo esc_html( $views['to-buy']['label'] ); ?>
-						<library-count class="app-meta" list="toBuy"></library-count>
-					</h2>
+					<div class="library-title">
+						<h2 class="library-title__heading">
+							<?php echo esc_html( $views['to-buy']['label'] ); ?>
+							<library-count class="app-meta" list="toBuy"></library-count>
+						</h2>
+						<library-covers-toggle class="library-push-end">
+							<?php
+							Markup::render_component(
+								'pill-checkbox',
+								array(
+									'id'    => 'library-covers-to-buy',
+									'label' => __( 'Covers', 'library' ),
+								)
+							);
+							?>
+						</library-covers-toggle>
+					</div>
 					<library-status class="app-status" list="toBuy" hidden></library-status>
 					<library-list list="toBuy">
 						<ul class="app-list__items"></ul>
@@ -581,6 +607,7 @@ use Library\Meta;
 							<a data-field="duplicate" href=""></a>
 							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
 						</span>
+						<span data-field="catalog" hidden></span>
 					</p>
 					<?php
 					Markup::render_component(

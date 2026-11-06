@@ -25,7 +25,7 @@ import * as api from 'library-app/api';
 import { today } from 'library-app/format';
 
 /**
- * @import { Achievements, Book, BookForm, BookValues, Idea, Month, PageView, PersonData, PublisherData, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -77,6 +77,16 @@ import { today } from 'library-app/format';
  * @property {boolean}       loading   Whether it is saving.
  * @property {string}        error     Why it could not be loaded or saved, or empty.
  * @property {number}        duplicate The book that has the ISBN typed for a book to add, 0 for none.
+ * @property {Catalog}       catalog   The book of that ISBN in the catalogue of the BnF, for a book to add.
+ */
+
+/**
+ * The search of the ISBN typed for a book to add in the catalogue of the BnF.
+ *
+ * @typedef {Object} Catalog
+ * @property {string}                                         isbn   The ISBN searched, its digits only, empty for none.
+ * @property {''|'searching'|'found'|'unknown'|'unreachable'} status Where the search is: the catalogue has the book or not, or did not answer.
+ * @property {CatalogBook|null}                               book   The book found, else none.
  */
 
 /**
@@ -138,6 +148,7 @@ import { today } from 'library-app/format';
  * @property {string}                 status       The status of the books shown, "" for any.
  * @property {string}                 form         The term ID of the form of the books shown, "" for any.
  * @property {string}                 sort         The order of the books, "" for the latest added.
+ * @property {boolean}                covers       Whether the lists of books show as a grid of their covers.
  * @property {string}                 view         The view shown, none until the router shows the one of the URL.
  * @property {string}                 query        The search of the books.
  * @property {Object<number, Book>}   books        Every book loaded, by ID.
@@ -162,7 +173,15 @@ import { today } from 'library-app/format';
 
 const STORAGE_KEY = 'library-app';
 // Kept between visits. The query, the view and the page open are in the URL only, which the router reads.
-const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
+const SAVED = [
+	'theme',
+	'themeChosen',
+	'read',
+	'status',
+	'form',
+	'sort',
+	'covers',
+];
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
 // The filters of the books, and their order: see load().
@@ -196,7 +215,7 @@ const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
 /**
  * What localStorage holds, checked: anything else falls back.
  *
- * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'>} What it holds.
+ * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'|'covers'>} What it holds.
  */
 function load() {
 	let saved = null;
@@ -227,6 +246,7 @@ function load() {
 		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		// "" for the latest added, or one of SORTS.
 		sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
+		covers: true === saved?.covers,
 	};
 }
 
@@ -404,7 +424,15 @@ function saving() {
  * @return {Editing} The form.
  */
 function editing( id = 0, book = null ) {
-	return { id, book, open: false, loading: false, error: '', duplicate: 0 };
+	return {
+		id,
+		book,
+		open: false,
+		loading: false,
+		error: '',
+		duplicate: 0,
+		catalog: { isbn: '', status: '', book: null },
+	};
 }
 
 /**
@@ -749,16 +777,18 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * Looks for the book that has the ISBN typed in the form of a book to add, such as a book to buy found in a bookshop.
-	 * An ISBN has 10 or 13 digits, hyphens aside.
+	 * Looks for the book that has the ISBN typed in the form of a book to add, such as a book to buy found in a bookshop;
+	 * for a book not added yet, looks for it in the catalogue of the BnF, whose values the form takes. An ISBN has 10 or
+	 * 13 digits, hyphens aside. An ISBN typed again leaves the search of the one before.
 	 *
 	 * @param {string} isbn The ISBN typed.
 	 */
 	async checkIsbn( isbn ) {
 		const digits = isbn.replace( /[\s-]/g, '' );
+		const isIsbn = [ 10, 13 ].includes( digits.length );
 		let duplicate = 0;
 
-		if ( [ 10, 13 ].includes( digits.length ) ) {
+		if ( isIsbn ) {
 			try {
 				const found = await api.findIsbn( digits );
 
@@ -767,8 +797,42 @@ class LibraryStore extends Store {
 			} catch {}
 		}
 
+		/** @type {Catalog} */
+		const searching = {
+			isbn: digits,
+			status: isIsbn && ! duplicate ? 'searching' : '',
+			book: null,
+		};
+
 		this.#update( 'editing', ( current ) =>
-			current.open && ! current.id ? { duplicate } : {}
+			current.open && ! current.id
+				? { duplicate, catalog: searching }
+				: {}
+		);
+
+		if ( ! isIsbn || duplicate ) {
+			return;
+		}
+
+		/** @type {Catalog} */
+		let catalog;
+
+		try {
+			const book = await api.findInBnf( digits );
+
+			catalog = {
+				isbn: digits,
+				status: book ? 'found' : 'unknown',
+				book,
+			};
+		} catch {
+			catalog = { isbn: digits, status: 'unreachable', book: null };
+		}
+
+		this.#update( 'editing', ( current ) =>
+			current.open && ! current.id && digits === current.catalog.isbn
+				? { catalog }
+				: {}
 		);
 	}
 
@@ -1050,6 +1114,15 @@ class LibraryStore extends Store {
 			theme: 'dark' === state.theme ? 'light' : 'dark',
 			themeChosen: true,
 		} ) );
+	}
+
+	/**
+	 * The lists of books show as a grid of their covers, or as cards.
+	 *
+	 * @param {boolean} covers Whether they show as a grid of their covers.
+	 */
+	setCovers( covers ) {
+		this.set( ( state ) => ( { ...state, covers } ) );
 	}
 
 	/**
