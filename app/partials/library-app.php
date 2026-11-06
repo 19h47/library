@@ -462,9 +462,6 @@
 								);
 								?>
 								<p class="app-status" data-field="error" role="alert" hidden></p>
-								<p>
-									<button class="app-pill app-pill--primary" type="submit" data-saving="<?php esc_attr_e( 'Saving…', 'library' ); ?>"><?php esc_html_e( 'Save', 'library' ); ?></button>
-								</p>
 							</form>
 						</library-reading>
 						<library-volumes class="library-book__series" hidden>

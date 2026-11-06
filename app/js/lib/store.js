@@ -91,6 +91,21 @@ function searchOf( { query, read } ) {
 }
 
 /**
+ * The reading of `book`, as the route of its form takes it, to put it back as it was: whether it is read and being read,
+ * its read dates by their days, as the form gives them, its rating, and its status unless another one, such as a draft.
+ */
+function readingOf( book ) {
+	const meta = {
+		library_read: book.read,
+		library_in_progress: book.in_progress,
+		library_read_date: api.toReadings( book.read_date.map( ( date ) => date.slice( 0, 10 ) ) ),
+		library_rating: book.rating || null,
+	};
+
+	return statuses.split( ',' ).includes( book.status ) ? { meta, status: book.status } : { meta };
+}
+
+/**
  * What a list asks the API for: `search` the books the search finds, of the status chosen, else of any status but
  * to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen; `toBuy` the books
  * to buy; `inProgress` the books being read.
@@ -496,41 +511,35 @@ class LibraryStore extends Store {
 	 */
 	async finishReading( id ) {
 		const book = this.get().books[ id ];
-		// By their days, as the form gives them: the server keeps the time of a reading of the day.
-		const days = book.read_date.map( ( date ) => date.slice( 0, 10 ) );
-		// Unread before, the book loses its read dates on the server.
-		const before = { library_read: book.read, library_in_progress: true, library_read_date: api.toReadings( days ) };
-		const finished = { library_read: true, library_in_progress: false, library_read_date: api.toReadings( [ ...days, today() ] ) };
+		const { meta } = readingOf( book );
+		const finished = { library_read: true, library_in_progress: false, library_read_date: api.toReadings( [ ...meta.library_read_date, today() ] ) };
 
-		if ( ! ( await this.#saveMeta( id, finished ) ) ) {
-			return;
+		try {
+			this.#addBooks( [ await api.saveBook( id, { meta: finished } ) ] );
+			this.#reloadLoaded( id );
+			this.#noticeSaved( id, readingOf( book ) );
+		} catch ( error ) {
+			this.set( ( state ) => ( { ...state, notice: { text: api.errorMessage( error ) } } ) );
 		}
+	}
 
+	/** Says that the reading of the book `id` was saved, in a notice whose action Undo puts it back as it was, `before`. */
+	#noticeSaved( id, before ) {
 		const undo = async () => {
-			if ( await this.#saveMeta( id, before ) ) {
+			try {
+				this.#addBooks( [ await api.saveBook( id, before ) ] );
+				this.#reloadLoaded( id );
 				this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading undone.', 'library' ) } } ) );
+			} catch ( error ) {
+				this.set( ( state ) => ( { ...state, notice: { text: api.errorMessage( error ) } } ) );
 			}
 		};
 
 		this.set( ( state ) => ( { ...state, notice: { text: __( 'Reading saved.', 'library' ), action: { label: __( 'Undo', 'library' ), run: undo } } } ) );
 	}
 
-	/** Saves `meta` of the book `id`, then what was loaded again; says in a notice what went wrong. Whether it was saved. */
-	async #saveMeta( id, meta ) {
-		try {
-			this.#addBooks( [ await api.saveBook( id, { meta } ) ] );
-			this.#reloadLoaded( id );
-
-			return true;
-		} catch ( error ) {
-			this.set( ( state ) => ( { ...state, notice: { text: api.errorMessage( error ) } } ) );
-
-			return false;
-		}
-	}
-
 	/**
-	 * Saves the reading of the book open, which says so. Only what changed is sent, so a value the form
+	 * Saves the reading of the book open, which says so, with Undo. Only what changed is sent, so a value the form
 	 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
 	 * It goes through the route of the book form, which writes the read dates at once: the core API, which
 	 * removes a meta value by value, would remove them all with an unknown date, empty.
@@ -574,8 +583,9 @@ class LibraryStore extends Store {
 
 		try {
 			this.#addBooks( [ await api.saveBook( id, status === book.status ? { meta } : { meta, status } ) ] );
-			this.set( ( state ) => ( { ...state, saving: saving(), notice: { text: __( 'Reading saved.', 'library' ) } } ) );
+			this.set( ( state ) => ( { ...state, saving: saving() } ) );
 			this.#reloadLoaded( id );
+			this.#noticeSaved( id, readingOf( book ) );
 		} catch ( error ) {
 			this.#update( 'saving', () => ( { loading: false, error: api.errorMessage( error ) } ) );
 		}
