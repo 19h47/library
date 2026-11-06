@@ -237,6 +237,9 @@ use Library\Meta;
 							);
 							?>
 						</library-filter>
+						<library-covers-toggle class="library-push-end">
+							<button class="app-pill" type="button" aria-pressed="false"><?php esc_html_e( 'Covers', 'library' ); ?></button>
+						</library-covers-toggle>
 					</div>
 
 					<library-status class="app-status" hidden></library-status>
@@ -297,6 +300,11 @@ use Library\Meta;
 						<?php echo esc_html( $views['to-buy']['label'] ); ?>
 						<library-count class="app-meta" list="toBuy"></library-count>
 					</h2>
+					<div class="app-controls library-books__controls">
+						<library-covers-toggle class="library-push-end">
+							<button class="app-pill" type="button" aria-pressed="false"><?php esc_html_e( 'Covers', 'library' ); ?></button>
+						</library-covers-toggle>
+					</div>
 					<library-status class="app-status" list="toBuy" hidden></library-status>
 					<library-list list="toBuy">
 						<ul class="app-list__items"></ul>

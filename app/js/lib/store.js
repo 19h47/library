@@ -148,6 +148,7 @@ import { today } from 'library-app/format';
  * @property {string}                 status       The status of the books shown, "" for any.
  * @property {string}                 form         The term ID of the form of the books shown, "" for any.
  * @property {string}                 sort         The order of the books, "" for the latest added.
+ * @property {boolean}                covers       Whether the lists of books show as a grid of their covers.
  * @property {string}                 view         The view shown, none until the router shows the one of the URL.
  * @property {string}                 query        The search of the books.
  * @property {Object<number, Book>}   books        Every book loaded, by ID.
@@ -172,7 +173,15 @@ import { today } from 'library-app/format';
 
 const STORAGE_KEY = 'library-app';
 // Kept between visits. The query, the view and the page open are in the URL only, which the router reads.
-const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
+const SAVED = [
+	'theme',
+	'themeChosen',
+	'read',
+	'status',
+	'form',
+	'sort',
+	'covers',
+];
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
 // The filters of the books, and their order: see load().
@@ -206,7 +215,7 @@ const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
 /**
  * What localStorage holds, checked: anything else falls back.
  *
- * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'>} What it holds.
+ * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'|'covers'>} What it holds.
  */
 function load() {
 	let saved = null;
@@ -237,6 +246,7 @@ function load() {
 		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		// "" for the latest added, or one of SORTS.
 		sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
+		covers: true === saved?.covers,
 	};
 }
 
@@ -1104,6 +1114,11 @@ class LibraryStore extends Store {
 			theme: 'dark' === state.theme ? 'light' : 'dark',
 			themeChosen: true,
 		} ) );
+	}
+
+	/** The lists of books show as a grid of their covers, or as cards again. */
+	toggleCovers() {
+		this.set( ( state ) => ( { ...state, covers: ! state.covers } ) );
 	}
 
 	/**

@@ -13,8 +13,8 @@ import {
 
 /**
  * The books of a list, those found or the one its `list` attribute names, such as `toBuy`, loading the next ones as the
- * end of the list comes: a card per book, kept while the book stays in the list. Loading again from its start, as for
- * another search, the list shows its books faded and busy until the new ones come.
+ * end of the list comes: a card per book, kept while the book stays in the list, or a grid of their covers, as chosen.
+ * Loading again from its start, as for another search, the list shows its books faded and busy until the new ones come.
  */
 class LibraryListElement extends Brick {
 	connect( signal ) {
@@ -39,6 +39,12 @@ class LibraryListElement extends Brick {
 						renderBook( books[ id ], formatState( books[ id ] ) )
 					);
 					observe();
+				}
+			),
+			store.select(
+				( state ) => state.covers,
+				( covers ) => {
+					this.toggleAttribute( 'covers', covers );
 				}
 			),
 			store.select(

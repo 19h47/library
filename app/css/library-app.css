@@ -274,6 +274,56 @@ library-home:not([hidden]) + .library-books__title {
 	outline: none;
 }
 
+/*
+ * The books of a list as a grid of their covers, when chosen: as many columns as fit, half a step wider than the cover
+ * of a card at least, three on a phone, on a line as on a shelf. A card is its cover alone, its title kept for assistive
+ * technologies and its link covering it; a book without a cover shows its title in a frame of the shape of a cover, cut
+ * when it is too long for it.
+ */
+library-list[covers] .app-list__items {
+	grid-template-columns: repeat(auto-fill, minmax(calc(var(--library-cover-width) * sqrt(var(--app-phi))), 1fr));
+	align-items: end;
+}
+
+library-list[covers] .library-item {
+	display: block;
+	padding: 0;
+	border: 0;
+	background: none;
+	contain-intrinsic-size: auto var(--library-cover-height);
+}
+
+library-list[covers] .library-item__cover {
+	width: 100%;
+}
+
+library-list[covers] .library-item__body > :not(.library-item__title) {
+	display: none;
+}
+
+library-list[covers] .library-item:has(> .library-item__cover:not([hidden])) .library-item__title {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	opacity: 0;
+}
+
+library-list[covers] .library-item__cover[hidden] + .library-item__body {
+	aspect-ratio: 1 / var(--app-phi);
+	overflow: hidden;
+	padding: var(--app-gap);
+	border: 1px solid var(--app-line-soft);
+	border-radius: var(--library-radius-small);
+	font-size: var(--app-font-small);
+}
+
+/* The button of a mode switched on, such as the grid of the covers, stands out as the pill of the current page does */
+.app-pill[aria-pressed="true"] {
+	color: var(--app-text);
+	border-color: var(--app-line);
+	background: var(--app-fill);
+}
+
 /* The tags after the line of the state of a book: its form, and its status when it is not kept or to buy, in a color */
 .library-item__tag {
 	padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
