@@ -54,7 +54,7 @@ The tests of the reading app run in a browser, with [Playwright](https://playwri
 
 ```sh
 pnpm install
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium webkit
 pnpm wp-env start
 pnpm test:e2e
 ```
@@ -65,7 +65,7 @@ pnpm test:e2e
 WP_BASE_URL=http://localhost:8889 WP_USERNAME=admin WP_PASSWORD=password pnpm test:e2e
 ```
 
-`pnpm test:e2e -- reading` runs one file, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
+They run on a phone in Chrome, and the covers in the engine of Safari too, which lays them out its own way: `--project=safari` runs these alone. `pnpm test:e2e -- reading` runs one file, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
 
 ## The scripts
 

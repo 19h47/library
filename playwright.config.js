@@ -39,5 +39,15 @@ export default defineConfig( {
 				deviceScaleFactor: 3,
 			},
 		},
+		{
+			// The covers in the engine of Safari, as on an iPhone, which lays them out its own way.
+			name: 'safari',
+			testMatch: 'covers.spec.js',
+			use: {
+				...devices[ 'Desktop Safari' ],
+				viewport: { width: 390, height: 844 },
+				deviceScaleFactor: 3,
+			},
+		},
 	],
 } );
