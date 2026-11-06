@@ -37,7 +37,24 @@ class Library_Books_List {
 		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_mistyped_isbn' ), 0 );
 		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
+		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
 		add_action( 'current_screen', array( $this, 'label_published_view' ) );
+	}
+
+	/**
+	 * Load the covers of the books of the list at once, with their image meta, rather than one by one as each row shows
+	 * its own: core does so for the REST API, not for a list table of posts.
+	 *
+	 * @param WP_Post[] $posts Posts found.
+	 * @param WP_Query  $query Query.
+	 * @return WP_Post[]
+	 */
+	public function load_covers( array $posts, WP_Query $query ): array {
+		if ( is_admin() && $query->is_main_query() && 'library_book' === $query->get( 'post_type' ) && $posts ) {
+			update_post_thumbnail_cache( $query );
+		}
+
+		return $posts;
 	}
 
 	/**
@@ -139,8 +156,9 @@ class Library_Books_List {
 					$output     .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_text ) . '/10" aria-hidden="true">' . esc_html( $rating_text ) . '</span>';
 				}
 
-				$output   .= '<span class="library-thumbnail-cell">';
-				$thumbnail = get_the_post_thumbnail( $post_id );
+				$output .= '<span class="library-thumbnail-cell">';
+				// The medium size, not cropped, as the cover shows whole: the full image would be a few megabytes a row.
+				$thumbnail = get_the_post_thumbnail( $post_id, 'medium' );
 
 				if ( $thumbnail ) {
 					$output .= '<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">';
@@ -177,6 +195,8 @@ class Library_Books_List {
 				'height'   => true,
 				'loading'  => true,
 				'decoding' => true,
+				'srcset'   => true,
+				'sizes'    => true,
 			),
 		);
 		echo wp_kses( $output, $allowed_column_html );

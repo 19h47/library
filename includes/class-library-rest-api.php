@@ -27,7 +27,6 @@ class Library_Rest_API {
 	public function hooks(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_fields' ) );
-		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
 	}
 
 	/**
@@ -107,22 +106,6 @@ class Library_Rest_API {
 
 			register_rest_field( 'library_book', $name, $field );
 		}
-	}
-
-	/**
-	 * Load the covers of the books a query found at once, with their image meta, rather than one by one as the cover
-	 * field of each book reads them.
-	 *
-	 * @param WP_Post[] $posts Posts found.
-	 * @param WP_Query  $query Query.
-	 * @return WP_Post[]
-	 */
-	public function load_covers( array $posts, WP_Query $query ): array {
-		if ( 'library_book' === $query->get( 'post_type' ) && $posts ) {
-			update_post_thumbnail_cache( $query );
-		}
-
-		return $posts;
 	}
 
 	/**
