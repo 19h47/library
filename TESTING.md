@@ -66,3 +66,14 @@ WP_BASE_URL=http://localhost:8889 WP_USERNAME=admin WP_PASSWORD=password pnpm te
 ```
 
 `pnpm test:e2e -- reading` runs one file, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
+
+## The scripts
+
+ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts`:
+
+```sh
+pnpm lint:js
+pnpm check:js
+```
+
+A pull request runs both.

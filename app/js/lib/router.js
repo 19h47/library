@@ -8,6 +8,15 @@
 import { appUrl } from 'library-app/app';
 import { store } from 'library-app/store';
 
+/**
+ * What a URL of the app shows.
+ *
+ * @typedef {Object} Route
+ * @property {string} view  Its view, such as "books" or "person".
+ * @property {number} id    The ID of the book or the term of its page, 0 for none.
+ * @property {string} query The search of the books, empty for another view.
+ */
+
 // The views of the navigation, and the styleguide, opened by searching its name: their name is enough.
 const NAMED_VIEWS = [
 	'books',
@@ -21,14 +30,20 @@ const NAMED_VIEWS = [
 const PAGE_VIEWS = [ 'book', 'person', 'series', 'publisher' ];
 
 const app = new URL( appUrl );
-// Where each entry of the history was left, by its key, to put a view gone back to there.
+/**
+ * Where each entry of the history was left, by its key, to put a view gone back to there.
+ *
+ * @type {Map<string, number>}
+ */
 const places = new Map();
 // Whether the router writes the search in the URL itself: the navigation it makes shows nothing new.
 let isWritingSearch = false;
 
 /**
  * Whether `url` is in the app: its page, whatever it shows.
- * @param url
+ *
+ * @param {string} url A URL.
+ * @return {boolean} Whether it is in the app.
  */
 function isApp( url ) {
 	const { origin, pathname, searchParams } = new URL( url );
@@ -45,7 +60,9 @@ function isApp( url ) {
 /**
  * What `url` shows: its view, the books unless it names another one, the ID of its page, and the search of the books,
  * which only the books have: the page of a person opened from a search leaves it to the books, to go back to.
- * @param url
+ *
+ * @param {string} url A URL of the app.
+ * @return {Route} What it shows.
  */
 export function routeOf( url ) {
 	const { searchParams } = new URL( url );
@@ -64,10 +81,9 @@ export function routeOf( url ) {
 
 /**
  * The URL of what shows, as routeOf() reads it: a page with its ID, the books with their search.
- * @param root0
- * @param root0.view
- * @param root0.id
- * @param root0.query
+ *
+ * @param {Partial<Route>} route What shows: the books unless another view.
+ * @return {string} The URL.
  */
 export function urlOf( { view = 'books', id = 0, query = '' } ) {
 	const url = new URL( appUrl );
@@ -77,7 +93,7 @@ export function urlOf( { view = 'books', id = 0, query = '' } ) {
 	}
 
 	if ( id ) {
-		url.searchParams.set( view, id );
+		url.searchParams.set( view, id.toString() );
 	}
 
 	if ( query ) {

@@ -15,19 +15,37 @@ import { fill, fillCompletion, renderBook } from 'library-app/render';
 import { followBooks, observeEnd, renderKeyed } from 'library-app/behaviors';
 
 /**
+ * @import { Book, PageView } from 'library-app/api'
+ * @import { PersonPage, PublisherPage, SeriesPage } from 'library-app/store'
+ */
+
+/**
  * The page of a term: its name, its description, how many of its books are read and the completion they count for, then
  * its books, loading as the end of the list comes. Opened, its name takes the focus once it is loaded. A page adds what
  * is its own: `summary()` what its summary says after its books and those read, `fillPage()` the rest of its state,
  * `subscriptions()` what else it follows, and `line()` the line of a book.
  */
 export class TermPage extends Brick {
-	/** Its page in the store: "person", "series" or "publisher". */
-	static page = '';
+	/**
+	 * Its page in the store: "person", "series" or "publisher".
+	 *
+	 * @type {PageView}
+	 */
+	static page;
 
+	/**
+	 * @param {AbortSignal} signal Aborted as it leaves the page.
+	 * @return {Array<() => void>} The unsubscribe functions.
+	 */
 	connect( signal ) {
-		const { page: key } = this.constructor;
+		const { page: key } = /** @type {typeof TermPage} */ (
+			this.constructor
+		);
+		/** @type {HTMLElement} */
 		const $name = this.querySelector( '[data-field="name"]' );
+		/** @type {HTMLElement} */
 		const $description = this.querySelector( '[data-html="description"]' );
+		/** @type {HTMLElement} */
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd(
@@ -41,8 +59,8 @@ export class TermPage extends Brick {
 			store.select(
 				( state ) => state[ key ],
 				( page ) => {
-					/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
 					const read = sprintf(
+						/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
 						_n( '%s read', '%s read', page.read, 'library' ),
 						formatNumber( page.read )
 					);
@@ -105,22 +123,36 @@ export class TermPage extends Brick {
 		];
 	}
 
-	/** What its summary says after its books and those read, from its state. */
+	/**
+	 * What its summary says after its books and those read, from its state.
+	 *
+	 * @type {( page: PersonPage|SeriesPage|PublisherPage ) => Array<string|0|null>}
+	 */
 	summary() {
 		return [];
 	}
 
-	/** Fills what is its own from its state. */
+	/**
+	 * Fills what is its own from its state.
+	 *
+	 * @type {( page: PersonPage|SeriesPage|PublisherPage ) => void}
+	 */
 	fillPage() {}
 
-	/** What else it follows of the store; each returns its unsubscribe function. */
+	/**
+	 * What else it follows of the store; each returns its unsubscribe function.
+	 *
+	 * @return {Array<() => void>} The unsubscribe functions.
+	 */
 	subscriptions() {
 		return [];
 	}
 
 	/**
 	 * The line of a book, under its title: its reading state.
-	 * @param book
+	 *
+	 * @param {Book} book The book.
+	 * @return {string} Its line.
 	 */
 	line( book ) {
 		return formatState( book );

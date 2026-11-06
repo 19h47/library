@@ -5,6 +5,8 @@ import { formatBooks, formatNumber, join } from 'library-app/format';
 import { fill, renderCover } from 'library-app/render';
 import { urlOf } from 'library-app/router';
 
+/** @import { Book } from 'library-app/api' */
+
 /**
  * The volumes of the series of the book open, on its page: their covers in reading order, as the home shows covers,
  * the book open among them and in view, which open the others; the name of the series links to its page, its count says
@@ -13,6 +15,7 @@ import { urlOf } from 'library-app/router';
 class LibraryVolumesElement extends Brick {
 	connect() {
 		const $list = this.querySelector( 'ul' );
+		/** @type {HTMLAnchorElement} */
 		const $name = this.querySelector( '[data-field="name"]' );
 		const render = () => {
 			const { books, book: id, volumes: series } = store.get();
@@ -32,8 +35,8 @@ class LibraryVolumesElement extends Brick {
 			const readCount = series.items.filter(
 				( item ) => books[ item ].read
 			).length;
-			/* translators: %s: number of books read, after the number of books of a series. */
 			const read = sprintf(
+				/* translators: %s: number of books read, after the number of books of a series. */
 				_n( '%s read', '%s read', readCount, 'library' ),
 				formatNumber( readCount )
 			);
@@ -52,6 +55,7 @@ class LibraryVolumesElement extends Brick {
 				)
 			);
 
+			/** @type {HTMLElement} */
 			const $current = $list.querySelector( `[data-id="${ id }"]` );
 
 			$current
@@ -62,7 +66,8 @@ class LibraryVolumesElement extends Brick {
 				if ( $current.isConnected ) {
 					$list.scrollLeft =
 						$current.offsetLeft -
-						$list.firstElementChild.offsetLeft;
+						/** @type {HTMLElement} */ ( $list.firstElementChild )
+							.offsetLeft;
 				}
 			} );
 		};
@@ -76,8 +81,10 @@ class LibraryVolumesElement extends Brick {
 	/**
 	 * A volume as its cover shows it among the others: its title without the series it starts with, "vol. 21: The
 	 * Castafiore Emerald", which a book without cover shows.
-	 * @param book
-	 * @param name
+	 *
+	 * @param {Book}   book The volume.
+	 * @param {string} name Its series, after its cycles.
+	 * @return {Book} The volume, its title without its series.
 	 */
 	#volume( book, name ) {
 		const title = book.title.startsWith( name )
@@ -89,7 +96,9 @@ class LibraryVolumesElement extends Brick {
 
 	/**
 	 * The reading state of a volume: being read, or read.
-	 * @param book
+	 *
+	 * @param {Book} book The volume.
+	 * @return {string} Its reading state, or empty.
 	 */
 	#state( book ) {
 		if ( book.in_progress ) {

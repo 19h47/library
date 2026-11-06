@@ -24,6 +24,8 @@ import {
 } from 'library-app/render';
 import { showError } from 'library-app/behaviors';
 
+/** @import { Book } from 'library-app/api' */
+
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
 const COVER = {
 	url: `data:image/svg+xml,${ encodeURIComponent(
@@ -33,7 +35,7 @@ const COVER = {
 	height: 300,
 };
 
-// The cases of a card: the samples are written in English, as code is.
+// The cases of a card: the samples are written in English, as code is. They have the fields a card reads only.
 const BOOKS = [
 	{
 		title: 'A book with a cover, read again',
@@ -78,21 +80,24 @@ const BOOKS = [
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
-].map( ( book, index ) => ( {
-	id: index + 1,
-	credits: '',
-	excerpt: '',
-	cover: null,
-	status: '',
-	read: false,
-	read_date: [],
-	rating: 0,
-	form: '',
-	languages: [],
-	authors: [ { id: 1, name: 'An Author' } ],
-	translators: [],
-	...book,
-} ) );
+].map(
+	( book, index ) =>
+		/** @type {Book} */ ( {
+			id: index + 1,
+			credits: '',
+			excerpt: '',
+			cover: null,
+			status: '',
+			read: false,
+			read_date: [],
+			rating: 0,
+			form: '',
+			languages: [],
+			authors: [ { id: 1, name: 'An Author' } ],
+			translators: [],
+			...book,
+		} )
+);
 
 const AUTHORS = [
 	{
@@ -222,11 +227,12 @@ class LibraryStyleguideElement extends Brick {
 			this.querySelector( '.library-image-field__preview' ),
 			COVER
 		);
-		this.querySelector(
-			'.library-image-field [data-action]'
+		/** @type {HTMLButtonElement} */ (
+			this.querySelector( '.library-image-field [data-action]' )
 		).hidden = false;
 
 		// The fields in error show as the forms show theirs.
+		/** @type {HTMLInputElement} */
 		const $invalid = this.querySelector( '[data-error]' );
 
 		showError( $invalid, $invalid.dataset.error );
@@ -253,13 +259,19 @@ class LibraryStyleguideElement extends Brick {
 		return [];
 	}
 
-	/** The volumes of a series, as the page of the second one shows them. */
+	/**
+	 * The volumes of a series, as the page of the second one shows them.
+	 *
+	 * @return {HTMLElement[]} Their covers.
+	 */
 	#renderVolumes() {
 		const $covers = [
 			[ BOOKS[ 0 ], 'Read' ],
 			[ BOOKS[ 4 ], 'In progress' ],
 			[ BOOKS[ 1 ], '' ],
-		].map( ( [ book, state ] ) => renderCover( book, state ) );
+		].map( ( /** @type {[Book, string]} */ [ book, state ] ) =>
+			renderCover( book, state )
+		);
 
 		$covers[ 1 ]
 			.querySelector( 'a' )
@@ -268,7 +280,11 @@ class LibraryStyleguideElement extends Brick {
 		return $covers;
 	}
 
-	/** A month of the diary, with two readings. */
+	/**
+	 * A month of the diary, with two readings.
+	 *
+	 * @return {HTMLElement} The month.
+	 */
 	#renderMonth() {
 		const $month = clone( 'library-month' );
 
@@ -295,8 +311,10 @@ class LibraryStyleguideElement extends Brick {
 
 	/**
 	 * A row of a list of inputs, from its template, with its value.
-	 * @param template
-	 * @param value
+	 *
+	 * @param {string} template The ID of its template.
+	 * @param {string} value    The value of its input.
+	 * @return {HTMLElement} The row.
 	 */
 	#renderInput( template, value ) {
 		const $item = clone( template );

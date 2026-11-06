@@ -11,6 +11,7 @@ import { followBooks } from 'library-app/behaviors';
 class LibraryIdeaElement extends Brick {
 	connect( signal ) {
 		const $book = this.querySelector( '[data-field="book"]' );
+		/** @type {HTMLButtonElement} */
 		const $next = this.querySelector( '[data-action="next-idea"]' );
 		const render = this.hasAttribute( 'compact' )
 			? renderRow

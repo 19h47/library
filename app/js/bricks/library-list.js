@@ -9,6 +9,8 @@ import {
 	showBusy,
 } from 'library-app/behaviors';
 
+/** @import { List } from 'library-app/store' */
+
 /**
  * The books of a list, those found or the one its `list` attribute names, such as `toBuy`, loading the next ones as the
  * end of the list comes: a card per book, kept while the book stays in the list. Loading again from its start, as for
@@ -16,7 +18,9 @@ import {
  */
 class LibraryListElement extends Brick {
 	connect( signal ) {
-		const list = this.getAttribute( 'list' ) ?? 'search';
+		const list = /** @type {List} */ (
+			this.getAttribute( 'list' ) ?? 'search'
+		);
 		const $items = this.querySelector( '.app-list__items' );
 		const observe = observeEnd(
 			this.querySelector( '.library-list__more' ),

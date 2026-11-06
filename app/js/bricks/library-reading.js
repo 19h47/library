@@ -5,6 +5,16 @@ import { today } from 'library-app/format';
 import { fill } from 'library-app/render';
 import { inputList, showBusy, showErrors } from 'library-app/behaviors';
 
+/**
+ * The fields of the reading of a book, by their names.
+ *
+ * @typedef {Object} ReadingFields
+ * @property {HTMLInputElement}  library_read        Whether it is read.
+ * @property {HTMLInputElement}  library_in_progress Whether it is being read.
+ * @property {HTMLSelectElement} library_rating      Its rating.
+ * @property {HTMLSelectElement} status              Whether it is in the library, not kept or to buy.
+ */
+
 // A book in another status, such as a draft, shows as in the library.
 const statusOf = ( book ) =>
 	[ notKept, toBuy ].includes( book.status ) ? book.status : 'publish';
@@ -26,10 +36,15 @@ class LibraryReadingElement extends Brick {
 			library_in_progress: $inProgress,
 			library_rating: $rating,
 			status: $status,
-		} = $form.elements;
+		} = /** @type {HTMLFormControlsCollection & ReadingFields} */ (
+			$form.elements
+		);
+		/** @type {HTMLFieldSetElement} */
 		const $dates = this.querySelector( '.library-reading__dates' );
 		const $list = $dates.querySelector( 'ul' );
+		/** @type {HTMLButtonElement} */
 		const $add = $dates.querySelector( '[data-action="add"]' );
+		/** @type {HTMLButtonElement} */
 		const $addUnknown = $dates.querySelector(
 			'[data-action="add-unknown"]'
 		);
@@ -64,10 +79,11 @@ class LibraryReadingElement extends Brick {
 		$addUnknown.addEventListener(
 			'click',
 			() =>
-				addDate( '' )
-					.closest( 'li' )
-					.querySelector( '[data-action="remove"]' )
-					.focus(),
+				/** @type {HTMLButtonElement} */ (
+					addDate( '' )
+						.closest( 'li' )
+						.querySelector( '[data-action="remove"]' )
+				).focus(),
 			{ signal }
 		);
 
@@ -86,7 +102,9 @@ class LibraryReadingElement extends Brick {
 		$list.addEventListener(
 			'click',
 			( event ) =>
-				event.target.closest( '[data-action="remove"]' ) && save(),
+				/** @type {Element} */ ( event.target ).closest(
+					'[data-action="remove"]'
+				) && save(),
 			{ signal }
 		);
 		$form.addEventListener( 'change', save, { signal } );
@@ -136,9 +154,12 @@ class LibraryReadingElement extends Brick {
 				store.saveReading( {
 					read: data.has( 'library_read' ),
 					inProgress: data.has( 'library_in_progress' ),
-					readDates: data.getAll( 'library_read_date' ),
+					// The values of date inputs and selects are strings.
+					readDates: /** @type {string[]} */ (
+						data.getAll( 'library_read_date' )
+					),
 					rating: rating ? Number( rating ) : null,
-					status: data.get( 'status' ),
+					status: /** @type {string} */ ( data.get( 'status' ) ),
 				} );
 			},
 			{ signal }

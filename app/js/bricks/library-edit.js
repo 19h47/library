@@ -7,8 +7,30 @@ import { inputList, showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
+ * @import { Field } from 'library-app/behaviors'
+ */
+
+/**
+ * The fields of the form of a book, by their names.
+ *
+ * @typedef {Object} EditFields
+ * @property {HTMLInputElement}    title        Its title.
+ * @property {HTMLTextAreaElement} excerpt      Its summary in a few words.
+ * @property {HTMLTextAreaElement} content      Its notes.
+ * @property {HTMLInputElement}    publisher    Its publisher.
+ * @property {HTMLInputElement}    collection   Its collection.
+ * @property {HTMLInputElement}    series       Its series.
+ * @property {HTMLSelectElement}   language     Its original language.
+ * @property {HTMLSelectElement}   form         Its form.
+ * @property {HTMLInputElement}    cover        The photo of its cover.
+ * @property {HTMLSelectElement}   status       The status of a book to add.
+ * @property {HTMLInputElement}    library_isbn Its ISBN.
+ */
+
+/**
  * Opens the page of the book `id`, added or bought, for its reading; none, its form says why.
- * @param id
+ *
+ * @param {number} id The book, 0 for none.
  */
 function openBook( id ) {
 	if ( id ) {
@@ -18,7 +40,9 @@ function openBook( id ) {
 
 /**
  * Options of a datalist, the names to suggest.
- * @param terms
+ *
+ * @param {Array<{name: string}>} terms The names.
+ * @return {HTMLOptionElement[]} The options.
  */
 function renderOptions( terms ) {
 	return terms.map( ( term ) => new Option( term.name ) );
@@ -42,7 +66,9 @@ class LibraryEditElement extends Brick {
 
 	connect( signal ) {
 		const $dialog = this.querySelector( 'dialog' );
+		/** @type {HTMLElement} */
 		const $heading = this.querySelector( '#library-edit-heading' );
+		/** @type {HTMLFormElement} */
 		const $form = this.querySelector( '.library-edit__form' );
 		const {
 			title: $title,
@@ -55,24 +81,39 @@ class LibraryEditElement extends Brick {
 			form: $bookForm,
 			cover: $cover,
 			status: $status,
-		} = $form.elements;
+			library_isbn: $isbn,
+		} = /** @type {HTMLFormControlsCollection & EditFields} */ (
+			$form.elements
+		);
 		// The fields of the meta are named after them.
-		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
+		const $meta = /** @type {HTMLInputElement[]} */ ( [
+			...$form.querySelectorAll( '[data-meta]' ),
+		] );
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
+		/** @type {( $field: Field ) => string|boolean} */
 		const getValue = ( $field ) =>
-			'checkbox' === $field.type ? $field.checked : $field.value;
+			'checkbox' === $field.type
+				? /** @type {HTMLInputElement} */ ( $field ).checked
+				: $field.value;
 		const $people = this.querySelector( '[data-list="people"]' );
+		/** @type {HTMLButtonElement} */
 		const $addPerson = this.querySelector( '[data-action="add-person"]' );
+		/** @type {HTMLImageElement} */
 		const $preview = this.querySelector( '.library-image-field__preview' );
+		/** @type {HTMLButtonElement} */
 		const $removeCover = this.querySelector(
 			'[data-action="remove-cover"]'
 		);
+		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '.library-edit__details' );
 		const $summary = $details.querySelector( 'summary' );
+		/** @type {HTMLAnchorElement} */
 		const $admin = this.querySelector( '[data-link="admin"]' );
+		/** @type {HTMLButtonElement} */
 		const $submit = $form.querySelector( '[type="submit"]' );
-		const $isbn = $form.elements.library_isbn;
+		/** @type {HTMLAnchorElement} */
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
+		/** @type {HTMLButtonElement} */
 		const $buy = this.querySelector( '[data-action="buy"]' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
@@ -187,24 +228,30 @@ class LibraryEditElement extends Brick {
 			'submit',
 			( event ) => {
 				const data = new FormData( $form );
-				// One role for each name, in the same row.
-				const roles = data.getAll( 'role' );
+				// One role for each name, in the same row. The values of text fields and selects are strings.
+				const roles = /** @type {string[]} */ ( data.getAll( 'role' ) );
 				const cover = $cover.files[ 0 ] ?? null;
 				const book = {
-					title: data.get( 'title' ),
+					title: /** @type {string} */ ( data.get( 'title' ) ),
 					excerpt: $excerpt.value,
 					content: $content.value,
-					people: data
-						.getAll( 'person' )
+					people: /** @type {string[]} */ ( data.getAll( 'person' ) )
 						.map( ( name, index ) => ( {
 							name: name.trim(),
 							role: roles[ index ],
 						} ) )
 						.filter( ( person ) => person.name ),
-					publisher: data.get( 'publisher' ),
-					collection: data.get( 'collection' ) ?? '',
+					publisher: /** @type {string} */ (
+						data.get( 'publisher' )
+					),
+					collection:
+						/** @type {string|null} */ (
+							data.get( 'collection' )
+						) ?? '',
 					// After its cycles, as typed: a name not found adds it.
-					series: data.get( 'series' ).trim(),
+					series: /** @type {string} */ (
+						data.get( 'series' )
+					).trim(),
 					language: Number( data.get( 'language' ) ),
 					form: Number( data.get( 'form' ) ),
 					meta: Object.fromEntries(
@@ -265,7 +312,9 @@ class LibraryEditElement extends Brick {
 					book?.people.forEach( ( { name, role } ) => {
 						const $row = addPerson( name ).closest( 'li' );
 
-						$row.querySelector( '[name="role"]' ).value = role;
+						/** @type {HTMLSelectElement} */ (
+							$row.querySelector( '[name="role"]' )
+						).value = role;
 					} );
 
 					if ( ! $people.children.length ) {
@@ -287,7 +336,7 @@ class LibraryEditElement extends Brick {
 							if ( 'checkbox' === $field.type ) {
 								$field.checked = Boolean( value );
 							} else {
-								$field.value = value;
+								$field.value = value.toString();
 							}
 						} );
 					}

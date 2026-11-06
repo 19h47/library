@@ -9,7 +9,7 @@ import {
 
 /** The achievements close to be earned, with their progress, then the ones earned, latest first. */
 class LibraryAchievementsElement extends Brick {
-	connect( signal ) {
+	connect() {
 		const $close = this.querySelector( '[data-list="close"]' );
 		const $earned = this.querySelector( '[data-list="earned"]' );
 

@@ -8,6 +8,7 @@
 		"moduleResolution": "bundler",
 		"lib": [ "es2024", "dom", "dom.iterable" ],
 		"skipLibCheck": true,
+		"types": [],
 		"baseUrl": ".",
 		"paths": {
 			"library-app/*": [ "app/js/lib/*.js" ]

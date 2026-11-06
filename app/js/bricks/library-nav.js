@@ -45,9 +45,13 @@ class LibraryNavElement extends Brick {
 
 		return [
 			store.select( nameOf, ( name ) => {
-				/* translators: 1: what the page shows, such as a book or a view, 2: name of the app. */
 				document.title = name
-					? sprintf( __( '%1$s – %2$s', 'library' ), name, appName )
+					? sprintf(
+							/* translators: 1: what the page shows, such as a book or a view, 2: name of the app. */
+							__( '%1$s – %2$s', 'library' ),
+							name,
+							appName
+					  )
 					: appName;
 			} ),
 			store.select(

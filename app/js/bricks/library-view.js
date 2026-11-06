@@ -6,6 +6,7 @@ import { Brick } from 'library-app/brick';
  * the page of a book; gone back to, to what had it when it hid, such as the card of the book opened from it.
  */
 class LibraryViewElement extends Brick {
+	/** @type {HTMLElement|null} */
 	#focused = null;
 
 	connect() {
@@ -24,9 +25,11 @@ class LibraryViewElement extends Brick {
 					if (
 						! isShown &&
 						! this.hidden &&
-						this.contains( document.activeElement )
+						this.contains( this.ownerDocument.activeElement )
 					) {
-						this.#focused = document.activeElement;
+						this.#focused = /** @type {HTMLElement} */ (
+							this.ownerDocument.activeElement
+						);
 					}
 
 					this.hidden = ! isShown;
@@ -40,8 +43,10 @@ class LibraryViewElement extends Brick {
 		];
 	}
 
+	/** Gives the focus to what had it gone back to, or to its title opened. */
 	#focus() {
 		const { moved } = store.get();
+		/** @type {HTMLElement} */
 		const $title = this.querySelector( 'h2[tabindex="-1"]' );
 
 		if (

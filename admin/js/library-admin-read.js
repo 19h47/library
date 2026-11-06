@@ -11,7 +11,7 @@
 	const { apiFetch } = window.wp;
 	const { __, sprintf } = window.wp.i18n;
 	const { speak } = window.wp.a11y;
-	const checkboxes = document.querySelectorAll( '.js-library-checkbox' );
+	/** @type {HTMLElement} */
 	const readPercentageEl = document.querySelector(
 		'.js-library-read-percentage'
 	);
@@ -20,9 +20,11 @@
 		return;
 	}
 
+	const checkboxes = document.querySelectorAll( '.js-library-checkbox' );
+
 	const updatePercent = ( percent ) => {
-		/* translators: %s: reading percentage. */
 		const label = sprintf(
+			/* translators: %s: reading percentage. */
 			__( '%s%% read', 'library' ),
 			percent.toLocaleString()
 		);

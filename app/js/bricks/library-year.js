@@ -53,14 +53,14 @@ class LibraryYearElement extends Brick {
 							  )
 							: '',
 						projection:
-							null != year?.projection
+							year && null !== year.projection
 								? sprintf(
 										projection,
 										formatNumber( year.projection )
 								  )
 								: '',
 						toRead:
-							null != year?.all_read_in
+							year && null !== year.all_read_in
 								? sprintf(
 										toRead,
 										formatNumber( year.to_read ),

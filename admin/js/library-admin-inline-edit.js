@@ -15,7 +15,7 @@
 
 	document
 		.querySelectorAll( '#inlineedit select[name="_status"]' )
-		.forEach( ( select ) => {
+		.forEach( ( /** @type {HTMLSelectElement} */ select ) => {
 			Object.entries( statusChoices ).forEach( ( [ status, label ] ) =>
 				select.add( new Option( label, status ) )
 			);
@@ -35,6 +35,7 @@
 		inlineData
 			.querySelectorAll( '[class^="library_"]' )
 			.forEach( ( value ) => {
+				/** @type {HTMLInputElement|HTMLSelectElement} */
 				const control = editRow.querySelector(
 					`[name="${ value.className }"]`
 				);

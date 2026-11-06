@@ -7,7 +7,7 @@ const CLOSE_ACHIEVEMENTS = 1;
 
 /** The achievement closest to be earned, with its progress; hidden when none is close. */
 class LibraryCloseElement extends Brick {
-	connect( signal ) {
+	connect() {
 		const $list = this.querySelector( 'ul' );
 
 		return [

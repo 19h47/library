@@ -17,7 +17,7 @@ class LibraryInProgressElement extends Brick {
 		$list.addEventListener(
 			'click',
 			async ( event ) => {
-				const $finish = event.target.closest(
+				const $finish = /** @type {Element} */ ( event.target ).closest(
 					'[data-action="finish"]'
 				);
 
@@ -31,7 +31,11 @@ class LibraryInProgressElement extends Brick {
 
 				showBusy( $finish, true );
 				await store.finishReading(
-					Number( $finish.closest( '[data-id]' ).dataset.id )
+					Number(
+						/** @type {HTMLElement} */ (
+							$finish.closest( '[data-id]' )
+						).dataset.id
+					)
 				);
 				showBusy( $finish, false );
 			},
@@ -55,17 +59,19 @@ class LibraryInProgressElement extends Brick {
 			store.select(
 				( state ) => state.books,
 				( books ) => {
-					[ ...$list.children ].forEach( ( $item ) => {
-						const book = books[ $item.dataset.id ];
+					[ ...$list.children ].forEach(
+						( /** @type {HTMLElement} */ $item ) => {
+							const book = books[ $item.dataset.id ];
 
-						// A book finished leaves as the books being read load again: its cover stays until then, its focus with it.
-						if (
-							book?.in_progress &&
-							book !== previous[ $item.dataset.id ]
-						) {
-							$item.replaceWith( renderCurrent( book ) );
+							// A book finished leaves as the books being read load again: its cover stays until then, its focus with it.
+							if (
+								book?.in_progress &&
+								book !== previous[ $item.dataset.id ]
+							) {
+								$item.replaceWith( renderCurrent( book ) );
+							}
 						}
-					} );
+					);
 					previous = books;
 				}
 			),

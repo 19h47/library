@@ -18,9 +18,20 @@ export default [
 	},
 	...wordpress.configs.recommended,
 	{
+		// No React here: the rules of WordPress bring its plugin, which would look for it.
+		settings: { react: { version: '19.0' } },
+	},
+	{
 		files: [ 'app/js/**', 'admin/js/**' ],
 		languageOptions: {
 			globals: { ...globals.browser, wp: 'readonly' },
+		},
+	},
+	{
+		// The quick edit of the books list, which WordPress gives the page.
+		files: [ 'admin/js/**' ],
+		languageOptions: {
+			globals: { inlineEditPost: 'readonly' },
 		},
 	},
 	{

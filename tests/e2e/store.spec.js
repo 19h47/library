@@ -47,12 +47,18 @@ test.describe( 'Store', () => {
 		await page.waitForFunction( () => window.store.get().idea.error );
 
 		isOffline = false;
-		await page.evaluate( () => dispatchEvent( new Event( 'online' ) ) );
-		await page.waitForFunction(
-			() =>
-				window.store.get().idea.id > 0 &&
-				! window.store.get().idea.error
+		await page.evaluate( () =>
+			window.dispatchEvent( new Event( 'online' ) )
 		);
+		await expect
+			.poll( () =>
+				page.evaluate(
+					() =>
+						window.store.get().idea.id > 0 &&
+						! window.store.get().idea.error
+				)
+			)
+			.toBe( true );
 	} );
 
 	test( 'the reading form keeps what was typed when the app comes back after a while', async ( {

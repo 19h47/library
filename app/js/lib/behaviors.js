@@ -7,18 +7,28 @@
 import { store } from 'library-app/store';
 import { clone, fillBook } from 'library-app/render';
 
+/** @import { Book } from 'library-app/api' */
+
+/** @typedef {HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement} Field A field of a form. */
+
 // The next page loads before the end of the list shows.
 const LOAD_MARGIN_PX = 800;
 
-// The message of each field in error, numbered across the forms for their IDs.
+/**
+ * The message of each field in error, numbered across the forms for their IDs.
+ *
+ * @type {WeakMap<Field, HTMLElement>}
+ */
 const errorMessages = new WeakMap();
 let errorCount = 0;
 
 /**
  * Fills again the cards of `$root` whose book changed, such as a book saved; `stateOf` gives the line
  * of a card. Returns the unsubscribe function.
- * @param $root
- * @param stateOf
+ *
+ * @param {Element}                                      $root   The element of the cards.
+ * @param {( book: Book, $item: HTMLElement ) => string} stateOf The line of a card, from its book and the card.
+ * @return {() => void} The unsubscribe function.
  */
 export function followBooks( $root, stateOf ) {
 	let previous = store.get().books;
@@ -26,13 +36,15 @@ export function followBooks( $root, stateOf ) {
 	return store.select(
 		( state ) => state.books,
 		( books ) => {
-			$root.querySelectorAll( '.library-item' ).forEach( ( $item ) => {
-				const book = books[ $item.dataset.id ];
+			$root
+				.querySelectorAll( '.library-item' )
+				.forEach( ( /** @type {HTMLElement} */ $item ) => {
+					const book = books[ $item.dataset.id ];
 
-				if ( book !== previous[ $item.dataset.id ] ) {
-					fillBook( $item, book, stateOf( book, $item ) );
-				}
-			} );
+					if ( book !== previous[ $item.dataset.id ] ) {
+						fillBook( $item, book, stateOf( book, $item ) );
+					}
+				} );
 			previous = books;
 		}
 	);
@@ -42,19 +54,19 @@ export function followBooks( $root, stateOf ) {
  * Draws in `$list` an element per key of `keys`, in their order, such as a card per book: an element drawn already for
  * a key, its data-id, stays as it is, its focus too, even moved; a new one comes from `render( key )`. An element whose
  * key left goes, its focus to the nearest one that stays, after it, or else before it.
- * @param $list
- * @param keys
- * @param render
+ *
+ * @param {Element}                        $list  The list.
+ * @param {number[]}                       keys   The keys, such as book IDs.
+ * @param {( key: number ) => HTMLElement} render The element of a new key.
  */
 export function renderKeyed( $list, keys, render ) {
+	const $children = /** @type {HTMLElement[]} */ ( [ ...$list.children ] );
 	const $drawn = new Map(
-		[ ...$list.children ].map( ( $item ) => [ $item.dataset.id, $item ] )
+		$children.map( ( $item ) => [ $item.dataset.id, $item ] )
 	);
 	const kept = new Set( keys.map( ( key ) => key.toString() ) );
-	const $kept = [ ...$list.children ].filter( ( $item ) =>
-		kept.has( $item.dataset.id )
-	);
-	const $focused = document.activeElement;
+	const $kept = $children.filter( ( $item ) => kept.has( $item.dataset.id ) );
+	const $focused = $list.ownerDocument.activeElement;
 	const $left = [ ...$drawn.values() ].find(
 		( $item ) =>
 			! kept.has( $item.dataset.id ) && $item.contains( $focused )
@@ -63,11 +75,14 @@ export function renderKeyed( $list, keys, render ) {
 	if ( $left ) {
 		const $after = $kept.find(
 			( $item ) =>
+				// eslint-disable-next-line no-bitwise -- A flag of the position of the element.
 				$left.compareDocumentPosition( $item ) &
 				Node.DOCUMENT_POSITION_FOLLOWING
 		);
 
-		( $after ?? $kept.at( -1 ) )?.querySelector( 'button, a' )?.focus();
+		/** @type {HTMLElement} */ (
+			( $after ?? $kept.at( -1 ) )?.querySelector( 'button, a' )
+		)?.focus();
 	}
 
 	$drawn.forEach( ( $item, key ) => {
@@ -76,7 +91,9 @@ export function renderKeyed( $list, keys, render ) {
 		}
 	} );
 
-	const $active = document.activeElement;
+	const $active = /** @type {HTMLElement} */ (
+		$list.ownerDocument.activeElement
+	);
 	let $next = $list.firstElementChild;
 
 	keys.forEach( ( key ) => {
@@ -93,7 +110,10 @@ export function renderKeyed( $list, keys, render ) {
 	} );
 
 	// Moved elsewhere, an element loses its focus: it gets it back.
-	if ( $active !== document.activeElement && $list.contains( $active ) ) {
+	if (
+		$active !== $list.ownerDocument.activeElement &&
+		$list.contains( $active )
+	) {
 		$active.focus( { preventScroll: true } );
 	}
 }
@@ -101,9 +121,11 @@ export function renderKeyed( $list, keys, render ) {
 /**
  * Calls `callback` as the end `$more` of a list comes near. Returns the function
  * to call once the list has grown: its end may still be in view.
- * @param $more
- * @param signal
- * @param callback
+ *
+ * @param {Element}     $more    The end of the list.
+ * @param {AbortSignal} signal   Stops observing it.
+ * @param {() => void}  callback Called as it comes near.
+ * @return {() => void} The function to call once the list has grown.
  */
 export function observeEnd( $more, signal, callback ) {
 	// The last entry: one from before observe() may come first.
@@ -129,13 +151,15 @@ export function observeEnd( $more, signal, callback ) {
  * such as the people of a book or its read dates. Removing an input gives the focus to `$add`, adding one gives it the focus.
  * `id` may be a function of the value, for a row whose template depends on it, such as a reading whose date is unknown.
  * `value` gives the value of a new input, `setup` prepares each one. Returns the function that adds an input, with a value.
- * @param root0
- * @param root0.$list
- * @param root0.$add
- * @param root0.id
- * @param root0.signal
- * @param root0.value
- * @param root0.setup
+ *
+ * @param {Object}                               options         Options.
+ * @param {Element}                              options.$list   The list.
+ * @param {HTMLElement}                          options.$add    The button that adds an input.
+ * @param {string|(( value: string ) => string)} options.id      The ID of the template of a row, or the function that gives it from the value.
+ * @param {AbortSignal}                          options.signal  Removes the listeners.
+ * @param {() => string}                         [options.value] The value of a new input.
+ * @param {( $input: HTMLInputElement ) => void} [options.setup] Prepares each input.
+ * @return {( text?: string ) => HTMLInputElement} The function that adds an input, with a value.
  */
 export function inputList( {
 	$list,
@@ -162,7 +186,9 @@ export function inputList( {
 	$list.addEventListener(
 		'click',
 		( event ) => {
-			const $remove = event.target.closest( '[data-action="remove"]' );
+			const $remove = /** @type {Element} */ ( event.target ).closest(
+				'[data-action="remove"]'
+			);
 
 			if ( $remove ) {
 				$remove.closest( 'li' ).remove();
@@ -177,9 +203,10 @@ export function inputList( {
 
 /**
  * The IDs that describe `$field`, the one of its error message first when it shows.
- * @param $field
- * @param $message
- * @param isShown
+ *
+ * @param {Element}     $field   The field.
+ * @param {HTMLElement} $message Its error message.
+ * @param {boolean}     isShown  Whether its error message shows.
  */
 function describe( $field, $message, isShown ) {
 	const ids = ( $field.getAttribute( 'aria-describedby' ) ?? '' )
@@ -197,8 +224,9 @@ function describe( $field, $message, isShown ) {
 /**
  * Shows that `$field` is in error: it says so (aria-invalid), and its `message`, the one of the browser unless given,
  * shows under it and describes it; in a row of a list, such as a read date, under the row.
- * @param $field
- * @param message
+ *
+ * @param {Field}  $field    The field.
+ * @param {string} [message] Its message.
  */
 export function showError( $field, message = $field.validationMessage ) {
 	let $message = errorMessages.get( $field );
@@ -226,8 +254,9 @@ export function showError( $field, message = $field.validationMessage ) {
 
 /**
  * Marks `$element` as busy while it loads, as assistive technologies read it: aria-busy true, or no attribute.
- * @param $element
- * @param isBusy
+ *
+ * @param {Element} $element The element.
+ * @param {boolean} isBusy   Whether it is busy.
  */
 export function showBusy( $element, isBusy ) {
 	if ( isBusy ) {
@@ -239,8 +268,9 @@ export function showBusy( $element, isBusy ) {
 
 /**
  * Says on the button that sends a form that it is saving, its `data-saving`, or its label once saved.
- * @param $submit
- * @param isSaving
+ *
+ * @param {HTMLElement} $submit  The button.
+ * @param {boolean}     isSaving Whether the form is saving.
  */
 export function showSaving( $submit, isSaving ) {
 	$submit.dataset.label ??= $submit.textContent;
@@ -251,7 +281,8 @@ export function showSaving( $submit, isSaving ) {
 
 /**
  * Clears the error of `$field`, its message gone.
- * @param $field
+ *
+ * @param {Field} $field The field.
  */
 function clearError( $field ) {
 	const $message = errorMessages.get( $field );
@@ -268,8 +299,10 @@ function clearError( $field ) {
  * Shows at its fields what the browser finds wrong with `$form` when it is sent, rather than in a bubble on the first one:
  * the details that hold a field in error open, the first one takes the focus. A field changed loses its error once valid.
  * Returns the function that clears the errors, for a form filled again.
- * @param $form
- * @param signal
+ *
+ * @param {HTMLFormElement} $form  The form.
+ * @param {AbortSignal}     signal Removes the listeners.
+ * @return {() => void} The function that clears the errors.
  */
 export function showErrors( $form, signal ) {
 	let focused = false;
@@ -278,13 +311,15 @@ export function showErrors( $form, signal ) {
 	$form.addEventListener(
 		'invalid',
 		( event ) => {
+			const $field = /** @type {Field} */ ( event.target );
+
 			event.preventDefault();
-			showError( event.target );
-			event.target.closest( 'details' )?.setAttribute( 'open', '' );
+			showError( $field );
+			$field.closest( 'details' )?.setAttribute( 'open', '' );
 
 			if ( ! focused ) {
 				focused = true;
-				event.target.focus();
+				$field.focus();
 				setTimeout( () => {
 					focused = false;
 				} );
@@ -296,7 +331,7 @@ export function showErrors( $form, signal ) {
 	$form.addEventListener(
 		'input',
 		( event ) => {
-			const $field = event.target;
+			const $field = /** @type {Field} */ ( event.target );
 
 			if ( 'true' !== $field.getAttribute( 'aria-invalid' ) ) {
 				return;

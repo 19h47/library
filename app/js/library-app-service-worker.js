@@ -59,7 +59,9 @@ self.addEventListener( 'fetch', ( event ) => {
 
 /**
  * The response of the network, kept, or else the one kept; a view of the app not kept yet takes the app kept.
- * @param event
+ *
+ * @param {FetchEvent} event The request of the app.
+ * @return {Promise<Response>} Its response.
  */
 async function respond( event ) {
 	const { request } = event;

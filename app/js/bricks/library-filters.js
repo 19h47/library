@@ -10,10 +10,14 @@ import { fill } from 'library-app/render';
  */
 class LibraryFiltersElement extends Brick {
 	connect( signal ) {
+		/** @type {HTMLButtonElement} */
 		const $open = this.querySelector( '[data-action="open-filters"]' );
 		const $dialog = this.querySelector( 'dialog' );
+		/** @type {HTMLElement} */
 		const $chosen = this.querySelector( '.library-filters__chosen' );
-		const $pills = [ ...$chosen.querySelectorAll( '[data-filter]' ) ];
+		const $pills = /** @type {HTMLElement[]} */ ( [
+			...$chosen.querySelectorAll( '[data-filter]' ),
+		] );
 		const filters = [
 			...new Set( $pills.map( ( $pill ) => $pill.dataset.filter ) ),
 		];
@@ -25,7 +29,10 @@ class LibraryFiltersElement extends Brick {
 		$chosen.addEventListener(
 			'click',
 			( event ) => {
-				const $pill = event.target.closest( '[data-filter]' );
+				/** @type {HTMLElement} */
+				const $pill = /** @type {Element} */ ( event.target ).closest(
+					'[data-filter]'
+				);
 
 				if ( ! $pill ) {
 					return;
@@ -66,12 +73,12 @@ class LibraryFiltersElement extends Brick {
 				( state ) =>
 					state.search.loaded ? state.search.total : null,
 				( total ) => {
-					/* translators: %s: number of books found, e.g. 19 books. */
 					fill( this, {
 						show:
 							null === total
 								? __( 'Loading…', 'library' )
 								: sprintf(
+										/* translators: %s: number of books found, e.g. 19 books. */
 										__( 'Show %s', 'library' ),
 										formatBooks( total )
 								  ),

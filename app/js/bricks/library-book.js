@@ -10,6 +10,8 @@ import {
 import { fill, fillCover, linkPeople } from 'library-app/render';
 import { showBusy } from 'library-app/behaviors';
 
+/** @import { Book } from 'library-app/api' */
+
 /**
  * The page of a book: its cover, credits and title, its notes, its reading, its series and its fields; a book not
  * loaded yet, such as one of an achievement, says it is loading, the page open already. Another book opened from it,
@@ -18,6 +20,7 @@ import { showBusy } from 'library-app/behaviors';
  */
 class LibraryBookElement extends Brick {
 	connect( signal ) {
+		/** @type {HTMLElement} */
 		const $title = this.querySelector( '.library-book__title' );
 		const $edit = this.querySelector( '[data-action="edit"]' );
 		let shown = 0;
@@ -71,7 +74,13 @@ class LibraryBookElement extends Brick {
 		];
 	}
 
+	/**
+	 * Draws the book.
+	 *
+	 * @param {Book} book The book.
+	 */
 	#render( book ) {
+		/** @type {HTMLElement} */
 		const $content = this.querySelector( '[data-html="content"]' );
 
 		fillCover( this.querySelector( '[data-field="cover"]' ), book.cover );

@@ -7,6 +7,7 @@
 
 /** A brick: `connect()` returns what to subscribe, all unsubscribed when the brick leaves the page. */
 export class Brick extends HTMLElement {
+	/** @type {AbortController|null} */
 	#controller = null;
 
 	connectedCallback() {
@@ -22,5 +23,15 @@ export class Brick extends HTMLElement {
 
 	disconnectedCallback() {
 		this.#controller?.abort();
+	}
+
+	/**
+	 * What the brick does as it joins the page, its listeners added with `signal`, which aborts as it leaves; each brick
+	 * has its own. Returns the unsubscribe functions of what it selects of the store.
+	 *
+	 * @type {( signal: AbortSignal ) => Array<() => void>}
+	 */
+	connect() {
+		return [];
 	}
 }

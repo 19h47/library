@@ -24,6 +24,142 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 import { today } from 'library-app/format';
 
+/**
+ * @import { Achievements, Book, BookForm, BookValues, Idea, Month, PageView, PersonData, PublisherData, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Route } from 'library-app/router'
+ */
+
+/**
+ * A list loaded by pages: its items so far, and where it stands.
+ *
+ * @template [T=number]
+ * @typedef {Object} Pages
+ * @property {T[]}     items    Its items so far, such as the IDs of its books.
+ * @property {number}  total    How many it has in all.
+ * @property {number}  page     The last page loaded, 0 for none.
+ * @property {number}  pages    How many pages it has.
+ * @property {boolean} loading  Whether it is loading.
+ * @property {boolean} renewing Whether it loads again from its start, its items shown until then.
+ * @property {boolean} loaded   Whether it was loaded, or could not be.
+ * @property {string}  error    Why it could not be loaded, or empty.
+ */
+
+/**
+ * How a resource stands: whether it is loading, was loaded, or why it could not be.
+ *
+ * @typedef {Object} Loading
+ * @property {boolean} loading Whether it is loading.
+ * @property {boolean} loaded  Whether it was loaded, or could not be.
+ * @property {string}  error   Why it could not be loaded, or empty.
+ */
+
+/**
+ * The volumes of the series of the book open.
+ *
+ * @typedef {Pages & {name: string}} Volumes
+ */
+
+/**
+ * The saving of the reading of the book open.
+ *
+ * @typedef {Object} Saving
+ * @property {boolean} loading Whether it is saving.
+ * @property {string}  error   Why it could not be saved, or empty.
+ */
+
+/**
+ * The form of a book, to add one or to edit one.
+ *
+ * @typedef {Object} Editing
+ * @property {number}        id        The book edited, 0 for a book to add.
+ * @property {BookForm|null} book      The values of the book edited, none until loaded.
+ * @property {boolean}       open      Whether it is open.
+ * @property {boolean}       loading   Whether it is saving.
+ * @property {string}        error     Why it could not be loaded or saved, or empty.
+ * @property {number}        duplicate The book that has the ISBN typed for a book to add, 0 for none.
+ */
+
+/**
+ * What an action done says, such as a reading saved, with the action that undoes it, if any.
+ *
+ * @typedef {Object} Notice
+ * @property {string}                           text     What it says.
+ * @property {{label: string, run: () => void}} [action] The action, its label and what it does.
+ */
+
+/** @typedef {Pages & PersonData & {id: number}} PersonPage The page of the person open. */
+/** @typedef {Pages & SeriesData & {id: number}} SeriesPage The page of the series open. */
+/** @typedef {Pages & PublisherData & {id: number}} PublisherPage The page of the collection open. */
+
+/** @typedef {'search'|'inProgress'|'toBuy'} List The lists of books loaded by pages. */
+
+/**
+ * The parts of the state that change part by part: the resources, the books of the series of the book open, the
+ * saving of its reading, the form of a book and the names it suggests.
+ *
+ * @typedef {List|'diary'|'idea'|'achievements'|PageView|'volumes'|'saving'|'editing'|'terms'} Part
+ */
+
+/**
+ * The names the form of a book suggests, and whether they are loading or loaded.
+ *
+ * @typedef {Suggestions & Omit<Loading, 'error'>} Terms
+ */
+
+/**
+ * The reading of a book, as the route of its form takes it.
+ *
+ * @typedef {Object} BookReading
+ * @property {Object}      meta                     Its meta.
+ * @property {boolean}     meta.library_read        Whether it is read.
+ * @property {boolean}     meta.library_in_progress Whether it is being read.
+ * @property {string[]}    meta.library_read_date   Its read dates, by their days, an unknown date empty.
+ * @property {number|null} meta.library_rating      Its rating, none for none.
+ * @property {string}      [status]                 Its status, unless another one than in the library, not kept or to buy.
+ */
+
+/**
+ * A resource: how its state starts, how it loads the first time, and how it loads again in place, after the book `id`
+ * was saved, or after a while away, without one.
+ *
+ * @typedef {Object} Resource
+ * @property {() => Object}            empty  Its state, empty.
+ * @property {() => void}              load   Loads it the first time.
+ * @property {( id?: number ) => void} reload Loads it again in place.
+ */
+
+/**
+ * The app state: see LibraryStore.
+ *
+ * @typedef {Object} State
+ * @property {'light'|'dark'}         theme        The theme shown.
+ * @property {boolean}                themeChosen  Whether the theme was chosen over the system one.
+ * @property {string}                 read         The read state of the books shown: "", "yes", "no" or "progress".
+ * @property {string}                 status       The status of the books shown, "" for any.
+ * @property {string}                 form         The term ID of the form of the books shown, "" for any.
+ * @property {string}                 sort         The order of the books, "" for the latest added.
+ * @property {string}                 view         The view shown, none until the router shows the one of the URL.
+ * @property {string}                 query        The search of the books.
+ * @property {Object<number, Book>}   books        Every book loaded, by ID.
+ * @property {Stats|null}             stats        The reading stats, none until loaded.
+ * @property {number}                 book         The book open, 0 for none.
+ * @property {Volumes}                volumes      The books of the series of the book open.
+ * @property {Saving}                 saving       The saving of its reading.
+ * @property {Editing}                editing      The form of a book.
+ * @property {Terms}                  terms        The names the form suggests.
+ * @property {Notice|null}            notice       What an action done says, once.
+ * @property {string}                 moved        How the view shown came: "forward", "back", or "".
+ * @property {Pages}                  search       The books found.
+ * @property {Pages}                  inProgress   The books being read.
+ * @property {Pages}                  toBuy        The books to buy.
+ * @property {Pages<Month>}           diary        The readings by month.
+ * @property {Idea & Loading}         idea         The reading idea.
+ * @property {Achievements & Loading} achievements The achievements.
+ * @property {PersonPage}             person       The person open.
+ * @property {SeriesPage}             series       The series open.
+ * @property {PublisherPage}          publisher    The collection open.
+ */
+
 const STORAGE_KEY = 'library-app';
 // Kept between visits. The query, the view and the page open are in the URL only, which the router reads.
 const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
@@ -34,6 +170,7 @@ const FILTERS = [ 'read', 'status', 'form', 'sort' ];
 // The page of a book, opened from its card, its cover or a link.
 const BOOK_VIEW = 'book';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
+/** @type {string[]} */
 const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
 // The resource each view shows; the page of a book shows the book open.
 const VIEW_RESOURCES = {
@@ -50,11 +187,17 @@ const SEARCH_DELAY = 250;
 const REFRESH_AFTER_MS = 5 * 60 * 1000;
 
 const $root = document.documentElement;
+/** @type {HTMLMetaElement} */
 const $themeColor = document.querySelector( 'meta[name="theme-color"]' );
+/** @type {HTMLLinkElement} */
 const $favicon = document.querySelector( 'link[rel="icon"]' );
 const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
 
-/** What localStorage holds, checked: anything else falls back. */
+/**
+ * What localStorage holds, checked: anything else falls back.
+ *
+ * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'>} What it holds.
+ */
 function load() {
 	let saved = null;
 
@@ -89,7 +232,8 @@ function load() {
 
 /**
  * SAVED goes to localStorage.
- * @param state
+ *
+ * @param {State} state The state.
  */
 function save( state ) {
 	try {
@@ -106,7 +250,9 @@ function save( state ) {
 
 /**
  * Whether the home shows: the books view, without a query.
- * @param state
+ *
+ * @param {State} state The state.
+ * @return {boolean} Whether it shows.
  */
 export function isHome( state ) {
 	return 'books' === state.view && ! state.query.trim();
@@ -114,9 +260,9 @@ export function isHome( state ) {
 
 /**
  * The search sent to the API: the query, and the read state as the keyword read:, or the reading in progress as progress:.
- * @param root0
- * @param root0.query
- * @param root0.read
+ *
+ * @param {State} state The state, its query and its read state.
+ * @return {string} The search.
  */
 function searchOf( { query, read } ) {
 	const keyword =
@@ -128,7 +274,9 @@ function searchOf( { query, read } ) {
 /**
  * The reading of `book`, as the route of its form takes it, to put it back as it was: whether it is read and being read,
  * its read dates by their days, as the form gives them, its rating, and its status unless another one, such as a draft.
- * @param book
+ *
+ * @param {Book} book The book.
+ * @return {BookReading} Its reading.
  */
 function readingOf( book ) {
 	const meta = {
@@ -149,8 +297,10 @@ function readingOf( book ) {
  * What a list asks the API for: `search` the books the search finds, of the status chosen, else of any status but
  * to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen; `toBuy` the books
  * to buy; `inProgress` the books being read.
- * @param list
- * @param state
+ *
+ * @param {List}  list  The list.
+ * @param {State} state The state, its search and filters.
+ * @return {Object<string, string>} The query of the books.
  */
 function queryOf( list, state ) {
 	if ( 'toBuy' === list ) {
@@ -182,7 +332,10 @@ function queryOf( list, state ) {
 
 /**
  * A list loaded by pages: its items so far, and where it stands; `renewing` when it loads again from its start, its items shown until then.
- * @param items
+ *
+ * @template T
+ * @param {T[]} [items] Its items so far.
+ * @return {Pages<T>} The list.
  */
 function pages( items = [] ) {
 	return {
@@ -197,6 +350,11 @@ function pages( items = [] ) {
 	};
 }
 
+/**
+ * The reading idea, none loaded.
+ *
+ * @return {Idea & Loading} The idea.
+ */
 function idea() {
 	return {
 		id: 0,
@@ -209,19 +367,30 @@ function idea() {
 	};
 }
 
+/**
+ * The achievements, none loaded.
+ *
+ * @return {Achievements & Loading} The achievements.
+ */
 function achievements() {
 	return { earned: [], close: [], loading: false, loaded: false, error: '' };
 }
 
 /**
  * The volumes of the series `name` of the book open, in reading order.
- * @param name
+ *
+ * @param {string} [name] The series, after its cycles.
+ * @return {Volumes} Its volumes.
  */
 function volumes( name = '' ) {
 	return { ...pages(), name };
 }
 
-/** The saving of the reading of the book open. */
+/**
+ * The saving of the reading of the book open.
+ *
+ * @return {Saving} The saving.
+ */
 function saving() {
 	return { loading: false, error: '' };
 }
@@ -229,14 +398,20 @@ function saving() {
 /**
  * The form of a book, to add one or to edit the book `id`, whose values it holds as `book`, and its saving; `duplicate`
  * the book that has the ISBN typed for a book to add.
- * @param id
- * @param book
+ *
+ * @param {number}        [id]   The book edited, 0 for a book to add.
+ * @param {BookForm|null} [book] Its values.
+ * @return {Editing} The form.
  */
 function editing( id = 0, book = null ) {
 	return { id, book, open: false, loading: false, error: '', duplicate: 0 };
 }
 
-/** The names the form of a book suggests, as terms: people and their other names, publishers and collections, series. */
+/**
+ * The names the form of a book suggests, as terms: people and their other names, publishers and collections, series.
+ *
+ * @return {Terms} The names, none loaded.
+ */
 function terms() {
 	return {
 		people: [],
@@ -272,6 +447,13 @@ const PAGE_STATES = {
 	} ),
 };
 
+/**
+ * The page `view` of the term `id`, empty.
+ *
+ * @param {string} view The view of the page: "person", "series" or "publisher".
+ * @param {number} [id] Term ID.
+ * @return {PersonPage|SeriesPage|PublisherPage} The page.
+ */
 function page( view, id = 0 ) {
 	return {
 		...pages(),
@@ -294,17 +476,29 @@ function page( view, id = 0 ) {
  * `notice` what an action done says, such as a reading saved, with the `action` that undoes it if any, once: a new object each time,
  * `view` the view shown, none until the router shows the one of the URL, `query` the search of the books,
  * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
+ *
+ * @augments {Store<State>}
  */
 class LibraryStore extends Store {
 	#timeout = 0;
-	// The request running of each resource: another one cancels it.
+	/**
+	 * The request running of each resource: another one cancels it.
+	 *
+	 * @type {Object<string, AbortController>}
+	 */
 	#controllers = {};
-	// The resources loaded, hidden as a book changed: they load again in place the next time they show.
+	/**
+	 * The resources loaded, hidden as a book changed: they load again in place the next time they show.
+	 *
+	 * @type {Set<string>}
+	 */
 	#stale = new Set();
 
 	/**
 	 * The resources: the parts of the state the API fills, each with its state `empty`, how it loads the first time, and
 	 * how it loads again in place, `reload( id )`, after the book `id` was saved, or after a while away, without one.
+	 *
+	 * @type {Object<string, Resource>}
 	 */
 	#resources = {
 		search: {
@@ -361,20 +555,23 @@ class LibraryStore extends Store {
 	};
 
 	constructor() {
-		super( {
-			...load(),
-			view: '',
-			query: '',
-			books: {},
-			stats: null,
-			book: 0,
-			volumes: volumes(),
-			saving: saving(),
-			editing: editing(),
-			terms: terms(),
-			notice: null,
-			moved: '',
-		} );
+		// The resources come right after, from their private field.
+		super(
+			/** @type {State} */ ( {
+				...load(),
+				view: '',
+				query: '',
+				books: {},
+				stats: null,
+				book: 0,
+				volumes: volumes(),
+				saving: saving(),
+				editing: editing(),
+				terms: terms(),
+				notice: null,
+				moved: '',
+			} )
+		);
 
 		this.set( ( state ) => ( { ...state, ...this.#emptyResources() } ) );
 
@@ -414,11 +611,9 @@ class LibraryStore extends Store {
 	 * the data of a view load the first time it shows. `navigationType` is how it came, as the Navigation API names it:
 	 * a link to a search, pushed, shows all the books it finds, whatever the filters chosen; gone back to, through the
 	 * history, a view gives back the focus it had.
-	 * @param root0
-	 * @param root0.view
-	 * @param root0.id
-	 * @param root0.query
-	 * @param navigationType
+	 *
+	 * @param {Route}  route            What the URL shows.
+	 * @param {string} [navigationType] How it came: "push", "replace", "traverse" or "reload".
 	 */
 	show( { view, id, query }, navigationType = '' ) {
 		const isSearchLink =
@@ -446,7 +641,8 @@ class LibraryStore extends Store {
 
 	/**
 	 * The search of the books, as typed.
-	 * @param query
+	 *
+	 * @param {string} query The search.
 	 */
 	setQuery( query ) {
 		this.set( ( state ) => ( { ...state, query } ) );
@@ -461,8 +657,9 @@ class LibraryStore extends Store {
 
 	/**
 	 * A filter of the books, or their order, one of FILTERS, "" for none: the books found load again.
-	 * @param filter
-	 * @param value
+	 *
+	 * @param {string} filter The filter.
+	 * @param {string} value  Its value, "" for none.
 	 */
 	setFilter( filter, value ) {
 		if ( FILTERS.includes( filter ) ) {
@@ -473,7 +670,8 @@ class LibraryStore extends Store {
 
 	/**
 	 * The next books of a list, `search` or `toBuy`, unless some are loading or none is left.
-	 * @param list
+	 *
+	 * @param {List} list The list.
 	 */
 	loadMoreBooks( list ) {
 		const { loading, items, total } = this.get()[ list ];
@@ -485,7 +683,8 @@ class LibraryStore extends Store {
 
 	/**
 	 * The next page of the books of the page `key`, `person`, `series` or `publisher`, unless one is loading or none is left.
-	 * @param key
+	 *
+	 * @param {PageView} key The page.
 	 */
 	loadMorePageBooks( key ) {
 		const { loading, page: current, pages: last } = this.get()[ key ];
@@ -516,7 +715,8 @@ class LibraryStore extends Store {
 	/**
 	 * Opens the form of a book: of the book `id`, its values loaded first, or of a book to add, empty.
 	 * The names it suggests load the first time.
-	 * @param id
+	 *
+	 * @param {number} [id] The book to edit, 0 for a book to add.
 	 */
 	async openEdit( id = 0 ) {
 		let book = null;
@@ -551,7 +751,8 @@ class LibraryStore extends Store {
 	/**
 	 * Looks for the book that has the ISBN typed in the form of a book to add, such as a book to buy found in a bookshop.
 	 * An ISBN has 10 or 13 digits, hyphens aside.
-	 * @param isbn
+	 *
+	 * @param {string} isbn The ISBN typed.
 	 */
 	async checkIsbn( isbn ) {
 		const digits = isbn.replace( /[\s-]/g, '' );
@@ -574,7 +775,9 @@ class LibraryStore extends Store {
 	/**
 	 * The book to buy `id`, bought: it joins the library, the form of a book to add closed. Every view loads again.
 	 * Returns its ID once bought, for its page to open, else 0.
-	 * @param id
+	 *
+	 * @param {number} id The book to buy.
+	 * @return {Promise<number>} Its ID once bought, else 0.
 	 */
 	async buyBook( id ) {
 		this.#update( 'editing', () => ( { loading: true, error: '' } ) );
@@ -601,8 +804,9 @@ class LibraryStore extends Store {
 	 * Adds a book, the image of its cover uploaded first. Every view loads again, so the book comes first among the
 	 * books, and so do the names to suggest, with the ones it added. Returns its ID, for its page to open, for its
 	 * reading, else 0.
-	 * @param root0
-	 * @param root0.cover
+	 *
+	 * @param {BookValues & {cover: File|null}} values The values of the form, and the photo of its cover, if any.
+	 * @return {Promise<number>} Its ID once added, else 0.
 	 */
 	async addBook( { cover, ...book } ) {
 		this.#update( 'editing', () => ( { loading: true, error: '' } ) );
@@ -631,19 +835,20 @@ class LibraryStore extends Store {
 	 * Saves the form of the book open, which then shows its new values. Only what changed is sent: the publisher
 	 * with its collection, the meta one by one; a photo picked is uploaded first, a cover removed is sent as 0.
 	 * The views load again as after a reading, and so do the names to suggest, with the ones it added.
-	 * @param root0
-	 * @param root0.cover
-	 * @param root0.coverRemoved
-	 * @param root0.meta
+	 *
+	 * @param {BookValues & {cover: File|null, coverRemoved: boolean}} values The values of the form, the photo of its cover, if any, and whether the cover was removed.
 	 */
 	async editBook( { cover, coverRemoved, meta, ...values } ) {
 		const { books, editing: form } = this.get();
 		const { id, book } = form;
 		// Compared as JSON: the people are objects, each name with its role.
-		const changes = Object.fromEntries(
-			Object.entries( values ).filter(
-				( [ key, value ] ) =>
-					JSON.stringify( value ) !== JSON.stringify( book[ key ] )
+		const changes = /** @type {Partial<BookValues>} */ (
+			Object.fromEntries(
+				Object.entries( values ).filter(
+					( [ key, value ] ) =>
+						JSON.stringify( value ) !==
+						JSON.stringify( book[ key ] )
+				)
 			)
 		);
 		const changedMeta = Object.fromEntries(
@@ -701,7 +906,8 @@ class LibraryStore extends Store {
 	 * Reads the book `id` being read today, as its reading form would with the date of the day added: no longer in
 	 * progress, read once more. Says so in a notice, whose action Undo puts its reading back as it was, or says what
 	 * went wrong.
-	 * @param id
+	 *
+	 * @param {number} id The book.
 	 */
 	async finishReading( id ) {
 		const book = this.get().books[ id ];
@@ -729,8 +935,9 @@ class LibraryStore extends Store {
 
 	/**
 	 * Says that the reading of the book `id` was saved, in a notice whose action Undo puts it back as it was, `before`.
-	 * @param id
-	 * @param before
+	 *
+	 * @param {number}      id     The book.
+	 * @param {BookReading} before Its reading before.
 	 */
 	#noticeSaved( id, before ) {
 		const undo = async () => {
@@ -763,12 +970,13 @@ class LibraryStore extends Store {
 	 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
 	 * It goes through the route of the book form, which writes the read dates at once: the core API, which
 	 * removes a meta value by value, would remove them all with an unknown date, empty.
-	 * @param root0
-	 * @param root0.read
-	 * @param root0.inProgress
-	 * @param root0.readDates
-	 * @param root0.rating
-	 * @param root0.status
+	 *
+	 * @param {Object}      reading            The reading, as the form gives it.
+	 * @param {boolean}     reading.read       Whether the book is read.
+	 * @param {boolean}     reading.inProgress Whether it is being read.
+	 * @param {string[]}    reading.readDates  Its read dates, by their days, an unknown date empty.
+	 * @param {number|null} reading.rating     Its rating, none for none.
+	 * @param {string}      reading.status     Its status, as the form shows it.
 	 */
 	async saveReading( {
 		read,
@@ -786,6 +994,7 @@ class LibraryStore extends Store {
 			? book.status
 			: 'publish';
 		const status = chosen === shown ? book.status : chosen;
+		/** @type {Object<string, unknown>} */
 		const meta = {};
 
 		if ( read !== book.read ) {
@@ -845,7 +1054,11 @@ class LibraryStore extends Store {
 		} ) );
 	}
 
-	/** Every resource, empty. */
+	/**
+	 * Every resource, empty.
+	 *
+	 * @return {Object<string, Object>} The resources, by key.
+	 */
 	#emptyResources() {
 		return Object.fromEntries(
 			Object.entries( this.#resources ).map( ( [ key, resource ] ) => [
@@ -858,10 +1071,12 @@ class LibraryStore extends Store {
 	/**
 	 * Loads the resource `key` as it shows: the first time, or again once it failed; again in place if a book changed
 	 * while it was hidden. Not while it loads.
-	 * @param key
+	 *
+	 * @param {string} key The resource.
 	 */
 	#load( key ) {
 		const { loaded, loading, error } = this.get()[ key ];
+		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- No longer stale either way, even while it loads.
 		const isStale = this.#stale.delete( key );
 
 		if ( loading ) {
@@ -875,7 +1090,11 @@ class LibraryStore extends Store {
 		}
 	}
 
-	/** The resources the view shown shows, the books to buy with them: see VIEW_RESOURCES and HOME. */
+	/**
+	 * The resources the view shown shows, the books to buy with them: see VIEW_RESOURCES and HOME.
+	 *
+	 * @return {string[]} The resources.
+	 */
 	#shownResources() {
 		const state = this.get();
 		const shown = [
@@ -902,12 +1121,15 @@ class LibraryStore extends Store {
 	/**
 	 * Shows a view, and loads its data the first time: the page of a person, a series or a collection starts again for another `id`,
 	 * the page of a book shows the book `id`, its reading not saved left behind.
-	 * @param view
-	 * @param id
+	 *
+	 * @param {string} view The view.
+	 * @param {number} [id] The ID of its book or its term, 0 for none.
 	 */
 	#show( view, id = 0 ) {
 		const book = BOOK_VIEW === view ? id : 0;
-		const fresh = api.PAGE_VIEWS.includes( view ) && {
+		const fresh = api.PAGE_VIEWS.includes(
+			/** @type {PageView} */ ( view )
+		) && {
 			[ view ]: page( view, id ),
 		};
 
@@ -932,7 +1154,8 @@ class LibraryStore extends Store {
 	/**
 	 * Loads the book `id` of the page of a book, unless it is loaded, then its series. A book not found, as from a link
 	 * to a book deleted, or that could not load, leaves its page for the home, which says why.
-	 * @param id
+	 *
+	 * @param {number} id The book.
 	 */
 	async #loadBook( id ) {
 		let failure = null;
@@ -975,7 +1198,8 @@ class LibraryStore extends Store {
 	 * What was loaded, again in place, after the book `id` was saved, or after a while away, without one: the stats, the
 	 * series of the book open, and every resource loaded, at once if it shows, else the next time it does, so that a
 	 * view gone back to shows the books as they are, where it was.
-	 * @param id
+	 *
+	 * @param {number} [id] The book saved, 0 for none.
 	 */
 	#reloadLoaded( id = 0 ) {
 		const state = this.get();
@@ -1039,6 +1263,13 @@ class LibraryStore extends Store {
 		this.#show( view, id );
 	}
 
+	/**
+	 * Changes the part `key` of the state with what `update` returns from it.
+	 *
+	 * @template {Part} K
+	 * @param {K}                                          key    The part of the state.
+	 * @param {( current: State[K] ) => Partial<State[K]>} update What changes, from the part as it is.
+	 */
 	#update( key, update ) {
 		this.set( ( state ) => ( {
 			...state,
@@ -1048,7 +1279,9 @@ class LibraryStore extends Store {
 
 	/**
 	 * Cancels the request running of the resource `key`, if any, and returns the signal of the next one.
-	 * @param key
+	 *
+	 * @param {string} key The resource.
+	 * @return {AbortSignal} The signal of the next request.
 	 */
 	#signal( key ) {
 		this.#controllers[ key ]?.abort();
@@ -1061,11 +1294,14 @@ class LibraryStore extends Store {
 	 * Loads the resource `key` through `request`, which returns what its state takes, from the state as it is then: it is
 	 * loading meanwhile, then loaded, or says why it could not; a request cancelled leaves it to the one that cancelled
 	 * it. `start` is what its state takes as it starts, `end` as it ends, either way. Returns whether it loaded.
-	 * @param key
-	 * @param request
-	 * @param root0
-	 * @param root0.start
-	 * @param root0.end
+	 *
+	 * @template {Part} K
+	 * @param {K}                                                         key             The resource.
+	 * @param {() => Promise<( current: State[K] ) => Partial<State[K]>>} request         The request.
+	 * @param {Object}                                                    [options]       Options.
+	 * @param {Partial<State[K]>}                                         [options.start] What its state takes as it starts.
+	 * @param {Partial<State[K]>}                                         [options.end]   What its state takes as it ends.
+	 * @return {Promise<boolean>} Whether it loaded.
 	 */
 	async #request( key, request, { start = {}, end = {} } = {} ) {
 		this.#update( key, () => ( { loading: true, error: '', ...start } ) );
@@ -1098,7 +1334,9 @@ class LibraryStore extends Store {
 	/**
 	 * Adds books to the ones loaded, and returns their IDs. A book loaded again as it was stays the one loaded, so what
 	 * shows it, such as its reading form being filled, is not drawn again.
-	 * @param books
+	 *
+	 * @param {Book[]} books The books.
+	 * @return {number[]} Their IDs.
 	 */
 	#addBooks( books ) {
 		this.set( ( state ) => {
@@ -1126,10 +1364,11 @@ class LibraryStore extends Store {
 
 	/**
 	 * Loads the books not loaded yet among `ids`, or all of them when `fresh`.
-	 * @param ids
-	 * @param root0
-	 * @param root0.signal
-	 * @param root0.fresh
+	 *
+	 * @param {number[]}    ids              Book IDs.
+	 * @param {Object}      [options]        Options.
+	 * @param {AbortSignal} [options.signal] Cancels the requests.
+	 * @param {boolean}     [options.fresh]  Whether to load them all.
 	 */
 	async #fetchBooks( ids, { signal, fresh = false } = {} ) {
 		const { books } = this.get();
@@ -1146,11 +1385,13 @@ class LibraryStore extends Store {
 	 * one running; for the search, it cancels the one waiting for a pause in the typing. `count` books at least load, up to
 	 * a page of the API, so that a list loaded again keeps its length; `inPlace`, the list loads again as it is, such as
 	 * after a book saved, rather than for another search, which it shows faded until then.
-	 * @param list
-	 * @param root0
-	 * @param root0.offset
-	 * @param root0.count
-	 * @param root0.inPlace
+	 *
+	 * @param {List}    list              The list.
+	 * @param {Object}  [options]         Options.
+	 * @param {number}  [options.offset]  The first book, from 0.
+	 * @param {number}  [options.count]   How many books at least.
+	 * @param {boolean} [options.inPlace] Whether the list loads again as it is.
+	 * @return {Promise<boolean>} Whether it loaded.
 	 */
 	#fetchList( list, { offset = 0, count = perPage, inPlace = false } = {} ) {
 		if ( 'search' === list ) {
@@ -1186,8 +1427,9 @@ class LibraryStore extends Store {
 	/**
 	 * Takes the book `id` out of a list when it no longer finds it, such as a book read with the filter "To read",
 	 * a book bought with the filter "To buy", or a book to buy bought.
-	 * @param list
-	 * @param id
+	 *
+	 * @param {List}   list The list.
+	 * @param {number} id   The book.
 	 */
 	async #refreshList( list, id ) {
 		const query = queryOf( list, this.get() );
@@ -1222,8 +1464,10 @@ class LibraryStore extends Store {
 	/**
 	 * A page of the diary, with the books of its readings. `fresh`, they load all, as the page preloads them, rather than
 	 * the ones not loaded yet.
-	 * @param number
-	 * @param fresh
+	 *
+	 * @param {number}  number  The page, from 1.
+	 * @param {boolean} [fresh] Whether its books load all.
+	 * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, and how many months and pages in all.
 	 */
 	async #fetchReadings( number, fresh = false ) {
 		const readings = await api.getReadings( number );
@@ -1240,7 +1484,9 @@ class LibraryStore extends Store {
 
 	/**
 	 * The next page of the diary; the first one, as the page preloads it.
-	 * @param number
+	 *
+	 * @param {number} number The page, from 1.
+	 * @return {Promise<boolean>} Whether it loaded.
 	 */
 	#fetchDiary( number ) {
 		return this.#request( 'diary', async () => {
@@ -1289,7 +1535,8 @@ class LibraryStore extends Store {
 
 	/**
 	 * The idea at `position` in the week's list, with its book; none, as it could not load.
-	 * @param position
+	 *
+	 * @param {number} position Its position, from 0.
 	 */
 	async #fetchIdea( position ) {
 		const isLoaded = await this.#request( 'idea', async () => {
@@ -1314,7 +1561,8 @@ class LibraryStore extends Store {
 	 * The page `key` open, `person`, `series` or `publisher`, then the first page of its books, unless it is loaded
 	 * already: loaded again, its books show as many pages as they did, those of now, such as a book saved into it or out
 	 * of it. Another person, series or collection cancels the one loading.
-	 * @param key
+	 *
+	 * @param {PageView} key The page.
 	 */
 	async #fetchPage( key ) {
 		const signal = this.#signal( key );
@@ -1344,8 +1592,10 @@ class LibraryStore extends Store {
 
 	/**
 	 * A page of the books of the page `key` open, from their IDs.
-	 * @param key
-	 * @param number
+	 *
+	 * @param {PageView} key    The page.
+	 * @param {number}   number The page of its books, from 1.
+	 * @return {Promise<boolean>} Whether it loaded.
 	 */
 	#fetchPageBooks( key, number ) {
 		const { signal } = this.#controllers[ key ];
@@ -1367,7 +1617,9 @@ class LibraryStore extends Store {
 	/**
 	 * The books of the series `name`, in reading order. Another series cancels the one loading, and starts empty; the
 	 * same one, loaded again, shows its books until the new ones come.
-	 * @param name
+	 *
+	 * @param {string} name The series, after its cycles.
+	 * @return {Promise<boolean>} Whether it loaded.
 	 */
 	#fetchVolumes( name ) {
 		const signal = this.#signal( 'volumes' );
@@ -1385,6 +1637,11 @@ class LibraryStore extends Store {
 		} );
 	}
 
+	/**
+	 * The achievements earned and close to be earned.
+	 *
+	 * @return {Promise<boolean>} Whether they loaded.
+	 */
 	#fetchAchievements() {
 		return this.#request( 'achievements', async () => {
 			const { earned, close } = await api.getAchievements();
@@ -1393,6 +1650,7 @@ class LibraryStore extends Store {
 		} );
 	}
 
+	/** The names the form of a book suggests. */
 	async #fetchTerms() {
 		this.#update( 'terms', () => ( { loading: true } ) );
 
@@ -1409,6 +1667,7 @@ class LibraryStore extends Store {
 		}
 	}
 
+	/** The reading stats; they stay as they were if they could not load. */
 	async #fetchStats() {
 		try {
 			const stats = await api.getStats();

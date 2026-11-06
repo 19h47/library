@@ -136,7 +136,7 @@ test.describe( 'Reading', () => {
 		page,
 		requestUtils,
 	} ) => {
-		const next = await addBook( requestUtils, {
+		await addBook( requestUtils, {
 			title: 'The Next One',
 			meta: { library_in_progress: true },
 		} );
@@ -151,14 +151,13 @@ test.describe( 'Reading', () => {
 			() => 2 === window.store.get().inProgress.items.length
 		);
 
-		const first = page.locator(
-			`library-in-progress [data-id="${ await page.evaluate(
-				() => window.store.get().inProgress.items[ 0 ]
-			) }"]`
+		// The first of the two books being read, and the other one, next.
+		const [ firstId, nextId ] = await page.evaluate(
+			() => window.store.get().inProgress.items
 		);
-		const finished = first.getByRole( 'button', { name: 'Finished' } );
-		const firstId = Number( await first.getAttribute( 'data-id' ) );
-		const nextId = firstId === book.id ? next.id : book.id;
+		const finished = page
+			.locator( `library-in-progress [data-id="${ firstId }"]` )
+			.getByRole( 'button', { name: 'Finished' } );
 
 		await finished.focus();
 		await page.keyboard.press( 'Enter' );
