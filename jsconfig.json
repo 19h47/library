@@ -9,9 +9,8 @@
 		"lib": [ "es2024", "dom", "dom.iterable" ],
 		"skipLibCheck": true,
 		"types": [],
-		"baseUrl": ".",
 		"paths": {
-			"library-app/*": [ "app/js/lib/*.js" ]
+			"library-app/*": [ "./app/js/lib/*.js" ]
 		}
 	},
 	"include": [ "app/js/**/*.js", "admin/js/*.js", "types/*.d.ts" ],

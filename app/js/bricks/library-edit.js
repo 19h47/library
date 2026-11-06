@@ -28,13 +28,16 @@ import { urlOf } from 'library-app/router';
  */
 
 /**
- * Opens the page of the book `id`, added or bought, for its reading; none, its form says why.
+ * Opens the page of the book `id`, added or bought, for its reading, then closes the form over it, rather than over
+ * the view it was opened from; none, the form stays open and says why.
  *
  * @param {number} id The book, 0 for none.
  */
 function openBook( id ) {
 	if ( id ) {
-		navigation.navigate( urlOf( { view: 'book', id } ) );
+		navigation
+			.navigate( urlOf( { view: 'book', id } ) )
+			.finished.finally( () => store.closeEdit() );
 	}
 }
 

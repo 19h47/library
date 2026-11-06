@@ -773,8 +773,8 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The book to buy `id`, bought: it joins the library, the form of a book to add closed. Every view loads again.
-	 * Returns its ID once bought, for its page to open, else 0.
+	 * The book to buy `id`, bought: it joins the library. What was loaded loads again, in place, as after a book saved.
+	 * Returns its ID once bought, for its page to open, which then closes the form of a book to add, else 0.
 	 *
 	 * @param {number} id The book to buy.
 	 * @return {Promise<number>} Its ID once bought, else 0.
@@ -786,8 +786,7 @@ class LibraryStore extends Store {
 			this.#addBooks( [
 				await api.saveBook( id, { status: 'publish' } ),
 			] );
-			this.closeEdit();
-			this.#reloadAll();
+			this.#reloadAdded();
 
 			return id;
 		} catch ( error ) {
@@ -801,9 +800,9 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * Adds a book, the image of its cover uploaded first. Every view loads again, so the book comes first among the
-	 * books, and so do the names to suggest, with the ones it added. Returns its ID, for its page to open, for its
-	 * reading, else 0.
+	 * Adds a book, the image of its cover uploaded first. What was loaded loads again, in place, so the book comes first
+	 * among the books, and so do the names to suggest, with the ones it added. Returns its ID, for its page to open, for
+	 * its reading, which then closes the form, else 0.
 	 *
 	 * @param {BookValues & {cover: File|null}} values The values of the form, and the photo of its cover, if any.
 	 * @return {Promise<number>} Its ID once added, else 0.
@@ -817,8 +816,7 @@ class LibraryStore extends Store {
 				await api.addBook( { ...book, featured_media: coverId } ),
 			] );
 
-			this.closeEdit();
-			this.#reloadAll();
+			this.#reloadAdded();
 
 			return id;
 		} catch ( error ) {
@@ -1246,21 +1244,13 @@ class LibraryStore extends Store {
 		this.#fetchBooks( pageBooks, { fresh: true } ).catch( () => {} );
 	}
 
-	/** After a book was added: the stats, every view and the names to suggest load again; the view shown at once. */
-	#reloadAll() {
-		const { view, book } = this.get();
-		const id = BOOK_VIEW === view ? book : this.get()[ view ]?.id ?? 0;
-
-		this.#stale.clear();
-		this.set( ( state ) => ( {
-			...state,
-			...this.#emptyResources(),
-			volumes: volumes(),
-			terms: terms(),
-		} ) );
-		this.#fetchStats();
-		this.#load( 'toBuy' );
-		this.#show( view, id );
+	/**
+	 * After a book was added or bought: what was loaded loads again in place, as after a book saved, rather than
+	 * emptied, which made what shows go and come back; the names to suggest load again the next time the form opens.
+	 */
+	#reloadAdded() {
+		this.set( ( state ) => ( { ...state, terms: terms() } ) );
+		this.#reloadLoaded();
 	}
 
 	/**
