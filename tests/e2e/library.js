@@ -1,12 +1,11 @@
 /**
  * What the tests of the reading app share: the URL of the app, books added and removed through the REST API, and the
  * store of the app, read from the page.
- *
- * @package Library
  */
 
 // The page of the app in the admin, the books view.
-export const APP_PATH = '/wp-admin/edit.php?post_type=library_book&page=library';
+export const APP_PATH =
+	'/wp-admin/edit.php?post_type=library_book&page=library';
 
 // The statuses a book of the tests may have, as the app lists them, and a draft.
 const STATUSES = 'publish,library-not-kept,library-to-buy,draft';
@@ -22,7 +21,11 @@ const MOST_BOOKS = 100;
  * @return {Promise<Object>} The book.
  */
 export function addBook( requestUtils, book ) {
-	return requestUtils.rest( { method: 'POST', path: '/library/v1/books', data: book } );
+	return requestUtils.rest( {
+		method: 'POST',
+		path: '/library/v1/books',
+		data: book,
+	} );
 }
 
 /**
@@ -33,7 +36,10 @@ export function addBook( requestUtils, book ) {
  * @return {Promise<Object>} The book.
  */
 export function getBook( requestUtils, id ) {
-	return requestUtils.rest( { path: `/wp/v2/books/${ id }`, params: { context: 'edit' } } );
+	return requestUtils.rest( {
+		path: `/wp/v2/books/${ id }`,
+		params: { context: 'edit' },
+	} );
 }
 
 /**
@@ -43,13 +49,26 @@ export function getBook( requestUtils, id ) {
  * @return {Promise<void>}
  */
 export async function deleteAllBooks( requestUtils ) {
-	const books = await requestUtils.rest( { path: '/wp/v2/books', params: { status: STATUSES, per_page: MOST_BOOKS, _fields: 'id' } } );
+	const books = await requestUtils.rest( {
+		path: '/wp/v2/books',
+		params: { status: STATUSES, per_page: MOST_BOOKS, _fields: 'id' },
+	} );
 
 	if ( books.length >= MOST_BOOKS ) {
-		throw new Error( `The site has ${ MOST_BOOKS } books or more: the tests run on a site of their own, such as wp-env.` );
+		throw new Error(
+			`The site has ${ MOST_BOOKS } books or more: the tests run on a site of their own, such as wp-env.`
+		);
 	}
 
-	await Promise.all( books.map( ( { id } ) => requestUtils.rest( { method: 'DELETE', path: `/wp/v2/books/${ id }`, params: { force: true } } ) ) );
+	await Promise.all(
+		books.map( ( { id } ) =>
+			requestUtils.rest( {
+				method: 'DELETE',
+				path: `/wp/v2/books/${ id }`,
+				params: { force: true },
+			} )
+		)
+	);
 }
 
 /**
@@ -78,10 +97,16 @@ export function comeBackLater( page ) {
 	return page.evaluate( () => {
 		const now = Date.now;
 
-		Object.defineProperty( document, 'hidden', { configurable: true, get: () => true } );
+		Object.defineProperty( document, 'hidden', {
+			configurable: true,
+			get: () => true,
+		} );
 		document.dispatchEvent( new Event( 'visibilitychange' ) );
 		Date.now = () => now() + 10 * 60 * 1000;
-		Object.defineProperty( document, 'hidden', { configurable: true, get: () => false } );
+		Object.defineProperty( document, 'hidden', {
+			configurable: true,
+			get: () => false,
+		} );
 		document.dispatchEvent( new Event( 'visibilitychange' ) );
 		Date.now = now;
 	} );
@@ -97,6 +122,20 @@ export function waitForIdle( page ) {
 	return page.waitForFunction( () => {
 		const state = window.store.get();
 
-		return ! state.saving.loading && [ 'search', 'inProgress', 'toBuy', 'diary', 'idea', 'achievements', 'person', 'series', 'publisher', 'volumes' ].every( ( key ) => ! state[ key ].loading );
+		return (
+			! state.saving.loading &&
+			[
+				'search',
+				'inProgress',
+				'toBuy',
+				'diary',
+				'idea',
+				'achievements',
+				'person',
+				'series',
+				'publisher',
+				'volumes',
+			].every( ( key ) => ! state[ key ].loading )
+		);
 	} );
 }

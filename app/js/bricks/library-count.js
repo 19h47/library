@@ -10,9 +10,13 @@ class LibraryCountElement extends Brick {
 
 		return [
 			store.select(
-				( state ) => ( state[ list ].loaded ? state[ list ].total : null ),
+				( state ) =>
+					state[ list ].loaded ? state[ list ].total : null,
 				( total ) => {
-					this.textContent = null === total ? __( 'Loading…', 'library' ) : formatBooks( total );
+					this.textContent =
+						null === total
+							? __( 'Loading…', 'library' )
+							: formatBooks( total );
 				}
 			),
 		];

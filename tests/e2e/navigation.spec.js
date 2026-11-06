@@ -1,7 +1,5 @@
 /**
  * The views of the reading app: the tabs on a phone, the name of the page, and the links of the books.
- *
- * @package Library
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -33,7 +31,9 @@ test.describe( 'Navigation', () => {
 	} );
 
 	for ( const width of [ 320, 390 ] ) {
-		test( `the tabs of the views all show at ${ width } px`, async ( { page } ) => {
+		test( `the tabs of the views all show at ${ width } px`, async ( {
+			page,
+		} ) => {
 			await page.setViewportSize( { width, height: 700 } );
 			await openApp( page );
 
@@ -43,7 +43,9 @@ test.describe( 'Navigation', () => {
 
 			for ( const tab of await tabs.all() ) {
 				const box = await tab.boundingBox();
-				const overflows = await tab.evaluate( ( link ) => link.scrollWidth > link.clientWidth );
+				const overflows = await tab.evaluate(
+					( link ) => link.scrollWidth > link.clientWidth
+				);
 
 				expect( box.x ).toBeGreaterThanOrEqual( 0 );
 				expect( box.x + box.width ).toBeLessThanOrEqual( width );
@@ -59,11 +61,23 @@ test.describe( 'Navigation', () => {
 
 		expect( appName ).not.toContain( '–' );
 
-		await page.getByRole( 'navigation' ).getByRole( 'link', { name: 'Diary' } ).click();
+		await page
+			.getByRole( 'navigation' )
+			.getByRole( 'link', { name: 'Diary' } )
+			.click();
 		await expect( page ).toHaveTitle( `Diary – ${ appName }` );
 
-		await page.goto( page.url().replace( /&view=diary.*/, `&view=book&book=${ books[ 0 ].id }` ) );
-		await expect( page ).toHaveTitle( new RegExp( `^${ SERIES }, .*Volume 1.* – ${ appName }$` ) );
+		await page.goto(
+			page
+				.url()
+				.replace(
+					/&view=diary.*/,
+					`&view=book&book=${ books[ 0 ].id }`
+				)
+		);
+		await expect( page ).toHaveTitle(
+			new RegExp( `^${ SERIES }, .*Volume 1.* – ${ appName }$` )
+		);
 	} );
 
 	test( 'a book opens from its card, in the app', async ( { page } ) => {
@@ -79,16 +93,23 @@ test.describe( 'Navigation', () => {
 		await card.click();
 		await page.waitForFunction( () => 'book' === window.store.get().view );
 
-		expect( await page.evaluate( () => window.isSameDocument ) ).toBe( true );
+		expect( await page.evaluate( () => window.isSameDocument ) ).toBe(
+			true
+		);
 	} );
 
-	test( 'the volume open is the current page among its series', async ( { page } ) => {
+	test( 'the volume open is the current page among its series', async ( {
+		page,
+	} ) => {
 		await openApp( page, `&view=book&book=${ books[ 1 ].id }` );
 		await page.waitForFunction( () => window.store.get().volumes.loaded );
 
 		const current = page.locator( 'library-volumes [aria-current="page"]' );
 
 		await expect( current ).toHaveCount( 1 );
-		await expect( current ).toHaveAttribute( 'href', new RegExp( `book=${ books[ 1 ].id }$` ) );
+		await expect( current ).toHaveAttribute(
+			'href',
+			new RegExp( `book=${ books[ 1 ].id }$` )
+		);
 	} );
 } );

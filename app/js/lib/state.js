@@ -1,8 +1,5 @@
 /**
  * Observable state: the base of the store of the reading app.
- *
- * @package    Library
- * @subpackage Library/app
  */
 
 /**
@@ -26,9 +23,13 @@ export class Store {
 		return this.#state;
 	}
 
-	/** A function is called with the current state and returns the next one. */
+	/**
+	 * A function is called with the current state and returns the next one.
+	 * @param update
+	 */
 	set( update ) {
-		const next = typeof update === 'function' ? update( this.#state ) : update;
+		const next =
+			typeof update === 'function' ? update( this.#state ) : update;
 
 		if ( Object.is( next, this.#state ) ) {
 			return;
@@ -63,7 +64,10 @@ export class Store {
 		} );
 	}
 
-	/** Called once per change of a task, not right away. Returns the unsubscribe function. */
+	/**
+	 * Called once per change of a task, not right away. Returns the unsubscribe function.
+	 * @param listener
+	 */
 	subscribe( listener ) {
 		this.#listeners.add( listener );
 
@@ -75,6 +79,8 @@ export class Store {
 	/**
 	 * Called right away with the selected slice, then only when it
 	 * changes. Returns the unsubscribe function.
+	 * @param selector
+	 * @param listener
 	 */
 	select( selector, listener ) {
 		let value = selector( this.#state );

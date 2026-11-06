@@ -7,16 +7,13 @@ class LibraryAppNameElement extends Brick {
 		const $link = this.querySelector( 'a' );
 
 		return [
-			store.select(
-				isHome,
-				( isShown ) => {
-					if ( isShown ) {
-						$link.setAttribute( 'aria-current', 'page' );
-					} else {
-						$link.removeAttribute( 'aria-current' );
-					}
+			store.select( isHome, ( isShown ) => {
+				if ( isShown ) {
+					$link.setAttribute( 'aria-current', 'page' );
+				} else {
+					$link.removeAttribute( 'aria-current' );
 				}
-			),
+			} ),
 		];
 	}
 }

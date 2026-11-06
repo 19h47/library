@@ -1,8 +1,5 @@
 /**
  * Formats of the bricks: numbers, dates, books and lists in the language of the page, and the line of a book.
- *
- * @package    Library
- * @subpackage Library/app
  */
 
 import { __, _n, _x, notKept, sprintf, toBuy } from 'library-app/app';
@@ -10,26 +7,42 @@ import { __, _n, _x, notKept, sprintf, toBuy } from 'library-app/app';
 const { lang } = document.documentElement;
 const numberFormat = new Intl.NumberFormat( lang );
 const dateFormat = new Intl.DateTimeFormat( lang, { dateStyle: 'long' } );
-const monthFormat = new Intl.DateTimeFormat( lang, { year: 'numeric', month: 'long' } );
+const monthFormat = new Intl.DateTimeFormat( lang, {
+	year: 'numeric',
+	month: 'long',
+} );
 
 const andFormat = new Intl.ListFormat( lang );
 const languageNames = new Intl.DisplayNames( lang, { type: 'language' } );
 const { language: pageLanguage } = new Intl.Locale( lang );
 
-export const dayFormat = new Intl.DateTimeFormat( lang, { day: 'numeric', month: 'long' } );
+export const dayFormat = new Intl.DateTimeFormat( lang, {
+	day: 'numeric',
+	month: 'long',
+} );
 export const listFormat = new Intl.ListFormat( lang, { type: 'unit' } );
 
 export function formatNumber( number ) {
 	return numberFormat.format( number );
 }
 
-/** A number of books: "12 books". */
+/**
+ * A number of books: "12 books".
+ * @param books
+ */
 export function formatBooks( books ) {
 	/* translators: %s: number of books. */
-	return sprintf( _n( '%s book', '%s books', books, 'library' ), formatNumber( books ) );
+	return sprintf(
+		_n( '%s book', '%s books', books, 'library' ),
+		formatNumber( books )
+	);
 }
 
-/** A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a date first published. */
+/**
+ * A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a date first published.
+ * @param date
+ * @param format
+ */
 export function formatDate( date, format = dateFormat ) {
 	const day = date.slice( 0, 10 );
 	const [ year, month, dayOfMonth ] = day.split( '-' );
@@ -38,53 +51,90 @@ export function formatDate( date, format = dateFormat ) {
 		return format.format( new Date( `${ day }T00:00` ) );
 	}
 
-	return month ? monthFormat.format( new Date( Number( year ), Number( month ) - 1 ) ) : year;
+	return month
+		? monthFormat.format( new Date( Number( year ), Number( month ) - 1 ) )
+		: year;
 }
 
 export function formatRating( rating ) {
 	/* translators: %s: rating, e.g. 7.5. */
-	return rating ? sprintf( __( '%s/10', 'library' ), formatNumber( rating ) ) : '';
+	return rating
+		? sprintf( __( '%s/10', 'library' ), formatNumber( rating ) )
+		: '';
 }
 
 /**
  * Who translated a book, and from which of its original languages: "Translated from Italian by A and B". A book without
  * translator is read in its original language, and says nothing. The article before the language may depend on its
  * first letter, as the "de l'" and "du" of French: each string is translated for a vowel and for a consonant.
+ * @param book
  */
 export function formatTranslation( book ) {
-	const translators = book.translators.map( ( translator ) => translator.name );
+	const translators = book.translators.map(
+		( translator ) => translator.name
+	);
 
 	if ( ! translators.length ) {
 		return '';
 	}
 
-	const languages = book.languages.filter( ( code ) => code !== pageLanguage ).map( ( code ) => languageNames.of( code ) );
+	const languages = book.languages
+		.filter( ( code ) => code !== pageLanguage )
+		.map( ( code ) => languageNames.of( code ) );
 
 	if ( ! languages.length ) {
 		/* translators: %s: list of the translators of a book. */
-		return sprintf( __( 'Translated by %s', 'library' ), andFormat.format( translators ) );
+		return sprintf(
+			__( 'Translated by %s', 'library' ),
+			andFormat.format( translators )
+		);
 	}
 
 	const format = /^[aeiou]/i.test( languages[ 0 ].normalize( 'NFD' ) )
 		? /* translators: 1: original languages of a book, the first starting with a vowel, e.g. Italian; 2: list of its translators. */
-		  _x( 'Translated from %1$s by %2$s', 'language starting with a vowel', 'library' )
+		  _x(
+				'Translated from %1$s by %2$s',
+				'language starting with a vowel',
+				'library'
+		  )
 		: /* translators: 1: original languages of a book, the first starting with a consonant, e.g. Japanese; 2: list of its translators. */
-		  _x( 'Translated from %1$s by %2$s', 'language starting with a consonant', 'library' );
+		  _x(
+				'Translated from %1$s by %2$s',
+				'language starting with a consonant',
+				'library'
+		  );
 
-	return sprintf( format, andFormat.format( languages ), andFormat.format( translators ) );
+	return sprintf(
+		format,
+		andFormat.format( languages ),
+		andFormat.format( translators )
+	);
 }
 
 /**
  * Whether a book is in its original language, as the achievement "In the original" counts it: none of its original
  * languages is the one of the page, and no one translated it. A book without original language says nothing.
+ * @param book
  */
 export function formatOriginal( book ) {
-	const isOriginal = book.languages.length && ! book.languages.includes( pageLanguage ) && ! book.translators.length;
+	const isOriginal =
+		book.languages.length &&
+		! book.languages.includes( pageLanguage ) &&
+		! book.translators.length;
 
-	return isOriginal ? _x( 'Original', 'book in its original language, short tag', 'library' ) : '';
+	return isOriginal
+		? _x(
+				'Original',
+				'book in its original language, short tag',
+				'library'
+		  )
+		: '';
 }
 
-/** Whether a book is kept: shown only when it is not, not kept or to buy. */
+/**
+ * Whether a book is kept: shown only when it is not, not kept or to buy.
+ * @param book
+ */
 export function formatStatus( book ) {
 	const labels = {
 		[ notKept ]: _x( 'Not kept', 'book status', 'library' ),
@@ -94,18 +144,27 @@ export function formatStatus( book ) {
 	return labels[ book.status ] ?? '';
 }
 
-/** Whether a book is being read, read, how many times from two readings, or to read unless it is to buy, and its rating. */
+/**
+ * Whether a book is being read, read, how many times from two readings, or to read unless it is to buy, and its rating.
+ * @param book
+ */
 export function formatState( book ) {
 	const readings = book.read_date.length;
 	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
 	const read =
 		readings > 1
 			? /* translators: %s: number of readings of a book, an unknown date included, 2 or more. */
-			  sprintf( _n( 'Read %s time', 'Read %s times', readings, 'library' ), formatNumber( readings ) )
+			  sprintf(
+					_n( 'Read %s time', 'Read %s times', readings, 'library' ),
+					formatNumber( readings )
+			  )
 			: __( 'Read', 'library' );
 	const state = book.read ? read : toRead;
 
-	return join( [ book.in_progress ? __( 'In progress', 'library' ) : state, formatRating( book.rating ) ] );
+	return join( [
+		book.in_progress ? __( 'In progress', 'library' ) : state,
+		formatRating( book.rating ),
+	] );
 }
 
 export function join( parts ) {
@@ -116,5 +175,7 @@ export function join( parts ) {
 export function today() {
 	const now = new Date();
 
-	return [ now.getFullYear(), now.getMonth() + 1, now.getDate() ].map( ( part ) => part.toString().padStart( 2, '0' ) ).join( '-' );
+	return [ now.getFullYear(), now.getMonth() + 1, now.getDate() ]
+		.map( ( part ) => part.toString().padStart( 2, '0' ) )
+		.join( '-' );
 }

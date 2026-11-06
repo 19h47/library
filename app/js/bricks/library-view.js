@@ -21,7 +21,11 @@ class LibraryViewElement extends Brick {
 					const isShown = view === this.getAttribute( 'name' );
 					const appears = isShown && this.hidden;
 
-					if ( ! isShown && ! this.hidden && this.contains( document.activeElement ) ) {
+					if (
+						! isShown &&
+						! this.hidden &&
+						this.contains( document.activeElement )
+					) {
 						this.#focused = document.activeElement;
 					}
 
@@ -40,7 +44,11 @@ class LibraryViewElement extends Brick {
 		const { moved } = store.get();
 		const $title = this.querySelector( 'h2[tabindex="-1"]' );
 
-		if ( 'back' === moved && this.#focused?.isConnected && this.contains( this.#focused ) ) {
+		if (
+			'back' === moved &&
+			this.#focused?.isConnected &&
+			this.contains( this.#focused )
+		) {
 			this.#focused.focus( { preventScroll: true } );
 		} else if ( 'forward' === moved ) {
 			$title?.focus( { preventScroll: true } );

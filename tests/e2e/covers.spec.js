@@ -1,7 +1,5 @@
 /**
  * The covers of the reading app: sharp on a dense screen, in their shape, a photo picked for a cover too.
- *
- * @package Library
  */
 
 import { fileURLToPath } from 'node:url';
@@ -21,7 +19,12 @@ function shapeOf( image ) {
 	return image.evaluate( ( img ) => {
 		const box = img.getBoundingClientRect();
 
-		return { shown: box.width / box.height, natural: img.naturalWidth / img.naturalHeight, source: img.currentSrc, src: img.src };
+		return {
+			shown: box.width / box.height,
+			natural: img.naturalWidth / img.naturalHeight,
+			source: img.currentSrc,
+			src: img.src,
+		};
 	} );
 }
 
@@ -34,7 +37,10 @@ test.describe( 'Covers', () => {
 
 		const media = await requestUtils.uploadMedia( PHOTO );
 
-		book = await addBook( requestUtils, { title: 'The Cover Test', featured_media: media.id } );
+		book = await addBook( requestUtils, {
+			title: 'The Cover Test',
+			featured_media: media.id,
+		} );
 	} );
 
 	test.afterAll( async ( { requestUtils } ) => {
@@ -42,14 +48,18 @@ test.describe( 'Covers', () => {
 		await requestUtils.deleteAllMedia();
 	} );
 
-	test( 'the cover of a book takes a sharper size on a dense screen, in its shape', async ( { page } ) => {
+	test( 'the cover of a book takes a sharper size on a dense screen, in its shape', async ( {
+		page,
+	} ) => {
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
 
 		const cover = page.locator( 'library-book .library-book__cover' );
 
 		await expect( cover ).toHaveAttribute( 'sizes', 'auto' );
-		await expect.poll( async () => ( await shapeOf( cover ) ).source ).not.toBe( '' );
+		await expect
+			.poll( async () => ( await shapeOf( cover ) ).source )
+			.not.toBe( '' );
 
 		const shape = await shapeOf( cover );
 
@@ -58,7 +68,9 @@ test.describe( 'Covers', () => {
 		expect( shape.shown ).toBeCloseTo( shape.natural, 1 );
 	} );
 
-	test( 'a photo picked for a cover shows in its shape', async ( { page } ) => {
+	test( 'a photo picked for a cover shows in its shape', async ( {
+		page,
+	} ) => {
 		await openApp( page );
 		await page.getByRole( 'button', { name: 'Add New Book' } ).click();
 
@@ -69,7 +81,9 @@ test.describe( 'Covers', () => {
 		const preview = form.locator( '.library-image-field__preview' );
 
 		await expect( preview ).toBeVisible();
-		await expect.poll( async () => ( await shapeOf( preview ) ).natural ).toBeGreaterThan( 0 );
+		await expect
+			.poll( async () => ( await shapeOf( preview ) ).natural )
+			.toBeGreaterThan( 0 );
 
 		const shape = await shapeOf( preview );
 

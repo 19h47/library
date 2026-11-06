@@ -1,7 +1,5 @@
 /**
  * The reading app without network: its service worker keeps the app apart from what it loads, and opens it offline.
- *
- * @package Library
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -17,12 +15,19 @@ test.describe( 'Offline', () => {
 		await deleteAllBooks( requestUtils );
 	} );
 
-	test( 'the app is kept apart from what it loads, and opens without network', async ( { page, context } ) => {
+	test( 'the app is kept apart from what it loads, and opens without network', async ( {
+		page,
+		context,
+	} ) => {
 		await openApp( page );
-		await page.waitForFunction( async () => Boolean( await navigator.serviceWorker.ready ) );
+		await page.waitForFunction( async () =>
+			Boolean( await navigator.serviceWorker.ready )
+		);
 		// The worker controls the app once it opens again.
 		await page.reload();
-		await page.waitForFunction( () => Boolean( navigator.serviceWorker.controller ) );
+		await page.waitForFunction( () =>
+			Boolean( navigator.serviceWorker.controller )
+		);
 		await page.evaluate( async () => {
 			window.store = ( await import( 'library-app/store' ) ).store;
 		} );
@@ -33,15 +38,24 @@ test.describe( 'Offline', () => {
 			const kept = {};
 
 			for ( const name of names ) {
-				kept[ name ] = ( await ( await window.caches.open( name ) ).keys() ).map( ( request ) => new URL( request.url ).pathname );
+				kept[ name ] = (
+					await ( await window.caches.open( name ) ).keys()
+				).map( ( request ) => new URL( request.url ).pathname );
 			}
 
 			return kept;
 		} );
 
-		expect( Object.keys( caches ).sort() ).toEqual( [ 'library-app-data', 'library-app-shell' ] );
-		expect( caches[ 'library-app-shell' ] ).toContain( '/wp-admin/edit.php' );
-		expect( caches[ 'library-app-data' ] ).not.toContain( '/wp-admin/edit.php' );
+		expect( Object.keys( caches ).sort() ).toEqual( [
+			'library-app-data',
+			'library-app-shell',
+		] );
+		expect( caches[ 'library-app-shell' ] ).toContain(
+			'/wp-admin/edit.php'
+		);
+		expect( caches[ 'library-app-data' ] ).not.toContain(
+			'/wp-admin/edit.php'
+		);
 
 		await context.setOffline( true );
 		await page.reload();

@@ -1,14 +1,16 @@
 /**
  * The base of the page of a term, a person, a series or a collection.
- *
- * @package    Library
- * @subpackage Library/app
  */
 
 import { __, _n, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
+import {
+	formatBooks,
+	formatNumber,
+	formatState,
+	join,
+} from 'library-app/format';
 import { fill, fillCompletion, renderBook } from 'library-app/render';
 import { followBooks, observeEnd, renderKeyed } from 'library-app/behaviors';
 
@@ -28,7 +30,11 @@ export class TermPage extends Brick {
 		const $description = this.querySelector( '[data-html="description"]' );
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
-		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( key ) );
+		const observe = observeEnd(
+			this.querySelector( '.library-list__more' ),
+			signal,
+			() => store.loadMorePageBooks( key )
+		);
 
 		return [
 			followBooks( $items, ( book ) => this.line( book ) ),
@@ -36,12 +42,25 @@ export class TermPage extends Brick {
 				( state ) => state[ key ],
 				( page ) => {
 					/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
-					const read = sprintf( _n( '%s read', '%s read', page.read, 'library' ), formatNumber( page.read ) );
+					const read = sprintf(
+						_n( '%s read', '%s read', page.read, 'library' ),
+						formatNumber( page.read )
+					);
 
 					fill( this, {
-						status: page.error || ( page.loaded && ! page.total ? __( 'No book found.', 'library' ) : '' ),
+						status:
+							page.error ||
+							( page.loaded && ! page.total
+								? __( 'No book found.', 'library' )
+								: '' ),
 						name: page.name,
-						summary: page.name ? join( [ formatBooks( page.total ), read, ...this.summary( page ) ] ) : '',
+						summary: page.name
+							? join( [
+									formatBooks( page.total ),
+									read,
+									...this.summary( page ),
+							  ] )
+							: '',
 					} );
 
 					// HTML as the API renders it, among the few tags core keeps when it saves a description.
@@ -52,7 +71,12 @@ export class TermPage extends Brick {
 			),
 			store.select(
 				( state ) => state[ key ].completion,
-				( completion ) => fillCompletion( $completion, completion, `library-${ key }-completion` )
+				( completion ) =>
+					fillCompletion(
+						$completion,
+						completion,
+						`library-${ key }-completion`
+					)
 			),
 			store.select(
 				( state ) => state[ key ].name,
@@ -71,7 +95,8 @@ export class TermPage extends Brick {
 					renderKeyed(
 						$items,
 						ids.filter( ( id ) => id in books ),
-						( id ) => renderBook( books[ id ], this.line( books[ id ] ) )
+						( id ) =>
+							renderBook( books[ id ], this.line( books[ id ] ) )
 					);
 					observe();
 				}
@@ -93,7 +118,10 @@ export class TermPage extends Brick {
 		return [];
 	}
 
-	/** The line of a book, under its title: its reading state. */
+	/**
+	 * The line of a book, under its title: its reading state.
+	 * @param book
+	 */
 	line( book ) {
 		return formatState( book );
 	}

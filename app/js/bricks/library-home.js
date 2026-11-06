@@ -5,12 +5,9 @@ import { Brick } from 'library-app/brick';
 class LibraryHomeElement extends Brick {
 	connect() {
 		return [
-			store.select(
-				isHome,
-				( isShown ) => {
-					this.hidden = ! isShown;
-				}
-			),
+			store.select( isHome, ( isShown ) => {
+				this.hidden = ! isShown;
+			} ),
 		];
 	}
 }

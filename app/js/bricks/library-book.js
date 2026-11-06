@@ -1,7 +1,12 @@
 import { __, roles } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatDate, formatNumber, formatTranslation, listFormat } from 'library-app/format';
+import {
+	formatDate,
+	formatNumber,
+	formatTranslation,
+	listFormat,
+} from 'library-app/format';
 import { fill, fillCover, linkPeople } from 'library-app/render';
 import { showBusy } from 'library-app/behaviors';
 
@@ -19,7 +24,11 @@ class LibraryBookElement extends Brick {
 		// The book drawn, drawn again only once changed: gone back to, its page keeps its links, and the focus one had.
 		let drawn = null;
 
-		$edit.addEventListener( 'click', () => store.openEdit( store.get().book ), { signal } );
+		$edit.addEventListener(
+			'click',
+			() => store.openEdit( store.get().book ),
+			{ signal }
+		);
 
 		// The book open, or the one to open while it loads.
 		const show = () => {
@@ -29,7 +38,9 @@ class LibraryBookElement extends Brick {
 
 			// The book before it, if any, stays out of sight.
 			showBusy( this, isLoading );
-			fill( this, { status: isLoading ? __( 'Loading…', 'library' ) : '' } );
+			fill( this, {
+				status: isLoading ? __( 'Loading…', 'library' ) : '',
+			} );
 
 			if ( ! book ) {
 				shown = 0;
@@ -43,14 +54,21 @@ class LibraryBookElement extends Brick {
 
 			// The same book saved keeps the focus where it is; a book gone back to, the view gives it.
 			if ( book.id !== shown && 'forward' === moved ) {
-				requestAnimationFrame( () => $title.focus( { preventScroll: true } ) );
+				requestAnimationFrame( () =>
+					$title.focus( { preventScroll: true } )
+				);
 			}
 
 			shown = book.id;
 		};
 
 		// The book open once loaded, else its ID while it loads: each changes once.
-		return [ store.select( ( state ) => state.books[ state.book ] ?? state.book, show ) ];
+		return [
+			store.select(
+				( state ) => state.books[ state.book ] ?? state.book,
+				show
+			),
+		];
 	}
 
 	#render( book ) {
@@ -62,15 +80,34 @@ class LibraryBookElement extends Brick {
 			title: book.title,
 			translation: formatTranslation( book ),
 			excerpt: book.excerpt,
-			authors: listFormat.format( book.authors.map( ( author ) => author.name ) ),
+			authors: listFormat.format(
+				book.authors.map( ( author ) => author.name )
+			),
 			isbn: book.isbn,
 			pages: book.pages ? formatNumber( book.pages ) : '',
-			edition_date: book.edition_date ? formatDate( book.edition_date ) : '',
-			published_date: book.published_date ? formatDate( book.published_date ) : '',
+			edition_date: book.edition_date
+				? formatDate( book.edition_date )
+				: '',
+			published_date: book.published_date
+				? formatDate( book.published_date )
+				: '',
 		} );
-		linkPeople( this.querySelector( '[data-field="authors"]' ), book.authors );
+		linkPeople(
+			this.querySelector( '[data-field="authors"]' ),
+			book.authors
+		);
 		// The other names of the book, by role, such as its colorists; the translators, in the translation line, have no field.
-		fill( this, Object.fromEntries( roles.map( ( role ) => [ role, listFormat.format( book[ role ].map( ( name ) => name.name ) ) ] ) ) );
+		fill(
+			this,
+			Object.fromEntries(
+				roles.map( ( role ) => [
+					role,
+					listFormat.format(
+						book[ role ].map( ( name ) => name.name )
+					),
+				] )
+			)
+		);
 		roles.forEach( ( role ) => {
 			const $field = this.querySelector( `[data-field="${ role }"]` );
 

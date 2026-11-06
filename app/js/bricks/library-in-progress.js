@@ -17,15 +17,22 @@ class LibraryInProgressElement extends Brick {
 		$list.addEventListener(
 			'click',
 			async ( event ) => {
-				const $finish = event.target.closest( '[data-action="finish"]' );
+				const $finish = event.target.closest(
+					'[data-action="finish"]'
+				);
 
 				// Busy rather than disabled while it saves: a button disabled loses its focus, which the next cover takes.
-				if ( ! $finish || 'true' === $finish.getAttribute( 'aria-busy' ) ) {
+				if (
+					! $finish ||
+					'true' === $finish.getAttribute( 'aria-busy' )
+				) {
 					return;
 				}
 
 				showBusy( $finish, true );
-				await store.finishReading( Number( $finish.closest( '[data-id]' ).dataset.id ) );
+				await store.finishReading(
+					Number( $finish.closest( '[data-id]' ).dataset.id )
+				);
 				showBusy( $finish, false );
 			},
 			{ signal }
@@ -38,7 +45,9 @@ class LibraryInProgressElement extends Brick {
 					const { books } = store.get();
 
 					fill( this, { count: formatBooks( ids.length ) } );
-					renderKeyed( $list, ids, ( id ) => renderCurrent( books[ id ] ) );
+					renderKeyed( $list, ids, ( id ) =>
+						renderCurrent( books[ id ] )
+					);
 					this.hidden = ! ids.length;
 				}
 			),
@@ -50,7 +59,10 @@ class LibraryInProgressElement extends Brick {
 						const book = books[ $item.dataset.id ];
 
 						// A book finished leaves as the books being read load again: its cover stays until then, its focus with it.
-						if ( book?.in_progress && book !== previous[ $item.dataset.id ] ) {
+						if (
+							book?.in_progress &&
+							book !== previous[ $item.dataset.id ]
+						) {
 							$item.replaceWith( renderCurrent( book ) );
 						}
 					} );

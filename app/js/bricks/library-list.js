@@ -2,7 +2,12 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatState } from 'library-app/format';
 import { renderBook } from 'library-app/render';
-import { followBooks, observeEnd, renderKeyed, showBusy } from 'library-app/behaviors';
+import {
+	followBooks,
+	observeEnd,
+	renderKeyed,
+	showBusy,
+} from 'library-app/behaviors';
 
 /**
  * The books of a list, those found or the one its `list` attribute names, such as `toBuy`, loading the next ones as the
@@ -13,7 +18,11 @@ class LibraryListElement extends Brick {
 	connect( signal ) {
 		const list = this.getAttribute( 'list' ) ?? 'search';
 		const $items = this.querySelector( '.app-list__items' );
-		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreBooks( list ) );
+		const observe = observeEnd(
+			this.querySelector( '.library-list__more' ),
+			signal,
+			() => store.loadMoreBooks( list )
+		);
 
 		return [
 			followBooks( $items, formatState ),
@@ -22,7 +31,9 @@ class LibraryListElement extends Brick {
 				( ids ) => {
 					const { books } = store.get();
 
-					renderKeyed( $items, ids, ( id ) => renderBook( books[ id ], formatState( books[ id ] ) ) );
+					renderKeyed( $items, ids, ( id ) =>
+						renderBook( books[ id ], formatState( books[ id ] ) )
+					);
 					observe();
 				}
 			),

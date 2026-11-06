@@ -20,13 +20,18 @@ class LibraryPublisherElement extends TermPage {
 		// The publisher above, and the collection above a sub-collection.
 		[ 'publisher', 'collection' ].forEach( ( key ) => {
 			if ( publisher[ key ] ) {
-				this.querySelector( `[data-field="${ key }"]` ).href = urlOf( { view: 'publisher', id: publisher[ key ].id } );
+				this.querySelector( `[data-field="${ key }"]` ).href = urlOf( {
+					view: 'publisher',
+					id: publisher[ key ].id,
+				} );
 			}
 		} );
 
 		fillPills(
 			this.querySelector( '[data-list="collections"]' ),
-			publisher.collections.map( ( collection ) => pageLink( 'publisher', collection.id, collection.name ) )
+			publisher.collections.map( ( collection ) =>
+				pageLink( 'publisher', collection.id, collection.name )
+			)
 		);
 	}
 
@@ -34,7 +39,17 @@ class LibraryPublisherElement extends TermPage {
 		const $authors = this.querySelector( '[data-row="authors"]' );
 
 		// Loaded with its authors.
-		return [ store.select( ( state ) => state.publisher.authors, ( authors ) => fillAuthors( $authors, authors, store.get().publisher.total ) ) ];
+		return [
+			store.select(
+				( state ) => state.publisher.authors,
+				( authors ) =>
+					fillAuthors(
+						$authors,
+						authors,
+						store.get().publisher.total
+					)
+			),
+		];
 	}
 }
 customElements.define( 'library-publisher', LibraryPublisherElement );

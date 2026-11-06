@@ -48,7 +48,11 @@ class LibrarySearchElement extends Brick {
 		this.addEventListener(
 			'focusout',
 			( event ) => {
-				if ( ! isPointing && event.relatedTarget && ! this.contains( event.relatedTarget ) ) {
+				if (
+					! isPointing &&
+					event.relatedTarget &&
+					! this.contains( event.relatedTarget )
+				) {
 					hide();
 				}
 			},
@@ -83,18 +87,27 @@ class LibrarySearchElement extends Brick {
 			{ signal }
 		);
 		// A keyword keeps the focus in the field, and the keyboard of a phone open.
-		$keywords.addEventListener( 'mousedown', ( event ) => event.preventDefault(), { signal } );
+		$keywords.addEventListener(
+			'mousedown',
+			( event ) => event.preventDefault(),
+			{ signal }
+		);
 		$keywords.addEventListener(
 			'click',
 			( event ) => {
-				const keyword = event.target.closest( '[data-keyword]' )?.dataset.keyword;
+				const keyword =
+					event.target.closest( '[data-keyword]' )?.dataset.keyword;
 
 				if ( ! keyword ) {
 					return;
 				}
 
-				const query = [ $input.value.trim(), keyword ].filter( Boolean ).join( ' ' );
-				const caret = keyword.endsWith( '""' ) ? query.length - 1 : query.length;
+				const query = [ $input.value.trim(), keyword ]
+					.filter( Boolean )
+					.join( ' ' );
+				const caret = keyword.endsWith( '""' )
+					? query.length - 1
+					: query.length;
 
 				$input.value = query;
 				$input.focus();

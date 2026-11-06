@@ -11,7 +11,13 @@ class LibraryProgressElement extends Brick {
 				( state ) => state.stats?.percent,
 				( percent ) => {
 					/* translators: %s: reading percentage. */
-					this.textContent = undefined === percent ? '' : sprintf( __( '%s%% read', 'library' ), formatNumber( percent ) );
+					this.textContent =
+						undefined === percent
+							? ''
+							: sprintf(
+									__( '%s%% read', 'library' ),
+									formatNumber( percent )
+							  );
 				}
 			),
 		];

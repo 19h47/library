@@ -15,12 +15,17 @@ class LibrarySeriesElement extends TermPage {
 		fill( this, { cycle: series.cycle?.name ?? '' } );
 
 		if ( series.cycle ) {
-			this.querySelector( '[data-field="cycle"]' ).href = urlOf( { view: 'series', id: series.cycle.id } );
+			this.querySelector( '[data-field="cycle"]' ).href = urlOf( {
+				view: 'series',
+				id: series.cycle.id,
+			} );
 		}
 
 		fillPills(
 			this.querySelector( '[data-list="parts"]' ),
-			series.parts.map( ( part ) => pageLink( 'series', part.id, part.name ) )
+			series.parts.map( ( part ) =>
+				pageLink( 'series', part.id, part.name )
+			)
 		);
 	}
 
@@ -28,7 +33,13 @@ class LibrarySeriesElement extends TermPage {
 		const $authors = this.querySelector( '[data-row="authors"]' );
 
 		// Loaded with its authors.
-		return [ store.select( ( state ) => state.series.authors, ( authors ) => fillAuthors( $authors, authors, store.get().series.total ) ) ];
+		return [
+			store.select(
+				( state ) => state.series.authors,
+				( authors ) =>
+					fillAuthors( $authors, authors, store.get().series.total )
+			),
+		];
 	}
 }
 customElements.define( 'library-series', LibrarySeriesElement );

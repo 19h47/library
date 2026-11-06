@@ -27,7 +27,10 @@ class LibraryNoticeElement extends Brick {
 			clearTimeout( this.#timeout );
 
 			if ( ! held.pointer && ! held.focus ) {
-				this.#timeout = setTimeout( hide, notice?.action ? ACTION_MS : NOTICE_MS );
+				this.#timeout = setTimeout(
+					hide,
+					notice?.action ? ACTION_MS : NOTICE_MS
+				);
 			}
 		};
 		const hold = ( by, isHeld ) => () => {
@@ -36,8 +39,12 @@ class LibraryNoticeElement extends Brick {
 		};
 
 		signal.addEventListener( 'abort', () => clearTimeout( this.#timeout ) );
-		this.addEventListener( 'pointerenter', hold( 'pointer', true ), { signal } );
-		this.addEventListener( 'pointerleave', hold( 'pointer', false ), { signal } );
+		this.addEventListener( 'pointerenter', hold( 'pointer', true ), {
+			signal,
+		} );
+		this.addEventListener( 'pointerleave', hold( 'pointer', false ), {
+			signal,
+		} );
 		this.addEventListener( 'focusin', hold( 'focus', true ), { signal } );
 		this.addEventListener( 'focusout', hold( 'focus', false ), { signal } );
 		$action.addEventListener(

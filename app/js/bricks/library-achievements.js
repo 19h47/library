@@ -1,7 +1,11 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatNumber } from 'library-app/format';
-import { fill, renderAchievement, renderCloseAchievement } from 'library-app/render';
+import {
+	fill,
+	renderAchievement,
+	renderCloseAchievement,
+} from 'library-app/render';
 
 /** The achievements close to be earned, with their progress, then the ones earned, latest first. */
 class LibraryAchievementsElement extends Brick {
@@ -9,20 +13,30 @@ class LibraryAchievementsElement extends Brick {
 		const $close = this.querySelector( '[data-list="close"]' );
 		const $earned = this.querySelector( '[data-list="earned"]' );
 
-
 		return [
 			store.select(
 				( state ) => state.achievements,
 				( { earned, close, error } ) => {
 					fill( this, {
 						status: error,
-						closeCount: close.length ? formatNumber( close.length ) : '',
-						earnedCount: earned.length ? formatNumber( earned.length ) : '',
+						closeCount: close.length
+							? formatNumber( close.length )
+							: '',
+						earnedCount: earned.length
+							? formatNumber( earned.length )
+							: '',
 					} );
 					$close.replaceChildren(
-						...close.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-achievement-close-${ index }` ) )
+						...close.map( ( achievement, index ) =>
+							renderCloseAchievement(
+								achievement,
+								`library-achievement-close-${ index }`
+							)
+						)
 					);
-					$earned.replaceChildren( ...earned.map( renderAchievement ) );
+					$earned.replaceChildren(
+						...earned.map( renderAchievement )
+					);
 				}
 			),
 		];

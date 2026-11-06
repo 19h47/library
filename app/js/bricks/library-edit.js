@@ -6,14 +6,20 @@ import { join } from 'library-app/format';
 import { inputList, showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
-/** Opens the page of the book `id`, added or bought, for its reading; none, its form says why. */
+/**
+ * Opens the page of the book `id`, added or bought, for its reading; none, its form says why.
+ * @param id
+ */
 function openBook( id ) {
 	if ( id ) {
 		navigation.navigate( urlOf( { view: 'book', id } ) );
 	}
 }
 
-/** Options of a datalist, the names to suggest. */
+/**
+ * Options of a datalist, the names to suggest.
+ * @param terms
+ */
 function renderOptions( terms ) {
 	return terms.map( ( term ) => new Option( term.name ) );
 }
@@ -53,11 +59,14 @@ class LibraryEditElement extends Brick {
 		// The fields of the meta are named after them.
 		const $meta = [ ...$form.querySelectorAll( '[data-meta]' ) ];
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
-		const getValue = ( $field ) => ( 'checkbox' === $field.type ? $field.checked : $field.value );
+		const getValue = ( $field ) =>
+			'checkbox' === $field.type ? $field.checked : $field.value;
 		const $people = this.querySelector( '[data-list="people"]' );
 		const $addPerson = this.querySelector( '[data-action="add-person"]' );
 		const $preview = this.querySelector( '.library-image-field__preview' );
-		const $removeCover = this.querySelector( '[data-action="remove-cover"]' );
+		const $removeCover = this.querySelector(
+			'[data-action="remove-cover"]'
+		);
 		const $details = this.querySelector( '.library-edit__details' );
 		const $summary = $details.querySelector( 'summary' );
 		const $admin = this.querySelector( '[data-link="admin"]' );
@@ -72,14 +81,24 @@ class LibraryEditElement extends Brick {
 			series: this.querySelector( '#library-edit-series-paths' ),
 		};
 
-		const addPerson = inputList( { $list: $people, $add: $addPerson, id: 'library-edit-person', signal } );
+		const addPerson = inputList( {
+			$list: $people,
+			$add: $addPerson,
+			id: 'library-edit-person',
+			signal,
+		} );
 		const clearErrors = showErrors( $form, signal );
 
 		// The summary of the details counts the fields filled in, as the button of the filters does.
 		const countDetails = () => {
-			const filled = [ ...$details.querySelectorAll( 'input, select, textarea' ) ].filter( getValue ).length;
+			const filled = [
+				...$details.querySelectorAll( 'input, select, textarea' ),
+			].filter( getValue ).length;
 
-			$summary.textContent = join( [ $summary.dataset.label, filled && filled.toString() ] );
+			$summary.textContent = join( [
+				$summary.dataset.label,
+				filled && filled.toString(),
+			] );
 		};
 
 		$details.addEventListener( 'input', countDetails, { signal } );
@@ -88,18 +107,34 @@ class LibraryEditElement extends Brick {
 		const suggestCollections = () => {
 			const name = $publisher.value.trim().toLowerCase();
 			const { publishers } = store.get().terms;
-			const publisher = publishers.find( ( term ) => ! term.parent && name === term.name.toLowerCase() );
-			const collections = publisher ? publishers.filter( ( term ) => term.parent && publisher.id === term.publisher ) : [];
+			const publisher = publishers.find(
+				( term ) => ! term.parent && name === term.name.toLowerCase()
+			);
+			const collections = publisher
+				? publishers.filter(
+						( term ) =>
+							term.parent && publisher.id === term.publisher
+				  )
+				: [];
 
 			$collection.disabled = ! name;
-			$suggestions.collections.replaceChildren( ...renderOptions( collections.map( ( term ) => ( { ...term, name: term.collection } ) ) ) );
+			$suggestions.collections.replaceChildren(
+				...renderOptions(
+					collections.map( ( term ) => ( {
+						...term,
+						name: term.collection,
+					} ) )
+				)
+			);
 		};
 
 		// The cover shown: the photo picked, else the one of the book, unless it was removed.
 		const showCover = () => {
 			const { books, editing } = store.get();
 			const file = $cover.files[ 0 ];
-			const bookCover = this.#removed ? null : ( books[ editing.id ]?.cover ?? null );
+			const bookCover = this.#removed
+				? null
+				: books[ editing.id ]?.cover ?? null;
 
 			URL.revokeObjectURL( this.#preview );
 			this.#preview = file ? URL.createObjectURL( file ) : '';
@@ -107,7 +142,9 @@ class LibraryEditElement extends Brick {
 			$removeCover.hidden = ! file && ! bookCover;
 		};
 
-		$dialog.addEventListener( 'close', () => store.closeEdit(), { signal } );
+		$dialog.addEventListener( 'close', () => store.closeEdit(), {
+			signal,
+		} );
 
 		$isbn.addEventListener(
 			'change',
@@ -120,8 +157,17 @@ class LibraryEditElement extends Brick {
 		);
 
 		// The link to the book leaves the form, which forgets the book.
-		$duplicate.addEventListener( 'click', () => store.closeEdit(), { signal } );
-		$buy.addEventListener( 'click', async () => openBook( await store.buyBook( store.get().editing.duplicate ) ), { signal } );
+		$duplicate.addEventListener( 'click', () => store.closeEdit(), {
+			signal,
+		} );
+		$buy.addEventListener(
+			'click',
+			async () =>
+				openBook(
+					await store.buyBook( store.get().editing.duplicate )
+				),
+			{ signal }
+		);
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
 		$cover.addEventListener( 'change', showCover, { signal } );
 
@@ -150,7 +196,10 @@ class LibraryEditElement extends Brick {
 					content: $content.value,
 					people: data
 						.getAll( 'person' )
-						.map( ( name, index ) => ( { name: name.trim(), role: roles[ index ] } ) )
+						.map( ( name, index ) => ( {
+							name: name.trim(),
+							role: roles[ index ],
+						} ) )
 						.filter( ( person ) => person.name ),
 					publisher: data.get( 'publisher' ),
 					collection: data.get( 'collection' ) ?? '',
@@ -158,15 +207,26 @@ class LibraryEditElement extends Brick {
 					series: data.get( 'series' ).trim(),
 					language: Number( data.get( 'language' ) ),
 					form: Number( data.get( 'form' ) ),
-					meta: Object.fromEntries( $meta.map( ( $field ) => [ $field.name, getValue( $field ) ] ) ),
+					meta: Object.fromEntries(
+						$meta.map( ( $field ) => [
+							$field.name,
+							getValue( $field ),
+						] )
+					),
 				};
 
 				event.preventDefault();
 
 				if ( store.get().editing.id ) {
-					store.editBook( { ...book, cover, coverRemoved: this.#removed } );
+					store.editBook( {
+						...book,
+						cover,
+						coverRemoved: this.#removed,
+					} );
 				} else {
-					store.addBook( { ...book, cover, status: $status.value } ).then( openBook );
+					store
+						.addBook( { ...book, cover, status: $status.value } )
+						.then( openBook );
 				}
 			},
 			{ signal }
@@ -184,13 +244,17 @@ class LibraryEditElement extends Brick {
 					const { editing, view, status, form } = store.get();
 					const { id, book } = editing;
 					// A book added joins the list shown: to buy from the books to buy, of the status and form chosen from the books.
-					const listedStatus = { books: status, 'to-buy': toBuy }[ view ];
+					const listedStatus = { books: status, 'to-buy': toBuy }[
+						view
+					];
 
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
 					clearErrors();
 					this.#removed = false;
-					$heading.textContent = id ? $heading.dataset.edit : $heading.dataset.add;
+					$heading.textContent = id
+						? $heading.dataset.edit
+						: $heading.dataset.add;
 					$admin.href = editUrl + id;
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
@@ -240,7 +304,9 @@ class LibraryEditElement extends Brick {
 				( state ) => state.editing,
 				( editing ) => {
 					// A book whose values could not be loaded is not saved.
-					$submit.disabled = editing.loading || Boolean( editing.id && ! editing.book );
+					$submit.disabled =
+						editing.loading ||
+						Boolean( editing.id && ! editing.book );
 					showSaving( $submit, editing.loading );
 					fill( this, { error: editing.error } );
 				}
@@ -258,9 +324,17 @@ class LibraryEditElement extends Brick {
 			store.select(
 				( state ) => state.terms,
 				( terms ) => {
-					$suggestions.people.replaceChildren( ...renderOptions( terms.people ) );
-					$suggestions.publishers.replaceChildren( ...renderOptions( terms.publishers.filter( ( term ) => ! term.parent ) ) );
-					$suggestions.series.replaceChildren( ...renderOptions( terms.series ) );
+					$suggestions.people.replaceChildren(
+						...renderOptions( terms.people )
+					);
+					$suggestions.publishers.replaceChildren(
+						...renderOptions(
+							terms.publishers.filter( ( term ) => ! term.parent )
+						)
+					);
+					$suggestions.series.replaceChildren(
+						...renderOptions( terms.series )
+					);
 					suggestCollections();
 				}
 			),
