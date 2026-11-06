@@ -255,13 +255,13 @@ class Library_Posts {
 	}
 
 	/**
-	 * Whether a book has been read; the read date is optional.
+	 * Whether a book has been read: whether it has a reading, of a known date or not.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return bool
 	 */
 	public static function is_read( int $post_id ): bool {
-		return (bool) get_post_meta( $post_id, 'library_read', true );
+		return (bool) Library_Meta::get_read_dates( $post_id );
 	}
 
 	/**
