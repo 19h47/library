@@ -6,6 +6,7 @@
 #library_dashboard_ratings .inside,
 #library_dashboard_pile .inside,
 #library_dashboard_collection .inside,
+#library_dashboard_idea .inside,
 #library_dashboard_achievements .inside {
 	margin: 0;
 	padding-top: 0;
@@ -157,11 +158,6 @@
 	.library-graph-bar-label {
 		font-size: 9px;
 	}
-}
-
-#library_dashboard_idea .inside {
-	margin: 0;
-	padding-top: 0;
 }
 
 .library-idea {
