@@ -37,3 +37,22 @@ composer test
 ## Writing a test
 
 A test class extends `Library_TestCase` (`tests/class-library-testcase.php`), in a file `tests/class-test-*.php`. Each test is a request of its own: it starts with no book, adds the ones it needs with `add_book()` or `add_reads()`, then reads the achievements with `get_earned()` and `get_close()`, or the reading idea.
+
+## The reading app
+
+The tests of the reading app run in a browser, with [Playwright](https://playwright.dev) and the utilities of WordPress, `@wordpress/e2e-test-utils-playwright`, on a WordPress of their own: each test adds the books it needs through the route of the book form, and the site is emptied of its books first. A site with 100 books or more is never touched.
+
+```sh
+pnpm install
+pnpm exec playwright install chromium
+pnpm wp-env start
+pnpm test:e2e
+```
+
+`wp-env` needs Docker: it serves the latest WordPress with the plugin at `http://localhost:8889`, logged in as `admin` / `password`. Another WordPress of the tests, without Docker, is given by its URL and its login:
+
+```sh
+WP_BASE_URL=http://localhost:8889 WP_USERNAME=admin WP_PASSWORD=password pnpm test:e2e
+```
+
+`pnpm test:e2e -- reading` runs one file, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.

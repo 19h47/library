@@ -1,0 +1,38 @@
+name: End to end
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The version of package.json, its packageManager.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # The latest WordPress with the plugin, on PHP 8.4: the tests run on its environment of tests, at localhost:8889.
+      - run: pnpm exec wp-env start
+
+      - run: pnpm exec playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7

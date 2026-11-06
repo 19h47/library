@@ -4,6 +4,14 @@
 #######
 vendor
 
+# Node #
+########
+node_modules
+# What the tests of the reading app leave: their report, their results and the state of their login.
+/playwright-report
+/test-results
+/tests/e2e/.auth
+
 # OS generated files #
 ######################
 .DS_Store
