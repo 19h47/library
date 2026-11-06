@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.21.0
+Stable tag: 9.22.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -97,6 +97,12 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.22.0 =
+* Changed: reading app: the reading of a book saves each change at once, with Undo in the notice, as Finished does on the home; the button Save goes.
+* Changed: reading app: on a phone, the bar of the views shows all of them, as the tabs of an app, rather than a row that scrolled past the edge of the screen.
+* Changed: reading app: the page is named after what it shows, such as "Journal – Library", so that the history and the tabs tell the pages apart.
+* Changed: reading app: the covers are sharp on a dense screen and no heavier in the lists: the REST API gives each cover its srcset, and each image takes the size it shows at.
 
 = 9.21.0 =
 * Breaking: `library_read` is no longer stored: a book is read once it has a read date, known or not. The forms and the REST API keep the field Read, which the route of the book form writes as read dates, as before; core's `/wp-json/wp/v2/books` no longer writes it. Its former rows are left unread and can be deleted, with your table prefix: `DELETE FROM wp_postmeta WHERE meta_key = 'library_read'`.
