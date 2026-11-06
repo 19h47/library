@@ -2,31 +2,30 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks } from 'library-app/format';
 import { fill, renderCurrent } from 'library-app/render';
-import { openBooks, showBusy } from 'library-app/behaviors';
+import { renderKeyed, showBusy } from 'library-app/behaviors';
 
 /**
  * The books being read, as their covers in a row that scrolls sideways, which open them, each with its button
- * Finished, which reads it today; how many there are, some out of sight; hidden when none is.
+ * Finished, which reads it today; how many there are, some out of sight; hidden when none is. A cover stays while its
+ * book is being read, its focus too: a book finished leaves its focus to the next one.
  */
 class LibraryInProgressElement extends Brick {
 	connect( signal ) {
 		const $list = this.querySelector( 'ul' );
-
-		openBooks( $list, signal );
+		let previous = store.get().books;
 
 		$list.addEventListener(
 			'click',
 			async ( event ) => {
 				const $finish = event.target.closest( '[data-action="finish"]' );
 
-				if ( ! $finish ) {
+				// Busy rather than disabled while it saves: a button disabled loses its focus, which the next cover takes.
+				if ( ! $finish || 'true' === $finish.getAttribute( 'aria-busy' ) ) {
 					return;
 				}
 
-				$finish.disabled = true;
 				showBusy( $finish, true );
 				await store.finishReading( Number( $finish.closest( '[data-id]' ).dataset.id ) );
-				$finish.disabled = false;
 				showBusy( $finish, false );
 			},
 			{ signal }
@@ -39,8 +38,23 @@ class LibraryInProgressElement extends Brick {
 					const { books } = store.get();
 
 					fill( this, { count: formatBooks( ids.length ) } );
-					$list.replaceChildren( ...ids.map( ( id ) => renderCurrent( books[ id ] ) ) );
+					renderKeyed( $list, ids, ( id ) => renderCurrent( books[ id ] ) );
 					this.hidden = ! ids.length;
+				}
+			),
+			// A book being read that changed, such as its cover, is drawn again in its place.
+			store.select(
+				( state ) => state.books,
+				( books ) => {
+					[ ...$list.children ].forEach( ( $item ) => {
+						const book = books[ $item.dataset.id ];
+
+						// A book finished leaves as the books being read load again: its cover stays until then, its focus with it.
+						if ( book?.in_progress && book !== previous[ $item.dataset.id ] ) {
+							$item.replaceWith( renderCurrent( book ) );
+						}
+					} );
+					previous = books;
 				}
 			),
 		];
