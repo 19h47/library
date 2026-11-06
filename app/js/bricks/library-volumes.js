@@ -3,7 +3,6 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, join } from 'library-app/format';
 import { fill, renderCover } from 'library-app/render';
-import { openBooks } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
@@ -12,7 +11,7 @@ import { urlOf } from 'library-app/router';
  * how many are read, and each cover says its reading state to assistive technologies. Hidden for a book alone.
  */
 class LibraryVolumesElement extends Brick {
-	connect( signal ) {
+	connect() {
 		const $list = this.querySelector( 'ul' );
 		const $name = this.querySelector( '[data-field="name"]' );
 		const render = () => {
@@ -37,7 +36,7 @@ class LibraryVolumesElement extends Brick {
 
 			const $current = $list.querySelector( `[data-id="${ id }"]` );
 
-			$current.querySelector( 'button' ).setAttribute( 'aria-current', 'true' );
+			$current.querySelector( 'a' ).setAttribute( 'aria-current', 'page' );
 			// Once the page shows it: the book open where the first one starts, unless the page was left meanwhile.
 			requestAnimationFrame( () => {
 				if ( $current.isConnected ) {
@@ -45,8 +44,6 @@ class LibraryVolumesElement extends Brick {
 				}
 			} );
 		};
-
-		openBooks( $list, signal );
 
 		return [ store.select( ( state ) => state.book, render ), store.select( ( state ) => state.volumes, render ) ];
 	}

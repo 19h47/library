@@ -182,15 +182,10 @@ library-home:not([hidden]) + .library-books__title {
 	height: var(--library-cover-height);
 }
 
-/* A button that is its content, the title of a card or a cover: the card or the cover shows it acts */
-.library-item__button,
-.library-cover__button {
-	padding: 0;
-	border: 0;
-	background: none;
-	color: inherit;
-	font: inherit;
-	cursor: pointer;
+/* A link that is its content, the title of a card or a cover: the card or the cover shows it leads to the book */
+.library-item__link,
+.library-cover__link {
+	text-decoration: none;
 }
 
 /* A tag or a message, the form of a book or an error of the server: a line and a tint of its color */
@@ -213,7 +208,7 @@ library-home:not([hidden]) + .library-books__title {
 	transition: opacity var(--app-transition-1);
 }
 
-/* A book card: the cover beside, when the book has one; the button of the title covers the card to open the book. */
+/* A book card: the cover beside, when the book has one; the link of the title covers the card to open the book. */
 .library-item {
 	position: relative;
 	align-items: start;
@@ -265,17 +260,17 @@ library-home:not([hidden]) + .library-books__title {
 	font-size: var(--app-font-small);
 }
 
-.library-item__button {
+.library-item__link {
 	text-align: start;
 }
 
-.library-item__button::after {
+.library-item__link::after {
 	content: "";
 	position: absolute;
 	inset: 0;
 }
 
-.library-item__button:focus-visible {
+.library-item__link:focus-visible {
 	outline: none;
 }
 
@@ -291,7 +286,7 @@ library-home:not([hidden]) + .library-books__title {
 	color: var(--library-status);
 }
 
-/* The row of a book, the idea of the week on the home: its cover, when it has one, its title and authors; the button of the title covers the row to open the book */
+/* The row of a book, the idea of the week on the home: its cover, when it has one, its title and authors; the link of the title covers the row to open the book */
 .library-row {
 	position: relative;
 	display: flex;
@@ -303,7 +298,7 @@ library-home:not([hidden]) + .library-books__title {
 	border-color: var(--app-line);
 }
 
-.library-row:has(.library-item__button:focus-visible) {
+.library-row:has(.library-item__link:focus-visible) {
 	outline: var(--app-focus-outline);
 	outline-offset: var(--app-focus-outline-offset);
 }
@@ -327,7 +322,7 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /*
- * Two lines of the title, in the button that holds it: a longer one ends in an ellipsis. Unprefixed line-clamp is in
+ * Two lines of the title, in the link that holds it: a longer one ends in an ellipsis. Unprefixed line-clamp is in
  * no stable browser yet: the prefixed one needs its box.
  */
 .library-row__name {
@@ -353,7 +348,7 @@ library-home:not([hidden]) + .library-books__title {
 	gap: var(--app-gap);
 	width: min-content;
 
-	& .library-cover__button {
+	& .library-cover__link {
 		display: grid;
 		justify-items: start;
 		gap: var(--app-gap-small);
@@ -809,13 +804,13 @@ library-latest {
 }
 
 /* A cover holds its reading state, out of sight: it stays in the row of covers, which scrolls, rather than widening the page */
-.library-cover__button {
+.library-cover__link {
 	position: relative;
 	display: block;
 }
 
 /* The book open among the covers of its series: its line as firm as the text */
-.library-cover__button[aria-current="true"] :is(.library-cover__image, .library-cover__frame) {
+.library-cover__link[aria-current="page"] :is(.library-cover__image, .library-cover__frame) {
 	border-color: var(--app-text);
 }
 

@@ -10,7 +10,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatNumber, formatState, join } from 'library-app/format';
 import { fill, fillCompletion, renderBook } from 'library-app/render';
-import { followBooks, observeEnd, openBooks, renderKeyed } from 'library-app/behaviors';
+import { followBooks, observeEnd, renderKeyed } from 'library-app/behaviors';
 
 /**
  * The page of a term: its name, its description, how many of its books are read and the completion they count for, then
@@ -29,8 +29,6 @@ export class TermPage extends Brick {
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMorePageBooks( key ) );
-
-		openBooks( $items, signal );
 
 		return [
 			followBooks( $items, ( book ) => this.line( book ) ),
