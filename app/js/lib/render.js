@@ -38,6 +38,12 @@ function link( route, text ) {
 	return $link;
 }
 
+/** Links the element of a book, a card, a row or a cover, to its page, which its link opens. */
+function linkBook( $item, book ) {
+	$item.dataset.id = book.id;
+	$item.querySelector( '.library-item__link, .library-cover__link' ).href = urlOf( { view: 'book', id: book.id } );
+}
+
 /** A link to the page `view` of `id`: of a book, of a person, of a series or a cycle, of a collection or a publisher. */
 export function pageLink( view, id, name ) {
 	return link( { view, id }, name );
@@ -129,7 +135,7 @@ export function renderCover( book, state = '' ) {
 	const $item = clone( 'library-cover' );
 	const $image = $item.querySelector( '[data-field="cover"]' );
 
-	$item.dataset.id = book.id;
+	linkBook( $item, book );
 	$image.alt = book.title;
 	fillCover( $image, book.cover );
 	fill( $item, { title: book.cover ? '' : book.title, state } );
@@ -143,9 +149,9 @@ export function renderCover( book, state = '' ) {
  */
 export function renderCurrent( book ) {
 	const $item = clone( 'library-current' );
-	const $open = $item.querySelector( '.library-cover__button' );
+	const $open = $item.querySelector( '.library-cover__link' );
 
-	$item.dataset.id = book.id;
+	linkBook( $item, book );
 	$open.id = `library-current-${ book.id }`;
 	$item.querySelector( '[data-action="finish"]' ).setAttribute( 'aria-describedby', $open.id );
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
@@ -158,7 +164,7 @@ export function renderCurrent( book ) {
 export function renderRow( book ) {
 	const $item = clone( 'library-row' );
 
-	$item.dataset.id = book.id;
+	linkBook( $item, book );
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
 	fill( $item, { title: book.title, authors: listFormat.format( book.authors.map( ( author ) => author.name ) ), status: formatStatus( book ) } );
 
@@ -169,7 +175,7 @@ export function renderRow( book ) {
 export function renderBook( book, state ) {
 	const $item = clone( 'library-item' );
 
-	$item.dataset.id = book.id;
+	linkBook( $item, book );
 	fillBook( $item, book, state );
 
 	return $item;

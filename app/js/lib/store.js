@@ -2,9 +2,10 @@
  * Store of the reading app: the state every brick reads, and the actions that change it.
  *
  * What shows comes from the URL, as the router reads it, through show(). The parts of the state the API fills are
- * resources: each loads the first time it shows, and loads again in place once a book changed, if it was loaded. The
- * books to buy load at once, whatever the view: kept by the service worker, they show without network, as in a
- * bookshop. A book saved, its reading or its form, loads every resource loaded again; a book added loads them all again.
+ * resources: each loads the first time it shows, or again once it failed, and loads again in place once a book changed,
+ * if it was loaded: at once if it shows, else the next time it does. The books to buy load at once, whatever the view,
+ * and again at once: kept by the service worker, they show without network, as in a bookshop. A book saved, its reading
+ * or its form, loads the resources loaded again so; a book added loads them all again.
  *
  * @package    Library
  * @subpackage Library/app
@@ -20,6 +21,8 @@ const STORAGE_KEY = 'library-app';
 const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
+// The filters of the books, and their order: see load().
+const FILTERS = [ 'read', 'status', 'form', 'sort' ];
 // The page of a book, opened from its card, its cover or a link.
 const BOOK_VIEW = 'book';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
@@ -76,7 +79,7 @@ function save( state ) {
 }
 
 /** Whether the home shows: the books view, without a query. */
-function isHome( state ) {
+export function isHome( state ) {
 	return 'books' === state.view && ! state.query.trim();
 }
 
@@ -178,6 +181,8 @@ class LibraryStore extends Store {
 	#timeout = 0;
 	// The request running of each resource: another one cancels it.
 	#controllers = {};
+	// The resources loaded, hidden as a book changed: they load again in place the next time they show.
+	#stale = new Set();
 
 	/**
 	 * The resources: the parts of the state the API fills, each with its state `empty`, how it loads the first time, and
@@ -265,6 +270,9 @@ class LibraryStore extends Store {
 			}
 		} );
 
+		// Back online, what could not load loads again, if it shows.
+		addEventListener( 'online', () => this.#loadShown() );
+
 		this.#fetchStats();
 		this.#load( 'toBuy' );
 	}
@@ -283,7 +291,7 @@ class LibraryStore extends Store {
 			moved: { push: 'forward', replace: 'forward', traverse: 'back' }[ navigationType ] ?? '',
 			// The books found load again once the books view shows.
 			...( 'books' === view && query !== state.query && { query, search: pages() } ),
-			...( isSearchLink && { read: '', status: '', form: '', sort: '' } ),
+			...( isSearchLink && Object.fromEntries( FILTERS.map( ( filter ) => [ filter, '' ] ) ) ),
 		} ) );
 		this.#show( view, id );
 	}
@@ -297,24 +305,12 @@ class LibraryStore extends Store {
 		this.#timeout = setTimeout( () => this.#fetchList( 'search' ), SEARCH_DELAY );
 	}
 
-	setRead( read ) {
-		this.set( ( state ) => ( { ...state, read } ) );
-		this.#fetchList( 'search' );
-	}
-
-	setStatus( status ) {
-		this.set( ( state ) => ( { ...state, status } ) );
-		this.#fetchList( 'search' );
-	}
-
-	setForm( form ) {
-		this.set( ( state ) => ( { ...state, form } ) );
-		this.#fetchList( 'search' );
-	}
-
-	setSort( sort ) {
-		this.set( ( state ) => ( { ...state, sort } ) );
-		this.#fetchList( 'search' );
+	/** A filter of the books, or their order, one of FILTERS, "" for none: the books found load again. */
+	setFilter( filter, value ) {
+		if ( FILTERS.includes( filter ) ) {
+			this.set( ( state ) => ( { ...state, [ filter ]: value } ) );
+			this.#fetchList( 'search' );
+		}
 	}
 
 	/** The next books of a list, `search` or `toBuy`, unless some are loading or none is left. */
@@ -598,13 +594,36 @@ class LibraryStore extends Store {
 		return Object.fromEntries( Object.entries( this.#resources ).map( ( [ key, resource ] ) => [ key, resource.empty() ] ) );
 	}
 
-	/** Loads the resource `key` the first time it shows, unless it is loaded or loading. */
+	/**
+	 * Loads the resource `key` as it shows: the first time, or again once it failed; again in place if a book changed
+	 * while it was hidden. Not while it loads.
+	 */
 	#load( key ) {
-		const { loaded, loading } = this.get()[ key ];
+		const { loaded, loading, error } = this.get()[ key ];
+		const isStale = this.#stale.delete( key );
 
-		if ( ! loaded && ! loading ) {
-			this.#resources[ key ].load();
+		if ( loading ) {
+			return;
 		}
+
+		if ( ! loaded || error ) {
+			this.#resources[ key ].load();
+		} else if ( isStale ) {
+			this.#resources[ key ].reload();
+		}
+	}
+
+	/** The resources the view shown shows, the books to buy with them: see VIEW_RESOURCES and HOME. */
+	#shownResources() {
+		const state = this.get();
+		const shown = [ 'toBuy', VIEW_RESOURCES[ state.view ], ...( isHome( state ) ? HOME : [] ) ];
+
+		return shown.filter( Boolean );
+	}
+
+	/** Loads what the view shown shows, as it shows. */
+	#loadShown() {
+		this.#shownResources().forEach( ( key ) => this.#load( key ) );
 	}
 
 	/** Loads what the home shows, when it shows. */
@@ -630,11 +649,9 @@ class LibraryStore extends Store {
 
 		if ( BOOK_VIEW === view ) {
 			this.#loadBook( id );
-		} else if ( view in VIEW_RESOURCES ) {
-			this.#load( VIEW_RESOURCES[ view ] );
 		}
 
-		this.#loadHome();
+		this.#loadShown();
 	}
 
 	/**
@@ -677,19 +694,27 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * What was loaded, again in place, after the book `id` was saved, or after a while away, without one: the stats, every
-	 * resource loaded, and the series of the book open, so that a view gone back to shows the books as they are, where it was.
+	 * What was loaded, again in place, after the book `id` was saved, or after a while away, without one: the stats, the
+	 * series of the book open, and every resource loaded, at once if it shows, else the next time it does, so that a
+	 * view gone back to shows the books as they are, where it was.
 	 */
 	#reloadLoaded( id = 0 ) {
 		const state = this.get();
+		const shown = this.#shownResources();
+		// Its reading states may have changed, or its series.
+		const series = state.books[ state.book ]?.series ?? '';
 
-		// Its reading states may have changed.
-		this.set( ( current ) => ( { ...current, volumes: volumes() } ) );
 		this.#fetchStats();
-		this.#loadVolumes();
+
+		if ( series ) {
+			this.#fetchVolumes( series );
+		} else {
+			this.set( ( current ) => ( { ...current, volumes: volumes() } ) );
+		}
+
 		Object.entries( this.#resources )
 			.filter( ( [ key ] ) => state[ key ].loaded )
-			.forEach( ( [ , resource ] ) => resource.reload( id ) );
+			.forEach( ( [ key, resource ] ) => ( shown.includes( key ) ? resource.reload( id ) : this.#stale.add( key ) ) );
 	}
 
 	/**
@@ -717,6 +742,7 @@ class LibraryStore extends Store {
 		const { view, book } = this.get();
 		const id = BOOK_VIEW === view ? book : this.get()[ view ]?.id ?? 0;
 
+		this.#stale.clear();
 		this.set( ( state ) => ( { ...state, ...this.#emptyResources(), volumes: volumes(), terms: terms() } ) );
 		this.#fetchStats();
 		this.#load( 'toBuy' );
@@ -758,12 +784,16 @@ class LibraryStore extends Store {
 		}
 	}
 
-	/** Adds books to the ones loaded, and returns their IDs. */
+	/**
+	 * Adds books to the ones loaded, and returns their IDs. A book loaded again as it was stays the one loaded, so what
+	 * shows it, such as its reading form being filled, is not drawn again.
+	 */
 	#addBooks( books ) {
-		this.set( ( state ) => ( {
-			...state,
-			books: { ...state.books, ...Object.fromEntries( books.map( ( book ) => [ book.id, book ] ) ) },
-		} ) );
+		this.set( ( state ) => {
+			const changed = books.filter( ( book ) => JSON.stringify( book ) !== JSON.stringify( state.books[ book.id ] ) );
+
+			return changed.length ? { ...state, books: { ...state.books, ...Object.fromEntries( changed.map( ( book ) => [ book.id, book ] ) ) } } : state;
+		} );
 
 		return books.map( ( book ) => book.id );
 	}
@@ -892,17 +922,20 @@ class LibraryStore extends Store {
 
 	/**
 	 * The page `key` open, `person`, `series` or `publisher`, then the first page of its books, unless it is loaded
-	 * already. Another person, series or collection cancels the one loading.
+	 * already: loaded again, its books show as many pages as they did, those of now, such as a book saved into it or out
+	 * of it. Another person, series or collection cancels the one loading.
 	 */
 	async #fetchPage( key ) {
 		const signal = this.#signal( key );
 		const isLoaded = await this.#request( key, async () => {
 			const data = await api.getPage( key, this.get()[ key ].id, { signal } );
+			const items = data.books.slice( 0, this.get()[ key ].page * perPage );
 
-			return ( current ) => ( {
-				// A book saved out of it leaves its books.
-				items: current.items.filter( ( book ) => data.books.includes( book ) ),
+			await this.#fetchBooks( items, { signal } );
+
+			return () => ( {
 				...data,
+				items,
 				total: data.books.length,
 				pages: Math.ceil( data.books.length / perPage ),
 			} );
@@ -925,11 +958,16 @@ class LibraryStore extends Store {
 		} );
 	}
 
-	/** The books of the series `name`, in reading order. Another series cancels the one loading. */
+	/**
+	 * The books of the series `name`, in reading order. Another series cancels the one loading, and starts empty; the
+	 * same one, loaded again, shows its books until the new ones come.
+	 */
 	#fetchVolumes( name ) {
 		const signal = this.#signal( 'volumes' );
 
-		this.set( ( state ) => ( { ...state, volumes: volumes( name ) } ) );
+		if ( name !== this.get().volumes.name ) {
+			this.set( ( state ) => ( { ...state, volumes: volumes( name ) } ) );
+		}
 
 		return this.#request( 'volumes', async () => {
 			const ids = this.#addBooks( await api.getVolumes( name, { signal } ) );

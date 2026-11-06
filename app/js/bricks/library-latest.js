@@ -1,17 +1,14 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { renderCover } from 'library-app/render';
-import { openBooks } from 'library-app/behaviors';
 
 // How many covers show.
 const LATEST_BOOKS = 12;
 
 /** The covers of the latest books read, which open them; hidden until the diary has readings. */
 class LibraryLatestElement extends Brick {
-	connect( signal ) {
+	connect() {
 		const $list = this.querySelector( 'ul' );
-
-		openBooks( $list, signal );
 
 		return [
 			store.select(

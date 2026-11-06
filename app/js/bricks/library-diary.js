@@ -3,15 +3,13 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { dayFormat, formatBooks, formatDate, formatRating, join } from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';
-import { followBooks, observeEnd, openBooks } from 'library-app/behaviors';
+import { followBooks, observeEnd } from 'library-app/behaviors';
 
 /** The readings by month, latest first: a book read again comes once per reading. */
 class LibraryDiaryElement extends Brick {
 	connect( signal ) {
 		const $months = this.querySelector( '.library-diary__months' );
 		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreDiary() );
-
-		openBooks( $months, signal );
 
 		return [
 			followBooks( $months, ( book, $item ) => this.#state( book, $item.dataset.date ) ),
@@ -46,7 +44,7 @@ class LibraryDiaryElement extends Brick {
 		const $cards = [ ...this.querySelectorAll( '.library-item' ) ];
 		const $card = $cards.find( ( $item ) => id === $item.dataset.id && date === $item.dataset.date ) ?? $cards[ Math.min( index, $cards.length - 1 ) ];
 
-		$card?.querySelector( '.library-item__button' ).focus();
+		$card?.querySelector( '.library-item__link' ).focus();
 	}
 
 	/** A section per month, with the number of its readings: a page of the diary holds whole months. */

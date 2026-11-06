@@ -83,10 +83,7 @@ class Library_Meta {
 	public const array QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
 
 	/**
-	 * All book meta keys.
-	 *
-	 * The read state comes after the read dates, so unchecking "Read" in the form
-	 * clears the dates instead of the dates checking "Read" again.
+	 * All book meta keys, and the read state, which is no meta of its own: see get_read_state() and save().
 	 *
 	 * @var string[]
 	 */
@@ -99,9 +96,7 @@ class Library_Meta {
 	 */
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_meta' ) );
-		add_action( 'added_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
-		add_action( 'updated_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
-		add_action( 'deleted_post_meta', array( $this, 'sync_reading_state' ), 10, 3 );
+		add_filter( 'get_post_metadata', array( $this, 'get_read_state' ), 10, 4 );
 	}
 
 	/**
@@ -251,6 +246,7 @@ class Library_Meta {
 			)
 		);
 
+		// Read from the read dates, never stored: the forms send it, and save() writes the read dates it means.
 		register_post_meta(
 			'library_book',
 			'library_read',
@@ -260,6 +256,7 @@ class Library_Meta {
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
+				'auth_callback'     => '__return_false',
 			)
 		);
 
@@ -395,8 +392,7 @@ class Library_Meta {
 		$ratings = array( '' => __( 'No rating', 'library' ) );
 
 		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
-			/* translators: %s: rating, e.g. 7.5. */
-			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::format_rating( $rating ) );
+			$ratings[ (string) $rating ] = Library_Books::format_rating_out_of_ten( $rating );
 		}
 
 		return $ratings;
@@ -446,32 +442,23 @@ class Library_Meta {
 	}
 
 	/**
-	 * Keep the read state and the read dates consistent, whatever wrote them:
-	 * a read date marks the book as read, marking it as unread clears the dates.
+	 * The read state of a book, from its read dates: read once it has a reading, of a known date or not. The read dates are
+	 * its one record: library_read is never stored.
 	 *
-	 * Imports are left as they are: their data is already consistent, and the importer
-	 * adds each meta after the ones this rule would write, which would duplicate them.
-	 *
-	 * @param int|int[] $meta_ids Meta ID(s).
-	 * @param int       $post_id  Post ID.
-	 * @param string    $meta_key Meta key.
-	 * @return void
+	 * @param mixed  $value     Value, null to read the meta stored.
+	 * @param int    $object_id Post ID.
+	 * @param string $meta_key  Meta key, empty for every meta.
+	 * @param bool   $single    Whether one value is asked for.
+	 * @return mixed
 	 */
-	public function sync_reading_state( $meta_ids, int $post_id, string $meta_key ): void {
-		if ( ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || 'library_book' !== get_post_type( $post_id ) ) {
-			return;
+	public function get_read_state( $value, int $object_id, string $meta_key, bool $single ) {
+		if ( 'library_read' !== $meta_key || 'library_book' !== get_post_type( $object_id ) ) {
+			return $value;
 		}
 
-		$read       = (bool) get_post_meta( $post_id, 'library_read', true );
-		$read_dates = self::get_read_dates( $post_id );
+		$is_read = (bool) self::get_read_dates( $object_id );
 
-		if ( 'library_read_date' === $meta_key && $read_dates && ! $read ) {
-			update_post_meta( $post_id, 'library_read', true );
-		}
-
-		if ( 'library_read' === $meta_key && ! $read && $read_dates ) {
-			delete_post_meta( $post_id, 'library_read_date' );
-		}
+		return $single ? $is_read : array( $is_read );
 	}
 
 	/**
@@ -525,19 +512,20 @@ class Library_Meta {
 	 *
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
 	 * Values are saved in the order of KEYS, whatever the order of the form fields.
-	 * A book read keeps a reading: marked as read without a read date, it gets today; read already and its read dates
-	 * all removed, it gets an unknown one. A read date added ends the reading in progress.
+	 * The read state, library_read, is written as read dates: marked as unread, a book loses them; marked as read without
+	 * a read date, it gets today; read already and its read dates all removed, it gets an unknown one, unless it is marked
+	 * as unread. A read date added ends the reading in progress.
 	 *
 	 * @param int   $post_id Post ID.
 	 * @param array $values  Unslashed values keyed by meta key.
 	 * @return void
 	 */
 	public static function save( int $post_id, array $values ): void {
-		$was_read   = (bool) get_post_meta( $post_id, 'library_read', true );
 		$read_dates = self::get_read_dates( $post_id );
+		$was_read   = (bool) $read_dates;
 
 		foreach ( self::KEYS as $key ) {
-			if ( ! array_key_exists( $key, $values ) ) {
+			if ( ! array_key_exists( $key, $values ) || 'library_read' === $key ) {
 				continue;
 			}
 
@@ -556,7 +544,12 @@ class Library_Meta {
 			update_post_meta( $post_id, $key, wp_slash( $value ) );
 		}
 
-		if ( get_post_meta( $post_id, 'library_read', true ) && ! self::get_read_dates( $post_id ) ) {
+		$has_dates = (bool) self::get_read_dates( $post_id );
+		$is_read   = array_key_exists( 'library_read', $values ) ? rest_sanitize_boolean( $values['library_read'] ) : $was_read || $has_dates;
+
+		if ( ! $is_read ) {
+			delete_post_meta( $post_id, 'library_read_date' );
+		} elseif ( ! $has_dates ) {
 			add_post_meta( $post_id, 'library_read_date', $was_read ? '' : current_time( self::READ_TIME_FORMAT ) );
 		}
 

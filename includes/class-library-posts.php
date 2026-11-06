@@ -206,10 +206,10 @@ class Library_Posts {
 			'remove_featured_image' => __( 'Remove featured image', 'library' ),
 			'use_featured_image'    => __( 'Use as featured image', 'library' ),
 			'insert_into_item'      => __( 'Insert into book', 'library' ),
-			'uploaded_to_this_item' => __( 'Updloaded to this book', 'library' ),
+			'uploaded_to_this_item' => __( 'Uploaded to this book', 'library' ),
 			'items_list'            => __( 'Books list', 'library' ),
 			'items_list_navigation' => __( 'Books list navigation', 'library' ),
-			'filter_items_list'     => __( 'Filtrer books list', 'library' ),
+			'filter_items_list'     => __( 'Filter books list', 'library' ),
 		);
 
 		// The excerpt is a summary of the book in a few words, the content its notes.
@@ -255,13 +255,13 @@ class Library_Posts {
 	}
 
 	/**
-	 * Whether a book has been read; the read date is optional.
+	 * Whether a book has been read: whether it has a reading, of a known date or not.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return bool
 	 */
 	public static function is_read( int $post_id ): bool {
-		return (bool) get_post_meta( $post_id, 'library_read', true );
+		return (bool) Library_Meta::get_read_dates( $post_id );
 	}
 
 	/**

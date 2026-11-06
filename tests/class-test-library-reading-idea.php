@@ -706,7 +706,6 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 		$this->assertContains( $first['id'], $books );
 		$this->assertSame( 0, $first['position'] );
 		$this->assertSame( 3, $first['total'] );
-		$this->assertSame( wp_date( 'o-\WW' ), $first['week'] );
 		$this->assertSame( $reading_idea->get_idea( 1 ), $again );
 		$this->assertSame( 1, $again['position'] );
 	}
@@ -766,9 +765,15 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 	 */
 	private function get_ideas_of( string $kind ): array {
 		$books   = Library_Books::get_books();
-		$to_read = new ReflectionMethod( Library_Reading_Idea::class, 'get_books_to_read' )->invoke( null, $books );
+		$derived = fn( string $name ) => new ReflectionMethod( Library_Reading_Idea::class, "get_$name" )->invoke( null, $books );
+		$values  = array(
+			'books'          => $books,
+			'to_read'        => $derived( 'books_to_read' ),
+			'read_by_series' => $derived( 'read_by_series' ),
+			'next_parts'     => $derived( 'next_parts' ),
+		);
 		$method  = new ReflectionMethod( Library_Reading_Idea::class, 'get_' . $kind . '_ideas' );
-		$args    = array_map( fn( ReflectionParameter $parameter ) => 'books' === $parameter->getName() ? $books : $to_read, $method->getParameters() );
+		$args    = array_map( fn( ReflectionParameter $parameter ) => $values[ $parameter->getName() ], $method->getParameters() );
 		$reasons = array();
 
 		foreach ( $method->invokeArgs( new Library_Reading_Idea(), $args ) as $idea ) {

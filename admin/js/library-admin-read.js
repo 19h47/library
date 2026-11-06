@@ -1,7 +1,8 @@
 /**
  * Read checkbox in the books list, then refresh the read date and the reading percentage.
  *
- * Uses wp.apiFetch, which handles the REST root and nonce, and wp.i18n.
+ * Uses wp.apiFetch, which handles the REST root and nonce, wp.i18n, and wp.a11y, which says the new percentage, or that
+ * the reading could not be saved, the checkbox back as it was.
  * Checking a book without a read date reads it now and ends its reading in progress; unchecking it clears its read dates.
  *
  * @package    Library
@@ -13,6 +14,7 @@
 
 	const { apiFetch }     = window.wp;
 	const { __, sprintf }  = window.wp.i18n;
+	const { speak }        = window.wp.a11y;
 	const checkboxes       = document.querySelectorAll( '.js-library-checkbox' );
 	const readPercentageEl = document.querySelector( '.js-library-read-percentage' );
 
@@ -22,7 +24,10 @@
 
 	const updatePercent = ( percent ) => {
 		/* translators: %s: reading percentage. */
-		readPercentageEl.textContent = sprintf( __( '%s%% read', 'library' ), percent.toLocaleString() );
+		const label = sprintf( __( '%s%% read', 'library' ), percent.toLocaleString() );
+
+		readPercentageEl.textContent = label;
+		speak( label );
 	};
 
 	// Quick edit reads the inline data, so it must follow the date the server kept.
@@ -53,6 +58,8 @@
 			return;
 		}
 
+		const percentText = readPercentageEl.textContent;
+
 		checkbox.disabled = true;
 		readPercentageEl.textContent = readPercentageEl.dataset.loadingText;
 
@@ -62,7 +69,18 @@
 
 		try {
 			await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: { meta } } );
+		} catch ( error ) {
+			const message = error.message ?? __( 'The reading could not be saved.', 'library' );
 
+			checkbox.checked = ! checkbox.checked;
+			checkbox.disabled = false;
+			readPercentageEl.textContent = percentText;
+			speak( message, 'assertive' );
+			return;
+		}
+
+		// Saved: what follows only shows it.
+		try {
 			const book = await apiFetch( { path: `/wp/v2/books/${ id }?_fields=meta` } );
 
 			updateReadDates( id, book.meta.library_read_date );

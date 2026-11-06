@@ -9,7 +9,6 @@
 
 import { store } from 'library-app/store';
 import { clone, fillBook } from 'library-app/render';
-import { urlOf } from 'library-app/router';
 
 // The next page loads before the end of the list shows.
 const LOAD_MARGIN_PX = 800;
@@ -84,21 +83,6 @@ export function renderKeyed( $list, keys, render ) {
 	if ( $active !== document.activeElement && $list.contains( $active ) ) {
 		$active.focus( { preventScroll: true } );
 	}
-}
-
-/** Opens the book of a card or a cover clicked in `$root`: the button of an element with the ID of a book, not one of its actions. */
-export function openBooks( $root, signal ) {
-	$root.addEventListener(
-		'click',
-		( event ) => {
-			const $book = event.target.closest( 'button:not([data-action])' )?.closest( '[data-id]' );
-
-			if ( $book && $root.contains( $book ) ) {
-				navigation.navigate( urlOf( { view: 'book', id: Number( $book.dataset.id ) } ) );
-			}
-		},
-		{ signal }
-	);
 }
 
 /**

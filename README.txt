@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.20.2
+Stable tag: 9.21.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,7 +85,7 @@ Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described b
 The routes of the plugin, to users who can edit posts:
 
 * `GET /wp-json/library/v1/books/reading-stats` – books, books read, this year against last year, and the books to read with the year they would all be read in at this pace.
-* `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months, `_embed` adds the books.
+* `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months.
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
 * `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their series with how many of their books they hold and are read, their books in the order they first came out, whatever their role, and their reading.
@@ -97,6 +97,16 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.21.0 =
+* Breaking: `library_read` is no longer stored: a book is read once it has a read date, known or not. The forms and the REST API keep the field Read, which the route of the book form writes as read dates, as before; core's `/wp-json/wp/v2/books` no longer writes it. Its former rows are left unread and can be deleted, with your table prefix: `DELETE FROM wp_postmeta WHERE meta_key = 'library_read'`.
+* Breaking: the reading idea no longer gives its `week`, and the readings by month, the reading idea and a book added or edited no longer link their books to embed with `_embed`.
+* Changed: reading app: the cards, rows and covers of the books are links, which open in a new tab or show a preview on a long press; a book finished on the home leaves the focus to the next book being read.
+* Changed: the checkbox Read of the books list goes back as it was when its book could not be saved, and the new percent read is said to assistive technologies; the cover of a row is out of the keyboard, its title linking to the book already.
+* Changed: faster: the dashboard and the reading stats count from the books kept in the cache, the reading ideas and the achievements load their terms at once (723 and 326 queries down to 20 and 23 when they are computed again), the covers of the books list are their medium size rather than the full image, and a book saved in the reading app loads again only what shows.
+* Changed: reading app: the service worker keeps the app apart from the covers and the data, so that it still opens without network after a long scroll.
+* Fixed: reading app: the reading form keeps what was typed when the app comes back after a while; a resource that could not load loads again as it shows or once the network is back; a page of a person, a series or a collection loaded again shows its books as they are; the volumes of a book stay while they load again.
+* Fixed: the average rating by year counts each rating once; the labels "Uploaded to this book" and "Filter books list" have no typos; the Rating column says the rating as the app does, translated.
 
 = 9.20.2 =
 * Fixed: reading app: the picker of a pill select opens above it where it fits there whole and not below, in Safari 27 too; it scrolls only where it fits on neither side.

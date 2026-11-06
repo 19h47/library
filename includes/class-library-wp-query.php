@@ -381,14 +381,16 @@ class Library_WP_Query {
 
 				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
 			case 'read':
+				// A book is read once it has a reading, of a known date or not.
+				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date'";
+
 				if ( 'yes' === $value ) {
-					return "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read' AND meta_value = '1'";
+					return $read;
 				}
 
+				// NOT IN lists the books read once; a LEFT JOIN would search the meta of each book, slower on MySQL 5.7.
 				if ( 'no' === $value ) {
-					return "SELECT p.ID FROM {$wpdb->posts} AS p
-						LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'library_read' AND r.meta_value = '1'
-						WHERE p.post_type = 'library_book' AND r.post_id IS NULL";
+					return "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'library_book' AND ID NOT IN ( $read )";
 				}
 
 				if ( ! preg_match( '/^\d{4}(-\d{2})?$/', $value ) ) {

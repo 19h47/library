@@ -196,7 +196,7 @@
 								</form>
 								<h2 class="library-book__title" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
-									<?php echo '<library-' . esc_attr( $book_filter ) . '-filter>'; ?>
+									<library-filter data-filter="<?php echo esc_attr( $book_filter ); ?>">
 										<?php
 										Library::render_component(
 											'field',
@@ -207,14 +207,14 @@
 											)
 										);
 										?>
-									<?php echo '</library-' . esc_attr( $book_filter ) . '-filter>'; ?>
+									</library-filter>
 								<?php endforeach; ?>
 								<form method="dialog">
 									<button class="app-pill app-pill--primary" type="submit" data-field="show"></button>
 								</form>
 							</dialog>
 						</library-filters>
-						<library-sort>
+						<library-filter data-filter="sort">
 							<?php
 							Library::render_component(
 								'pill-select',
@@ -232,7 +232,7 @@
 								)
 							);
 							?>
-						</library-sort>
+						</library-filter>
 					</div>
 
 					<library-status class="app-status" hidden></library-status>
@@ -743,7 +743,7 @@
 				<div class="library-item__body">
 					<p class="app-item__meta" data-field="credits"></p>
 					<h3 class="library-item__title">
-						<button class="library-item__button" type="button" data-field="title"></button>
+						<a class="library-item__link" data-field="title"></a>
 					</h3>
 					<p class="library-item__excerpt" data-field="excerpt" hidden></p>
 					<p class="app-item__meta">
@@ -761,9 +761,9 @@
 				<img class="library-row__cover" data-field="cover" alt="" loading="lazy" hidden>
 				<div class="library-row__body">
 					<h4 class="library-row__title">
-						<button class="library-item__button" type="button">
+						<a class="library-item__link">
 							<span class="library-row__name" data-field="title"></span>
-						</button>
+						</a>
 					</h4>
 					<p class="app-item__meta">
 						<span data-field="authors"></span>
@@ -775,14 +775,14 @@
 
 		<template id="library-current">
 			<li class="library-current">
-				<button class="library-cover__button" type="button">
+				<a class="library-cover__link">
 					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
 					<span class="library-cover__frame" data-row="frame">
 						<span class="library-cover__title" data-field="frame"></span>
 					</span>
 					<span class="library-current__title" data-field="title"></span>
 					<span class="app-meta library-item__tag library-item__status" data-field="status" hidden></span>
-				</button>
+				</a>
 				<button
 					class="app-control"
 					type="button"
@@ -829,13 +829,13 @@
 
 		<template id="library-cover">
 			<li class="library-cover">
-				<button class="library-cover__button" type="button">
+				<a class="library-cover__link">
 					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
 					<span class="library-cover__frame" data-row="title">
 						<span class="library-cover__title" data-field="title"></span>
 					</span>
 					<span class="sr-only" data-field="state" hidden></span>
-				</button>
+				</a>
 			</li>
 		</template>
 

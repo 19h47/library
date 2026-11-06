@@ -113,7 +113,7 @@ class LibraryStyleguideElement extends Brick {
 	#renderVolumes() {
 		const $covers = [ [ BOOKS[ 0 ], 'Read' ], [ BOOKS[ 4 ], 'In progress' ], [ BOOKS[ 1 ], '' ] ].map( ( [ book, state ] ) => renderCover( book, state ) );
 
-		$covers[ 1 ].querySelector( 'button' ).setAttribute( 'aria-current', 'true' );
+		$covers[ 1 ].querySelector( 'a' ).setAttribute( 'aria-current', 'page' );
 
 		return $covers;
 	}

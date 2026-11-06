@@ -75,6 +75,7 @@ class Library_Books {
 		);
 
 		foreach ( $posts as $post ) {
+			$read_dates     = Library_Meta::get_read_dates( $post->ID );
 			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'library_volume_number', true ), $match ) ? (int) $match[0] : null;
 			$series         = Library_Taxonomies::get_series( $post->ID );
 			$series_name    = $series ? Library_Taxonomies::get_series_path( $series ) : ( null !== $volume ? $post->post_title : '' );
@@ -101,9 +102,9 @@ class Library_Books {
 				'series_id'         => $series ? $series->term_id : 0,
 				'series_ids'        => Library_Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' ),
 				'volume'            => $volume,
-				'read'              => Library_Posts::is_read( $post->ID ),
+				'read'              => (bool) $read_dates,
 				'collective'        => Library_Posts::is_collective( $post->ID ),
-				'read_dates'        => Library_Meta::get_read_dates( $post->ID ),
+				'read_dates'        => $read_dates,
 				'rating'            => '' !== $rating ? (float) $rating : null,
 				'pages'             => $pages ? $pages : null,
 				'edition_date'      => $edition_date,
@@ -360,6 +361,17 @@ class Library_Books {
 		$decimals = floor( $rating ) === $rating ? 0 : 1;
 
 		return number_format_i18n( $rating, $decimals );
+	}
+
+	/**
+	 * A rating as text, out of 10: "8,5/10".
+	 *
+	 * @param float $rating Rating, out of 10.
+	 * @return string
+	 */
+	public static function format_rating_out_of_ten( float $rating ): string {
+		/* translators: %s: rating, e.g. 7.5. */
+		return sprintf( __( '%s/10', 'library' ), self::format_rating( $rating ) );
 	}
 
 	/**

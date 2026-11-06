@@ -70,6 +70,8 @@ class Library_Achievements_Page {
 		$close        = array_slice( $achievements['close'], 0, self::LIST_LENGTH );
 		$page_url     = menu_page_url( self::PAGE, false );
 
+		self::prime_targets( array( ...$latest, ...$close ) );
+
 		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-achievements.php';
 	}
 
@@ -82,6 +84,8 @@ class Library_Achievements_Page {
 		$close            = $achievements['close'];
 		$families         = self::group_by_family( $earned );
 		$easter_egg_kinds = count( Library_Achievements::KINDS['easter-eggs'] );
+
+		self::prime_targets( array( ...$earned, ...$close ) );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-achievements.php';
 	}
@@ -137,6 +141,22 @@ class Library_Achievements_Page {
 	 */
 	public static function get_earned_date( array $achievement ): string {
 		return '' !== $achievement['date'] ? date_i18n( get_option( 'date_format' ), strtotime( $achievement['date'] ) ) : '';
+	}
+
+	/**
+	 * Load the books and the terms the achievements link to, all at once rather than one per link.
+	 *
+	 * @param array<int,array> $achievements Achievements.
+	 * @return void
+	 */
+	private static function prime_targets( array $achievements ): void {
+		$targets = array_filter( array_column( $achievements, 'target' ) );
+		$books   = wp_list_filter( $targets, array( 'type' => 'book' ) );
+		$terms   = wp_list_filter( $targets, array( 'type' => 'book' ), 'NOT' );
+
+		_prime_post_caches( array_column( $books, 'id' ), false, false );
+		// A search has no ID.
+		_prime_term_caches( array_column( $terms, 'id' ) );
 	}
 
 	/**

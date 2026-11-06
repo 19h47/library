@@ -37,7 +37,24 @@ class Library_Books_List {
 		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_mistyped_isbn' ), 0 );
 		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
+		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
 		add_action( 'current_screen', array( $this, 'label_published_view' ) );
+	}
+
+	/**
+	 * Load the covers of the books of the list at once, with their image meta, rather than one by one as each row shows
+	 * its own: core does so for the REST API, not for a list table of posts.
+	 *
+	 * @param WP_Post[] $posts Posts found.
+	 * @param WP_Query  $query Query.
+	 * @return WP_Post[]
+	 */
+	public function load_covers( array $posts, WP_Query $query ): array {
+		if ( is_admin() && $query->is_main_query() && 'library_book' === $query->get( 'post_type' ) && $posts ) {
+			update_post_thumbnail_cache( $query );
+		}
+
+		return $posts;
 	}
 
 	/**
@@ -128,22 +145,25 @@ class Library_Books_List {
 			case 'library_rating':
 				$rating = get_post_meta( $post_id, 'library_rating', true );
 
-				$output .= '' !== $rating ? esc_html( Library_Books::format_rating( (float) $rating ) ) . ' / 10' : '—';
+				$output .= '' !== $rating ? esc_html( Library_Books::format_rating_out_of_ten( (float) $rating ) ) : '—';
 
 				break;
 			case 'thumbnail':
 				$rating = get_post_meta( $post_id, 'library_rating', true );
 
 				if ( '' !== $rating ) {
-					$rating_text = Library_Books::format_rating( (float) $rating );
-					$output     .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_text ) . '/10" aria-hidden="true">' . esc_html( $rating_text ) . '</span>';
+					/* translators: %s: rating out of 10, e.g. 7.5/10. */
+					$title   = sprintf( __( 'Rated %s', 'library' ), Library_Books::format_rating_out_of_ten( (float) $rating ) );
+					$output .= '<span class="library-rating-dot" title="' . esc_attr( $title ) . '" aria-hidden="true">' . esc_html( Library_Books::format_rating( (float) $rating ) ) . '</span>';
 				}
 
-				$output   .= '<span class="library-thumbnail-cell">';
-				$thumbnail = get_the_post_thumbnail( $post_id );
+				$output .= '<span class="library-thumbnail-cell">';
+				// The medium size, not cropped, as the cover shows whole: the full image would be a few megabytes a row.
+				$thumbnail = get_the_post_thumbnail( $post_id, 'medium', array( 'alt' => '' ) );
 
+				// The title of the row links to the book already: the cover is a larger target for the pointer only.
 				if ( $thumbnail ) {
-					$output .= '<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">';
+					$output .= '<a href="' . esc_url( (string) get_edit_post_link( $post_id ) ) . '" tabindex="-1" aria-hidden="true">';
 					$output .= $thumbnail;
 					$output .= '</a>';
 				} else {
@@ -168,9 +188,15 @@ class Library_Books_List {
 				'title'       => true,
 				'aria-hidden' => true,
 			),
-			'a'     => array( 'href' => true ),
+			'a'     => array(
+				'href'        => true,
+				'tabindex'    => true,
+				'aria-hidden' => true,
+			),
 			'img'   => array(
 				'src'      => true,
+				'srcset'   => true,
+				'sizes'    => true,
 				'alt'      => true,
 				'class'    => true,
 				'width'    => true,
