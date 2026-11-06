@@ -106,7 +106,8 @@ The routes of the plugin, to users who can edit posts:
 = 9.26.0 =
 * Reading app: a book added is filled in from the catalogue of the BnF: its ISBN, unless a book of the library has it, fills in the fields left empty, its title, people with their roles, publisher, collection and number, series and volume, subtitle, pages, original language and form, with the names the library gives them.
 * Reading app: a view gives way to the next one in a view transition, the cover of a book opened going from its card to its page and back; without motion, the views only fade. The app needs Chrome 135, Safari 26.2 or Firefox 147.
-* Reading app: the books and the books to buy show as a grid of their covers with the Covers button, the choice kept, in masonry where the browser lays out grid lanes, as Safari 26.4.
+* Reading app: the books and the books to buy show as a grid of their covers with the Covers checkbox, at the end of their title, the choice kept, in masonry where the browser lays out grid lanes, as Safari 26.4.
+* Reading app: a title with an action at its end, such as Another idea, goes on balanced lines, the action at the end of the last one, out of the heading, which names the section alone.
 * REST API: `GET /wp-json/library/v1/books/bnf?isbn=<isbn>` gives the book of an ISBN in the catalogue of the BnF, as the form of a book takes it.
 
 = 9.25.0 =
