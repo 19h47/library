@@ -706,7 +706,6 @@ class Test_Library_Reading_Idea extends Library_TestCase {
 		$this->assertContains( $first['id'], $books );
 		$this->assertSame( 0, $first['position'] );
 		$this->assertSame( 3, $first['total'] );
-		$this->assertSame( wp_date( 'o-\WW' ), $first['week'] );
 		$this->assertSame( $reading_idea->get_idea( 1 ), $again );
 		$this->assertSame( 1, $again['position'] );
 	}

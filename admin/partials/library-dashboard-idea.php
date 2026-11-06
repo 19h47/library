@@ -7,7 +7,7 @@
  * @package Library
  * @subpackage Library/admin/partials
  *
- * @var array{id:int,reason:string,position:int,total:int,week:string}|null $idea
+ * @var array{id:int,reason:string,position:int,total:int}|null $idea
  * @var WP_Post|null                                                        $book
  * @var string                                                              $next_url
  */

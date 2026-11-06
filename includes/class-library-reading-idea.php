@@ -100,7 +100,7 @@ class Library_Reading_Idea {
 	 * The idea at a position of this week's list, which loops.
 	 *
 	 * @param int $position Position, 0 for the idea of the week.
-	 * @return array{id:int,reason:string,position:int,total:int,week:string}|null Null when there is nothing to suggest.
+	 * @return array{id:int,reason:string,position:int,total:int}|null Null when there is nothing to suggest.
 	 */
 	public function get_idea( int $position = 0 ): ?array {
 		// Kept until a book changes, for the day: some ideas read the date, such as the books added lately.
@@ -116,7 +116,6 @@ class Library_Reading_Idea {
 		return $ideas[ $position ] + array(
 			'position' => $position,
 			'total'    => $total,
-			'week'     => wp_date( 'o-\WW' ),
 		);
 	}
 

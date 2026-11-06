@@ -85,7 +85,7 @@ Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described b
 The routes of the plugin, to users who can edit posts:
 
 * `GET /wp-json/library/v1/books/reading-stats` – books, books read, this year against last year, and the books to read with the year they would all be read in at this pace.
-* `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months, `_embed` adds the books.
+* `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months.
 * `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
 * `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
 * `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their series with how many of their books they hold and are read, their books in the order they first came out, whatever their role, and their reading.

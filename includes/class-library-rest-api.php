@@ -422,8 +422,6 @@ class Library_Rest_API {
 	 * Add a book, as the book form does: its post, whose slug is built from its title and ISBN, then its meta, terms
 	 * and cover, as save_book() saves them.
 	 *
-	 * The book is linked, and embeddable with _embed.
-	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -511,8 +509,6 @@ class Library_Rest_API {
 	/**
 	 * Edit a book, as the book form does: only what is sent changes. Its post first, whose slug follows its title and
 	 * ISBN as in the book form, then its meta, terms and cover, as save_book() saves them.
-	 *
-	 * The book is linked, and embeddable with _embed.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -677,16 +673,13 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * The response of a book added or edited: its ID, the book linked, and embeddable with _embed.
+	 * The response of a book added or edited: its ID.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return WP_REST_Response
 	 */
 	private function get_book_response( int $book_id ): WP_REST_Response {
-		$response = rest_ensure_response( array( 'id' => $book_id ) );
-		$response->add_link( 'book', rest_url( 'wp/v2/books/' . $book_id ), array( 'embeddable' => true ) );
-
-		return $response;
+		return rest_ensure_response( array( 'id' => $book_id ) );
 	}
 
 	/**
@@ -707,7 +700,7 @@ class Library_Rest_API {
 	 * The readings by month, latest first: one per read date, so a book read again comes once per reading, kept or not.
 	 *
 	 * A page holds whole months, so a month never goes on in the next one; the totals in the X-WP-Total and
-	 * X-WP-TotalPages headers count months. Each month links its books, embeddable with _embed.
+	 * X-WP-TotalPages headers count months.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
@@ -728,15 +721,6 @@ class Library_Rest_API {
 				fn( string $month, array $month_readings ) => array(
 					'month'    => $month,
 					'readings' => $month_readings,
-					'_links'   => array(
-						'book' => array_map(
-							fn( int $book_id ) => array(
-								'href'       => rest_url( 'wp/v2/books/' . $book_id ),
-								'embeddable' => true,
-							),
-							array_values( array_unique( array_column( $month_readings, 'book' ) ) )
-						),
-					),
 				),
 				array_keys( $by_month ),
 				$by_month
@@ -1036,7 +1020,7 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * The reading idea of the week, or the one at the given position; the book is linked, and embeddable with _embed.
+	 * The reading idea of the week, or the one at the given position.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -1048,9 +1032,6 @@ class Library_Rest_API {
 			return new WP_Error( 'library_no_idea', __( 'No book to read.', 'library' ), array( 'status' => 404 ) );
 		}
 
-		$response = rest_ensure_response( $idea );
-		$response->add_link( 'book', rest_url( 'wp/v2/books/' . $idea['id'] ), array( 'embeddable' => true ) );
-
-		return $response;
+		return rest_ensure_response( $idea );
 	}
 }
