@@ -68,9 +68,9 @@ class LibraryDiaryElement extends Brick {
 	 */
 	#refocus( $focused, index ) {
 		const { id, date } = $focused.dataset;
-		const $cards = /** @type {HTMLElement[]} */ ( [
-			...this.querySelectorAll( '.library-item' ),
-		] );
+		const $cards = /** @type {HTMLElement[]} */ (
+			Array.from( this.querySelectorAll( '.library-item' ) )
+		);
 		const $card =
 			$cards.find(
 				( $item ) =>
