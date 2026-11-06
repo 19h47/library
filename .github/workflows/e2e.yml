@@ -23,6 +23,15 @@ jobs:
 
       - run: pnpm exec playwright install --with-deps chromium
 
+      # The dependencies of Composer, which load the classes of the plugin, as its package has them.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+
+      - run: composer install --no-dev --no-progress --no-interaction
+
       # The latest WordPress with the plugin, on PHP 8.4: the tests run on its environment of tests, at localhost:8889.
       - run: pnpm exec wp-env start
 
