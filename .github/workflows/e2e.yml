@@ -8,6 +8,8 @@ permissions:
 jobs:
   playwright:
     runs-on: ubuntu-latest
+    # A step that hangs, such as the install of a browser, fails rather than running for hours.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
