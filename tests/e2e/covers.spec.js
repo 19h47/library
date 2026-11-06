@@ -57,9 +57,10 @@ test.describe( 'Covers', () => {
 		const cover = page.locator( 'library-book .library-book__cover' );
 
 		await expect( cover ).toHaveAttribute( 'sizes', 'auto' );
+		// Once the source it takes is loaded, which gives its shape.
 		await expect
-			.poll( async () => ( await shapeOf( cover ) ).source )
-			.not.toBe( '' );
+			.poll( async () => ( await shapeOf( cover ) ).natural )
+			.toBeGreaterThan( 0 );
 
 		const shape = await shapeOf( cover );
 
