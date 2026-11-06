@@ -11,6 +11,8 @@
 
 namespace Library\Admin;
 
+use Library\Achievement_Family;
+use Library\Achievement_Kind;
 use Library\Achievements;
 use Library\Posts;
 use Library\Status;
@@ -90,7 +92,7 @@ class Achievements_Page {
 		$earned           = $achievements['earned'];
 		$close            = $achievements['close'];
 		$families         = self::group_by_family( $earned );
-		$easter_egg_kinds = count( Achievements::KINDS['easter-eggs'] );
+		$easter_egg_kinds = count( array_filter( Achievement_Kind::cases(), fn( Achievement_Kind $kind ) => Achievement_Family::Easter_Eggs === $kind->family() ) );
 
 		self::prime_targets( array( ...$earned, ...$close ) );
 
@@ -104,22 +106,14 @@ class Achievements_Page {
 	 * @return array<string,array{name:string,achievements:array<int,array>}>
 	 */
 	private static function group_by_family( array $earned ): array {
-		$names    = array(
-			'completions' => __( 'Completions', 'library' ),
-			'milestones'  => __( 'Milestones', 'library' ),
-			'discoveries' => __( 'Discoveries', 'library' ),
-			'forms'       => __( 'Forms', 'library' ),
-			'languages'   => __( 'Languages and translators', 'library' ),
-			'easter-eggs' => __( 'Easter eggs', 'library' ),
-		);
 		$families = array();
 
-		foreach ( $names as $family => $name ) {
-			$achievements = array_values( array_filter( $earned, fn( array $achievement ) => isset( Achievements::KINDS[ $family ][ $achievement['kind'] ] ) ) );
+		foreach ( Achievement_Family::cases() as $family ) {
+			$achievements = array_values( array_filter( $earned, fn( array $achievement ) => Achievement_Kind::from( $achievement['kind'] )->family() === $family ) );
 
 			if ( $achievements ) {
-				$families[ $family ] = array(
-					'name'         => $name,
+				$families[ $family->value ] = array(
+					'name'         => $family->label(),
 					'achievements' => $achievements,
 				);
 			}
@@ -128,6 +122,7 @@ class Achievements_Page {
 		return $families;
 	}
 
+
 	/**
 	 * Dashicon class of a kind of achievement.
 	 *
@@ -135,9 +130,7 @@ class Achievements_Page {
 	 * @return string
 	 */
 	public static function get_icon( string $kind ): string {
-		$icons = array_merge( ...array_values( Achievements::KINDS ) );
-
-		return 'dashicons-' . $icons[ $kind ];
+		return 'dashicons-' . Achievement_Kind::from( $kind )->icon();
 	}
 
 	/**

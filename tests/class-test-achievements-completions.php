@@ -7,6 +7,8 @@
 
 namespace Library\Tests;
 
+use Library\Achievement_Family;
+use Library\Achievement_Kind;
 use Library\Achievements;
 use Library\Books;
 use ReflectionProperty;
@@ -484,7 +486,7 @@ class Test_Achievements_Completions extends TestCase {
 		$close = array_values(
 			array_filter(
 				new Achievements()->get_achievements()['close'],
-				fn( array $achievement ) => isset( Achievements::KINDS['completions'][ $achievement['kind'] ] )
+				fn( array $achievement ) => Achievement_Family::Completions === Achievement_Kind::from( $achievement['kind'] )->family()
 			)
 		);
 
