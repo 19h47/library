@@ -11,6 +11,8 @@
  * @var string $read_date Read date, Y-m-d, with its time or not, or empty: the field gives its day, which keeps its time once saved.
  */
 
+use Library\Meta;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -18,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <li>
 	<?php
-	$control = Library_Meta::get_control(
+	$control = Meta::get_control(
 		'library_read_date',
 		array(
 			'name'       => 'library_read_date[]',

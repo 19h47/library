@@ -6,6 +6,8 @@
 # Run from anywhere, with WP-CLI and gettext: sh bin/update-translations.sh. It fails while a string is untranslated
 # or fuzzy: translate it in languages/library-fr_FR.po, then run it again.
 #
+# The slug is the plugin's, whatever the name of the folder it runs from, such as a worktree.
+#
 # It fails as well while WP-CLI cannot parse a script, whose strings it would leave out without a word.
 #
 # The .pot is written again only when more than its date changed, so that a run on code without new strings leaves
@@ -19,7 +21,7 @@ cd "$(dirname "$0")/../languages"
 pot=$(mktemp)
 trap 'rm -f "$pot"' EXIT
 
-if wp i18n make-pot .. "$pot" --exclude=vendor --debug 2>&1 | grep 'Could not parse'; then
+if wp i18n make-pot .. "$pot" --slug=library --exclude=vendor --debug 2>&1 | grep 'Could not parse'; then
 	exit 1
 fi
 

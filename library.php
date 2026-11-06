@@ -11,7 +11,7 @@
  * Plugin Name:       Library
  * Plugin URI:        https://www.github.com/19h47/library
  * Description:       Enables a Book post type, taxonomy and metaboxes.
- * Version:           9.24.0
+ * Version:           9.25.0
  * Requires at least: 7.1
  * Requires PHP:      8.4
  * Author:            Jérémy Levron
@@ -39,6 +39,7 @@ add_action(
 	0
 );
 
-require LIBRARY_DIR_PATH . 'includes/class-library.php';
+// The classes of the plugin, as Composer maps them: see composer.json.
+require_once LIBRARY_DIR_PATH . 'vendor/autoload.php';
 
-add_action( 'plugins_loaded', array( new Library(), 'run' ) );
+add_action( 'plugins_loaded', array( new Library\Plugin(), 'run' ) );

@@ -15,6 +15,8 @@
  * @var array{id: string, label: string, required?: bool, description?: string, control?: string, attributes?: array<string, string|bool|null>} $args
  */
 
+use Library\Markup;
+
 $args = wp_parse_args(
 	$args,
 	array(
@@ -26,7 +28,7 @@ $args = wp_parse_args(
 );
 
 $description_id = "{$args['id']}-description";
-$control        = Library::set_attributes(
+$control        = Markup::set_attributes(
 	$args['control'],
 	$args['attributes'] + array(
 		'id'               => $args['id'],

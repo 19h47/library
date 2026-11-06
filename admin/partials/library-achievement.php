@@ -8,16 +8,18 @@
  * @var array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool} $achievement
  */
 
+use Library\Admin\Achievements_Page;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$meta = array_filter( array( $achievement['detail'], Library_Achievements_Page::get_earned_date( $achievement ) ) );
-$url  = Library_Achievements_Page::get_url( $achievement );
+$meta = array_filter( array( $achievement['detail'], Achievements_Page::get_earned_date( $achievement ) ) );
+$url  = Achievements_Page::get_url( $achievement );
 ?>
 
 <li class="library-achievement<?php echo $achievement['easter_egg'] ? ' library-achievement--easter-egg' : ''; ?>">
-	<span class="library-achievement-icon dashicons <?php echo esc_attr( Library_Achievements_Page::get_icon( $achievement['kind'] ) ); ?>" aria-hidden="true"></span>
+	<span class="library-achievement-icon dashicons <?php echo esc_attr( Achievements_Page::get_icon( $achievement['kind'] ) ); ?>" aria-hidden="true"></span>
 	<span class="library-achievement-text">
 		<span class="library-achievement-title"><?php echo esc_html( $achievement['title'] ); ?></span>
 		<?php if ( '' !== $achievement['subject'] ) : ?>

@@ -3,7 +3,7 @@
  * The styleguide: the tokens and the components of the app, for development, opened by searching "styleguide".
  *
  * Each component shows with its own markup alone, in a frame: one that needs its place in the app to look right
- * shows it here. The components of PHP render with Library::render_component(), as in the app; the [data-sample] lists are
+ * shows it here. The components of PHP render with Markup::render_component(), as in the app; the [data-sample] lists are
  * filled by library-styleguide, with the functions the app renders with. Written in English, as code is: nothing here
  * is translated, but what the components add, such as the mark of a required field.
  *
@@ -13,6 +13,8 @@
  * @package    Library
  * @subpackage Library/app/partials
  */
+
+use Library\Markup;
 
 $colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--app-bg-floating', '--library-status', '--library-error', '--library-success', '--library-warning' );
 $steps  = array( '--app-u0', '--app-u1', '--app-u2', '--app-u3' );
@@ -194,14 +196,14 @@ $sizes = array(
 					<button class="app-pill" type="button">A button</button>
 					<button class="app-pill" type="button" disabled>Disabled</button>
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'pill-checkbox',
 						array(
 							'id'    => 'library-styleguide-pill-checkbox',
 							'label' => 'A checkbox',
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'pill-select',
 						array(
 							'id'      => 'library-styleguide-pill-select',
@@ -277,7 +279,7 @@ $sizes = array(
 					<div class="app-controls library-books__controls">
 						<button class="app-pill" type="button">Filters · 2</button>
 						<?php
-						Library::render_component(
+						Markup::render_component(
 							'pill-select',
 							array(
 								'id'      => 'library-styleguide-controls-select',
@@ -302,12 +304,12 @@ $sizes = array(
 						</p>
 						<h4 class="library-book__title">Filters</h4>
 						<?php
-						Library::render_component(
+						Markup::render_component(
 							'field',
 							array(
 								'id'      => 'library-styleguide-filter',
 								'label'   => 'Reading state',
-								'control' => Library::get_select( array( 'no' => 'To read' ) ),
+								'control' => Markup::get_select( array( 'no' => 'To read' ) ),
 							)
 						);
 						?>
@@ -322,7 +324,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<div class="library-reading__pills">
 						<?php
-						Library::render_component(
+						Markup::render_component(
 							'pill-checkbox',
 							array(
 								'id'      => 'library-styleguide-read',
@@ -330,7 +332,7 @@ $sizes = array(
 								'control' => '<input type="checkbox" checked>',
 							)
 						);
-						Library::render_component(
+						Markup::render_component(
 							'pill-select',
 							array(
 								'id'      => 'library-styleguide-rating',
@@ -338,7 +340,7 @@ $sizes = array(
 								'options' => array( '8' => '8/10' ),
 							)
 						);
-						Library::render_component(
+						Markup::render_component(
 							'pill-select',
 							array(
 								'id'      => 'library-styleguide-status',
@@ -442,7 +444,7 @@ with its line breaks.</p>
 				<figcaption><code>field</code>: a text with a description, a select, a textarea, disabled</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'          => 'library-styleguide-text',
@@ -450,15 +452,15 @@ with its line breaks.</p>
 							'description' => 'Its description, under it.',
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'      => 'library-styleguide-select',
 							'label'   => 'A select',
-							'control' => Library::get_select( array( 'a' => 'A choice' ) ),
+							'control' => Markup::get_select( array( 'a' => 'A choice' ) ),
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-styleguide-textarea',
@@ -467,7 +469,7 @@ with its line breaks.</p>
 							'attributes' => array( 'rows' => 3 ),
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-styleguide-disabled',
@@ -482,7 +484,7 @@ with its line breaks.</p>
 				<figcaption><code>field</code>: required, in error with <code>.library-error</code>; pointed at and focused, live</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'       => 'library-styleguide-required',
@@ -490,7 +492,7 @@ with its line breaks.</p>
 							'required' => true,
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'          => 'library-styleguide-invalid',
@@ -515,7 +517,7 @@ with its line breaks.</p>
 				<figcaption><code>image-field</code>, with an image</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'image-field',
 						array(
 							'id'     => 'library-styleguide-cover',
@@ -531,7 +533,7 @@ with its line breaks.</p>
 				<figcaption><code>input-list</code>, the people of a book</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'input-list',
 						array(
 							'legend' => 'People',
@@ -547,7 +549,7 @@ with its line breaks.</p>
 				<figcaption><code>input-list</code>, the read dates of a book, with a description, the first one unknown, the last one in error</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'input-list',
 						array(
 							'id'          => 'library-styleguide-dates',
@@ -576,7 +578,7 @@ with its line breaks.</p>
 					<details class="library-edit__details">
 						<summary class="app-meta">More details</summary>
 						<?php
-						Library::render_component(
+						Markup::render_component(
 							'field',
 							array(
 								'id'    => 'library-styleguide-detail',

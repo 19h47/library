@@ -1,6 +1,6 @@
 # Testing
 
-The tests run on the test suite of WordPress: the core installed by Composer, the plugin loaded as a must-use plugin, and books added through the route of the book form, `POST library/v1/books`, then read through `Library_Books`, as the achievements and the reading idea read them.
+The tests run on the test suite of WordPress: the core installed by Composer, the plugin loaded as a must-use plugin, and books added through the route of the book form, `POST library/v1/books`, then read through `Library\Books`, as the achievements and the reading idea read them.
 
 ## Database
 
@@ -32,11 +32,11 @@ composer install
 composer test
 ```
 
-`composer test -- --filter Test_Library_Reading_Idea` runs one class. A pull request runs them on MySQL 8.0, with PHP 8.4 and 8.5.
+`composer test -- --filter Test_Reading_Idea` runs one class. A pull request runs them on MySQL 8.0, with PHP 8.4 and 8.5.
 
 ## Writing a test
 
-A test class extends `Library_TestCase` (`tests/class-library-testcase.php`), in a file `tests/class-test-*.php`. Each test is a request of its own: it starts with no book, adds the ones it needs with `add_book()` or `add_reads()`, then reads the achievements with `get_earned()` and `get_close()`, or the reading idea.
+A test class, in the namespace `Library\Tests`, extends `TestCase` (`tests/class-testcase.php`), in a file `tests/class-test-*.php`; Composer loads them, as it loads the classes of the plugin. Each test is a request of its own: it starts with no book, adds the ones it needs with `add_book()` or `add_reads()`, then reads the achievements with `get_earned()` and `get_close()`, or the reading idea.
 
 ## Static analysis
 
@@ -46,7 +46,7 @@ A test class extends `Library_TestCase` (`tests/class-library-testcase.php`), in
 composer analyse
 ```
 
-Its level, in `phpstan.neon`, rises as the code takes its types. A pull request runs it with the coding standards.
+Its level, in `phpstan.neon`, rises as the code takes its types. What the plugin knows of WordPress and its stubs cannot, such as its taxonomies being registered, is in `types/wordpress.stub`. A pull request runs it with the coding standards.
 
 ## The reading app
 

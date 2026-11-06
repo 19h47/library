@@ -1,0 +1,59 @@
+<?php
+/**
+ * Return types of WordPress functions, narrower than the stubs of WordPress give them, for what the plugin knows: its
+ * post type, its post statuses and its taxonomies are registered on init, before any screen, route or page reads them,
+ * as core registers the published status. PHPStan reads them over the stubs: see phpstan.neon.
+ *
+ * @package Library
+ */
+
+/**
+ * Declared for PHPStan, which checks a stub file without the stubs of WordPress; the class keeps what they give it.
+ */
+final class WP_Taxonomy {}
+
+/**
+ * Declared for PHPStan, which checks a stub file without the stubs of WordPress; the class keeps what they give it.
+ */
+final class WP_Post_Type {}
+
+/**
+ * @param string $taxonomy Name of taxonomy object to return.
+ * @return WP_Taxonomy|false
+ * @phpstan-return ($taxonomy is 'library_person'|'library_publisher'|'library_series'|'library_language'|'library_form' ? WP_Taxonomy : WP_Taxonomy|false)
+ */
+function get_taxonomy( $taxonomy ) {}
+
+/**
+ * @param string $post_type The name of a registered post type.
+ * @return WP_Post_Type|null
+ * @phpstan-return ($post_type is 'library_book' ? WP_Post_Type : WP_Post_Type|null)
+ */
+function get_post_type_object( $post_type ) {}
+
+/**
+ * @param string $post_status The name of a registered post status.
+ * @return stdClass|null
+ * @phpstan-return ($post_status is 'publish'|'library-not-kept'|'library-to-buy' ? stdClass : stdClass|null)
+ */
+function get_post_status_object( $post_status ) {}
+
+/**
+ * The URL of the plugins folder comes first, whatever the path.
+ *
+ * @param string $path   Path appended to the URL.
+ * @param string $plugin A full path to a file inside a plugin.
+ * @return non-empty-string
+ */
+function plugins_url( $path = '', $plugin = '' ) {}
+
+/**
+ * A date of the current time, without timestamp, is never false.
+ *
+ * @param string            $format    PHP date format.
+ * @param int|null          $timestamp Unix timestamp, the current time when null.
+ * @param DateTimeZone|null $timezone  Timezone.
+ * @return string|false
+ * @phpstan-return ($timestamp is null ? string : string|false)
+ */
+function wp_date( $format, $timestamp = null, $timezone = null ) {}

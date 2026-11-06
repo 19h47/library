@@ -15,4 +15,3 @@ require getenv( 'WP_PHPUNIT__DIR' ) . '/includes/functions.php';
 tests_add_filter( 'muplugins_loaded', fn() => require dirname( __DIR__ ) . '/library.php' );
 
 require getenv( 'WP_PHPUNIT__DIR' ) . '/includes/bootstrap.php';
-require __DIR__ . '/class-library-testcase.php';

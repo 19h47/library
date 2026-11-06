@@ -12,6 +12,8 @@
  * @var string                                                              $next_url
  */
 
+use Library\Books;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -26,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$page_count = (int) get_post_meta( $book->ID, 'library_pages', true );
 		/* translators: %s: number of pages. */
 		$length  = $page_count ? sprintf( _n( '%s page', '%s pages', $page_count, 'library' ), number_format_i18n( $page_count ) ) : '';
-		$details = array_filter( array( Library_Books::get_credits( $book->ID ), $length ) );
+		$details = array_filter( array( Books::get_credits( $book->ID ), $length ) );
 		?>
 		<div class="library-idea">
 			<?php if ( has_post_thumbnail( $book ) ) : ?>
