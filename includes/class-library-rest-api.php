@@ -731,20 +731,14 @@ class Library_Rest_API {
 	 */
 	public function get_readings( WP_REST_Request $request ): WP_REST_Response {
 		$per_page = $request['per_page'];
-		$total    = (int) Library_Stats::get_results( 'SELECT COUNT( DISTINCT LEFT( r.date, 7 ) ) AS total FROM {readings}' )[0]->total;
-		$months   = wp_list_pluck( Library_Stats::get_results( 'SELECT DISTINCT LEFT( r.date, 7 ) AS month FROM {readings} ORDER BY month DESC LIMIT %d OFFSET %d', $per_page, ( $request['page'] - 1 ) * $per_page ), 'month' );
-		$rows     = $months ? Library_Stats::get_results(
-			'SELECT r.book, r.date FROM {readings} WHERE LEFT( r.date, 7 ) IN ( ' . implode( ', ', array_fill( 0, count( $months ), '%s' ) ) . ' ) ORDER BY r.date DESC, r.book DESC',
-			...$months
-		) : array();
-		$by_month = array_fill_keys( $months, array() );
+		$months   = array();
 
-		foreach ( $rows as $row ) {
-			$by_month[ substr( $row->date, 0, 7 ) ][] = array(
-				'date' => $row->date,
-				'book' => (int) $row->book,
-			);
+		foreach ( Library_Stats::get_readings() as $reading ) {
+			$months[ substr( $reading['date'], 0, 7 ) ][] = $reading;
 		}
+
+		$total    = count( $months );
+		$by_month = array_slice( $months, ( $request['page'] - 1 ) * $per_page, $per_page, true );
 
 		$response = rest_ensure_response(
 			array_map(

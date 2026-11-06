@@ -106,7 +106,6 @@ class Library_Dashboard {
 	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and edition years.
 	 */
 	public function render_collection(): void {
-		$stats       = Library_Stats::get_reading_stats();
 		$books       = self::get_kept_books();
 		$authors     = self::count_books_by( $books, 'author_ids' );
 		$publishers  = self::count_books_by( $books, 'publisher_ids' );
@@ -137,7 +136,7 @@ class Library_Dashboard {
 			),
 		);
 		$counts      = array(
-			'books'      => $stats['total'],
+			'books'      => count( $books ),
 			'authors'    => count( $authors ),
 			'publishers' => count( $publishers ),
 			'languages'  => count( $languages ),
@@ -163,32 +162,18 @@ class Library_Dashboard {
 	}
 
 	/**
-	 * Count books by the start of a meta value, e.g. "2024-05" (length 7) or "2024" (length 4) for a date.
+	 * Count values by their start, e.g. "2024-05" (length 7) or "2024" (length 4) for a date; empty values are left out.
 	 *
-	 * A book counts once per value.
-	 *
-	 * @param string $meta_key Meta key.
-	 * @param int    $length   Number of characters to group by.
-	 * @param string $scope    "{books}" for all books, "{library}" for the books kept.
-	 * @return array<string,int> Books keyed by value start, in ascending order.
+	 * @param string[] $values Values, e.g. the edition dates of the books.
+	 * @param int      $length Number of characters to group by.
+	 * @return array<string,int> Values keyed by their start, in ascending order.
 	 */
-	private function count_by_meta_start( string $meta_key, int $length, string $scope = '{books}' ): array {
-		global $wpdb;
+	private static function count_by_start( array $values, int $length ): array {
+		$counts = array_count_values( array_map( fn( string $value ) => substr( $value, 0, $length ), array_filter( $values, 'strlen' ) ) );
 
-		$rows = Library_Stats::get_results(
-			"SELECT LEFT( m.meta_value, %d ) AS value_start, COUNT( DISTINCT p.ID, m.meta_value ) AS books
-			FROM {$wpdb->postmeta} AS m
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			WHERE m.meta_key = %s
-				AND m.meta_value != ''
-				AND $scope
-			GROUP BY value_start
-			ORDER BY value_start",
-			$length,
-			$meta_key
-		);
+		ksort( $counts );
 
-		return array_map( 'intval', wp_list_pluck( $rows, 'books', 'value_start' ) );
+		return $counts;
 	}
 
 	/**
@@ -259,19 +244,13 @@ class Library_Dashboard {
 	 * @return array{pages:int,books:int}
 	 */
 	private function get_pages_read_this_year(): array {
-		global $wpdb;
-
-		[ $row ] = Library_Stats::get_results(
-			"SELECT SUM( n.meta_value ) AS pages, COUNT(*) AS books
-			FROM {readings}
-			INNER JOIN {$wpdb->postmeta} AS n ON n.post_id = r.book AND n.meta_key = 'library_pages'
-			WHERE r.date >= %s",
-			wp_date( 'Y-01-01' )
-		);
+		$books     = Library_Books::get_books();
+		$this_year = wp_date( 'Y-01-01' );
+		$readings  = array_filter( Library_Stats::get_readings(), fn( array $reading ) => $reading['date'] >= $this_year && null !== $books[ $reading['book'] ]['pages'] );
 
 		return array(
-			'pages' => (int) $row->pages,
-			'books' => (int) $row->books,
+			'pages' => array_sum( array_map( fn( array $reading ) => $books[ $reading['book'] ]['pages'], $readings ) ),
+			'books' => count( $readings ),
 		);
 	}
 
@@ -288,7 +267,7 @@ class Library_Dashboard {
 		$books_by_year    = array();
 		$books_this_year  = array_fill( 1, 12, 0 );
 		$books_by_month   = array_fill( 1, 12, 0 );
-		$books_by_yearmon = array_map( 'intval', wp_list_pluck( Library_Stats::get_results( 'SELECT LEFT( r.date, 7 ) AS month, COUNT(*) AS readings FROM {readings} GROUP BY month ORDER BY month' ), 'readings', 'month' ) );
+		$books_by_yearmon = self::count_by_start( array_column( Library_Stats::get_readings(), 'date' ), 7 );
 
 		foreach ( $books_by_yearmon as $year_month => $books ) {
 			[ $year, $month ] = array_map( 'intval', explode( '-', $year_month ) );
@@ -330,7 +309,7 @@ class Library_Dashboard {
 	 * @return array
 	 */
 	private function get_edition_chart(): array {
-		$books_by_year = $this->count_by_meta_start( 'library_edition_date', 4, '{library}' );
+		$books_by_year = self::count_by_start( array_column( self::get_kept_books(), 'edition_date' ), 4 );
 
 		if ( count( $books_by_year ) <= 40 ) {
 			$items = array();
@@ -365,17 +344,16 @@ class Library_Dashboard {
 	 * @return array{count:int,average:float|null,chart:array}
 	 */
 	private function get_ratings(): array {
-		$books_by_rating = $this->count_by_meta_start( 'library_rating', 4 );
-		$books_by_point  = array_fill( 1, 10, 0 );
-		$rated           = array_sum( $books_by_rating );
-		$sum             = 0;
+		$ratings        = array_filter( array_column( Library_Books::get_books(), 'rating' ), 'is_float' );
+		$books_by_point = array_fill( 1, 10, 0 );
+		$rated          = count( $ratings );
+		$sum            = array_sum( $ratings );
 
-		foreach ( $books_by_rating as $rating => $books ) {
-			$point = (int) round( (float) $rating );
-			$sum  += (float) $rating * $books;
+		foreach ( $ratings as $rating ) {
+			$point = (int) round( $rating );
 
 			if ( isset( $books_by_point[ $point ] ) ) {
-				$books_by_point[ $point ] += $books;
+				++$books_by_point[ $point ];
 			}
 		}
 
@@ -397,18 +375,18 @@ class Library_Dashboard {
 	 * @return array
 	 */
 	private function get_average_rating_chart(): array {
-		global $wpdb;
+		$books           = Library_Books::get_books();
+		$ratings_by_year = array();
 
-		// The ratings first: from the readings, MySQL 5.7 would search the meta of each book read for its rating.
-		$rows = Library_Stats::get_results(
-			"SELECT LEFT( r.date, 4 ) AS year, AVG( n.meta_value ) AS average
-			FROM {$wpdb->postmeta} AS n
-			STRAIGHT_JOIN {readings} ON r.book = n.post_id
-			WHERE n.meta_key = 'library_rating'
-			GROUP BY year"
-		);
+		foreach ( Library_Stats::get_readings() as $reading ) {
+			$rating = $books[ $reading['book'] ]['rating'];
 
-		$average_by_year = array_map( fn( $average ) => round( (float) $average, 1 ), wp_list_pluck( $rows, 'average', 'year' ) );
+			if ( null !== $rating ) {
+				$ratings_by_year[ (int) substr( $reading['date'], 0, 4 ) ][] = $rating;
+			}
+		}
+
+		$average_by_year = array_map( fn( array $ratings ) => round( array_sum( $ratings ) / count( $ratings ), 1 ), $ratings_by_year );
 
 		$items = array_map(
 			function ( int $year ) use ( $average_by_year ) {
@@ -435,23 +413,14 @@ class Library_Dashboard {
 	/**
 	 * The unread book at hand with the oldest edition date.
 	 *
-	 * @return WP_Post|null
+	 * @return array|null Book, from Library_Books::get_books().
 	 */
-	private function get_oldest_unread_book(): ?WP_Post {
-		global $wpdb;
+	private function get_oldest_unread_book(): ?array {
+		$dated = array_filter( Library_Stats::get_unread_books(), fn( array $book ) => '' !== $book['edition_date'] );
 
-		// NOT IN lists the books read once; a LEFT JOIN would search the meta of each book, five times slower on MySQL 5.7.
-		$rows = Library_Stats::get_results(
-			"SELECT p.ID
-			FROM {$wpdb->posts} AS p
-			INNER JOIN {$wpdb->postmeta} AS d ON d.post_id = p.ID AND d.meta_key = 'library_edition_date' AND d.meta_value != ''
-			WHERE p.ID NOT IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read' AND meta_value = '1' )
-				AND {at_hand}
-			ORDER BY d.meta_value ASC
-			LIMIT 1"
-		);
+		usort( $dated, fn( array $a, array $b ) => $a['edition_date'] <=> $b['edition_date'] );
 
-		return $rows ? get_post( (int) $rows[0]->ID ) : null;
+		return $dated[0] ?? null;
 	}
 
 	/**
@@ -460,15 +429,17 @@ class Library_Dashboard {
 	 * @return array<int,array{name:string,url:string,text:string}>
 	 */
 	private function get_recent_reads(): array {
-		$rows = Library_Stats::get_results( 'SELECT r.book, r.date FROM {readings} ORDER BY r.date DESC, r.book DESC LIMIT %d', self::LIST_LENGTH );
+		$readings = array_slice( Library_Stats::get_readings(), 0, self::LIST_LENGTH );
+
+		_prime_post_caches( array_column( $readings, 'book' ) );
 
 		return array_map(
-			fn( object $row ) => array(
-				'name' => get_the_title( (int) $row->book ),
-				'url'  => (string) get_edit_post_link( (int) $row->book ),
-				'text' => date_i18n( get_option( 'date_format' ), strtotime( $row->date ) ),
+			fn( array $reading ) => array(
+				'name' => get_the_title( $reading['book'] ),
+				'url'  => (string) get_edit_post_link( $reading['book'] ),
+				'text' => date_i18n( get_option( 'date_format' ), strtotime( $reading['date'] ) ),
 			),
-			$rows
+			$readings
 		);
 	}
 

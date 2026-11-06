@@ -1,6 +1,6 @@
 <?php
 /**
- * Reading stats shared by the dashboard, the reading idea and the REST API.
+ * Reading stats shared by the dashboard, the books list, the reading idea and the REST API.
  *
  * @link       https://github.com/19h47/library
  * @since      6.0.0
@@ -10,7 +10,8 @@
  */
 
 /**
- * Queries the books and their readings: the SQL definition of a reading, the books read and to read, this year against last year.
+ * Counts the books and their readings, from Library_Books::get_books(): the readings, the books read and to read, this
+ * year against last year.
  *
  * @since      6.0.0
  * @package    Library
@@ -20,51 +21,26 @@
 class Library_Stats {
 
 	/**
-	 * SQL condition on the posts table aliased "p": all books, kept or not, for the reading stats; "{statuses}" stands
-	 * for the statuses of the books, from Library_Books::get_statuses().
+	 * The readings with a date, latest first: a read date and its book, once per book and date, kept or not. A date of a
+	 * reading of the day may have its time, 2026-11-01T21:40: its day is its first 10 characters.
 	 *
-	 * @var string
+	 * @return array<int,array{date:string,book:int}>
 	 */
-	private const string BOOKS = "p.post_type = 'library_book' AND p.post_status IN ( {statuses} )";
+	public static function get_readings(): array {
+		$readings = array();
 
-	/**
-	 * SQL condition on the posts table aliased "p": the books at hand, kept or not, but not those to buy, for the reading pile.
-	 *
-	 * @var string
-	 */
-	private const string AT_HAND = self::BOOKS . " AND p.post_status != '" . Library_Posts::TO_BUY . "'";
+		foreach ( Library_Books::get_books() as $book ) {
+			foreach ( array_filter( $book['read_dates'] ) as $date ) {
+				$readings[] = array(
+					'date' => $date,
+					'book' => $book['id'],
+				);
+			}
+		}
 
-	/**
-	 * SQL condition on the posts table aliased "p": the books in the library, i.e. kept.
-	 *
-	 * @var string
-	 */
-	private const string LIBRARY = self::AT_HAND . " AND p.post_status != '" . Library_Posts::NOT_KEPT . "'";
+		usort( $readings, fn( array $a, array $b ) => array( $b['date'], $b['book'] ) <=> array( $a['date'], $a['book'] ) );
 
-	/**
-	 * Run a SELECT on the books; "{books}", "{at_hand}" and "{library}" in the SQL stand for the BOOKS, AT_HAND and LIBRARY conditions.
-	 *
-	 * "{readings}" stands for the readings with a date: a table aliased "r" of a `book` and its read `date`, once per book
-	 * and date, kept or not; a date of a reading of the day may have its time, 2026-11-01T21:40, its day is its first 10 characters. It is the one SQL definition of a reading, as Library_Meta::get_read_dates() is the PHP one,
-	 * which keeps an unknown date too.
-	 *
-	 * @param string $sql  SQL, with placeholders for the arguments.
-	 * @param mixed  ...$args Values for the placeholders.
-	 * @return object[]
-	 */
-	public static function get_results( string $sql, mixed ...$args ): array {
-		global $wpdb;
-
-		$readings = "( SELECT DISTINCT m.post_id AS book, m.meta_value AS date
-			FROM {$wpdb->postmeta} AS m
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = m.post_id
-			WHERE m.meta_key = 'library_read_date' AND m.meta_value != '' AND {books} ) AS r";
-		$statuses = "'" . implode( "', '", Library_Books::get_statuses() ) . "'";
-		// The readings first: they hold the books condition; the statuses last: every condition holds them.
-		$sql = str_replace( array( '{readings}', '{books}', '{at_hand}', '{library}', '{statuses}' ), array( $readings, self::BOOKS, self::AT_HAND, self::LIBRARY, $statuses ), $sql );
-		$sql = $args ? $wpdb->prepare( $sql, ...$args ) : $sql; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constant condition, values prepared here.
-
-		return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared above; dashboard widgets and REST routes, run on demand.
+		return $readings;
 	}
 
 	/**
@@ -73,22 +49,9 @@ class Library_Stats {
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
-		$total = (int) wp_count_posts( 'library_book' )->publish;
-
-		// The list table sort filters must not alter this count.
-		$read_query = new WP_Query(
-			array(
-				'post_type'        => 'library_book',
-				'post_status'      => 'publish',
-				'posts_per_page'   => 1,
-				'fields'           => 'ids',
-				'suppress_filters' => true,
-				'meta_key'         => 'library_read', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Single count on a small dataset.
-				'meta_value'       => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Same.
-			)
-		);
-
-		$read    = (int) $read_query->found_posts;
+		$library = array_filter( Library_Books::get_books(), fn( array $book ) => 'publish' === $book['status'] );
+		$read    = count( array_filter( $library, fn( array $book ) => $book['read'] ) );
+		$total   = count( $library );
 		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
 
 		return array(
@@ -99,59 +62,30 @@ class Library_Stats {
 	}
 
 	/**
-	 * Number of books not read yet, kept or not, but not those to buy: the reading pile.
+	 * The books not read yet, kept or not, but not those to buy: the reading pile.
 	 *
-	 * @return int
+	 * @return array<int,array>
 	 */
-	private static function count_unread_books(): int {
-		global $wpdb;
-
-		[ $row ] = self::get_results(
-			"SELECT COUNT( DISTINCT p.ID ) AS books
-			FROM {$wpdb->posts} AS p
-			LEFT JOIN {$wpdb->postmeta} AS r ON r.post_id = p.ID AND r.meta_key = 'library_read' AND r.meta_value = '1'
-			WHERE r.post_id IS NULL
-				AND {at_hand}"
-		);
-
-		return (int) $row->books;
+	public static function get_unread_books(): array {
+		return array_filter( Library_Books::get_books(), fn( array $book ) => ! $book['read'] && Library_Posts::TO_BUY !== $book['status'] );
 	}
 
 	/**
 	 * Books read this year and by the same date last year, the number expected by the end of the year, and the year
 	 * the books to read would all be read in; both at the pace of this year, a book read again counting once per reading.
 	 *
-	 * Kept for the request: the reading and reading pile widgets and the reading idea of the dashboard all ask for it.
-	 *
 	 * @return array{year:int,this_year:int,last_year:int,projection:int|null,to_read:int,all_read_in:int|null}
 	 */
 	public static function get_reading_year_to_date(): array {
-		static $year_to_date = null;
+		$today    = new DateTimeImmutable( 'now', wp_timezone() );
+		$same_day = $today->modify( '-1 year' );
+		$days     = array_map( fn( array $reading ) => substr( $reading['date'], 0, 10 ), self::get_readings() );
+		$count    = fn( DateTimeImmutable $day ) => count( array_filter( $days, fn( string $read_on ) => $read_on >= $day->format( 'Y-01-01' ) && $read_on <= $day->format( 'Y-m-d' ) ) );
 
-		if ( null !== $year_to_date ) {
-			return $year_to_date;
-		}
-
-		$today          = new DateTimeImmutable( 'now', wp_timezone() );
-		$same_day       = $today->modify( '-1 year' );
-		$this_year_from = $today->format( 'Y-01-01' );
-		$last_year_from = $same_day->format( 'Y-01-01' );
-
-		[ $row ] = self::get_results(
-			'SELECT
-				COUNT( IF( LEFT( r.date, 10 ) BETWEEN %s AND %s, 1, NULL ) ) AS this_year,
-				COUNT( IF( LEFT( r.date, 10 ) BETWEEN %s AND %s, 1, NULL ) ) AS last_year
-			FROM {readings}',
-			$this_year_from,
-			$today->format( 'Y-m-d' ),
-			$last_year_from,
-			$same_day->format( 'Y-m-d' )
-		);
-
-		$this_year    = (int) $row->this_year;
+		$this_year    = $count( $today );
 		$day_of_year  = (int) $today->format( 'z' ) + 1;
 		$days_in_year = 365 + (int) $today->format( 'L' );
-		$to_read      = self::count_unread_books();
+		$to_read      = count( self::get_unread_books() );
 
 		// A month of readings is the least to project from; without readings, the books to read are never read.
 		$has_pace    = $day_of_year >= 31;
@@ -163,15 +97,13 @@ class Library_Stats {
 			$all_read_in = (int) $today->modify( "+$days_left days" )->format( 'Y' );
 		}
 
-		$year_to_date = array(
+		return array(
 			'year'        => (int) $today->format( 'Y' ),
 			'this_year'   => $this_year,
-			'last_year'   => (int) $row->last_year,
+			'last_year'   => $count( $same_day ),
 			'projection'  => $projection,
 			'to_read'     => $to_read,
 			'all_read_in' => $all_read_in,
 		);
-
-		return $year_to_date;
 	}
 }
