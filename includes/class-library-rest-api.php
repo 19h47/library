@@ -47,12 +47,13 @@ class Library_Rest_API {
 			'cover'          => array(
 				'get_callback' => fn( array $book ) => $this->get_cover( $book['id'] ),
 				'schema'       => array(
-					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height; null without cover.', 'library' ),
+					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover.', 'library' ),
 					'type'        => array( 'object', 'null' ),
 					'properties'  => array(
 						'url'    => array( 'type' => 'string' ),
 						'width'  => array( 'type' => 'integer' ),
 						'height' => array( 'type' => 'integer' ),
+						'srcset' => array( 'type' => 'string' ),
 					),
 				),
 			),
@@ -109,14 +110,16 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * The cover of a book as a list shows it: its medium size, else the image itself, as for an AVIF the server cannot
-	 * resize, with its size, which gives the image its place before it loads.
+	 * The cover of a book: its medium size, else the image itself, as for an AVIF the server cannot resize, with its size,
+	 * which gives the image its place before it loads, and its sizes of the same shape, as WordPress lists them for a
+	 * srcset, for the browser to take the one the width it shows needs: a list small, the page of the book sharp.
 	 *
 	 * @param int $book_id Book ID.
-	 * @return array{url:string,width:int,height:int}|null
+	 * @return array{url:string,width:int,height:int,srcset:string}|null
 	 */
 	private function get_cover( int $book_id ): ?array {
-		$image = wp_get_attachment_image_src( (int) get_post_thumbnail_id( $book_id ), 'medium' );
+		$image_id = (int) get_post_thumbnail_id( $book_id );
+		$image    = wp_get_attachment_image_src( $image_id, 'medium' );
 
 		if ( ! $image ) {
 			return null;
@@ -126,6 +129,7 @@ class Library_Rest_API {
 			'url'    => $image[0],
 			'width'  => (int) $image[1],
 			'height' => (int) $image[2],
+			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
 		);
 	}
 

@@ -3,12 +3,18 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
 import { fill } from 'library-app/render';
-import { inputList, showErrors, showSaving } from 'library-app/behaviors';
+import { inputList, showBusy, showErrors } from 'library-app/behaviors';
+
+// A book in another status, such as a draft, shows as in the library.
+const statusOf = ( book ) => ( [ notKept, toBuy ].includes( book.status ) ? book.status : 'publish' );
+// Read dates by their days, in order, to compare: a reading of the day keeps its time once saved.
+const daysOf = ( dates ) => JSON.stringify( dates.map( ( date ) => date.slice( 0, 10 ) ).sort() );
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in
- * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Saved, it shows the reading saved; leaving the
- * book drops what was not saved.
+ * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Each change is saved at once, as the
+ * button Finished of the home saves, and the notice that says so offers Undo; a change made while the one before saves waits for it,
+ * the form showing what was chosen until then rather than what the book was.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
@@ -18,7 +24,17 @@ class LibraryReadingElement extends Brick {
 		const $list = $dates.querySelector( 'ul' );
 		const $add = $dates.querySelector( '[data-action="add"]' );
 		const $addUnknown = $dates.querySelector( '[data-action="add-unknown"]' );
-		const $submit = $form.querySelector( '[type="submit"]' );
+		// Whether a change waits for the saving of the one before.
+		let isPending = false;
+		// The date fields check theirs first, such as a date later than today: an invalid one is not sent.
+		const save = () => {
+			if ( store.get().saving.loading ) {
+				isPending = true;
+				return;
+			}
+
+			$form.requestSubmit();
+		};
 
 		// A reading is today, unless changed, and never later; a reading whose date is unknown has no date input.
 		const addDate = inputList( {
@@ -42,10 +58,28 @@ class LibraryReadingElement extends Brick {
 				'click',
 				() => {
 					$inProgress.checked = false;
+					save();
 				},
 				{ signal }
 			)
 		);
+
+		// A reading removed, after inputList() removed its row.
+		$list.addEventListener( 'click', ( event ) => event.target.closest( '[data-action="remove"]' ) && save(), { signal } );
+		$form.addEventListener( 'change', save, { signal } );
+
+		// Whether the form shows the reading of `book` already, such as the one it just saved: it stays as it is, its focus too.
+		const isShown = ( book ) => {
+			const data = new FormData( $form );
+
+			return (
+				data.has( 'library_read' ) === book.read &&
+				data.has( 'library_in_progress' ) === book.in_progress &&
+				daysOf( data.getAll( 'library_read_date' ) ) === daysOf( book.read_date ) &&
+				data.get( 'library_rating' ) === ( book.rating || '' ).toString() &&
+				data.get( 'status' ) === statusOf( book )
+			);
+		};
 
 		// Unread, the book has no read dates: they are left out of the form.
 		const showDates = () => {
@@ -89,7 +123,8 @@ class LibraryReadingElement extends Brick {
 			store.select(
 				( state ) => state.books[ state.book ] ?? null,
 				( book ) => {
-					if ( ! book ) {
+					// A change waiting to be saved keeps what was chosen, which it sends.
+					if ( ! book || isPending || isShown( book ) ) {
 						return;
 					}
 
@@ -101,16 +136,19 @@ class LibraryReadingElement extends Brick {
 					book.read_date.forEach( ( date ) => addDate( date.slice( 0, 10 ) ) );
 					showDates();
 					$rating.value = ( book.rating || '' ).toString();
-					// A book in another status, such as a draft, shows as in the library.
-					$status.value = [ notKept, toBuy ].includes( book.status ) ? book.status : 'publish';
+					$status.value = statusOf( book );
 				}
 			),
 			store.select(
 				( state ) => state.saving,
 				( saving ) => {
-					$submit.disabled = saving.loading;
-					showSaving( $submit, saving.loading );
+					showBusy( $form, saving.loading );
 					fill( this, { error: saving.error } );
+
+					if ( ! saving.loading && isPending ) {
+						isPending = false;
+						save();
+					}
 				}
 			),
 		];
