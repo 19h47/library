@@ -581,6 +581,7 @@ use Library\Meta;
 							<a data-field="duplicate" href=""></a>
 							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
 						</span>
+						<span data-field="catalog" hidden></span>
 					</p>
 					<?php
 					Markup::render_component(

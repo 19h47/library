@@ -1,4 +1,4 @@
-import { editUrl, toBuy } from 'library-app/app';
+import { __, editUrl, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
@@ -8,6 +8,8 @@ import { urlOf } from 'library-app/router';
 
 /**
  * @import { Field } from 'library-app/behaviors'
+ * @import { CatalogBook, Credit } from 'library-app/api'
+ * @import { Catalog } from 'library-app/store'
  */
 
 /**
@@ -59,7 +61,8 @@ function renderOptions( terms ) {
  * the ones filled in: subtitle, first published, pages, original language, collective work, ISSN, excerpt and notes.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
- * a book has already shows it, which opens, and a book to buy is bought from there.
+ * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
+ * in the fields left empty, the names as the library gives them.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
@@ -170,6 +173,79 @@ class LibraryEditElement extends Brick {
 					} ) )
 				)
 			);
+		};
+
+		/**
+		 * The rows of the names, each with its role, one empty row for none.
+		 *
+		 * @param {Credit[]} people The names.
+		 */
+		const showPeople = ( people ) => {
+			$people.replaceChildren();
+			people.forEach( ( { name, role } ) => {
+				const $row = addPerson( name ).closest( 'li' );
+
+				/** @type {HTMLSelectElement} */ (
+					$row.querySelector( '[name="role"]' )
+				).value = role;
+			} );
+
+			if ( ! $people.children.length ) {
+				addPerson();
+			}
+		};
+
+		/**
+		 * The fields left empty take the values of the book of the catalogue: what was typed stays, and the names of the
+		 * people only when none was.
+		 *
+		 * @param {CatalogBook} book The book of the catalogue.
+		 */
+		const fillEmpty = ( book ) => {
+			/** @type {Array<[Field, string]>} */
+			const values = [
+				[ $title, book.title ],
+				[ $publisher, book.publisher ],
+				[ $series, book.series ],
+				[ $language, ( book.language || '' ).toString() ],
+				[ $bookForm, ( book.form || '' ).toString() ],
+				...$meta.map( ( $field ) => {
+					const value = ( book.meta[ $field.name ] ?? '' ).toString();
+
+					return /** @type {[Field, string]} */ ( [ $field, value ] );
+				} ),
+			];
+			const $names = /** @type {HTMLInputElement[]} */ ( [
+				...$people.querySelectorAll( '[name="person"]' ),
+			] );
+
+			values
+				.filter(
+					( [ $field, value ] ) => value && ! getValue( $field )
+				)
+				.forEach( ( [ $field, value ] ) => {
+					$field.value = value;
+				} );
+
+			if (
+				book.people.length &&
+				$names.every( ( $name ) => ! $name.value )
+			) {
+				showPeople( book.people );
+			}
+
+			// A collection needs its publisher, which enables it.
+			suggestCollections();
+
+			if (
+				book.collection &&
+				! $collection.value &&
+				! $collection.disabled
+			) {
+				$collection.value = book.collection;
+			}
+
+			countDetails();
 		};
 
 		// The cover shown: the photo picked, else the one of the book, unless it was removed.
@@ -311,18 +387,7 @@ class LibraryEditElement extends Brick {
 					$status.parentElement.hidden = Boolean( id );
 					$status.value = listedStatus || 'publish';
 					$bookForm.value = 'books' === view ? form : '';
-					$people.replaceChildren();
-					book?.people.forEach( ( { name, role } ) => {
-						const $row = addPerson( name ).closest( 'li' );
-
-						/** @type {HTMLSelectElement} */ (
-							$row.querySelector( '[name="role"]' )
-						).value = role;
-					} );
-
-					if ( ! $people.children.length ) {
-						addPerson();
-					}
+					showPeople( book?.people ?? [] );
 
 					if ( book ) {
 						$title.value = book.title;
@@ -361,6 +426,37 @@ class LibraryEditElement extends Brick {
 						Boolean( editing.id && ! editing.book );
 					showSaving( $submit, editing.loading );
 					fill( this, { error: editing.error } );
+				}
+			),
+			store.select(
+				( state ) => state.editing.catalog,
+				/** @param {Catalog} catalog The search of the ISBN typed in the catalogue. */
+				( catalog ) => {
+					const messages = {
+						'': '',
+						searching: __(
+							'Searching the catalogue of the BnF…',
+							'library'
+						),
+						found: __(
+							'Filled in from the catalogue of the BnF: check what it gives.',
+							'library'
+						),
+						unknown: __(
+							'The catalogue of the BnF has no book of this ISBN.',
+							'library'
+						),
+						unreachable: __(
+							'The catalogue of the BnF does not answer: try again later.',
+							'library'
+						),
+					};
+
+					fill( this, { catalog: messages[ catalog.status ] } );
+
+					if ( catalog.book ) {
+						fillEmpty( catalog.book );
+					}
 				}
 			),
 			store.select(

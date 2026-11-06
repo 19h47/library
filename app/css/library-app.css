@@ -540,8 +540,11 @@ library-view > .library-back {
 	gap: var(--app-u1);
 }
 
-/* The book that has the ISBN typed already: its message stays in the page, to be read once it shows, out of the flow until then */
-.library-edit__duplicate:has(> [hidden]) {
+/*
+ * What the ISBN typed tells, the book that has it already or the search of the catalogue of the BnF: its messages stay in
+ * the page, to be read once one shows, out of the flow while none does.
+ */
+.library-edit__duplicate:not(:has(> :not([hidden]))) {
 	position: absolute;
 }
 

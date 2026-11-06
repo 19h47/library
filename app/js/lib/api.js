@@ -134,6 +134,12 @@ import {
  */
 
 /**
+ * A book to add as the catalogue of the BnF describes it, as its form takes it, with the names of the library.
+ *
+ * @typedef {Omit<BookForm, 'id'|'excerpt'|'content'>} CatalogBook
+ */
+
+/**
  * What leads from an achievement to the app: a book, a person, a series, a collection, or a search.
  *
  * @typedef {Object} Target
@@ -447,8 +453,9 @@ function toBook( item ) {
 /**
  * A book of the API as its form edits it: the names of its terms in plain text, the rest as typed.
  *
- * @param {BookForm} item A book of the route of the book form.
- * @return {BookForm} Its values.
+ * @template {CatalogBook} T
+ * @param {T} item A book of the route of the book form, or of the catalogue of the BnF.
+ * @return {T} Its values.
  */
 function toForm( item ) {
 	return {
@@ -650,6 +657,32 @@ export async function findIsbn( digits ) {
 }
 
 /**
+ * The book of the ISBN `isbn` in the catalogue of the BnF, as its form takes it, or none when the catalogue has no book
+ * of that ISBN.
+ *
+ * @param {string} isbn An ISBN.
+ * @return {Promise<CatalogBook|null>} The book, or none.
+ */
+export async function findInBnf( isbn ) {
+	const params = new URLSearchParams( { isbn } );
+
+	try {
+		/** @type {CatalogBook} */
+		const book = await apiFetch( {
+			path: `/library/v1/books/bnf?${ params }`,
+		} );
+
+		return toForm( book );
+	} catch ( error ) {
+		if ( 'library_not_in_bnf' === error?.code ) {
+			return null;
+		}
+
+		throw error;
+	}
+}
+
+/**
  * A page of the diary: whole months, latest first, each with its readings and the IDs of their books; the totals count
  * months.
  *
@@ -792,7 +825,10 @@ export async function getTerms() {
  * @return {Promise<BookForm>} Its values.
  */
 export async function getForm( id ) {
-	return toForm( await apiFetch( { path: `/library/v1/books/${ id }` } ) );
+	/** @type {BookForm} */
+	const book = await apiFetch( { path: `/library/v1/books/${ id }` } );
+
+	return toForm( book );
 }
 
 /**

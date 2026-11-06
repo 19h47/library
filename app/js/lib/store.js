@@ -25,7 +25,7 @@ import * as api from 'library-app/api';
 import { today } from 'library-app/format';
 
 /**
- * @import { Achievements, Book, BookForm, BookValues, Idea, Month, PageView, PersonData, PublisherData, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -77,6 +77,16 @@ import { today } from 'library-app/format';
  * @property {boolean}       loading   Whether it is saving.
  * @property {string}        error     Why it could not be loaded or saved, or empty.
  * @property {number}        duplicate The book that has the ISBN typed for a book to add, 0 for none.
+ * @property {Catalog}       catalog   The book of that ISBN in the catalogue of the BnF, for a book to add.
+ */
+
+/**
+ * The search of the ISBN typed for a book to add in the catalogue of the BnF.
+ *
+ * @typedef {Object} Catalog
+ * @property {string}                                         isbn   The ISBN searched, its digits only, empty for none.
+ * @property {''|'searching'|'found'|'unknown'|'unreachable'} status Where the search is: the catalogue has the book or not, or did not answer.
+ * @property {CatalogBook|null}                               book   The book found, else none.
  */
 
 /**
@@ -404,7 +414,15 @@ function saving() {
  * @return {Editing} The form.
  */
 function editing( id = 0, book = null ) {
-	return { id, book, open: false, loading: false, error: '', duplicate: 0 };
+	return {
+		id,
+		book,
+		open: false,
+		loading: false,
+		error: '',
+		duplicate: 0,
+		catalog: { isbn: '', status: '', book: null },
+	};
 }
 
 /**
@@ -749,16 +767,18 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * Looks for the book that has the ISBN typed in the form of a book to add, such as a book to buy found in a bookshop.
-	 * An ISBN has 10 or 13 digits, hyphens aside.
+	 * Looks for the book that has the ISBN typed in the form of a book to add, such as a book to buy found in a bookshop;
+	 * for a book not added yet, looks for it in the catalogue of the BnF, whose values the form takes. An ISBN has 10 or
+	 * 13 digits, hyphens aside. An ISBN typed again leaves the search of the one before.
 	 *
 	 * @param {string} isbn The ISBN typed.
 	 */
 	async checkIsbn( isbn ) {
 		const digits = isbn.replace( /[\s-]/g, '' );
+		const isIsbn = [ 10, 13 ].includes( digits.length );
 		let duplicate = 0;
 
-		if ( [ 10, 13 ].includes( digits.length ) ) {
+		if ( isIsbn ) {
 			try {
 				const found = await api.findIsbn( digits );
 
@@ -767,8 +787,42 @@ class LibraryStore extends Store {
 			} catch {}
 		}
 
+		/** @type {Catalog} */
+		const searching = {
+			isbn: digits,
+			status: isIsbn && ! duplicate ? 'searching' : '',
+			book: null,
+		};
+
 		this.#update( 'editing', ( current ) =>
-			current.open && ! current.id ? { duplicate } : {}
+			current.open && ! current.id
+				? { duplicate, catalog: searching }
+				: {}
+		);
+
+		if ( ! isIsbn || duplicate ) {
+			return;
+		}
+
+		/** @type {Catalog} */
+		let catalog;
+
+		try {
+			const book = await api.findInBnf( digits );
+
+			catalog = {
+				isbn: digits,
+				status: book ? 'found' : 'unknown',
+				book,
+			};
+		} catch {
+			catalog = { isbn: digits, status: 'unreachable', book: null };
+		}
+
+		this.#update( 'editing', ( current ) =>
+			current.open && ! current.id && digits === current.catalog.isbn
+				? { catalog }
+				: {}
 		);
 	}
 

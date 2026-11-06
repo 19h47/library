@@ -219,6 +219,24 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
+			'books/bnf',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_bnf_book' ),
+				'permission_callback' => fn() => current_user_can( get_post_type_object( 'library_book' )->cap->publish_posts ),
+				'args'                => array(
+					'isbn' => array(
+						'description'       => __( 'ISBN of the book, with or without hyphens.', 'library' ),
+						'type'              => 'string',
+						'required'          => true,
+						'validate_callback' => fn( string $isbn ) => '' !== ISBN::format( $isbn ),
+					),
+				),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
 			'books/reading-stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -524,6 +542,24 @@ class Rest_API {
 				'meta'       => $meta,
 			)
 		);
+	}
+
+	/**
+	 * A book to add as the catalogue of the BnF describes it, from its ISBN, as its form takes it: its title, its people
+	 * with their roles, its publisher, collection and series, its original language, its form and its meta, with the
+	 * names of the library.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_bnf_book( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$book = BnF::get_book( $request['isbn'] );
+
+		if ( null === $book ) {
+			return new WP_Error( 'library_not_in_bnf', __( 'The catalogue of the BnF has no book of this ISBN.', 'library' ), array( 'status' => 404 ) );
+		}
+
+		return rest_ensure_response( $book );
 	}
 
 	/**
