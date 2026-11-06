@@ -102,15 +102,20 @@ export function fillCover( $image, cover ) {
 	$image.hidden = ! cover;
 
 	if ( ! cover ) {
+		$image.removeAttribute( 'sizes' );
 		$image.removeAttribute( 'srcset' );
 		$image.removeAttribute( 'src' );
 		return;
 	}
 
-	// Its sizes before its source, for the browser to take the one it shows at once, as wide as it shows: sizes="auto".
+	// Its sizes before its source, for the browser to take the one it shows at once, as wide as it shows: sizes="auto", which
+	// a lazy image takes. Only with them: the browser sizes such an image as if it were 300 by 150 until its width and height
+	// say otherwise, which a cover of the API has, and a photo picked has not.
 	if ( cover.srcset ) {
+		$image.sizes = 'auto';
 		$image.srcset = cover.srcset;
 	} else {
+		$image.removeAttribute( 'sizes' );
 		$image.removeAttribute( 'srcset' );
 	}
 

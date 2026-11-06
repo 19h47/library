@@ -153,7 +153,7 @@ $sizes = array(
 			<figure>
 				<figcaption><code>.library-book__*</code>, the book open: its cover, its meta line, its title, its excerpt, its notes, its translation, its fields, its actions</figcaption>
 				<div class="library-styleguide__frame">
-					<img class="library-book__cover" alt="" loading="lazy" sizes="auto" hidden>
+					<img class="library-book__cover" alt="" loading="lazy" hidden>
 					<p class="app-meta library-book__meta">An Author · A Publisher, A Collection · 2024</p>
 					<h4 class="library-book__title">The title of a book</h4>
 					<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>

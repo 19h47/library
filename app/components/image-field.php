@@ -14,7 +14,7 @@
 
 ?>
 <div class="library-image-field">
-	<img class="library-image-field__preview" alt="" loading="lazy" sizes="auto" hidden>
+	<img class="library-image-field__preview" alt="" loading="lazy" hidden>
 	<label class="app-pill" for="<?php echo esc_attr( $args['id'] ); ?>">
 		<input class="sr-only" id="<?php echo esc_attr( $args['id'] ); ?>" type="file" name="<?php echo esc_attr( $args['name'] ); ?>" accept="image/*">
 		<?php echo esc_html( $args['label'] ); ?>
