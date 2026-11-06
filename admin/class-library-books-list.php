@@ -158,10 +158,11 @@ class Library_Books_List {
 
 				$output .= '<span class="library-thumbnail-cell">';
 				// The medium size, not cropped, as the cover shows whole: the full image would be a few megabytes a row.
-				$thumbnail = get_the_post_thumbnail( $post_id, 'medium' );
+				$thumbnail = get_the_post_thumbnail( $post_id, 'medium', array( 'alt' => '' ) );
 
+				// The title of the row links to the book already: the cover is a larger target for the pointer only.
 				if ( $thumbnail ) {
-					$output .= '<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">';
+					$output .= '<a href="' . esc_url( (string) get_edit_post_link( $post_id ) ) . '" tabindex="-1" aria-hidden="true">';
 					$output .= $thumbnail;
 					$output .= '</a>';
 				} else {
@@ -186,17 +187,21 @@ class Library_Books_List {
 				'title'       => true,
 				'aria-hidden' => true,
 			),
-			'a'     => array( 'href' => true ),
+			'a'     => array(
+				'href'        => true,
+				'tabindex'    => true,
+				'aria-hidden' => true,
+			),
 			'img'   => array(
 				'src'      => true,
+				'srcset'   => true,
+				'sizes'    => true,
 				'alt'      => true,
 				'class'    => true,
 				'width'    => true,
 				'height'   => true,
 				'loading'  => true,
 				'decoding' => true,
-				'srcset'   => true,
-				'sizes'    => true,
 			),
 		);
 		echo wp_kses( $output, $allowed_column_html );
