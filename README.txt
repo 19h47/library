@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.22.0
+Stable tag: 9.23.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -97,6 +97,12 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.23.0 =
+* Changed: a book not kept and not read is on the reading pile, as a book passing through: the tsundoku and the archaeologist count it again, as the dashboard, the app and the reading ideas do; one rule for all of them.
+* Changed: `POST /wp-json/library/v1/books` and `POST /wp-json/library/v1/books/<id>` give back the book, as `/wp-json/wp/v2/books/<id>` does, `_fields` included, rather than its ID alone.
+* Changed: the tables of the charts of the dashboard, which assistive technologies read, are named by their chart.
+* Code only: a book saved in the reading app or checked Read in the books list makes one request less; the route of the book form looks each name up once; the counts of a term are padded with its children on the lists of terms only; the page of a person comes with the reading app.
 
 = 9.22.0 =
 * Changed: reading app: the reading of a book saves each change at once, with Undo in the notice, as Finished does on the home; the button Save goes.
