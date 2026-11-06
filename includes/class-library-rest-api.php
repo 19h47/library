@@ -438,7 +438,8 @@ class Library_Rest_API {
 		}
 
 		// The names first, so that a book is never left half added.
-		$terms = $this->get_terms( $request );
+		$roles = $this->get_roles( $request );
+		$terms = $this->get_terms( $request, $roles );
 		$post  = array(
 			'post_type'    => 'library_book',
 			'post_status'  => $request['status'],
@@ -453,7 +454,7 @@ class Library_Rest_API {
 			return $book_id;
 		}
 
-		$this->save_book( $book_id, $request, $terms );
+		$this->save_book( $book_id, $request, $terms, $roles );
 
 		$response = $this->get_book_response( $book_id );
 		$response->set_status( 201 );
@@ -527,7 +528,8 @@ class Library_Rest_API {
 		}
 
 		// The names first, so that a book is never left half edited.
-		$terms = $this->get_terms( $request );
+		$roles = $this->get_roles( $request );
+		$terms = $this->get_terms( $request, $roles );
 		$post  = array( 'ID' => $book_id ) + $this->get_slug_fields( $book_id, $meta );
 
 		if ( $request->has_param( 'title' ) ) {
@@ -552,26 +554,27 @@ class Library_Rest_API {
 			return $updated;
 		}
 
-		$this->save_book( $book_id, $request, $terms );
+		$this->save_book( $book_id, $request, $terms, $roles );
 
 		return $this->get_book_response( $book_id );
 	}
 
 	/**
-	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its people through the rule
-	 * of their tag box, its collection, or else its publisher, its original language and its form. A name not found adds a term.
+	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its people, the terms of their
+	 * roles, its collection, or else its publisher, its original language and its form. A name not found adds a term.
 	 *
 	 * A collection is under its publisher, a sub-collection under its collection, and goes with them: a book in a collection
 	 * has the narrowest one only.
 	 *
-	 * @param WP_REST_Request $request Request.
+	 * @param WP_REST_Request   $request Request.
+	 * @param array<int,string> $roles   Roles of the names sent, by term ID, from get_roles().
 	 * @return array<string,int[]>
 	 */
-	private function get_terms( WP_REST_Request $request ): array {
+	private function get_terms( WP_REST_Request $request, array $roles ): array {
 		$terms = array();
 
 		if ( $request->has_param( 'people' ) ) {
-			$terms['library_person'] = Library_Taxonomies::sanitize_person_names( 'library_person', implode( ',', array_column( $request['people'], 'name' ) ) );
+			$terms['library_person'] = array_keys( $roles );
 		}
 
 		if ( $request->has_param( 'publisher' ) ) {
@@ -597,7 +600,8 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * Roles of the names sent, by term ID, once their terms exist: a name stands for the term its tag box gives it.
+	 * Roles of the names sent, by term ID, in their order: a name stands for the term its tag box gives it, a new name
+	 * for a person added. Each name is looked up once, for the terms of the book and for their roles.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return array<int,string>
@@ -605,7 +609,7 @@ class Library_Rest_API {
 	private function get_roles( WP_REST_Request $request ): array {
 		$roles = array();
 
-		foreach ( $request['people'] as $person ) {
+		foreach ( $request->has_param( 'people' ) ? $request['people'] : array() as $person ) {
 			foreach ( Library_Taxonomies::sanitize_person_names( 'library_person', $person['name'] ) as $term_id ) {
 				$roles[ $term_id ] = $person['role'];
 			}
@@ -636,12 +640,13 @@ class Library_Rest_API {
 	 * Save what is sent for a book, after its post: its meta through Library_Meta, its terms, and its cover, the featured_media
 	 * sent, which becomes an image of the book; 0 removes it.
 	 *
-	 * @param int             $book_id Book ID.
-	 * @param WP_REST_Request $request Request.
-	 * @param array           $terms   Term IDs by taxonomy, from get_terms().
+	 * @param int               $book_id Book ID.
+	 * @param WP_REST_Request   $request Request.
+	 * @param array             $terms   Term IDs by taxonomy, from get_terms().
+	 * @param array<int,string> $roles Roles of the names sent, by term ID, from get_roles().
 	 * @return void
 	 */
-	private function save_book( int $book_id, WP_REST_Request $request, array $terms ): void {
+	private function save_book( int $book_id, WP_REST_Request $request, array $terms, array $roles ): void {
 		if ( $request->has_param( 'meta' ) ) {
 			Library_Meta::save( $book_id, (array) $request['meta'] );
 		}
@@ -651,7 +656,7 @@ class Library_Rest_API {
 		}
 
 		if ( $request->has_param( 'people' ) ) {
-			Library_Meta::save_roles( $book_id, $this->get_roles( $request ) );
+			Library_Meta::save_roles( $book_id, $roles );
 		}
 
 		if ( ! $request->has_param( 'featured_media' ) ) {
@@ -677,13 +682,14 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * The response of a book added or edited: its ID.
+	 * The response of a book added or edited: the book as it is now, as `/wp/v2/books/<id>` gives it, so that a client
+	 * shows it without asking for it again; `_fields` keeps the fields it reads, as for the core route.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return WP_REST_Response
 	 */
 	private function get_book_response( int $book_id ): WP_REST_Response {
-		return rest_ensure_response( array( 'id' => $book_id ) );
+		return rest_ensure_response( rest_do_request( new WP_REST_Request( 'GET', '/wp/v2/books/' . $book_id ) ) );
 	}
 
 	/**

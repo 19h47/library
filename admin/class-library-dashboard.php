@@ -416,7 +416,7 @@ class Library_Dashboard {
 	 * @return array|null Book, from Library_Books::get_books().
 	 */
 	private function get_oldest_unread_book(): ?array {
-		$dated = array_filter( Library_Stats::get_unread_books(), fn( array $book ) => '' !== $book['edition_date'] );
+		$dated = array_filter( Library_Stats::get_books_on_the_pile(), fn( array $book ) => '' !== $book['edition_date'] );
 
 		usort( $dated, fn( array $a, array $b ) => $a['edition_date'] <=> $b['edition_date'] );
 

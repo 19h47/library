@@ -195,35 +195,36 @@ class Test_Library_Achievements_Discoveries extends Library_TestCase {
 	}
 
 	/**
-	 * A book to buy, or not kept, is not on the pile: a book added after it can be read first.
+	 * A book to buy is not on the pile: a book added after it can be read first. A book not kept is, until it is read.
 	 *
-	 * @dataProvider provide_off_the_pile
+	 * @dataProvider provide_pile_statuses
 	 *
-	 * @param string $status Status of the book off the pile.
+	 * @param string $status         Status of the book not read.
+	 * @param bool   $is_on_the_pile Whether it is on the pile.
 	 * @return void
 	 */
-	public function test_a_book_off_the_pile_waits_for_nothing( string $status ): void {
+	public function test_a_book_waits_for_the_one_on_the_pile( string $status, bool $is_on_the_pile ): void {
 		$this->add_book(
 			array(
-				'title'  => 'Off the pile',
+				'title'  => 'Not read',
 				'status' => $status,
 			),
 			'2024-01-01 10:00:00'
 		);
 		$this->add_read_book( 'Second', '2024-03-01', array(), '2024-01-02 10:00:00' );
 
-		$this->assertSame( 'Second', $this->get_earned()['archaeologist'][0]['subject'] );
+		$this->assertSame( ! $is_on_the_pile, isset( $this->get_earned()['archaeologist'] ) );
 	}
 
 	/**
-	 * Statuses of a book not read that is off the pile.
+	 * Statuses of a book not read, and whether it is on the pile: a book to buy is not, a book not kept is, until read.
 	 *
-	 * @return array<string,string[]>
+	 * @return array<string,array{0:string,1:bool}>
 	 */
-	public function provide_off_the_pile(): array {
+	public function provide_pile_statuses(): array {
 		return array(
-			'to buy'   => array( Library_Posts::TO_BUY ),
-			'not kept' => array( Library_Posts::NOT_KEPT ),
+			'to buy'   => array( Library_Posts::TO_BUY, false ),
+			'not kept' => array( Library_Posts::NOT_KEPT, true ),
 		);
 	}
 

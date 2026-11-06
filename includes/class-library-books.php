@@ -129,6 +129,17 @@ class Library_Books {
 	}
 
 	/**
+	 * Whether a book is on the reading pile: not read, and at hand, in the library or passing through, not kept once read;
+	 * a book to buy is not. The one rule of the books to read, for the stats, the reading ideas and the achievements.
+	 *
+	 * @param array $book Book, from get_books().
+	 * @return bool
+	 */
+	public static function is_on_the_pile( array $book ): bool {
+		return ! $book['read'] && Library_Posts::TO_BUY !== $book['status'];
+	}
+
+	/**
 	 * Date of a book: when the work first came out, or else its edition date.
 	 *
 	 * @param array $book Book, from get_books().

@@ -62,12 +62,12 @@ class Library_Stats {
 	}
 
 	/**
-	 * The books not read yet, kept or not, but not those to buy: the reading pile.
+	 * The books on the reading pile: see Library_Books::is_on_the_pile().
 	 *
 	 * @return array<int,array>
 	 */
-	public static function get_unread_books(): array {
-		return array_filter( Library_Books::get_books(), fn( array $book ) => ! $book['read'] && Library_Posts::TO_BUY !== $book['status'] );
+	public static function get_books_on_the_pile(): array {
+		return array_filter( Library_Books::get_books(), array( Library_Books::class, 'is_on_the_pile' ) );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Library_Stats {
 		$this_year    = $count( $today );
 		$day_of_year  = (int) $today->format( 'z' ) + 1;
 		$days_in_year = 365 + (int) $today->format( 'L' );
-		$to_read      = count( self::get_unread_books() );
+		$to_read      = count( self::get_books_on_the_pile() );
 
 		// A month of readings is the least to project from; without readings, the books to read are never read.
 		$has_pace    = $day_of_year >= 31;

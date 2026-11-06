@@ -33,7 +33,8 @@ class Library_Taxonomies {
 	 */
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
-		add_filter( 'get_terms_args', array( $this, 'count_children' ), 10, 2 );
+		// The lists of terms show their counts: other term queries, such as those of the REST API, need not pad them.
+		add_action( 'load-edit-tags.php', array( $this, 'pad_term_counts' ) );
 		add_filter( 'pre_insert_term', array( $this, 'require_language_code' ), 10, 3 );
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 		// Before core adds the languages typed in the box of a book, at 10.
@@ -754,6 +755,15 @@ class Library_Taxonomies {
 		}
 
 		return array_values( $top_level_terms );
+	}
+
+	/**
+	 * Count the books of a term's children with its own on the lists of terms: see count_children().
+	 *
+	 * @return void
+	 */
+	public function pad_term_counts(): void {
+		add_filter( 'get_terms_args', array( $this, 'count_children' ), 10, 2 );
 	}
 
 	/**

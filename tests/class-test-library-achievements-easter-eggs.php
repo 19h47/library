@@ -31,32 +31,34 @@ class Test_Library_Achievements_Easter_Eggs extends Library_TestCase {
 	}
 
 	/**
-	 * A book to buy, or not kept, is not on the pile: 499 books to read and one such book earn nothing.
+	 * A book to buy is not on the pile, a book not kept is: 499 books to read and one to buy earn nothing, and one not
+	 * kept the tsundoku.
 	 *
-	 * @dataProvider provide_off_the_pile
+	 * @dataProvider provide_pile_statuses
 	 *
-	 * @param string $status Status of the book off the pile.
+	 * @param string $status         Status of the book not read.
+	 * @param bool   $is_on_the_pile Whether it is on the pile.
 	 * @return void
 	 */
-	public function test_tsundoku_not_from_a_book_off_the_pile( string $status ): void {
+	public function test_tsundoku_from_the_books_on_the_pile( string $status, bool $is_on_the_pile ): void {
 		for ( $i = 0; $i < 499; $i++ ) {
 			$this->add_book();
 		}
 
 		$this->add_book( array( 'status' => $status ) );
 
-		$this->assertArrayNotHasKey( 'tsundoku', $this->get_earned() );
+		$this->assertSame( $is_on_the_pile, isset( $this->get_earned()['tsundoku'] ) );
 	}
 
 	/**
-	 * Statuses of a book not read that is off the pile.
+	 * Statuses of a book not read, and whether it is on the pile: a book to buy is not, a book not kept is, until read.
 	 *
-	 * @return array<string,string[]>
+	 * @return array<string,array{0:string,1:bool}>
 	 */
-	public function provide_off_the_pile(): array {
+	public function provide_pile_statuses(): array {
 		return array(
-			'to buy'   => array( Library_Posts::TO_BUY ),
-			'not kept' => array( Library_Posts::NOT_KEPT ),
+			'to buy'   => array( Library_Posts::TO_BUY, false ),
+			'not kept' => array( Library_Posts::NOT_KEPT, true ),
 		);
 	}
 

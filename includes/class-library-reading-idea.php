@@ -173,13 +173,13 @@ class Library_Reading_Idea {
 	}
 
 	/**
-	 * The books not read yet that can be read now: at hand, i.e. not to buy, and the next ones.
+	 * The books that can be read now: on the pile, and the next ones.
 	 *
 	 * @param array<int,array> $books All the books.
 	 * @return array<int,array>
 	 */
 	private static function get_books_to_read( array $books ): array {
-		return array_filter( self::get_next_books( $books ), fn( array $book ) => Library_Posts::TO_BUY !== $book['status'] );
+		return array_filter( self::get_next_books( $books ), array( Library_Books::class, 'is_on_the_pile' ) );
 	}
 
 	/**

@@ -212,12 +212,15 @@ class Library_App {
 			$paths[] = $this->get_books_path( $books, array( $id ), $statuses );
 		}
 
-		if ( self::SERIES_VIEW === $view ) {
-			$paths[] = "/library/v1/series/$id";
-		}
+		// The page of a person, a series or a collection, by the route of its view, as the store asks for it.
+		$page_routes = array(
+			self::PERSON_VIEW    => 'people',
+			self::SERIES_VIEW    => 'series',
+			self::PUBLISHER_VIEW => 'publishers',
+		);
 
-		if ( self::PUBLISHER_VIEW === $view ) {
-			$paths[] = "/library/v1/publishers/$id";
+		if ( isset( $page_routes[ $view ] ) ) {
+			$paths[] = "/library/v1/{$page_routes[ $view ]}/$id";
 		}
 
 		$data = array_reduce( $paths, 'rest_preload_api_request', array() );
