@@ -762,23 +762,37 @@ library-latest {
 	}
 
 	/*
-	 * Every view at once, as the tabs of an app: a column each, as wide as one another, rather than a row that scrolls;
-	 * the current one only a pill, the others their label alone, which takes the width of its column.
+	 * Every view at once, as the tabs of an app, rather than a row that scrolls: each as wide as its label, which is longer
+	 * in a language than in another, the room left between them; the current one only a pill, each with the room of one
+	 * all the same, so that none moves as the current one changes.
 	 */
 	library-nav .library-nav {
-		display: grid;
-		grid-auto-columns: minmax(0, 1fr);
-		grid-auto-flow: column;
+		justify-content: space-between;
 		gap: 0;
 		margin-inline: 0;
 		padding-inline: 0;
 		overflow-x: visible;
 	}
 
+	/* A tab of several words, such as To buy in English, goes on two lines where the narrowest phones leave too little room */
+	library-nav .library-nav li {
+		flex: 0 1 auto;
+		min-width: min-content;
+	}
+
 	library-nav .app-pill {
+		--app-pill-padding-inline: calc(1em / var(--app-phi));
+
 		justify-content: center;
-		width: 100%;
-		padding-inline: 0;
+		white-space: normal;
+		text-align: center;
+	}
+
+	/* On the narrowest phones, the room of a pill a step smaller */
+	@container (width < 22rem) {
+		library-nav .app-pill {
+			--app-pill-padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
+		}
 	}
 
 	library-nav .app-pill:not([aria-current="page"]) {
