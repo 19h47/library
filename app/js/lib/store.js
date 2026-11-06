@@ -21,6 +21,8 @@ const STORAGE_KEY = 'library-app';
 const SAVED = [ 'theme', 'themeChosen', 'read', 'status', 'form', 'sort' ];
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
+// The filters of the books, and their order: see load().
+const FILTERS = [ 'read', 'status', 'form', 'sort' ];
 // The page of a book, opened from its card, its cover or a link.
 const BOOK_VIEW = 'book';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
@@ -77,7 +79,7 @@ function save( state ) {
 }
 
 /** Whether the home shows: the books view, without a query. */
-function isHome( state ) {
+export function isHome( state ) {
 	return 'books' === state.view && ! state.query.trim();
 }
 
@@ -289,7 +291,7 @@ class LibraryStore extends Store {
 			moved: { push: 'forward', replace: 'forward', traverse: 'back' }[ navigationType ] ?? '',
 			// The books found load again once the books view shows.
 			...( 'books' === view && query !== state.query && { query, search: pages() } ),
-			...( isSearchLink && { read: '', status: '', form: '', sort: '' } ),
+			...( isSearchLink && Object.fromEntries( FILTERS.map( ( filter ) => [ filter, '' ] ) ) ),
 		} ) );
 		this.#show( view, id );
 	}
@@ -303,24 +305,12 @@ class LibraryStore extends Store {
 		this.#timeout = setTimeout( () => this.#fetchList( 'search' ), SEARCH_DELAY );
 	}
 
-	setRead( read ) {
-		this.set( ( state ) => ( { ...state, read } ) );
-		this.#fetchList( 'search' );
-	}
-
-	setStatus( status ) {
-		this.set( ( state ) => ( { ...state, status } ) );
-		this.#fetchList( 'search' );
-	}
-
-	setForm( form ) {
-		this.set( ( state ) => ( { ...state, form } ) );
-		this.#fetchList( 'search' );
-	}
-
-	setSort( sort ) {
-		this.set( ( state ) => ( { ...state, sort } ) );
-		this.#fetchList( 'search' );
+	/** A filter of the books, or their order, one of FILTERS, "" for none: the books found load again. */
+	setFilter( filter, value ) {
+		if ( FILTERS.includes( filter ) ) {
+			this.set( ( state ) => ( { ...state, [ filter ]: value } ) );
+			this.#fetchList( 'search' );
+		}
 	}
 
 	/** The next books of a list, `search` or `toBuy`, unless some are loading or none is left. */

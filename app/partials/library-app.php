@@ -196,7 +196,7 @@
 								</form>
 								<h2 class="library-book__title" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
-									<?php echo '<library-' . esc_attr( $book_filter ) . '-filter>'; ?>
+									<library-filter data-filter="<?php echo esc_attr( $book_filter ); ?>">
 										<?php
 										Library::render_component(
 											'field',
@@ -207,14 +207,14 @@
 											)
 										);
 										?>
-									<?php echo '</library-' . esc_attr( $book_filter ) . '-filter>'; ?>
+									</library-filter>
 								<?php endforeach; ?>
 								<form method="dialog">
 									<button class="app-pill app-pill--primary" type="submit" data-field="show"></button>
 								</form>
 							</dialog>
 						</library-filters>
-						<library-sort>
+						<library-filter data-filter="sort">
 							<?php
 							Library::render_component(
 								'pill-select',
@@ -232,7 +232,7 @@
 								)
 							);
 							?>
-						</library-sort>
+						</library-filter>
 					</div>
 
 					<library-status class="app-status" hidden></library-status>

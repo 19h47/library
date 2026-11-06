@@ -121,7 +121,7 @@ class LibraryEditElement extends Brick {
 
 		// The link to the book leaves the form, which forgets the book.
 		$duplicate.addEventListener( 'click', () => store.closeEdit(), { signal } );
-		$buy.addEventListener( 'click', async () => openBook( await store.buyBook( Number( $duplicate.dataset.book ) ) ), { signal } );
+		$buy.addEventListener( 'click', async () => openBook( await store.buyBook( store.get().editing.duplicate ) ), { signal } );
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
 		$cover.addEventListener( 'change', showCover, { signal } );
 
@@ -252,7 +252,6 @@ class LibraryEditElement extends Brick {
 
 					fill( this, { duplicate: book?.title ?? '' } );
 					$duplicate.href = urlOf( { view: 'book', id } );
-					$duplicate.dataset.book = id;
 					$buy.hidden = toBuy !== book?.status;
 				}
 			),
