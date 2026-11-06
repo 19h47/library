@@ -14,6 +14,8 @@
  * @var array{id?: string, class?: string, legend: string, description?: string, add: string, action: string, actions?: array<string, string>, list?: array<string, string|bool|null>, attributes?: array<string, string|bool|null>} $args
  */
 
+use Library\Markup;
+
 $args           = wp_parse_args(
 	$args,
 	array(
@@ -26,7 +28,7 @@ $args           = wp_parse_args(
 	)
 );
 $description_id = "{$args['id']}-description";
-$fieldset       = Library::set_attributes(
+$fieldset       = Markup::set_attributes(
 	'<fieldset>',
 	$args['attributes'] + array(
 		'class'            => trim( "library-input-list {$args['class']}" ),
@@ -37,7 +39,7 @@ $fieldset       = Library::set_attributes(
 echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
 ?>
 	<legend class="app-meta"><?php echo esc_html( $args['legend'] ); ?></legend>
-	<?php echo Library::set_attributes( '<ul></ul>', $args['list'] + array( 'class' => 'library-input-list__items' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+	<?php echo Markup::set_attributes( '<ul></ul>', $args['list'] + array( 'class' => 'library-input-list__items' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
 	<?php if ( '' !== $args['description'] ) : ?>
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>
 	<?php endif; ?>

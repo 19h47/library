@@ -28,6 +28,10 @@
  * @var string                                        $view           View shown.
  */
 
+use Library\App\Page;
+use Library\Markup;
+use Library\Meta;
+
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -92,7 +96,7 @@
 							// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
 							$search_keywords = array(
 								'series:""'              => get_taxonomy( 'library_series' )->labels->singular_name,
-								'author:""'              => Library_Meta::get_role_choices()['author'],
+								'author:""'              => Meta::get_role_choices()['author'],
 								'publisher:""'           => $publisher_labels->singular_name,
 								/* translators: %s: current year. */
 								'read:' . wp_date( 'Y' ) => sprintf( __( 'Read in %s', 'library' ), wp_date( 'Y' ) ),
@@ -111,7 +115,7 @@
 					<library-home>
 						<library-in-progress class="library-section" hidden>
 							<h3 class="library-title">
-								<?php echo esc_html( Library_Meta::get_label( 'library_in_progress' ) ); ?>
+								<?php echo esc_html( Meta::get_label( 'library_in_progress' ) ); ?>
 								<span class="app-meta" data-field="count"></span>
 							</h3>
 							<ul class="library-covers"></ul>
@@ -159,7 +163,7 @@
 									'yes'      => __( 'Read', 'library' ),
 									'no'       => __( 'To read', 'library' ),
 									// Apart from the read state: the keyword progress:.
-									'progress' => Library_Meta::get_label( 'library_in_progress' ),
+									'progress' => Meta::get_label( 'library_in_progress' ),
 								),
 							),
 							'status' => array(
@@ -198,12 +202,12 @@
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
 									<library-filter data-filter="<?php echo esc_attr( $book_filter ); ?>">
 										<?php
-										Library::render_component(
+										Markup::render_component(
 											'field',
 											array(
 												'id'      => "library-{$book_filter}-filter",
 												'label'   => $filter_args['label'],
-												'control' => Library::get_select( $filter_args['options'] ),
+												'control' => Markup::get_select( $filter_args['options'] ),
 											)
 										);
 										?>
@@ -216,7 +220,7 @@
 						</library-filters>
 						<library-filter data-filter="sort">
 							<?php
-							Library::render_component(
+							Markup::render_component(
 								'pill-select',
 								array(
 									'id'         => 'library-sort',
@@ -224,7 +228,7 @@
 									'options'    => array(
 										''       => __( 'Latest added', 'library' ),
 										'title'  => __( 'Title', 'library' ),
-										'rating' => Library_Meta::get_label( 'library_rating' ),
+										'rating' => Meta::get_label( 'library_rating' ),
 										'read'   => __( 'Latest read', 'library' ),
 									),
 									// The order of a search for a series, which lists it in reading order.
@@ -300,7 +304,7 @@
 					</library-list>
 				</library-view>
 
-				<library-view name="person" <?php echo Library_App::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
@@ -327,7 +331,7 @@
 					</library-person>
 				</library-view>
 
-				<library-view name="series" <?php echo Library_App::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="series" <?php echo Page::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
@@ -358,7 +362,7 @@
 					</library-series>
 				</library-view>
 
-				<library-view name="publisher" <?php echo Library_App::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="publisher" <?php echo Page::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
@@ -390,7 +394,7 @@
 					</library-publisher>
 				</library-view>
 
-				<library-view name="book" <?php echo Library_App::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="book" <?php echo Page::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
 						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
@@ -406,32 +410,32 @@
 							<form class="library-reading">
 								<div class="library-reading__pills">
 									<?php
-									Library::render_component(
+									Markup::render_component(
 										'pill-checkbox',
 										array(
 											'id'      => 'library-reading-read',
-											'label'   => Library_Meta::get_label( 'library_read' ),
-											'control' => Library_Meta::get_control( 'library_read' ),
+											'label'   => Meta::get_label( 'library_read' ),
+											'control' => Meta::get_control( 'library_read' ),
 										)
 									);
-									Library::render_component(
+									Markup::render_component(
 										'pill-checkbox',
 										array(
 											'id'      => 'library-reading-in-progress',
-											'label'   => Library_Meta::get_label( 'library_in_progress' ),
-											'control' => Library_Meta::get_control( 'library_in_progress' ),
+											'label'   => Meta::get_label( 'library_in_progress' ),
+											'control' => Meta::get_control( 'library_in_progress' ),
 										)
 									);
-									Library::render_component(
+									Markup::render_component(
 										'pill-select',
 										array(
 											'id'         => 'library-reading-rating',
-											'label'      => Library_Meta::get_label( 'library_rating' ),
+											'label'      => Meta::get_label( 'library_rating' ),
 											'options'    => $rating_choices,
 											'attributes' => array( 'name' => 'library_rating' ),
 										)
 									);
-									Library::render_component(
+									Markup::render_component(
 										'pill-select',
 										array(
 											'id'         => 'library-reading-status',
@@ -443,13 +447,13 @@
 									?>
 								</div>
 								<?php
-								Library::render_component(
+								Markup::render_component(
 									'input-list',
 									array(
 										'id'          => 'library-reading-dates',
 										'class'       => 'library-reading__dates',
-										'legend'      => Library_Meta::get_label( 'library_read_date' ),
-										'description' => Library_Meta::get_description( 'library_read_date' ),
+										'legend'      => Meta::get_label( 'library_read_date' ),
+										'description' => Meta::get_description( 'library_read_date' ),
 										'add'         => __( 'Add a reading', 'library' ),
 										'action'      => 'add',
 										// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
@@ -477,27 +481,27 @@
 								<dd data-field="authors"></dd>
 							</div>
 							<?php // The translators are named by the translation line. ?>
-							<?php foreach ( array_diff( Library_Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
+							<?php foreach ( array_diff( Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
 								<?php $role_field = str_replace( 'library_', '', $key ); ?>
 								<div data-row="<?php echo esc_attr( $role_field ); ?>">
-									<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></dt>
+									<dt class="app-meta"><?php echo esc_html( Meta::get_label( $key ) ); ?></dt>
 									<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
 								</div>
 							<?php endforeach; ?>
 							<div data-row="isbn">
-								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_isbn' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_isbn' ) ); ?></dt>
 								<dd data-field="isbn"></dd>
 							</div>
 							<div data-row="pages">
-								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_pages' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_pages' ) ); ?></dt>
 								<dd data-field="pages"></dd>
 							</div>
 							<div data-row="edition_date">
-								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_edition_date' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_edition_date' ) ); ?></dt>
 								<dd data-field="edition_date"></dd>
 							</div>
 							<div data-row="published_date">
-								<dt class="app-meta"><?php echo esc_html( Library_Meta::get_label( 'library_published_date' ) ); ?></dt>
+								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_published_date' ) ); ?></dt>
 								<dd data-field="published_date"></dd>
 							</div>
 						</dl>
@@ -507,7 +511,7 @@
 					</library-book>
 				</library-view>
 
-				<library-view name="styleguide" <?php echo Library_App::STYLEGUIDE_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="styleguide" <?php echo Page::STYLEGUIDE_VIEW === $view ? '' : 'hidden'; ?>>
 					<?php require __DIR__ . '/library-styleguide.php'; ?>
 				</library-view>
 			</div>
@@ -559,7 +563,7 @@
 				<form class="library-edit__form">
 					<?php
 					// The fields a book has most, in the order a book in hand gives them: its ISBN first, which tells a book added already.
-					Library::render_component(
+					Markup::render_component(
 						'image-field',
 						array(
 							'id'     => 'library-edit-cover',
@@ -569,7 +573,7 @@
 						)
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
-					Library::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
+					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
 					?>
 					<p class="library-edit__duplicate" role="status">
 						<span data-row="duplicate" hidden>
@@ -579,7 +583,7 @@
 						</span>
 					</p>
 					<?php
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-title',
@@ -591,7 +595,7 @@
 							),
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'input-list',
 						array(
 							'legend' => $person_labels->name,
@@ -600,7 +604,7 @@
 							'list'   => array( 'data-list' => 'people' ),
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'          => 'library-edit-series',
@@ -613,8 +617,8 @@
 							),
 						)
 					);
-					Library::render_component( 'meta-field', array( 'key' => 'library_volume_number' ) );
-					Library::render_component(
+					Markup::render_component( 'meta-field', array( 'key' => 'library_volume_number' ) );
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-publisher',
@@ -626,7 +630,7 @@
 							),
 						)
 					);
-					Library::render_component(
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-collection',
@@ -639,23 +643,23 @@
 							),
 						)
 					);
-					Library::render_component( 'meta-field', array( 'key' => 'library_collection_number' ) );
-					Library::render_component(
+					Markup::render_component( 'meta-field', array( 'key' => 'library_collection_number' ) );
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-form',
 							'label'      => $form_labels->singular_name,
-							'control'    => Library::get_select( array( '' => $form_labels->no_terms ) + $form_choices ),
+							'control'    => Markup::get_select( array( '' => $form_labels->no_terms ) + $form_choices ),
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
-					Library::render_component( 'meta-field', array( 'key' => 'library_edition_date' ) );
-					Library::render_component(
+					Markup::render_component( 'meta-field', array( 'key' => 'library_edition_date' ) );
+					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-status',
 							'label'      => __( 'Library', 'library' ),
-							'control'    => Library::get_select( $status_choices ),
+							'control'    => Markup::get_select( $status_choices ),
 							'attributes' => array( 'name' => 'status' ),
 						)
 					);
@@ -665,7 +669,7 @@
 						<summary class="app-meta" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
 						foreach ( array( 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
-							Library::render_component(
+							Markup::render_component(
 								'meta-field',
 								array(
 									'key'        => $key,
@@ -675,25 +679,25 @@
 							);
 						}
 
-						Library::render_component(
+						Markup::render_component(
 							'field',
 							array(
 								'id'         => 'library-edit-language',
 								'label'      => $language_labels->singular_name,
-								'control'    => Library::get_select( array( '' => $language_labels->no_terms ) + $language_choices ),
+								'control'    => Markup::get_select( array( '' => $language_labels->no_terms ) + $language_choices ),
 								'attributes' => array( 'name' => 'language' ),
 							)
 						);
-						Library::render_component(
+						Markup::render_component(
 							'pill-checkbox',
 							array(
 								'id'      => 'library-edit-collective',
-								'label'   => Library_Meta::get_label( 'library_collective' ),
-								'control' => Library_Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
+								'label'   => Meta::get_label( 'library_collective' ),
+								'control' => Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
 							)
 						);
-						Library::render_component( 'meta-field', array( 'key' => 'library_issn' ) );
-						Library::render_component(
+						Markup::render_component( 'meta-field', array( 'key' => 'library_issn' ) );
+						Markup::render_component(
 							'field',
 							array(
 								'id'         => 'library-edit-excerpt',
@@ -705,7 +709,7 @@
 								),
 							)
 						);
-						Library::render_component(
+						Markup::render_component(
 							'field',
 							array(
 								'id'         => 'library-edit-content',
@@ -793,7 +797,7 @@
 		<template id="library-read-date">
 			<li class="library-input-list__item">
 				<?php
-				$control = Library_Meta::get_control(
+				$control = Meta::get_control(
 					'library_read_date',
 					array( 'aria-label' => __( 'Read date', 'library' ) )
 				);
@@ -840,8 +844,8 @@
 			<li class="library-input-list__item">
 				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
 				<?php
-				$role_select = Library::set_attributes(
-					Library::get_select( Library_Meta::get_role_choices() ),
+				$role_select = Markup::set_attributes(
+					Markup::get_select( Meta::get_role_choices() ),
 					array(
 						'name'       => 'role',
 						'aria-label' => __( 'Role', 'library' ),

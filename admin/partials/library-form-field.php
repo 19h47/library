@@ -13,12 +13,14 @@
  * @var array  $values Values of the book, by meta key.
  */
 
+use Library\Meta;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 $field_id    = str_replace( '_', '-', $key );
-$description = Library_Meta::get_description( $key );
+$description = Meta::get_description( $key );
 $is_boolean  = 'boolean' === get_registered_meta_keys( 'post', 'library_book' )[ $key ]['type'];
 // The select of a rating keeps the width of its choices.
 $widths = array(
@@ -30,14 +32,14 @@ $widths = array(
 
 <tr>
 	<th scope="row">
-		<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( Library_Meta::get_label( $key ) ); ?></label>
+		<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( Meta::get_label( $key ) ); ?></label>
 	</th>
 	<td>
 		<?php if ( $is_boolean ) : ?>
 			<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="0">
 		<?php endif; ?>
 		<?php
-		$control = Library_Meta::get_control(
+		$control = Meta::get_control(
 			$key,
 			array(
 				'id'               => $field_id,

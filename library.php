@@ -39,6 +39,7 @@ add_action(
 	0
 );
 
-require LIBRARY_DIR_PATH . 'includes/class-library.php';
+// The classes of the plugin, as Composer maps them: see composer.json.
+require_once LIBRARY_DIR_PATH . 'vendor/autoload.php';
 
-add_action( 'plugins_loaded', array( new Library(), 'run' ) );
+add_action( 'plugins_loaded', array( new Library\Plugin(), 'run' ) );

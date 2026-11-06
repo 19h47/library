@@ -1,0 +1,731 @@
+<?php
+/**
+ * Book meta: registration, sanitization and saving.
+ *
+ * @link       https://github.com/19h47/library
+ * @since      1.0.0
+ *
+ * @package    Library
+ * @subpackage Library/includes
+ */
+
+namespace Library;
+
+use DateTimeImmutable;
+use WP_Error;
+
+/**
+ * Registers book meta so every write (form, quick edit, REST) goes through
+ * the same sanitize callbacks.
+ *
+ * @since      1.0.0
+ * @package    Library
+ * @subpackage Library/includes
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ */
+class Meta {
+
+	/**
+	 * Text meta keys.
+	 *
+	 * @var string[]
+	 */
+	public const array TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
+
+	/**
+	 * Date meta keys, stored as Y-m-d; a book has one read date per reading, empty when it is unknown, and with its time
+	 * when it was read today, as READ_TIME_FORMAT, so that the readings of a day follow one another.
+	 *
+	 * @var string[]
+	 */
+	private const array DATE_KEYS = array( 'library_edition_date', 'library_read_date' );
+
+	/**
+	 * Format of a read date with its time, which sorts after the day alone: 2026-11-01T21:40.
+	 *
+	 * @var string
+	 */
+	public const string READ_TIME_FORMAT = 'Y-m-d\TH:i';
+
+	/**
+	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
+	 * without ISBN, as its 13 digits.
+	 *
+	 * Browsers compile the pattern of an input with the v flag, where a hyphen in a class is escaped: an invalid pattern checks nothing.
+	 *
+	 * @var string
+	 */
+	private const string ISBN_PATTERN = '^(?:(?=.{17}$)97[89][ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|[0-9]{13}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
+
+	/**
+	 * Pattern of an ISSN, such as 1234-5678.
+	 *
+	 * @var string
+	 */
+	private const string ISSN_PATTERN = '^\\S{4}-\\S{4}$';
+
+	/**
+	 * Meta of the names of a book with another role than author, by role, such as its colorists: the term IDs of these
+	 * names in the people taxonomy, as catalogues give each name its function. A name of a book without role is one of
+	 * its authors.
+	 *
+	 * @var array<string,string>
+	 */
+	public const array ROLE_KEYS = array(
+		'translator'     => 'library_translators',
+		'colorist'       => 'library_colorists',
+		'inker'          => 'library_inkers',
+		'letterer'       => 'library_letterers',
+		'director'       => 'library_directors',
+		'adapted_author' => 'library_adapted_authors',
+	);
+
+	/**
+	 * Book meta edited in quick edit.
+	 *
+	 * @var string[]
+	 */
+	public const array QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
+
+	/**
+	 * All book meta keys, and the read state, which is no meta of its own: see get_read_state() and save().
+	 *
+	 * @var string[]
+	 */
+	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_read', 'library_in_progress' );
+
+	/**
+	 * Register hooks.
+	 *
+	 * @return void
+	 */
+	public function hooks(): void {
+		add_action( 'init', array( $this, 'register_meta' ) );
+		add_filter( 'get_post_metadata', array( $this, 'get_read_state' ), 10, 4 );
+	}
+
+	/**
+	 * Register book meta, with the label, the description and the schema that the forms of the admin and of the reading app
+	 * take their fields from.
+	 *
+	 * @return void
+	 */
+	public function register_meta(): void {
+		$labels       = array(
+			'library_subtitle'          => __( 'Subtitle', 'library' ),
+			'library_isbn'              => __( 'ISBN', 'library' ),
+			'library_issn'              => __( 'ISSN', 'library' ),
+			'library_volume_number'     => __( 'Volume Number', 'library' ),
+			'library_collection_number' => __( 'Collection Number', 'library' ),
+			'library_translators'       => __( 'Translators', 'library' ),
+			'library_edition_date'      => __( 'Edition date', 'library' ),
+			'library_read_date'         => __( 'Read dates', 'library' ),
+			'library_published_date'    => __( 'First published', 'library' ),
+			'library_pages'             => __( 'Pages', 'library' ),
+			'library_rating'            => __( 'Rating', 'library' ),
+			'library_collective'        => __( 'Collective work', 'library' ),
+			'library_read'              => __( 'Read', 'library' ),
+			'library_in_progress'       => __( 'In progress', 'library' ),
+			'library_colorists'         => __( 'Colorists', 'library' ),
+			'library_inkers'            => __( 'Inkers', 'library' ),
+			'library_letterers'         => __( 'Letterers', 'library' ),
+			'library_directors'         => __( 'Publishing directors', 'library' ),
+			'library_adapted_authors'   => __( 'Adapted authors', 'library' ),
+		);
+		$descriptions = array(
+			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
+			'library_isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
+			'library_issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
+			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
+			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'library_read_date'         => __( 'One date per reading; a reading whose date is unknown has none.', 'library' ),
+			'library_in_progress'       => __( 'Being read, for the first time or again: a read date added ends the reading.', 'library' ),
+			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
+			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
+		);
+		$patterns     = array(
+			'library_isbn' => self::ISBN_PATTERN,
+			'library_issn' => self::ISSN_PATTERN,
+		);
+		$sanitizers   = array( 'library_isbn' => array( self::class, 'sanitize_isbn' ) );
+
+		foreach ( self::TEXT_KEYS as $key ) {
+			register_post_meta(
+				'library_book',
+				$key,
+				array(
+					'type'              => 'string',
+					'label'             => $labels[ $key ],
+					'description'       => $descriptions[ $key ] ?? '',
+					'single'            => true,
+					'show_in_rest'      => isset( $patterns[ $key ] ) ? array( 'schema' => array( 'pattern' => $patterns[ $key ] ) ) : true,
+					'sanitize_callback' => $sanitizers[ $key ] ?? 'sanitize_text_field',
+				)
+			);
+		}
+
+		foreach ( self::DATE_KEYS as $key ) {
+			register_post_meta(
+				'library_book',
+				$key,
+				array(
+					'type'              => 'string',
+					'label'             => $labels[ $key ],
+					'description'       => $descriptions[ $key ] ?? '',
+					'single'            => 'library_read_date' !== $key,
+					'show_in_rest'      => array(
+						'schema' => array(
+							// A read date may be unknown, or have its time.
+							'pattern' => 'library_read_date' === $key ? '^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?$' : '^\d{4}-\d{2}-\d{2}$',
+							'format'  => 'date',
+						),
+					),
+					'sanitize_callback' => array( self::class, 'library_read_date' === $key ? 'sanitize_read_date' : 'sanitize_date' ),
+					// The read dates are written at once, through Meta::save(), as the book route does: the core
+					// REST API removes a value by value, and an unknown date, empty, would remove them all.
+					'auth_callback'     => 'library_read_date' === $key ? '__return_false' : null,
+				)
+			);
+		}
+
+		// Often known by its year only.
+		register_post_meta(
+			'library_book',
+			'library_published_date',
+			array(
+				'type'              => 'string',
+				'label'             => $labels['library_published_date'],
+				'description'       => $descriptions['library_published_date'],
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
+				),
+				'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
+			)
+		);
+
+		register_post_meta(
+			'library_book',
+			'library_pages',
+			array(
+				'type'              => 'integer',
+				'label'             => $labels['library_pages'],
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array( 'minimum' => 1 ),
+				),
+				'sanitize_callback' => array( self::class, 'sanitize_pages' ),
+			)
+		);
+
+		register_post_meta(
+			'library_book',
+			'library_rating',
+			array(
+				'type'              => 'number',
+				'label'             => $labels['library_rating'],
+				'description'       => $descriptions['library_rating'],
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array(
+						'minimum'    => 1,
+						'maximum'    => 10,
+						'multipleOf' => 0.5,
+					),
+				),
+				'sanitize_callback' => array( self::class, 'sanitize_rating' ),
+			)
+		);
+
+		// A magazine or an anthology, as catalogues tell a compilation from a work its authors made together.
+		register_post_meta(
+			'library_book',
+			'library_collective',
+			array(
+				'type'              => 'boolean',
+				'label'             => $labels['library_collective'],
+				'description'       => $descriptions['library_collective'],
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+
+		// Read from the read dates, never stored: the forms send it, and save() writes the read dates it means.
+		register_post_meta(
+			'library_book',
+			'library_read',
+			array(
+				'type'              => 'boolean',
+				'label'             => $labels['library_read'],
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'auth_callback'     => '__return_false',
+			)
+		);
+
+		// Apart from the read state: a book read may be read again.
+		register_post_meta(
+			'library_book',
+			'library_in_progress',
+			array(
+				'type'              => 'boolean',
+				'label'             => $labels['library_in_progress'],
+				'description'       => $descriptions['library_in_progress'],
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+
+		foreach ( self::ROLE_KEYS as $key ) {
+			register_post_meta(
+				'library_book',
+				$key,
+				array(
+					'type'              => 'integer',
+					'label'             => $labels[ $key ],
+					'single'            => false,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'absint',
+				)
+			);
+		}
+	}
+
+	/**
+	 * Roles a form offers for a name of a book, by value, with their label: author, then the other roles.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_role_choices(): array {
+		return array(
+			'author'         => _x( 'Author', 'role', 'library' ),
+			'translator'     => _x( 'Translator', 'role', 'library' ),
+			'colorist'       => _x( 'Colorist', 'role', 'library' ),
+			'inker'          => _x( 'Inker', 'role', 'library' ),
+			'letterer'       => _x( 'Letterer', 'role', 'library' ),
+			'director'       => _x( 'Publishing director', 'role', 'library' ),
+			/* translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri. */
+			'adapted_author' => _x( 'Adapted author', 'role', 'library' ),
+		);
+	}
+
+	/**
+	 * Roles of the names of a book with another role than author, by term ID, such as 519 => "colorist".
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<int,string>
+	 */
+	public static function get_roles( int $post_id ): array {
+		$roles = array();
+
+		foreach ( self::ROLE_KEYS as $role => $key ) {
+			foreach ( get_post_meta( $post_id, $key, false ) as $term_id ) {
+				$roles[ (int) $term_id ] = $role;
+			}
+		}
+
+		return $roles;
+	}
+
+	/**
+	 * Replace the roles of the names of a book: the names of the book only, author or an unknown role kept as none.
+	 *
+	 * @param int               $post_id Post ID.
+	 * @param array<int,string> $roles   Roles by term ID.
+	 * @return void
+	 */
+	public static function save_roles( int $post_id, array $roles ): void {
+		$term_ids = wp_get_post_terms( $post_id, 'library_person', array( 'fields' => 'ids' ) );
+
+		foreach ( self::ROLE_KEYS as $role => $key ) {
+			$role_ids = array_intersect( array_keys( $roles, $role, true ), $term_ids );
+
+			delete_post_meta( $post_id, $key );
+
+			foreach ( $role_ids as $term_id ) {
+				add_post_meta( $post_id, $key, $term_id );
+			}
+		}
+	}
+
+	/**
+	 * SQL derived table of the names with another role than author, such as a colorist: one row per book and name, its
+	 * post_id and term_id, to join by both. Distinct, so that MySQL 5.7 builds it once, rather than reading the meta of each
+	 * book again for each of its names, as it does for a subquery on them.
+	 *
+	 * @return string
+	 */
+	public static function build_roles_table(): string {
+		global $wpdb;
+
+		$keys = "'" . implode( "', '", self::ROLE_KEYS ) . "'";
+
+		return "( SELECT DISTINCT post_id, CAST( meta_value AS UNSIGNED ) AS term_id FROM {$wpdb->postmeta} WHERE meta_key IN ( {$keys} ) )";
+	}
+
+	/**
+	 * Label of a book meta, as registered.
+	 *
+	 * @param string $key Meta key.
+	 * @return string
+	 */
+	public static function get_label( string $key ): string {
+		return get_registered_meta_keys( 'post', 'library_book' )[ $key ]['label'];
+	}
+
+	/**
+	 * Description of a book meta, as registered, or empty.
+	 *
+	 * @param string $key Meta key.
+	 * @return string
+	 */
+	public static function get_description( string $key ): string {
+		return get_registered_meta_keys( 'post', 'library_book' )[ $key ]['description'];
+	}
+
+	/**
+	 * Ratings a form offers, by value, with their label: none, then the ones the meta is registered with, from 1 to 10 by
+	 * half points.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_rating_choices(): array {
+		$schema  = get_registered_meta_keys( 'post', 'library_book' )['library_rating']['show_in_rest']['schema'];
+		$ratings = array( '' => __( 'No rating', 'library' ) );
+
+		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
+			$ratings[ (string) $rating ] = Books::format_rating_out_of_ten( $rating );
+		}
+
+		return $ratings;
+	}
+
+	/**
+	 * The control of a book meta, as its registration says: a select of its choices for the rating, a checkbox for a
+	 * boolean, a number with its minimum, maximum and step, a date, or a text with its pattern, anchored in the schema
+	 * and anchored already by HTML.
+	 *
+	 * A rating is chosen rather than typed: a number field reads 7,5 as 75 in Chrome.
+	 *
+	 * @param string $key        Meta key.
+	 * @param array  $attributes More attributes, such as its ID or value, or ones that replace those of the registration;
+	 *                           true gives an attribute without value, null leaves it out.
+	 * @return string HTML.
+	 */
+	public static function get_control( string $key, array $attributes = array() ): string {
+		if ( 'library_rating' === $key ) {
+			$select = Markup::get_select( self::get_rating_choices(), $attributes['value'] ?? null );
+
+			unset( $attributes['value'] );
+
+			return Markup::set_attributes( $select, $attributes + array( 'name' => $key ) );
+		}
+
+		$meta   = get_registered_meta_keys( 'post', 'library_book' )[ $key ];
+		$schema = $meta['show_in_rest']['schema'] ?? array();
+		$type   = match ( true ) {
+			'boolean' === $meta['type'] => 'checkbox',
+			in_array( $meta['type'], array( 'integer', 'number' ), true ) => 'number',
+			'date' === ( $schema['format'] ?? '' ) => 'date',
+			default => 'text',
+		};
+
+		return Markup::set_attributes(
+			'<input>',
+			$attributes + array(
+				'type'    => $type,
+				'name'    => $key,
+				'pattern' => 'text' === $type && isset( $schema['pattern'] ) ? trim( $schema['pattern'], '^$' ) : null,
+				'min'     => $schema['minimum'] ?? null,
+				'max'     => $schema['maximum'] ?? null,
+				'step'    => $schema['multipleOf'] ?? null,
+			)
+		);
+	}
+
+	/**
+	 * The read state of a book, from its read dates: read once it has a reading, of a known date or not. The read dates are
+	 * its one record: library_read is never stored.
+	 *
+	 * @param mixed  $value     Value, null to read the meta stored.
+	 * @param int    $object_id Post ID.
+	 * @param string $meta_key  Meta key, empty for every meta.
+	 * @param bool   $single    Whether one value is asked for.
+	 * @return mixed
+	 */
+	public function get_read_state( $value, int $object_id, string $meta_key, bool $single ) {
+		if ( 'library_read' !== $meta_key || 'library_book' !== get_post_type( $object_id ) ) {
+			return $value;
+		}
+
+		$is_read = (bool) self::get_read_dates( $object_id );
+
+		return $single ? $is_read : array( $is_read );
+	}
+
+	/**
+	 * Read dates of a book, one per reading, from the first to the latest: the unknown ones, empty, come first.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string[]
+	 */
+	public static function get_read_dates( int $post_id ): array {
+		return self::to_readings( get_post_meta( $post_id, 'library_read_date', false ) );
+	}
+
+	/**
+	 * Read dates as readings, from the first to the latest: each unknown date, empty, is a reading of its own, first; a
+	 * known date is one reading, as a date saved twice by an old import.
+	 *
+	 * @param string[] $read_dates Read dates, Y-m-d, or empty.
+	 * @return string[]
+	 */
+	private static function to_readings( array $read_dates ): array {
+		$unknown    = array_filter( $read_dates, fn( string $read_date ) => '' === $read_date );
+		$read_dates = array( ...$unknown, ...array_unique( array_filter( $read_dates ) ) );
+
+		sort( $read_dates );
+
+		return $read_dates;
+	}
+
+	/**
+	 * Read dates of a book with the latest one replaced by the given date, empty when it is unknown:
+	 * quick edit edits the latest reading. A book without reading gets one only when a date is given.
+	 *
+	 * @param int    $post_id   Post ID.
+	 * @param string $read_date Date of the latest reading, Y-m-d, or empty.
+	 * @return string[]
+	 */
+	public static function replace_latest_read_date( int $post_id, string $read_date ): array {
+		$read_dates = self::get_read_dates( $post_id );
+
+		if ( ! $read_dates ) {
+			return array_filter( array( $read_date ) );
+		}
+
+		array_pop( $read_dates );
+
+		return array( ...$read_dates, $read_date );
+	}
+
+	/**
+	 * Save the given meta values; an empty value deletes the meta, the read dates replace the former ones.
+	 *
+	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
+	 * Values are saved in the order of KEYS, whatever the order of the form fields.
+	 * The read state, library_read, is written as read dates: marked as unread, a book loses them; marked as read without
+	 * a read date, it gets today; read already and its read dates all removed, it gets an unknown one, unless it is marked
+	 * as unread. A read date added ends the reading in progress.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $values  Unslashed values keyed by meta key.
+	 * @return void
+	 */
+	public static function save( int $post_id, array $values ): void {
+		$read_dates = self::get_read_dates( $post_id );
+		$was_read   = (bool) $read_dates;
+
+		foreach ( self::KEYS as $key ) {
+			if ( ! array_key_exists( $key, $values ) || 'library_read' === $key ) {
+				continue;
+			}
+
+			if ( 'library_read_date' === $key ) {
+				self::save_read_dates( $post_id, (array) $values[ $key ] );
+				continue;
+			}
+
+			$value = sanitize_meta( $key, $values[ $key ], 'post', 'library_book' );
+
+			if ( '' === $value || false === $value ) {
+				delete_post_meta( $post_id, $key );
+				continue;
+			}
+
+			update_post_meta( $post_id, $key, wp_slash( $value ) );
+		}
+
+		$has_dates = (bool) self::get_read_dates( $post_id );
+		$is_read   = array_key_exists( 'library_read', $values ) ? rest_sanitize_boolean( $values['library_read'] ) : $was_read || $has_dates;
+
+		if ( ! $is_read ) {
+			delete_post_meta( $post_id, 'library_read_date' );
+		} elseif ( ! $has_dates ) {
+			add_post_meta( $post_id, 'library_read_date', $was_read ? '' : current_time( self::READ_TIME_FORMAT ) );
+		}
+
+		if ( self::adds_a_reading( $read_dates, self::get_read_dates( $post_id ) ) ) {
+			delete_post_meta( $post_id, 'library_in_progress' );
+		}
+	}
+
+	/**
+	 * Whether read dates have a reading the former ones have not: a date more, known or not, such as a second unknown one.
+	 *
+	 * @param string[] $before Read dates before.
+	 * @param string[] $after  Read dates after.
+	 * @return bool
+	 */
+	private static function adds_a_reading( array $before, array $after ): bool {
+		$counts = array_count_values( $before );
+
+		return array_any( array_count_values( $after ), fn( int $count, int|string $read_date ) => $count > ( $counts[ $read_date ] ?? 0 ) );
+	}
+
+	/**
+	 * Replace the read dates of a book, one row per reading; an empty or invalid date is an unknown one, each a reading,
+	 * and a known date is kept once. A form gives the day of a reading: one of a day saved with its time keeps it, and
+	 * one added today takes the time now, which orders the readings of a day.
+	 *
+	 * @param int   $post_id    Post ID.
+	 * @param array $read_dates Read dates, Y-m-d, or with their time, or empty.
+	 * @return void
+	 */
+	private static function save_read_dates( int $post_id, array $read_dates ): void {
+		$read_dates = array_map( fn( $read_date ) => sanitize_meta( 'library_read_date', $read_date, 'post', 'library_book' ), $read_dates );
+		// The readings saved that a day given alone may stand for: not the ones given whole, with their time.
+		$saved      = array_diff( self::get_read_dates( $post_id ), $read_dates );
+		$read_dates = array_map(
+			function ( string $read_date ) use ( &$saved ): string {
+				if ( 10 !== strlen( $read_date ) ) {
+					return $read_date;
+				}
+
+				// A reading saved that day keeps its time, once.
+				foreach ( $saved as $index => $saved_date ) {
+					if ( str_starts_with( $saved_date, $read_date ) ) {
+						unset( $saved[ $index ] );
+
+						return $saved_date;
+					}
+				}
+
+				return current_time( 'Y-m-d' ) === $read_date ? current_time( self::READ_TIME_FORMAT ) : $read_date;
+			},
+			$read_dates
+		);
+		$read_dates = self::to_readings( $read_dates );
+
+		if ( self::get_read_dates( $post_id ) === $read_dates ) {
+			return;
+		}
+
+		delete_post_meta( $post_id, 'library_read_date' );
+
+		foreach ( $read_dates as $read_date ) {
+			add_post_meta( $post_id, 'library_read_date', $read_date );
+		}
+	}
+
+	/**
+	 * Keep an ISBN with its hyphens where its parts end, such as 978-2-07-036024-6 typed 9782070360246, and another
+	 * EAN-13 as its 13 digits; a code ISBN cannot format, such as one with a wrong check digit, as typed.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_isbn( $value ): string {
+		$value = sanitize_text_field( (string) $value );
+		$isbn  = ISBN::format( $value );
+
+		return '' !== $isbn ? $isbn : $value;
+	}
+
+	/**
+	 * Refuse an ISBN typed with a mistake, which its check digit tells, such as two digits swapped: a new one, or one
+	 * that changes, so that a book saved with a wrong ISBN before can still be edited. The forms of a book, in the
+	 * reading app and the admin, check it before anything is written.
+	 *
+	 * @param int    $post_id Book ID, 0 for a book to add.
+	 * @param string $isbn    ISBN sent.
+	 * @return WP_Error|null
+	 */
+	public static function check_isbn( int $post_id, string $isbn ): ?WP_Error {
+		if ( ! ISBN::has_wrong_check_digit( $isbn ) || get_post_meta( $post_id, 'library_isbn', true ) === $isbn ) {
+			return null;
+		}
+
+		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
+		$message = sprintf( __( 'The last digit of the ISBN %s, its check digit, does not match the others: check them.', 'library' ), $isbn );
+
+		return new WP_Error( 'library_isbn_check_digit', $message, array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Keep a valid Y-m-d date, anything else becomes empty.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_date( $value ): string {
+		$value = (string) $value;
+		$date  = DateTimeImmutable::createFromFormat( '!Y-m-d', $value );
+
+		return $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
+	}
+
+	/**
+	 * Keep a valid read date, its day alone or with its time, as READ_TIME_FORMAT; anything else becomes empty, an unknown one.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_read_date( $value ): string {
+		$value  = (string) $value;
+		$format = 10 === strlen( $value ) ? 'Y-m-d' : self::READ_TIME_FORMAT;
+		$date   = DateTimeImmutable::createFromFormat( "!$format", $value );
+
+		return $date && $date->format( $format ) === $value ? $value : '';
+	}
+
+	/**
+	 * Keep a valid year, year and month, or Y-m-d date, such as 1929, 1929-11 or 1929-11-08; anything else becomes empty.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_partial_date( $value ): string {
+		$value   = (string) $value;
+		$formats = array(
+			4  => 'Y',
+			7  => 'Y-m',
+			10 => 'Y-m-d',
+		);
+		$format  = $formats[ strlen( $value ) ] ?? null;
+		$date    = $format ? DateTimeImmutable::createFromFormat( "!$format", $value ) : false;
+
+		return $date && $date->format( $format ) === $value ? $value : '';
+	}
+
+	/**
+	 * Keep a number of pages from 1, anything else becomes empty.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int|string
+	 */
+	public static function sanitize_pages( $value ): int|string {
+		if ( ! is_numeric( $value ) || $value < 1 ) {
+			return '';
+		}
+
+		return (int) $value;
+	}
+
+	/**
+	 * Keep a rating from 1 to 10 by half points, anything else becomes empty.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return float|string
+	 */
+	public static function sanitize_rating( $value ): float|string {
+		if ( ! is_numeric( $value ) || $value < 1 || $value > 10 ) {
+			return '';
+		}
+
+		return round( (float) $value * 2 ) / 2;
+	}
+}

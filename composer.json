@@ -9,6 +9,18 @@
 			"email": "jeremylevron@19h47.fr"
 		}
 	],
+	"autoload": {
+		"classmap": [
+			"includes/",
+			"admin/",
+			"app/"
+		]
+	},
+	"autoload-dev": {
+		"classmap": [
+			"tests/"
+		]
+	},
 	"require-dev": {
 		"wp-coding-standards/wpcs": "^3.4.1",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.2",
