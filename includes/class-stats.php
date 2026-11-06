@@ -34,10 +34,10 @@ class Stats {
 		$readings = array();
 
 		foreach ( Books::get_books() as $book ) {
-			foreach ( array_filter( $book['read_dates'] ) as $date ) {
+			foreach ( array_filter( $book->read_dates ) as $date ) {
 				$readings[] = array(
 					'date' => $date,
-					'book' => $book['id'],
+					'book' => $book->id,
 				);
 			}
 		}
@@ -53,8 +53,8 @@ class Stats {
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
-		$library = array_filter( Books::get_books(), fn( array $book ) => 'publish' === $book['status'] );
-		$read    = count( array_filter( $library, fn( array $book ) => $book['read'] ) );
+		$library = array_filter( Books::get_books(), fn( Book $book ) => Status::In_Library === $book->status );
+		$read    = count( array_filter( $library, fn( Book $book ) => $book->read ) );
 		$total   = count( $library );
 		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
 
@@ -68,10 +68,10 @@ class Stats {
 	/**
 	 * The books on the reading pile: see Books::is_on_the_pile().
 	 *
-	 * @return array<int,array>
+	 * @return array<int,Book>
 	 */
 	public static function get_books_on_the_pile(): array {
-		return array_filter( Books::get_books(), array( Books::class, 'is_on_the_pile' ) );
+		return array_filter( Books::get_books(), fn( Book $book ) => $book->is_on_the_pile() );
 	}
 
 	/**

@@ -13,6 +13,7 @@ namespace Library\Admin;
 
 use Library\Meta;
 use Library\Posts;
+use Library\Status;
 use Library\Taxonomies;
 use WP_Post;
 
@@ -205,7 +206,7 @@ class Metaboxes {
 			return;
 		}
 
-		$status_choices = Posts::get_status_choices();
+		$status_choices = Status::get_choices();
 		$selected       = isset( $status_choices[ $post->post_status ] ) ? $post->post_status : 'publish';
 		?>
 		<div class="misc-pub-section misc-pub-library-status">
@@ -240,7 +241,7 @@ class Metaboxes {
 		}
 
 		$status   = sanitize_key( wp_unslash( $postarr['library_status'] ?? '' ) );
-		$statuses = array( Posts::NOT_KEPT, Posts::TO_BUY );
+		$statuses = array( Status::Not_Kept->value, Status::To_Buy->value );
 
 		if ( in_array( $status, $statuses, true ) ) {
 			$data['post_status'] = $status;

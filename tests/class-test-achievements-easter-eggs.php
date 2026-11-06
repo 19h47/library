@@ -9,6 +9,7 @@ namespace Library\Tests;
 
 use Library\Books;
 use Library\Posts;
+use Library\Status;
 
 /**
  * The achievements of the family "easter-eggs": the days a book was read on, the books themselves, and the habits of a
@@ -62,8 +63,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 */
 	public function provide_pile_statuses(): array {
 		return array(
-			'to buy'   => array( Posts::TO_BUY, false ),
-			'not kept' => array( Posts::NOT_KEPT, true ),
+			'to buy'   => array( Status::To_Buy->value, false ),
+			'not kept' => array( Status::Not_Kept->value, true ),
 		);
 	}
 

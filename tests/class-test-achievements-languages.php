@@ -8,6 +8,7 @@
 namespace Library\Tests;
 
 use Library\Posts;
+use Library\Status;
 
 /**
  * Numbers of original languages read, books read without translator, languages read in a month or a week, and translators.
@@ -360,7 +361,7 @@ class Test_Achievements_Languages extends TestCase {
 	 */
 	public function test_a_go_between_leads_to_every_book_of_the_translator(): void {
 		$translator = array( 'people' => array( $this->get_translator( 'Corinne Atlan' ) ) );
-		$not_kept   = $translator + array( 'status' => Posts::NOT_KEPT );
+		$not_kept   = $translator + array( 'status' => Status::Not_Kept->value );
 
 		$this->add_read_in( 'ja', '2024-01-01', $not_kept );
 		$this->add_read_in( 'en', '2024-02-01', $not_kept );

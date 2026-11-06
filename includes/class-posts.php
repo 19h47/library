@@ -21,19 +21,7 @@ namespace Library;
  */
 class Posts {
 
-	/**
-	 * Status of the books read but not kept: hidden from the books list and the site, counted in the reading stats.
-	 *
-	 * @var string
-	 */
-	public const string NOT_KEPT = 'library-not-kept';
 
-	/**
-	 * Status of the books not in the library yet, to buy: hidden from the books list and the site, left out of the reading pile.
-	 *
-	 * @var string
-	 */
-	public const string TO_BUY = 'library-to-buy';
 
 	/**
 	 * Register hooks.
@@ -80,7 +68,7 @@ class Posts {
 		);
 
 		register_post_status(
-			self::NOT_KEPT,
+			Status::Not_Kept->value,
 			array(
 				'label'       => _x( 'Not kept', 'book status', 'library' ),
 				/* translators: %s: number of books. */
@@ -89,27 +77,12 @@ class Posts {
 		);
 
 		register_post_status(
-			self::TO_BUY,
+			Status::To_Buy->value,
 			array(
 				'label'       => _x( 'To buy', 'book status', 'library' ),
 				/* translators: %s: number of books. */
 				'label_count' => _n_noop( 'To buy <span class="count">(%s)</span>', 'To buy <span class="count">(%s)</span>', 'library' ),
 			) + $args
-		);
-	}
-
-	/**
-	 * Statuses the forms of a book offer, with their label: in the library, i.e. published, not kept, or to buy.
-	 *
-	 * A book in another status, such as a draft, shows as in the library, and stays in it unless another one is chosen.
-	 *
-	 * @return array<string,string>
-	 */
-	public static function get_status_choices(): array {
-		return array(
-			'publish'      => _x( 'In the library', 'book status', 'library' ),
-			self::NOT_KEPT => _x( 'Not kept', 'book status', 'library' ),
-			self::TO_BUY   => _x( 'To buy', 'book status', 'library' ),
 		);
 	}
 
@@ -123,7 +96,7 @@ class Posts {
 	public function set_bought_date( array $data, array $postarr ): array {
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
 
-		if ( 'library_book' !== $data['post_type'] || ! $post_id || self::TO_BUY !== get_post_status( $post_id ) || in_array( $data['post_status'], array( self::TO_BUY, 'trash' ), true ) ) {
+		if ( 'library_book' !== $data['post_type'] || ! $post_id || Status::To_Buy->value !== get_post_status( $post_id ) || in_array( $data['post_status'], array( Status::To_Buy->value, 'trash' ), true ) ) {
 			return $data;
 		}
 

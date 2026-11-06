@@ -12,6 +12,7 @@ use DOMElement;
 use DOMXPath;
 use Library\Admin\Dashboard;
 use Library\Posts;
+use Library\Status;
 
 /**
  * The forms of the books, every one of them, then the authors, publishers, collections and languages most present.
@@ -65,13 +66,13 @@ class Test_Dashboard_Collection extends TestCase {
 		$this->add_book(
 			array(
 				'form'   => $this->get_form( 'Novel' ),
-				'status' => Posts::NOT_KEPT,
+				'status' => Status::Not_Kept->value,
 			)
 		);
 		$this->add_book(
 			array(
 				'form'   => $this->get_form( 'Comic' ),
-				'status' => Posts::TO_BUY,
+				'status' => Status::To_Buy->value,
 			)
 		);
 

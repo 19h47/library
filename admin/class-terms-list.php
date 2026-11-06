@@ -12,6 +12,7 @@
 namespace Library\Admin;
 
 use Library\Posts;
+use Library\Status;
 use Library\Taxonomies;
 use WP_Term;
 
@@ -39,8 +40,8 @@ class Terms_List {
 	 * @var array<string,string>
 	 */
 	private const array STATUS_COLUMNS = array(
-		'library_not_kept' => Posts::NOT_KEPT,
-		'library_to_buy'   => Posts::TO_BUY,
+		'library_not_kept' => Status::Not_Kept->value,
+		'library_to_buy'   => Status::To_Buy->value,
 	);
 
 	/**

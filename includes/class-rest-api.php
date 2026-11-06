@@ -418,7 +418,7 @@ class Rest_API {
 			'status'         => array(
 				'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
 				'type'        => 'string',
-				'enum'        => array_keys( Posts::get_status_choices() ),
+				'enum'        => array_keys( Status::get_choices() ),
 				'default'     => 'publish',
 			),
 		);
@@ -778,7 +778,7 @@ class Rest_API {
 			return new WP_Error( 'library_no_person', get_taxonomy( 'library_person' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books       = array_filter( Books::get_books(), fn( array $book ) => in_array( $person->term_id, array( ...$book['author_ids'], ...$book['contributor_ids'] ), true ) );
+		$books       = array_filter( Books::get_books(), fn( Book $book ) => in_array( $person->term_id, array( ...$book->author_ids, ...$book->contributor_ids ), true ) );
 		$ratings     = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
 		$other_names = get_terms(
 			array(
@@ -789,7 +789,7 @@ class Rest_API {
 			)
 		);
 		$book_count  = array_count_values( array_filter( array_column( $books, 'series_id' ) ) );
-		$read_count  = array_count_values( array_filter( array_column( array_filter( $books, fn( array $book ) => $book['read'] ), 'series_id' ) ) );
+		$read_count  = array_count_values( array_filter( array_column( array_filter( $books, fn( Book $book ) => $book->read ), 'series_id' ) ) );
 		$series      = $book_count ? get_terms(
 			array(
 				'taxonomy'   => 'library_series',
@@ -810,12 +810,12 @@ class Rest_API {
 
 		usort(
 			$books,
-			function ( array $a, array $b ): int {
+			function ( Book $a, Book $b ): int {
 				$a_date = Books::get_date( $a );
 				$b_date = Books::get_date( $b );
 				$order  = array( '' === $a_date, $a_date ) <=> array( '' === $b_date, $b_date );
 
-				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );
+				return 0 !== $order ? $order : strnatcasecmp( $a->full_title, $b->full_title );
 			}
 		);
 
@@ -836,7 +836,7 @@ class Rest_API {
 					$series
 				),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
 				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
@@ -858,7 +858,7 @@ class Rest_API {
 			return new WP_Error( 'library_no_series', get_taxonomy( 'library_series' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books = array_filter( Books::get_books(), fn( array $book ) => in_array( $series->term_id, $book['series_ids'], true ) );
+		$books = array_filter( Books::get_books(), fn( Book $book ) => in_array( $series->term_id, $book->series_ids, true ) );
 		$cycle = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
 		$parts = get_terms(
 			array(
@@ -877,7 +877,7 @@ class Rest_API {
 				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Books::sort_in_reading_order( $books ), 'id' ),
-				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
@@ -903,8 +903,8 @@ class Rest_API {
 
 		$places = array_flip( self::get_collection_order( $publisher ) );
 		// Every term of a book and every one it is under: its publishers and its collections.
-		$terms_of    = fn( array $book ): array => array( ...$book['publisher_ids'], ...$book['collection_ids'] );
-		$books       = array_filter( Books::get_books(), fn( array $book ) => in_array( $publisher->term_id, $terms_of( $book ), true ) );
+		$terms_of    = fn( Book $book ): array => array( ...$book->publisher_ids, ...$book->collection_ids );
+		$books       = array_filter( Books::get_books(), fn( Book $book ) => in_array( $publisher->term_id, $terms_of( $book ), true ) );
 		$books       = Books::sort_in_reading_order( $books );
 		$ancestors   = array_map( fn( int $term_id ) => get_term( $term_id, 'library_publisher' ), get_ancestors( $publisher->term_id, 'library_publisher', 'taxonomy' ) );
 		$top         = end( $ancestors );
@@ -918,15 +918,15 @@ class Rest_API {
 		);
 		$path        = array( Taxonomies::class, 'get_collection_name' );
 		// A book is in the narrowest of its collections here: the last one in their order, after those it is part of.
-		$place = fn( array $book ): int => max( array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
+		$place = fn( Book $book ): int => max( array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
 
 		// A stable sort: the books without number stay in reading order.
 		usort(
 			$books,
-			function ( array $a, array $b ) use ( $place ): int {
-				$order = array( $place( $a ), '' === $a['collection_number'] ) <=> array( $place( $b ), '' === $b['collection_number'] );
+			function ( Book $a, Book $b ) use ( $place ): int {
+				$order = array( $place( $a ), '' === $a->collection_number ) <=> array( $place( $b ), '' === $b->collection_number );
 
-				return 0 !== $order ? $order : strnatcasecmp( $a['collection_number'], $b['collection_number'] );
+				return 0 !== $order ? $order : strnatcasecmp( $a->collection_number, $b->collection_number );
 			}
 		);
 
@@ -940,7 +940,7 @@ class Rest_API {
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => count( array_filter( $books, fn( array $book ) => $book['read'] ) ),
+				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);
@@ -1003,7 +1003,7 @@ class Rest_API {
 	 * The authors of books under the name they are known by, other roles left out, with their description and how many
 	 * of the books they wrote: those who wrote the most first, then by name.
 	 *
-	 * @param array<int,array> $books Books, from Books::get_books().
+	 * @param array<int,Book> $books Books, from Books::get_books().
 	 * @return array<int,array{id:int,name:string,description:string,books:int}>
 	 */
 	private static function get_authors_of( array $books ): array {

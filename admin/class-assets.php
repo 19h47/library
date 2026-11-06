@@ -13,6 +13,7 @@ namespace Library\Admin;
 
 use Library\Plugin;
 use Library\Posts;
+use Library\Status;
 use Library\Taxonomies;
 
 /**
@@ -72,7 +73,7 @@ class Assets {
 			'library-admin-inline-edit',
 			'libraryInlineEdit',
 			array(
-				'statusChoices' => array_diff_key( Posts::get_status_choices(), array( 'publish' => true ) ),
+				'statusChoices' => array_diff_key( Status::get_choices(), array( 'publish' => true ) ),
 			)
 		);
 	}

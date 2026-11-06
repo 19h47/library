@@ -1,0 +1,123 @@
+<?php
+/**
+ * A book as the stats, the reading ideas, the achievements and the REST API read it.
+ *
+ * @link       https://github.com/19h47/library
+ * @since      9.25.0
+ *
+ * @package    Library
+ * @subpackage Library/includes
+ */
+
+namespace Library;
+
+/**
+ * A book, with its meta and its terms, read once from its post by Books::get_books(): see it for what each field holds.
+ *
+ * A book of a list of readings, which the achievements and the reading ideas go through, stands for one of its readings,
+ * its read date; with() gives such a copy, as a book cannot change.
+ *
+ * @since      9.25.0
+ * @package    Library
+ * @subpackage Library/includes
+ * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ */
+final readonly class Book {
+
+	/**
+	 * Whether it is read: whether it has a reading, of a known date or not.
+	 *
+	 * @var bool
+	 */
+	public bool $read;
+
+	/**
+	 * A book.
+	 *
+	 * @param int                  $id                Post ID.
+	 * @param string               $title             Title of the post.
+	 * @param string               $full_title        Title to show, with its series, volume and subtitle.
+	 * @param Status               $status            Status: in the library, not kept or to buy.
+	 * @param string               $series            Series after its cycles, as typed, or the title of a volume without series.
+	 * @param int                  $series_id         Term ID of its series, 0 without.
+	 * @param int[]                $series_ids        Term IDs of its series and of the cycles it is part of, the widest last.
+	 * @param int|null             $volume            Volume number, null without.
+	 * @param bool                 $collective        Whether it is a collective work.
+	 * @param string[]             $read_dates        Read dates, from the first to the latest, the unknown ones empty and first.
+	 * @param float|null           $rating            Rating out of 10, null without.
+	 * @param int|null             $pages             Number of pages, null without.
+	 * @param string               $edition_date      Edition date, Y-m-d, or empty.
+	 * @param string               $published_date    Date it first came out, Y, Y-m or Y-m-d, or empty.
+	 * @param string               $added             Date added, the date of the post.
+	 * @param string[]             $authors           Names of its authors, by the name they are known by.
+	 * @param int[]                $author_ids        Term IDs of its authors.
+	 * @param int[]                $contributor_ids   Term IDs of the names with another role, such as a colorist.
+	 * @param string[]             $translators       Names of its translators.
+	 * @param string[]             $collections       Its collections and those they are part of, named after them.
+	 * @param int[]                $collection_ids    Term IDs of its collections and those they are part of.
+	 * @param int[]                $publisher_ids     Term IDs of its publishers, the widest ancestors of its collections.
+	 * @param string               $collection_number Number in its collection, or empty.
+	 * @param array<string,string> $languages         Names of its original languages, by their code.
+	 * @param int[]                $language_ids      Term IDs of its original languages.
+	 * @param string[]             $forms             Names of its forms.
+	 * @param int[]                $form_ids          Term IDs of its forms.
+	 * @param string               $read_date         The reading it stands for in a list of readings, Y-m-d, or empty.
+	 */
+	public function __construct(
+		public int $id,
+		public string $title,
+		public string $full_title,
+		public Status $status,
+		public string $series,
+		public int $series_id,
+		public array $series_ids,
+		public ?int $volume,
+		public bool $collective,
+		public array $read_dates,
+		public ?float $rating,
+		public ?int $pages,
+		public string $edition_date,
+		public string $published_date,
+		public string $added,
+		public array $authors,
+		public array $author_ids,
+		public array $contributor_ids,
+		public array $translators,
+		public array $collections,
+		public array $collection_ids,
+		public array $publisher_ids,
+		public string $collection_number,
+		public array $languages,
+		public array $language_ids,
+		public array $forms,
+		public array $form_ids,
+		public string $read_date = '',
+	) {
+		$this->read = (bool) $read_dates;
+	}
+
+	/**
+	 * A copy of the book with other values, such as a reading it stands for: `$book->with( read_date: '2024-05-12' )`.
+	 *
+	 * @param mixed ...$changes Values by field.
+	 * @return self
+	 */
+	public function with( mixed ...$changes ): self {
+		$fields = get_object_vars( $this );
+
+		// Worked out from its read dates.
+		unset( $fields['read'] );
+
+		return new self( ...array_replace( $fields, $changes ) );
+	}
+
+	/**
+	 * Whether it is on the reading pile: not read, and at hand, in the library or passing through, not kept once read; a
+	 * book to buy is not. The one rule of the books to read, for the stats, the reading ideas and the achievements.
+	 *
+	 * @return bool
+	 */
+	public function is_on_the_pile(): bool {
+		return ! $this->read && Status::To_Buy !== $this->status;
+	}
+}

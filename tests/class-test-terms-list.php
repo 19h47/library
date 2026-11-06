@@ -9,6 +9,7 @@ namespace Library\Tests;
 
 use Library\Admin\Terms_List;
 use Library\Posts;
+use Library\Status;
 
 /**
  * A term counts its books in each status, with those of the terms under it; a term without books has none, in any status.
@@ -22,16 +23,16 @@ class Test_Terms_List extends TestCase {
 	 */
 	public function test_a_column_counts_the_books_of_its_status(): void {
 		$this->add_book( $this->by( 'Stephen King' ) );
-		$this->add_book( $this->by( 'Stephen King' ) + array( 'status' => Posts::NOT_KEPT ) );
-		$this->add_book( $this->by( 'Stephen King' ) + array( 'status' => Posts::NOT_KEPT ) );
-		$this->add_book( $this->by( 'Stephen King' ) + array( 'status' => Posts::TO_BUY ) );
+		$this->add_book( $this->by( 'Stephen King' ) + array( 'status' => Status::Not_Kept->value ) );
+		$this->add_book( $this->by( 'Stephen King' ) + array( 'status' => Status::Not_Kept->value ) );
+		$this->add_book( $this->by( 'Stephen King' ) + array( 'status' => Status::To_Buy->value ) );
 
 		$terms_list = new Terms_List();
 		$king       = get_term_by( 'name', 'Stephen King', 'library_person' )->term_id;
 		$not_kept   = $terms_list->render_status_column( '', 'library_not_kept', $king );
 
 		$this->assertStringContainsString( '>2</a>', $not_kept );
-		$this->assertStringContainsString( 'post_status=' . Posts::NOT_KEPT, $not_kept );
+		$this->assertStringContainsString( 'post_status=' . Status::Not_Kept->value, $not_kept );
 		$this->assertStringContainsString( '>1</a>', $terms_list->render_status_column( '', 'library_to_buy', $king ) );
 	}
 
@@ -44,7 +45,7 @@ class Test_Terms_List extends TestCase {
 		$king = wp_insert_term( 'Stephen King', 'library_person' )['term_id'];
 
 		wp_insert_term( 'Richard Bachman', 'library_person', array( 'parent' => $king ) );
-		$this->add_book( $this->by( 'Richard Bachman' ) + array( 'status' => Posts::TO_BUY ) );
+		$this->add_book( $this->by( 'Richard Bachman' ) + array( 'status' => Status::To_Buy->value ) );
 
 		$this->assertStringContainsString( '>1</a>', new Terms_List()->render_status_column( '', 'library_to_buy', $king ) );
 	}
@@ -60,8 +61,8 @@ class Test_Terms_List extends TestCase {
 
 		wp_insert_term( 'Richard Bachman', 'library_person', array( 'parent' => $king ) );
 		wp_insert_term( 'Don Rosa', 'library_person' );
-		$this->add_book( $this->by( 'Richard Bachman' ) + array( 'status' => Posts::NOT_KEPT ) );
-		$this->add_book( $this->by( 'Fred Vargas' ) + array( 'status' => Posts::TO_BUY ) );
+		$this->add_book( $this->by( 'Richard Bachman' ) + array( 'status' => Status::Not_Kept->value ) );
+		$this->add_book( $this->by( 'Fred Vargas' ) + array( 'status' => Status::To_Buy->value ) );
 		wp_trash_post( $this->add_book( $this->by( 'Romano Scarpa' ) ) );
 
 		$terms_list = new Terms_List();

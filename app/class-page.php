@@ -15,6 +15,7 @@ use Library\Books;
 use Library\Meta;
 use Library\Plugin;
 use Library\Posts;
+use Library\Status;
 use Library\Taxonomies;
 use WP_Term;
 
@@ -163,7 +164,7 @@ class Page {
 		$form_choices       = self::get_term_choices( 'library_form' );
 		$language_choices   = self::get_term_choices( 'library_language' );
 		$rating_choices     = Meta::get_rating_choices();
-		$status_choices     = Posts::get_status_choices();
+		$status_choices     = Status::get_choices();
 		$views              = $this->get_views( $labels->name );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
@@ -191,7 +192,7 @@ class Page {
 	 * @return void
 	 */
 	private function preload( string $view, int $id ): void {
-		$statuses = implode( ',', Books::get_statuses() );
+		$statuses = implode( ',', Status::get_values() );
 		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args );
 		$list     = fn( array $args ) => $books(
 			$args + array(
@@ -199,7 +200,7 @@ class Page {
 				'offset'   => 0,
 			)
 		);
-		$paths    = array( '/library/v1/books/reading-stats', $list( array( 'status' => Posts::TO_BUY ) ) );
+		$paths    = array( '/library/v1/books/reading-stats', $list( array( 'status' => Status::To_Buy->value ) ) );
 
 		if ( 'books' === $view ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads the search shown, changes nothing.
@@ -448,13 +449,13 @@ JS;
 		[ $favicon_dark_url ] = Plugin::get_asset( 'app/favicon-dark.svg' );
 
 		return array(
-			'statuses'         => implode( ',', Books::get_statuses() ),
+			'statuses'         => implode( ',', Status::get_values() ),
 			'bookFields'       => self::BOOK_FIELDS,
 			'perPage'          => self::PER_PAGE,
 			'maxPerPage'       => self::MAX_PER_PAGE,
 			'forms'            => implode( ',', array_keys( self::get_term_choices( 'library_form' ) ) ),
-			'notKept'          => Posts::NOT_KEPT,
-			'toBuy'            => Posts::TO_BUY,
+			'notKept'          => Status::Not_Kept->value,
+			'toBuy'            => Status::To_Buy->value,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
 			'roles'            => array_values( str_replace( 'library_', '', Meta::ROLE_KEYS ) ),
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),

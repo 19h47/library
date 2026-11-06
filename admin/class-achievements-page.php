@@ -13,6 +13,7 @@ namespace Library\Admin;
 
 use Library\Achievements;
 use Library\Posts;
+use Library\Status;
 use WP_Term;
 
 /**
@@ -186,7 +187,7 @@ class Achievements_Page {
 		$url = admin_url( 'edit.php?post_type=library_book' );
 
 		if ( $target['not_kept'] ) {
-			$url = add_query_arg( 'post_status', Posts::NOT_KEPT, $url );
+			$url = add_query_arg( 'post_status', Status::Not_Kept->value, $url );
 		}
 
 		if ( 'search' === $target['type'] ) {

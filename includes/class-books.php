@@ -24,19 +24,9 @@ class Books {
 	/**
 	 * Books of the current request, from the cache.
 	 *
-	 * @var array<int,array>|null
+	 * @var array<int,Book>|null
 	 */
 	private static ?array $books = null;
-
-	/**
-	 * Statuses of the books, those their forms offer: kept, not kept or to buy. A book of another status, such as a draft,
-	 * is left out until it is published.
-	 *
-	 * @return string[]
-	 */
-	public static function get_statuses(): array {
-		return array_keys( Posts::get_status_choices() );
-	}
 
 	/**
 	 * All the books, kept, not kept or to buy.
@@ -53,7 +43,7 @@ class Books {
 	 *
 	 * Kept until a book changes, as they take every book: see Cache.
 	 *
-	 * @return array<int,array{id:int,title:string,full_title:string,status:string,series:string,series_id:int,series_ids:int[],volume:int|null,read:bool,collective:bool,read_dates:string[],rating:float|null,pages:int|null,edition_date:string,published_date:string,added:string,authors:string[],author_ids:int[],contributor_ids:int[],translators:string[],collections:string[],collection_ids:int[],publisher_ids:int[],collection_number:string,languages:array<string,string>,language_ids:int[],forms:string[],form_ids:int[]}>
+	 * @return array<int,Book>
 	 */
 	public static function get_books(): array {
 		self::$books ??= Cache::remember( 'books', fn() => self::compute_books() );
@@ -64,14 +54,14 @@ class Books {
 	/**
 	 * All the books, from their posts: see get_books().
 	 *
-	 * @return array<int,array>
+	 * @return array<int,Book>
 	 */
 	private static function compute_books(): array {
 		$books = array();
 		$posts = get_posts(
 			array(
 				'post_type'   => 'library_book',
-				'post_status' => self::get_statuses(),
+				'post_status' => Status::get_values(),
 				'numberposts' => -1,
 			)
 		);
@@ -94,36 +84,35 @@ class Books {
 			$languages      = get_the_terms( $post->ID, 'library_language' );
 			$forms          = get_the_terms( $post->ID, 'library_form' );
 
-			$books[ $post->ID ] = array(
-				'id'                => $post->ID,
-				'title'             => $post->post_title,
-				'full_title'        => self::get_full_title( $post->ID, $post->post_title ),
-				'status'            => $post->post_status,
+			$books[ $post->ID ] = new Book(
+				id:                 $post->ID,
+				title:              $post->post_title,
+				full_title:         self::get_full_title( $post->ID, $post->post_title ),
+				status:             Status::from( $post->post_status ),
 				// From its cycle, as typed: "Star Wars, Young Jedi Knights"; a volume without series is one of its title.
-				'series'            => $series_name,
-				'series_id'         => $series ? $series->term_id : 0,
-				'series_ids'        => Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' ),
-				'volume'            => $volume,
-				'read'              => (bool) $read_dates,
-				'collective'        => Posts::is_collective( $post->ID ),
-				'read_dates'        => $read_dates,
-				'rating'            => '' !== $rating ? (float) $rating : null,
-				'pages'             => $pages ? $pages : null,
-				'edition_date'      => $edition_date,
-				'published_date'    => $published_date,
-				'added'             => $post->post_date,
-				'authors'           => wp_list_pluck( $authors, 'name' ),
-				'author_ids'        => wp_list_pluck( $authors, 'term_id' ),
-				'contributor_ids'   => wp_list_pluck( $contributors, 'term_id' ),
-				'translators'       => wp_list_pluck( $translators, 'name' ),
-				'collections'       => array_map( array( Taxonomies::class, 'get_collection_name' ), $collections ),
-				'collection_ids'    => wp_list_pluck( $collections, 'term_id' ),
-				'publisher_ids'     => wp_list_pluck( $publishers, 'term_id' ),
-				'collection_number' => (string) get_post_meta( $post->ID, 'library_collection_number', true ),
-				'languages'         => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
-				'language_ids'      => wp_list_pluck( is_array( $languages ) ? $languages : array(), 'term_id' ),
-				'forms'             => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
-				'form_ids'          => wp_list_pluck( is_array( $forms ) ? $forms : array(), 'term_id' ),
+				series:             $series_name,
+				series_id:          $series ? $series->term_id : 0,
+				series_ids:         Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' ),
+				volume:             $volume,
+				collective:         Posts::is_collective( $post->ID ),
+				read_dates:         $read_dates,
+				rating:             '' !== $rating ? (float) $rating : null,
+				pages:              $pages ? $pages : null,
+				edition_date:       $edition_date,
+				published_date:     $published_date,
+				added:              $post->post_date,
+				authors:            wp_list_pluck( $authors, 'name' ),
+				author_ids:         wp_list_pluck( $authors, 'term_id' ),
+				contributor_ids:    wp_list_pluck( $contributors, 'term_id' ),
+				translators:        wp_list_pluck( $translators, 'name' ),
+				collections:        array_map( array( Taxonomies::class, 'get_collection_name' ), $collections ),
+				collection_ids:     wp_list_pluck( $collections, 'term_id' ),
+				publisher_ids:      wp_list_pluck( $publishers, 'term_id' ),
+				collection_number:  (string) get_post_meta( $post->ID, 'library_collection_number', true ),
+				languages:          wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
+				language_ids:       wp_list_pluck( is_array( $languages ) ? $languages : array(), 'term_id' ),
+				forms:              wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
+				form_ids:           wp_list_pluck( is_array( $forms ) ? $forms : array(), 'term_id' ),
 			);
 		}
 
@@ -131,32 +120,21 @@ class Books {
 	}
 
 	/**
-	 * Whether a book is on the reading pile: not read, and at hand, in the library or passing through, not kept once read;
-	 * a book to buy is not. The one rule of the books to read, for the stats, the reading ideas and the achievements.
-	 *
-	 * @param array $book Book, from get_books().
-	 * @return bool
-	 */
-	public static function is_on_the_pile( array $book ): bool {
-		return ! $book['read'] && Posts::TO_BUY !== $book['status'];
-	}
-
-	/**
 	 * Date of a book: when the work first came out, or else its edition date.
 	 *
-	 * @param array $book Book, from get_books().
+	 * @param Book $book Book, from get_books().
 	 * @return string
 	 */
-	public static function get_date( array $book ): string {
-		return '' !== $book['published_date'] ? $book['published_date'] : $book['edition_date'];
+	public static function get_date( Book $book ): string {
+		return '' !== $book->published_date ? $book->published_date : $book->edition_date;
 	}
 
 	/**
 	 * Books in reading order: in the order they first came out, a series at the date of its first book with its volumes in
 	 * their order, so that the parts of a cycle follow one another; those without date last, then by title.
 	 *
-	 * @param array<int,array> $books Books, from get_books().
-	 * @return array<int,array>
+	 * @param array<int,Book> $books Books, from get_books().
+	 * @return array<int,Book>
 	 */
 	public static function sort_in_reading_order( array $books ): array {
 		$series_dates = array();
@@ -164,23 +142,23 @@ class Books {
 		foreach ( $books as $book ) {
 			$date = self::get_date( $book );
 
-			if ( '' !== $book['series'] && '' !== $date ) {
-				$series_dates[ $book['series'] ] = min( $date, $series_dates[ $book['series'] ] ?? $date );
+			if ( '' !== $book->series && '' !== $date ) {
+				$series_dates[ $book->series ] = min( $date, $series_dates[ $book->series ] ?? $date );
 			}
 		}
 
-		$place = function ( array $book ) use ( $series_dates ): array {
-			$date = '' !== $book['series'] ? $series_dates[ $book['series'] ] ?? '' : self::get_date( $book );
+		$place = function ( Book $book ) use ( $series_dates ): array {
+			$date = '' !== $book->series ? $series_dates[ $book->series ] ?? '' : self::get_date( $book );
 
-			return array( '' === $date, $date, $book['series'], $book['volume'] ?? PHP_INT_MAX, self::get_date( $book ) );
+			return array( '' === $date, $date, $book->series, $book->volume ?? PHP_INT_MAX, self::get_date( $book ) );
 		};
 
 		usort(
 			$books,
-			function ( array $a, array $b ) use ( $place ): int {
+			function ( Book $a, Book $b ) use ( $place ): int {
 				$order = $place( $a ) <=> $place( $b );
 
-				return 0 !== $order ? $order : strnatcasecmp( $a['full_title'], $b['full_title'] );
+				return 0 !== $order ? $order : strnatcasecmp( $a->full_title, $b->full_title );
 			}
 		);
 

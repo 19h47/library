@@ -8,6 +8,7 @@
 namespace Library\Tests;
 
 use Library\Posts;
+use Library\Status;
 
 /**
  * Books read the year they came out or a century after, the oldest of the pile read, and the tour of the 20th century.
@@ -227,8 +228,8 @@ class Test_Achievements_Discoveries extends TestCase {
 	 */
 	public function provide_pile_statuses(): array {
 		return array(
-			'to buy'   => array( Posts::TO_BUY, false ),
-			'not kept' => array( Posts::NOT_KEPT, true ),
+			'to buy'   => array( Status::To_Buy->value, false ),
+			'not kept' => array( Status::Not_Kept->value, true ),
 		);
 	}
 

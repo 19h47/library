@@ -11,10 +11,12 @@
 
 namespace Library\Admin;
 
+use Library\Book;
 use Library\Books;
 use Library\Plugin;
 use Library\Posts;
 use Library\Stats;
+use Library\Status;
 use Library\Taxonomies;
 
 /**
@@ -148,7 +150,7 @@ class Dashboard {
 			'authors'    => count( $authors ),
 			'publishers' => count( $publishers ),
 			'languages'  => count( $languages ),
-			'translated' => count( array_filter( $books, fn( array $book ) => $book['translators'] ) ),
+			'translated' => count( array_filter( $books, fn( Book $book ) => (bool) $book->translators ) ),
 		);
 		$charts      = array( $this->get_edition_chart() );
 
@@ -254,10 +256,10 @@ class Dashboard {
 	private function get_pages_read_this_year(): array {
 		$books     = Books::get_books();
 		$this_year = wp_date( 'Y-01-01' );
-		$readings  = array_filter( Stats::get_readings(), fn( array $reading ) => $reading['date'] >= $this_year && null !== $books[ $reading['book'] ]['pages'] );
+		$readings  = array_filter( Stats::get_readings(), fn( array $reading ) => $reading['date'] >= $this_year && null !== $books[ $reading['book'] ]->pages );
 
 		return array(
-			'pages' => array_sum( array_map( fn( array $reading ) => $books[ $reading['book'] ]['pages'], $readings ) ),
+			'pages' => array_sum( array_map( fn( array $reading ) => $books[ $reading['book'] ]->pages, $readings ) ),
 			'books' => count( $readings ),
 		);
 	}
@@ -387,7 +389,7 @@ class Dashboard {
 		$ratings_by_year = array();
 
 		foreach ( Stats::get_readings() as $reading ) {
-			$rating = $books[ $reading['book'] ]['rating'];
+			$rating = $books[ $reading['book'] ]->rating;
 
 			if ( null !== $rating ) {
 				$ratings_by_year[ (int) substr( $reading['date'], 0, 4 ) ][] = $rating;
@@ -421,12 +423,12 @@ class Dashboard {
 	/**
 	 * The unread book at hand with the oldest edition date.
 	 *
-	 * @return array|null Book, from Books::get_books().
+	 * @return Book|null
 	 */
-	private function get_oldest_unread_book(): ?array {
-		$dated = array_filter( Stats::get_books_on_the_pile(), fn( array $book ) => '' !== $book['edition_date'] );
+	private function get_oldest_unread_book(): ?Book {
+		$dated = array_filter( Stats::get_books_on_the_pile(), fn( Book $book ) => '' !== $book->edition_date );
 
-		usort( $dated, fn( array $a, array $b ) => $a['edition_date'] <=> $b['edition_date'] );
+		usort( $dated, fn( Book $a, Book $b ) => $a->edition_date <=> $b->edition_date );
 
 		return $dated[0] ?? null;
 	}
@@ -469,10 +471,10 @@ class Dashboard {
 	/**
 	 * The books in the library, i.e. kept, from Books::get_books().
 	 *
-	 * @return array<int,array>
+	 * @return array<int,Book>
 	 */
 	private static function get_kept_books(): array {
-		return array_filter( Books::get_books(), fn( array $book ) => ! in_array( $book['status'], array( Posts::TO_BUY, Posts::NOT_KEPT ), true ) );
+		return array_filter( Books::get_books(), fn( Book $book ) => Status::In_Library === $book->status );
 	}
 
 	/**
@@ -481,22 +483,22 @@ class Dashboard {
 	 * collective book is not part of the work of its authors. The terms with the most books come first, then the most read,
 	 * then the oldest.
 	 *
-	 * @param array<int,array> $books Books, from Books::get_books().
-	 * @param string           $field Field of term IDs: author_ids, publisher_ids, collection_ids, language_ids or form_ids.
+	 * @param array<int,Book> $books Books, from Books::get_books().
+	 * @param string          $field Field of term IDs: author_ids, publisher_ids, collection_ids, language_ids or form_ids.
 	 * @return array<int,array{books:int,books_read:int}> Keyed by term ID.
 	 */
 	private static function count_books_by( array $books, string $field ): array {
 		$counts = array();
 
 		foreach ( $books as $book ) {
-			if ( 'author_ids' === $field && $book['collective'] ) {
+			if ( 'author_ids' === $field && $book->collective ) {
 				continue;
 			}
 
-			foreach ( $book[ $field ] as $term_id ) {
+			foreach ( $book->$field as $term_id ) {
 				$counts[ $term_id ] = array(
 					'books'      => ( $counts[ $term_id ]['books'] ?? 0 ) + 1,
-					'books_read' => ( $counts[ $term_id ]['books_read'] ?? 0 ) + (int) $book['read'],
+					'books_read' => ( $counts[ $term_id ]['books_read'] ?? 0 ) + (int) $book->read,
 				);
 			}
 		}
