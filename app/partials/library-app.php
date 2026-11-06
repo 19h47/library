@@ -396,7 +396,7 @@
 					</library-back>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
-						<img class="library-book__cover" data-field="cover" alt="" hidden>
+						<img class="library-book__cover" data-field="cover" alt="" loading="lazy" sizes="auto" hidden>
 						<p class="app-meta library-book__meta" data-field="credits"></p>
 						<h2 class="library-book__title" data-field="title" tabindex="-1"></h2>
 						<p class="library-book__excerpt" data-field="excerpt"></p>
@@ -739,7 +739,7 @@
 
 		<template id="library-item">
 			<li class="app-item library-item">
-				<img class="library-item__cover" data-field="cover" alt="" loading="lazy" hidden>
+				<img class="library-item__cover" data-field="cover" alt="" loading="lazy" sizes="auto" hidden>
 				<div class="library-item__body">
 					<p class="app-item__meta" data-field="credits"></p>
 					<h3 class="library-item__title">
@@ -758,7 +758,7 @@
 
 		<template id="library-row">
 			<li class="app-item library-row">
-				<img class="library-row__cover" data-field="cover" alt="" loading="lazy" hidden>
+				<img class="library-row__cover" data-field="cover" alt="" loading="lazy" sizes="auto" hidden>
 				<div class="library-row__body">
 					<h4 class="library-row__title">
 						<a class="library-item__link">
@@ -776,7 +776,7 @@
 		<template id="library-current">
 			<li class="library-current">
 				<a class="library-cover__link">
-					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
+					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" sizes="auto" hidden>
 					<span class="library-cover__frame" data-row="frame">
 						<span class="library-cover__title" data-field="frame"></span>
 					</span>
@@ -830,7 +830,7 @@
 		<template id="library-cover">
 			<li class="library-cover">
 				<a class="library-cover__link">
-					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
+					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" sizes="auto" hidden>
 					<span class="library-cover__frame" data-row="title">
 						<span class="library-cover__title" data-field="title"></span>
 					</span>

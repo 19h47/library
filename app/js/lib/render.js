@@ -102,8 +102,16 @@ export function fillCover( $image, cover ) {
 	$image.hidden = ! cover;
 
 	if ( ! cover ) {
+		$image.removeAttribute( 'srcset' );
 		$image.removeAttribute( 'src' );
 		return;
+	}
+
+	// Its sizes before its source, for the browser to take the one it shows at once, as wide as it shows: sizes="auto".
+	if ( cover.srcset ) {
+		$image.srcset = cover.srcset;
+	} else {
+		$image.removeAttribute( 'srcset' );
 	}
 
 	$image.src = cover.url;
