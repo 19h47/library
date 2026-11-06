@@ -296,11 +296,12 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="to-buy" <?php echo 'to-buy' === $view ? '' : 'hidden'; ?>>
-					<h2 class="library-title">
-						<?php echo esc_html( $views['to-buy']['label'] ); ?>
-						<library-count class="app-meta" list="toBuy"></library-count>
-					</h2>
-					<div class="app-controls library-books__controls">
+					<?php // The button of the covers at the end of the line of the title, out of it, which names the view alone. ?>
+					<div class="library-title">
+						<h2 class="library-title__heading">
+							<?php echo esc_html( $views['to-buy']['label'] ); ?>
+							<library-count class="app-meta" list="toBuy"></library-count>
+						</h2>
 						<library-covers-toggle class="library-push-end">
 							<button class="app-pill" type="button" aria-pressed="false"><?php esc_html_e( 'Covers', 'library' ); ?></button>
 						</library-covers-toggle>

@@ -144,6 +144,15 @@ library-home:not([hidden]) + .library-books__title {
 	font-size: var(--app-u1);
 }
 
+/* A title with a control at the end of its line, out of its heading: the heading lays out its text as the title does */
+.library-title__heading {
+	display: inherit;
+	flex-wrap: inherit;
+	align-items: inherit;
+	gap: inherit;
+	font-size: inherit;
+}
+
 /* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
 :is(library-view, library-home, library-volumes, library-styleguide) > .library-title {
 	margin-bottom: var(--app-u1);
