@@ -37,12 +37,12 @@ test.describe( 'Grid', () => {
 
 		const books = page.locator( 'library-view[name="books"]' );
 		const toggle = books.getByRole( 'checkbox', { name: 'Covers' } );
-		const list = books.locator( 'library-list' );
+		const list = books.locator( 'library-list .app-list__items' );
 
 		await expect( toggle ).not.toBeChecked();
 		await toggle.check();
 		await expect( toggle ).toBeChecked();
-		await expect( list ).toHaveAttribute( 'covers' );
+		await expect( list ).toHaveAttribute( 'data-covers' );
 
 		// A book without a cover shows its title; the title of a book with one is the name of its link only.
 		await expect(
@@ -60,7 +60,7 @@ test.describe( 'Grid', () => {
 		// Opened again, as the next time.
 		await openApp( page );
 		await waitForIdle( page );
-		await expect( list ).toHaveAttribute( 'covers' );
+		await expect( list ).toHaveAttribute( 'data-covers' );
 		await expect( toggle ).toBeChecked();
 
 		// A tap on the cover opens the book: the link of the card covers it.

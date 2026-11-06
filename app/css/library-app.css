@@ -40,7 +40,6 @@ library-app-name,
 library-back,
 library-nav,
 library-view,
-library-home,
 library-in-progress,
 library-volumes,
 library-series,
@@ -49,8 +48,7 @@ library-offline,
 library-filter,
 library-latest,
 library-idea,
-library-close,
-library-styleguide {
+library-close {
 	display: block;
 }
 
@@ -122,18 +120,26 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
-:is(library-view, library-diary, library-achievements, library-person, library-series, library-publisher) > .app-status {
+:is(library-view, library-diary, library-person, library-series, library-publisher) > .app-status {
 	margin-bottom: var(--app-gap);
 }
 
-/* A section, its title then what it holds, a step apart; the sections, one after the other, a step and a half apart */
+/* A section, its title then what it holds, a step apart */
 .library-section {
 	display: grid;
 	gap: var(--app-u1);
 }
 
-.library-section + .library-section {
-	margin-top: var(--app-u3);
+/*
+ * What holds sections, the home, the achievements, the months of the diary, the styleguide: it spaces them, a step and a
+ * half apart, rather than each its own margin; a section hidden takes no room.
+ */
+library-home,
+library-achievements,
+.library-diary__months,
+library-styleguide {
+	display: grid;
+	gap: var(--app-u3);
 }
 
 .library-title {
@@ -171,7 +177,7 @@ library-home:not([hidden]) + .library-books__title {
 }
 
 /* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
-:is(library-view, library-home, library-volumes, library-styleguide) > .library-title {
+:is(library-view, library-volumes) > .library-title {
 	margin-bottom: var(--app-u1);
 }
 
@@ -306,19 +312,19 @@ library-home:not([hidden]) + .library-books__title {
  * technologies and its link covering it; a book without a cover shows its title in a frame of the shape of a cover, cut
  * when it is too long for it.
  */
-library-list[covers] .app-list__items {
+.app-list__items[data-covers] {
 	grid-template-columns: repeat(auto-fill, minmax(calc(var(--library-cover-width) * sqrt(var(--app-phi))), 1fr));
 	align-items: end;
 }
 
 /* Where the browser lays out grid lanes, the covers of each column follow one another, as in a wall of bricks: masonry */
 @supports (display: grid-lanes) {
-	library-list[covers] .app-list__items {
+	.app-list__items[data-covers] {
 		display: grid-lanes;
 	}
 }
 
-library-list[covers] .library-item {
+.app-list__items[data-covers] > .library-item {
 	display: block;
 	padding: 0;
 	border: 0;
@@ -326,22 +332,22 @@ library-list[covers] .library-item {
 	contain-intrinsic-size: auto var(--library-cover-height);
 }
 
-library-list[covers] .library-item__cover {
+.app-list__items[data-covers] .library-item__cover {
 	width: 100%;
 }
 
-library-list[covers] .library-item__body > :not(.library-item__title) {
+.app-list__items[data-covers] .library-item__body > :not(.library-item__title) {
 	display: none;
 }
 
-library-list[covers] .library-item:has(> .library-item__cover:not([hidden])) .library-item__title {
+.app-list__items[data-covers] > .library-item:has(> .library-item__cover:not([hidden])) .library-item__title {
 	position: absolute;
 	inset: 0;
 	overflow: hidden;
 	opacity: 0;
 }
 
-library-list[covers] .library-item__cover[hidden] + .library-item__body {
+.app-list__items[data-covers] .library-item__cover[hidden] + .library-item__body {
 	aspect-ratio: 1 / var(--app-phi);
 	overflow: hidden;
 	padding: var(--app-gap);
@@ -1009,8 +1015,10 @@ library-volumes {
 }
 
 /* The styleguide: its introduction, then the tokens and the components, each in a frame */
-library-styleguide > .library-styleguide__intro {
-	margin-bottom: var(--app-u2);
+/* The title of the styleguide and its introduction, a step apart */
+.library-styleguide__header {
+	display: grid;
+	gap: var(--app-u1);
 }
 
 .library-styleguide__intro {

@@ -28,8 +28,10 @@ $sizes = array(
 );
 ?>
 <library-styleguide lang="en">
-	<h2 class="library-title">Styleguide</h2>
-	<p class="library-styleguide__intro">The tokens and the components of the app, each in a frame with its own markup alone: a component should look the same here as in the app.</p>
+	<header class="library-styleguide__header">
+		<h2 class="library-title">Styleguide</h2>
+		<p class="library-styleguide__intro">The tokens and the components of the app, each in a frame with its own markup alone: a component should look the same here as in the app.</p>
+	</header>
 
 	<section class="library-section">
 		<h3 class="library-title">Tokens</h3>
@@ -85,7 +87,7 @@ $sizes = array(
 		<h3 class="library-title">Text</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-title</code>, its heading and the action at the end of its first line</figcaption>
+				<figcaption><code>.library-title</code>, its <code>__heading</code> on balanced lines and the action at the end of the last one</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-title">
 						<h4 class="library-title__heading">
@@ -379,6 +381,12 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.app-list__items[data-covers]</code>, the books as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="app-list__items" data-covers data-sample="grid"></ul>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished over its cover</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="current"></ul>
@@ -567,10 +575,13 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-edit__duplicate</code>, under the ISBN of a book to add that a book has already; a book to buy is bought from there</figcaption>
+				<figcaption><code>.library-edit__duplicate</code>, under the ISBN of a book to add: the book that has it already, a book to buy bought from there; else what the catalogue of the BnF answered</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-edit__duplicate">
 						<span>Already added: <a href="#top">A title</a> <button class="app-pill" type="button" data-action="buy">I bought it</button></span>
+					</p>
+					<p class="library-edit__duplicate">
+						<span>Filled in from the catalogue of the BnF: check what it gives.</span>
 					</p>
 				</div>
 			</figure>

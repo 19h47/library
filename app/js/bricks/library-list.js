@@ -44,7 +44,7 @@ class LibraryListElement extends Brick {
 			store.select(
 				( state ) => state.covers,
 				( covers ) => {
-					this.toggleAttribute( 'covers', covers );
+					$items.toggleAttribute( 'data-covers', covers );
 				}
 			),
 			store.select(
