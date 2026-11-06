@@ -739,9 +739,9 @@ library-latest {
 }
 
 /*
- * On a phone, the views in a bar at the bottom of the screen, at hand, as the tabs of an app: their row of pills, as at
- * the top beyond, which scrolls sideways from the padding of the page; the page and what shows over it, such as a notice,
- * above the bar. The footer then ends the page rather than staying at its bottom, under the bar.
+ * On a phone, the views in a bar at the bottom of the screen, at hand, as the tabs of an app, all of them in sight; the
+ * page and what shows over it, such as a notice, above the bar. The footer then ends the page rather than staying at its
+ * bottom, under the bar.
  */
 @media (width < 42rem) {
 	:root {
@@ -755,10 +755,34 @@ library-latest {
 		inset-inline: 0;
 		inset-block-end: 0;
 		z-index: 1;
-		padding: var(--app-gap) var(--app-u2) calc(var(--app-gap) + env(safe-area-inset-bottom));
+		padding: var(--app-gap) var(--app-gap) calc(var(--app-gap) + env(safe-area-inset-bottom));
 		border-top: 1px solid var(--app-line-soft);
 		background: var(--app-bg-floating);
 		backdrop-filter: var(--app-blur-floating);
+	}
+
+	/*
+	 * Every view at once, as the tabs of an app: a column each, as wide as one another, rather than a row that scrolls;
+	 * the current one only a pill, the others their label alone, which takes the width of its column.
+	 */
+	library-nav .library-nav {
+		display: grid;
+		grid-auto-columns: minmax(0, 1fr);
+		grid-auto-flow: column;
+		gap: 0;
+		margin-inline: 0;
+		padding-inline: 0;
+		overflow-x: visible;
+	}
+
+	library-nav .app-pill {
+		justify-content: center;
+		width: 100%;
+		padding-inline: 0;
+	}
+
+	library-nav .app-pill:not([aria-current="page"]) {
+		border-color: transparent;
 	}
 
 	.app-page {
