@@ -38,6 +38,16 @@ composer test
 
 A test class extends `Library_TestCase` (`tests/class-library-testcase.php`), in a file `tests/class-test-*.php`. Each test is a request of its own: it starts with no book, adds the ones it needs with `add_book()` or `add_reads()`, then reads the achievements with `get_earned()` and `get_close()`, or the reading idea.
 
+## Static analysis
+
+[PHPStan](https://phpstan.org), with the stubs and the rules of WordPress, `szepeviktor/phpstan-wordpress`, reads the types of the code without running it:
+
+```sh
+composer analyse
+```
+
+Its level, in `phpstan.neon`, rises as the code takes its types. A pull request runs it with the coding standards.
+
 ## The reading app
 
 The tests of the reading app run in a browser, with [Playwright](https://playwright.dev) and the utilities of WordPress, `@wordpress/e2e-test-utils-playwright`, on a WordPress of their own: each test adds the books it needs through the route of the book form, and the site is emptied of its books first. A site with 100 books or more is never touched.

@@ -222,7 +222,12 @@ class Library_Terms_List {
 		add_filter( 'get_terms_args', array( $this, 'exclude_terms_with_books' ), 10, 2 );
 
 		// The list queries its terms and counts them before the header of the page; the form beside it then offers them all as parents.
-		add_action( 'admin_enqueue_scripts', fn() => remove_filter( 'get_terms_args', array( $this, 'exclude_terms_with_books' ) ) );
+		add_action(
+			'admin_enqueue_scripts',
+			function (): void {
+				remove_filter( 'get_terms_args', array( $this, 'exclude_terms_with_books' ) );
+			}
+		);
 	}
 
 	/**

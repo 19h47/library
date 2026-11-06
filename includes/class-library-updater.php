@@ -78,7 +78,7 @@ class Library_Updater {
 			'version' => $release['version'],
 			'url'     => $release['url'],
 			'package' => $release['package'],
-			'tested'  => $this->get_tested_up_to( $release['readme'] ?? '' ),
+			'tested'  => $this->get_tested_up_to( $release['readme'] ),
 			'icons'   => array( 'svg' => $this->get_asset_url( 'icon.svg' ) ),
 		);
 	}
@@ -103,7 +103,7 @@ class Library_Updater {
 		}
 
 		$plugin_data = get_plugin_data( LIBRARY_FILE, false, false );
-		$readme      = $release['readme'] ?? '';
+		$readme      = $release['readme'];
 		$sections    = Library_Readme::get_sections( $readme );
 
 		return (object) array(

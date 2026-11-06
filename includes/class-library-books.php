@@ -347,7 +347,7 @@ class Library_Books {
 			substr( (string) get_post_meta( $book_id, 'library_edition_date', true ), 0, 4 ),
 		);
 
-		return implode( ' · ', array_filter( $parts, 'strlen' ) );
+		return implode( ' · ', array_filter( $parts, fn( string $part ) => '' !== $part ) );
 	}
 
 	/**
@@ -392,6 +392,6 @@ class Library_Books {
 	 * @return string[]
 	 */
 	public static function split( string $value ): array {
-		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ), 'strlen' ) );
+		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ), fn( string $name ) => '' !== $name ) );
 	}
 }

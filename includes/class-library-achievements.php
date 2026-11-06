@@ -1181,7 +1181,7 @@ class Library_Achievements {
 	 */
 	private function get_library_tour( array $books, array $reads ): array {
 		$at_hand     = array_filter( $books, fn( array $book ) => Library_Posts::TO_BUY !== $book['status'] );
-		$forms       = array_values( array_unique( array_merge( ...array_values( array_column( $at_hand, 'forms' ) ) ) ) );
+		$forms       = array_values( array_unique( array_merge( ...array_column( $at_hand, 'forms' ) ) ) );
 		$first_reads = array();
 
 		foreach ( $reads as $book ) {

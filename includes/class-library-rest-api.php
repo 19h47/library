@@ -816,12 +816,12 @@ class Library_Rest_API {
 				'id'          => $person->term_id,
 				'name'        => $person->name,
 				'other_names' => is_array( $other_names ) ? $other_names : array(),
-				'description' => term_description( $person ),
+				'description' => term_description( $person->term_id ),
 				'series'      => array_map(
 					fn( WP_Term $term ) => array(
 						'id'          => $term->term_id,
 						'name'        => Library_Taxonomies::get_series_path( $term ),
-						'description' => term_description( $term ),
+						'description' => term_description( $term->term_id ),
 						'books'       => $book_count[ $term->term_id ],
 						'read'        => $read_count[ $term->term_id ] ?? 0,
 					),
@@ -865,7 +865,7 @@ class Library_Rest_API {
 				'id'          => $series->term_id,
 				'name'        => Library_Taxonomies::get_series_path( $series ),
 				'cycle'       => self::build_term_link( $cycle, array( Library_Taxonomies::class, 'get_series_path' ) ),
-				'description' => term_description( $series ),
+				'description' => term_description( $series->term_id ),
 				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Library_Books::sort_in_reading_order( $books ), 'id' ),
@@ -928,7 +928,7 @@ class Library_Rest_API {
 				'name'        => Library_Taxonomies::get_collection_name( $publisher ),
 				'publisher'   => self::build_term_link( $top, $path ),
 				'collection'  => self::build_term_link( $parent, $path ),
-				'description' => term_description( $publisher ),
+				'description' => term_description( $publisher->term_id ),
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
@@ -1022,7 +1022,7 @@ class Library_Rest_API {
 			fn( WP_Term $author ) => array(
 				'id'          => $author->term_id,
 				'name'        => wp_specialchars_decode( $author->name, ENT_QUOTES ),
-				'description' => term_description( $author ),
+				'description' => term_description( $author->term_id ),
 				'books'       => $book_count[ $author->term_id ],
 			),
 			$authors

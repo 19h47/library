@@ -169,7 +169,7 @@ class Library_Dashboard {
 	 * @return array<string,int> Values keyed by their start, in ascending order.
 	 */
 	private static function count_by_start( array $values, int $length ): array {
-		$counts = array_count_values( array_map( fn( string $value ) => substr( $value, 0, $length ), array_filter( $values, 'strlen' ) ) );
+		$counts = array_count_values( array_map( fn( string $value ) => substr( $value, 0, $length ), array_filter( $values, fn( string $value ) => '' !== $value ) ) );
 
 		ksort( $counts );
 

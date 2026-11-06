@@ -29,11 +29,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'LIBRARY_FILE', __FILE__ );
-define( 'LIBRARY_DIR_PATH', plugin_dir_path( __FILE__ ) );
+define( 'LIBRARY_DIR_PATH', __DIR__ . '/' );
 
 add_action(
 	'init',
-	fn() => load_plugin_textdomain( 'library', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' ),
+	function (): void {
+		load_plugin_textdomain( 'library', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	},
 	0
 );
 
