@@ -1,0 +1,37 @@
+name: Package
+
+# The package WordPress installs, attached to each release: the archive of the repository, as .gitattributes leaves it,
+# with the dependencies of Composer, which it has not.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+
+      - run: composer install --no-dev --classmap-authoritative --no-progress --no-interaction
+
+      # The folder of the plugin, library, as WordPress extracts it.
+      - run: |
+          mkdir -p build/library
+          git archive HEAD | tar -x -C build/library
+          cp -R vendor build/library/
+          cd build && zip -qr ../library.zip library
+
+      - run: gh release upload "${{ github.event.release.tag_name }}" library.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
