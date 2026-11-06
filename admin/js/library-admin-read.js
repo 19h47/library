@@ -67,8 +67,10 @@
 		// now, its time with it, and its reading in progress ends.
 		const meta = { library_read: checkbox.checked };
 
+		let book;
+
 		try {
-			await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data: { meta } } );
+			book = await apiFetch( { path: `/library/v1/books/${ id }?_fields=meta`, method: 'POST', data: { meta } } );
 		} catch ( error ) {
 			const message = error.message ?? __( 'The reading could not be saved.', 'library' );
 
@@ -79,12 +81,10 @@
 			return;
 		}
 
-		// Saved: what follows only shows it.
+		// Saved, the book as it is now: what follows only shows it.
+		updateReadDates( id, book.meta.library_read_date );
+
 		try {
-			const book = await apiFetch( { path: `/wp/v2/books/${ id }?_fields=meta` } );
-
-			updateReadDates( id, book.meta.library_read_date );
-
 			const stats = await apiFetch( { path: '/library/v1/books/reading-stats' } );
 
 			updatePercent( stats.percent );

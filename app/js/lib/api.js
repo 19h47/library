@@ -261,16 +261,14 @@ export async function getForm( id ) {
 	return toForm( await apiFetch( { path: `/library/v1/books/${ id }` } ) );
 }
 
-/** Saves `data` to the book `id`, through the route of the book form, then returns the book as it is now. */
+/** Saves `data` to the book `id`, through the route of the book form, and returns the book as it is now, as the route gives it back. */
 export async function saveBook( id, data ) {
-	await apiFetch( { path: `/library/v1/books/${ id }`, method: 'POST', data } );
-
-	return getBook( id );
+	return toBook( await apiFetch( { path: `/library/v1/books/${ id }?${ new URLSearchParams( BOOK_QUERY ) }`, method: 'POST', data } ) );
 }
 
-/** Adds a book, and returns its ID. */
+/** Adds a book, and returns it, as the route gives it back. */
 export async function addBook( data ) {
-	return ( await apiFetch( { path: '/library/v1/books', method: 'POST', data } ) ).id;
+	return toBook( await apiFetch( { path: `/library/v1/books?${ new URLSearchParams( BOOK_QUERY ) }`, method: 'POST', data } ) );
 }
 
 /** Uploads the photo of a cover, named and titled after its book as its form sends it, and returns the ID of its image. */

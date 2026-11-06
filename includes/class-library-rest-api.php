@@ -682,13 +682,14 @@ class Library_Rest_API {
 	}
 
 	/**
-	 * The response of a book added or edited: its ID.
+	 * The response of a book added or edited: the book as it is now, as `/wp/v2/books/<id>` gives it, so that a client
+	 * shows it without asking for it again; `_fields` keeps the fields it reads, as for the core route.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return WP_REST_Response
 	 */
 	private function get_book_response( int $book_id ): WP_REST_Response {
-		return rest_ensure_response( array( 'id' => $book_id ) );
+		return rest_ensure_response( rest_do_request( new WP_REST_Request( 'GET', '/wp/v2/books/' . $book_id ) ) );
 	}
 
 	/**

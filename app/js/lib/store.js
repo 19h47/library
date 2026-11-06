@@ -443,9 +443,8 @@ class LibraryStore extends Store {
 
 		try {
 			const coverId = cover ? await api.uploadCover( cover, book ) : 0;
-			const id = await api.addBook( { ...book, featured_media: coverId } );
+			const [ id ] = this.#addBooks( [ await api.addBook( { ...book, featured_media: coverId } ) ] );
 
-			await this.#fetchBooks( [ id ] );
 			this.closeEdit();
 			this.#reloadAll();
 
