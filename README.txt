@@ -99,7 +99,7 @@ The routes of the plugin, to users who can edit posts:
 == Changelog ==
 
 = 9.25.0 =
-* Fixed: `GET /wp-json/library/v1/books/<id>` answers 404 for a book that does not exist; a series, a path of terms or the name of a language no longer fail on an error of WordPress.
+* Fixed: a series, a path of terms or the name of a language no longer fail on an error of WordPress.
 * Code only: the classes of the plugin are in the namespaces `Library`, `Library\Admin` and `Library\App`, loaded by Composer; a book is a `Library\Book`, a readonly object; its status a `Library\Status` and the kinds of achievements a `Library\Achievement_Kind`, enums; PHPStan reads the plugin at level 8.
 
 = 9.24.0 =
