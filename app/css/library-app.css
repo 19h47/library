@@ -753,11 +753,13 @@ library-latest {
 		--library-notice-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom) + var(--app-u1));
 	}
 
+	/* The tab bar stays in place over a view giving way to the next one, as its own part of the view transition */
 	library-nav {
 		position: fixed;
 		inset-inline: 0;
 		inset-block-end: 0;
 		z-index: 1;
+		view-transition-name: library-nav;
 		padding: var(--app-gap) var(--app-gap) calc(var(--app-gap) + env(safe-area-inset-bottom));
 		border-top: 1px solid var(--app-line-soft);
 		background: var(--app-bg-floating);
@@ -1063,5 +1065,16 @@ library-styleguide > .library-styleguide__intro {
 			background: var(--app-bg-floating);
 			backdrop-filter: var(--app-blur-floating);
 		}
+	}
+}
+
+/*
+ * A view gives way to the next one in a view transition, which the router starts: the views cross-fade, and the cover of
+ * a book opened goes from its card to its page, and back. Without motion, the cover stays in place: the views only fade.
+ */
+@media (prefers-reduced-motion: reduce) {
+	/* Its name only: the images of the transition take their duration from it */
+	::view-transition-group(*) {
+		animation-name: none;
 	}
 }

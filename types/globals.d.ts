@@ -57,6 +57,8 @@ declare global {
 
 	interface NavigationDestination {
 		readonly url: string;
+		// The key of the entry gone to in the history, empty for a new one.
+		readonly key: string;
 	}
 
 	interface NavigationInterceptOptions {
@@ -72,6 +74,8 @@ declare global {
 		readonly hashChange: boolean;
 		readonly downloadRequest: string | null;
 		readonly formData: FormData | null;
+		readonly hasUAVisualTransition: boolean;
+		readonly sourceElement: Element | null;
 		intercept: ( options?: NavigationInterceptOptions ) => void;
 	}
 
