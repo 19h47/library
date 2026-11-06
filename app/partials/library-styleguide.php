@@ -85,13 +85,15 @@ $sizes = array(
 		<h3 class="library-title">Text</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-title</code></figcaption>
+				<figcaption><code>.library-title</code>, its heading and the action at the end of its first line</figcaption>
 				<div class="library-styleguide__frame">
-					<h4 class="library-title">
-						A section title
-						<span class="app-meta">12 books</span>
+					<div class="library-title">
+						<h4 class="library-title__heading">
+							A section title long enough to go on two lines
+							<span class="app-meta">12 books</span>
+						</h4>
 						<a class="app-meta library-push-end" href="#top">A link</a>
-					</h4>
+					</div>
 				</div>
 			</figure>
 			<figure>

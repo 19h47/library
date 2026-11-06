@@ -144,13 +144,30 @@ library-home:not([hidden]) + .library-books__title {
 	font-size: var(--app-u1);
 }
 
-/* A title with a control at the end of its line, out of its heading: the heading lays out its text as the title does */
+/*
+ * A title with an action at the end of its line, such as the link to the view of a section, out of its heading, which
+ * names the section alone: the heading lays out its text as a title does, on as many lines as it needs, balanced, the
+ * action at the end of its last one, on its baseline.
+ */
+.library-title:has(> .library-title__heading) {
+	flex-wrap: nowrap;
+	align-items: last baseline;
+}
+
 .library-title__heading {
+	flex: 1;
 	display: inherit;
-	flex-wrap: inherit;
+	flex-wrap: wrap;
 	align-items: inherit;
 	gap: inherit;
+	min-width: 0;
 	font-size: inherit;
+	/* Its lines as long as one another, rather than a word alone on the last one */
+	text-wrap: balance;
+}
+
+.library-title > .library-push-end {
+	flex: none;
 }
 
 /* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
@@ -331,13 +348,6 @@ library-list[covers] .library-item__cover[hidden] + .library-item__body {
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--library-radius-small);
 	font-size: var(--app-font-small);
-}
-
-/* The button of a mode switched on, such as the grid of the covers, stands out as the pill of the current page does */
-.app-pill[aria-pressed="true"] {
-	color: var(--app-text);
-	border-color: var(--app-line);
-	background: var(--app-fill);
 }
 
 /* The tags after the line of the state of a book: its form, and its status when it is not kept or to buy, in a color */

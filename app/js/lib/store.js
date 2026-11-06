@@ -1116,9 +1116,13 @@ class LibraryStore extends Store {
 		} ) );
 	}
 
-	/** The lists of books show as a grid of their covers, or as cards again. */
-	toggleCovers() {
-		this.set( ( state ) => ( { ...state, covers: ! state.covers } ) );
+	/**
+	 * The lists of books show as a grid of their covers, or as cards.
+	 *
+	 * @param {boolean} covers Whether they show as a grid of their covers.
+	 */
+	setCovers( covers ) {
+		this.set( ( state ) => ( { ...state, covers } ) );
 	}
 
 	/**
