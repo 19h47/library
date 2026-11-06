@@ -38,9 +38,11 @@ class LibraryVolumesElement extends Brick {
 			const $current = $list.querySelector( `[data-id="${ id }"]` );
 
 			$current.querySelector( 'button' ).setAttribute( 'aria-current', 'true' );
-			// Once the page shows it: the book open where the first one starts.
+			// Once the page shows it: the book open where the first one starts, unless the page was left meanwhile.
 			requestAnimationFrame( () => {
-				$list.scrollLeft = $current.offsetLeft - $list.firstElementChild.offsetLeft;
+				if ( $current.isConnected ) {
+					$list.scrollLeft = $current.offsetLeft - $list.firstElementChild.offsetLeft;
+				}
 			} );
 		};
 
