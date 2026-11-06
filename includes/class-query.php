@@ -95,7 +95,7 @@ class Query {
 			function ( array $found ) use ( &$keywords ): string {
 				preg_match_all( '/"([^"]*)"|([^,]+)/', $found[3], $values, PREG_SET_ORDER );
 
-				$values = array_values( array_filter( array_map( fn( array $value ) => trim( $value[2] ?? $value[1] ), $values ), fn( string $name ) => '' !== $name ) );
+				$values = array_values( array_filter( array_map( fn( array $value ) => trim( $value[2] ?? $value[1] ?? '' ), $values ), fn( string $name ) => '' !== $name ) );
 
 				// Only empty quotes: not a keyword.
 				if ( ! $values ) {
@@ -172,9 +172,9 @@ class Query {
 	 * Let a search of the REST API that asks for no order, such as the one of the reading app, list a series in reading
 	 * order rather than by date added: core orders by date when none is asked.
 	 *
-	 * @param array           $args    WP_Query arguments.
-	 * @param WP_REST_Request $request Request.
-	 * @return array
+	 * @param array<string,mixed> $args    WP_Query arguments.
+	 * @param WP_REST_Request     $request Request.
+	 * @return array<string,mixed>
 	 */
 	public function allow_reading_order( array $args, WP_REST_Request $request ): array {
 		$args['library_reading_order'] = ! isset( $request->get_query_params()['orderby'] );
@@ -185,8 +185,8 @@ class Query {
 	/**
 	 * Let the REST API order the books by rating or by latest read date.
 	 *
-	 * @param array $params Collection parameters.
-	 * @return array
+	 * @param array<string,array<string,mixed>> $params Collection parameters, each with its schema.
+	 * @return array<string,array<string,mixed>>
 	 */
 	public function add_orders( array $params ): array {
 		$params['orderby']['enum'] = array( ...$params['orderby']['enum'], ...self::ORDERS );
@@ -197,9 +197,9 @@ class Query {
 	/**
 	 * Pass an order of ORDERS to the query, which core does not know: order_books() reads it.
 	 *
-	 * @param array           $args    WP_Query arguments.
-	 * @param WP_REST_Request $request Request.
-	 * @return array
+	 * @param array<string,mixed> $args    WP_Query arguments.
+	 * @param WP_REST_Request     $request Request.
+	 * @return array<string,mixed>
 	 */
 	public function pass_order( array $args, WP_REST_Request $request ): array {
 		if ( in_array( $request['orderby'], self::ORDERS, true ) ) {
@@ -213,9 +213,9 @@ class Query {
 	 * Order the books by rating, highest first, or by latest read date, latest first; the books without come last, by
 	 * date added. A read date unknown orders nothing.
 	 *
-	 * @param array    $clauses Query clauses.
-	 * @param WP_Query $query   Query instance.
-	 * @return array
+	 * @param array<string,string> $clauses Query clauses.
+	 * @param WP_Query             $query   Query instance.
+	 * @return array<string,string>
 	 */
 	public function order_books( array $clauses, WP_Query $query ): array {
 		global $wpdb;

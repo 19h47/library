@@ -66,9 +66,11 @@ class Cache {
 	 * key. A request that changed a book keeps nothing: the generation changes once, at its first change, and the value may
 	 * predate the next ones.
 	 *
-	 * @param string   $key     Key, such as achievements.
-	 * @param callable $compute Function that computes the value.
-	 * @return mixed
+	 * @template T
+	 *
+	 * @param string       $key     Key, such as achievements.
+	 * @param callable():T $compute Function that computes the value.
+	 * @return T
 	 */
 	public static function remember( string $key, callable $compute ) {
 		$generation = (int) get_option( self::GENERATION, 0 );
@@ -144,10 +146,10 @@ class Cache {
 	/**
 	 * Forget once the terms of a book change, such as its people.
 	 *
-	 * @param int    $object_id Object ID.
-	 * @param array  $terms     Terms.
-	 * @param array  $tt_ids    Term taxonomy IDs.
-	 * @param string $taxonomy  Taxonomy.
+	 * @param int                   $object_id Object ID.
+	 * @param array<int,int|string> $terms     Terms, by ID, slug or name.
+	 * @param int[]                 $tt_ids    Term taxonomy IDs.
+	 * @param string                $taxonomy  Taxonomy.
 	 * @return void
 	 */
 	public function forget_terms( int $object_id, array $terms, array $tt_ids, string $taxonomy ): void {

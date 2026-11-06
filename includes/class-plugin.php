@@ -36,7 +36,7 @@ class Plugin {
 	 * The version is the file modification time, so a changed file is never served from cache.
 	 *
 	 * @param string $path Path relative to the plugin folder, e.g. admin/css/library-admin.css.
-	 * @return array{0:string,1:string}
+	 * @return array{0:non-empty-string,1:string}
 	 */
 	public static function get_asset( string $path ): array {
 		$url     = plugins_url( $path, LIBRARY_FILE );

@@ -73,10 +73,10 @@ class Books_List {
 	/**
 	 * Add custom columns
 	 *
-	 * @param array $columns Array of columns.
+	 * @param array<string,string> $columns Array of columns.
 	 * @link https://developer.wordpress.org/reference/hooks/manage_post_type_posts_columns/
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function add_custom_columns( array $columns ): array {
 		unset( $columns['date'] );
@@ -317,9 +317,9 @@ class Books_List {
 	/**
 	 * Add the sortable columns; the books list is sorted by edition date by default.
 	 *
-	 * @param array $sortable_columns Sortable columns.
+	 * @param array<string,string|array<int,string|bool>> $sortable_columns Sortable columns, each a query var or its arguments.
 	 *
-	 * @return array
+	 * @return array<string,string|array<int,string|bool>>
 	 */
 	public function add_sortable_columns( array $sortable_columns ): array {
 		$sortable_columns['library_edition_date'] = array( 'library_edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
@@ -369,11 +369,11 @@ class Books_List {
 	/**
 	 * Add list table views
 	 *
-	 * @param array $views An array of available list table views.
+	 * @param array<string,string> $views An array of available list table views.
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/views_this-screen-id/
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function add_list_table_views( array $views ): array {
 		$stats = Stats::get_reading_stats();
@@ -430,7 +430,7 @@ class Books_List {
 		if ( 'library_publisher' === $taxonomy ) {
 			$terms = Taxonomies::get_top_level_terms( $terms );
 		} elseif ( 'library_person' === $taxonomy ) {
-			$terms = Taxonomies::get_credited_people( get_the_ID() );
+			$terms = Taxonomies::get_credited_people( (int) get_the_ID() );
 		} elseif ( '' === $status ) {
 			return $term_links;
 		}
@@ -458,7 +458,7 @@ class Books_List {
 			$terms
 		);
 
-		if ( 'library_person' === $taxonomy && Posts::is_collective( get_the_ID() ) ) {
+		if ( 'library_person' === $taxonomy && Posts::is_collective( (int) get_the_ID() ) ) {
 			$last_link = array_key_last( $links );
 
 			$links[ $last_link ] = Books::format_directors( $links[ $last_link ] );

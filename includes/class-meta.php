@@ -339,6 +339,7 @@ class Meta {
 	 */
 	public static function save_roles( int $post_id, array $roles ): void {
 		$term_ids = wp_get_post_terms( $post_id, 'library_person', array( 'fields' => 'ids' ) );
+		$term_ids = is_array( $term_ids ) ? $term_ids : array();
 
 		foreach ( self::ROLE_KEYS as $role => $key ) {
 			$role_ids = array_intersect( array_keys( $roles, $role, true ), $term_ids );
@@ -410,8 +411,8 @@ class Meta {
 	 *
 	 * A rating is chosen rather than typed: a number field reads 7,5 as 75 in Chrome.
 	 *
-	 * @param string $key        Meta key.
-	 * @param array  $attributes More attributes, such as its ID or value, or ones that replace those of the registration;
+	 * @param string              $key        Meta key.
+	 * @param array<string,mixed> $attributes More attributes, such as its ID or value, or ones that replace those of the registration;
 	 *                           true gives an attribute without value, null leaves it out.
 	 * @return string HTML.
 	 */
@@ -521,8 +522,8 @@ class Meta {
 	 * a read date, it gets today; read already and its read dates all removed, it gets an unknown one, unless it is marked
 	 * as unread. A read date added ends the reading in progress.
 	 *
-	 * @param int   $post_id Post ID.
-	 * @param array $values  Unslashed values keyed by meta key.
+	 * @param int                 $post_id Post ID.
+	 * @param array<string,mixed> $values  Unslashed values keyed by meta key.
 	 * @return void
 	 */
 	public static function save( int $post_id, array $values ): void {
@@ -581,8 +582,8 @@ class Meta {
 	 * and a known date is kept once. A form gives the day of a reading: one of a day saved with its time keeps it, and
 	 * one added today takes the time now, which orders the readings of a day.
 	 *
-	 * @param int   $post_id    Post ID.
-	 * @param array $read_dates Read dates, Y-m-d, or with their time, or empty.
+	 * @param int          $post_id    Post ID.
+	 * @param array<mixed> $read_dates Read dates, Y-m-d, or with their time, or empty.
 	 * @return void
 	 */
 	private static function save_read_dates( int $post_id, array $read_dates ): void {

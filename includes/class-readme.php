@@ -54,7 +54,7 @@ class Readme {
 		$sections = array();
 
 		// The text before the first section holds the headers.
-		foreach ( array_chunk( array_slice( $parts, 1 ), 2 ) as [ $name, $text ] ) {
+		foreach ( array_chunk( array_slice( $parts ? $parts : array(), 1 ), 2 ) as [ $name, $text ] ) {
 			$key = self::SECTIONS[ $name ] ?? null;
 
 			if ( $key ) {
@@ -85,7 +85,9 @@ class Readme {
 	private static function get_section_html( string $text ): string {
 		$html = '';
 
-		foreach ( preg_split( '/\n\s*\n/', trim( $text ) ) as $block ) {
+		$blocks = preg_split( '/\n\s*\n/', trim( $text ) );
+
+		foreach ( $blocks ? $blocks : array() as $block ) {
 			$lines = explode( "\n", $block );
 
 			if ( preg_match( '/^=\s*(.+?)\s*=$/', $lines[0], $match ) ) {
@@ -154,10 +156,10 @@ class Readme {
 	 */
 	private static function get_inline_html( string $text ): string {
 		$html = esc_html( $text );
-		$html = preg_replace( '/`([^`]+)`/', '<code>$1</code>', $html );
-		$html = preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $html );
+		$html = (string) preg_replace( '/`([^`]+)`/', '<code>$1</code>', $html );
+		$html = (string) preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $html );
 
-		return preg_replace_callback(
+		return (string) preg_replace_callback(
 			'/\[([^\]]+)\]\(([^)\s]+)\)/',
 			fn( array $link ) => '<a href="' . esc_url( html_entity_decode( $link[2] ) ) . '">' . $link[1] . '</a>',
 			$html

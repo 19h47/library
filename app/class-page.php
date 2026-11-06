@@ -401,7 +401,9 @@ JS;
 
 		$shared = array();
 
-		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/lib/*.js' ) as $file ) {
+		$lib_files = glob( LIBRARY_DIR_PATH . 'app/js/lib/*.js' );
+
+		foreach ( $lib_files ? $lib_files : array() as $file ) {
 			$name              = basename( $file, '.js' );
 			[ $url, $version ] = Plugin::get_asset( "app/js/lib/$name.js" );
 			$shared[]          = "library-app/$name";
@@ -412,7 +414,9 @@ JS;
 		// Before the bricks: it reads the URL, which says what they show.
 		wp_enqueue_script_module( 'library-app/router' );
 
-		foreach ( glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' ) as $file ) {
+		$brick_files = glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' );
+
+		foreach ( $brick_files ? $brick_files : array() as $file ) {
 			$name              = basename( $file, '.js' );
 			[ $url, $version ] = Plugin::get_asset( "app/js/bricks/$name.js" );
 			wp_enqueue_script_module( "library-app/$name", $url, $shared, $version );
@@ -435,14 +439,14 @@ JS;
 			)
 		);
 
-		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( $terms, null, 'term_id' ) );
+		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( is_array( $terms ) ? $terms : array(), null, 'term_id' ) );
 	}
 
 	/**
 	 * What the scripts need from the server: the statuses and forms to list and the URLs. Their strings are translated by WordPress,
 	 * from the JSON files of the languages folder.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function get_config(): array {
 		[ $favicon_url ]      = Plugin::get_asset( 'app/favicon.svg' );

@@ -46,7 +46,7 @@ A test class, in the namespace `Library\Tests`, extends `TestCase` (`tests/class
 composer analyse
 ```
 
-Its level, in `phpstan.neon`, rises as the code takes its types. A pull request runs it with the coding standards.
+Its level, in `phpstan.neon`, rises as the code takes its types. What the plugin knows of WordPress and its stubs cannot, such as its taxonomies being registered, is in `types/wordpress.stub`. A pull request runs it with the coding standards.
 
 ## The reading app
 

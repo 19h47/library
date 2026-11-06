@@ -170,7 +170,7 @@ class Taxonomies {
 		$term = term_exists( $name, $taxonomy, $parent_id );
 
 		if ( ! $term ) {
-			$term = wp_insert_term( $name, $taxonomy, array( 'parent' => $parent_id ) );
+			$term = wp_insert_term( $name, $taxonomy, array( 'parent' => absint( $parent_id ) ) );
 		}
 
 		return is_array( $term ) ? (int) $term['term_id'] : 0;
@@ -325,7 +325,7 @@ class Taxonomies {
 	 * @return string[]
 	 */
 	private static function get_path_names( WP_Term $term ): array {
-		$ancestors = array_map( fn( int $term_id ) => get_term( $term_id, $term->taxonomy ), array_reverse( get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' ) ) );
+		$ancestors = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $term->taxonomy ), array_reverse( get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' ) ) ), fn( $ancestor ) => $ancestor instanceof WP_Term );
 
 		return array_map( fn( WP_Term $item ) => wp_specialchars_decode( $item->name, ENT_QUOTES ), array( ...$ancestors, $term ) );
 	}
@@ -361,7 +361,8 @@ class Taxonomies {
 			$path = mb_strtolower( implode( ', ', self::get_path_names( $term ) ) );
 
 			if ( $path === $search || str_ends_with( $path, ', ' . $search ) ) {
-				$ids = array( ...$ids, $term->term_id, ...get_term_children( $term->term_id, 'library_series' ) );
+				$children = get_term_children( $term->term_id, 'library_series' );
+				$ids      = array( ...$ids, $term->term_id, ...( is_array( $children ) ? $children : array() ) );
 			}
 		}
 
@@ -618,9 +619,9 @@ class Taxonomies {
 	/**
 	 * Name a new language typed as its ISO 639 code, e.g. "it" becomes "Italien" in a French site; the code stays its slug.
 	 *
-	 * @param array  $data     Term data: name, slug and group.
-	 * @param string $taxonomy Taxonomy slug.
-	 * @return array
+	 * @param array{name:string,slug:string,term_group:int} $data     Term data: name, slug and group.
+	 * @param string                                        $taxonomy Taxonomy slug.
+	 * @return array{name:string,slug:string,term_group:int}
 	 */
 	public function name_language( array $data, string $taxonomy ): array {
 		if ( 'library_language' !== $taxonomy || ! class_exists( 'Locale' ) || ! preg_match( '/^[a-z]{2,3}$/', $data['name'] ) ) {
@@ -629,7 +630,7 @@ class Taxonomies {
 
 		$name = Locale::getDisplayLanguage( $data['name'], get_locale() );
 
-		if ( $name !== $data['name'] ) {
+		if ( is_string( $name ) && $name !== $data['name'] ) {
 			$data['name'] = mb_strtoupper( mb_substr( $name, 0, 1 ) ) . mb_substr( $name, 1 );
 		}
 
@@ -777,9 +778,9 @@ class Taxonomies {
 	/**
 	 * Include children (other names of a person, collections) in term counts.
 	 *
-	 * @param array    $args       Arguments of get_terms().
-	 * @param string[] $taxonomies Taxonomies queried.
-	 * @return array
+	 * @param array<string,mixed> $args       Arguments of get_terms().
+	 * @param string[]            $taxonomies Taxonomies queried.
+	 * @return array<string,mixed>
 	 */
 	public function count_children( array $args, array $taxonomies ): array {
 		// Counts only exist on full terms; padding other queries breaks the core cache.

@@ -229,9 +229,9 @@ class Metaboxes {
 	 *
 	 * The menu decides over the status menu and the button pressed; in the library publishes a book not kept or to buy.
 	 *
-	 * @param array $data    Slashed post data to insert.
-	 * @param array $postarr Slashed submitted data, with the form fields.
-	 * @return array
+	 * @param array<string,mixed> $data    Slashed post data to insert.
+	 * @param array<string,mixed> $postarr Slashed submitted data, with the form fields.
+	 * @return array<string,mixed>
 	 */
 	public function save_status( array $data, array $postarr ): array {
 		$nonce = isset( $postarr['library_status_nonce'] ) ? sanitize_key( wp_unslash( $postarr['library_status_nonce'] ) ) : '';
@@ -262,6 +262,10 @@ class Metaboxes {
 	 */
 	public function register_person_box(): void {
 		$taxonomy = get_taxonomy( 'library_person' );
+
+		if ( ! is_callable( $taxonomy->meta_box_cb ) ) {
+			return;
+		}
 
 		remove_meta_box( 'library_persondiv', 'library_book', 'side' );
 		add_meta_box( 'tagsdiv-library_person', $taxonomy->labels->name, $taxonomy->meta_box_cb, 'library_book', 'side', 'core', array( 'taxonomy' => 'library_person' ) );

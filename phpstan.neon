@@ -1,7 +1,7 @@
 # Static analysis of the plugin, with the stubs and the rules of WordPress: see TESTING.md.
 parameters:
 	# Raised level by level as the code takes its types: see TESTING.md.
-	level: 5
+	level: 8
 	phpVersion: 80400
 	paths:
 		- library.php
@@ -13,3 +13,16 @@ parameters:
 		- admin/partials
 		- app/partials
 		- app/components
+	stubFiles:
+		# What the plugin knows of WordPress: its post type, statuses and taxonomies are registered.
+		- types/wordpress.stub
+	ignoreErrors:
+		# rest_sanitize_boolean() casts any value, as a form or the REST API sends it; its stub takes bool|string|int only.
+		-
+			identifier: argument.templateType
+			message: '#rest_sanitize_boolean#'
+		# register_meta() takes null as its auth_callback, its default; its stub takes a callable only.
+		-
+			identifier: argument.type
+			message: '#^Parameter \#3 \$args of function register_post_meta expects .* auth_callback: .*\|null\} given\.$#'
+			path: includes/class-meta.php

@@ -28,6 +28,10 @@ use WP_Term;
  * @package    Library
  * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ *
+ * @phpstan-type Idea array{id:int,reason:string}
+ * @phpstan-type Series_Reads array{volumes:int,latest_read:string}
+ * @phpstan-type Next_Part array{cycle:string,volumes:int,latest_read:string}
  */
 class Reading_Idea {
 
@@ -131,7 +135,7 @@ class Reading_Idea {
 	 * The turn goes over all the kinds, empty ones included, so the kind of the week does not change
 	 * when another one empties or fills during the week.
 	 *
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_ideas(): array {
 		$week           = wp_date( 'o-W' );
@@ -161,7 +165,7 @@ class Reading_Idea {
 		}
 		unset( $kind );
 
-		$rounds = max( array_map( 'count', $kinds ) );
+		$rounds = max( 0, ...array_map( 'count', $kinds ) );
 		$ideas  = array();
 
 		for ( $round = 0; $round < $rounds; $round++ ) {
@@ -231,10 +235,10 @@ class Reading_Idea {
 	/**
 	 * The next volume of each series with at least one volume read, and the first one of the part of a cycle that comes next.
 	 *
-	 * @param array<int,Book>     $to_read        Books to read.
-	 * @param array<string,array> $read_by_series Volumes read of each series, from get_read_by_series().
-	 * @param array<string,array> $next_parts     Parts of cycles that come next, from get_next_parts().
-	 * @return array<int,array{id:int,reason:string}>
+	 * @param array<int,Book>            $to_read        Books to read.
+	 * @param array<string,Series_Reads> $read_by_series Volumes read of each series, from get_read_by_series().
+	 * @param array<string,Next_Part>    $next_parts     Parts of cycles that come next, from get_next_parts().
+	 * @return list<Idea>
 	 */
 	private function get_series_ideas( array $to_read, array $read_by_series, array $next_parts ): array {
 		$ideas = array();
@@ -277,7 +281,7 @@ class Reading_Idea {
 	 * The volumes read of each series with at least one, and the date of the last one read.
 	 *
 	 * @param array<int,Book> $books All the books.
-	 * @return array<string,array{volumes:int,latest_read:string}>
+	 * @return array<string,Series_Reads>
 	 */
 	private static function get_read_by_series( array $books ): array {
 		$read_by_series = array();
@@ -319,7 +323,7 @@ class Reading_Idea {
 	 * the last one read: a part none of whose books is read, after a part read in full, in reading order.
 	 *
 	 * @param array<int,Book> $books All the books.
-	 * @return array<string,array{cycle:string,volumes:int,latest_read:string}>
+	 * @return array<string,Next_Part>
 	 */
 	private static function get_next_parts( array $books ): array {
 		$parts = array();
@@ -374,7 +378,7 @@ class Reading_Idea {
 	 * @param array<int,Book> $to_read Books to read.
 	 * @param string          $field   Field listing the names: authors, translators or collections.
 	 * @param callable        $reason  Reason, from the name and its average, number of books rated and latest read date.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private static function get_rated_well_ideas( array $books, array $to_read, string $field, callable $reason ): array {
 		$ratings     = array();
@@ -429,7 +433,7 @@ class Reading_Idea {
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_author_ideas( array $books, array $to_read ): array {
 		$dormant_year = (int) wp_date( 'Y' ) - self::DORMANT_YEARS;
@@ -470,7 +474,7 @@ class Reading_Idea {
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_unread_author_ideas( array $books, array $to_read ): array {
 		$books_by_author = array();
@@ -518,7 +522,7 @@ class Reading_Idea {
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_translator_ideas( array $books, array $to_read ): array {
 		return self::get_rated_well_ideas(
@@ -540,7 +544,7 @@ class Reading_Idea {
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_collection_ideas( array $books, array $to_read ): array {
 		return self::get_rated_well_ideas(
@@ -561,7 +565,7 @@ class Reading_Idea {
 	 * Books to read first published, or else whose edition came out, this month a round number of years ago.
 	 *
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_anniversary_ideas( array $to_read ): array {
 		$ideas = array();
@@ -614,7 +618,7 @@ class Reading_Idea {
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_change_ideas( array $books, array $to_read ): array {
 		// A book read again counts once per reading.
@@ -668,7 +672,7 @@ class Reading_Idea {
 	 * @param callable        $has_trait    Whether a book has the trait.
 	 * @param string          $all_reason   Reason when the latest reads all have the trait.
 	 * @param string          $none_reason  Reason when none of them has it.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private static function get_opposite_ideas( array $latest_reads, array $to_read, callable $has_trait, string $all_reason, string $none_reason ): array {
 		$with_trait = count( array_filter( $latest_reads, $has_trait ) );
@@ -702,7 +706,7 @@ class Reading_Idea {
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_decade_ideas( array $books, array $to_read ): array {
 		$decade       = fn( Book $book ) => intdiv( (int) self::get_year( $book->published_date ), 10 ) * 10;
@@ -738,7 +742,7 @@ class Reading_Idea {
 	 * Short books to read, when fewer books are read this year than by the same date last year.
 	 *
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_short_ideas( array $to_read ): array {
 		$pace = Stats::get_reading_year_to_date();
@@ -773,7 +777,7 @@ class Reading_Idea {
 	 * Books to read added lately, while the wish to read them is still fresh.
 	 *
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_fresh_ideas( array $to_read ): array {
 		$since = time() - self::FRESH_DAYS * DAY_IN_SECONDS;
@@ -803,7 +807,7 @@ class Reading_Idea {
 	 * Books last read long ago and rated well, to read again.
 	 *
 	 * @param array<int,Book> $books All the books.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_reread_ideas( array $books ): array {
 		$latest_year = (int) wp_date( 'Y' ) - self::REREAD_YEARS;
@@ -834,7 +838,7 @@ class Reading_Idea {
 	 * All the other books to read, with the year they were added.
 	 *
 	 * @param array<int,Book> $to_read Books to read.
-	 * @return array<int,array{id:int,reason:string}>
+	 * @return list<Idea>
 	 */
 	private function get_pile_ideas( array $to_read ): array {
 		$ideas = array();
@@ -860,10 +864,10 @@ class Reading_Idea {
 	 * Books to buy that come next: the next volume of a series with a volume read, or the first one of the part of a cycle
 	 * that comes next, as get_series_ideas() suggests them, else a book by an author rated well.
 	 *
-	 * @param array<int,Book>     $books          All the books.
-	 * @param array<string,array> $read_by_series Volumes read of each series, from get_read_by_series().
-	 * @param array<string,array> $next_parts     Parts of cycles that come next, from get_next_parts().
-	 * @return array<int,array{id:int,reason:string}>
+	 * @param array<int,Book>            $books          All the books.
+	 * @param array<string,Series_Reads> $read_by_series Volumes read of each series, from get_read_by_series().
+	 * @param array<string,Next_Part>    $next_parts     Parts of cycles that come next, from get_next_parts().
+	 * @return list<Idea>
 	 */
 	private function get_to_buy_ideas( array $books, array $read_by_series, array $next_parts ): array {
 		$to_buy = array_filter( self::get_next_books( $books ), fn( Book $book ) => Status::To_Buy === $book->status );

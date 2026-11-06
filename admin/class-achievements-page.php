@@ -26,6 +26,9 @@ use WP_Term;
  * @package    Library
  * @subpackage Library/admin
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ *
+ * @phpstan-import-type Achievement from Achievements
+ * @phpstan-import-type Close_Achievement from Achievements
  */
 class Achievements_Page {
 
@@ -102,8 +105,10 @@ class Achievements_Page {
 	/**
 	 * Achievements earned by family, in the order of the page; families without any are left out.
 	 *
-	 * @param array<int,array> $earned Achievements earned.
-	 * @return array<string,array{name:string,achievements:array<int,array>}>
+	 * @param array $earned Achievements earned.
+	 * @return array<string,array{name:string,achievements:list<Achievement>}>
+	 *
+	 * @phpstan-param list<Achievement> $earned
 	 */
 	private static function group_by_family( array $earned ): array {
 		$families = array();
@@ -136,7 +141,7 @@ class Achievements_Page {
 	/**
 	 * Date an achievement was earned, in the site's format, or empty.
 	 *
-	 * @param array $achievement Achievement.
+	 * @param Achievement|Close_Achievement $achievement Achievement.
 	 * @return string
 	 */
 	public static function get_earned_date( array $achievement ): string {
@@ -146,7 +151,7 @@ class Achievements_Page {
 	/**
 	 * Load the books and the terms the achievements link to, all at once rather than one per link.
 	 *
-	 * @param array<int,array> $achievements Achievements.
+	 * @param list<Achievement|Close_Achievement> $achievements Achievements.
 	 * @return void
 	 */
 	private static function prime_targets( array $achievements ): void {
@@ -163,7 +168,7 @@ class Achievements_Page {
 	 * Link of the subject of an achievement in the admin: the edit screen of its book, or its books in the books list,
 	 * in the "Not kept" view when none of them is kept, since the "All" view leaves them out. Empty without target.
 	 *
-	 * @param array $achievement Achievement.
+	 * @param Achievement|Close_Achievement $achievement Achievement.
 	 * @return string
 	 */
 	public static function get_url( array $achievement ): string {

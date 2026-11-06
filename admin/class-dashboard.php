@@ -28,6 +28,9 @@ use Library\Taxonomies;
  * @package    Library
  * @subpackage Library/admin
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ *
+ * @phpstan-type Chart_Item array{label:string,name:string,value:int|float,text:string}
+ * @phpstan-type Chart array{title:string,column:string,value_column:string,peak:string,max?:int,items:list<Chart_Item>}
  */
 class Dashboard {
 
@@ -160,8 +163,8 @@ class Dashboard {
 	/**
 	 * Render a widget partial; charts without data are left out.
 	 *
-	 * @param string $widget Widget name, i.e. the partial suffix.
-	 * @param array  $data   Variables for the partial.
+	 * @param string              $widget Widget name, i.e. the partial suffix.
+	 * @param array<string,mixed> $data   Variables for the partial.
 	 */
 	private function render_partial( string $widget, array $data ): void {
 		$data['charts'] = array_filter( $data['charts'] ?? array(), fn( array $chart ) => array_sum( array_column( $chart['items'], 'value' ) ) > 0 );
@@ -193,7 +196,7 @@ class Dashboard {
 	 * @param string    $name  Full name, for the tooltip, the data table and the peak.
 	 * @param int|float $value Bar value.
 	 * @param string    $text  Value as text, e.g. "12 books".
-	 * @return array{label:string,name:string,value:int|float,text:string}
+	 * @return Chart_Item
 	 */
 	private static function build_chart_item( string $label, string $name, int|float $value, string $text ): array {
 		return array(
@@ -210,7 +213,9 @@ class Dashboard {
 	 * @param string $title  Chart title.
 	 * @param string $column Name of what the bars stand for, e.g. "Year".
 	 * @param array  $items  Bars, from build_chart_item().
-	 * @return array
+	 * @return Chart
+	 *
+	 * @phpstan-param list<Chart_Item> $items
 	 */
 	private static function build_books_chart( string $title, string $column, array $items ): array {
 		return array(
@@ -227,7 +232,7 @@ class Dashboard {
 	 * Years from the first year with data to the current year.
 	 *
 	 * @param array<int,mixed> $by_year Values keyed by year.
-	 * @return int[]
+	 * @return list<int>
 	 */
 	private static function get_reading_years( array $by_year ): array {
 		$current_year = (int) wp_date( 'Y' );
@@ -268,7 +273,7 @@ class Dashboard {
 	 * Books read by year, by month this year and by month over all years, from the read dates;
 	 * a book read again counts once per reading.
 	 *
-	 * @return array<int,array>
+	 * @return list<Chart>
 	 */
 	private function get_reading_charts(): array {
 		global $wp_locale;
@@ -316,7 +321,7 @@ class Dashboard {
 	/**
 	 * Books by edition year, by decade when there are too many years to show.
 	 *
-	 * @return array
+	 * @return Chart
 	 */
 	private function get_edition_chart(): array {
 		$books_by_year = self::count_by_start( array_column( self::get_kept_books(), 'edition_date' ), 4 );
@@ -351,7 +356,7 @@ class Dashboard {
 	/**
 	 * Number of rated books, average rating and distribution, rounded to the nearest point.
 	 *
-	 * @return array{count:int,average:float|null,chart:array}
+	 * @return array{count:int,average:float|null,chart:Chart}
 	 */
 	private function get_ratings(): array {
 		$ratings        = array_filter( array_column( Books::get_books(), 'rating' ), 'is_float' );
@@ -382,7 +387,7 @@ class Dashboard {
 	/**
 	 * Average rating of the books read each year.
 	 *
-	 * @return array
+	 * @return Chart
 	 */
 	private function get_average_rating_chart(): array {
 		$books           = Books::get_books();

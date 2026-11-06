@@ -71,11 +71,11 @@ class Terms_List {
 	/**
 	 * Add the messages shown when a person, a publisher, a series, a language or a form is added, updated or deleted.
 	 *
-	 * @param array $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
+	 * @param array<string,array<int,string>> $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/term_updated_messages/
 	 *
-	 * @return array
+	 * @return array<string,array<int,string>>
 	 */
 	public function add_term_messages( array $messages ): array {
 		$messages['library_person'] = array(
@@ -188,7 +188,12 @@ class Terms_List {
 	 * @return string[]
 	 */
 	public function add_views( array $views ): array {
-		$taxonomy      = get_current_screen()->taxonomy;
+		$taxonomy = get_current_screen()?->taxonomy;
+
+		if ( ! in_array( $taxonomy, Taxonomies::TAXONOMIES, true ) ) {
+			return $views;
+		}
+
 		$url           = add_query_arg(
 			array(
 				'taxonomy'  => $taxonomy,
@@ -204,7 +209,8 @@ class Terms_List {
 			),
 			$url
 		);
-		$terms         = (int) wp_count_terms( array( 'taxonomy' => $taxonomy ) );
+		$count         = wp_count_terms( array( 'taxonomy' => $taxonomy ) );
+		$terms         = is_wp_error( $count ) ? 0 : (int) $count;
 		$without_books = $terms - count( $this->get_counts( $taxonomy ) );
 		/* translators: %s: number of terms. */
 		$without_label = _n_noop( 'Without books <span class="count">(%s)</span>', 'Without books <span class="count">(%s)</span>', 'library' );
@@ -222,7 +228,7 @@ class Terms_List {
 	 * @return void
 	 */
 	public function show_without_books(): void {
-		if ( ! in_array( get_current_screen()->taxonomy, Taxonomies::TAXONOMIES, true ) || ! self::is_without_books() ) {
+		if ( ! in_array( get_current_screen()?->taxonomy, Taxonomies::TAXONOMIES, true ) || ! self::is_without_books() ) {
 			return;
 		}
 
@@ -240,9 +246,9 @@ class Terms_List {
 	/**
 	 * Leave the terms with books out of a query of the terms of one taxonomy.
 	 *
-	 * @param array    $args       Arguments of the query.
-	 * @param string[] $taxonomies Taxonomies of the query.
-	 * @return array
+	 * @param array<string,mixed> $args       Arguments of the query.
+	 * @param string[]            $taxonomies Taxonomies of the query.
+	 * @return array<string,mixed>
 	 */
 	public function exclude_terms_with_books( array $args, array $taxonomies ): array {
 		if ( 1 !== count( $taxonomies ) || ! in_array( $taxonomies[0], Taxonomies::TAXONOMIES, true ) ) {

@@ -89,9 +89,9 @@ class Posts {
 	/**
 	 * Date a book leaving the books to buy from today: its post date is the date it was added to the library.
 	 *
-	 * @param array $data    Slashed post data about to be saved.
-	 * @param array $postarr Slashed submitted data.
-	 * @return array
+	 * @param array<string,mixed> $data    Slashed post data about to be saved.
+	 * @param array<string,mixed> $postarr Slashed submitted data.
+	 * @return array<string,mixed>
 	 */
 	public function set_bought_date( array $data, array $postarr ): array {
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
@@ -116,9 +116,9 @@ class Posts {
 	 *
 	 * Runs before the post is written, so no second update is needed.
 	 *
-	 * @param array $data    Slashed post data about to be saved.
-	 * @param array $postarr Slashed submitted data, with the form fields.
-	 * @return array
+	 * @param array<string,mixed> $data    Slashed post data about to be saved.
+	 * @param array<string,mixed> $postarr Slashed submitted data, with the form fields.
+	 * @return array<string,mixed>
 	 */
 	public function build_slug( array $data, array $postarr ): array {
 		if ( 'library_book' !== $data['post_type'] || ! isset( $postarr['library_isbn'] ) ) {
@@ -157,8 +157,10 @@ class Posts {
 	 * Register the custom post type.
 	 *
 	 * @link http://codex.wordpress.org/Function_Reference/register_post_type
+	 *
+	 * @return void
 	 */
-	public function register_post_type() {
+	public function register_post_type(): void {
 
 		$labels = array(
 			'name'                  => __( 'Books', 'library' ),

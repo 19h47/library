@@ -12,6 +12,7 @@
 namespace Library;
 
 use WP_Error;
+use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -337,7 +338,7 @@ class Rest_API {
 	 * then with its reading.
 	 *
 	 * @param bool $adding Whether the book is added.
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	private function get_book_args( bool $adding ): array {
 		$args = array(
@@ -478,13 +479,19 @@ class Rest_API {
 	 * collection, or else publisher.
 	 *
 	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_book( WP_REST_Request $request ): WP_REST_Response {
-		$book       = get_post( $request['id'] );
+	public function get_book( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$book = get_post( $request['id'] );
+
+		if ( ! $book instanceof WP_Post ) {
+			return new WP_Error( 'library_no_book', get_post_type_object( 'library_book' )->labels->not_found, array( 'status' => 404 ) );
+		}
+
 		$collection = current( Taxonomies::get_collections( $book->ID ) );
 		$publishers = get_the_terms( $book, 'library_publisher' );
 		$publisher  = current( Taxonomies::get_top_level_terms( $collection ? array( $collection ) : ( is_array( $publishers ) ? $publishers : array() ) ) );
+		$people     = wp_get_post_terms( $book->ID, 'library_person' );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
 		$series     = Taxonomies::get_series( $book->ID );
@@ -507,7 +514,7 @@ class Rest_API {
 						'name' => $term->name,
 						'role' => $roles[ $term->term_id ] ?? 'author',
 					),
-					wp_get_post_terms( $book->ID, 'library_person' )
+					is_array( $people ) ? $people : array()
 				),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
@@ -630,8 +637,8 @@ class Rest_API {
 	 * Fields the slug of a book is built from, which Posts::slug() reads with its post: the ISBN, the ISSN and the
 	 * volume number sent, or else those of the book.
 	 *
-	 * @param int   $book_id Book ID, 0 for a book to add.
-	 * @param array $meta    Book meta sent.
+	 * @param int                 $book_id Book ID, 0 for a book to add.
+	 * @param array<string,mixed> $meta    Book meta sent.
 	 * @return array<string,string>
 	 */
 	private function get_slug_fields( int $book_id, array $meta ): array {
@@ -648,10 +655,10 @@ class Rest_API {
 	 * Save what is sent for a book, after its post: its meta through Meta, its terms, and its cover, the featured_media
 	 * sent, which becomes an image of the book; 0 removes it.
 	 *
-	 * @param int               $book_id Book ID.
-	 * @param WP_REST_Request   $request Request.
-	 * @param array             $terms   Term IDs by taxonomy, from get_terms().
-	 * @param array<int,string> $roles Roles of the names sent, by term ID, from get_roles().
+	 * @param int                 $book_id Book ID.
+	 * @param WP_REST_Request     $request Request.
+	 * @param array<string,int[]> $terms   Term IDs by taxonomy, from get_terms().
+	 * @param array<int,string>   $roles   Roles of the names sent, by term ID, from get_roles().
 	 * @return void
 	 */
 	private function save_book( int $book_id, WP_REST_Request $request, array $terms, array $roles ): void {
@@ -918,7 +925,7 @@ class Rest_API {
 		);
 		$path        = array( Taxonomies::class, 'get_collection_name' );
 		// A book is in the narrowest of its collections here: the last one in their order, after those it is part of.
-		$place = fn( Book $book ): int => max( array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
+		$place = fn( Book $book ): int => max( 0, ...array_intersect_key( $places, array_flip( $terms_of( $book ) ) ) );
 
 		// A stable sort: the books without number stay in reading order.
 		usort(
@@ -969,7 +976,7 @@ class Rest_API {
 	 * A publisher, or a collection, then each of its collections by name, each one followed by its own: the order of their books.
 	 *
 	 * @param WP_Term $publisher Term of the publishers.
-	 * @return int[] Term IDs.
+	 * @return list<int> Term IDs.
 	 */
 	private static function get_collection_order( WP_Term $publisher ): array {
 		// Every collection under it, at any depth, by name.

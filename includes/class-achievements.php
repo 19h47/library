@@ -31,6 +31,16 @@ use WP_Term;
  * @package    Library
  * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ *
+ * @phpstan-type Completion_Kind 'author'|'series'|'collection'
+ * @phpstan-type Completion_Group non-empty-array<Completion_Kind,non-empty-array<int,non-empty-list<Book>>>
+ * @phpstan-type Book_Target array{type:'book',id:int}
+ * @phpstan-type Search_Target array{type:'search',search:string,not_kept:bool}
+ * @phpstan-type Term_Target array{type:Completion_Kind,id:int,not_kept:bool}
+ * @phpstan-type Target Book_Target|Search_Target|Term_Target
+ * @phpstan-type Achievement array{kind:string,title:string,subject:string,detail:string,target:Target|null,date:string,easter_egg:bool}
+ * @phpstan-type Close_Achievement array{kind:string,title:string,subject:string,detail:string,target:Target|null,date:string,easter_egg:bool,done:int,total:int}
+ * @phpstan-type Achievements_List array{earned:list<Achievement>,close:list<Close_Achievement>}
  */
 class Achievements {
 
@@ -224,7 +234,7 @@ class Achievements {
 	 * Achievements earned, latest first and undated last, and those close to be earned, with what is done
 	 * and the total, books or pages, closest first; kept until a book changes, as they take every book.
 	 *
-	 * @return array{earned:array<int,array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool}>,close:array<int,array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool,done:int,total:int}>}
+	 * @return Achievements_List
 	 */
 	public function get_achievements(): array {
 		return Cache::remember( 'achievements', fn() => $this->compute_achievements() );
@@ -233,7 +243,7 @@ class Achievements {
 	/**
 	 * Achievements, from every book: see get_achievements().
 	 *
-	 * @return array
+	 * @return Achievements_List
 	 */
 	private function compute_achievements(): array {
 		$books    = self::get_dated_books();
@@ -304,9 +314,9 @@ class Achievements {
 	 * @param string           $title   Title, e.g. "Complete author".
 	 * @param string           $subject What it is about: an author, a series, a book… or empty.
 	 * @param string           $detail  Detail, e.g. "9 books".
-	 * @param array|null       $target  What its subject leads to, from build_book_target(), build_search_target() or build_term_target(), or null.
+	 * @param Target|null      $target  What its subject leads to, from build_book_target(), build_search_target() or build_term_target(), or null.
 	 * @param string           $date    Date earned, Y-m-d, or empty when unknown or not dated.
-	 * @return array{kind:string,title:string,subject:string,detail:string,target:array|null,date:string,easter_egg:bool}
+	 * @return Achievement
 	 */
 	private static function build_achievement( Achievement_Kind $kind, string $title, string $subject, string $detail, ?array $target, string $date ): array {
 		return array(
@@ -378,7 +388,7 @@ class Achievements {
 	 * A book as the target of an achievement.
 	 *
 	 * @param int $book_id Book ID.
-	 * @return array{type:string,id:int}
+	 * @return Book_Target
 	 */
 	private static function build_book_target( int $book_id ): array {
 		return array(
@@ -392,7 +402,7 @@ class Achievements {
 	 *
 	 * @param string          $search Search.
 	 * @param array<int,Book> $books  Books found.
-	 * @return array{type:string,search:string,not_kept:bool}
+	 * @return Search_Target
 	 */
 	private static function build_search_target( string $search, array $books ): array {
 		return array(
@@ -408,7 +418,9 @@ class Achievements {
 	 * @param string          $type    "author", "series" or "collection".
 	 * @param int             $term_id Term ID.
 	 * @param array<int,Book> $books   Books of the term.
-	 * @return array{type:string,id:int,not_kept:bool}
+	 * @return Term_Target
+	 *
+	 * @phpstan-param Completion_Kind $type
 	 */
 	private static function build_term_target( string $type, int $term_id, array $books ): array {
 		return array(
@@ -432,7 +444,7 @@ class Achievements {
 	 * Series and their cycles, authors and collections read in full, one achievement for each kind, and those with few books left.
 	 *
 	 * @param array<int,Book> $books All the books.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_completions( array $books ): array {
 		$earned = array();
@@ -474,7 +486,7 @@ class Achievements {
 	 *
 	 * @param string $kind    "author", "series" or "collection".
 	 * @param int    $term_id Term ID: an author under the name they are known by.
-	 * @return array|null
+	 * @return Achievement|Close_Achievement|null
 	 */
 	public function get_completion( string $kind, int $term_id ): ?array {
 		foreach ( self::get_completion_groups( self::get_dated_books() ) as $kinds ) {
@@ -504,7 +516,7 @@ class Achievements {
 	 * collection, else for the collection it is part of.
 	 *
 	 * @param array<int,Book> $books All the books.
-	 * @return array<string,array<string,array<int|string,array<int,Book>>>>
+	 * @return array<string,Completion_Group>
 	 */
 	private static function get_completion_groups( array $books ): array {
 		$groups = array(
@@ -545,8 +557,10 @@ class Achievements {
 	 *
 	 * Authors with the same books are named together; the completion of an author leads to the first one.
 	 *
-	 * @param array<string,array<int|string,array<int,Book>>> $kinds Groups of the same books, by kind, then by key.
-	 * @return array
+	 * @param array $kinds Groups of the same books, by kind, then by term ID.
+	 * @return Achievement|Close_Achievement
+	 *
+	 * @phpstan-param Completion_Group $kinds
 	 */
 	private static function get_group_completion( array $kinds ): array {
 		$titles = array(
@@ -554,7 +568,7 @@ class Achievements {
 			'series'     => __( 'Series finished', 'library' ),
 			'collection' => __( 'Collection finished', 'library' ),
 		);
-		$kind   = (string) array_key_first( $kinds );
+		$kind   = array_key_first( $kinds );
 		$key    = array_key_first( $kinds[ $kind ] );
 		$group  = $kinds[ $kind ][ $key ];
 		$total  = count( $group );
@@ -591,7 +605,7 @@ class Achievements {
 				/* translators: 1: number of books left, 2: title of a book left. */
 				_n( '%1$s book left: %2$s', '%1$s books left, such as %2$s', $left, 'library' ),
 				number_format_i18n( $left ),
-				$next->full_title
+				$next?->full_title
 			),
 			$target,
 			''
@@ -605,9 +619,11 @@ class Achievements {
 	 * One achievement for those of a kind earned by several subjects, at the level of their number: the latest
 	 * subject to earn it, with its detail and link, dated by the reading that did.
 	 *
-	 * @param array<int,array> $earned Achievements of a kind, one per subject.
-	 * @param callable         $title  Title from the number of subjects, e.g. "38 complete authors".
-	 * @return array<int,array> The achievement, or none.
+	 * @param array                $earned Achievements of a kind, one per subject.
+	 * @param callable(int):string $title  Title from the number of subjects, e.g. "38 complete authors".
+	 * @return list<Achievement> The achievement, or none.
+	 *
+	 * @phpstan-param list<Achievement> $earned
 	 */
 	private static function get_level_achievement( array $earned, callable $title ): array {
 		if ( ! $earned ) {
@@ -623,7 +639,7 @@ class Achievements {
 	 * The big collections read by half or more, not in full, as one achievement; each one dated by the reading that reached half.
 	 *
 	 * @param array<int,Book> $books All the books.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_collection_steps( array $books ): array {
 		$collections = array();
@@ -673,7 +689,7 @@ class Achievements {
 	 * with its progress; reads without date come first.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then next.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then next.
 	 */
 	private function get_read_milestones( array $reads ): array {
 		/* translators: %s: number of books read. */
@@ -710,7 +726,7 @@ class Achievements {
 	 * one with its progress, once a book read has its number of pages.
 	 *
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then next.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then next.
 	 */
 	private function get_page_milestones( array $readings ): array {
 		/* translators: %s: number of pages read. */
@@ -753,7 +769,7 @@ class Achievements {
 	 * The year and the month with the most books read, dated by the reading that beat the former record.
 	 *
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_records( array $readings ): array {
 		$dated   = array_values( array_filter( $readings, fn( Book $book ) => '' !== $book->read_date ) );
@@ -807,7 +823,7 @@ class Achievements {
 	 * The longest run of months in a row with a reading.
 	 *
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_streak( array $readings ): array {
 		$months = array();
@@ -822,7 +838,7 @@ class Achievements {
 		$run     = array();
 
 		foreach ( $months as $month => $date ) {
-			$previous = $run ? gmdate( 'Y-m', strtotime( array_key_last( $run ) . '-01 +1 month' ) ) : '';
+			$previous = $run ? gmdate( 'Y-m', (int) strtotime( array_key_last( $run ) . '-01 +1 month' ) ) : '';
 			$run      = $previous === $month ? $run + array( $month => $date ) : array( $month => $date );
 
 			if ( count( $run ) > count( $longest ) ) {
@@ -857,7 +873,7 @@ class Achievements {
 	 * dated by the reading that did.
 	 *
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_rereads( array $readings ): array {
 		$counts = array();
@@ -912,7 +928,7 @@ class Achievements {
 	 * @param string           $title       Title.
 	 * @param string           $description What the book did, e.g. "Read on 29 February".
 	 * @param array<int,Book>  $books       Books or readings that earned it, in reading order.
-	 * @return array<int,array> The achievement, or none.
+	 * @return list<Achievement> The achievement, or none.
 	 */
 	private static function get_latest_achievement( Achievement_Kind $kind, string $title, string $description, array $books ): array {
 		if ( ! $books ) {
@@ -949,7 +965,7 @@ class Achievements {
 	 *
 	 * @param array<int,Book> $books All the books.
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_discoveries( array $books, array $reads ): array {
 		$dated = array_values( array_filter( $reads, fn( Book $book ) => '' !== $book->read_date ) );
@@ -1007,7 +1023,7 @@ class Achievements {
 	 * A book read that came out in each decade of the 20th century.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_decades( array $reads ): array {
 		$decades = array();
@@ -1045,7 +1061,7 @@ class Achievements {
 	 * books left to it.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_form_milestones( array $reads ): array {
 		/* translators: %s: number of books read. */
@@ -1085,7 +1101,7 @@ class Achievements {
 	 * The latest month in which books of several forms were read, such as a novel, a comic, an essay and a magazine.
 	 *
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_jack_of_all_trades( array $readings ): array {
 		$dated = array_values( array_filter( $readings, fn( Book $book ) => '' !== $book->read_date ) );
@@ -1114,7 +1130,7 @@ class Achievements {
 	 *
 	 * @param array<int,Book> $books All the books.
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_library_tour( array $books, array $reads ): array {
 		$at_hand     = array_filter( $books, fn( Book $book ) => Status::To_Buy !== $book->status );
@@ -1162,7 +1178,7 @@ class Achievements {
 	 * Translators with many books read, as one achievement, and those close to it.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_translators( array $reads ): array {
 		$translators = array();
@@ -1205,7 +1221,7 @@ class Achievements {
 	 * Numbers of original languages read, dated by the reading that reached them, and the next one when close.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array{0:array<int,array>,1:array<int,array>} Earned, then close.
+	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_language_milestones( array $reads ): array {
 		$languages  = array();
@@ -1258,7 +1274,7 @@ class Achievements {
 	 *
 	 * @param array<int,Book> $reads    Books read, in reading order.
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_language_feats( array $reads, array $readings ): array {
 		$own_language = strtok( get_user_locale(), '_' );
@@ -1290,7 +1306,7 @@ class Achievements {
 			);
 		}
 
-		$rosetta_stone = self::get_latest_variety( $dated, fn( Book $book ) => gmdate( 'o-W', strtotime( $book->read_date ) ), $languages, self::ROSETTA_STONE_LANGUAGES );
+		$rosetta_stone = self::get_latest_variety( $dated, fn( Book $book ) => gmdate( 'o-W', (int) strtotime( $book->read_date ) ), $languages, self::ROSETTA_STONE_LANGUAGES );
 
 		if ( $rosetta_stone ) {
 			$feats[] = self::build_achievement(
@@ -1311,7 +1327,7 @@ class Achievements {
 	 * Translators read from several original languages, dated by the reading that brought the second one.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_go_betweens( array $reads ): array {
 		$from   = array();
@@ -1350,10 +1366,10 @@ class Achievements {
 	 * The latest period, e.g. a month, in which books read reached a number of different values, e.g. languages,
 	 * with the reading that reached it.
 	 *
-	 * @param array<int,Book> $dated  Readings with their date, in reading order.
-	 * @param callable        $period Period of a reading, e.g. "2026-10".
-	 * @param callable        $values Values of a book, e.g. its languages.
-	 * @param int             $count  Number of different values to reach.
+	 * @param array<int,Book>                  $dated  Readings with their date, in reading order.
+	 * @param callable(Book):string            $period Period of a reading, e.g. "2026-10".
+	 * @param callable(Book):array<int|string> $values Values of a book, e.g. its languages.
+	 * @param int                              $count  Number of different values to reach.
 	 * @return array{period:string,book:Book}|null
 	 */
 	private static function get_latest_variety( array $dated, callable $period, callable $values, int $count ): ?array {
@@ -1383,7 +1399,7 @@ class Achievements {
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_odd_pages( array $reads, array $dated ): array {
 		$by_pages = fn( int $pages ) => array_values( array_filter( $reads, fn( Book $book ) => $pages === $book->pages ) );
@@ -1420,7 +1436,7 @@ class Achievements {
 	 * The latest month with a short book and a long one read.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_splits( array $dated ): array {
 		$size   = fn( Book $book ) => match ( true ) {
@@ -1456,7 +1472,7 @@ class Achievements {
 	 * The latest reading that brought the pages read over the previous 365 days to the height of the Everest.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_everest( array $dated ): array {
 		$window = array();
@@ -1466,10 +1482,11 @@ class Achievements {
 		foreach ( array_filter( $dated, fn( Book $book ) => null !== $book->pages ) as $book ) {
 			$window[] = $book;
 			$pages   += $book->pages;
-			$start    = gmdate( 'Y-m-d', strtotime( $book->read_date . ' -364 days' ) );
+			$start    = gmdate( 'Y-m-d', (int) strtotime( $book->read_date . ' -364 days' ) );
 
 			while ( $window[0]->read_date < $start ) {
-				$pages -= array_shift( $window )->pages;
+				$pages -= $window[0]->pages;
+				array_shift( $window );
 			}
 
 			if ( $pages >= self::EVEREST_PAGES ) {
@@ -1491,7 +1508,7 @@ class Achievements {
 	 * The latest month with works read from several centuries.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_time_machine( array $dated ): array {
 		$century = fn( Book $book ) => null !== self::get_first_year( $book ) ? array( intdiv( self::get_first_year( $book ), 100 ) ) : array();
@@ -1518,7 +1535,7 @@ class Achievements {
 	 * The latest two works that came out the same year, by different authors, read the same day.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_twins( array $dated ): array {
 		$seen  = array();
@@ -1563,7 +1580,7 @@ class Achievements {
 	 * @param array<int,Book> $books    All the books.
 	 * @param array<int,Book> $reads    Books read, in reading order.
 	 * @param array<int,Book> $readings Readings, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_easter_eggs( array $books, array $reads, array $readings ): array {
 		$dated       = array_values( array_filter( $readings, fn( Book $book ) => '' !== $book->read_date ) );
@@ -1587,7 +1604,7 @@ class Achievements {
 				Achievement_Kind::Friday_13th,
 				__( 'Friday the 13th', 'library' ),
 				__( 'Read on a Friday the 13th', 'library' ),
-				array_values( array_filter( $dated, fn( Book $book ) => '13' === substr( $book->read_date, 8 ) && '5' === gmdate( 'N', strtotime( $book->read_date ) ) ) )
+				array_values( array_filter( $dated, fn( Book $book ) => '13' === substr( $book->read_date, 8 ) && '5' === gmdate( 'N', (int) strtotime( $book->read_date ) ) ) )
 			),
 			self::get_latest_achievement(
 				Achievement_Kind::Palindrome,
@@ -1641,7 +1658,7 @@ class Achievements {
 	 * The latest day with many books read.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_marathon( array $dated ): array {
 		$days = array();
@@ -1666,14 +1683,14 @@ class Achievements {
 	 * The longest run of days in a row with a book finished each day, the latest one among the longest.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_seven_days_a_week( array $dated ): array {
 		$longest = array();
 		$run     = array();
 
 		foreach ( array_unique( array_column( $dated, 'read_date' ) ) as $day ) {
-			$previous = $run ? gmdate( 'Y-m-d', strtotime( end( $run ) . ' +1 day' ) ) : '';
+			$previous = $run ? gmdate( 'Y-m-d', (int) strtotime( end( $run ) . ' +1 day' ) ) : '';
 			$run      = $previous === $day ? array( ...$run, $day ) : array( $day );
 
 			if ( count( $run ) >= count( $longest ) ) {
@@ -1703,7 +1720,7 @@ class Achievements {
 	 * nor breaks it.
 	 *
 	 * @param array<int,Book> $dated Readings with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_hat_trick( array $dated ): array {
 		$run   = array();
@@ -1738,7 +1755,7 @@ class Achievements {
 	 * first book of that title.
 	 *
 	 * @param array<int,Book> $reads Books read, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_namesakes( array $reads ): array {
 		$titles = array();
@@ -1774,7 +1791,7 @@ class Achievements {
 	 * The first volume of a series read after a later one.
 	 *
 	 * @param array<int,Book> $dated Books read with their date, in reading order.
-	 * @return array<int,array>
+	 * @return list<Achievement>
 	 */
 	private function get_back_to_the_start( array $dated ): array {
 		$later = array();

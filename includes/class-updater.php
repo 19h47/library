@@ -25,6 +25,8 @@ use WP_Upgrader;
  * @package    Library
  * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
+ *
+ * @phpstan-type Release array{version:string,package:string,url:string,notes:string,date:string,readme:string}
  */
 class Updater {
 
@@ -63,10 +65,10 @@ class Updater {
 	/**
 	 * Return the latest release as update data.
 	 *
-	 * @param array|false $update      Update data, false when no other filter answered.
-	 * @param array       $plugin_data Plugin headers.
-	 * @param string      $plugin_file Plugin basename.
-	 * @return array|false
+	 * @param array<string,mixed>|false $update      Update data, false when no other filter answered.
+	 * @param array<string,string>      $plugin_data Plugin headers.
+	 * @param string                    $plugin_file Plugin basename.
+	 * @return array<string,mixed>|false
 	 */
 	public function check_update( $update, array $plugin_data, string $plugin_file ) {
 		unset( $plugin_data );
@@ -99,10 +101,10 @@ class Updater {
 	/**
 	 * Fill the "View details" modal with the readme of the release, as on WordPress.org, or else its notes.
 	 *
-	 * @param false|object|array $result Plugin information, false by default.
-	 * @param string             $action API action.
-	 * @param object             $args   Request arguments.
-	 * @return false|object|array
+	 * @param false|object|array<string,mixed> $result Plugin information, false by default.
+	 * @param string                           $action API action.
+	 * @param object                           $args   Request arguments.
+	 * @return false|object|array<string,mixed>
 	 */
 	public function get_plugin_information( $result, string $action, object $args ) {
 		if ( 'plugin_information' !== $action || ! isset( $args->slug ) || $this->get_slug() !== $args->slug ) {
@@ -154,10 +156,10 @@ class Updater {
 	/**
 	 * Rename the extracted folder of the package to the folder of the plugin, whatever it is named on the site.
 	 *
-	 * @param string|WP_Error $source        Path of the extracted folder.
-	 * @param string          $remote_source Parent folder of the extraction.
-	 * @param WP_Upgrader     $upgrader      Upgrader instance.
-	 * @param array           $hook_extra    Extra arguments, with the plugin being updated.
+	 * @param string|WP_Error     $source        Path of the extracted folder.
+	 * @param string              $remote_source Parent folder of the extraction.
+	 * @param WP_Upgrader         $upgrader      Upgrader instance.
+	 * @param array<string,mixed> $hook_extra    Extra arguments, with the plugin being updated.
 	 * @return string|WP_Error
 	 */
 	public function rename_source( $source, string $remote_source, $upgrader, array $hook_extra ) {
@@ -186,12 +188,17 @@ class Updater {
 	 * Latest GitHub release with its package and its readme, cached to stay under the API rate limit; none until its
 	 * package is attached, a minute or so after it is published.
 	 *
-	 * @return array{version:string,package:string,url:string,notes:string,date:string,readme:string}|null
+	 * @return Release|null
 	 */
 	private function get_release(): ?array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- "Check again" button on the updates screen.
 		$force_check = isset( $_GET['force-check'] );
-		$cached      = $force_check ? false : get_site_transient( self::CACHE_KEY );
+		/**
+		 * The release cached, an empty string for a failed request, false for none.
+		 *
+		 * @var Release|''|false $cached
+		 */
+		$cached = $force_check ? false : get_site_transient( self::CACHE_KEY );
 
 		if ( false !== $cached ) {
 			return is_array( $cached ) ? $cached : null;

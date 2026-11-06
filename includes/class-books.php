@@ -190,9 +190,9 @@ class Books {
 	 * la lune, vol. 1" for a series with a comma; so does a volume without series. A volume typed "Tome 08" shows as
 	 * "vol. 8", a number alone as "no. 8", anything else as typed, e.g. "Chant II".
 	 *
-	 * @param string $title  Title of the book.
-	 * @param string $series Series of the book, from its cycle, or empty.
-	 * @param array  $meta   Meta of the book, saved or as its form sends them: volume_number and subtitle.
+	 * @param string              $title  Title of the book.
+	 * @param string              $series Series of the book, from its cycle, or empty.
+	 * @param array<string,mixed> $meta   Meta of the book, saved or as its form sends them: volume_number and subtitle.
 	 * @return string
 	 */
 	public static function build_full_title( string $title, string $series, array $meta ): string {
@@ -245,15 +245,15 @@ class Books {
 	 * A name keeps letters and digits without accents only: a sign a slug keeps encoded, such as the dot of "René⸱e", is
 	 * left out. A book named in another script keeps the name of its photo.
 	 *
-	 * @param string   $title   Title of the book.
-	 * @param string[] $authors Names of its authors.
-	 * @param string   $series  Series of the book, from its cycle, or empty.
-	 * @param array    $meta    Meta of the book: volume_number, subtitle and collective.
-	 * @param string   $photo   File name of the photo.
+	 * @param string              $title   Title of the book.
+	 * @param string[]            $authors Names of its authors.
+	 * @param string              $series  Series of the book, from its cycle, or empty.
+	 * @param array<string,mixed> $meta    Meta of the book: volume_number, subtitle and collective.
+	 * @param string              $photo   File name of the photo.
 	 * @return string
 	 */
 	public static function build_cover_name( string $title, array $authors, string $series, array $meta, string $photo ): string {
-		$slug = fn( string $text ): string => trim( preg_replace( array( '/%[0-9a-f]{2}/', '/-{2,}/' ), array( '', '-' ), sanitize_title( $text ) ), '-' );
+		$slug = fn( string $text ): string => trim( (string) preg_replace( array( '/%[0-9a-f]{2}/', '/-{2,}/' ), array( '', '-' ), sanitize_title( $text ) ), '-' );
 
 		// By name, case and accents aside, as the books list their authors.
 		$authors = array_filter( array_map( $slug, $authors ) );
