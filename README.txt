@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.25.0
+Stable tag: 9.26.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,12 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.26.0 =
+* Reading app: a book added is filled in from the catalogue of the BnF: its ISBN, unless a book of the library has it, fills in the fields left empty, its title, people with their roles, publisher, collection and number, series and volume, subtitle, pages, original language and form, with the names the library gives them.
+* Reading app: a view gives way to the next one in a view transition, the cover of a book opened going from its card to its page and back; without motion, the views only fade. The app needs Chrome 135, Safari 26.2 or Firefox 147.
+* Reading app: the books and the books to buy show as a grid of their covers with the Covers button, the choice kept.
+* REST API: `GET /wp-json/library/v1/books/bnf?isbn=<isbn>` gives the book of an ISBN in the catalogue of the BnF, as the form of a book takes it.
 
 = 9.25.0 =
 * Fixed: a series, a path of terms or the name of a language no longer fail on an error of WordPress.
