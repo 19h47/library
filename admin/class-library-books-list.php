@@ -145,15 +145,16 @@ class Library_Books_List {
 			case 'library_rating':
 				$rating = get_post_meta( $post_id, 'library_rating', true );
 
-				$output .= '' !== $rating ? esc_html( Library_Books::format_rating( (float) $rating ) ) . ' / 10' : '—';
+				$output .= '' !== $rating ? esc_html( Library_Books::format_rating_out_of_ten( (float) $rating ) ) : '—';
 
 				break;
 			case 'thumbnail':
 				$rating = get_post_meta( $post_id, 'library_rating', true );
 
 				if ( '' !== $rating ) {
-					$rating_text = Library_Books::format_rating( (float) $rating );
-					$output     .= '<span class="library-rating-dot" title="' . esc_attr__( 'Rated', 'library' ) . ' ' . esc_attr( $rating_text ) . '/10" aria-hidden="true">' . esc_html( $rating_text ) . '</span>';
+					/* translators: %s: rating out of 10, e.g. 7.5/10. */
+					$title   = sprintf( __( 'Rated %s', 'library' ), Library_Books::format_rating_out_of_ten( (float) $rating ) );
+					$output .= '<span class="library-rating-dot" title="' . esc_attr( $title ) . '" aria-hidden="true">' . esc_html( Library_Books::format_rating( (float) $rating ) ) . '</span>';
 				}
 
 				$output .= '<span class="library-thumbnail-cell">';

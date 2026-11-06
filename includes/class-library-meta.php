@@ -395,8 +395,7 @@ class Library_Meta {
 		$ratings = array( '' => __( 'No rating', 'library' ) );
 
 		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
-			/* translators: %s: rating, e.g. 7.5. */
-			$ratings[ (string) $rating ] = sprintf( __( '%s/10', 'library' ), Library_Books::format_rating( $rating ) );
+			$ratings[ (string) $rating ] = Library_Books::format_rating_out_of_ten( $rating );
 		}
 
 		return $ratings;

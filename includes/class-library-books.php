@@ -363,6 +363,17 @@ class Library_Books {
 	}
 
 	/**
+	 * A rating as text, out of 10: "8,5/10".
+	 *
+	 * @param float $rating Rating, out of 10.
+	 * @return string
+	 */
+	public static function format_rating_out_of_ten( float $rating ): string {
+		/* translators: %s: rating, e.g. 7.5. */
+		return sprintf( __( '%s/10', 'library' ), self::format_rating( $rating ) );
+	}
+
+	/**
 	 * Values of a field separated with commas.
 	 *
 	 * @param string $value Field value.
