@@ -10,18 +10,29 @@ import { fill } from 'library-app/render';
  */
 class LibraryFiltersElement extends Brick {
 	connect( signal ) {
+		/** @type {HTMLButtonElement} */
 		const $open = this.querySelector( '[data-action="open-filters"]' );
 		const $dialog = this.querySelector( 'dialog' );
+		/** @type {HTMLElement} */
 		const $chosen = this.querySelector( '.library-filters__chosen' );
-		const $pills = [ ...$chosen.querySelectorAll( '[data-filter]' ) ];
-		const filters = [ ...new Set( $pills.map( ( $pill ) => $pill.dataset.filter ) ) ];
+		const $pills = /** @type {HTMLElement[]} */ ( [
+			...$chosen.querySelectorAll( '[data-filter]' ),
+		] );
+		const filters = [
+			...new Set( $pills.map( ( $pill ) => $pill.dataset.filter ) ),
+		];
 		const label = $open.textContent.trim();
 
-		$open.addEventListener( 'click', () => $dialog.showModal(), { signal } );
+		$open.addEventListener( 'click', () => $dialog.showModal(), {
+			signal,
+		} );
 		$chosen.addEventListener(
 			'click',
 			( event ) => {
-				const $pill = event.target.closest( '[data-filter]' );
+				/** @type {HTMLElement} */
+				const $pill = /** @type {Element} */ ( event.target ).closest(
+					'[data-filter]'
+				);
 
 				if ( ! $pill ) {
 					return;
@@ -36,23 +47,42 @@ class LibraryFiltersElement extends Brick {
 
 		return [
 			store.select(
-				( state ) => filters.map( ( filter ) => state[ filter ] ).join(),
+				( state ) =>
+					filters.map( ( filter ) => state[ filter ] ).join(),
 				() => {
 					const state = store.get();
-					const chosen = $pills.filter( ( $pill ) => state[ $pill.dataset.filter ] === $pill.dataset.value );
+					const chosen = $pills.filter(
+						( $pill ) =>
+							state[ $pill.dataset.filter ] ===
+							$pill.dataset.value
+					);
 
 					$pills.forEach( ( $pill ) => {
 						$pill.hidden = ! chosen.includes( $pill );
 					} );
 					$chosen.hidden = ! chosen.length;
-					fill( $open, { label: join( [ label, chosen.length && formatNumber( chosen.length ) ] ) } );
+					fill( $open, {
+						label: join( [
+							label,
+							chosen.length && formatNumber( chosen.length ),
+						] ),
+					} );
 				}
 			),
 			store.select(
-				( state ) => ( state.search.loaded ? state.search.total : null ),
+				( state ) =>
+					state.search.loaded ? state.search.total : null,
 				( total ) => {
-					/* translators: %s: number of books found, e.g. 19 books. */
-					fill( this, { show: null === total ? __( 'Loading…', 'library' ) : sprintf( __( 'Show %s', 'library' ), formatBooks( total ) ) } );
+					fill( this, {
+						show:
+							null === total
+								? __( 'Loading…', 'library' )
+								: sprintf(
+										/* translators: %s: number of books found, e.g. 19 books. */
+										__( 'Show %s', 'library' ),
+										formatBooks( total )
+								  ),
+					} );
 				}
 			),
 		];

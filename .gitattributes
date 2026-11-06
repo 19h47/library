@@ -6,8 +6,17 @@ bin export-ignore
 .gitignore export-ignore
 composer.json export-ignore
 composer.lock export-ignore
+eslint.config.js export-ignore
+jsconfig.json export-ignore
+package.json export-ignore
+phpstan.neon export-ignore
+playwright.config.js export-ignore
+pnpm-lock.yaml export-ignore
+pnpm-workspace.yaml export-ignore
+.wp-env.json export-ignore
 phpcs.xml export-ignore
 phpunit.xml.dist export-ignore
 RELEASING.md export-ignore
 tests export-ignore
+types export-ignore
 TESTING.md export-ignore

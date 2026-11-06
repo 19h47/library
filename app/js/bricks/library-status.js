@@ -9,7 +9,11 @@ class LibraryStatusElement extends Brick {
 
 		return [
 			store.select(
-				( state ) => state[ list ].error || ( state[ list ].loaded && ! state[ list ].total ? __( 'No book found.', 'library' ) : '' ),
+				( state ) =>
+					state[ list ].error ||
+					( state[ list ].loaded && ! state[ list ].total
+						? __( 'No book found.', 'library' )
+						: '' ),
 				( message ) => {
 					this.hidden = ! message;
 					this.textContent = message;

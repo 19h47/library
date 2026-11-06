@@ -90,7 +90,7 @@ class Library_WP_Query {
 			function ( array $found ) use ( &$keywords ): string {
 				preg_match_all( '/"([^"]*)"|([^,]+)/', $found[3], $values, PREG_SET_ORDER );
 
-				$values = array_values( array_filter( array_map( fn( array $value ) => trim( $value[2] ?? $value[1] ), $values ), 'strlen' ) );
+				$values = array_values( array_filter( array_map( fn( array $value ) => trim( $value[2] ?? $value[1] ), $values ), fn( string $name ) => '' !== $name ) );
 
 				// Only empty quotes: not a keyword.
 				if ( ! $values ) {

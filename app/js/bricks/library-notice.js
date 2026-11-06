@@ -1,6 +1,8 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 
+/** @import { Notice } from 'library-app/store' */
+
 // How long a notice shows, and a notice with an action, such as Undo, for it to be reached.
 const NOTICE_MS = 4000;
 const ACTION_MS = 8000;
@@ -15,7 +17,9 @@ class LibraryNoticeElement extends Brick {
 
 	connect( signal ) {
 		const $text = this.querySelector( '[data-field="text"]' );
+		/** @type {HTMLButtonElement} */
 		const $action = this.querySelector( '.library-link' );
+		/** @type {Notice|null} */
 		let notice = null;
 		// Whether the pointer or the focus is on it: a notice that comes then waits for them to leave.
 		const held = { pointer: false, focus: false };
@@ -27,7 +31,10 @@ class LibraryNoticeElement extends Brick {
 			clearTimeout( this.#timeout );
 
 			if ( ! held.pointer && ! held.focus ) {
-				this.#timeout = setTimeout( hide, notice?.action ? ACTION_MS : NOTICE_MS );
+				this.#timeout = setTimeout(
+					hide,
+					notice?.action ? ACTION_MS : NOTICE_MS
+				);
 			}
 		};
 		const hold = ( by, isHeld ) => () => {
@@ -36,8 +43,12 @@ class LibraryNoticeElement extends Brick {
 		};
 
 		signal.addEventListener( 'abort', () => clearTimeout( this.#timeout ) );
-		this.addEventListener( 'pointerenter', hold( 'pointer', true ), { signal } );
-		this.addEventListener( 'pointerleave', hold( 'pointer', false ), { signal } );
+		this.addEventListener( 'pointerenter', hold( 'pointer', true ), {
+			signal,
+		} );
+		this.addEventListener( 'pointerleave', hold( 'pointer', false ), {
+			signal,
+		} );
 		this.addEventListener( 'focusin', hold( 'focus', true ), { signal } );
 		this.addEventListener( 'focusout', hold( 'focus', false ), { signal } );
 		$action.addEventListener(

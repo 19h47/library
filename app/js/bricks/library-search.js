@@ -13,6 +13,7 @@ const STYLEGUIDE = 'styleguide';
 class LibrarySearchElement extends Brick {
 	connect( signal ) {
 		const $input = this.querySelector( 'input' );
+		/** @type {HTMLElement} */
 		const $keywords = this.querySelector( '.library-search__keywords' );
 		const hide = () => {
 			$keywords.hidden = true;
@@ -48,7 +49,13 @@ class LibrarySearchElement extends Brick {
 		this.addEventListener(
 			'focusout',
 			( event ) => {
-				if ( ! isPointing && event.relatedTarget && ! this.contains( event.relatedTarget ) ) {
+				if (
+					! isPointing &&
+					event.relatedTarget &&
+					! this.contains(
+						/** @type {Node} */ ( event.relatedTarget )
+					)
+				) {
 					hide();
 				}
 			},
@@ -76,25 +83,37 @@ class LibrarySearchElement extends Brick {
 			( event ) => {
 				isPointing = false;
 
-				if ( ! this.contains( event.target ) ) {
+				if ( ! this.contains( /** @type {Node} */ ( event.target ) ) ) {
 					hide();
 				}
 			},
 			{ signal }
 		);
 		// A keyword keeps the focus in the field, and the keyboard of a phone open.
-		$keywords.addEventListener( 'mousedown', ( event ) => event.preventDefault(), { signal } );
+		$keywords.addEventListener(
+			'mousedown',
+			( event ) => event.preventDefault(),
+			{ signal }
+		);
 		$keywords.addEventListener(
 			'click',
 			( event ) => {
-				const keyword = event.target.closest( '[data-keyword]' )?.dataset.keyword;
+				/** @type {HTMLElement} */
+				const $keyword = /** @type {Element} */ (
+					event.target
+				).closest( '[data-keyword]' );
+				const keyword = $keyword?.dataset.keyword;
 
 				if ( ! keyword ) {
 					return;
 				}
 
-				const query = [ $input.value.trim(), keyword ].filter( Boolean ).join( ' ' );
-				const caret = keyword.endsWith( '""' ) ? query.length - 1 : query.length;
+				const query = [ $input.value.trim(), keyword ]
+					.filter( Boolean )
+					.join( ' ' );
+				const caret = keyword.endsWith( '""' )
+					? query.length - 1
+					: query.length;
 
 				$input.value = query;
 				$input.focus();

@@ -13,7 +13,11 @@ class LibraryFilterElement extends Brick {
 		const $first = $select.options[ 0 ];
 		const label = $first.textContent;
 
-		$select.addEventListener( 'change', () => store.setFilter( filter, $select.value ), { signal } );
+		$select.addEventListener(
+			'change',
+			() => store.setFilter( filter, $select.value ),
+			{ signal }
+		);
 
 		return [
 			store.select(
@@ -25,7 +29,9 @@ class LibraryFilterElement extends Brick {
 			store.select(
 				( state ) => /(^|\s)series:/.test( state.query ),
 				( isSeries ) => {
-					$first.textContent = isSeries ? $select.dataset.series ?? label : label;
+					$first.textContent = isSeries
+						? $select.dataset.series ?? label
+						: label;
 				}
 			),
 		];

@@ -6,7 +6,9 @@ class LibraryThemeToggleElement extends Brick {
 	connect( signal ) {
 		const $button = this.querySelector( 'button' );
 
-		$button.addEventListener( 'click', () => store.toggleTheme(), { signal } );
+		$button.addEventListener( 'click', () => store.toggleTheme(), {
+			signal,
+		} );
 
 		return [
 			store.select(
@@ -14,7 +16,10 @@ class LibraryThemeToggleElement extends Brick {
 				( theme ) => {
 					// U+FE0E forces text presentation (no emoji rendering).
 					$button.textContent = 'dark' === theme ? '☀︎' : '☽︎';
-					$button.setAttribute( 'aria-pressed', ( 'dark' === theme ).toString() );
+					$button.setAttribute(
+						'aria-pressed',
+						( 'dark' === theme ).toString()
+					);
 				}
 			),
 		];

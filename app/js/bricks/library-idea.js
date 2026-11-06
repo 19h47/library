@@ -11,8 +11,11 @@ import { followBooks } from 'library-app/behaviors';
 class LibraryIdeaElement extends Brick {
 	connect( signal ) {
 		const $book = this.querySelector( '[data-field="book"]' );
+		/** @type {HTMLButtonElement} */
 		const $next = this.querySelector( '[data-action="next-idea"]' );
-		const render = this.hasAttribute( 'compact' ) ? renderRow : ( book ) => renderBook( book, formatState( book ) );
+		const render = this.hasAttribute( 'compact' )
+			? renderRow
+			: ( book ) => renderBook( book, formatState( book ) );
 
 		$next.addEventListener( 'click', () => store.nextIdea(), { signal } );
 
@@ -26,8 +29,13 @@ class LibraryIdeaElement extends Brick {
 					this.hidden = ! idea.loaded;
 					$next.disabled = idea.loading;
 					$next.hidden = idea.total < 2;
-					fill( this, { status: idea.error, reason: book ? idea.reason : '' } );
-					$book.replaceChildren( ...( book ? [ render( book ) ] : [] ) );
+					fill( this, {
+						status: idea.error,
+						reason: book ? idea.reason : '',
+					} );
+					$book.replaceChildren(
+						...( book ? [ render( book ) ] : [] )
+					);
 				}
 			),
 		];

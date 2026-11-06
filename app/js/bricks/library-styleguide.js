@@ -1,8 +1,30 @@
 import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
-import { dayFormat, formatBooks, formatDate, formatRating, formatState, join } from 'library-app/format';
-import { clone, fill, fillCover, fillFolded, renderAchievement, renderAuthor, renderBook, renderCloseAchievement, renderCover, renderCurrent, renderRow, renderSeries } from 'library-app/render';
+import {
+	dayFormat,
+	formatBooks,
+	formatDate,
+	formatRating,
+	formatState,
+	join,
+} from 'library-app/format';
+import {
+	clone,
+	fill,
+	fillCover,
+	fillFolded,
+	renderAchievement,
+	renderAuthor,
+	renderBook,
+	renderCloseAchievement,
+	renderCover,
+	renderCurrent,
+	renderRow,
+	renderSeries,
+} from 'library-app/render';
 import { showError } from 'library-app/behaviors';
+
+/** @import { Book } from 'library-app/api' */
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
 const COVER = {
@@ -13,28 +35,69 @@ const COVER = {
 	height: 300,
 };
 
-// The cases of a card: the samples are written in English, as code is.
+// The cases of a card: the samples are written in English, as code is. They have the fields a card reads only.
 const BOOKS = [
-	{ title: 'A book with a cover, read again', credits: 'An Author · A Publisher, A Collection · 2024', cover: COVER, read: true, read_date: [ '', '2026-10-28' ], rating: 8 },
-	{ title: 'A book without a cover', credits: 'An Author · A Publisher · 2024' },
+	{
+		title: 'A book with a cover, read again',
+		credits: 'An Author · A Publisher, A Collection · 2024',
+		cover: COVER,
+		read: true,
+		read_date: [ '', '2026-10-28' ],
+		rating: 8,
+	},
+	{
+		title: 'A book without a cover',
+		credits: 'An Author · A Publisher · 2024',
+	},
 	{
 		title: 'A book with an excerpt',
 		credits: 'An Author · A Publisher · 2024',
-		excerpt: 'Its excerpt stops at its third line on a card, and shows in full when the book opens: the rest of it is here to go past three lines, at any width the card takes.',
+		excerpt:
+			'Its excerpt stops at its third line on a card, and shows in full when the book opens: the rest of it is here to go past three lines, at any width the card takes.',
 		cover: COVER,
 		read: true,
 		rating: 7.5,
 		form: 'A form',
 	},
-	{ title: 'A book not kept', credits: 'An Author · A Publisher · 2024', status: notKept, read: true, form: 'A form', languages: [ 'ja' ] },
-	{ title: 'A book to buy', credits: 'An Author · A Publisher · 2024', cover: COVER, status: toBuy },
+	{
+		title: 'A book not kept',
+		credits: 'An Author · A Publisher · 2024',
+		status: notKept,
+		read: true,
+		form: 'A form',
+		languages: [ 'ja' ],
+	},
+	{
+		title: 'A book to buy',
+		credits: 'An Author · A Publisher · 2024',
+		cover: COVER,
+		status: toBuy,
+	},
 	{
 		title: 'A title long enough to go over several lines, as the title of a volume of a series with its subtitle does',
-		credits: 'A First Author, A Second Author and A Third Author · A Publisher With A Long Name, A Collection With A Long Name · 2024',
+		credits:
+			'A First Author, A Second Author and A Third Author · A Publisher With A Long Name, A Collection With A Long Name · 2024',
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
-].map( ( book, index ) => ( { id: index + 1, credits: '', excerpt: '', cover: null, status: '', read: false, read_date: [], rating: 0, form: '', languages: [], authors: [ { id: 1, name: 'An Author' } ], translators: [], ...book } ) );
+].map(
+	( book, index ) =>
+		/** @type {Book} */ ( {
+			id: index + 1,
+			credits: '',
+			excerpt: '',
+			cover: null,
+			status: '',
+			read: false,
+			read_date: [],
+			rating: 0,
+			form: '',
+			languages: [],
+			authors: [ { id: 1, name: 'An Author' } ],
+			translators: [],
+			...book,
+		} )
+);
 
 const AUTHORS = [
 	{
@@ -47,90 +110,212 @@ const AUTHORS = [
 	{ id: 2, name: 'An Author Without Description', description: '', books: 1 },
 ];
 
-const SERIES = { id: 1, name: 'A Cycle, A Series', description: '<p>The description of a series, on the page of a person.</p>', books: 3, read: 2 };
+const SERIES = {
+	id: 1,
+	name: 'A Cycle, A Series',
+	description: '<p>The description of a series, on the page of a person.</p>',
+	books: 3,
+	read: 2,
+};
 
 const ACHIEVEMENTS = [
-	{ title: 'An achievement', subject: 'Its subject', detail: 'Its detail', date: '2026-10-28' },
-	{ title: 'An achievement whose subject is a link', subject: 'Tintin', detail: '24 books', date: '2026-10-28', target: { type: 'search', search: 'Tintin' } },
+	{
+		title: 'An achievement',
+		subject: 'Its subject',
+		detail: 'Its detail',
+		date: '2026-10-28',
+	},
+	{
+		title: 'An achievement whose subject is a link',
+		subject: 'Tintin',
+		detail: '24 books',
+		date: '2026-10-28',
+		target: { type: 'search', search: 'Tintin' },
+	},
 ];
 
 const CLOSE_ACHIEVEMENTS = [
-	{ title: 'An achievement close to it', subject: 'Its subject', detail: '1 book left: A Title', done: 22, total: 23 },
-	{ title: 'An achievement without subject', subject: '', detail: '', done: 3, total: 10 },
+	{
+		title: 'An achievement close to it',
+		subject: 'Its subject',
+		detail: '1 book left: A Title',
+		done: 22,
+		total: 23,
+	},
+	{
+		title: 'An achievement without subject',
+		subject: '',
+		detail: '',
+		done: 3,
+		total: 10,
+	},
 ];
 
 /** The styleguide: the samples of the components the app renders, filled with the functions it renders them with. */
 class LibraryStyleguideElement extends Brick {
 	connect() {
 		const samples = {
-			books: () => BOOKS.map( ( book ) => renderBook( book, formatState( book ) ) ),
-			current: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
+			books: () =>
+				BOOKS.map( ( book ) =>
+					renderBook( book, formatState( book ) )
+				),
+			current: () =>
+				[ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
 			rows: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderRow ),
 			month: () => [ this.#renderMonth() ],
-			covers: () => [ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map( ( book ) => renderCover( book ) ),
+			covers: () =>
+				[ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map(
+					( book ) => renderCover( book )
+				),
 			volumes: () => this.#renderVolumes(),
 			terms: () => [
-				...AUTHORS.map( ( author ) => renderAuthor( author, formatBooks( author.books ) ) ),
-				renderSeries( SERIES, join( [ formatBooks( SERIES.books ), `${ SERIES.read } read` ] ) ),
+				...AUTHORS.map( ( author ) =>
+					renderAuthor( author, formatBooks( author.books ) )
+				),
+				renderSeries(
+					SERIES,
+					join( [
+						formatBooks( SERIES.books ),
+						`${ SERIES.read } read`,
+					] )
+				),
 			],
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
-			close: () => CLOSE_ACHIEVEMENTS.map( ( achievement, index ) => renderCloseAchievement( achievement, `library-styleguide-close-${ index }` ) ),
-			people: () => [ 'A Person', '' ].map( ( name ) => this.#renderInput( 'library-edit-person', name ) ),
-			dates: () => [ '', '2026-10-28', '2126-10-28' ].map( ( date ) => this.#renderInput( date ? 'library-read-date' : 'library-read-date-unknown', date ) ),
+			close: () =>
+				CLOSE_ACHIEVEMENTS.map( ( achievement, index ) =>
+					renderCloseAchievement(
+						achievement,
+						`library-styleguide-close-${ index }`
+					)
+				),
+			people: () =>
+				[ 'A Person', '' ].map( ( name ) =>
+					this.#renderInput( 'library-edit-person', name )
+				),
+			dates: () =>
+				[ '', '2026-10-28', '2126-10-28' ].map( ( date ) =>
+					this.#renderInput(
+						date
+							? 'library-read-date'
+							: 'library-read-date-unknown',
+						date
+					)
+				),
 		};
 
-		Object.entries( samples ).forEach( ( [ name, render ] ) => this.querySelector( `[data-sample="${ name }"]` ).replaceChildren( ...render() ) );
+		Object.entries( samples ).forEach( ( [ name, render ] ) =>
+			this.querySelector( `[data-sample="${ name }"]` ).replaceChildren(
+				...render()
+			)
+		);
 
 		// Five authors, the ones past the first folded, as the page of a series folds them.
 		fillFolded(
 			this.querySelector( '[data-folded="authors"]' ),
-			Array.from( { length: 5 }, ( _, index ) => renderAuthor( AUTHORS[ index % AUTHORS.length ], formatBooks( AUTHORS[ index % AUTHORS.length ].books ) ) ),
+			Array.from( { length: 5 }, ( _, index ) =>
+				renderAuthor(
+					AUTHORS[ index % AUTHORS.length ],
+					formatBooks( AUTHORS[ index % AUTHORS.length ].books )
+				)
+			),
 			( folded ) => `${ folded } other authors`
 		);
 
 		// The cover of the book open and the one of its form, drawn as the others; the form can remove it.
 		fillCover( this.querySelector( '.library-book__cover' ), COVER );
-		fillCover( this.querySelector( '.library-image-field__preview' ), COVER );
-		this.querySelector( '.library-image-field [data-action]' ).hidden = false;
+		fillCover(
+			this.querySelector( '.library-image-field__preview' ),
+			COVER
+		);
+		/** @type {HTMLButtonElement} */ (
+			this.querySelector( '.library-image-field [data-action]' )
+		).hidden = false;
 
 		// The fields in error show as the forms show theirs.
+		/** @type {HTMLInputElement} */
 		const $invalid = this.querySelector( '[data-error]' );
 
 		showError( $invalid, $invalid.dataset.error );
-		showError( this.querySelector( '[data-sample="dates"] li:last-child input' ), 'A date later than today, as the browser says it.' );
+		showError(
+			this.querySelector( '[data-sample="dates"] li:last-child input' ),
+			'A date later than today, as the browser says it.'
+		);
 
 		// The size each sample of text takes, at this width.
-		this.querySelectorAll( '.library-styleguide__sizes li' ).forEach( ( $item ) => {
-			const size = parseFloat( getComputedStyle( $item.querySelector( '.library-styleguide__size' ) ).fontSize );
+		this.querySelectorAll( '.library-styleguide__sizes li' ).forEach(
+			( $item ) => {
+				const size = parseFloat(
+					getComputedStyle(
+						$item.querySelector( '.library-styleguide__size' )
+					).fontSize
+				);
 
-			$item.querySelector( '[data-size]' ).textContent = `${ Math.round( size * 10 ) / 10 } px`;
-		} );
+				$item.querySelector( '[data-size]' ).textContent = `${
+					Math.round( size * 10 ) / 10
+				} px`;
+			}
+		);
 
 		return [];
 	}
 
-	/** The volumes of a series, as the page of the second one shows them. */
+	/**
+	 * The volumes of a series, as the page of the second one shows them.
+	 *
+	 * @return {HTMLElement[]} Their covers.
+	 */
 	#renderVolumes() {
-		const $covers = [ [ BOOKS[ 0 ], 'Read' ], [ BOOKS[ 4 ], 'In progress' ], [ BOOKS[ 1 ], '' ] ].map( ( [ book, state ] ) => renderCover( book, state ) );
+		const $covers = [
+			[ BOOKS[ 0 ], 'Read' ],
+			[ BOOKS[ 4 ], 'In progress' ],
+			[ BOOKS[ 1 ], '' ],
+		].map( ( /** @type {[Book, string]} */ [ book, state ] ) =>
+			renderCover( book, state )
+		);
 
-		$covers[ 1 ].querySelector( 'a' ).setAttribute( 'aria-current', 'page' );
+		$covers[ 1 ]
+			.querySelector( 'a' )
+			.setAttribute( 'aria-current', 'page' );
 
 		return $covers;
 	}
 
-	/** A month of the diary, with two readings. */
+	/**
+	 * A month of the diary, with two readings.
+	 *
+	 * @return {HTMLElement} The month.
+	 */
 	#renderMonth() {
 		const $month = clone( 'library-month' );
 
-		fill( $month, { month: formatDate( '2026-10' ), count: formatBooks( 2 ) } );
+		fill( $month, {
+			month: formatDate( '2026-10' ),
+			count: formatBooks( 2 ),
+		} );
 		$month
 			.querySelector( 'ul' )
-			.append( ...[ BOOKS[ 0 ], BOOKS[ 1 ] ].map( ( book ) => renderBook( book, join( [ formatDate( '2026-10-28', dayFormat ), formatRating( book.rating ) ] ) ) ) );
+			.append(
+				...[ BOOKS[ 0 ], BOOKS[ 1 ] ].map( ( book ) =>
+					renderBook(
+						book,
+						join( [
+							formatDate( '2026-10-28', dayFormat ),
+							formatRating( book.rating ),
+						] )
+					)
+				)
+			);
 
 		return $month;
 	}
 
-	/** A row of a list of inputs, from its template, with its value. */
+	/**
+	 * A row of a list of inputs, from its template, with its value.
+	 *
+	 * @param {string} template The ID of its template.
+	 * @param {string} value    The value of its input.
+	 * @return {HTMLElement} The row.
+	 */
 	#renderInput( template, value ) {
 		const $item = clone( template );
 

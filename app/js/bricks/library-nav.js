@@ -17,9 +17,16 @@ class LibraryNavElement extends Brick {
 	connect() {
 		const $row = this.querySelector( '.library-nav' );
 		const $links = [ ...this.querySelectorAll( 'a' ) ];
-		const $books = $links.find( ( $link ) => 'books' === routeOf( $link.href ).view );
+		const $books = $links.find(
+			( $link ) => 'books' === routeOf( $link.href ).view
+		);
 		const appName = document.title;
-		const labels = Object.fromEntries( $links.map( ( $link ) => [ routeOf( $link.href ).view, $link.textContent.trim() ] ) );
+		const labels = Object.fromEntries(
+			$links.map( ( $link ) => [
+				routeOf( $link.href ).view,
+				$link.textContent.trim(),
+			] )
+		);
 		const nameOf = ( state ) => {
 			if ( 'book' === state.view ) {
 				return state.books[ state.book ]?.title ?? '';
@@ -37,13 +44,16 @@ class LibraryNavElement extends Brick {
 		};
 
 		return [
-			store.select(
-				nameOf,
-				( name ) => {
-					/* translators: 1: what the page shows, such as a book or a view, 2: name of the app. */
-					document.title = name ? sprintf( __( '%1$s – %2$s', 'library' ), name, appName ) : appName;
-				}
-			),
+			store.select( nameOf, ( name ) => {
+				document.title = name
+					? sprintf(
+							/* translators: 1: what the page shows, such as a book or a view, 2: name of the app. */
+							__( '%1$s – %2$s', 'library' ),
+							name,
+							appName
+					  )
+					: appName;
+			} ),
 			store.select(
 				( state ) => state.query.trim(),
 				( query ) => {
@@ -62,7 +72,9 @@ class LibraryNavElement extends Brick {
 						// The brick is as wide as the content, where the row starts and ends.
 						const content = this.getBoundingClientRect();
 						const link = $link.getBoundingClientRect();
-						const left = Math.max( 0, link.right - content.right ) + Math.min( 0, link.left - content.left );
+						const left =
+							Math.max( 0, link.right - content.right ) +
+							Math.min( 0, link.left - content.left );
 
 						$link.setAttribute( 'aria-current', 'page' );
 						$row.scrollBy( { left } );

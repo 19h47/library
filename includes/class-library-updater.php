@@ -10,7 +10,8 @@
  */
 
 /**
- * Offers the latest GitHub release as a plugin update.
+ * Offers the latest GitHub release as a plugin update, its package the library.zip the release workflow attaches to it:
+ * the plugin with its dependencies, which the archive of the repository has not.
  *
  * WordPress calls update_plugins_{hostname} for plugins whose Update URI header
  * points to that host, then compares the returned version with the installed one.
@@ -28,6 +29,13 @@ class Library_Updater {
 	 * @var string
 	 */
 	private const string CACHE_KEY = 'library_github_release';
+
+	/**
+	 * Name of the package of a release, which its workflow builds and attaches to it.
+	 *
+	 * @var string
+	 */
+	private const string PACKAGE = 'library.zip';
 
 	/**
 	 * Constructor.
@@ -78,7 +86,7 @@ class Library_Updater {
 			'version' => $release['version'],
 			'url'     => $release['url'],
 			'package' => $release['package'],
-			'tested'  => $this->get_tested_up_to( $release['readme'] ?? '' ),
+			'tested'  => $this->get_tested_up_to( $release['readme'] ),
 			'icons'   => array( 'svg' => $this->get_asset_url( 'icon.svg' ) ),
 		);
 	}
@@ -103,7 +111,7 @@ class Library_Updater {
 		}
 
 		$plugin_data = get_plugin_data( LIBRARY_FILE, false, false );
-		$readme      = $release['readme'] ?? '';
+		$readme      = $release['readme'];
 		$sections    = Library_Readme::get_sections( $readme );
 
 		return (object) array(
@@ -139,7 +147,7 @@ class Library_Updater {
 	}
 
 	/**
-	 * Rename the extracted archive folder (owner-repo-sha) to the plugin slug.
+	 * Rename the extracted folder of the package to the folder of the plugin, whatever it is named on the site.
 	 *
 	 * @param string|WP_Error $source        Path of the extracted folder.
 	 * @param string          $remote_source Parent folder of the extraction.
@@ -170,7 +178,8 @@ class Library_Updater {
 	}
 
 	/**
-	 * Latest GitHub release with its readme, cached to stay under the API rate limit.
+	 * Latest GitHub release with its package and its readme, cached to stay under the API rate limit; none until its
+	 * package is attached, a minute or so after it is published.
 	 *
 	 * @return array{version:string,package:string,url:string,notes:string,date:string,readme:string}|null
 	 */
@@ -186,12 +195,13 @@ class Library_Updater {
 		$url      = 'https://api.github.com/repos/' . $this->get_repository() . '/releases/latest';
 		$response = wp_remote_get( $url, array( 'headers' => array( 'Accept' => 'application/vnd.github+json' ) ) );
 		$body     = json_decode( wp_remote_retrieve_body( $response ), true );
+		$package  = is_array( $body ) ? array_find( $body['assets'] ?? array(), fn( array $asset ) => self::PACKAGE === $asset['name'] ) : null;
 		$release  = null;
 
-		if ( 200 === wp_remote_retrieve_response_code( $response ) && isset( $body['tag_name'], $body['zipball_url'] ) ) {
+		if ( 200 === wp_remote_retrieve_response_code( $response ) && isset( $body['tag_name'], $package['browser_download_url'] ) ) {
 			$release = array(
 				'version' => ltrim( $body['tag_name'], 'v' ),
-				'package' => $body['zipball_url'],
+				'package' => $package['browser_download_url'],
 				'url'     => $body['html_url'],
 				'notes'   => (string) $body['body'],
 				'date'    => $body['published_at'],

@@ -1,0 +1,15 @@
+# Static analysis of the plugin, with the stubs and the rules of WordPress: see TESTING.md.
+parameters:
+	# Raised level by level as the code takes its types: see TESTING.md.
+	level: 5
+	phpVersion: 80400
+	paths:
+		- library.php
+		- includes
+		- admin
+		- app
+	excludePaths:
+		# Templates, included by the methods that give them their variables.
+		- admin/partials
+		- app/partials
+		- app/components

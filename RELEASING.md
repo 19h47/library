@@ -1,6 +1,6 @@
 # Releasing
 
-WordPress updates the plugin from the latest [GitHub release](https://github.com/19h47/library/releases): the `Update URI` header of `library.php` routes the update check to GitHub, and the "View details" modal shows `README.txt` as it is in the release. The files listed `export-ignore` in `.gitattributes` are left out of the archive.
+WordPress updates the plugin from the latest [GitHub release](https://github.com/19h47/library/releases): the `Update URI` header of `library.php` routes the update check to GitHub, and the "View details" modal shows `README.txt` as it is in the release. The package it installs is `library.zip`, which the Package workflow builds and attaches to each release once it is published: the files of the repository but those listed `export-ignore` in `.gitattributes`, with the dependencies of Composer. A release is offered once its package is there, a minute or so after it is published.
 
 No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder.
 
@@ -31,10 +31,12 @@ No update is offered when the plugin folder is a Git working copy, since updatin
    ```sh
    gh pr checks --watch
    ```
-7. Publish the release from `main`, with the changelog entry as notes:
+7. Publish the release from `main`, with the changelog entry as notes, then check that the Package workflow attached `library.zip` to it:
 
    ```sh
    gh release create vx.y.z --target main --title x.y.z --notes "…"
+   gh run watch "$( gh run list --workflow package.yml --limit 1 --json databaseId --jq '.[0].databaseId' )"
+   gh release view vx.y.z --json assets --jq '.assets[].name'
    ```
 
 ## Versions

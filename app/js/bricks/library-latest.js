@@ -15,11 +15,19 @@ class LibraryLatestElement extends Brick {
 				( state ) => state.diary.items,
 				( months ) => {
 					const { books } = store.get();
-					const readings = months.flatMap( ( month ) => month.readings );
+					const readings = months.flatMap(
+						( month ) => month.readings
+					);
 					// A book read again shows once.
-					const ids = [ ...new Set( readings.map( ( reading ) => reading.id ) ) ].filter( ( id ) => id in books ).slice( 0, LATEST_BOOKS );
+					const ids = [
+						...new Set( readings.map( ( reading ) => reading.id ) ),
+					]
+						.filter( ( id ) => id in books )
+						.slice( 0, LATEST_BOOKS );
 
-					$list.replaceChildren( ...ids.map( ( id ) => renderCover( books[ id ] ) ) );
+					$list.replaceChildren(
+						...ids.map( ( id ) => renderCover( books[ id ] ) )
+					);
 					this.hidden = ! ids.length;
 				}
 			),

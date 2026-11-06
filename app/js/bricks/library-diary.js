@@ -1,27 +1,51 @@
 import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { dayFormat, formatBooks, formatDate, formatRating, join } from 'library-app/format';
+import {
+	dayFormat,
+	formatBooks,
+	formatDate,
+	formatRating,
+	join,
+} from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';
 import { followBooks, observeEnd } from 'library-app/behaviors';
+
+/**
+ * @import { Book, Month } from 'library-app/api'
+ */
 
 /** The readings by month, latest first: a book read again comes once per reading. */
 class LibraryDiaryElement extends Brick {
 	connect( signal ) {
 		const $months = this.querySelector( '.library-diary__months' );
-		const observe = observeEnd( this.querySelector( '.library-list__more' ), signal, () => store.loadMoreDiary() );
+		const observe = observeEnd(
+			this.querySelector( '.library-list__more' ),
+			signal,
+			() => store.loadMoreDiary()
+		);
 
 		return [
-			followBooks( $months, ( book, $item ) => this.#state( book, $item.dataset.date ) ),
+			followBooks( $months, ( book, $item ) =>
+				this.#state( book, $item.dataset.date )
+			),
 			store.select(
-				( { diary } ) => diary.error || ( diary.loaded && ! diary.total ? __( 'No readings yet.', 'library' ) : '' ),
+				( { diary } ) =>
+					diary.error ||
+					( diary.loaded && ! diary.total
+						? __( 'No readings yet.', 'library' )
+						: '' ),
 				( message ) => fill( this, { status: message } )
 			),
 			store.select(
 				( state ) => state.diary.items,
 				( months ) => {
-					const $cards = [ ...$months.querySelectorAll( '.library-item' ) ];
-					const $focused = $cards.find( ( $item ) => $item.contains( document.activeElement ) );
+					const $cards = /** @type {HTMLElement[]} */ ( [
+						...$months.querySelectorAll( '.library-item' ),
+					] );
+					const $focused = $cards.find( ( $item ) =>
+						$item.contains( this.ownerDocument.activeElement )
+					);
 
 					$months.replaceChildren( ...this.#renderMonths( months ) );
 
@@ -38,16 +62,32 @@ class LibraryDiaryElement extends Brick {
 	/**
 	 * Gives the focus back to the reading of the card `$focused` once the months are drawn again, as the next page comes
 	 * or a book saved changes its readings; a reading removed leaves it to the one at its place.
+	 *
+	 * @param {HTMLElement} $focused The card that had the focus.
+	 * @param {number}      index    Its place among the cards.
 	 */
 	#refocus( $focused, index ) {
 		const { id, date } = $focused.dataset;
-		const $cards = [ ...this.querySelectorAll( '.library-item' ) ];
-		const $card = $cards.find( ( $item ) => id === $item.dataset.id && date === $item.dataset.date ) ?? $cards[ Math.min( index, $cards.length - 1 ) ];
+		const $cards = /** @type {HTMLElement[]} */ (
+			Array.from( this.querySelectorAll( '.library-item' ) )
+		);
+		const $card =
+			$cards.find(
+				( $item ) =>
+					id === $item.dataset.id && date === $item.dataset.date
+			) ?? $cards[ Math.min( index, $cards.length - 1 ) ];
 
-		$card?.querySelector( '.library-item__link' ).focus();
+		/** @type {HTMLElement} */ (
+			$card?.querySelector( '.library-item__link' )
+		)?.focus();
 	}
 
-	/** A section per month, with the number of its readings: a page of the diary holds whole months. */
+	/**
+	 * A section per month, with the number of its readings: a page of the diary holds whole months.
+	 *
+	 * @param {Month[]} months The months.
+	 * @return {HTMLElement[]} Their sections.
+	 */
 	#renderMonths( months ) {
 		const { books } = store.get();
 
@@ -56,14 +96,29 @@ class LibraryDiaryElement extends Brick {
 			// A reading shows with its book only.
 			const shown = readings.filter( ( reading ) => reading.id in books );
 
-			fill( $month, { month: formatDate( month ), count: formatBooks( readings.length ) } );
-			$month.querySelector( 'ul' ).append( ...shown.map( ( { date, id } ) => this.#renderReading( books[ id ], date ) ) );
+			fill( $month, {
+				month: formatDate( month ),
+				count: formatBooks( readings.length ),
+			} );
+			$month
+				.querySelector( 'ul' )
+				.append(
+					...shown.map( ( { date, id } ) =>
+						this.#renderReading( books[ id ], date )
+					)
+				);
 
 			return $month;
 		} );
 	}
 
-	/** The card of a reading: its book, and the date of the reading, which the card keeps for its line and its focus. */
+	/**
+	 * The card of a reading: its book, and the date of the reading, which the card keeps for its line and its focus.
+	 *
+	 * @param {Book}   book The book.
+	 * @param {string} date The date of the reading, empty when unknown.
+	 * @return {HTMLElement} The card.
+	 */
 	#renderReading( book, date ) {
 		const $item = renderBook( book, this.#state( book, date ) );
 
@@ -72,11 +127,21 @@ class LibraryDiaryElement extends Brick {
 		return $item;
 	}
 
-	/** The line of a reading: its day, whether the book was read again then, and its rating. */
+	/**
+	 * The line of a reading: its day, whether the book was read again then, and its rating.
+	 *
+	 * @param {Book}   book The book.
+	 * @param {string} date The date of the reading, empty when unknown.
+	 * @return {string} The line.
+	 */
 	#state( book, date ) {
 		const isFirstReading = date === book.read_date[ 0 ];
 
-		return join( [ formatDate( date, dayFormat ), ! isFirstReading && __( 'Read again', 'library' ), formatRating( book.rating ) ] );
+		return join( [
+			formatDate( date, dayFormat ),
+			! isFirstReading && __( 'Read again', 'library' ),
+			formatRating( book.rating ),
+		] );
 	}
 }
 customElements.define( 'library-diary', LibraryDiaryElement );

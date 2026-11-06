@@ -6,6 +6,8 @@
 # Run from anywhere, with WP-CLI and gettext: sh bin/update-translations.sh. It fails while a string is untranslated
 # or fuzzy: translate it in languages/library-fr_FR.po, then run it again.
 #
+# It fails as well while WP-CLI cannot parse a script, whose strings it would leave out without a word.
+#
 # The .pot is written again only when more than its date changed, so that a run on code without new strings leaves
 # every file as it was. The JSON files are built again from none, so that none is left for a script that was renamed
 # or lost its strings.
@@ -17,7 +19,9 @@ cd "$(dirname "$0")/../languages"
 pot=$(mktemp)
 trap 'rm -f "$pot"' EXIT
 
-wp i18n make-pot .. "$pot" --exclude=vendor --quiet
+if wp i18n make-pot .. "$pot" --exclude=vendor --debug 2>&1 | grep 'Could not parse'; then
+	exit 1
+fi
 
 if ! diff -q -I '^"POT-Creation-Date: ' "$pot" library.pot > /dev/null; then
 	cp "$pot" library.pot

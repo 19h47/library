@@ -1,26 +1,41 @@
 /**
  * Rendering of the bricks: the fields of the templates of the page, filled as text, and the cards, rows, covers, books being read and achievements.
- *
- * @package    Library
- * @subpackage Library/app
  */
 
 import { __, _n, sprintf } from 'library-app/app';
-import { formatBooks, formatDate, formatNumber, formatOriginal, formatStatus, join, listFormat } from 'library-app/format';
+import {
+	formatBooks,
+	formatDate,
+	formatNumber,
+	formatOriginal,
+	formatStatus,
+	join,
+	listFormat,
+} from 'library-app/format';
 import { urlOf } from 'library-app/router';
+
+/**
+ * @import { Achievement, Author, Book, CloseAchievement, Cover, PersonSeries, Target, Term } from 'library-app/api'
+ * @import { Route } from 'library-app/router'
+ */
 
 /**
  * Sets the text of the [data-field] elements of `$root`; an empty one is hidden, with its [data-row].
  * A field the markup leaves out is skipped: a brick may show part of its fields, as on the home.
+ *
+ * @param {Element}                $root  The element of the fields, such as a brick or a card.
+ * @param {Object<string, string>} fields The text of each field, by its name.
  */
 export function fill( $root, fields ) {
 	Object.entries( fields ).forEach( ( [ name, value ] ) => {
+		/** @type {HTMLElement} */
 		const $field = $root.querySelector( `[data-field="${ name }"]` );
 
 		if ( ! $field ) {
 			return;
 		}
 
+		/** @type {HTMLElement} */
 		const $row = $field.closest( '[data-row]' ) ?? $field;
 
 		$field.textContent = value;
@@ -28,7 +43,13 @@ export function fill( $root, fields ) {
 	} );
 }
 
-/** A link to what `route` shows, which the router opens without reloading, such as the books a search finds. */
+/**
+ * A link to what `route` shows, which the router opens without reloading, such as the books a search finds.
+ *
+ * @param {Partial<Route>} route What it shows.
+ * @param {string}         text  Its text.
+ * @return {HTMLAnchorElement} The link.
+ */
 function link( route, text ) {
 	const $link = document.createElement( 'a' );
 
@@ -38,18 +59,37 @@ function link( route, text ) {
 	return $link;
 }
 
-/** Links the element of a book, a card, a row or a cover, to its page, which its link opens. */
+/**
+ * Links the element of a book, a card, a row or a cover, to its page, which its link opens.
+ *
+ * @param {HTMLElement} $item The element of the book.
+ * @param {Book}        book  The book.
+ */
 function linkBook( $item, book ) {
-	$item.dataset.id = book.id;
-	$item.querySelector( '.library-item__link, .library-cover__link' ).href = urlOf( { view: 'book', id: book.id } );
+	$item.dataset.id = book.id.toString();
+	/** @type {HTMLAnchorElement} */ (
+		$item.querySelector( '.library-item__link, .library-cover__link' )
+	).href = urlOf( { view: 'book', id: book.id } );
 }
 
-/** A link to the page `view` of `id`: of a book, of a person, of a series or a cycle, of a collection or a publisher. */
+/**
+ * A link to the page `view` of `id`: of a book, of a person, of a series or a cycle, of a collection or a publisher.
+ *
+ * @param {string} view The view of the page: "book", "person", "series" or "publisher".
+ * @param {number} id   The ID of its book or its term.
+ * @param {string} name The text of the link, its name.
+ * @return {HTMLAnchorElement} The link.
+ */
 export function pageLink( view, id, name ) {
 	return link( { view, id }, name );
 }
 
-/** Fills `$list` with `$links` as pills, one per item, such as the series of a cycle; its [data-row] hides without one. */
+/**
+ * Fills `$list` with `$links` as pills, one per item, such as the series of a cycle; its [data-row] hides without one.
+ *
+ * @param {Element}             $list  The list.
+ * @param {HTMLAnchorElement[]} $links The links.
+ */
 export function fillPills( $list, $links ) {
 	$list.replaceChildren(
 		...$links.map( ( $link ) => {
@@ -61,23 +101,37 @@ export function fillPills( $list, $links ) {
 			return $item;
 		} )
 	);
-	$list.closest( '[data-row]' ).hidden = ! $links.length;
+	/** @type {HTMLElement} */ ( $list.closest( '[data-row]' ) ).hidden =
+		! $links.length;
 }
 
-/** Turns the names of people in `$field` into links to their pages, listed as the language lists them. */
+/**
+ * Turns the names of people in `$field` into links to their pages, listed as the language lists them.
+ *
+ * @param {Element} $field The field.
+ * @param {Term[]}  people The people.
+ */
 export function linkPeople( $field, people ) {
-	const $links = people.map( ( person ) => pageLink( 'person', person.id, person.name ) );
+	const $links = people.map( ( person ) =>
+		pageLink( 'person', person.id, person.name )
+	);
 
 	$field.replaceChildren(
 		...listFormat
 			.formatToParts( people.map( ( person ) => person.name ) )
-			.map( ( part ) => ( 'element' === part.type ? $links.shift() : part.value ) )
+			.map( ( part ) =>
+				'element' === part.type ? $links.shift() : part.value
+			)
 	);
 }
 
 /**
  * Links the subject of an achievement to what it leads to in the app: its book, the page of its author, of its series or
  * of its collection, or the books its search finds.
+ *
+ * @param {Element}     $field               The field of its subject.
+ * @param {Object}      achievement          The achievement.
+ * @param {Target|null} [achievement.target] What its subject leads to, if anything.
  */
 function linkAchievement( $field, { target } ) {
 	const text = $field.textContent;
@@ -97,6 +151,9 @@ function linkAchievement( $field, { target } ) {
 /**
  * Shows a cover, or hides the image when the book has none. The size the API gives makes the place of
  * the image known before it loads; a photo picked for a book to add has none.
+ *
+ * @param {HTMLImageElement} $image The image.
+ * @param {Cover|null}       cover  The cover, none without one.
  */
 export function fillCover( $image, cover ) {
 	$image.hidden = ! cover;
@@ -127,25 +184,52 @@ export function fillCover( $image, cover ) {
 	}
 }
 
+/**
+ * A clone of the element of the template `id` of the page, which holds the translated labels.
+ *
+ * @param {string} id The ID of the template.
+ * @return {HTMLElement} The clone.
+ */
 export function clone( id ) {
-	return document.getElementById( id ).content.firstElementChild.cloneNode( true );
+	return /** @type {HTMLElement} */ (
+		/** @type {HTMLTemplateElement} */ (
+			document.getElementById( id )
+		).content.firstElementChild.cloneNode( true )
+	);
 }
 
 /**
  * Fills the card of a book; `state` is the line under its title, followed by the tags of its form, of a book in its
  * original language and of a book not kept or to buy.
+ *
+ * @param {HTMLElement} $item The card.
+ * @param {Book}        book  The book.
+ * @param {string}      state The line under its title.
  */
 export function fillBook( $item, book, state ) {
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-	fill( $item, { credits: book.credits, title: book.title, excerpt: book.excerpt, state, form: book.form, original: formatOriginal( book ), status: formatStatus( book ) } );
+	fill( $item, {
+		credits: book.credits,
+		title: book.title,
+		excerpt: book.excerpt,
+		state,
+		form: book.form,
+		original: formatOriginal( book ),
+		status: formatStatus( book ),
+	} );
 }
 
 /**
  * The cover of a book, which opens it, its `state`, such as read, said after its title to assistive technologies only, as
  * the covers count them above; a book without cover shows its title instead.
+ *
+ * @param {Book}   book    The book.
+ * @param {string} [state] Its state, such as read.
+ * @return {HTMLElement} The cover.
  */
 export function renderCover( book, state = '' ) {
 	const $item = clone( 'library-cover' );
+	/** @type {HTMLImageElement} */
 	const $image = $item.querySelector( '[data-field="cover"]' );
 
 	linkBook( $item, book );
@@ -159,6 +243,9 @@ export function renderCover( book, state = '' ) {
 /**
  * A book being read, as its cover, larger than the latest readings show it, which opens it: its title and its status
  * under it, or its title in its frame without a cover, and its button Finished over its corner, described by them.
+ *
+ * @param {Book} book The book.
+ * @return {HTMLElement} The cover.
  */
 export function renderCurrent( book ) {
 	const $item = clone( 'library-current' );
@@ -166,25 +253,48 @@ export function renderCurrent( book ) {
 
 	linkBook( $item, book );
 	$open.id = `library-current-${ book.id }`;
-	$item.querySelector( '[data-action="finish"]' ).setAttribute( 'aria-describedby', $open.id );
+	$item
+		.querySelector( '[data-action="finish"]' )
+		.setAttribute( 'aria-describedby', $open.id );
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-	fill( $item, { frame: book.cover ? '' : book.title, title: book.cover ? book.title : '', status: formatStatus( book ) } );
+	fill( $item, {
+		frame: book.cover ? '' : book.title,
+		title: book.cover ? book.title : '',
+		status: formatStatus( book ),
+	} );
 
 	return $item;
 }
 
-/** The row of a book, which opens it, as the reading idea on the home: its cover, its title, its authors and its status when it is not kept. */
+/**
+ * The row of a book, which opens it, as the reading idea on the home: its cover, its title, its authors and its status when it is not kept.
+ *
+ * @param {Book} book The book.
+ * @return {HTMLElement} The row.
+ */
 export function renderRow( book ) {
 	const $item = clone( 'library-row' );
 
 	linkBook( $item, book );
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
-	fill( $item, { title: book.title, authors: listFormat.format( book.authors.map( ( author ) => author.name ) ), status: formatStatus( book ) } );
+	fill( $item, {
+		title: book.title,
+		authors: listFormat.format(
+			book.authors.map( ( author ) => author.name )
+		),
+		status: formatStatus( book ),
+	} );
 
 	return $item;
 }
 
-/** The card of a book, which opens it. */
+/**
+ * The card of a book, which opens it.
+ *
+ * @param {Book}   book  The book.
+ * @param {string} state The line under its title.
+ * @return {HTMLElement} The card.
+ */
 export function renderBook( book, state ) {
 	const $item = clone( 'library-item' );
 
@@ -194,9 +304,17 @@ export function renderBook( book, state ) {
 	return $item;
 }
 
-/** The card of a person or a series: its name, `$link` to its page, its description, then `line`, the line under it. */
+/**
+ * The card of a person or a series: its name, `$link` to its page, its description, then `line`, the line under it.
+ *
+ * @param {HTMLAnchorElement} $link       The link to its page.
+ * @param {string}            description Its description, HTML.
+ * @param {string}            line        The line under it.
+ * @return {HTMLElement} The card.
+ */
 function renderTerm( $link, description, line ) {
 	const $item = clone( 'library-term' );
+	/** @type {HTMLElement} */
 	const $description = $item.querySelector( '[data-html="description"]' );
 
 	fill( $item, { line } );
@@ -208,14 +326,34 @@ function renderTerm( $link, description, line ) {
 	return $item;
 }
 
-/** The card of an author of a series: their name, which leads to their page, their description, then `line`. */
+/**
+ * The card of an author of a series: their name, which leads to their page, their description, then `line`.
+ *
+ * @param {Author} author The author.
+ * @param {string} line   The line under it.
+ * @return {HTMLElement} The card.
+ */
 export function renderAuthor( author, line ) {
-	return renderTerm( pageLink( 'person', author.id, author.name ), author.description, line );
+	return renderTerm(
+		pageLink( 'person', author.id, author.name ),
+		author.description,
+		line
+	);
 }
 
-/** The card of a series of a person: its name after its cycles, which leads to its page, its description, then `line`. */
+/**
+ * The card of a series of a person: its name after its cycles, which leads to its page, its description, then `line`.
+ *
+ * @param {PersonSeries} series The series.
+ * @param {string}       line   The line under it.
+ * @return {HTMLElement} The card.
+ */
 export function renderSeries( series, line ) {
-	return renderTerm( pageLink( 'series', series.id, series.name ), series.description, line );
+	return renderTerm(
+		pageLink( 'series', series.id, series.name ),
+		series.description,
+		line
+	);
 }
 
 // The cards of a section shown before the others fold: four show all, five fold two.
@@ -224,13 +362,19 @@ const SHOWN_CARDS = 3;
 /**
  * Fills `$section` with `$cards`: the first ones in its [data-list="shown"], the others folded in its [data-list="more"],
  * closed, under a pill that `more( count )` names; the section hides without cards.
+ *
+ * @param {HTMLElement}                 $section The section.
+ * @param {HTMLElement[]}               $cards   The cards.
+ * @param {( count: number ) => string} more     The name of the pill, from the number of cards folded.
  */
 export function fillFolded( $section, $cards, more ) {
 	const $more = $section.querySelector( '[data-list="more"]' );
 	const shown = $cards.length > SHOWN_CARDS + 1 ? SHOWN_CARDS : $cards.length;
 	const folded = $cards.length - shown;
 
-	$section.querySelector( '[data-list="shown"]' ).replaceChildren( ...$cards.slice( 0, shown ) );
+	$section
+		.querySelector( '[data-list="shown"]' )
+		.replaceChildren( ...$cards.slice( 0, shown ) );
 	$more.replaceChildren( ...$cards.slice( shown ) );
 	$more.closest( 'details' ).open = false;
 	fill( $section, { more: folded ? more( folded ) : '' } );
@@ -240,31 +384,58 @@ export function fillFolded( $section, $cards, more ) {
 /**
  * Fills `$section` with the cards of the authors of the `total` books of a series or a collection, who wrote the most
  * first: how many of its books each one wrote, unless it has only one.
+ *
+ * @param {HTMLElement} $section The section.
+ * @param {Author[]}    authors  The authors.
+ * @param {number}      total    The books of the series or the collection.
  */
 export function fillAuthors( $section, authors, total ) {
 	fillFolded(
 		$section,
-		authors.map( ( author ) => renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' ) ),
-		/* translators: %s: number of authors of a series or a collection, after the first ones. */
-		( folded ) => sprintf( _n( '%s other author', '%s other authors', folded, 'library' ), formatNumber( folded ) )
+		authors.map( ( author ) =>
+			renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' )
+		),
+		( folded ) =>
+			sprintf(
+				/* translators: %s: number of authors of a series or a collection, after the first ones. */
+				_n( '%s other author', '%s other authors', folded, 'library' ),
+				formatNumber( folded )
+			)
 	);
 }
 
-/** An achievement earned: its title, its subject, its detail and date, as on the Achievements page. */
+/**
+ * An achievement earned: its title, its subject, its detail and date, as on the Achievements page.
+ *
+ * @param {Achievement} achievement The achievement.
+ * @return {HTMLElement} Its element.
+ */
 export function renderAchievement( achievement ) {
 	const $item = clone( 'library-achievement' );
 
 	fill( $item, {
 		title: achievement.title,
 		subject: achievement.subject,
-		meta: join( [ achievement.detail, achievement.date && formatDate( achievement.date ) ] ),
+		meta: join( [
+			achievement.detail,
+			achievement.date && formatDate( achievement.date ),
+		] ),
 	} );
-	linkAchievement( $item.querySelector( '[data-field="subject"]' ), achievement );
+	linkAchievement(
+		$item.querySelector( '[data-field="subject"]' ),
+		achievement
+	);
 
 	return $item;
 }
 
-/** An achievement close to be earned: its subject, or else its title, and its progress, which the element `id` labels. */
+/**
+ * An achievement close to be earned: its subject, or else its title, and its progress, which the element `id` labels.
+ *
+ * @param {CloseAchievement} achievement The achievement.
+ * @param {string}           id          The ID of the element that labels its progress.
+ * @return {HTMLElement} Its element.
+ */
 export function renderCloseAchievement( achievement, id ) {
 	const $item = clone( 'library-achievement-close' );
 	const $name = $item.querySelector( '[data-field="name"]' );
@@ -283,8 +454,15 @@ export function renderCloseAchievement( achievement, id ) {
 	$progress.max = achievement.total;
 	$progress.value = achievement.done;
 	$progress.setAttribute( 'aria-labelledby', $name.id );
-	/* translators: 1: number done, 2: total, e.g. "13 of 14". */
-	$progress.setAttribute( 'aria-valuetext', sprintf( __( '%1$s of %2$s', 'library' ), done, total ) );
+	$progress.setAttribute(
+		'aria-valuetext',
+		sprintf(
+			/* translators: 1: number done, 2: total, e.g. "13 of 14". */
+			__( '%1$s of %2$s', 'library' ),
+			done,
+			total
+		)
+	);
 
 	return $item;
 }
@@ -292,6 +470,10 @@ export function renderCloseAchievement( achievement, id ) {
 /**
  * Fills `$completion` with the completion the books of a page count for, earned or close, whose progress the element
  * `id` labels; it links nowhere, the page being its subject. Hidden without one.
+ *
+ * @param {HTMLElement}                       $completion The element of the completion.
+ * @param {Achievement|CloseAchievement|null} completion  The completion, earned or close, if any.
+ * @param {string}                            id          The ID of the element that labels its progress.
  */
 export function fillCompletion( $completion, completion, id ) {
 	$completion.hidden = ! completion;
@@ -303,5 +485,9 @@ export function fillCompletion( $completion, completion, id ) {
 
 	const achievement = { ...completion, target: null };
 
-	$completion.replaceChildren( 'total' in achievement ? renderCloseAchievement( achievement, id ) : renderAchievement( achievement ) );
+	$completion.replaceChildren(
+		'total' in achievement
+			? renderCloseAchievement( achievement, id )
+			: renderAchievement( achievement )
+	);
 }

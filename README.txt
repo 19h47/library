@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.23.1
+Stable tag: 9.24.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -97,6 +97,12 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.24.0 =
+* Fixed: reading app: a book added or bought opens its page with no flash, rather than the home and the lists going and coming back.
+* Fixed: reading app: the tabs fit on a phone in English, Achievements no longer running over To buy.
+* Changed: WordPress updates the plugin from `library.zip`, the package each release now has, with the dependencies of Composer.
+* Code only: the reading app has its tests in a browser, PHPStan reads the PHP, ESLint checks the scripts with the rules of WordPress and TypeScript their types from their JSDoc; a pull request runs them all.
 
 = 9.23.1 =
 * Fixed: reading app: a photo picked for the cover of a book shows in its shape, rather than squeezed into a wide frame.
