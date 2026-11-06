@@ -513,6 +513,9 @@ class Library_Achievements {
 		$earned = array();
 		$close  = array();
 
+		// Each completion names its series, authors or collections, and the ones they are part of: the terms in one query.
+		_prime_term_caches( array_unique( array_merge( ...array_column( $books, 'series_ids' ), ...array_column( $books, 'author_ids' ), ...array_column( $books, 'collection_ids' ) ) ) );
+
 		foreach ( self::get_completion_groups( $books ) as $kinds ) {
 			$completion = self::get_group_completion( $kinds );
 

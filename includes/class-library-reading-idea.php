@@ -130,11 +130,13 @@ class Library_Reading_Idea {
 	 * @return array<int,array{id:int,reason:string}>
 	 */
 	private function get_ideas(): array {
-		$week    = wp_date( 'o-W' );
-		$books   = Library_Books::get_books();
-		$to_read = self::get_books_to_read( $books );
-		$kinds   = array(
-			$this->get_series_ideas( $books, $to_read ),
+		$week           = wp_date( 'o-W' );
+		$books          = Library_Books::get_books();
+		$to_read        = self::get_books_to_read( $books );
+		$read_by_series = self::get_read_by_series( $books );
+		$next_parts     = self::get_next_parts( $books );
+		$kinds          = array(
+			$this->get_series_ideas( $to_read, $read_by_series, $next_parts ),
 			$this->get_author_ideas( $books, $to_read ),
 			$this->get_unread_author_ideas( $books, $to_read ),
 			$this->get_translator_ideas( $books, $to_read ),
@@ -145,10 +147,10 @@ class Library_Reading_Idea {
 			$this->get_fresh_ideas( $to_read ),
 			$this->get_reread_ideas( $books ),
 			$this->get_pile_ideas( $to_read ),
-			$this->get_to_buy_ideas( $books ),
+			$this->get_to_buy_ideas( $books, $read_by_series, $next_parts ),
 		);
-		$first   = (int) wp_date( 'W' ) % count( $kinds );
-		$kinds   = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
+		$first          = (int) wp_date( 'W' ) % count( $kinds );
+		$kinds          = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
 
 		foreach ( $kinds as &$kind ) {
 			usort( $kind, fn( array $a, array $b ) => strcmp( md5( $week . $a['id'] ), md5( $week . $b['id'] ) ) );
@@ -225,14 +227,13 @@ class Library_Reading_Idea {
 	/**
 	 * The next volume of each series with at least one volume read, and the first one of the part of a cycle that comes next.
 	 *
-	 * @param array<int,array> $books   All the books.
-	 * @param array<int,array> $to_read Books to read.
+	 * @param array<int,array>    $to_read        Books to read.
+	 * @param array<string,array> $read_by_series Volumes read of each series, from get_read_by_series().
+	 * @param array<string,array> $next_parts     Parts of cycles that come next, from get_next_parts().
 	 * @return array<int,array{id:int,reason:string}>
 	 */
-	private function get_series_ideas( array $books, array $to_read ): array {
-		$read_by_series = self::get_read_by_series( $books );
-		$next_parts     = self::get_next_parts( $books );
-		$ideas          = array();
+	private function get_series_ideas( array $to_read, array $read_by_series, array $next_parts ): array {
+		$ideas = array();
 
 		foreach ( $to_read as $book ) {
 			$read = $read_by_series[ $book['series'] ] ?? $next_parts[ $book['series'] ] ?? null;
@@ -318,6 +319,9 @@ class Library_Reading_Idea {
 	 */
 	private static function get_next_parts( array $books ): array {
 		$parts = array();
+
+		// Each book asks for its series and its cycle: the terms in one query.
+		_prime_term_caches( array_unique( array_merge( ...array_column( $books, 'series_ids' ) ) ) );
 
 		foreach ( Library_Books::sort_in_reading_order( $books ) as $book ) {
 			$cycle = self::get_cycle( $book );
@@ -772,7 +776,7 @@ class Library_Reading_Idea {
 		$ideas = array();
 
 		foreach ( $to_read as $book ) {
-			$added = get_post_timestamp( $book['id'] );
+			$added = new DateTimeImmutable( $book['added'], wp_timezone() )->getTimestamp();
 
 			if ( $added < $since ) {
 				continue;
@@ -852,14 +856,14 @@ class Library_Reading_Idea {
 	 * Books to buy that come next: the next volume of a series with a volume read, or the first one of the part of a cycle
 	 * that comes next, as get_series_ideas() suggests them, else a book by an author rated well.
 	 *
-	 * @param array<int,array> $books All the books.
+	 * @param array<int,array>    $books          All the books.
+	 * @param array<string,array> $read_by_series Volumes read of each series, from get_read_by_series().
+	 * @param array<string,array> $next_parts     Parts of cycles that come next, from get_next_parts().
 	 * @return array<int,array{id:int,reason:string}>
 	 */
-	private function get_to_buy_ideas( array $books ): array {
-		$to_buy         = array_filter( self::get_next_books( $books ), fn( array $book ) => Library_Posts::TO_BUY === $book['status'] );
-		$read_by_series = self::get_read_by_series( $books );
-		$next_parts     = self::get_next_parts( $books );
-		$ideas          = array();
+	private function get_to_buy_ideas( array $books, array $read_by_series, array $next_parts ): array {
+		$to_buy = array_filter( self::get_next_books( $books ), fn( array $book ) => Library_Posts::TO_BUY === $book['status'] );
+		$ideas  = array();
 
 		foreach ( $to_buy as $book ) {
 			$read = $read_by_series[ $book['series'] ] ?? $next_parts[ $book['series'] ] ?? null;
