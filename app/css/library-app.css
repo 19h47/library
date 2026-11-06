@@ -285,6 +285,13 @@ library-list[covers] .app-list__items {
 	align-items: end;
 }
 
+/* Where the browser lays out grid lanes, the covers of each column follow one another, as in a wall of bricks: masonry */
+@supports (display: grid-lanes) {
+	library-list[covers] .app-list__items {
+		display: grid-lanes;
+	}
+}
+
 library-list[covers] .library-item {
 	display: block;
 	padding: 0;
