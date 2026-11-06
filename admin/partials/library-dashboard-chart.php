@@ -2,7 +2,7 @@
 /**
  * Dashboard bar chart.
  *
- * The bars are hidden from assistive technologies, which read the same data in a table.
+ * The bars are hidden from assistive technologies, which read the same data in a table, named by the caption of the chart.
  *
  * @package Library
  * @subpackage Library/admin/partials
@@ -20,10 +20,11 @@ $peak     = $chart['items'][ array_search( $highest, $values, true ) ];
 $scale    = $chart['max'] ?? $highest;
 $ticks    = array_unique( array( $scale, (int) round( $scale / 2 ), 0 ) );
 $bar_area = 82;
+$title_id = wp_unique_id( 'library-chart-title-' );
 ?>
 
 <figure class="library-dashboard-graph-wrapper">
-	<figcaption class="library-dashboard-graph-title"><?php echo esc_html( $chart['title'] ); ?></figcaption>
+	<figcaption class="library-dashboard-graph-title" id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $chart['title'] ); ?></figcaption>
 
 	<div class="library-dashboard-graph-area" aria-hidden="true">
 		<div class="library-dashboard-graph-yaxis">
@@ -50,7 +51,7 @@ $bar_area = 82;
 		</div>
 	</div>
 
-	<table class="screen-reader-text">
+	<table class="screen-reader-text" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 		<thead>
 			<tr>
 				<th scope="col"><?php echo esc_html( $chart['column'] ); ?></th>
