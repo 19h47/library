@@ -1,4 +1,4 @@
-import { __ } from 'library-app/app';
+import { __, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
@@ -10,12 +10,16 @@ import {
 } from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';
 import { followBooks, observeEnd } from 'library-app/behaviors';
+import { urlOf } from 'library-app/router';
 
 /**
  * @import { Book, Month } from 'library-app/api'
  */
 
-/** The readings by month, latest first: a book read again comes once per reading. */
+/**
+ * The readings by month, latest first: a book read again comes once per reading. The months of a year gone by follow
+ * the link to its recap.
+ */
 class LibraryDiaryElement extends Brick {
 	connect( signal ) {
 		const $months = this.querySelector( '.library-diary__months' );
@@ -83,15 +87,21 @@ class LibraryDiaryElement extends Brick {
 	}
 
 	/**
-	 * A section per month, with the number of its readings: a page of the diary holds whole months.
+	 * A section per month, with the number of its readings: a page of the diary holds whole months. Before the latest
+	 * month of a year gone by, the link to its recap.
 	 *
 	 * @param {Month[]} months The months.
-	 * @return {HTMLElement[]} Their sections.
+	 * @return {HTMLElement[]} Their sections, and the links to the recaps.
 	 */
 	#renderMonths( months ) {
 		const { books } = store.get();
+		const thisYear = new Date().getFullYear();
 
-		return months.map( ( { month, readings } ) => {
+		return months.flatMap( ( { month, readings }, index ) => {
+			const year = Number( month.slice( 0, 4 ) );
+			const isLatestOfYear =
+				! index ||
+				! months[ index - 1 ].month.startsWith( `${ year }-` );
 			const $month = clone( 'library-month' );
 			// A reading shows with its book only.
 			const shown = readings.filter( ( reading ) => reading.id in books );
@@ -108,8 +118,32 @@ class LibraryDiaryElement extends Brick {
 					)
 				);
 
-			return $month;
+			return isLatestOfYear && year < thisYear
+				? [ this.#renderRecap( year ), $month ]
+				: [ $month ];
 		} );
+	}
+
+	/**
+	 * The link to the recap of `year`.
+	 *
+	 * @param {number} year The year.
+	 * @return {HTMLElement} Its paragraph.
+	 */
+	#renderRecap( year ) {
+		const $recap = clone( 'library-diary-recap' );
+
+		/** @type {HTMLAnchorElement} */ ( $recap.querySelector( 'a' ) ).href =
+			urlOf( { view: 'recap', id: year } );
+		fill( $recap, {
+			recap: sprintf(
+				/* translators: %s: year. */
+				__( 'Recap of %s', 'library' ),
+				year.toString()
+			),
+		} );
+
+		return $recap;
 	}
 
 	/**

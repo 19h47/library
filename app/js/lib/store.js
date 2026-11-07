@@ -25,7 +25,7 @@ import * as api from 'library-app/api';
 import { today } from 'library-app/format';
 
 /**
- * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -107,7 +107,7 @@ import { today } from 'library-app/format';
  * The parts of the state that change part by part: the resources, the books of the series of the book open, the
  * saving of its reading, the form of a book and the names it suggests.
  *
- * @typedef {List|'diary'|'idea'|'achievements'|PageView|'volumes'|'saving'|'editing'|'terms'} Part
+ * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'} Part
  */
 
 /**
@@ -169,6 +169,7 @@ import { today } from 'library-app/format';
  * @property {PersonPage}             person       The person open.
  * @property {SeriesPage}             series       The series open.
  * @property {PublisherPage}          publisher    The collection open.
+ * @property {Recap & Loading}        recap        The recap of the year open.
  */
 
 const STORAGE_KEY = 'library-app';
@@ -188,6 +189,8 @@ const SORTS = [ 'title', 'rating', 'read' ];
 const FILTERS = [ 'read', 'status', 'form', 'sort' ];
 // The page of a book, opened from its card, its cover or a link.
 const BOOK_VIEW = 'book';
+// The recap of a year, opened from the diary or, in January, from the home.
+const RECAP_VIEW = 'recap';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 /** @type {string[]} */
 const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
@@ -199,6 +202,7 @@ const VIEW_RESOURCES = {
 	achievements: 'achievements',
 	'to-buy': 'toBuy',
 	...Object.fromEntries( api.PAGE_VIEWS.map( ( view ) => [ view, view ] ) ),
+	[ RECAP_VIEW ]: 'recap',
 };
 // A search waits for a pause in the typing.
 const SEARCH_DELAY = 250;
@@ -397,6 +401,39 @@ function achievements() {
 }
 
 /**
+ * The recap of `year`, none loaded.
+ *
+ * @param {number} [year] The year.
+ * @return {Recap & Loading} The recap.
+ */
+function recap( year = 0 ) {
+	return {
+		year,
+		years: [],
+		days: 0,
+		readings: 0,
+		previous: 0,
+		rereads: 0,
+		books: [],
+		pages: { total: 0, counted: 0 },
+		months: [],
+		forms: [],
+		people: [],
+		discoveries: [],
+		languages: [],
+		series: [],
+		rating: null,
+		best: [],
+		records: { longest: 0, shortest: 0, oldest: 0 },
+		achievements: [],
+		added: 0,
+		loading: false,
+		loaded: false,
+		error: '',
+	};
+}
+
+/**
  * The volumes of the series `name` of the book open, in reading order.
  *
  * @param {string} [name] The series, after its cycles.
@@ -499,7 +536,7 @@ function page( view, id = 0 ) {
  * The app state. Every brick reads and writes it, none knows the others.
  * `books` holds every book loaded, by ID; the views refer to them by ID:
  * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
- * `person` the person open, `series` the series open, `publisher` the collection open, `book` the book open, `volumes` the books of its series,
+ * `person` the person open, `series` the series open, `publisher` the collection open, `recap` the recap of the year open, `book` the book open, `volumes` the books of its series,
  * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
  * `notice` what an action done says, such as a reading saved, with the `action` that undoes it if any, once: a new object each time,
  * `view` the view shown, none until the router shows the one of the URL, `query` the search of the books,
@@ -580,6 +617,11 @@ class LibraryStore extends Store {
 				},
 			] )
 		),
+		recap: {
+			empty: recap,
+			load: () => this.#fetchRecap(),
+			reload: () => this.#fetchRecap(),
+		},
 	};
 
 	constructor() {
@@ -1191,18 +1233,19 @@ class LibraryStore extends Store {
 
 	/**
 	 * Shows a view, and loads its data the first time: the page of a person, a series or a collection starts again for another `id`,
-	 * the page of a book shows the book `id`, its reading not saved left behind.
+	 * as the recap for another year, the page of a book shows the book `id`, its reading not saved left behind.
 	 *
 	 * @param {string} view The view.
-	 * @param {number} [id] The ID of its book or its term, 0 for none.
+	 * @param {number} [id] The ID of its book or its term, or the year of the recap, 0 for none.
 	 */
 	#show( view, id = 0 ) {
 		const book = BOOK_VIEW === view ? id : 0;
-		const fresh = api.PAGE_VIEWS.includes(
-			/** @type {PageView} */ ( view )
-		) && {
-			[ view ]: page( view, id ),
-		};
+		const current = this.get();
+		const fresh =
+			( api.PAGE_VIEWS.includes( /** @type {PageView} */ ( view ) ) &&
+				id !== current[ view ].id && { [ view ]: page( view, id ) } ) ||
+			( RECAP_VIEW === view &&
+				id !== current.recap.year && { recap: recap( id ) } );
 
 		this.set( ( state ) => {
 			const next =
@@ -1210,9 +1253,7 @@ class LibraryStore extends Store {
 					? state
 					: { ...state, view, book, saving: saving() };
 
-			return ! fresh || id === state[ view ].id
-				? next
-				: { ...next, ...fresh };
+			return fresh ? { ...next, ...fresh } : next;
 		} );
 
 		if ( BOOK_VIEW === view ) {
@@ -1674,6 +1715,24 @@ class LibraryStore extends Store {
 				items: [ ...current.items, ...ids ],
 				page: number,
 			} );
+		} );
+	}
+
+	/**
+	 * The recap of the year open, with its books. Another year cancels the one loading.
+	 *
+	 * @return {Promise<boolean>} Whether it loaded.
+	 */
+	#fetchRecap() {
+		const signal = this.#signal( 'recap' );
+		const { year } = this.get().recap;
+
+		return this.#request( 'recap', async () => {
+			const loaded = await api.getRecap( year, { signal } );
+
+			await this.#fetchBooks( loaded.books, { signal } );
+
+			return () => loaded;
 		} );
 	}
 

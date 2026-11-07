@@ -40,6 +40,8 @@ library-app-name,
 library-back,
 library-nav,
 library-view,
+library-recap,
+library-recap-link,
 library-in-progress,
 library-volumes,
 library-series,
@@ -144,7 +146,7 @@ library-styleguide {
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: var(--app-gap);
-	font-size: var(--app-u1);
+	font-size: var(--app-font-medium);
 }
 
 /*
@@ -785,7 +787,8 @@ library-latest {
 /*
  * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
  * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
- * volumes of a series. The first item starts where the content does, the last one ends where it does.
+ * volumes of a series, of the books of a recap rated the highest. The first item starts where the content does, the
+ * last one ends where it does.
  */
 .library-strip {
 	/*
@@ -891,7 +894,8 @@ library-latest {
 
 /*
  * A row of pills, which goes on as many lines as it needs: the reading of the book open, the filters chosen, the buttons
- * under a list of inputs, the series of a cycle, the collections of a publisher
+ * under a list of inputs, the series of a cycle, the collections of a publisher, the people read for the first time in
+ * a year and the other years of its recap
  */
 .library-pills {
 	list-style: none;
@@ -1120,6 +1124,244 @@ library-volumes {
 .library-styleguide__use {
 	display: block;
 	overflow-wrap: anywhere;
+}
+
+/*
+ * The recap of a year: a screen per subject, in a frame as high as the screen allows under the toolbar, a step from it,
+ * and above the tab bar on a phone, its content in the middle; the page stops at each one as it scrolls, at its top,
+ * the name of the app where the content starts, and at its end.
+ */
+:root:has(library-view[name="recap"]:not([hidden])) {
+	scroll-snap-type: y mandatory;
+
+	& .app-header {
+		scroll-snap-align: start;
+		scroll-margin-block-start: var(--app-u2);
+
+		@media (min-width: 42rem) {
+			scroll-margin-block-start: var(--app-u3);
+		}
+	}
+
+	/* On a phone, the footer ends the page, above the tab bar: the page stops there too, at its end */
+	@media (width < 42rem) {
+		& .app-footer {
+			scroll-snap-align: end;
+			scroll-margin-block-end: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
+		}
+	}
+}
+
+library-recap {
+	/* Where a screen stops: under the toolbar, a step from it */
+	--library-recap-top: calc(var(--app-u2) + var(--app-control-size) + var(--app-u1));
+	/* The padding of a frame at its sides, as the one of a card */
+	--library-recap-padding: var(--app-u1);
+
+	display: grid;
+	/* A screen at a time: the one before goes out of sight as the next one stops */
+	gap: var(--library-recap-top);
+}
+
+@media (min-width: 42rem) {
+	library-recap {
+		--library-recap-padding: var(--app-u2);
+	}
+}
+
+.library-recap__screen {
+	display: grid;
+	align-content: center;
+	gap: var(--app-u1);
+	min-block-size: calc(100dvh - var(--library-recap-top) - var(--library-tab-bar-height, 0px) - env(safe-area-inset-bottom) - var(--app-u1));
+	padding: var(--app-u2) var(--library-recap-padding);
+	border: 1px solid var(--app-line-soft);
+	border-radius: var(--app-radius);
+	scroll-margin-block-start: var(--library-recap-top);
+	scroll-snap-align: start;
+}
+
+/*
+ * The first screen from its top: the way back, the year, then the wall of the covers of its books. It shows under the
+ * name of the app, where the page stops at its top: a stop of its own, a little lower, the page would take it instead.
+ */
+.library-recap__opening {
+	align-content: start;
+	scroll-snap-align: none;
+}
+
+/* The covers rated the highest, out to the edges of the frame rather than of the screen */
+.library-recap__screen .library-strip {
+	--library-bleed: var(--library-recap-padding);
+}
+
+.library-recap__heading {
+	display: grid;
+	gap: var(--app-gap);
+}
+
+/* The year, a step above the figures of the other screens */
+.library-recap__year {
+	font-size: var(--app-font-xxx-large);
+	font-weight: normal;
+	line-height: 1;
+}
+
+/* The subject of a screen, as the meta of a card: what its figure counts */
+.library-recap__title {
+	color: var(--app-text-muted);
+	font-family: var(--app-font-ui);
+	font-size: var(--app-font-small);
+	font-weight: normal;
+	text-transform: uppercase;
+}
+
+/* The figure of a screen, a step under the year: a number, or the last words */
+.library-recap__figure {
+	font-size: var(--app-font-xx-large);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	text-wrap: balance;
+}
+
+/* The covers of the books read, a tile each, fading out at the bottom of the screen: as many as fit */
+.library-recap__mosaic {
+	list-style: none;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(var(--app-u3), 1fr));
+	gap: var(--app-gap-small);
+	max-block-size: 50dvh;
+	overflow: hidden;
+	mask-image: linear-gradient(to bottom, black 50%, transparent);
+}
+
+/* A shape of its own, as its image has none of its sizes="auto" in Safari: the tiles in rows */
+.library-recap__mosaic img {
+	display: block;
+	inline-size: 100%;
+	block-size: auto;
+	aspect-ratio: 2 / 3;
+	object-fit: cover;
+	border-radius: var(--library-radius-small);
+}
+
+/* The bars of the months, their number above, their initial under, side by side from January */
+.library-recap__months {
+	/* The height of the bar of the month read the most */
+	--library-recap-chart: calc(var(--app-u3) * var(--app-phi));
+
+	list-style: none;
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	align-items: end;
+	gap: var(--app-gap-small);
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+
+.library-recap__months li {
+	display: grid;
+	justify-items: center;
+	gap: var(--app-gap-small);
+}
+
+.library-recap__bar {
+	display: block;
+	border-radius: var(--library-radius-small);
+	background: var(--app-text);
+}
+
+/* A month without a reading keeps a line */
+.library-recap__months .library-recap__bar {
+	inline-size: 100%;
+	block-size: max(1px, var(--library-share) * var(--library-recap-chart));
+}
+
+/* The forms, the people, the languages and the series: each its name and its books, over a bar as long as its share */
+:is(.library-recap__shares, .library-recap__ranking) {
+	list-style: none;
+	display: grid;
+	gap: var(--app-u1);
+}
+
+:is(.library-recap__shares, .library-recap__ranking) li {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: baseline;
+	gap: var(--app-gap-small) var(--app-gap);
+}
+
+:is(.library-recap__shares, .library-recap__ranking) .library-recap__bar {
+	grid-column: 1 / -1;
+	inline-size: calc(var(--library-share) * 100%);
+	block-size: var(--app-gap-small);
+}
+
+.library-recap__name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+/* A language named in the middle of a sentence, as French names them: the first letter of a line */
+.library-recap__name::first-letter {
+	text-transform: uppercase;
+}
+
+/* On the screen it comes to, what a screen says comes in, its bars growing, from their foot */
+@media (prefers-reduced-motion: no-preference) {
+	@supports (animation-timeline: view()) {
+		.library-recap__screen > * {
+			animation: library-recap-in linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 100%;
+		}
+
+		.library-recap__bar {
+			animation: library-recap-grow linear both;
+			animation-timeline: view();
+			animation-range: entry 50% cover 40%;
+		}
+
+		.library-recap__months .library-recap__bar {
+			transform-origin: bottom;
+			animation-name: library-recap-rise;
+		}
+
+		:is(.library-recap__shares, .library-recap__ranking) .library-recap__bar {
+			transform-origin: left;
+		}
+	}
+}
+
+@keyframes library-recap-in {
+	from {
+		opacity: 0;
+		translate: 0 var(--app-u1);
+	}
+}
+
+@keyframes library-recap-grow {
+	from {
+		scale: 0 1;
+	}
+}
+
+@keyframes library-recap-rise {
+	from {
+		scale: 1 0;
+	}
+}
+
+/* The link of the home to the recap of the year gone by, in January: its year as large as the figures of the recap */
+.library-recap-link {
+	display: grid;
+	gap: var(--app-gap-small);
+	text-decoration: none;
+}
+
+.library-recap-link__year {
+	font-size: var(--app-font-xx-large);
+	line-height: 1;
 }
 
 /*

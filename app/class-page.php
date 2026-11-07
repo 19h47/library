@@ -68,6 +68,14 @@ class Page {
 	public const string PUBLISHER_VIEW = 'publisher';
 
 	/**
+	 * View of the recap of a year, with the year in the argument of the same name, opened from the diary or, in January,
+	 * from the home.
+	 *
+	 * @var string
+	 */
+	public const string RECAP_VIEW = 'recap';
+
+	/**
 	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded.
 	 *
 	 * @var string
@@ -169,10 +177,10 @@ class Page {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reads which view to show, changes nothing.
 		$view = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
-		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12.
+		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12, as the recap its year.
 		$id = absint( $_GET[ $view ] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW, self::RECAP_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
 
 		$this->preload( $view, $id );
 
@@ -184,11 +192,11 @@ class Page {
 	 * Give the app the data it asks for first, in the page itself, as the editor of WordPress does: the server runs those
 	 * requests of the REST API while it renders the page, and wp.apiFetch answers them from it, without network. They
 	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown and
-	 * its series, or the page of a series or of a collection. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
+	 * its series, the page of a series or of a collection, or the recap of a year. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
 	 * which goes to the network. The reading idea and the achievements load after, as they take longer than the rest.
 	 *
 	 * @param string $view View shown.
-	 * @param int    $id   ID of the book shown, in its view.
+	 * @param int    $id   ID of the book or the term shown, or the year of the recap, in its view.
 	 * @return void
 	 */
 	private function preload( string $view, int $id ): void {
@@ -222,11 +230,12 @@ class Page {
 			$paths[] = $this->get_books_path( $books, array( $id ), $statuses );
 		}
 
-		// The page of a person, a series or a collection, by the route of its view, as the store asks for it.
+		// The page of a person, a series or a collection, or the recap of a year, by the route of its view, as the store asks for it.
 		$page_routes = array(
 			self::PERSON_VIEW    => 'people',
 			self::SERIES_VIEW    => 'series',
 			self::PUBLISHER_VIEW => 'publishers',
+			self::RECAP_VIEW     => 'recaps',
 		);
 
 		if ( isset( $page_routes[ $view ] ) ) {
@@ -241,6 +250,15 @@ class Page {
 
 		if ( $read ) {
 			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $read, $statuses ) );
+		}
+
+		// The books read in the year of the recap, a page of the REST API at a time, as the store asks for them.
+		$recap_books = $data[ "/library/v1/recaps/$id" ]['body']['books'] ?? array();
+
+		sort( $recap_books );
+
+		foreach ( self::RECAP_VIEW === $view ? array_chunk( $recap_books, self::MAX_PER_PAGE ) : array() as $chunk ) {
+			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $chunk, $statuses ) );
 		}
 
 		// The series of the book shown, in reading order.

@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, people and the credits of a book.
+ * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, the recap of a year, people and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -295,6 +295,23 @@ class Rest_API {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( new Achievements()->get_achievements() ),
 				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
+			'recaps/(?P<year>\d{4})',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => fn( WP_REST_Request $request ) => rest_ensure_response( Recap::get_recap( (int) $request['year'] ) ),
+				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'args'                => array(
+					'year' => array(
+						'description' => __( 'Year of the recap.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
+				),
 			),
 		);
 

@@ -1,5 +1,6 @@
 /**
- * Rendering of the bricks: the fields of the templates of the page, filled as text, and the cards, rows, covers, books being read and achievements.
+ * Rendering of the bricks: the fields of the templates of the page, filled as text, and the cards, rows, covers, books being read and achievements,
+ * and the tiles, the months and the shares of a recap.
  */
 
 import { __, _n, sprintf } from 'library-app/app';
@@ -11,12 +12,22 @@ import {
 	formatStatus,
 	join,
 	listFormat,
+	monthInitialFormat,
+	monthNameFormat,
 } from 'library-app/format';
 import { urlOf } from 'library-app/router';
 
 /**
  * @import { Achievement, Author, Book, CloseAchievement, Cover, PersonSeries, Target, Term } from 'library-app/api'
  * @import { Route } from 'library-app/router'
+ */
+
+/**
+ * A line of a list of a recap, such as a form and its readings, with a bar as long as its share of the most read one.
+ *
+ * @typedef {Object} Share
+ * @property {string|HTMLElement} name     Its name, or a link to its page.
+ * @property {number}             readings Its readings.
  */
 
 /**
@@ -490,4 +501,113 @@ export function fillCompletion( $completion, completion, id ) {
 			? renderCloseAchievement( achievement, id )
 			: renderAchievement( achievement )
 	);
+}
+
+/**
+ * A span of `text`, of the class `className`.
+ *
+ * @param {string} text      Its text.
+ * @param {string} className Its class.
+ * @return {HTMLSpanElement} The span.
+ */
+function span( text, className ) {
+	const $span = document.createElement( 'span' );
+
+	$span.className = className;
+	$span.textContent = text;
+
+	return $span;
+}
+
+/**
+ * A cover of the wall of the books read of a recap, which opens nothing: their cards are a tap away, in the diary.
+ *
+ * @param {Book} book The book.
+ * @return {HTMLElement} The tile.
+ */
+export function renderTile( book ) {
+	const $item = document.createElement( 'li' );
+	const $image = document.createElement( 'img' );
+
+	$image.alt = '';
+	$image.loading = 'lazy';
+	fillCover( $image, book.cover );
+	$item.append( $image );
+
+	return $item;
+}
+
+/**
+ * The readings of each month of `year`, as bars as high as their share of the month read the most, under their number
+ * and above the initial of their month; assistive technologies read the name of the month and its books.
+ *
+ * @param {number[]} months The readings of each month, from January.
+ * @param {number}   year   The year.
+ * @return {HTMLElement[]} The months.
+ */
+export function renderMonths( months, year ) {
+	const most = Math.max( 1, ...months );
+
+	return months.map( ( readings, month ) => {
+		const $item = document.createElement( 'li' );
+		const date = new Date( year, month );
+		const $shown = [
+			span( formatNumber( readings ), 'app-meta' ),
+			span( '', 'library-recap__bar' ),
+			span( monthInitialFormat.format( date ), 'app-meta' ),
+		];
+
+		$shown.forEach( ( $span ) =>
+			$span.setAttribute( 'aria-hidden', 'true' )
+		);
+		$item.style.setProperty(
+			'--library-share',
+			( readings / most ).toString()
+		);
+		$item.append(
+			...$shown,
+			span(
+				sprintf(
+					/* translators: 1: name of a month, 2: number of books read in it. */
+					__( '%1$s: %2$s', 'library' ),
+					monthNameFormat.format( date ),
+					formatBooks( readings )
+				),
+				'sr-only'
+			)
+		);
+
+		return $item;
+	} );
+}
+
+/**
+ * The lines of a list of a recap, the most read first: each its name, its books and a bar as long as its share of the
+ * first one.
+ *
+ * @param {Share[]} shares The lines.
+ * @return {HTMLElement[]} The lines.
+ */
+export function renderShares( shares ) {
+	const most = Math.max( 1, ...shares.map( ( share ) => share.readings ) );
+
+	return shares.map( ( share ) => {
+		const $item = document.createElement( 'li' );
+		const $name = span( '', 'library-recap__name' );
+		const $bar = span( '', 'library-recap__bar' );
+
+		$name.append( share.name );
+		$bar.setAttribute( 'aria-hidden', 'true' );
+		$item.style.setProperty(
+			'--library-share',
+			( share.readings / most ).toString()
+		);
+		$item.append(
+			$name,
+			span( formatBooks( share.readings ), 'app-meta' ),
+			$bar
+		);
+
+		return $item;
+	} );
 }
