@@ -5,13 +5,11 @@
 @layer library.views {
 	/*
 	 * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
-	 * wide as the cover, and its button Finished over the corner of the cover, a control floating as any other, beside the
-	 * button that opens the book rather than in it.
+	 * wide as the cover, then its button Finished, a pill beside the link that opens the book rather than in it.
 	 */
 	.library-current {
 		--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
 
-		position: relative;
 		display: grid;
 		justify-items: start;
 		align-content: start;
@@ -32,12 +30,6 @@
 		& .library-cover__frame {
 			width: calc(var(--library-current-height) / var(--app-phi));
 			height: var(--library-current-height);
-		}
-
-		& [data-action="finish"] {
-			position: absolute;
-			inset-block-start: calc(var(--library-current-height) - var(--app-control-size) - var(--app-gap));
-			inset-inline-end: var(--app-gap);
 		}
 	}
 

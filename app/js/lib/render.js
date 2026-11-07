@@ -279,7 +279,7 @@ export function renderCover( book, state = '' ) {
 
 /**
  * A book being read, as its cover, larger than the latest readings show it, which opens it: its title and its status
- * under it, or its title in its frame without a cover, and its button Finished over its corner, described by them.
+ * under it, or its title in its frame without a cover, then its button Finished, described by them.
  *
  * @param {Book} book The book.
  * @return {HTMLElement} The cover.

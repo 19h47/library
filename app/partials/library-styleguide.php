@@ -390,7 +390,7 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished over its cover</figcaption>
+				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished under it</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="current"></ul>
 				</div>
