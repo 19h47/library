@@ -153,17 +153,7 @@ use Library\Meta;
 							<?php echo esc_html( $labels->name ); ?>
 							<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						</h3>
-						<library-covers-toggle class="library-push-end">
-							<?php
-							Markup::render_component(
-								'pill-checkbox',
-								array(
-									'id'    => 'library-covers-books',
-									'label' => __( 'Covers', 'library' ),
-								)
-							);
-							?>
-						</library-covers-toggle>
+						<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-books' ) ); ?>
 					</div>
 					<div class="app-controls library-books__controls">
 						<?php
@@ -252,11 +242,7 @@ use Library\Meta;
 						</library-filter>
 					</div>
 
-					<library-status class="app-status" hidden></library-status>
-					<library-list>
-						<ul class="app-list__items"></ul>
-						<div class="library-list__more"></div>
-					</library-list>
+					<?php Markup::render_component( 'book-list' ); ?>
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
@@ -311,23 +297,9 @@ use Library\Meta;
 							<?php echo esc_html( $views['to-buy']['label'] ); ?>
 							<library-count class="app-meta" list="toBuy"></library-count>
 						</h2>
-						<library-covers-toggle class="library-push-end">
-							<?php
-							Markup::render_component(
-								'pill-checkbox',
-								array(
-									'id'    => 'library-covers-to-buy',
-									'label' => __( 'Covers', 'library' ),
-								)
-							);
-							?>
-						</library-covers-toggle>
+						<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-to-buy' ) ); ?>
 					</div>
-					<library-status class="app-status" list="toBuy" hidden></library-status>
-					<library-list list="toBuy">
-						<ul class="app-list__items"></ul>
-						<div class="library-list__more"></div>
-					</library-list>
+					<?php Markup::render_component( 'book-list', array( 'list' => 'toBuy' ) ); ?>
 				</library-view>
 
 				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
