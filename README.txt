@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.27.0
+Stable tag: 9.28.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,14 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.28.0 =
+* Edition languages: the languages of the text of a book, several for a multilingual edition, in its form in the app and in the box of the admin. A book added is in the language of the reader, unless the catalogue of the BnF gives others.
+* Changed: a book is read in its original language when its text is in its original languages only, none the one of the reader, rather than when it has no translator: the tag VO and the achievement In the original follow it. A translated book, for the reading ideas, has a translator credited or a text in a language it was not written in.
+* Changed: reading app: the form of a book checks its original languages, a pill each, and keeps them all.
+* Changed: the chart of the average rating by year read counts a book read again in a year once, as the recap does.
+* Breaking: REST API: the route of the book form takes and gives languages, the term IDs of the original languages, rather than language, and its meta library_edition_languages; wp/v2 books give edition_language_codes.
+* Code only: the readings, their counts by year and by month, the days of a year and the average rating are computed once, for the stats, the dashboard, the recap, the achievements and the reading ideas; the styleguide shows the two forms of a status together.
 
 = 9.27.0 =
 * Reading app: the recap of a year, a screen per subject in a frame as high as the screen: the books read against the year before, the pages read, the readings of each month, the forms, the people read the most and those read for the first time, the original languages, the series started and finished, the average rating with the books rated the highest, the records, the achievements earned and the books added. Its figures count up as their screen comes. The diary leads to the recap of each year gone by, the home to the one of the year just over, in January.
