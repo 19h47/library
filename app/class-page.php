@@ -80,7 +80,7 @@ class Page {
 	 *
 	 * @var string
 	 */
-	public const string BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,series,series_name,language_codes,form_name';
+	public const string BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name';
 
 	/**
 	 * Books a list of the app loads at once, then as its end comes.
@@ -171,6 +171,8 @@ class Page {
 		$form_labels        = get_taxonomy( 'library_form' )->labels;
 		$form_choices       = self::get_term_choices( 'library_form' );
 		$language_choices   = self::get_term_choices( 'library_language' );
+		$own_language       = get_term_by( 'slug', explode( '_', get_user_locale() )[0], 'library_language' );
+		$own_language_id    = $own_language instanceof WP_Term ? $own_language->term_id : 0;
 		$rating_choices     = Meta::get_rating_choices();
 		$status_choices     = Status::get_choices();
 		$views              = $this->get_views( $labels->name );

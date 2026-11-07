@@ -248,7 +248,7 @@ class Achievements {
 	private function compute_achievements(): array {
 		$books    = self::get_dated_books();
 		$reads    = self::get_reads( $books );
-		$readings = self::get_readings( $books );
+		$readings = Books::get_readings( $books );
 
 		[ $completions, $close ]             = $this->get_completions( $books );
 		[ $read, $close_read ]               = $this->get_read_milestones( $reads );
@@ -352,26 +352,6 @@ class Achievements {
 		usort( $reads, fn( Book $a, Book $b ) => array( $a->read_date, $a->id ) <=> array( $b->read_date, $b->id ) );
 
 		return $reads;
-	}
-
-	/**
-	 * The readings of the books read, one per read date, those whose date is unknown first, then by date.
-	 *
-	 * @param array<int,Book> $books All the books.
-	 * @return array<int,Book> Books read, each one with the date of a reading as read date.
-	 */
-	private static function get_readings( array $books ): array {
-		$readings = array();
-
-		foreach ( self::get_reads( $books ) as $book ) {
-			foreach ( $book->read_dates as $read_date ) {
-				$readings[] = $book->with( read_date: $read_date );
-			}
-		}
-
-		usort( $readings, fn( Book $a, Book $b ) => array( $a->read_date, $a->id ) <=> array( $b->read_date, $b->id ) );
-
-		return $readings;
 	}
 
 	/**
@@ -893,7 +873,7 @@ class Achievements {
 			return array();
 		}
 
-		$first_year = substr( $found->read_dates[0], 0, 4 );
+		$first_year = substr( $found->get_first_read_date(), 0, 4 );
 
 		return array(
 			self::build_achievement(
@@ -1270,26 +1250,22 @@ class Achievements {
 	/**
 	 * Books read in their original language, a polyglot month, a Rosetta week and translators from several languages.
 	 *
-	 * The original language is foreign when its code, the slug of the term, is not the language of the admin: "fr" for fr_FR.
+	 * A book is read in its original language when its text is in its original languages only, none of them the language
+	 * of the admin, by its code, the slug of the term: "fr" for fr_FR. See Book::is_in_original().
 	 *
 	 * @param array<int,Book> $reads    Books read, in reading order.
 	 * @param array<int,Book> $readings Readings, in reading order.
 	 * @return list<Achievement>
 	 */
 	private function get_language_feats( array $reads, array $readings ): array {
-		$own_language = strtok( get_user_locale(), '_' );
+		$own_language = explode( '_', get_user_locale() )[0];
 		$dated        = array_values( array_filter( $readings, fn( Book $book ) => '' !== $book->read_date ) );
 		$languages    = fn( Book $book ) => $book->languages;
 		$feats        = self::get_latest_achievement(
 			Achievement_Kind::Original_Language,
 			__( 'In the original', 'library' ),
-			__( 'Read in its original language, without translator', 'library' ),
-			array_values(
-				array_filter(
-					$reads,
-					fn( Book $book ) => $book->languages && ! $book->translators && ! isset( $book->languages[ $own_language ] )
-				)
-			)
+			__( 'Read in its original language', 'library' ),
+			array_values( array_filter( $reads, fn( Book $book ) => $book->is_in_original( $own_language ) ) )
 		);
 
 		$polyglot = self::get_latest_variety( $dated, fn( Book $book ) => substr( $book->read_date, 0, 7 ), $languages, self::POLYGLOT_LANGUAGES );

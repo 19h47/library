@@ -25,26 +25,65 @@ use DateTimeImmutable;
 class Stats {
 
 	/**
-	 * The readings with a date, latest first: a read date and its book, once per book and date, kept or not. A date of a
-	 * reading of the day may have its time, 2026-11-01T21:40: its day is its first 10 characters.
+	 * The readings with a date, latest first: see Books::get_readings(). A date of a reading of the day may have its time,
+	 * 2026-11-01T21:40: its day is its first 10 characters.
 	 *
-	 * @return array<int,array{date:string,book:int}>
+	 * @return list<Book>
 	 */
 	public static function get_readings(): array {
-		$readings = array();
+		return array_values( array_reverse( array_filter( Books::get_readings(), fn( Book $reading ) => '' !== $reading->read_date ) ) );
+	}
 
-		foreach ( Books::get_books() as $book ) {
-			foreach ( array_filter( $book->read_dates ) as $date ) {
-				$readings[] = array(
-					'date' => $date,
-					'book' => $book->id,
-				);
-			}
+	/**
+	 * The readings of `$year`, in the order they were read.
+	 *
+	 * @param int $year Year.
+	 * @return list<Book>
+	 */
+	public static function get_year_readings( int $year ): array {
+		return array_values( array_filter( Books::get_readings(), fn( Book $reading ) => str_starts_with( $reading->read_date, "$year-" ) ) );
+	}
+
+	/**
+	 * The readings of each year with one, the earliest first.
+	 *
+	 * @return array<int,int> Readings by year.
+	 */
+	public static function count_by_year(): array {
+		$counts = array_count_values( array_map( fn( Book $reading ) => (int) substr( $reading->read_date, 0, 4 ), self::get_readings() ) );
+
+		ksort( $counts );
+
+		return $counts;
+	}
+
+	/**
+	 * The readings of each month, from January, whatever their year.
+	 *
+	 * @param Book[] $readings Readings with a date.
+	 * @return array<int,int> Readings by month, from 1 to 12.
+	 */
+	public static function count_by_month( array $readings ): array {
+		$counts = array_count_values( array_map( fn( Book $reading ) => (int) substr( $reading->read_date, 5, 2 ), $readings ) );
+
+		return array_replace( array_fill( 1, 12, 0 ), $counts );
+	}
+
+	/**
+	 * The days of `$year` gone by: all of them for a year gone, those until today for this one, none for one to come.
+	 *
+	 * @param int $year Year.
+	 * @return int
+	 */
+	public static function count_days( int $year ): int {
+		$today   = new DateTimeImmutable( 'now', wp_timezone() );
+		$current = (int) $today->format( 'Y' );
+
+		if ( $year > $current ) {
+			return 0;
 		}
 
-		usort( $readings, fn( array $a, array $b ) => array( $b['date'], $b['book'] ) <=> array( $a['date'], $a['book'] ) );
-
-		return $readings;
+		return $year < $current ? (int) new DateTimeImmutable( "$year-12-31" )->format( 'z' ) + 1 : (int) $today->format( 'z' ) + 1;
 	}
 
 	/**
@@ -83,11 +122,11 @@ class Stats {
 	public static function get_reading_year_to_date(): array {
 		$today    = new DateTimeImmutable( 'now', wp_timezone() );
 		$same_day = $today->modify( '-1 year' );
-		$days     = array_map( fn( array $reading ) => substr( $reading['date'], 0, 10 ), self::get_readings() );
+		$days     = array_map( fn( Book $reading ) => substr( $reading->read_date, 0, 10 ), self::get_readings() );
 		$count    = fn( DateTimeImmutable $day ) => count( array_filter( $days, fn( string $read_on ) => $read_on >= $day->format( 'Y-01-01' ) && $read_on <= $day->format( 'Y-m-d' ) ) );
 
 		$this_year    = $count( $today );
-		$day_of_year  = (int) $today->format( 'z' ) + 1;
+		$day_of_year  = self::count_days( (int) $today->format( 'Y' ) );
 		$days_in_year = 365 + (int) $today->format( 'L' );
 		$to_read      = count( self::get_books_on_the_pile() );
 

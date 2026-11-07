@@ -59,6 +59,7 @@ final readonly class Book {
 	 * @param string               $collection_number Number in its collection, or empty.
 	 * @param array<string,string> $languages         Names of its original languages, by their code.
 	 * @param int[]                $language_ids      Term IDs of its original languages.
+	 * @param array<string,string> $edition_languages Names of the languages of its text, by their code.
 	 * @param string[]             $forms             Names of its forms.
 	 * @param int[]                $form_ids          Term IDs of its forms.
 	 * @param string               $read_date         The reading it stands for in a list of readings, Y-m-d, or empty.
@@ -89,6 +90,7 @@ final readonly class Book {
 		public string $collection_number,
 		public array $languages,
 		public array $language_ids,
+		public array $edition_languages,
 		public array $forms,
 		public array $form_ids,
 		public string $read_date = '',
@@ -109,6 +111,46 @@ final readonly class Book {
 		unset( $fields['read'] );
 
 		return new self( ...array_replace( $fields, $changes ) );
+	}
+
+	/**
+	 * Its first reading: its first read date, empty when unknown, which comes first, or when it is not read.
+	 *
+	 * @return string
+	 */
+	public function get_first_read_date(): string {
+		return $this->read_dates[0] ?? '';
+	}
+
+	/**
+	 * Its latest reading: its latest read date, empty when unknown or when it is not read.
+	 *
+	 * @return string
+	 */
+	public function get_latest_read_date(): string {
+		return $this->read_dates ? $this->read_dates[ array_key_last( $this->read_dates ) ] : '';
+	}
+
+	/**
+	 * Whether it is translated: a translator is credited, or its text is in a language it was not written in, such as the
+	 * French of a magazine in several languages, whose translation is not credited.
+	 *
+	 * @return bool
+	 */
+	public function is_translated(): bool {
+		return $this->translators || ( $this->languages && array_diff_key( $this->edition_languages, $this->languages ) );
+	}
+
+	/**
+	 * Whether it is read in its original language, rather than in `$own_language`: its text is in its original
+	 * languages only, none of them the one of the reader. A book in the language of the reader, or of an edition
+	 * unknown, says nothing.
+	 *
+	 * @param string $own_language Language of the reader, as an ISO 639 code, such as fr.
+	 * @return bool
+	 */
+	public function is_in_original( string $own_language ): bool {
+		return $this->languages && $this->edition_languages && ! array_diff_key( $this->edition_languages, $this->languages ) && ! isset( $this->edition_languages[ $own_language ] );
 	}
 
 	/**

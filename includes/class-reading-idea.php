@@ -223,16 +223,6 @@ class Reading_Idea {
 	}
 
 	/**
-	 * Date of the latest reading of a book, or empty when it has no read date.
-	 *
-	 * @param Book $book Book.
-	 * @return string
-	 */
-	private static function get_latest_read_date( Book $book ): string {
-		return (string) ( $book->read_dates ? $book->read_dates[ array_key_last( $book->read_dates ) ] : '' );
-	}
-
-	/**
 	 * The next volume of each series with at least one volume read, and the first one of the part of a cycle that comes next.
 	 *
 	 * @param array<int,Book>            $to_read        Books to read.
@@ -298,7 +288,7 @@ class Reading_Idea {
 
 			$read_by_series[ $book->series ] = array(
 				'volumes'     => $read['volumes'] + 1,
-				'latest_read' => max( $read['latest_read'], self::get_latest_read_date( $book ) ),
+				'latest_read' => max( $read['latest_read'], $book->get_latest_read_date() ),
 			);
 		}
 
@@ -381,24 +371,24 @@ class Reading_Idea {
 	 * @return list<Idea>
 	 */
 	private static function get_rated_well_ideas( array $books, array $to_read, string $field, callable $reason ): array {
-		$ratings     = array();
+		$rated_books = array();
 		$latest_read = array();
 
 		foreach ( $books as $book ) {
 			foreach ( $book->$field as $name ) {
 				if ( null !== $book->rating ) {
-					$ratings[ $name ][] = $book->rating;
+					$rated_books[ $name ][] = $book;
 				}
 
-				$latest_read[ $name ] = max( $latest_read[ $name ] ?? '', self::get_latest_read_date( $book ) );
+				$latest_read[ $name ] = max( $latest_read[ $name ] ?? '', $book->get_latest_read_date() );
 			}
 		}
 
 		$rated_well = array();
 
-		foreach ( $ratings as $name => $values ) {
-			$rated   = count( $values );
-			$average = array_sum( $values ) / $rated;
+		foreach ( $rated_books as $name => $rated_by_name ) {
+			$rated   = count( $rated_by_name );
+			$average = Books::get_average_rating( $rated_by_name );
 
 			if ( $rated >= self::MIN_RATED && $average >= self::WELL_RATED ) {
 				$rated_well[ $name ] = array(
@@ -621,18 +611,7 @@ class Reading_Idea {
 	 * @return list<Idea>
 	 */
 	private function get_change_ideas( array $books, array $to_read ): array {
-		// A book read again counts once per reading.
-		$readings = array();
-
-		foreach ( $books as $book ) {
-			foreach ( $book->read_dates as $read_date ) {
-				$readings[] = $book->with( read_date: $read_date );
-			}
-		}
-
-		usort( $readings, fn( Book $a, Book $b ) => strcmp( $b->read_date, $a->read_date ) );
-
-		$latest_reads = array_slice( $readings, 0, self::LATEST_READS );
+		$latest_reads = array_slice( array_reverse( Books::get_readings( $books ) ), 0, self::LATEST_READS );
 		$ideas        = $this->get_decade_ideas( $books, $to_read );
 
 		if ( count( $latest_reads ) < self::LATEST_READS ) {
@@ -646,7 +625,7 @@ class Reading_Idea {
 			self::get_opposite_ideas(
 				$latest_reads,
 				$to_read,
-				fn( Book $book ) => (bool) $book->translators,
+				fn( Book $book ) => $book->is_translated(),
 				/* translators: %s: number of reads. */
 				sprintf( __( 'Your last %s reads were all translated.', 'library' ), $reads ),
 				/* translators: %s: number of reads. */
@@ -814,7 +793,7 @@ class Reading_Idea {
 		$ideas       = array();
 
 		foreach ( $books as $book ) {
-			$read_year = self::get_year( self::get_latest_read_date( $book ) );
+			$read_year = self::get_year( $book->get_latest_read_date() );
 
 			if ( '' === $read_year || (int) $read_year > $latest_year || null === $book->rating || $book->rating < self::REREAD_RATING ) {
 				continue;

@@ -131,6 +131,7 @@ class Meta {
 			'library_letterers'         => __( 'Letterers', 'library' ),
 			'library_directors'         => __( 'Publishing directors', 'library' ),
 			'library_adapted_authors'   => __( 'Adapted authors', 'library' ),
+			'library_edition_languages' => __( 'Edition languages', 'library' ),
 		);
 		$descriptions = array(
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
@@ -142,6 +143,7 @@ class Meta {
 			'library_in_progress'       => __( 'Being read, for the first time or again: a read date added ends the reading.', 'library' ),
 			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
+			'library_edition_languages' => __( 'The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book.', 'library' ),
 		);
 		$patterns     = array(
 			'library_isbn' => self::ISBN_PATTERN,
@@ -276,6 +278,20 @@ class Meta {
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+
+		// Languages of the library, as the original languages are: their term IDs, which save() writes at once.
+		register_post_meta(
+			'library_book',
+			'library_edition_languages',
+			array(
+				'type'              => 'integer',
+				'label'             => $labels['library_edition_languages'],
+				'description'       => $descriptions['library_edition_languages'],
+				'single'            => false,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
 			)
 		);
 
@@ -478,6 +494,16 @@ class Meta {
 	}
 
 	/**
+	 * Edition languages of a book, the languages of its text: their term IDs in the languages taxonomy.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return int[]
+	 */
+	public static function get_edition_languages( int $post_id ): array {
+		return array_map( 'intval', get_post_meta( $post_id, 'library_edition_languages', false ) );
+	}
+
+	/**
 	 * Read dates as readings, from the first to the latest: each unknown date, empty, is a reading of its own, first; a
 	 * known date is one reading, as a date saved twice by an old import.
 	 *
@@ -517,7 +543,7 @@ class Meta {
 	 * Save the given meta values; an empty value deletes the meta, the read dates replace the former ones.
 	 *
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
-	 * Values are saved in the order of KEYS, whatever the order of the form fields.
+	 * Values are saved in the order of KEYS, whatever the order of the form fields, then the edition languages, a list.
 	 * The read state, library_read, is written as read dates: marked as unread, a book loses them; marked as read without
 	 * a read date, it gets today; read already and its read dates all removed, it gets an unknown one, unless it is marked
 	 * as unread. A read date added ends the reading in progress.
@@ -550,6 +576,10 @@ class Meta {
 			update_post_meta( $post_id, $key, wp_slash( $value ) );
 		}
 
+		if ( array_key_exists( 'library_edition_languages', $values ) ) {
+			self::save_edition_languages( $post_id, (array) $values['library_edition_languages'] );
+		}
+
 		$has_dates = (bool) self::get_read_dates( $post_id );
 		$is_read   = array_key_exists( 'library_read', $values ) ? rest_sanitize_boolean( $values['library_read'] ) : $was_read || $has_dates;
 
@@ -561,6 +591,23 @@ class Meta {
 
 		if ( self::adds_a_reading( $read_dates, self::get_read_dates( $post_id ) ) ) {
 			delete_post_meta( $post_id, 'library_in_progress' );
+		}
+	}
+
+	/**
+	 * Replace the edition languages of a book: the languages of the library among the term IDs given, each once.
+	 *
+	 * @param int          $post_id  Post ID.
+	 * @param array<mixed> $term_ids Term IDs.
+	 * @return void
+	 */
+	private static function save_edition_languages( int $post_id, array $term_ids ): void {
+		$term_ids = array_filter( array_unique( array_map( 'absint', $term_ids ) ), fn( int $term_id ) => is_array( term_exists( $term_id, 'library_language' ) ) );
+
+		delete_post_meta( $post_id, 'library_edition_languages' );
+
+		foreach ( $term_ids as $term_id ) {
+			add_post_meta( $post_id, 'library_edition_languages', $term_id );
 		}
 	}
 

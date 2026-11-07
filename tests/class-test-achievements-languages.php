@@ -116,19 +116,37 @@ class Test_Achievements_Languages extends TestCase {
 		$this->assertCount( 1, $original_language );
 		$this->assertSame( 'In the original', $original_language[0]['title'] );
 		$this->assertSame( 'Kokoro', $original_language[0]['subject'] );
-		$this->assertSame( 'Read in its original language, without translator', $original_language[0]['detail'] );
+		$this->assertSame( 'Read in its original language', $original_language[0]['detail'] );
 		$this->assertSame( '2024-04-01', $original_language[0]['date'] );
 	}
 
 	/**
-	 * A translated book is not read in the original, nor a book in the language of the admin, nor a book without language.
+	 * A translated book is not read in the original, credited or not, nor a book in the language of the admin, nor a
+	 * book without language, nor a multilingual edition, nor one whose edition languages are unknown.
 	 *
 	 * @return void
 	 */
 	public function test_a_translated_book_or_one_in_the_language_of_the_admin_is_not_in_the_original(): void {
-		$this->add_read_in( 'ja', '2024-04-01', array( 'people' => array( $this->get_translator( 'René de Ceccatty' ) ) ) );
-		$this->add_read_in( 'en', '2024-04-02' );
-		$this->add_reads( array( '2024-04-03' ) );
+		$french = $this->get_language( 'fr', 'French' );
+
+		$this->add_read_in(
+			'ja',
+			'2024-04-01',
+			array(
+				'people' => array( $this->get_translator( 'René de Ceccatty' ) ),
+				'meta'   => array( 'library_edition_languages' => array( $french ) ),
+			)
+		);
+		$this->add_read_in( 'it', '2024-04-02', array( 'meta' => array( 'library_edition_languages' => array( $french ) ) ) );
+		$this->add_read_in( 'de', '2024-04-03', array( 'meta' => array( 'library_edition_languages' => array( 1 => $french ) ) ) );
+		$this->add_book(
+			array(
+				'languages' => array( $this->get_language( 'es', self::LANGUAGES['es'] ) ),
+				'meta'      => array( 'library_read_date' => array( '2024-04-04' ) ),
+			)
+		);
+		$this->add_read_in( 'en', '2024-04-05' );
+		$this->add_reads( array( '2024-04-06' ) );
 
 		$this->assertArrayNotHasKey( 'original-language', $this->get_earned() );
 	}
@@ -170,9 +188,9 @@ class Test_Achievements_Languages extends TestCase {
 	public function test_the_latest_polyglot_month_counts_each_reading(): void {
 		$this->add_book(
 			array(
-				'title'    => 'Read twice',
-				'language' => $this->get_language( 'ja', self::LANGUAGES['ja'] ),
-				'meta'     => array( 'library_read_date' => array( '2024-01-01', '2024-06-01' ) ),
+				'title'     => 'Read twice',
+				'languages' => array( $this->get_language( 'ja', self::LANGUAGES['ja'] ) ),
+				'meta'      => array( 'library_read_date' => array( '2024-01-01', '2024-06-01' ) ),
 			)
 		);
 		$this->add_languages_read( array( 'it', 'de', 'es', 'ru' ), '2024-01-02' );
@@ -386,7 +404,7 @@ class Test_Achievements_Languages extends TestCase {
 	}
 
 	/**
-	 * Add a book read once in an original language.
+	 * Add a book read once in an original language, its text in that language unless the fields given say otherwise.
 	 *
 	 * @param string $code      Code of the language, a key of LANGUAGES.
 	 * @param string $read_date Read date, Y-m-d.
@@ -394,11 +412,19 @@ class Test_Achievements_Languages extends TestCase {
 	 * @return int Book ID.
 	 */
 	private function add_read_in( string $code, string $read_date, array $book = array() ): int {
+		$language = $this->get_language( $code, self::LANGUAGES[ $code ] );
+
 		return $this->add_book(
-			array(
-				'language' => $this->get_language( $code, self::LANGUAGES[ $code ] ),
-				'meta'     => array( 'library_read_date' => array( $read_date ) ),
-			) + $book
+			array_replace_recursive(
+				array(
+					'languages' => array( $language ),
+					'meta'      => array(
+						'library_read_date'         => array( $read_date ),
+						'library_edition_languages' => array( $language ),
+					),
+				),
+				$book
+			)
 		);
 	}
 

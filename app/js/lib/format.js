@@ -154,8 +154,9 @@ export function formatTranslation( book ) {
 }
 
 /**
- * Whether a book is in its original language, as the achievement "In the original" counts it: none of its original
- * languages is the one of the page, and no one translated it. A book without original language says nothing.
+ * Whether a book is read in its original language, as the achievement "In the original" counts it: its text is in its
+ * original languages only, none of them the one of the page. A book without original language, or whose edition
+ * languages are unknown, says nothing; nor does a multilingual edition, whose text is also in a translation.
  *
  * @param {Book} book The book.
  * @return {string} Its tag, or empty.
@@ -163,8 +164,11 @@ export function formatTranslation( book ) {
 export function formatOriginal( book ) {
 	const isOriginal =
 		book.languages.length &&
-		! book.languages.includes( pageLanguage ) &&
-		! book.translators.length;
+		book.edition_languages.length &&
+		book.edition_languages.every( ( code ) =>
+			book.languages.includes( code )
+		) &&
+		! book.edition_languages.includes( pageLanguage );
 
 	return isOriginal
 		? _x(

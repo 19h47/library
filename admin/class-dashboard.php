@@ -259,12 +259,11 @@ class Dashboard {
 	 * @return array{pages:int,books:int}
 	 */
 	private function get_pages_read_this_year(): array {
-		$books     = Books::get_books();
 		$this_year = wp_date( 'Y-01-01' );
-		$readings  = array_filter( Stats::get_readings(), fn( array $reading ) => $reading['date'] >= $this_year && null !== $books[ $reading['book'] ]->pages );
+		$readings  = array_filter( Stats::get_readings(), fn( Book $reading ) => $reading->read_date >= $this_year && null !== $reading->pages );
 
 		return array(
-			'pages' => array_sum( array_map( fn( array $reading ) => $books[ $reading['book'] ]->pages, $readings ) ),
+			'pages' => array_sum( array_column( $readings, 'pages' ) ),
 			'books' => count( $readings ),
 		);
 	}
@@ -278,22 +277,10 @@ class Dashboard {
 	private function get_reading_charts(): array {
 		global $wp_locale;
 
-		$current_year     = (int) wp_date( 'Y' );
-		$books_by_year    = array();
-		$books_this_year  = array_fill( 1, 12, 0 );
-		$books_by_month   = array_fill( 1, 12, 0 );
-		$books_by_yearmon = self::count_by_start( array_column( Stats::get_readings(), 'date' ), 7 );
-
-		foreach ( $books_by_yearmon as $year_month => $books ) {
-			[ $year, $month ] = array_map( 'intval', explode( '-', $year_month ) );
-
-			$books_by_year[ $year ]    = ( $books_by_year[ $year ] ?? 0 ) + $books;
-			$books_by_month[ $month ] += $books;
-
-			if ( $current_year === $year ) {
-				$books_this_year[ $month ] += $books;
-			}
-		}
+		$current_year    = (int) wp_date( 'Y' );
+		$books_by_year   = Stats::count_by_year();
+		$books_this_year = Stats::count_by_month( Stats::get_year_readings( $current_year ) );
+		$books_by_month  = Stats::count_by_month( Stats::get_readings() );
 
 		$year_items = array_map(
 			fn( int $year ) => self::build_chart_item( self::format_short_year( $year ), (string) $year, $books_by_year[ $year ] ?? 0, Books::format_books( $books_by_year[ $year ] ?? 0 ) ),
@@ -359,10 +346,9 @@ class Dashboard {
 	 * @return array{count:int,average:float|null,chart:Chart}
 	 */
 	private function get_ratings(): array {
-		$ratings        = array_filter( array_column( Books::get_books(), 'rating' ), 'is_float' );
+		$books          = Books::get_books();
+		$ratings        = array_filter( array_column( $books, 'rating' ), 'is_float' );
 		$books_by_point = array_fill( 1, 10, 0 );
-		$rated          = count( $ratings );
-		$sum            = array_sum( $ratings );
 
 		foreach ( $ratings as $rating ) {
 			$point = (int) round( $rating );
@@ -378,30 +364,25 @@ class Dashboard {
 		);
 
 		return array(
-			'count'   => $rated,
-			'average' => $rated ? round( $sum / $rated, 1 ) : null,
+			'count'   => count( $ratings ),
+			'average' => Books::get_average_rating( $books ),
 			'chart'   => self::build_books_chart( __( 'Rating distribution', 'library' ), __( 'Rating', 'library' ), $items ),
 		);
 	}
 
 	/**
-	 * Average rating of the books read each year.
+	 * Average rating of the books read each year, a book read again in a year counting once.
 	 *
 	 * @return Chart
 	 */
 	private function get_average_rating_chart(): array {
-		$books           = Books::get_books();
-		$ratings_by_year = array();
+		$read_by_year = array();
 
 		foreach ( Stats::get_readings() as $reading ) {
-			$rating = $books[ $reading['book'] ]->rating;
-
-			if ( null !== $rating ) {
-				$ratings_by_year[ (int) substr( $reading['date'], 0, 4 ) ][] = $rating;
-			}
+			$read_by_year[ (int) substr( $reading->read_date, 0, 4 ) ][ $reading->id ] = $reading;
 		}
 
-		$average_by_year = array_map( fn( array $ratings ) => round( array_sum( $ratings ) / count( $ratings ), 1 ), $ratings_by_year );
+		$average_by_year = array_filter( array_map( array( Books::class, 'get_average_rating' ), $read_by_year ), 'is_float' );
 
 		$items = array_map(
 			function ( int $year ) use ( $average_by_year ) {
@@ -446,13 +427,13 @@ class Dashboard {
 	private function get_recent_reads(): array {
 		$readings = array_slice( Stats::get_readings(), 0, self::LIST_LENGTH );
 
-		_prime_post_caches( array_column( $readings, 'book' ) );
+		_prime_post_caches( array_column( $readings, 'id' ) );
 
 		return array_map(
-			fn( array $reading ) => array(
-				'name' => get_the_title( $reading['book'] ),
-				'url'  => (string) get_edit_post_link( $reading['book'] ),
-				'text' => date_i18n( get_option( 'date_format' ), strtotime( $reading['date'] ) ),
+			fn( Book $reading ) => array(
+				'name' => get_the_title( $reading->id ),
+				'url'  => (string) get_edit_post_link( $reading->id ),
+				'text' => date_i18n( get_option( 'date_format' ), strtotime( $reading->read_date ) ),
 			),
 			$readings
 		);

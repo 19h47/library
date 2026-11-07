@@ -107,8 +107,8 @@ class Test_Recap extends TestCase {
 		$this->add_reads(
 			array( '2025-01-01', '2025-02-01' ),
 			$this->by( 'Ann Writer' ) + array(
-				'form'     => $novel,
-				'language' => $this->get_language( 'it', 'Italian' ),
+				'form'      => $novel,
+				'languages' => array( $this->get_language( 'it', 'Italian' ) ),
 			)
 		);
 		$this->add_read( '2025-03-01', $this->by( 'Bob Drawer' ) + array( 'form' => $comic ) );

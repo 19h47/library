@@ -21,7 +21,8 @@
  * @var object                                        $language_labels  Labels of the original languages taxonomy.
  * @var object                                        $form_labels      Labels of the forms taxonomy.
  * @var array<int,string>                             $form_choices     Forms the filter of the books and the form of a book offer, by term ID.
- * @var array<int,string>                             $language_choices Original languages the form of a book offers, by term ID.
+ * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
+ * @var int                                           $own_language_id  Term ID of the language of the reader, 0 when the library has none.
  * @var array<string,string>                          $rating_choices Ratings a form offers, by value, with their label, none first.
  * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the books offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
@@ -788,12 +789,24 @@ use Library\Meta;
 						}
 
 						Markup::render_component(
-							'field',
+							'checkboxes-field',
 							array(
-								'id'         => 'library-edit-language',
-								'label'      => $language_labels->singular_name,
-								'control'    => Markup::get_select( array( '' => $language_labels->no_terms ) + $language_choices ),
-								'attributes' => array( 'name' => 'language' ),
+								'id'      => 'library-edit-languages',
+								'label'   => $language_labels->name,
+								'name'    => 'languages',
+								'choices' => $language_choices,
+							)
+						);
+						// A book added is in the language of the reader, unless the catalogue says otherwise.
+						Markup::render_component(
+							'checkboxes-field',
+							array(
+								'id'          => 'library-edit-edition-languages',
+								'label'       => Meta::get_label( 'library_edition_languages' ),
+								'name'        => 'library_edition_languages',
+								'choices'     => $language_choices,
+								'checked'     => array( $own_language_id ),
+								'description' => Meta::get_description( 'library_edition_languages' ),
 							)
 						);
 						Markup::render_component(

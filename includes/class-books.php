@@ -35,7 +35,8 @@ class Books {
 	 * Authors are counted under the name they are known by, and so are its contributors, its names with another role, such as a
 	 * colorist. The read dates go from the first reading to the latest.
 	 * The date added is the post date. The full title is the one to show.
-	 * Original languages are their names keyed by their code, e.g. "it" => "Italien"; forms are their names, e.g. "Roman".
+	 * Original languages are their names keyed by their code, e.g. "it" => "Italien", and so are the edition languages, those
+	 * of its text; forms are their names, e.g. "Roman".
 	 * Collections are those of the book and the ones they are part of, named after them: "Folio, Science-fiction", "Folio".
 	 * Series IDs are those of its series and of the cycles it is part of, from the series to the widest cycle. Publishers are
 	 * counted as authors are, a collection under its publisher, i.e. their widest ancestor: with the collections, they are
@@ -57,14 +58,22 @@ class Books {
 	 * @return array<int,Book>
 	 */
 	private static function compute_books(): array {
-		$books = array();
-		$posts = get_posts(
+		$books          = array();
+		$posts          = get_posts(
 			array(
 				'post_type'   => 'library_book',
 				'post_status' => Status::get_values(),
 				'numberposts' => -1,
 			)
 		);
+		$language_terms = get_terms(
+			array(
+				'taxonomy'   => 'library_language',
+				'hide_empty' => false,
+			)
+		);
+		// The languages by term ID, which the edition languages of a book are.
+		$language_terms = array_column( is_array( $language_terms ) ? $language_terms : array(), null, 'term_id' );
 
 		foreach ( $posts as $post ) {
 			$read_dates     = Meta::get_read_dates( $post->ID );
@@ -111,6 +120,7 @@ class Books {
 				collection_number:  (string) get_post_meta( $post->ID, 'library_collection_number', true ),
 				languages:          wp_list_pluck( is_array( $languages ) ? $languages : array(), 'name', 'slug' ),
 				language_ids:       wp_list_pluck( is_array( $languages ) ? $languages : array(), 'term_id' ),
+				edition_languages:  wp_list_pluck( array_intersect_key( $language_terms, array_flip( Meta::get_edition_languages( $post->ID ) ) ), 'name', 'slug' ),
 				forms:              wp_list_pluck( is_array( $forms ) ? $forms : array(), 'name' ),
 				form_ids:           wp_list_pluck( is_array( $forms ) ? $forms : array(), 'term_id' ),
 			);
@@ -127,6 +137,28 @@ class Books {
 	 */
 	public static function get_date( Book $book ): string {
 		return '' !== $book->published_date ? $book->published_date : $book->edition_date;
+	}
+
+	/**
+	 * The readings of books, one per read date, kept or not: each one a copy of its book with the date of the reading as
+	 * read date, see Book::with(). Those whose date is unknown come first, then by date, then by book. A book read again
+	 * counts once per reading.
+	 *
+	 * @param array<int,Book>|null $books Books, all of them when null.
+	 * @return list<Book>
+	 */
+	public static function get_readings( ?array $books = null ): array {
+		$readings = array();
+
+		foreach ( $books ?? self::get_books() as $book ) {
+			foreach ( $book->read_dates as $read_date ) {
+				$readings[] = $book->with( read_date: $read_date );
+			}
+		}
+
+		usort( $readings, fn( Book $a, Book $b ) => array( $a->read_date, $a->id ) <=> array( $b->read_date, $b->id ) );
+
+		return $readings;
 	}
 
 	/**
@@ -352,6 +384,19 @@ class Books {
 		$decimals = floor( $rating ) === $rating ? 0 : 1;
 
 		return number_format_i18n( $rating, $decimals );
+	}
+
+	/**
+	 * The average rating of books, out of 10, to the tenth, as it shows: none without a rating counts, null when none has
+	 * one. A book counts once, however many times it was read.
+	 *
+	 * @param Book[] $books Books.
+	 * @return float|null
+	 */
+	public static function get_average_rating( array $books ): ?float {
+		$ratings = array_filter( array_column( $books, 'rating' ), 'is_float' );
+
+		return $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null;
 	}
 
 	/**

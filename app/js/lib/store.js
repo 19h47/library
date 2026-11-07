@@ -945,7 +945,7 @@ class LibraryStore extends Store {
 	async editBook( { cover, coverRemoved, meta, ...values } ) {
 		const { books, editing: form } = this.get();
 		const { id, book } = form;
-		// Compared as JSON: the people are objects, each name with its role.
+		// Compared as JSON: the people are objects, each name with its role, and the languages lists.
 		const changes = /** @type {Partial<BookValues>} */ (
 			Object.fromEntries(
 				Object.entries( values ).filter(
@@ -957,7 +957,9 @@ class LibraryStore extends Store {
 		);
 		const changedMeta = Object.fromEntries(
 			Object.entries( meta ).filter(
-				( [ key, value ] ) => value !== book.meta[ key ]
+				( [ key, value ] ) =>
+					JSON.stringify( value ) !==
+					JSON.stringify( book.meta[ key ] )
 			)
 		);
 
