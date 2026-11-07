@@ -189,10 +189,12 @@ function linkAchievement( $field, achievement ) {
  * Shows a cover, or hides the image when the book has none. The size the API gives makes the place of
  * the image known before it loads; a photo picked for a book to add has none.
  *
- * @param {HTMLImageElement} $image The image.
- * @param {Cover|null}       cover  The cover, none without one.
+ * @param {HTMLImageElement} $image         The image.
+ * @param {Cover|null}       cover          The cover, none without one.
+ * @param {string}           [sizes='auto'] How wide it shows, for the browser to load its source of that size: auto, which
+ *                                          a lazy image takes, or a length for an image loaded at once.
  */
-export function fillCover( $image, cover ) {
+export function fillCover( $image, cover, sizes = 'auto' ) {
 	$image.hidden = ! cover;
 
 	if ( ! cover ) {
@@ -202,11 +204,11 @@ export function fillCover( $image, cover ) {
 		return;
 	}
 
-	// Its sizes before its source, for the browser to take the one it shows at once, as wide as it shows: sizes="auto", which
-	// a lazy image takes. Only with them: the browser sizes such an image as if it were 300 by 150 until its width and height
-	// say otherwise, which a cover of the API has, and a photo picked has not.
+	// Its sizes before its source, for the browser to take the one it shows at once, as wide as it shows. Only with them:
+	// the browser sizes a lazy image of sizes="auto" as if it were 300 by 150 until its width and height say otherwise,
+	// which a cover of the API has, and a photo picked has not.
 	if ( cover.srcset ) {
-		$image.sizes = 'auto';
+		$image.sizes = sizes;
 		$image.srcset = cover.srcset;
 	} else {
 		$image.removeAttribute( 'sizes' );
@@ -281,19 +283,34 @@ export function renderCover( book, state = '' ) {
  * A book being read, as its cover, larger than the latest readings show it, which opens it: its title and its status
  * under it, or its title in its frame without a cover, and its button Finished over its corner, described by them.
  *
+ * Its cover loads at once, at its size: the books being read are few, at the top of the home. Safari left a lazy one of
+ * them blank, once back from a book in a view transition, until it went out of sight and came back.
+ *
  * @param {Book} book The book.
  * @return {HTMLElement} The cover.
  */
 export function renderCurrent( book ) {
 	const $item = clone( 'library-current' );
 	const $open = $item.querySelector( '.library-cover__link' );
+	/** @type {HTMLImageElement} */
+	const $cover = $item.querySelector( '[data-field="cover"]' );
+	// The height of the cover, a length in pixels, and so its width, from its proportions.
+	const height = parseFloat(
+		getComputedStyle( document.documentElement ).getPropertyValue(
+			'--library-current-height'
+		)
+	);
+	const width = book.cover?.width
+		? Math.ceil( ( height * book.cover.width ) / book.cover.height )
+		: 0;
 
 	linkBook( $item, book );
 	$open.id = `library-current-${ book.id }`;
 	$item
 		.querySelector( '[data-action="finish"]' )
 		.setAttribute( 'aria-describedby', $open.id );
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	$cover.loading = 'eager';
+	fillCover( $cover, book.cover, width ? `${ width }px` : 'auto' );
 	fill( $item, {
 		frame: book.cover ? '' : book.title,
 		title: book.cover ? book.title : '',
