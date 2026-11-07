@@ -450,8 +450,7 @@ use Library\Meta;
 							<h3 class="library-recap__title"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="discoveries"></p>
 							<p data-field="discovered"></p>
-							<ul class="library-strip" data-row="discoveries" data-list="discoveries"></ul>
-							<p class="app-meta" data-field="moreDiscoveries"></p>
+							<ul class="library-pills library-recap__cloud" data-row="discoveries" data-list="discoveries"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>

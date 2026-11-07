@@ -110,15 +110,16 @@ export function pageLink( view, id, name ) {
 /**
  * Fills `$list` with `$links` as pills, one per item, such as the series of a cycle; its [data-row] hides without one.
  *
- * @param {Element}             $list  The list.
- * @param {HTMLAnchorElement[]} $links The links.
+ * @param {Element}             $list             The list.
+ * @param {HTMLAnchorElement[]} $links            The links.
+ * @param {string}              [pill='app-pill'] The class of a pill, such as a small one.
  */
-export function fillPills( $list, $links ) {
+export function fillPills( $list, $links, pill = 'app-pill' ) {
 	$list.replaceChildren(
 		...$links.map( ( $link ) => {
 			const $item = document.createElement( 'li' );
 
-			$link.className = 'app-pill';
+			$link.className = pill;
 			$item.append( $link );
 
 			return $item;

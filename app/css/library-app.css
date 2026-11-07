@@ -788,8 +788,8 @@ library-latest {
 /*
  * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
  * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
- * volumes of a series; on the screens of a recap, the books rated the highest, the records, the achievements and the
- * people read for the first time. The first item starts where the content does, the last one ends where it does.
+ * volumes of a series; on the screens of a recap, the books rated the highest, the records and the achievements. The
+ * first item starts where the content does, the last one ends where it does.
  */
 .library-strip {
 	/*
@@ -900,7 +900,8 @@ library-latest {
 
 /*
  * A row of pills, which goes on as many lines as it needs: the reading of the book open, the filters chosen, the buttons
- * under a list of inputs, the series of a cycle, the collections of a publisher and the other years of a recap
+ * under a list of inputs, the series of a cycle, the collections of a publisher, the other years of a recap and the
+ * people read for the first time in it
  */
 .library-pills {
 	list-style: none;
@@ -1182,6 +1183,8 @@ library-recap {
 .library-recap__screen {
 	/* Where its frame starts on the screen, the page stopped at it */
 	--library-recap-screen-top: var(--library-recap-top);
+	/* From there to above what stays at the bottom of the screen, a step from it */
+	--library-recap-screen-size: calc(100dvh - var(--library-recap-screen-top) - var(--library-recap-bottom) - var(--app-u1));
 
 	display: grid;
 	align-content: center;
@@ -1190,7 +1193,7 @@ library-recap {
 	 * From there to the tab bar, a step above it: its content made to fit, as the wall of the first screen and the
 	 * strips; higher only where it cannot, on a screen too short for it or with a larger text, the page then scrolling it.
 	 */
-	min-block-size: calc(100dvh - var(--library-recap-screen-top) - var(--library-recap-bottom) - var(--app-u1));
+	min-block-size: var(--library-recap-screen-size);
 	padding: var(--app-u2) var(--library-recap-padding);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--app-radius);
@@ -1219,8 +1222,45 @@ library-recap {
 }
 
 /*
- * The covers rated the highest, the records, the achievements and the people read for the first time, out to the edges
- * of the frame rather than of the screen: sideways, so that a screen holds them all, however many
+ * A screen of a cloud, the people read for the first time: never higher than the screen, the cloud taking the room
+ * left, its content in the middle when it fits
+ */
+.library-recap__screen:has(> .library-recap__cloud) {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-block-size: var(--library-recap-screen-size);
+}
+
+/*
+ * The names, every one, cut where the screen ends: hidden rather than clipped, a link the keyboard reaches scrolls into
+ * view. A row of them at least, on a screen too short for more.
+ */
+.library-recap__cloud {
+	flex: 0 1 auto;
+	gap: var(--app-gap-small);
+	min-block-size: calc(var(--app-u2) * var(--app-phi));
+	overflow: hidden;
+}
+
+/* Faded at its end only when cut: a scroll timeline runs only while the cloud has more than it shows */
+@supports (animation-timeline: scroll()) {
+	.library-recap__cloud {
+		animation: library-recap-cut linear both;
+		animation-timeline: scroll(self);
+	}
+}
+
+@keyframes library-recap-cut {
+	from,
+	to {
+		mask-image: linear-gradient(to bottom, black 50%, transparent);
+	}
+}
+
+/*
+ * The covers rated the highest, the records and the achievements, out to the edges of the frame rather than of the
+ * screen: sideways, so that a screen holds them all, however many
  */
 .library-recap__screen .library-strip {
 	--library-bleed: var(--library-recap-padding);

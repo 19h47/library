@@ -281,6 +281,12 @@ select {
   white-space: nowrap;
 }
 
+/* A small pill, its padding a step down, for many of them together, such as a cloud of names */
+.app-pill--small {
+  --app-pill-padding-block: calc(1em / var(--app-phi) / var(--app-phi));
+  --app-pill-padding-inline: calc(1em / var(--app-phi));
+}
+
 /* The pill shows the focus of the select or checkbox it holds */
 .app-pill:has(:focus-visible) {
   outline: var(--app-focus-outline);

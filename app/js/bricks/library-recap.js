@@ -30,8 +30,6 @@ import { urlOf } from 'library-app/router';
  * @import { Loading } from 'library-app/store'
  */
 
-// The people read for the first time a recap names, the others counted after them.
-const SHOWN_DISCOVERIES = 12;
 // How long a figure counts up to its value, slowing down to it.
 const COUNT_MS = 1000;
 const reducedMotion = matchMedia( '(prefers-reduced-motion: reduce)' );
@@ -117,21 +115,6 @@ class LibraryRecapElement extends Brick {
 				recap.discoveries.length,
 				'library'
 			),
-			moreDiscoveries:
-				recap.discoveries.length > SHOWN_DISCOVERIES
-					? sprintf(
-							/* translators: %s: number of people read for the first time in the year, after the ones named. */
-							_n(
-								'And %s more',
-								'And %s more',
-								recap.discoveries.length - SHOWN_DISCOVERIES,
-								'library'
-							),
-							formatNumber(
-								recap.discoveries.length - SHOWN_DISCOVERIES
-							)
-					  )
-					: '',
 			languages: formatNumber( recap.languages.length ),
 			series: formatNumber( recap.series.length ),
 			seriesState: join( [
@@ -195,11 +178,13 @@ class LibraryRecapElement extends Brick {
 				readings,
 			} ) )
 		);
+		// Every one, small, in a cloud the screen cuts under a fade: the recap shows them, a search lists them.
 		fillPills(
 			this.querySelector( '[data-list="discoveries"]' ),
-			recap.discoveries
-				.slice( 0, SHOWN_DISCOVERIES )
-				.map( ( { id, name } ) => pageLink( 'person', id, name ) )
+			recap.discoveries.map( ( { id, name } ) =>
+				pageLink( 'person', id, name )
+			),
+			'app-pill app-pill--small'
 		);
 		this.#fillShares(
 			'languages',
