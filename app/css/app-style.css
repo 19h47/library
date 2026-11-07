@@ -176,9 +176,12 @@ select {
   }
 }
 
-/* The content spaces its parts: a step under the header, a step and a half under the controls, a gap under a status */
+/*
+ * The content spaces its parts: a step under the header, a step and a half under the controls, a gap under a status.
+ * The header is as far from what follows as the toolbar is from what goes under it, a small step.
+ */
 .app-content > .app-header {
-  margin-bottom: var(--app-u2);
+  margin-bottom: var(--app-u1);
 }
 
 .app-content > .app-controls {
