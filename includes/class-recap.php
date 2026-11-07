@@ -45,8 +45,7 @@ class Recap {
 	public static function get_recap( int $year ): array {
 		$books    = Books::get_books();
 		$readings = Stats::get_year_readings( $year );
-		$read     = array_map( fn( int $id ) => $books[ $id ], array_values( array_unique( array_column( $readings, 'id' ) ) ) );
-		$counted  = array_filter( $readings, fn( Book $reading ) => null !== $reading->pages );
+		$read     = Stats::get_year_books( $year );
 
 		return array(
 			'year'         => $year,
@@ -56,10 +55,7 @@ class Recap {
 			'previous'     => count( Stats::get_year_readings( $year - 1 ) ),
 			'rereads'      => count( $readings ) - count( $read ),
 			'books'        => array_map( fn( Book $book ) => $book->id, $read ),
-			'pages'        => array(
-				'total'   => (int) array_sum( array_column( $counted, 'pages' ) ),
-				'counted' => count( $counted ),
-			),
+			'pages'        => Stats::count_pages( $readings ),
 			'months'       => array_values( Stats::count_by_month( $readings ) ),
 			'forms'        => self::count_terms( $readings, fn( Book $book ) => array_combine( $book->form_ids, $book->forms ) ),
 			'people'       => array_slice( self::count_terms( $readings, fn( Book $book ) => $book->get_work_authors() ), 0, self::TOP ),
@@ -76,7 +72,7 @@ class Recap {
 			'best'         => self::get_best( $read ),
 			'records'      => self::get_records( $read ),
 			'achievements' => array_values( array_filter( new Achievements()->get_achievements()['earned'], fn( array $achievement ) => str_starts_with( $achievement['date'], "$year-" ) ) ),
-			'added'        => count( array_filter( $books, fn( Book $book ) => Status::To_Buy !== $book->status && str_starts_with( $book->added, "$year-" ) ) ),
+			'added'        => count( array_filter( $books, fn( Book $book ) => $book->is_at_hand() && str_starts_with( $book->added, "$year-" ) ) ),
 		);
 	}
 

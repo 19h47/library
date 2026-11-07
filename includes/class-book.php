@@ -175,12 +175,21 @@ final readonly class Book {
 	}
 
 	/**
-	 * Whether it is on the reading pile: not read, and at hand, in the library or passing through, not kept once read; a
-	 * book to buy is not. The one rule of the books to read, for the stats, the reading ideas and the achievements.
+	 * Whether it is at hand: in the library or passing through, not kept once read; a book to buy is not yet.
+	 *
+	 * @return bool
+	 */
+	public function is_at_hand(): bool {
+		return Status::To_Buy !== $this->status;
+	}
+
+	/**
+	 * Whether it is on the reading pile: not read, and at hand. The one rule of the books to read, for the stats, the
+	 * reading ideas and the achievements.
 	 *
 	 * @return bool
 	 */
 	public function is_on_the_pile(): bool {
-		return ! $this->read && Status::To_Buy !== $this->status;
+		return ! $this->read && $this->is_at_hand();
 	}
 }

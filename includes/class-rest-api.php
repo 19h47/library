@@ -97,11 +97,7 @@ class Rest_API {
 				),
 			),
 			'series_name'            => array(
-				'get_callback' => function ( array $book ): string {
-					$series = Taxonomies::get_series( $book['id'] );
-
-					return $series ? Taxonomies::get_series_path( $series ) : '';
-				},
+				'get_callback' => fn( array $book ) => Taxonomies::get_series_name( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Series of the book, after its cycles, in plain text, such as “Star Wars, Young Jedi Knights”, or empty.', 'library' ),
 					'type'        => 'string',
@@ -550,7 +546,6 @@ class Rest_API {
 		$people     = wp_get_post_terms( $book->ID, 'library_person' );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
-		$series     = Taxonomies::get_series( $book->ID );
 		$roles      = Meta::get_roles( $book->ID );
 		$meta       = array();
 
@@ -576,7 +571,7 @@ class Rest_API {
 				),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
-				'series'     => $series ? Taxonomies::get_series_path( $series ) : '',
+				'series'     => Taxonomies::get_series_name( $book->ID ),
 				'languages'  => $languages,
 				'form'       => (int) current( $forms ),
 				'meta'       => $meta,
@@ -921,7 +916,7 @@ class Rest_API {
 					$series
 				),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
+				'read'        => Books::count_read( $books ),
 				'rating'      => Books::get_average_rating( $books ),
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
@@ -962,7 +957,7 @@ class Rest_API {
 				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Books::sort_in_reading_order( $books ), 'id' ),
-				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
+				'read'        => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
@@ -1025,7 +1020,7 @@ class Rest_API {
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
+				'read'        => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);

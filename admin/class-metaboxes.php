@@ -111,8 +111,7 @@ class Metaboxes {
 			)
 		);
 		$languages = is_array( $languages ) ? $languages : array();
-		$series    = Taxonomies::get_series( $post->ID );
-		$series    = $series ? Taxonomies::get_series_path( $series ) : '';
+		$series    = Taxonomies::get_series_name( $post->ID );
 		$paths     = Taxonomies::get_series_paths();
 		$names     = get_the_terms( $post->ID, 'library_person' );
 		$names     = is_array( $names ) ? $names : array();

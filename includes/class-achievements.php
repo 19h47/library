@@ -56,6 +56,17 @@ class Achievements {
 	);
 
 	/**
+	 * Taxonomy of the terms of each kind of completion, which its target leads to.
+	 *
+	 * @var array<string,string>
+	 */
+	public const array COMPLETION_TAXONOMIES = array(
+		'author'     => 'library_person',
+		'series'     => 'library_series',
+		'collection' => 'library_publisher',
+	);
+
+	/**
 	 * Number of books of a collection from which reading half of them counts.
 	 *
 	 * @var int
@@ -275,7 +286,7 @@ class Achievements {
 			$translators,
 			$languages,
 			$this->get_language_feats( $reads, $readings ),
-			$this->get_easter_eggs( $books, $reads, $readings )
+			$this->get_easter_eggs( $reads, $readings )
 		);
 
 		usort( $earned, fn( array $a, array $b ) => array( '' === $a['date'], $b['date'] ) <=> array( '' === $b['date'], $a['date'] ) );
@@ -556,19 +567,14 @@ class Achievements {
 		$read   = array_filter( $group, fn( Book $book ) => $book->read );
 		$left   = $total - count( $read );
 
-		$taxonomies = array(
-			'author'     => 'library_person',
-			'series'     => 'library_series',
-			'collection' => 'library_publisher',
-		);
-		$names      = array(
+		$names = array(
 			'author'     => fn( WP_Term $term ) => $term->name,
 			'series'     => array( Taxonomies::class, 'get_series_path' ),
 			'collection' => array( Taxonomies::class, 'get_collection_name' ),
 		);
 		// A series or a collection is named alone, the narrowest, without the cycles or collections it is part of.
 		$term_ids = 'author' === $kind ? array_keys( $kinds[ $kind ] ) : array( $key );
-		$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, $taxonomies[ $kind ] ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
+		$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, self::COMPLETION_TAXONOMIES[ $kind ] ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
 		$subject  = wp_sprintf( '%l', array_map( $names[ $kind ], $terms ) );
 		$target   = self::build_term_target( $kind, (int) $key, $group );
 
@@ -1102,7 +1108,7 @@ class Achievements {
 	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_library_tour( array $books, array $reads ): array {
-		$at_hand     = array_filter( $books, fn( Book $book ) => Status::To_Buy !== $book->status );
+		$at_hand     = array_filter( $books, fn( Book $book ) => $book->is_at_hand() );
 		$forms       = array_values( array_unique( array_merge( ...array_column( $at_hand, 'forms' ) ) ) );
 		$first_reads = array();
 
@@ -1132,7 +1138,7 @@ class Achievements {
 		}
 
 		$values = implode( ',', array_map( fn( string $form ) => '"' . $form . '"', $left ) );
-		$unread = array_filter( $at_hand, fn( Book $book ) => ! $book->read && array_intersect( $book->forms, $left ) );
+		$unread = array_filter( $books, fn( Book $book ) => $book->is_on_the_pile() && array_intersect( $book->forms, $left ) );
 		/* translators: %s: forms left to read, such as "Poetry, Drama". */
 		$detail   = sprintf( __( 'Still to read: %s', 'library' ), implode( ', ', $left ) );
 		$progress = array(
@@ -1542,16 +1548,15 @@ class Achievements {
 	/**
 	 * Easter eggs: odd days, odd books and odd habits.
 	 *
-	 * @param array<int,Book> $books    All the books.
 	 * @param array<int,Book> $reads    Books read, in reading order.
 	 * @param array<int,Book> $readings Readings, in reading order.
 	 * @return list<Achievement>
 	 */
-	private function get_easter_eggs( array $books, array $reads, array $readings ): array {
+	private function get_easter_eggs( array $reads, array $readings ): array {
 		$dated       = array_values( array_filter( $readings, fn( Book $book ) => '' !== $book->read_date ) );
 		$dated_reads = array_values( array_filter( $reads, fn( Book $book ) => '' !== $book->read_date ) );
 		$on          = fn( string $month_day ) => array_values( array_filter( $dated, fn( Book $book ) => substr( $book->read_date, 5 ) === $month_day ) );
-		$to_read     = count( array_filter( $books, fn( Book $book ) => $book->is_on_the_pile() ) );
+		$to_read     = count( Stats::get_books_on_the_pile() );
 		$eggs        = array();
 
 		if ( $to_read >= self::TSUNDOKU_BOOKS ) {
