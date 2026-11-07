@@ -515,16 +515,18 @@ class Meta {
 
 	/**
 	 * Values of a book as its forms edit them, by meta key, in the order of KEYS, then its edition languages: one value
-	 * each, the read dates and the edition languages as lists.
+	 * each, a boolean as a boolean, as a checkbox gives it back, the read dates and the edition languages as lists.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return array<string,mixed>
 	 */
 	public static function get_values( int $post_id ): array {
+		$types  = wp_list_pluck( get_registered_meta_keys( 'post', 'library_book' ), 'type' );
 		$values = array();
 
 		foreach ( self::KEYS as $key ) {
-			$values[ $key ] = 'library_read_date' === $key ? self::get_read_dates( $post_id ) : get_post_meta( $post_id, $key, true );
+			$value          = 'library_read_date' === $key ? self::get_read_dates( $post_id ) : get_post_meta( $post_id, $key, true );
+			$values[ $key ] = 'boolean' === ( $types[ $key ] ?? '' ) ? rest_sanitize_boolean( $value ) : $value;
 		}
 
 		$values['library_edition_languages'] = self::get_edition_languages( $post_id );

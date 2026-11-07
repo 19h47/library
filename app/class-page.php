@@ -193,8 +193,9 @@ class Page {
 	/**
 	 * Give the app the data it asks for first, in the page itself, as the editor of WordPress does: the server runs those
 	 * requests of the REST API while it renders the page, and wp.apiFetch answers them from it, without network. They
-	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown and
-	 * its series, the page of a series or of a collection, or the recap of a year. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
+	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown, the
+	 * page of a series or of a collection, or the recap of a year; not the volumes of the series of the book, which load
+	 * once the page has, when no preloaded answer is read any more. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
 	 * which goes to the network. The reading idea and the achievements load after, as they take longer than the rest.
 	 *
 	 * @param string $view View shown.
@@ -262,22 +263,6 @@ class Page {
 
 		foreach ( self::RECAP_VIEW === $view ? array_chunk( $recap_books, self::MAX_PER_PAGE ) : array() as $chunk ) {
 			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $chunk, $statuses ) );
-		}
-
-		// The series of the book shown, in reading order.
-		$series = self::BOOK_VIEW === $view ? Taxonomies::get_series_name( $id ) : '';
-
-		if ( '' !== $series ) {
-			$data = rest_preload_api_request(
-				$data,
-				$books(
-					array(
-						'search'   => sprintf( 'series:"%s"', $series ),
-						'status'   => $statuses,
-						'per_page' => self::MAX_PER_PAGE,
-					)
-				)
-			);
 		}
 
 		// Only the first requests of the page, until it has loaded: a request after, such as a search again without a filter
