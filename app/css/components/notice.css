@@ -18,8 +18,7 @@
 		max-width: calc(100vw - 2 * var(--app-u2));
 		border-radius: calc(var(--app-line-height) * 1em / 2 + var(--app-pill-padding-block));
 		white-space: normal;
-		background: var(--app-bg-floating);
-		backdrop-filter: var(--app-blur-floating);
+		background: var(--app-bg);
 		color: var(--app-text);
 
 		& .library-link {

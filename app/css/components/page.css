@@ -73,8 +73,7 @@
 			z-index: 1;
 			padding: var(--app-gap) var(--app-gap) calc(var(--app-gap) + env(safe-area-inset-bottom));
 			border-top: 1px solid var(--app-line-soft);
-			background: var(--app-bg-floating);
-			backdrop-filter: var(--app-blur-floating);
+			background: var(--app-bg);
 		}
 
 		/*
@@ -131,13 +130,12 @@
 
 	/*
 	 * The bar at the bottom: its background goes across the viewport, as the covers of the latest readings
-	 * pass under it out to its edges; its line stays as wide as the content. The background and its blur move
-	 * to a box under the bar, from an edge of the viewport to the other: the page is centered, and has no scrollbar.
+	 * pass under it out to its edges; its line stays as wide as the content. The background moves to a box under the
+	 * bar, from an edge of the viewport to the other: the page is centered, and has no scrollbar.
 	 */
 	@media screen {
 		.app-footer {
 			background: none;
-			backdrop-filter: none;
 
 			&::before {
 				content: "";
@@ -145,8 +143,7 @@
 				z-index: -1;
 				inset-block: 0;
 				inset-inline: calc(50% - 50vw);
-				background: var(--app-bg-floating);
-				backdrop-filter: var(--app-blur-floating);
+				background: var(--app-bg);
 			}
 		}
 	}

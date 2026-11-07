@@ -267,10 +267,9 @@
 		opacity: calc(1 / var(--app-phi) / var(--app-phi) / var(--app-phi));
 	}
 
-	/* The links to the other years over it, on the floating background of the controls, to read as well */
+	/* The links to the other years over it, on the background of the page, to read as well */
 	.library-recap__closing .app-pill {
-		background: var(--app-bg-floating);
-		backdrop-filter: var(--app-blur-floating);
+		background: var(--app-bg);
 	}
 
 	/* The space under each cover rather than a gap, for half the column to be one copy of its covers to the pixel */
