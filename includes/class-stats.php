@@ -45,6 +45,34 @@ class Stats {
 	}
 
 	/**
+	 * The books read in `$year`, each one once, in the order they were first read that year.
+	 *
+	 * @param int $year Year.
+	 * @return list<Book>
+	 */
+	public static function get_year_books( int $year ): array {
+		$books = Books::get_books();
+
+		return array_map( fn( int $id ) => $books[ $id ], array_values( array_unique( array_column( self::get_year_readings( $year ), 'id' ) ) ) );
+	}
+
+	/**
+	 * The pages of readings, over those with their number of pages, and how many have it; a book read again counts once
+	 * per reading.
+	 *
+	 * @param Book[] $readings Readings.
+	 * @return array{total:int,counted:int}
+	 */
+	public static function count_pages( array $readings ): array {
+		$counted = array_filter( $readings, fn( Book $reading ) => null !== $reading->pages );
+
+		return array(
+			'total'   => (int) array_sum( array_column( $counted, 'pages' ) ),
+			'counted' => count( $counted ),
+		);
+	}
+
+	/**
 	 * The readings of each year with one, the earliest first.
 	 *
 	 * @return array<int,int> Readings by year.
@@ -87,13 +115,22 @@ class Stats {
 	}
 
 	/**
-	 * Reading stats: books read out of the books in the library, i.e. published.
+	 * The books in the library, i.e. kept, published.
+	 *
+	 * @return array<int,Book>
+	 */
+	public static function get_kept_books(): array {
+		return array_filter( Books::get_books(), fn( Book $book ) => Status::In_Library === $book->status );
+	}
+
+	/**
+	 * Reading stats: books read out of the books in the library.
 	 *
 	 * @return array{read:int,total:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
-		$library = array_filter( Books::get_books(), fn( Book $book ) => Status::In_Library === $book->status );
-		$read    = count( array_filter( $library, fn( Book $book ) => $book->read ) );
+		$library = self::get_kept_books();
+		$read    = Books::count_read( $library );
 		$total   = count( $library );
 		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
 

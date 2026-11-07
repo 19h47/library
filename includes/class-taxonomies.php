@@ -329,6 +329,18 @@ class Taxonomies {
 	}
 
 	/**
+	 * The series of a book from its cycle, as it types it, in plain text: see get_series_path(); empty without one.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return string
+	 */
+	public static function get_series_name( int $book_id ): string {
+		$series = self::get_series( $book_id );
+
+		return $series ? self::get_series_path( $series ) : '';
+	}
+
+	/**
 	 * Every series and cycle, after its cycles, in plain text, in order, as a form suggests them.
 	 *
 	 * @return string[]

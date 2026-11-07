@@ -297,13 +297,13 @@ class Reading_Idea {
 
 	/**
 	 * The cycle of the series of a book, after its own cycles, or empty: "Star Wars" for "Star Wars, Young Jedi Knights".
+	 * Its series IDs go from its series to the widest cycle: the cycle comes second.
 	 *
 	 * @param Book $book Book.
 	 * @return string
 	 */
 	private static function get_cycle( Book $book ): string {
-		$series = $book->series_id ? get_term( $book->series_id, 'library_series' ) : null;
-		$cycle  = $series instanceof WP_Term && $series->parent ? get_term( $series->parent, 'library_series' ) : null;
+		$cycle = isset( $book->series_ids[1] ) ? get_term( $book->series_ids[1], 'library_series' ) : null;
 
 		return $cycle instanceof WP_Term ? Taxonomies::get_series_path( $cycle ) : '';
 	}
@@ -318,7 +318,7 @@ class Reading_Idea {
 	private static function get_next_parts( array $books ): array {
 		$parts = array();
 
-		// Each book asks for its series and its cycle: the terms in one query.
+		// Each book names its cycle after the cycles it is part of: the terms in one query.
 		_prime_term_caches( array_unique( array_merge( ...array_column( $books, 'series_ids' ) ) ) );
 
 		foreach ( Books::sort_in_reading_order( $books ) as $book ) {
@@ -472,7 +472,7 @@ class Reading_Idea {
 
 		foreach ( self::get_authored_books( $books ) as $book ) {
 			foreach ( $book->authors as $author ) {
-				if ( Status::To_Buy !== $book->status ) {
+				if ( $book->is_at_hand() ) {
 					$books_by_author[ $author ] = ( $books_by_author[ $author ] ?? 0 ) + 1;
 				}
 

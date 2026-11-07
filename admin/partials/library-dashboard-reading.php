@@ -7,7 +7,7 @@
  *
  * @var array{read:int,total:int,percent:int}                                $stats
  * @var array{year:int,this_year:int,last_year:int,projection:int|null,to_read:int,all_read_in:int|null} $year_to_date
- * @var array{pages:int,books:int}                                           $pages_read
+ * @var array{total:int,counted:int}                                         $pages_read
  * @var array<int,array>                                                     $charts
  */
 
@@ -63,15 +63,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 			</p>
 		<?php endif; ?>
-		<?php if ( $pages_read['books'] ) : ?>
+		<?php if ( $pages_read['counted'] ) : ?>
 			<p class="library-dashboard-secondary">
 				<?php
 				printf(
 					/* translators: 1: number of pages, 2: year, 3: number of books read this year with their number of pages. */
-					esc_html( _n( '%1$s pages read in %2$d, over %3$s book with its number of pages', '%1$s pages read in %2$d, over %3$s books with their number of pages', $pages_read['books'], 'library' ) ),
-					esc_html( number_format_i18n( $pages_read['pages'] ) ),
+					esc_html( _n( '%1$s pages read in %2$d, over %3$s book with its number of pages', '%1$s pages read in %2$d, over %3$s books with their number of pages', $pages_read['counted'], 'library' ) ),
+					esc_html( number_format_i18n( $pages_read['total'] ) ),
 					(int) $year_to_date['year'],
-					esc_html( number_format_i18n( $pages_read['books'] ) )
+					esc_html( number_format_i18n( $pages_read['counted'] ) )
 				);
 				?>
 			</p>

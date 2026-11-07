@@ -264,8 +264,7 @@ class Page {
 		}
 
 		// The series of the book shown, in reading order.
-		$series = self::BOOK_VIEW === $view ? Taxonomies::get_series( $id ) : null;
-		$series = $series ? Taxonomies::get_series_path( $series ) : '';
+		$series = self::BOOK_VIEW === $view ? Taxonomies::get_series_name( $id ) : '';
 
 		if ( '' !== $series ) {
 			$data = rest_preload_api_request(

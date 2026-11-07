@@ -77,9 +77,18 @@ class Books {
 
 		foreach ( $posts as $post ) {
 			$read_dates     = Meta::get_read_dates( $post->ID );
-			$volume         = self::get_volume_number( (string) get_post_meta( $post->ID, 'library_volume_number', true ) );
-			$series         = Taxonomies::get_series( $post->ID );
-			$series_name    = $series ? Taxonomies::get_series_path( $series ) : ( null !== $volume ? $post->post_title : '' );
+			$volume_number  = (string) get_post_meta( $post->ID, 'library_volume_number', true );
+			$volume         = self::get_volume_number( $volume_number );
+			$series         = Taxonomies::get_series_name( $post->ID );
+			$series_ids     = Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' );
+			$full_title     = self::build_full_title(
+				$post->post_title,
+				$series,
+				array(
+					'library_volume_number' => $volume_number,
+					'library_subtitle'      => get_post_meta( $post->ID, 'library_subtitle', true ),
+				)
+			);
 			$rating         = get_post_meta( $post->ID, 'library_rating', true );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
@@ -96,12 +105,13 @@ class Books {
 			$books[ $post->ID ] = new Book(
 				id:                 $post->ID,
 				title:              $post->post_title,
-				full_title:         self::get_full_title( $post->ID, $post->post_title ),
+				full_title:         $full_title,
 				status:             Status::from( $post->post_status ),
 				// From its cycle, as typed: "Star Wars, Young Jedi Knights"; a volume without series is one of its title.
-				series:             $series_name,
-				series_id:          $series ? $series->term_id : 0,
-				series_ids:         Taxonomies::get_term_ids_and_ancestors( $post->ID, 'library_series' ),
+				series:             '' === $series && null !== $volume ? $post->post_title : $series,
+				// Its series comes first, before its cycles.
+				series_id:          $series_ids[0] ?? 0,
+				series_ids:         $series_ids,
 				volume:             $volume,
 				collective:         Posts::is_collective( $post->ID ),
 				read_dates:         $read_dates,
@@ -172,6 +182,16 @@ class Books {
 	}
 
 	/**
+	 * The books read of `$books`, each one once, however many times it was read.
+	 *
+	 * @param Book[] $books Books.
+	 * @return int
+	 */
+	public static function count_read( array $books ): int {
+		return count( array_filter( $books, fn( Book $book ) => $book->read ) );
+	}
+
+	/**
 	 * Books in reading order: in the order they first came out, a series at the date of its first book with its volumes in
 	 * their order, so that the parts of a cycle follow one another; those without date last, then by title.
 	 *
@@ -215,14 +235,13 @@ class Books {
 	 * @return string
 	 */
 	public static function get_full_title( int $book_id, string $title ): string {
-		$series = Taxonomies::get_series( $book_id );
-		$meta   = array();
+		$meta = array();
 
 		foreach ( array( 'library_volume_number', 'library_subtitle' ) as $key ) {
 			$meta[ $key ] = get_post_meta( $book_id, $key, true );
 		}
 
-		return self::build_full_title( $title, $series ? Taxonomies::get_series_path( $series ) : '', $meta );
+		return self::build_full_title( $title, Taxonomies::get_series_name( $book_id ), $meta );
 	}
 
 	/**
