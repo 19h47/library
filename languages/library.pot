@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T11:41:20+00:00\n"
+"POT-Creation-Date: 2026-11-07T12:52:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -144,7 +144,7 @@ msgid "Reading pile"
 msgstr ""
 
 #: admin/class-dashboard.php:130
-#: includes/class-taxonomies.php:486
+#: includes/class-taxonomies.php:489
 msgctxt "library forms general name"
 msgid "Forms"
 msgstr ""
@@ -1980,372 +1980,372 @@ msgctxt "book status"
 msgid "In the library"
 msgstr ""
 
-#: includes/class-taxonomies.php:73
+#: includes/class-taxonomies.php:75
 msgctxt "library people general name"
 msgid "People"
 msgstr ""
 
-#: includes/class-taxonomies.php:74
+#: includes/class-taxonomies.php:76
 msgctxt "library people singular name"
 msgid "Person"
 msgstr ""
 
-#: includes/class-taxonomies.php:75
+#: includes/class-taxonomies.php:77
 msgid "Search People"
 msgstr ""
 
-#: includes/class-taxonomies.php:76
+#: includes/class-taxonomies.php:78
 msgid "All People"
 msgstr ""
 
-#: includes/class-taxonomies.php:77
+#: includes/class-taxonomies.php:79
 msgid "Popular People"
 msgstr ""
 
-#: includes/class-taxonomies.php:78
+#: includes/class-taxonomies.php:80
 msgid "Edit Person"
 msgstr ""
 
-#: includes/class-taxonomies.php:79
+#: includes/class-taxonomies.php:81
 msgid "View Person"
 msgstr ""
 
-#: includes/class-taxonomies.php:80
+#: includes/class-taxonomies.php:82
 msgid "Update Person"
 msgstr ""
 
-#: includes/class-taxonomies.php:81
+#: includes/class-taxonomies.php:83
 msgid "Add New Person"
 msgstr ""
 
-#: includes/class-taxonomies.php:82
+#: includes/class-taxonomies.php:84
 msgid "New Person Name"
 msgstr ""
 
-#: includes/class-taxonomies.php:83
+#: includes/class-taxonomies.php:85
 msgid "Separate people with commas"
 msgstr ""
 
-#: includes/class-taxonomies.php:84
+#: includes/class-taxonomies.php:86
 msgid "Add or remove people"
 msgstr ""
 
-#: includes/class-taxonomies.php:85
+#: includes/class-taxonomies.php:87
 msgid "Choose from the most used people"
 msgstr ""
 
-#: includes/class-taxonomies.php:86
+#: includes/class-taxonomies.php:88
 msgid "No people found."
 msgstr ""
 
-#: includes/class-taxonomies.php:87
+#: includes/class-taxonomies.php:89
 msgid "No people"
 msgstr ""
 
-#: includes/class-taxonomies.php:88
+#: includes/class-taxonomies.php:90
 msgid "People list navigation"
 msgstr ""
 
-#: includes/class-taxonomies.php:89
+#: includes/class-taxonomies.php:91
 msgid "People list"
 msgstr ""
 
 #. translators: Person heading when selecting from the most used terms.
-#: includes/class-taxonomies.php:91
+#: includes/class-taxonomies.php:93
 msgctxt "person"
 msgid "Most Used"
 msgstr ""
 
-#: includes/class-taxonomies.php:92
+#: includes/class-taxonomies.php:94
 msgid "&larr; Back to People"
 msgstr ""
 
-#: includes/class-taxonomies.php:186
+#: includes/class-taxonomies.php:188
 msgctxt "library publishers general name"
 msgid "Publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:187
+#: includes/class-taxonomies.php:189
 msgctxt "library publishers singular name"
 msgid "Publisher"
 msgstr ""
 
-#: includes/class-taxonomies.php:188
+#: includes/class-taxonomies.php:190
 msgid "Search Publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:189
+#: includes/class-taxonomies.php:191
 msgid "All Publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:190
+#: includes/class-taxonomies.php:192
 msgid "Popular Publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:191
+#: includes/class-taxonomies.php:193
 msgid "Edit Publisher"
 msgstr ""
 
-#: includes/class-taxonomies.php:192
+#: includes/class-taxonomies.php:194
 msgid "View Publisher"
 msgstr ""
 
-#: includes/class-taxonomies.php:193
+#: includes/class-taxonomies.php:195
 msgid "Update Publisher"
 msgstr ""
 
-#: includes/class-taxonomies.php:194
+#: includes/class-taxonomies.php:196
 msgid "Add New Publisher"
 msgstr ""
 
-#: includes/class-taxonomies.php:195
+#: includes/class-taxonomies.php:197
 msgid "New Publisher Name"
 msgstr ""
 
-#: includes/class-taxonomies.php:196
+#: includes/class-taxonomies.php:198
 msgid "Add or remove publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:197
+#: includes/class-taxonomies.php:199
 msgid "Choose from the most used publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:198
+#: includes/class-taxonomies.php:200
 msgid "No publishers found."
 msgstr ""
 
-#: includes/class-taxonomies.php:199
+#: includes/class-taxonomies.php:201
 msgid "No publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:200
+#: includes/class-taxonomies.php:202
 msgid "Publishers list navigation"
 msgstr ""
 
-#: includes/class-taxonomies.php:201
+#: includes/class-taxonomies.php:203
 msgid "Publishers list"
 msgstr ""
 
 #. translators: Publisher heading when selecting from the most used terms.
-#: includes/class-taxonomies.php:203
+#: includes/class-taxonomies.php:205
 msgctxt "editor"
 msgid "Most Used"
 msgstr ""
 
-#: includes/class-taxonomies.php:204
+#: includes/class-taxonomies.php:206
 msgid "&larr; Back to Publishers"
 msgstr ""
 
-#: includes/class-taxonomies.php:205
+#: includes/class-taxonomies.php:207
 msgid "Parent Publisher"
 msgstr ""
 
-#: includes/class-taxonomies.php:206
+#: includes/class-taxonomies.php:208
 msgid "Parent Publisher:"
 msgstr ""
 
-#: includes/class-taxonomies.php:207
+#: includes/class-taxonomies.php:209
 msgid "Pick the publisher of a collection, such as Gallimard for Folio, or the collection of a sub-collection, such as Folio for its Science-fiction. A publisher has none."
 msgstr ""
 
-#: includes/class-taxonomies.php:239
+#: includes/class-taxonomies.php:241
 msgctxt "library series general name"
 msgid "Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:240
+#: includes/class-taxonomies.php:242
 msgctxt "library series singular name"
 msgid "Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:241
+#: includes/class-taxonomies.php:243
 msgid "Search Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:242
+#: includes/class-taxonomies.php:244
 msgid "All Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:243
+#: includes/class-taxonomies.php:245
 msgid "Edit Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:244
+#: includes/class-taxonomies.php:246
 msgid "View Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:245
+#: includes/class-taxonomies.php:247
 msgid "Update Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:246
+#: includes/class-taxonomies.php:248
 msgid "Add New Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:247
+#: includes/class-taxonomies.php:249
 msgid "New Series Name"
 msgstr ""
 
-#: includes/class-taxonomies.php:248
+#: includes/class-taxonomies.php:250
 msgid "No series found."
 msgstr ""
 
-#: includes/class-taxonomies.php:249
+#: includes/class-taxonomies.php:251
 msgid "No series"
 msgstr ""
 
-#: includes/class-taxonomies.php:250
+#: includes/class-taxonomies.php:252
 msgid "Series list navigation"
 msgstr ""
 
-#: includes/class-taxonomies.php:251
+#: includes/class-taxonomies.php:253
 msgid "Series list"
 msgstr ""
 
-#: includes/class-taxonomies.php:252
+#: includes/class-taxonomies.php:254
 msgid "&larr; Back to Series"
 msgstr ""
 
-#: includes/class-taxonomies.php:253
+#: includes/class-taxonomies.php:255
 msgid "Cycle"
 msgstr ""
 
-#: includes/class-taxonomies.php:254
+#: includes/class-taxonomies.php:256
 msgid "Cycle:"
 msgstr ""
 
-#: includes/class-taxonomies.php:255
+#: includes/class-taxonomies.php:257
 msgid "Pick the cycle of a series, such as Star Wars for Young Jedi Knights. A series without cycle has none."
 msgstr ""
 
-#: includes/class-taxonomies.php:261
+#: includes/class-taxonomies.php:263
 msgid "From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series."
 msgstr ""
 
-#: includes/class-taxonomies.php:442
+#: includes/class-taxonomies.php:445
 msgctxt "library languages general name"
-msgid "Original languages"
-msgstr ""
-
-#: includes/class-taxonomies.php:443
-msgctxt "library languages singular name"
-msgid "Original language"
-msgstr ""
-
-#: includes/class-taxonomies.php:444
-msgctxt "library languages menu name"
 msgid "Languages"
 msgstr ""
 
-#: includes/class-taxonomies.php:445
-msgid "Search Languages"
-msgstr ""
-
 #: includes/class-taxonomies.php:446
-msgid "All Languages"
+msgctxt "library languages singular name"
+msgid "Language"
 msgstr ""
 
 #: includes/class-taxonomies.php:447
-msgid "Edit Language"
+msgctxt "library languages of a book"
+msgid "Original languages"
 msgstr ""
 
 #: includes/class-taxonomies.php:448
-msgid "View Language"
+msgid "Search Languages"
 msgstr ""
 
 #: includes/class-taxonomies.php:449
-msgid "Update Language"
+msgid "All Languages"
 msgstr ""
 
 #: includes/class-taxonomies.php:450
-msgid "Add New Language"
+msgid "Edit Language"
 msgstr ""
 
 #: includes/class-taxonomies.php:451
-msgid "New Language Name"
+msgid "View Language"
 msgstr ""
 
 #: includes/class-taxonomies.php:452
-msgid "No languages found."
+msgid "Update Language"
 msgstr ""
 
 #: includes/class-taxonomies.php:453
-msgid "No languages"
+msgid "Add New Language"
 msgstr ""
 
 #: includes/class-taxonomies.php:454
-msgid "Languages list navigation"
+msgid "New Language Name"
 msgstr ""
 
 #: includes/class-taxonomies.php:455
-msgid "Languages list"
+msgid "No languages found."
 msgstr ""
 
 #: includes/class-taxonomies.php:456
+msgid "No languages"
+msgstr ""
+
+#: includes/class-taxonomies.php:457
+msgid "Languages list navigation"
+msgstr ""
+
+#: includes/class-taxonomies.php:458
+msgid "Languages list"
+msgstr ""
+
+#: includes/class-taxonomies.php:459
 msgid "&larr; Back to Languages"
 msgstr ""
 
-#: includes/class-taxonomies.php:487
+#: includes/class-taxonomies.php:490
 msgctxt "library forms singular name"
 msgid "Form"
 msgstr ""
 
-#: includes/class-taxonomies.php:488
+#: includes/class-taxonomies.php:491
 msgid "Search Forms"
 msgstr ""
 
-#: includes/class-taxonomies.php:489
+#: includes/class-taxonomies.php:492
 msgid "All Forms"
 msgstr ""
 
-#: includes/class-taxonomies.php:490
+#: includes/class-taxonomies.php:493
 msgid "Edit Form"
 msgstr ""
 
-#: includes/class-taxonomies.php:491
+#: includes/class-taxonomies.php:494
 msgid "View Form"
 msgstr ""
 
-#: includes/class-taxonomies.php:492
+#: includes/class-taxonomies.php:495
 msgid "Update Form"
 msgstr ""
 
-#: includes/class-taxonomies.php:493
+#: includes/class-taxonomies.php:496
 msgid "Add New Form"
 msgstr ""
 
-#: includes/class-taxonomies.php:494
+#: includes/class-taxonomies.php:497
 msgid "New Form Name"
 msgstr ""
 
-#: includes/class-taxonomies.php:495
+#: includes/class-taxonomies.php:498
 msgid "No forms found."
 msgstr ""
 
-#: includes/class-taxonomies.php:496
+#: includes/class-taxonomies.php:499
 msgid "No forms"
 msgstr ""
 
-#: includes/class-taxonomies.php:497
+#: includes/class-taxonomies.php:500
 msgid "Forms list navigation"
 msgstr ""
 
-#: includes/class-taxonomies.php:498
+#: includes/class-taxonomies.php:501
 msgid "Forms list"
 msgstr ""
 
-#: includes/class-taxonomies.php:499
+#: includes/class-taxonomies.php:502
 msgid "&larr; Back to Forms"
 msgstr ""
 
 #. translators: %s: name or slug typed for a language, e.g. Norvégien.
-#: includes/class-taxonomies.php:548
+#: includes/class-taxonomies.php:551
 #, php-format
 msgid "%s is neither the name of a language nor its ISO 639 code, such as Norwegian or no."
 msgstr ""
 
 #. translators: %s: name of a language, e.g. Norvégien.
-#: includes/class-taxonomies.php:557
+#: includes/class-taxonomies.php:560
 #, php-format
 msgid "%s is already among the languages."
 msgstr ""

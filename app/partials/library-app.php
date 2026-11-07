@@ -18,7 +18,7 @@
  * @var object                                        $labels         Labels of the book post type.
  * @var object                                        $person_labels    Labels of the people taxonomy.
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
- * @var object                                        $language_labels  Labels of the original languages taxonomy.
+ * @var object                                        $language_labels  Labels of the languages taxonomy.
  * @var object                                        $form_labels      Labels of the forms taxonomy.
  * @var array<int,string>                             $form_choices     Forms the filter of the books and the form of a book offer, by term ID.
  * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
@@ -455,7 +455,7 @@ use Library\Meta;
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>
-							<h3 class="library-recap__title"><?php echo esc_html( $language_labels->name ); ?></h3>
+							<h3 class="library-recap__title"><?php echo esc_html( $language_labels->name_for_book ); ?></h3>
 							<p class="library-recap__figure" data-field="languages"></p>
 							<ul class="library-recap__shares" data-list="languages"></ul>
 						</section>
@@ -792,7 +792,7 @@ use Library\Meta;
 							'checkboxes-field',
 							array(
 								'id'      => 'library-edit-languages',
-								'label'   => $language_labels->name,
+								'label'   => $language_labels->name_for_book,
 								'name'    => 'languages',
 								'choices' => $language_choices,
 							)

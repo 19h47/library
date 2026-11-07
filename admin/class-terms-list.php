@@ -17,8 +17,8 @@ use Library\Taxonomies;
 use WP_Term;
 
 /**
- * Adds "Not kept" and "To buy" columns and a "Without books" view to the lists of people, publishers, series, original
- * languages and forms, and names their messages.
+ * Adds "Not kept" and "To buy" columns and a "Without books" view to the lists of people, publishers, series, languages
+ * and forms, and names their messages.
  *
  * @since      6.1.1
  * @package    Library

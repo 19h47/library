@@ -1,6 +1,6 @@
 <?php
 /**
- * Book taxonomies: person, publisher, series, original language and form.
+ * Book taxonomies: person, publisher, series, language and form.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -15,6 +15,7 @@ use Locale;
 use ResourceBundle;
 use WP_Ajax_Response;
 use WP_Error;
+use WP_Screen;
 use WP_Term;
 
 /**
@@ -47,6 +48,7 @@ class Taxonomies {
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 		// Before core adds the languages typed in the box of a book, at 10.
 		add_action( 'wp_ajax_add-library_language', array( $this, 'explain_refused_language' ), 9 );
+		add_action( 'current_screen', array( $this, 'name_original_languages' ) );
 	}
 
 	/**
@@ -430,18 +432,19 @@ class Taxonomies {
 	}
 
 	/**
-	 * Register original language
+	 * Register language
 	 *
-	 * A language is identified by its ISO 639 code, the slug of the term, e.g. "it". A book read in its original
-	 * language is one in a foreign language, i.e. not the language of the admin, without translator.
+	 * A language is identified by its ISO 639 code, the slug of the term, e.g. "it". The languages are those of the
+	 * library: the terms of a book are its original languages, and the meta library_edition_languages the languages of
+	 * its text, from the same terms. The label name_for_book names them as the terms of a book.
 	 *
 	 * @return void
 	 */
 	public function register_language() {
 		$labels = array(
-			'name'                  => _x( 'Original languages', 'library languages general name', 'library' ),
-			'singular_name'         => _x( 'Original language', 'library languages singular name', 'library' ),
-			'menu_name'             => _x( 'Languages', 'library languages menu name', 'library' ),
+			'name'                  => _x( 'Languages', 'library languages general name', 'library' ),
+			'singular_name'         => _x( 'Language', 'library languages singular name', 'library' ),
+			'name_for_book'         => _x( 'Original languages', 'library languages of a book', 'library' ),
 			'search_items'          => __( 'Search Languages', 'library' ),
 			'all_items'             => __( 'All Languages', 'library' ),
 			'edit_item'             => __( 'Edit Language', 'library' ),
@@ -764,6 +767,22 @@ class Taxonomies {
 		}
 
 		return array_values( $top_level_terms );
+	}
+
+	/**
+	 * On the list of the books and the edit screen of a book, name the languages as its terms: its original languages,
+	 * in its box, the column of the list and the quick and bulk edit, which core names after the taxonomy.
+	 *
+	 * @param WP_Screen $screen Current screen.
+	 * @return void
+	 */
+	public function name_original_languages( WP_Screen $screen ): void {
+		if ( 'library_book' !== $screen->post_type || ! in_array( $screen->base, array( 'edit', 'post' ), true ) ) {
+			return;
+		}
+
+		$labels       = get_taxonomy( 'library_language' )->labels;
+		$labels->name = $labels->name_for_book;
 	}
 
 	/**
