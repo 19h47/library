@@ -66,13 +66,11 @@
 	 * bottom, under the bar.
 	 */
 	@media (width < 42rem) {
-		/* The tab bar stays in place over a view giving way to the next one, as its own part of the view transition */
 		library-nav {
 			position: fixed;
 			inset-inline: 0;
 			inset-block-end: 0;
 			z-index: 1;
-			view-transition-name: library-nav;
 			padding: var(--app-gap) var(--app-gap) calc(var(--app-gap) + env(safe-area-inset-bottom));
 			border-top: 1px solid var(--app-line-soft);
 			background: var(--app-bg-floating);
@@ -156,11 +154,18 @@
 	/*
 	 * A view gives way to the next one in a view transition, which the router starts: the view left fades out, then the one
 	 * opened fades in, rather than both at once, whose words would cross; the cover of a book opened goes from its card to
-	 * its page, and back, over them. What both views share stays as it is: the header, the toolbar and the tab bar. Without
-	 * motion, the cover stays in place: the views only fade.
+	 * its page, and back, over them. What both views share stays as it is: the name of the app, the tab bar and the toolbar.
+	 * Without motion, the cover stays in place: the views only fade.
+	 *
+	 * The parts of the header are named rather than the header: a name makes its element a stacking context, in which the
+	 * tab bar, fixed in the header on a phone, would pass under the views.
 	 */
-	.app-content > .app-header {
-		view-transition-name: library-header;
+	library-app-name {
+		view-transition-name: library-name;
+	}
+
+	library-nav {
+		view-transition-name: library-nav;
 	}
 
 	body > .app-toolbar {
