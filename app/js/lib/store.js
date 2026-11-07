@@ -24,7 +24,6 @@ import {
 } from 'library-app/app';
 import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
-import { today } from 'library-app/format';
 
 /**
  * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
@@ -1010,37 +1009,6 @@ class LibraryStore extends Store {
 			this.#update( 'editing', () => ( {
 				loading: false,
 				error: api.errorMessage( error ),
-			} ) );
-		}
-	}
-
-	/**
-	 * Reads the book `id` being read today, as its reading form would with the date of the day added: no longer in
-	 * progress, read once more. Says so in a notice, whose action Undo puts its reading back as it was, or says what
-	 * went wrong.
-	 *
-	 * @param {number} id The book.
-	 */
-	async finishReading( id ) {
-		const book = this.get().books[ id ];
-		const { meta } = readingOf( book );
-		const finished = {
-			library_read: true,
-			library_in_progress: false,
-			library_read_date: api.toDays( [
-				...meta.library_read_date,
-				today(),
-			] ),
-		};
-
-		try {
-			this.#addBooks( [ await api.saveBook( id, { meta: finished } ) ] );
-			this.#reloadLoaded( id );
-			this.#noticeSaved( id, readingOf( book ) );
-		} catch ( error ) {
-			this.set( ( state ) => ( {
-				...state,
-				notice: { text: api.errorMessage( error ) },
 			} ) );
 		}
 	}

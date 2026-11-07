@@ -279,20 +279,15 @@ export function renderCover( book, state = '' ) {
 
 /**
  * A book being read, as its cover, larger than the latest readings show it, which opens it: its title and its status
- * under it, or its title in its frame without a cover, then its button Finished, described by them.
+ * under it, or its title in its frame without a cover.
  *
  * @param {Book} book The book.
  * @return {HTMLElement} The cover.
  */
 export function renderCurrent( book ) {
 	const $item = clone( 'library-current' );
-	const $open = $item.querySelector( '.library-cover__link' );
 
 	linkBook( $item, book );
-	$open.id = `library-current-${ book.id }`;
-	$item
-		.querySelector( '[data-action="finish"]' )
-		.setAttribute( 'aria-describedby', $open.id );
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
 	fill( $item, {
 		frame: book.cover ? '' : book.title,

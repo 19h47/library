@@ -5,15 +5,11 @@
 @layer library.views {
 	/*
 	 * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
-	 * wide as the cover, then its button Finished, a pill beside the link that opens the book rather than in it.
+	 * wide as the cover; the book open, its reading is read, rated and dated.
 	 */
 	.library-current {
 		--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
 
-		display: grid;
-		justify-items: start;
-		align-content: start;
-		gap: var(--app-gap);
 		width: min-content;
 
 		& .library-cover__link {

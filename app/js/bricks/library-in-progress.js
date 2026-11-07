@@ -2,44 +2,15 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks } from 'library-app/format';
 import { fill, renderCurrent } from 'library-app/render';
-import { followBooks, renderKeyed, showBusy } from 'library-app/behaviors';
+import { followBooks, renderKeyed } from 'library-app/behaviors';
 
 /**
- * The books being read, as their covers in a row that scrolls sideways, which open them, each with its button
- * Finished, which reads it today; how many there are, some out of sight; hidden when none is. A cover stays while its
- * book is being read, its focus too: a book finished leaves its focus to the next one.
+ * The books being read, as their covers in a row that scrolls sideways, which open them, their reading in their page;
+ * how many there are, some out of sight; hidden when none is. A cover stays while its book is being read.
  */
 class LibraryInProgressElement extends Brick {
-	connect( signal ) {
+	connect() {
 		const $list = this.querySelector( 'ul' );
-
-		$list.addEventListener(
-			'click',
-			async ( event ) => {
-				const $finish = /** @type {Element} */ ( event.target ).closest(
-					'[data-action="finish"]'
-				);
-
-				// Busy rather than disabled while it saves: a button disabled loses its focus, which the next cover takes.
-				if (
-					! $finish ||
-					'true' === $finish.getAttribute( 'aria-busy' )
-				) {
-					return;
-				}
-
-				showBusy( $finish, true );
-				await store.finishReading(
-					Number(
-						/** @type {HTMLElement} */ (
-							$finish.closest( '[data-id]' )
-						).dataset.id
-					)
-				);
-				showBusy( $finish, false );
-			},
-			{ signal }
-		);
 
 		return [
 			store.select(

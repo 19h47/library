@@ -227,10 +227,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-control</code>, the controls of the toolbar and of a row: add, finished, the theme in light then in dark, close</figcaption>
+				<figcaption><code>.app-control</code>, the controls of the toolbar and of a row: add, the theme in light then in dark, close</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="app-control" type="button" aria-label="Add">+</button>
-					<button class="app-control" type="button" aria-label="Finished">✓&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false">☽&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="true">☀&#xFE0E;</button>
 					<button class="app-control" type="button" aria-label="Close">×</button>
@@ -390,7 +389,7 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished under it</figcaption>
+				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="current"></ul>
 				</div>
