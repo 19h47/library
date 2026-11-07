@@ -385,7 +385,8 @@ JS;
 	/**
 	 * Register the styles and scripts the page prints: the theme in the head, before the first paint, the router then the bricks after the markup.
 	 *
-	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
+	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist:
+	 * library-app.css, the order of their layers and their tokens, then a sheet per component and per view.
 	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
 	 * all, so that the import map gives them all, with versioned URLs that an update loads again, the store among them.
 	 * WordPress gives each module its translations.
@@ -398,6 +399,23 @@ JS;
 
 		[ $style_url, $style_version ] = Plugin::get_asset( 'app/css/library-app.css' );
 		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
+
+		$sheets = array();
+
+		foreach ( array( 'components', 'views' ) as $folder ) {
+			$sheet_files = glob( LIBRARY_DIR_PATH . "app/css/$folder/*.css" );
+
+			foreach ( $sheet_files ? $sheet_files : array() as $file ) {
+				$name              = basename( $file, '.css' );
+				$handle            = "library-app-$folder-$name";
+				[ $url, $version ] = Plugin::get_asset( "app/css/$folder/$name.css" );
+				$sheets[]          = $handle;
+				wp_register_style( $handle, $url, array( 'library-app' ), $version );
+			}
+		}
+
+		// No file of its own: printed, it prints its sheets, the components then the views, as their layers follow one another.
+		wp_register_style( 'library-app-sheets', false, $sheets ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No URL to version.
 
 		// The theme before the first paint, with what the modules take from WordPress: wp.apiFetch, wp.i18n, wp.url and the config.
 		[ $theme_url, $theme_version ] = Plugin::get_asset( 'app/js/library-app-theme.js' );

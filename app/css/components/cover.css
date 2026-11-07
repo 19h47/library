@@ -1,0 +1,64 @@
+/**
+ * Covers: the image of a book wherever it shows, or the frame that stands for it, and the link it is.
+ */
+
+@layer library.components {
+	/* A cover, wherever it shows, or the frame that stands for it: a soft line and small corners */
+	.library-item__cover,
+	.library-row__cover,
+	.library-book__cover,
+	.library-image-field__preview,
+	.library-cover__image,
+	.library-cover__frame {
+		display: block;
+		border: 1px solid var(--app-line-soft);
+		border-radius: var(--library-radius-small);
+	}
+
+	/* A cover at the height of the row of the latest readings, as wide as its image: in that row and in the form of a book */
+	.library-cover__image,
+	.library-image-field__preview {
+		width: auto;
+		height: var(--library-cover-height);
+	}
+
+	/* A link that is its content, the title of a card or a cover: the card or the cover shows it leads to the book */
+	.library-item__link,
+	.library-cover__link {
+		text-decoration: none;
+	}
+
+	/* A cover holds its reading state, out of sight: it stays in the row of covers, which scrolls, rather than widening the page */
+	.library-cover__link {
+		position: relative;
+		display: block;
+	}
+
+	/* The book open among the covers of its series: its line as firm as the text */
+	.library-cover__link[aria-current="page"] :is(.library-cover__image, .library-cover__frame) {
+		border-color: var(--app-text);
+	}
+
+	/* A book without cover: its title from its start, in a frame of the size of a cover, a golden rectangle */
+	.library-cover__frame {
+		width: calc(var(--library-cover-height) / var(--app-phi));
+		height: var(--library-cover-height);
+		padding: var(--app-gap);
+		font-size: var(--app-font-small);
+		text-align: start;
+	}
+
+	/*
+	 * Four lines of the title fill the frame: a longer one ends in an ellipsis, its words broken with hyphens. Its height is
+	 * the one of its lines, as Safari still draws the lines after the ellipsis in a higher box. Unprefixed line-clamp is
+	 * in no stable browser yet: the prefixed one needs its box.
+	 */
+	.library-cover__title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 4;
+		overflow: hidden;
+		overflow-wrap: anywhere;
+		hyphens: auto;
+	}
+}

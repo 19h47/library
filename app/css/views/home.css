@@ -1,0 +1,72 @@
+/**
+ * The home: the books being read, the reading idea and the link to the recap of the year gone by.
+ */
+
+@layer library.views {
+	/*
+	 * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
+	 * wide as the cover, and its button Finished over the corner of the cover, a control floating as any other, beside the
+	 * button that opens the book rather than in it.
+	 */
+	.library-current {
+		--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
+
+		position: relative;
+		display: grid;
+		justify-items: start;
+		align-content: start;
+		gap: var(--app-gap);
+		width: min-content;
+
+		& .library-cover__link {
+			display: grid;
+			justify-items: start;
+			gap: var(--app-gap-small);
+			text-align: start;
+		}
+
+		& .library-cover__image {
+			height: var(--library-current-height);
+		}
+
+		& .library-cover__frame {
+			width: calc(var(--library-current-height) / var(--app-phi));
+			height: var(--library-current-height);
+		}
+
+		& [data-action="finish"] {
+			position: absolute;
+			inset-block-start: calc(var(--library-current-height) - var(--app-control-size) - var(--app-gap));
+			inset-inline-end: var(--app-gap);
+		}
+	}
+
+	/* Two lines of the title, small: a longer one ends in an ellipsis. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
+	.library-current__title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+		font-size: var(--app-font-small);
+		overflow-wrap: anywhere;
+		hyphens: auto;
+	}
+
+	/* The reading idea: its title, its reason, its book and the action for another one, a step apart */
+	library-idea {
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	/* The link of the home to the recap of the year gone by, in January: its year as large as the figures of the recap */
+	.library-recap-link {
+		display: grid;
+		gap: var(--app-gap-small);
+		text-decoration: none;
+	}
+
+	.library-recap-link__year {
+		font-size: var(--app-font-xx-large);
+		line-height: 1;
+	}
+}

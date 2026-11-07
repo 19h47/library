@@ -1,0 +1,97 @@
+/**
+ * Sections and their titles, what holds them, the large text and the text written in the admin.
+ */
+
+@layer library.components {
+	/* A section, its title then what it holds, a step apart */
+	.library-section {
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	/*
+	 * What holds sections, the home, the achievements, the months of the diary, the styleguide: it spaces them, a step and a
+	 * half apart, rather than each its own margin; a section hidden takes no room.
+	 */
+	library-home,
+	library-achievements,
+	.library-diary__months,
+	library-styleguide {
+		display: grid;
+		gap: var(--app-u3);
+	}
+
+	.library-title {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--app-gap);
+		font-size: var(--app-font-medium);
+	}
+
+	/*
+	 * A title with an action at the end of its line, such as the link to the view of a section, out of its heading, which
+	 * names the section alone: the heading lays out its text as a title does, on as many lines as it needs, balanced, the
+	 * action at the end of its last one, on its baseline.
+	 */
+	.library-title:has(> .library-title__heading) {
+		flex-wrap: nowrap;
+		align-items: last baseline;
+	}
+
+	.library-title__heading {
+		flex: 1;
+		display: inherit;
+		flex-wrap: wrap;
+		align-items: inherit;
+		gap: inherit;
+		min-width: 0;
+		font-size: inherit;
+		/* Its lines as long as one another, rather than a word alone on the last one */
+		text-wrap: balance;
+	}
+
+	.library-title > .library-push-end {
+		flex: none;
+	}
+
+	/* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
+	:is(library-view, library-volumes) > .library-title {
+		margin-bottom: var(--app-u1);
+	}
+
+	/* Pushed to the end of its row, such as a link at the end of a title, to the view it sums up */
+	.library-push-end {
+		margin-inline-start: auto;
+	}
+
+	/* The large text: the title of a book open, the name of a person or of a series, tightened as the title of the page */
+	.library-book__title,
+	.library-person__name {
+		font-size: var(--app-font-large);
+		line-height: var(--app-line-height);
+		letter-spacing: -0.02em;
+		overflow-wrap: anywhere;
+	}
+
+	/* Text written in the admin, the notes of a book or the description of a person or of a series: its paragraphs a step apart */
+	.library-book__content,
+	.library-person__description {
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	/* The cards of a section past the first ones, folded under a pill, which the section spaces as its other parts */
+	.library-section__more > summary {
+		cursor: pointer;
+	}
+
+	.library-section__more > summary:hover {
+		color: var(--app-text);
+		border-color: var(--app-line);
+	}
+
+	.library-section__more > .app-list__items {
+		margin-top: var(--app-gap);
+	}
+}

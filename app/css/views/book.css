@@ -1,0 +1,63 @@
+/**
+ * The book open: its parts, its cover, its reading, its fields and the volumes of its series.
+ */
+
+@layer library.views {
+	/* The book open, a view: its parts a step apart; loading, its status alone */
+	.library-book {
+		display: grid;
+		gap: var(--app-u1);
+		align-content: start;
+
+		&[aria-busy="true"] > :not(.app-status) {
+			display: none;
+		}
+	}
+
+	/*
+	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it. A definite height: a cover
+	 * of sizes="auto" takes no size from its image, which the browser lays out as if it were 300 by 150, its width and height
+	 * giving its shape only; a cover wider than the page keeps its shape inside it.
+	 */
+	.library-book__cover {
+		width: auto;
+		height: calc(100dvh / var(--app-phi) / var(--app-phi));
+		max-width: 100%;
+		object-fit: contain;
+	}
+
+	.library-book__meta {
+		overflow-wrap: anywhere;
+	}
+
+	.library-book__translation,
+	.library-book__excerpt {
+		color: var(--app-text-muted);
+	}
+
+	.library-book__content {
+		overflow-wrap: anywhere;
+	}
+
+	/* The reading of the book open, its series and its fields: a line above each */
+	.library-reading,
+	.library-book__series,
+	.library-book__fields {
+		padding-top: var(--app-u1);
+		border-top: 1px solid var(--app-line-soft);
+	}
+
+	.library-book__fields {
+		display: grid;
+		gap: var(--app-gap);
+	}
+
+	.library-book__fields dd {
+		overflow-wrap: anywhere;
+	}
+
+	/* The volumes of the series of the book open: a container, as the latest readings, its covers going out to the edges of the viewport */
+	library-volumes {
+		container-type: inline-size;
+	}
+}

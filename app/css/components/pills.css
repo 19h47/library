@@ -1,0 +1,55 @@
+/**
+ * Rows of pills, on as many lines as they need, and strips, which scroll sideways across the viewport.
+ */
+
+@layer library.components {
+	/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
+	library-nav,
+	.app-search,
+	library-in-progress,
+	library-latest {
+		container-type: inline-size;
+	}
+
+	/*
+	 * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
+	 * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
+	 * volumes of a series. The first item starts where the content does, the last one ends where it does.
+	 */
+	.library-strip {
+		/*
+		 * From an edge of the content to the one of the viewport: the page is centered, and has no scrollbar.
+		 * A length rather than a percentage, which scroll-padding would take from the row itself.
+		 */
+		--library-bleed: calc(50vw - 50cqi);
+
+		list-style: none;
+		display: flex;
+		gap: var(--app-gap);
+		margin-block: calc(-1 * var(--library-focus-room));
+		margin-inline: calc(-1 * var(--library-bleed));
+		padding-block: var(--library-focus-room);
+		padding-inline: var(--library-bleed);
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline-start: var(--library-bleed);
+		scrollbar-width: none;
+	}
+
+	.library-strip > * {
+		flex: none;
+		scroll-snap-align: start;
+	}
+
+	/*
+	 * A row of pills, which goes on as many lines as it needs: the reading of the book open, the filters chosen, the buttons
+	 * under a list of inputs, the series of a cycle, the collections of a publisher, the other years of a recap and the
+	 * people read for the first time in it and its achievements
+	 */
+	.library-pills {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--app-gap);
+	}
+}

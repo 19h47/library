@@ -45,7 +45,7 @@ use Library\Meta;
 		<link rel="manifest" href="<?php echo esc_url( $manifest_url ); ?>" crossorigin="use-credentials">
 		<link rel="icon" type="image/svg+xml" href="<?php echo esc_url( $favicon_url ); ?>">
 		<link rel="apple-touch-icon" href="<?php echo esc_url( $touch_icon_url ); ?>">
-		<?php wp_print_styles( 'library-app' ); ?>
+		<?php wp_print_styles( 'library-app-sheets' ); ?>
 		<?php wp_print_scripts( 'library-app-theme' ); ?>
 		<?php
 		// The bricks are script modules, run once the page is read: their translations and the import map first, then the modules and their preloads.

@@ -1,0 +1,166 @@
+/**
+ * The page: its header, its custom elements, what spaces a view, the tab bar on a phone, the footer and the transitions
+ * between views.
+ */
+
+@layer library.components {
+	/* The title leaves room for the two controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
+	.app-header h1 {
+		margin-inline-end: calc(2 * var(--app-control-size) + var(--app-control-gap));
+		hyphens: auto;
+	}
+
+	/* The name of the app, a link to its home, as its title */
+	.app-header h1 a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	/*
+	 * A view that takes the whole screen says so, data-immersive, such as the recap: on a phone, where the footer ends the
+	 * page under it, the page leaves its footer out then; beyond, the footer stays at the bottom of the screen
+	 */
+	@media (width < 42rem) {
+		.app-page:has(library-view[data-immersive]:not([hidden])) > .app-footer {
+			display: none;
+		}
+	}
+
+	/* Custom elements are inline: these hold blocks */
+	library-app-name,
+	library-back,
+	library-nav,
+	library-view,
+	library-recap,
+	library-recap-link,
+	library-in-progress,
+	library-volumes,
+	library-series,
+	library-publisher,
+	library-offline,
+	library-filter,
+	library-latest,
+	library-idea,
+	library-close {
+		display: block;
+	}
+
+	/* A view spaces its controls from what they act on, as the content of the page does */
+	library-view > .app-controls {
+		margin-bottom: var(--app-u3);
+	}
+
+	/* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
+	:is(library-view, library-diary, library-person, library-series, library-publisher) > .app-status {
+		margin-bottom: var(--app-gap);
+	}
+
+	/* A view goes back with a button above it, as the history does */
+	library-view > .library-back {
+		margin-bottom: var(--app-u1);
+	}
+
+	/*
+	 * On a phone, the views in a bar at the bottom of the screen, at hand, as the tabs of an app, all of them in sight; the
+	 * page and what shows over it, such as a notice, above the bar. The footer then ends the page rather than staying at its
+	 * bottom, under the bar.
+	 */
+	@media (width < 42rem) {
+		/* The tab bar stays in place over a view giving way to the next one, as its own part of the view transition */
+		library-nav {
+			position: fixed;
+			inset-inline: 0;
+			inset-block-end: 0;
+			z-index: 1;
+			view-transition-name: library-nav;
+			padding: var(--app-gap) var(--app-gap) calc(var(--app-gap) + env(safe-area-inset-bottom));
+			border-top: 1px solid var(--app-line-soft);
+			background: var(--app-bg-floating);
+			backdrop-filter: var(--app-blur-floating);
+		}
+
+		/*
+		 * Every view at once, as the tabs of an app, rather than a row that scrolls: each as wide as its label, which is longer
+		 * in a language than in another, the room left between them; the current one only a pill, each with the room of one
+		 * all the same, so that none moves as the current one changes.
+		 */
+		library-nav .library-nav {
+			justify-content: space-between;
+			gap: 0;
+			margin-inline: 0;
+			padding-inline: 0;
+			overflow-x: visible;
+		}
+
+		/*
+		 * A tab of several words, such as To buy in English, goes on two lines where the narrowest phones leave too little room.
+		 * No stop of a strip: the row no longer scrolls, the page would take its tabs, fixed at the bottom of the screen, for
+		 * stops of its own, always the height of the screen above the bar further, and rest the recap between two screens.
+		 */
+		library-nav .library-nav li {
+			flex: 0 1 auto;
+			min-width: min-content;
+			scroll-snap-align: none;
+		}
+
+		library-nav .app-pill {
+			--app-pill-padding-inline: calc(1em / var(--app-phi));
+
+			justify-content: center;
+			white-space: normal;
+			text-align: center;
+		}
+
+		/* On the narrowest phones, the room of a pill a step smaller */
+		@container (width < 22rem) {
+			library-nav .app-pill {
+				--app-pill-padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
+			}
+		}
+
+		library-nav .app-pill:not([aria-current="page"]) {
+			border-color: transparent;
+		}
+
+		.app-page {
+			padding-block-end: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
+		}
+
+		.app-footer {
+			position: static;
+		}
+	}
+
+	/*
+	 * The bar at the bottom: its background goes across the viewport, as the covers of the latest readings
+	 * pass under it out to its edges; its line stays as wide as the content. The background and its blur move
+	 * to a box under the bar, from an edge of the viewport to the other: the page is centered, and has no scrollbar.
+	 */
+	@media screen {
+		.app-footer {
+			background: none;
+			backdrop-filter: none;
+
+			&::before {
+				content: "";
+				position: absolute;
+				z-index: -1;
+				inset-block: 0;
+				inset-inline: calc(50% - 50vw);
+				background: var(--app-bg-floating);
+				backdrop-filter: var(--app-blur-floating);
+			}
+		}
+	}
+
+	/*
+	 * A view gives way to the next one in a view transition, which the router starts: the views cross-fade, and the cover of
+	 * a book opened goes from its card to its page, and back. Without motion, the cover stays in place: the views only fade.
+	 */
+	@media (prefers-reduced-motion: reduce) {
+		/* Its name only: the images of the transition take their duration from it */
+		::view-transition-group(*) {
+			animation-name: none;
+		}
+	}
+}
