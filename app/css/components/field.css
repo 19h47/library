@@ -16,9 +16,12 @@
 	/*
 	 * A list of inputs, such as the people of a book or its read dates: its legend above it as the label of a field, then
 	 * its rows, its description and the button that adds one, a gap apart. A row holds its input and the control that removes it.
+	 * The list as wide as its box, never as its inputs: a fraction of a grid sized by its content takes the width of an
+	 * input, which would push the button that removes it out of a phone.
 	 */
 	.library-input-list {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--app-gap);
 		min-inline-size: 0;
 		border: 0;
