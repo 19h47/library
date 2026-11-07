@@ -6,6 +6,7 @@ import {
 	formatDate,
 	formatLanguage,
 	formatNumber,
+	formatPages,
 	formatRating,
 	join,
 	monthNameFormat,
@@ -521,12 +522,12 @@ class LibraryRecapElement extends Brick {
 			{
 				id: records.longest,
 				label: __( 'The longest', 'library' ),
-				detail: ( book ) => this.#formatPages( book.pages ),
+				detail: ( book ) => formatPages( book.pages ),
 			},
 			{
 				id: records.shortest,
 				label: __( 'The shortest', 'library' ),
-				detail: ( book ) => this.#formatPages( book.pages ),
+				detail: ( book ) => formatPages( book.pages ),
 			},
 			{
 				id: records.oldest,
@@ -554,20 +555,6 @@ class LibraryRecapElement extends Brick {
 
 					return $row;
 				} )
-		);
-	}
-
-	/**
-	 * A number of pages: "320 pages".
-	 *
-	 * @param {number} pages The pages.
-	 * @return {string} The pages.
-	 */
-	#formatPages( pages ) {
-		return sprintf(
-			/* translators: %s: number of pages. */
-			_n( '%s page', '%s pages', pages, 'library' ),
-			formatNumber( pages )
 		);
 	}
 

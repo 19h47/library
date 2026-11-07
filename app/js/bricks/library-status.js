@@ -1,6 +1,6 @@
-import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
+import { formatListStatus } from 'library-app/format';
 
 /** Why no book of a list shows, those found or the one its `list` attribute names: an error, or none found. */
 class LibraryStatusElement extends Brick {
@@ -9,11 +9,7 @@ class LibraryStatusElement extends Brick {
 
 		return [
 			store.select(
-				( state ) =>
-					state[ list ].error ||
-					( state[ list ].loaded && ! state[ list ].total
-						? __( 'No book found.', 'library' )
-						: '' ),
+				( state ) => formatListStatus( state[ list ] ),
 				( message ) => {
 					this.hidden = ! message;
 					this.textContent = message;

@@ -24,12 +24,14 @@ declare global {
 			perPage: number;
 			maxPerPage: number;
 			forms: string;
+			inLibrary: string;
 			notKept: string;
 			toBuy: string;
 			roles: string[];
 			editUrl: string;
 			appUrl: string;
 			serviceWorkerUrl: string;
+			storageKey: string;
 			icons: { light: string; dark: string };
 		};
 		libraryInlineEdit: {

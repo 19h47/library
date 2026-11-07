@@ -56,6 +56,73 @@ export function formatBooks( books ) {
 }
 
 /**
+ * A number of books read, after a number of books: "8 read".
+ *
+ * @param {number} read The number of books read.
+ * @return {string} The number of books read formatted.
+ */
+export function formatRead( read ) {
+	return sprintf(
+		/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
+		_n( '%s read', '%s read', read, 'library' ),
+		formatNumber( read )
+	);
+}
+
+/**
+ * A number of pages: "320 pages".
+ *
+ * @param {number} pages The number of pages.
+ * @return {string} The number of pages formatted.
+ */
+export function formatPages( pages ) {
+	return sprintf(
+		/* translators: %s: number of pages. */
+		_n( '%s page', '%s pages', pages, 'library' ),
+		formatNumber( pages )
+	);
+}
+
+/**
+ * The name of the recap of a year: "Recap of 2025".
+ *
+ * @param {number} year The year.
+ * @return {string} Its name.
+ */
+export function formatRecap( year ) {
+	return sprintf(
+		/* translators: %s: year. */
+		__( 'Recap of %s', 'library' ),
+		year.toString()
+	);
+}
+
+/**
+ * How many books a list has, as `format` says it, once it is loaded; that it is loading until then.
+ *
+ * @param {{loaded: boolean, total: number}} list     The list.
+ * @param {( books: number ) => string}      [format] What it says of its books, their number unless another one.
+ * @return {string} What it says.
+ */
+export function formatTotal( list, format = formatBooks ) {
+	return list.loaded ? format( list.total ) : __( 'Loading…', 'library' );
+}
+
+/**
+ * Why a list shows nothing: why it could not load, or `empty` once loaded without an item; nothing otherwise.
+ *
+ * @param {{error: string, loaded: boolean, total: number}} list    The list.
+ * @param {string}                                          [empty] What it says without an item, that no book is found unless another one.
+ * @return {string} Why it shows nothing, or empty.
+ */
+export function formatListStatus(
+	list,
+	empty = __( 'No book found.', 'library' )
+) {
+	return list.error || ( list.loaded && ! list.total ? empty : '' );
+}
+
+/**
  * A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a date first published.
  *
  * @param {string}              date     The date.

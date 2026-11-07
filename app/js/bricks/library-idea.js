@@ -2,7 +2,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatState } from 'library-app/format';
 import { fill, renderBook, renderRow } from 'library-app/render';
-import { followBooks } from 'library-app/behaviors';
+import { followCards } from 'library-app/behaviors';
 
 /**
  * The reading idea of the week, and the next one on demand; hidden until it is loaded. Its book as a card, or as a row
@@ -20,7 +20,7 @@ class LibraryIdeaElement extends Brick {
 		$next.addEventListener( 'click', () => store.nextIdea(), { signal } );
 
 		return [
-			followBooks( $book, formatState ),
+			followCards( $book, formatState ),
 			store.select(
 				( state ) => state.idea,
 				( idea ) => {

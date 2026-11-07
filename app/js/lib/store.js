@@ -13,11 +13,13 @@ import {
 	appUrl,
 	forms,
 	icons,
+	inLibrary,
 	maxPerPage,
 	notKept,
 	perPage,
 	serviceWorkerUrl,
 	statuses,
+	storageKey,
 	toBuy,
 } from 'library-app/app';
 import { Store } from 'library-app/state';
@@ -172,8 +174,7 @@ import { today } from 'library-app/format';
  * @property {Recap & Loading}        recap        The recap of the year open.
  */
 
-const STORAGE_KEY = 'library-app';
-// Kept between visits. The query, the view and the page open are in the URL only, which the router reads.
+// Kept between visits, under the key of the config. The query, the view and the page open are in the URL only, which the router reads.
 const SAVED = [
 	'theme',
 	'themeChosen',
@@ -183,6 +184,8 @@ const SAVED = [
 	'sort',
 	'covers',
 ];
+// Every status, which the config gives separated with commas, as the API takes them.
+const STATUSES = statuses.split( ',' );
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
 // The filters of the books, and their order: see load().
@@ -217,7 +220,8 @@ const $favicon = document.querySelector( 'link[rel="icon"]' );
 const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
 
 /**
- * What localStorage holds, checked: anything else falls back.
+ * What localStorage holds, checked: anything else falls back. The theme chosen is the one the theme script read from
+ * it before the first paint, on <html data-theme>.
  *
  * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'|'covers'>} What it holds.
  */
@@ -225,27 +229,23 @@ function load() {
 	let saved = null;
 
 	try {
-		saved = JSON.parse( localStorage.getItem( STORAGE_KEY ) );
+		saved = JSON.parse( localStorage.getItem( storageKey ) );
 	} catch {}
 
-	const theme =
-		true === saved?.themeChosen &&
-		[ 'light', 'dark' ].includes( saved.theme )
-			? saved.theme
-			: null;
+	const theme = /** @type {State['theme']|undefined} */ (
+		$root.dataset.theme
+	);
 
 	return {
 		// The theme shown, and whether it was chosen over the system one.
 		theme: theme ?? ( darkQuery.matches ? 'dark' : 'light' ),
-		themeChosen: null !== theme,
+		themeChosen: undefined !== theme,
 		// "", "yes" or "no", the search keyword read:, or "progress", the keyword progress:.
 		read: [ 'yes', 'no', 'progress' ].includes( saved?.read )
 			? saved.read
 			: '',
 		// "" for any, or the status of the books shown, such as not kept.
-		status: statuses.split( ',' ).includes( saved?.status )
-			? saved.status
-			: '',
+		status: STATUSES.includes( saved?.status ) ? saved.status : '',
 		// "" for any, or the term ID of the form of the books shown, such as comics.
 		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		// "" for the latest added, or one of SORTS.
@@ -262,7 +262,7 @@ function load() {
 function save( state ) {
 	try {
 		localStorage.setItem(
-			STORAGE_KEY,
+			storageKey,
 			JSON.stringify(
 				Object.fromEntries(
 					SAVED.map( ( key ) => [ key, state[ key ] ] )
@@ -270,6 +270,17 @@ function save( state ) {
 			)
 		);
 	} catch {}
+}
+
+/**
+ * The status of `book` as its forms show it, as the "Library" menu of the book form does: not kept or to buy, else in the
+ * library, which a book in another status, such as a draft, shows as.
+ *
+ * @param {Book} book The book.
+ * @return {string} Its status shown.
+ */
+export function statusOf( book ) {
+	return [ notKept, toBuy ].includes( book.status ) ? book.status : inLibrary;
 }
 
 /**
@@ -310,7 +321,7 @@ function readingOf( book ) {
 		library_rating: book.rating || null,
 	};
 
-	return statuses.split( ',' ).includes( book.status )
+	return STATUSES.includes( book.status )
 		? { meta, status: book.status }
 		: { meta };
 }
@@ -334,10 +345,7 @@ function queryOf( list, state ) {
 	}
 
 	const search = searchOf( state );
-	const atHand = statuses
-		.split( ',' )
-		.filter( ( item ) => toBuy !== item )
-		.join();
+	const atHand = STATUSES.filter( ( item ) => toBuy !== item ).join();
 	const status = state.status || ( 'no' === state.read ? atHand : statuses );
 	const order = state.sort && {
 		orderby: state.sort,
@@ -888,7 +896,7 @@ class LibraryStore extends Store {
 
 		try {
 			this.#addBooks( [
-				await api.saveBook( id, { status: 'publish' } ),
+				await api.saveBook( id, { status: inLibrary } ),
 			] );
 			this.#reloadAdded();
 
@@ -1092,12 +1100,8 @@ class LibraryStore extends Store {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
 		const dates = api.toDays( readDates );
-		// As in the "Library" menu of the book form, a book in another status than not kept or to buy, such as a draft,
-		// shows as in the library, and stays in it unless another one is chosen.
-		const shown = [ notKept, toBuy ].includes( book.status )
-			? book.status
-			: 'publish';
-		const status = chosen === shown ? book.status : chosen;
+		// A book in another status, such as a draft, stays in it unless another one is chosen.
+		const status = chosen === statusOf( book ) ? book.status : chosen;
 		/** @type {Object<string, unknown>} */
 		const meta = {};
 

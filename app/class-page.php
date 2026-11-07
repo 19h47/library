@@ -202,8 +202,9 @@ class Page {
 	 * @return void
 	 */
 	private function preload( string $view, int $id ): void {
+		// The paths of books with a space as %20, as wp.url encodes it: wp.apiFetch matches the paths once decoded, a + as itself.
 		$statuses = implode( ',', Status::get_values() );
-		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args );
+		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args, '', '&', PHP_QUERY_RFC3986 );
 		$list     = fn( array $args ) => $books(
 			$args + array(
 				'per_page' => self::PER_PAGE,
@@ -478,6 +479,7 @@ JS;
 			'perPage'          => self::PER_PAGE,
 			'maxPerPage'       => self::MAX_PER_PAGE,
 			'forms'            => implode( ',', array_keys( self::get_term_choices( 'library_form' ) ) ),
+			'inLibrary'        => Status::In_Library->value,
 			'notKept'          => Status::Not_Kept->value,
 			'toBuy'            => Status::To_Buy->value,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
@@ -487,6 +489,8 @@ JS;
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.
 			'serviceWorkerUrl' => add_query_arg( 'service-worker', '1', self::get_url() ),
+			// The key of localStorage the app keeps its choices in, its theme read before the first paint.
+			'storageKey'       => 'library-app',
 			'icons'            => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,

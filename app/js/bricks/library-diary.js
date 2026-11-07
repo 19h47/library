@@ -1,15 +1,17 @@
-import { __, sprintf } from 'library-app/app';
+import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
 	dayFormat,
 	formatBooks,
 	formatDate,
+	formatListStatus,
 	formatRating,
+	formatRecap,
 	join,
 } from 'library-app/format';
 import { clone, fill, renderBook } from 'library-app/render';
-import { followBooks, observeEnd } from 'library-app/behaviors';
+import { followCards, observeEnd } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
@@ -30,15 +32,15 @@ class LibraryDiaryElement extends Brick {
 		);
 
 		return [
-			followBooks( $months, ( book, $item ) =>
+			followCards( $months, ( book, $item ) =>
 				this.#state( book, $item.dataset.date )
 			),
 			store.select(
 				( { diary } ) =>
-					diary.error ||
-					( diary.loaded && ! diary.total
-						? __( 'No readings yet.', 'library' )
-						: '' ),
+					formatListStatus(
+						diary,
+						__( 'No readings yet.', 'library' )
+					),
 				( message ) => fill( this, { status: message } )
 			),
 			store.select(
@@ -136,11 +138,7 @@ class LibraryDiaryElement extends Brick {
 		/** @type {HTMLAnchorElement} */ ( $recap.querySelector( 'a' ) ).href =
 			urlOf( { view: 'recap', id: year } );
 		fill( $recap, {
-			recap: sprintf(
-				/* translators: %s: year. */
-				__( 'Recap of %s', 'library' ),
-				year.toString()
-			),
+			recap: formatRecap( year ),
 		} );
 
 		return $recap;
