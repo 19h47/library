@@ -46,14 +46,14 @@ class Rest_API {
 	 */
 	public function register_rest_fields(): void {
 		$fields = array(
-			'credits'        => array(
+			'credits'                => array(
 				'get_callback' => fn( array $book ) => Books::get_credits( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Credits of the book, to show under its title: authors · publisher, collection · edition year.', 'library' ),
 					'type'        => 'string',
 				),
 			),
-			'cover'          => array(
+			'cover'                  => array(
 				'get_callback' => fn( array $book ) => $this->get_cover( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover.', 'library' ),
@@ -66,7 +66,7 @@ class Rest_API {
 					),
 				),
 			),
-			'names'          => array(
+			'names'                  => array(
 				'get_callback' => fn( array $book ) => array_map(
 					fn( WP_Term $term ) => array(
 						'id'   => $term->term_id,
@@ -80,7 +80,7 @@ class Rest_API {
 					'items'       => array( 'type' => 'object' ),
 				),
 			),
-			'language_codes' => array(
+			'language_codes'         => array(
 				'get_callback' => fn( array $book ) => wp_list_pluck( $this->get_book_terms( $book['id'], 'library_language' ), 'slug' ),
 				'schema'       => array(
 					'description' => __( 'Original languages of the book, as ISO 639 codes, the slugs of their terms.', 'library' ),
@@ -88,7 +88,15 @@ class Rest_API {
 					'items'       => array( 'type' => 'string' ),
 				),
 			),
-			'series_name'    => array(
+			'edition_language_codes' => array(
+				'get_callback' => fn( array $book ) => self::get_language_codes( Meta::get_edition_languages( $book['id'] ) ),
+				'schema'       => array(
+					'description' => __( 'Languages of the text of the book, as ISO 639 codes, the slugs of their terms.', 'library' ),
+					'type'        => 'array',
+					'items'       => array( 'type' => 'string' ),
+				),
+			),
+			'series_name'            => array(
 				'get_callback' => function ( array $book ): string {
 					$series = Taxonomies::get_series( $book['id'] );
 
@@ -99,7 +107,7 @@ class Rest_API {
 					'type'        => 'string',
 				),
 			),
-			'form_name'      => array(
+			'form_name'              => array(
 				'get_callback' => fn( array $book ) => (string) ( current( $this->get_book_terms( $book['id'], 'library_form' ) )->name ?? '' ),
 				'schema'       => array(
 					'description' => __( 'Name of the form of the book, such as a novel, or empty.', 'library' ),
@@ -140,6 +148,18 @@ class Rest_API {
 			'height' => (int) $image[2],
 			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
 		);
+	}
+
+	/**
+	 * Codes of languages, the slugs of their terms, in the order of their term IDs: those the library still has.
+	 *
+	 * @param int[] $term_ids Term IDs of languages.
+	 * @return string[]
+	 */
+	private static function get_language_codes( array $term_ids ): array {
+		$terms = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, 'library_language' ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
+
+		return array_values( wp_list_pluck( $terms, 'slug' ) );
 	}
 
 	/**
@@ -431,10 +451,11 @@ class Rest_API {
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'language'       => array(
-				'description' => __( 'Term ID of the original language.', 'library' ),
-				'type'        => 'integer',
-				'default'     => 0,
+			'languages'      => array(
+				'description' => __( 'Term IDs of the original languages.', 'library' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'integer' ),
+				'default'     => array(),
 			),
 			'form'           => array(
 				'description' => __( 'Term ID of the form, such as a novel or a comic.', 'library' ),
@@ -508,7 +529,7 @@ class Rest_API {
 
 	/**
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its names as the book gives them, each with its role, its publisher and collection, its original language, its form and its meta.
+	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta, its edition languages among them.
 	 *
 	 * The form edits one publisher and one collection, after the collections it is part of: a book given more gives its first
 	 * collection, or else publisher.
@@ -538,6 +559,8 @@ class Rest_API {
 			$meta[ $key ] = get_post_meta( $book->ID, $key, true );
 		}
 
+		$meta['library_edition_languages'] = Meta::get_edition_languages( $book->ID );
+
 		return rest_ensure_response(
 			array(
 				'id'         => $book->ID,
@@ -554,7 +577,7 @@ class Rest_API {
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
 				'series'     => $series ? Taxonomies::get_series_path( $series ) : '',
-				'language'   => (int) current( $languages ),
+				'languages'  => $languages,
 				'form'       => (int) current( $forms ),
 				'meta'       => $meta,
 			)
@@ -563,8 +586,8 @@ class Rest_API {
 
 	/**
 	 * A book to add as the catalogue of the BnF describes it, from its ISBN, as its form takes it: its title, its people
-	 * with their roles, its publisher, collection and series, its original language, its form and its meta, with the
-	 * names of the library.
+	 * with their roles, its publisher, collection and series, its original languages, its form and its meta, its edition
+	 * languages among them, with the names of the library.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -629,7 +652,7 @@ class Rest_API {
 
 	/**
 	 * Term IDs of a book by taxonomy, from the names sent, for the taxonomies sent only: its people, the terms of their
-	 * roles, its collection, or else its publisher, its original language and its form. A name not found adds a term.
+	 * roles, its collection, or else its publisher, its original languages and its form. A name not found adds a term.
 	 *
 	 * A collection is under its publisher, a sub-collection under its collection, and goes with them: a book in a collection
 	 * has the narrowest one only.
@@ -656,8 +679,8 @@ class Rest_API {
 			$terms['library_series'] = array_filter( array( Taxonomies::get_path_id( 'library_series', $request['series'], true ) ) );
 		}
 
-		if ( $request->has_param( 'language' ) ) {
-			$terms['library_language'] = array_filter( array( $request['language'] ) );
+		if ( $request->has_param( 'languages' ) ) {
+			$terms['library_language'] = array_filter( $request['languages'] );
 		}
 
 		if ( $request->has_param( 'form' ) ) {
@@ -788,7 +811,10 @@ class Rest_API {
 		$months   = array();
 
 		foreach ( Stats::get_readings() as $reading ) {
-			$months[ substr( $reading['date'], 0, 7 ) ][] = $reading;
+			$months[ substr( $reading->read_date, 0, 7 ) ][] = array(
+				'date' => $reading->read_date,
+				'book' => $reading->id,
+			);
 		}
 
 		$total    = count( $months );
@@ -839,7 +865,6 @@ class Rest_API {
 		}
 
 		$books       = array_filter( Books::get_books(), fn( Book $book ) => in_array( $person->term_id, array( ...$book->author_ids, ...$book->contributor_ids ), true ) );
-		$ratings     = array_filter( array_column( $books, 'rating' ), fn( ?float $rating ) => null !== $rating );
 		$other_names = get_terms(
 			array(
 				'taxonomy'   => 'library_person',
@@ -897,7 +922,7 @@ class Rest_API {
 				),
 				'books'       => array_column( $books, 'id' ),
 				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
-				'rating'      => $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null,
+				'rating'      => Books::get_average_rating( $books ),
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
 			)

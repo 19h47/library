@@ -14,6 +14,7 @@
  * @var string[]          $paths  Every series, after its cycles, to suggest.
  * @var WP_Term[]         $names  Names of the book, authors or with another role.
  * @var array<int,string> $roles  Roles of the names with another role than author, by term ID.
+ * @var array<int,string> $languages Languages of the library, by term ID, which its edition languages are among.
  */
 
 use Library\Markup;
@@ -47,7 +48,31 @@ use Library\Meta;
 	</tr>
 
 	<?php
-	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_edition_date', 'library_subtitle', 'library_published_date', 'library_pages', 'library_collective', 'library_issn', 'library_read', 'library_in_progress' ) as $key ) {
+	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_edition_date', 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
+		include __DIR__ . '/library-form-field.php';
+	}
+	?>
+
+	<!-- Edition languages, beside the original languages of the box of the taxonomy -->
+	<tr>
+		<th scope="row"><?php echo esc_html( Meta::get_label( 'library_edition_languages' ) ); ?></th>
+		<td>
+			<fieldset aria-describedby="library-edition-languages-description">
+				<legend class="screen-reader-text"><?php echo esc_html( Meta::get_label( 'library_edition_languages' ) ); ?></legend>
+				<?php foreach ( $languages as $term_id => $language ) : ?>
+					<label>
+						<input type="checkbox" name="library_edition_languages[]" value="<?php echo esc_attr( $term_id ); ?>" <?php checked( in_array( $term_id, $values['library_edition_languages'], true ) ); ?>>
+						<?php echo esc_html( $language ); ?>
+					</label>
+					<br>
+				<?php endforeach; ?>
+			</fieldset>
+			<p class="description" id="library-edition-languages-description"><?php echo esc_html( Meta::get_description( 'library_edition_languages' ) ); ?></p>
+		</td>
+	</tr>
+
+	<?php
+	foreach ( array( 'library_collective', 'library_issn', 'library_read', 'library_in_progress' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>

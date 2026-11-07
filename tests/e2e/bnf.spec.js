@@ -20,13 +20,14 @@ const BOOK = {
 	publisher: 'Pocket',
 	collection: '',
 	series: 'Le bouclier des étoiles',
-	language: 0,
+	languages: [],
 	form: 0,
 	meta: {
 		library_subtitle: '',
 		library_volume_number: 'Tome 01',
 		library_collection_number: '5702',
 		library_pages: '',
+		library_edition_languages: [],
 	},
 };
 

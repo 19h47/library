@@ -107,7 +107,7 @@ class Test_BnF extends TestCase {
 		$this->assertSame( 'Panini Comics', $book['publisher'] );
 		$this->assertSame( 'City Hunter', $book['series'] );
 		$this->assertSame( 'Tome 10', $book['meta']['library_volume_number'] );
-		$this->assertSame( $japanese, $book['language'] );
+		$this->assertSame( array( $japanese ), $book['languages'] );
 		$this->assertSame( $comics, $book['form'] );
 		$this->assertSame( '226', $book['meta']['library_pages'] );
 	}
@@ -139,25 +139,27 @@ class Test_BnF extends TestCase {
 		$this->assertSame( '5702', $book['meta']['library_collection_number'] );
 		$this->assertSame( 'Le bouclier des étoiles', $book['series'] );
 		$this->assertSame( 'Tome 01', $book['meta']['library_volume_number'] );
-		$this->assertSame( $english, $book['language'] );
+		$this->assertSame( array( $english ), $book['languages'] );
 	}
 
 	/**
-	 * A novel translated: its form told after its title, which is no subtitle, its translator and the language it is
-	 * translated from; a collection the library does not have, by the name of the catalogue.
+	 * A novel translated: its form told after its title, which is no subtitle, its translator, the language it is
+	 * translated from and the one of its text; a collection the library does not have, by the name of the catalogue.
 	 *
 	 * @return void
 	 */
 	public function test_a_translated_novel(): void {
 		$novel   = $this->get_form( 'Roman' );
 		$italian = $this->get_language( 'it', 'Italien' );
+		$french  = $this->get_language( 'fr', 'Français' );
 
 		$book = $this->get_bnf_book( '978-2-07-278171-1' )->get_data();
 
 		$this->assertSame( 'Tous, sauf moi', $book['title'] );
 		$this->assertSame( '', $book['meta']['library_subtitle'] );
 		$this->assertSame( $novel, $book['form'] );
-		$this->assertSame( $italian, $book['language'] );
+		$this->assertSame( array( $italian ), $book['languages'] );
+		$this->assertSame( array( $french ), $book['meta']['library_edition_languages'] );
 		$this->assertSame( 'translator', $book['people'][1]['role'] );
 		$this->assertSame( 'Gallimard', $book['publisher'] );
 		$this->assertSame( 'Du monde entier', $book['collection'] );
@@ -180,7 +182,7 @@ class Test_BnF extends TestCase {
 
 		$book = $this->get_bnf_book( '978-2-264-01328-6' )->get_data();
 
-		$this->assertSame( 0, $book['language'] );
+		$this->assertSame( array(), $book['languages'] );
 		$this->assertSame( '10/18', $book['publisher'] );
 		$this->assertSame( '', $book['collection'] );
 		$this->assertSame( '1999', $book['meta']['library_collection_number'] );

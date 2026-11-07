@@ -30,7 +30,7 @@ use WP_Term;
  *
  * @phpstan-type Field array{ind1:string,ind2:string,subfields:array<int|string,list<string>>}
  * @phpstan-type Record array<int|string,list<Field>>
- * @phpstan-type Book_Values array{title:string,people:list<array{name:string,role:string}>,publisher:string,collection:string,series:string,language:int,form:int,meta:array<string,string>}
+ * @phpstan-type Book_Values array{title:string,people:list<array{name:string,role:string}>,publisher:string,collection:string,series:string,languages:list<int>,form:int,meta:array<string,string|list<int>>}
  */
 class BnF {
 
@@ -141,7 +141,7 @@ class BnF {
 			'publisher'  => $publisher,
 			'collection' => $collection['name'],
 			'series'     => $series_term ? Taxonomies::get_series_path( $series_term ) : $series['name'],
-			'language'   => self::find_language( $record, $people ),
+			'languages'  => array_filter( array( self::find_language( $record, $people ) ) ),
 			'form'       => self::find_form( $record, $series_term ),
 			'meta'       => array(
 				'library_subtitle'          => self::get_subtitle( $record ),
@@ -149,6 +149,7 @@ class BnF {
 				'library_volume_number'     => $volume_digit ? sprintf( 'Tome %02d', $volume_digit ) : '',
 				'library_collection_number' => $collection['number'],
 				'library_pages'             => self::get_pages( $record ),
+				'library_edition_languages' => self::find_edition_languages( $record ),
 			),
 		);
 	}
@@ -594,8 +595,31 @@ class BnF {
 		$statements = implode( ' ', array( ...$record['200'][0]['subfields']['f'] ?? array(), ...$record['200'][0]['subfields']['g'] ?? array() ) );
 		$translated = '1' === $field['ind1'] || in_array( 'translator', array_column( $people, 'role' ), true ) || 1 === preg_match( '/\btrad/i', $statements );
 		$code       = $field['subfields']['c'][0] ?? ( $translated ? '' : $field['subfields']['a'][0] ?? '' );
-		$code       = $code ? Locale::getPrimaryLanguage( Locale::canonicalize( self::LANGUAGE_CODES[ $code ] ?? $code ) ?? '' ) ?? '' : '';
-		$term       = $code ? get_term_by( 'slug', $code, 'library_language' ) : false;
+
+		return self::find_language_term( $code );
+	}
+
+	/**
+	 * The languages of the text of a record, its edition languages, as languages of the library: those the library has.
+	 *
+	 * @param array<int|string,list<Field>> $record Record.
+	 * @return list<int> Term IDs.
+	 */
+	private static function find_edition_languages( array $record ): array {
+		$codes = $record['101'][0]['subfields']['a'] ?? array();
+
+		return array_values( array_unique( array_filter( array_map( array( self::class, 'find_language_term' ), $codes ) ) ) );
+	}
+
+	/**
+	 * A language of the library from a code of the catalogue, ISO 639-2 such as fre: 0 when the library has none of it.
+	 *
+	 * @param string $code Code of the catalogue, or empty.
+	 * @return int Term ID.
+	 */
+	private static function find_language_term( string $code ): int {
+		$code = $code ? Locale::getPrimaryLanguage( Locale::canonicalize( self::LANGUAGE_CODES[ $code ] ?? $code ) ?? '' ) ?? '' : '';
+		$term = $code ? get_term_by( 'slug', $code, 'library_language' ) : false;
 
 		return $term instanceof WP_Term ? $term->term_id : 0;
 	}

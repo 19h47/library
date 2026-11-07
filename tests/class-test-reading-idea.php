@@ -302,7 +302,7 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	public function test_translator_rated_well(): void {
 		foreach ( array( 8, 10, 7 ) as $rating ) {
-			$this->add_book( $this->translated() + array( 'meta' => $this->rated( $rating, '2024-03-01' ) ) );
+			$this->add_book( $this->translated( $this->rated( $rating, '2024-03-01' ) ) );
 		}
 
 		$book = $this->add_book( $this->translated() );
@@ -492,7 +492,7 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	public function test_change_counts_the_latest_six_readings(): void {
 		$this->add_reads( array( '2010-01-10' ) );
-		$this->add_book( $this->translated() + array( 'meta' => array( 'library_read_date' => array( '2024-01-10', '2024-02-10', '2024-03-10', '2024-04-10', '2024-05-10', '2024-06-10' ) ) ) );
+		$this->add_book( $this->translated( array( 'library_read_date' => array( '2024-01-10', '2024-02-10', '2024-03-10', '2024-04-10', '2024-05-10', '2024-06-10' ) ) ) );
 		$book = $this->add_book( array() );
 
 		$this->assertSame(
@@ -874,18 +874,21 @@ class Test_Reading_Idea extends TestCase {
 	}
 
 	/**
-	 * Fields of a book translated.
+	 * Fields of a book translated, from English into French, with other meta.
 	 *
+	 * @param array $meta Other meta of the book.
 	 * @return array
 	 */
-	private function translated(): array {
+	private function translated( array $meta = array() ): array {
 		return array(
-			'people' => array(
+			'people'    => array(
 				array(
 					'name' => 'Pierre-Paul Durastanti',
 					'role' => 'translator',
 				),
 			),
+			'languages' => array( $this->get_language( 'en', 'English' ) ),
+			'meta'      => array( 'library_edition_languages' => array( $this->get_language( 'fr', 'French' ) ) ) + $meta,
 		);
 	}
 }

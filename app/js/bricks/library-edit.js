@@ -22,7 +22,6 @@ import { urlOf } from 'library-app/router';
  * @property {HTMLInputElement}    publisher    Its publisher.
  * @property {HTMLInputElement}    collection   Its collection.
  * @property {HTMLInputElement}    series       Its series.
- * @property {HTMLSelectElement}   language     Its original language.
  * @property {HTMLSelectElement}   form         Its form.
  * @property {HTMLInputElement}    cover        The photo of its cover.
  * @property {HTMLSelectElement}   status       The status of a book to add.
@@ -44,6 +43,18 @@ function openBook( id ) {
 }
 
 /**
+ * Checks the checkboxes of the term IDs given, and only them, such as the original languages of a book.
+ *
+ * @param {HTMLInputElement[]} $checkboxes The checkboxes, a term ID each.
+ * @param {number[]}           ids         The term IDs to check.
+ */
+function checkIds( $checkboxes, ids ) {
+	$checkboxes.forEach( ( $checkbox ) => {
+		$checkbox.checked = ids.includes( Number( $checkbox.value ) );
+	} );
+}
+
+/**
  * Options of a datalist, the names to suggest.
  *
  * @param {Array<{name: string}>} terms The names.
@@ -58,7 +69,8 @@ function renderOptions( terms ) {
  * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
  * publisher, collection and its number, form and edition date, its status when it is added, the one of the list shown
  * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
- * the ones filled in: subtitle, first published, pages, original language, collective work, ISSN, excerpt and notes.
+ * the ones filled in: subtitle, first published, pages, original languages, edition languages, collective work, ISSN,
+ * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
  * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
@@ -83,7 +95,6 @@ class LibraryEditElement extends Brick {
 			publisher: $publisher,
 			collection: $collection,
 			series: $series,
-			language: $language,
 			form: $bookForm,
 			cover: $cover,
 			status: $status,
@@ -94,6 +105,13 @@ class LibraryEditElement extends Brick {
 		// The fields of the meta are named after them.
 		const $meta = /** @type {HTMLInputElement[]} */ ( [
 			...$form.querySelectorAll( '[data-meta]' ),
+		] );
+		// The languages, a checkbox each, its value a term ID.
+		const $languages = /** @type {HTMLInputElement[]} */ ( [
+			...$form.querySelectorAll( '[name="languages"]' ),
+		] );
+		const $editionLanguages = /** @type {HTMLInputElement[]} */ ( [
+			...$form.querySelectorAll( '[name="library_edition_languages"]' ),
 		] );
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
 		/** @type {( $field: Field ) => string|boolean} */
@@ -136,11 +154,15 @@ class LibraryEditElement extends Brick {
 		} );
 		const clearErrors = showErrors( $form, signal );
 
-		// The summary of the details counts the fields filled in, as the button of the filters does.
+		// The summary of the details counts the fields filled in, as the button of the filters does: the checkboxes of a field once.
 		const countDetails = () => {
-			const filled = [
-				...$details.querySelectorAll( 'input, select, textarea' ),
-			].filter( getValue ).length;
+			const filled = new Set(
+				/** @type {Field[]} */ ( [
+					...$details.querySelectorAll( 'input, select, textarea' ),
+				] )
+					.filter( getValue )
+					.map( ( $field ) => $field.name )
+			).size;
 
 			$summary.textContent = join( [
 				$summary.dataset.label,
@@ -207,7 +229,6 @@ class LibraryEditElement extends Brick {
 				[ $title, book.title ],
 				[ $publisher, book.publisher ],
 				[ $series, book.series ],
-				[ $language, ( book.language || '' ).toString() ],
 				[ $bookForm, ( book.form || '' ).toString() ],
 				...$meta.map( ( $field ) => {
 					const value = ( book.meta[ $field.name ] ?? '' ).toString();
@@ -232,6 +253,24 @@ class LibraryEditElement extends Brick {
 				$names.every( ( $name ) => ! $name.value )
 			) {
 				showPeople( book.people );
+			}
+
+			if ( ! $languages.some( getValue ) ) {
+				checkIds( $languages, book.languages );
+			}
+
+			// The edition languages left as the form gave them, the language of the reader, take the ones of the catalogue.
+			if (
+				book.meta.library_edition_languages.length &&
+				$editionLanguages.every(
+					( $checkbox ) =>
+						$checkbox.checked === $checkbox.defaultChecked
+				)
+			) {
+				checkIds(
+					$editionLanguages,
+					book.meta.library_edition_languages
+				);
 			}
 
 			// A collection needs its publisher, which enables it.
@@ -331,14 +370,19 @@ class LibraryEditElement extends Brick {
 					series: /** @type {string} */ (
 						data.get( 'series' )
 					).trim(),
-					language: Number( data.get( 'language' ) ),
+					languages: data.getAll( 'languages' ).map( Number ),
 					form: Number( data.get( 'form' ) ),
-					meta: Object.fromEntries(
-						$meta.map( ( $field ) => [
-							$field.name,
-							getValue( $field ),
-						] )
-					),
+					meta: {
+						...Object.fromEntries(
+							$meta.map( ( $field ) => [
+								$field.name,
+								getValue( $field ),
+							] )
+						),
+						library_edition_languages: data
+							.getAll( 'library_edition_languages' )
+							.map( Number ),
+					},
 				};
 
 				event.preventDefault();
@@ -396,7 +440,11 @@ class LibraryEditElement extends Brick {
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$series.value = book.series;
-						$language.value = ( book.language || '' ).toString();
+						checkIds( $languages, book.languages );
+						checkIds(
+							$editionLanguages,
+							book.meta.library_edition_languages
+						);
 						$bookForm.value = ( book.form || '' ).toString();
 						$meta.forEach( ( $field ) => {
 							const value = book.meta[ $field.name ] ?? '';

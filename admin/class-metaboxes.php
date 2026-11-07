@@ -93,13 +93,22 @@ class Metaboxes {
 			$values[ $key ] = get_post_meta( $post->ID, $key, true );
 		}
 
-		$values['library_read_date'] = Meta::get_read_dates( $post->ID );
-		$series                      = Taxonomies::get_series( $post->ID );
-		$series                      = $series ? Taxonomies::get_series_path( $series ) : '';
-		$paths                       = Taxonomies::get_series_paths();
-		$names                       = get_the_terms( $post->ID, 'library_person' );
-		$names                       = is_array( $names ) ? $names : array();
-		$roles                       = Meta::get_roles( $post->ID );
+		$values['library_read_date']         = Meta::get_read_dates( $post->ID );
+		$values['library_edition_languages'] = Meta::get_edition_languages( $post->ID );
+		$languages                           = get_terms(
+			array(
+				'taxonomy'   => 'library_language',
+				'hide_empty' => false,
+				'fields'     => 'id=>name',
+			)
+		);
+		$languages                           = is_array( $languages ) ? $languages : array();
+		$series                              = Taxonomies::get_series( $post->ID );
+		$series                              = $series ? Taxonomies::get_series_path( $series ) : '';
+		$paths                               = Taxonomies::get_series_paths();
+		$names                               = get_the_terms( $post->ID, 'library_person' );
+		$names                               = is_array( $names ) ? $names : array();
+		$roles                               = Meta::get_roles( $post->ID );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
@@ -121,8 +130,9 @@ class Metaboxes {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta.
 		$values = wp_unslash( $_POST );
 
-		// A book whose readings were all removed sends none.
-		$values['library_read_date'] ??= array();
+		// A book whose readings were all removed sends none, and so does one without edition language.
+		$values['library_read_date']         ??= array();
+		$values['library_edition_languages'] ??= array();
 
 		Meta::save( $post_id, $values );
 

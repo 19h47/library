@@ -653,7 +653,8 @@ library-view > .library-back {
 	border: 0;
 }
 
-.library-input-list legend {
+/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
+:is(.library-field, .library-input-list) > legend {
 	margin-bottom: var(--app-gap-small);
 }
 

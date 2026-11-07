@@ -51,6 +51,7 @@ import {
  * @property {boolean}  collective        Whether it is a collective work.
  * @property {boolean}  read              Whether it is read.
  * @property {boolean}  in_progress       Whether it is being read.
+ * @property {number[]} edition_languages The term IDs of the languages of its text.
  */
 
 /**
@@ -69,25 +70,26 @@ import {
  * A book as the app shows it, besides its meta and the names with another role.
  *
  * @typedef {Object} BookFields
- * @property {number}     id        Its ID.
- * @property {string}     title     Its title.
- * @property {string}     excerpt   Its summary in a few words.
- * @property {string}     content   Its notes, HTML as the API renders them.
- * @property {string}     credits   Its authors, publisher and year, under its title.
- * @property {string}     status    Its status: in the library, not kept, to buy, or another one, such as a draft.
- * @property {Cover|null} cover     Its cover, none without one.
- * @property {Term[]}     authors   Its names without another role.
- * @property {string}     series    Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
- * @property {number}     series_id The term ID of its series, 0 without one.
- * @property {string[]}   languages Its original languages, as their ISO 639 codes.
- * @property {string}     form      The name of its form, such as a novel, or empty.
+ * @property {number}     id                Its ID.
+ * @property {string}     title             Its title.
+ * @property {string}     excerpt           Its summary in a few words.
+ * @property {string}     content           Its notes, HTML as the API renders them.
+ * @property {string}     credits           Its authors, publisher and year, under its title.
+ * @property {string}     status            Its status: in the library, not kept, to buy, or another one, such as a draft.
+ * @property {Cover|null} cover             Its cover, none without one.
+ * @property {Term[]}     authors           Its names without another role.
+ * @property {string}     series            Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
+ * @property {number}     series_id         The term ID of its series, 0 without one.
+ * @property {string[]}   languages         Its original languages, as their ISO 639 codes.
+ * @property {string[]}   edition_languages The languages of its text, as their ISO 639 codes.
+ * @property {string}     form              The name of its form, such as a novel, or empty.
  */
 
 /**
  * A book as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover
- * with its size, its authors and the names with another role, its original languages and its form.
+ * with its size, its authors and the names with another role, its original languages, those of its text and its form.
  *
- * @typedef {BookFields & BookMeta & BookRoles} Book
+ * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookRoles} Book
  */
 
 /**
@@ -109,9 +111,9 @@ import {
  * @property {string}                  publisher        The name of its publisher.
  * @property {string}                  collection       Its collection, after the collections it is part of.
  * @property {string}                  series           Its series, after its cycles.
- * @property {number}                  language         The term ID of its original language, 0 for none.
+ * @property {number[]}                languages        The term IDs of its original languages.
  * @property {number}                  form             The term ID of its form, 0 for none.
- * @property {Object<string, unknown>} meta             Its meta, by their keys, library_isbn…
+ * @property {Object<string, unknown>} meta             Its meta, by their keys, library_isbn… and its edition languages.
  * @property {string}                  [status]         The status of a book to add.
  * @property {number}                  [featured_media] The ID of the image of its cover, 0 for none.
  */
@@ -120,17 +122,23 @@ import {
  * The values of a book as its form edits them, from the route of the book form.
  *
  * @typedef {Object} BookForm
- * @property {number}                         id         Its ID.
- * @property {string}                         title      Its title.
- * @property {string}                         excerpt    Its summary in a few words.
- * @property {string}                         content    Its notes.
- * @property {Credit[]}                       people     Its names, each with its role.
- * @property {string}                         publisher  The name of its publisher.
- * @property {string}                         collection Its collection, after the collections it is part of.
- * @property {string}                         series     Its series, after its cycles.
- * @property {number}                         language   The term ID of its original language, 0 for none.
- * @property {number}                         form       The term ID of its form, 0 for none.
- * @property {Object<string, string|boolean>} meta       Its meta, by their keys, its read dates aside.
+ * @property {number}   id         Its ID.
+ * @property {string}   title      Its title.
+ * @property {string}   excerpt    Its summary in a few words.
+ * @property {string}   content    Its notes.
+ * @property {Credit[]} people     Its names, each with its role.
+ * @property {string}   publisher  The name of its publisher.
+ * @property {string}   collection Its collection, after the collections it is part of.
+ * @property {string}   series     Its series, after its cycles.
+ * @property {number[]} languages  The term IDs of its original languages.
+ * @property {number}   form       The term ID of its form, 0 for none.
+ * @property {FormMeta} meta       Its meta, by their keys, its read dates aside.
+ */
+
+/**
+ * The meta of a book as its form edits them, by their keys: library_isbn… and the term IDs of its edition languages.
+ *
+ * @typedef {Object<string, string|boolean> & {library_edition_languages: number[]}} FormMeta
  */
 
 /**
@@ -369,19 +377,20 @@ import {
  * A book as the REST API of core gives it, with the fields of the plugin, those the app asks for.
  *
  * @typedef {Object} ApiBook
- * @property {number}                  id             Its ID.
- * @property {{rendered: string}}      title          Its title, HTML.
- * @property {{rendered: string}}      excerpt        Its excerpt, HTML.
- * @property {{rendered: string}}      content        Its notes, HTML.
- * @property {string}                  credits        Its credits, HTML.
- * @property {string}                  status         Its status.
- * @property {Object<string, unknown>} meta           Its meta, by their keys.
- * @property {Cover|null}              cover          Its cover, none without one.
- * @property {Term[]}                  names          Its names, HTML, each with its term ID.
- * @property {number[]}                series         The term IDs of its series.
- * @property {string}                  series_name    Its series after its cycles, HTML.
- * @property {string[]}                language_codes Its original languages, as their ISO 639 codes.
- * @property {string}                  form_name      The name of its form, HTML.
+ * @property {number}                  id                     Its ID.
+ * @property {{rendered: string}}      title                  Its title, HTML.
+ * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
+ * @property {{rendered: string}}      content                Its notes, HTML.
+ * @property {string}                  credits                Its credits, HTML.
+ * @property {string}                  status                 Its status.
+ * @property {Object<string, unknown>} meta                   Its meta, by their keys.
+ * @property {Cover|null}              cover                  Its cover, none without one.
+ * @property {Term[]}                  names                  Its names, HTML, each with its term ID.
+ * @property {number[]}                series                 The term IDs of its series.
+ * @property {string}                  series_name            Its series after its cycles, HTML.
+ * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
+ * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
+ * @property {string}                  form_name              The name of its form, HTML.
  */
 
 const parser = new DOMParser();
@@ -486,6 +495,7 @@ function toBook( item ) {
 		series_id: item.series[ 0 ] ?? 0,
 		// As their ISO 639 codes: the app names them in a sentence.
 		languages: item.language_codes,
+		edition_languages: item.edition_language_codes,
 		// Its name, for the tag of its card.
 		form: text( item.form_name ),
 	};

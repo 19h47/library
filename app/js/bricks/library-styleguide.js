@@ -68,7 +68,9 @@ const BOOKS = [
 		status: notKept,
 		read: true,
 		form: 'A form',
+		// In its original language: its tag VO.
 		languages: [ 'ja' ],
+		edition_languages: [ 'ja' ],
 	},
 	{
 		title: 'A book to buy',
@@ -96,6 +98,7 @@ const BOOKS = [
 			rating: 0,
 			form: '',
 			languages: [],
+			edition_languages: [],
 			authors: [ { id: 1, name: 'An Author' } ],
 			translators: [],
 			...book,

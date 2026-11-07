@@ -101,9 +101,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-status</code>, such as no book found, or the app offline</figcaption>
+				<figcaption><code>.app-status</code>, such as no book found, or the app offline; <code>[role="alert"]</code>, an error of the server at the end of a form</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="app-status">A message, such as no book found.</p>
+					<p class="app-status" role="alert">The book could not be saved.</p>
 				</div>
 			</figure>
 			<figure>
@@ -572,9 +573,26 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-status[role="alert"]</code>, an error of the server at the end of a form</figcaption>
+				<figcaption><code>checkboxes-field</code>, a pill per choice, two checked, with a description</figcaption>
 				<div class="library-styleguide__frame">
-					<p class="app-status" role="alert">The book could not be saved.</p>
+					<?php
+					Markup::render_component(
+						'checkboxes-field',
+						array(
+							'id'          => 'library-styleguide-choices',
+							'label'       => 'Choices',
+							'name'        => 'choices',
+							'choices'     => array(
+								'en' => 'English',
+								'fr' => 'French',
+								'de' => 'German',
+								'ja' => 'Japanese',
+							),
+							'checked'     => array( 'en', 'fr' ),
+							'description' => 'Its description, under its choices.',
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
