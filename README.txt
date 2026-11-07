@@ -105,6 +105,7 @@ The routes of the plugin, to users who can edit posts:
 
 = 9.30.0 =
 * Changed: reading app: the books being read on the home no longer have a button Finished: a book is read, rated and dated in its page, which its cover opens.
+* Fixed: reading app: the styleguide no longer scrolls sideways on a phone: its largest sizes of the text break their words, hyphenated where the language allows it.
 
 = 9.29.3 =
 * Fixed: reading app: the cover of a book being read no longer stays blank in Safari once back from the book: its button Finished goes under its title, a pill, rather than over the cover, and nothing floating is blurred any more, the bars, the controls and the notices opaque; Safari laid out the cover wrongly under a blurred control once the view transition ended (WebKit bug 275698).

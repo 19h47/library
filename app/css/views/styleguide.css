@@ -108,10 +108,16 @@
 		gap: var(--app-u1);
 	}
 
+	/*
+	 * The largest sizes are wider than a phone: a word hyphenated where its language allows it, else broken anywhere,
+	 * which the width of the samples counts, as break-word would not
+	 */
 	.library-styleguide__size {
 		display: block;
 		font-family: var(--library-family);
 		font-size: var(--library-token);
+		overflow-wrap: anywhere;
+		hyphens: auto;
 	}
 
 	.library-styleguide__use {
