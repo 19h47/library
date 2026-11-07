@@ -30,7 +30,7 @@ namespace Library;
 class Recap {
 
 	/**
-	 * The people read the most a recap names, and the books rated the highest it shows.
+	 * The people read the most a recap names.
 	 *
 	 * @var int
 	 */
@@ -172,7 +172,8 @@ class Recap {
 	}
 
 	/**
-	 * The books read rated the highest, the latest read first among a rating.
+	 * The books read with a rating, every one, the highest first, the latest read first among a rating: the recap shows
+	 * as many as its screen holds.
 	 *
 	 * @param array<int,Book> $read Books read, in the order they were read.
 	 * @return list<int>
@@ -182,7 +183,7 @@ class Recap {
 
 		usort( $rated, fn( Book $a, Book $b ) => $b->rating <=> $a->rating );
 
-		return array_map( fn( Book $book ) => $book->id, array_slice( $rated, 0, self::TOP ) );
+		return array_map( fn( Book $book ) => $book->id, $rated );
 	}
 
 	/**

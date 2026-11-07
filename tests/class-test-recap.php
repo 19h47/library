@@ -79,7 +79,7 @@ class Test_Recap extends TestCase {
 	}
 
 	/**
-	 * The average rating takes each book once, the books rated the highest first, the latest read among a rating.
+	 * The average rating takes each book once; every book rated shows, the highest first, the latest read among a rating.
 	 *
 	 * @return void
 	 */
@@ -87,12 +87,13 @@ class Test_Recap extends TestCase {
 		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
 		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
 		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'library_rating' => 10 ) ) );
+		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'library_rating' => 5 ) ) );
 		$this->add_read( '2025-04-01' );
 
 		$recap = Recap::get_recap( 2025 );
 
-		$this->assertEqualsWithDelta( 8.7, $recap['rating'], 0.01 );
-		$this->assertSame( array( $best, $better, $good ), $recap['best'] );
+		$this->assertEqualsWithDelta( 6.6, $recap['rating'], 0.01 );
+		$this->assertSame( array( $best, $better, $good, ...array_reverse( $lower ) ), $recap['best'] );
 	}
 
 	/**

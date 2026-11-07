@@ -450,7 +450,7 @@ use Library\Meta;
 							<h3 class="library-recap__title"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="discoveries"></p>
 							<p data-field="discovered"></p>
-							<ul class="library-pills library-recap__cloud" data-row="discoveries" data-list="discoveries"></ul>
+							<ul class="library-pills library-recap__cloud library-recap__cut" data-row="discoveries" data-list="discoveries"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>
@@ -470,7 +470,7 @@ use Library\Meta;
 							<h3 class="library-recap__title"><?php esc_html_e( 'Favourites', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="rating"></p>
 							<p><?php esc_html_e( 'Average rating', 'library' ); ?></p>
-							<ul class="library-strip" data-list="best"></ul>
+							<ul class="library-recap__wall library-recap__cut" data-list="best"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="records" hidden>
@@ -492,6 +492,7 @@ use Library\Meta;
 						</section>
 
 						<section class="library-recap__screen library-recap__closing" data-screen="closing" hidden>
+							<div class="library-recap__marquee" data-list="marquee" aria-hidden="true"></div>
 							<p class="library-recap__figure" data-field="closing"></p>
 							<nav class="library-pills" aria-label="<?php esc_attr_e( 'Other years', 'library' ); ?>">
 								<a class="app-pill" data-field="previousYear" href=""></a>

@@ -788,8 +788,8 @@ library-latest {
 /*
  * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
  * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
- * volumes of a series; on the screens of a recap, the books rated the highest, the records and the achievements. The
- * first item starts where the content does, the last one ends where it does.
+ * volumes of a series; on the screens of a recap, the records and the achievements. The first item starts where the
+ * content does, the last one ends where it does.
  */
 .library-strip {
 	/*
@@ -1222,10 +1222,10 @@ library-recap {
 }
 
 /*
- * A screen of a cloud, the people read for the first time: never higher than the screen, the cloud taking the room
- * left, its content in the middle when it fits
+ * A screen of a list cut where the screen ends, such as the cloud of the people read for the first time or the wall of
+ * the books rated: never higher than the screen, the list taking the room left, its content in the middle when it fits
  */
-.library-recap__screen:has(> .library-recap__cloud) {
+.library-recap__screen:has(> .library-recap__cut) {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -1233,22 +1233,26 @@ library-recap {
 }
 
 /*
- * The names, every one, cut where the screen ends: hidden rather than clipped, a link the keyboard reaches scrolls into
- * view. A row of them at least, on a screen too short for more.
+ * The list, every item, cut where the screen ends: hidden rather than clipped, a link the keyboard reaches scrolls into
+ * view. A small row at least, on a screen too short for more.
  */
-.library-recap__cloud {
+.library-recap__cut {
 	flex: 0 1 auto;
-	gap: var(--app-gap-small);
 	min-block-size: calc(var(--app-u2) * var(--app-phi));
 	overflow: hidden;
 }
 
-/* Faded at its end only when cut: a scroll timeline runs only while the cloud has more than it shows */
+/* Faded at its end only when cut: a scroll timeline runs only while the list has more than it shows */
 @supports (animation-timeline: scroll()) {
-	.library-recap__cloud {
+	.library-recap__cut {
 		animation: library-recap-cut linear both;
 		animation-timeline: scroll(self);
 	}
+}
+
+/* The names of a cloud, small pills, close together */
+.library-recap__cloud {
+	gap: var(--app-gap-small);
 }
 
 @keyframes library-recap-cut {
@@ -1259,8 +1263,8 @@ library-recap {
 }
 
 /*
- * The covers rated the highest, the records and the achievements, out to the edges of the frame rather than of the
- * screen: sideways, so that a screen holds them all, however many
+ * The records and the achievements, out to the edges of the frame rather than of the screen: sideways, so that a
+ * screen holds them all, however many
  */
 .library-recap__screen .library-strip {
 	--library-bleed: var(--library-recap-padding);
@@ -1305,28 +1309,90 @@ library-recap {
 	text-wrap: balance;
 }
 
-/*
- * The covers of the books read, a tile each, fading out at the bottom of the screen: as many as fit in the room the
- * year leaves, those past it cut, out of sight. Its covers do not make the screen higher, they only fill it.
- */
-.library-recap__mosaic {
+/* A wall of covers in rows, as wide as the frame: its columns at least as wide as a tile */
+:is(.library-recap__mosaic, .library-recap__wall) {
 	list-style: none;
-	flex: 1 1 0;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(var(--app-u3), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(var(--library-recap-tile), 1fr));
 	align-content: start;
 	gap: var(--app-gap-small);
+}
+
+/*
+ * The covers of the books read, a small tile each, fading out at the bottom of the screen: as many as fit in the room
+ * the year leaves, those past it cut, out of sight. Its covers do not make the screen higher, they only fill it.
+ */
+.library-recap__mosaic {
+	--library-recap-tile: var(--app-u3);
+
+	flex: 1 1 0;
 	/* A row of covers at least, on a screen too short for more */
 	min-block-size: calc(var(--app-u3) * var(--app-phi));
 	overflow: clip;
 	mask-image: linear-gradient(to bottom, black 50%, transparent);
 }
 
+/* The books rated, larger tiles, which open them: three a row on a phone, wider beyond */
+.library-recap__wall {
+	--library-recap-tile: min(calc(var(--app-u3) * var(--app-phi) * var(--app-phi)), (100% - 2 * var(--app-gap-small)) / 3);
+}
+
 /* A shape of its own, as its image has none of its sizes="auto" in Safari: the tiles in rows */
-.library-recap__mosaic img {
+.library-recap__mosaic img,
+.library-recap__wall :is(.library-cover__image, .library-cover__frame) {
 	display: block;
 	inline-size: 100%;
 	block-size: auto;
+	aspect-ratio: 2 / 3;
+	object-fit: cover;
+	border-radius: var(--library-radius-small);
+}
+
+/*
+ * The last screen, over the covers of the year in rows going by behind it: a backdrop, faint so that its words read as
+ * well, fading at its top and its bottom as the wall of the first screen; drawn only while on the screen.
+ */
+.library-recap__closing {
+	position: relative;
+	isolation: isolate;
+}
+
+.library-recap__marquee {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	display: grid;
+	align-content: center;
+	gap: var(--app-gap-small);
+	overflow: clip;
+	border-radius: inherit;
+	mask-image: linear-gradient(transparent, black 25%, black 75%, transparent);
+	content-visibility: auto;
+	pointer-events: none;
+}
+
+.library-recap__marquee > ul {
+	list-style: none;
+	display: flex;
+	inline-size: max-content;
+	opacity: calc(1 / var(--app-phi) / var(--app-phi) / var(--app-phi));
+}
+
+/* The links to the other years over it, on the floating background of the controls, to read as well */
+.library-recap__closing .app-pill {
+	background: var(--app-bg-floating);
+	backdrop-filter: var(--app-blur-floating);
+}
+
+/* The space after each cover rather than a gap, for half the row to be one copy of its covers to the pixel */
+.library-recap__marquee li {
+	padding-inline-end: var(--app-gap-small);
+}
+
+.library-recap__marquee img {
+	display: block;
+	block-size: calc(var(--app-u3) * var(--app-phi));
+	inline-size: auto;
 	aspect-ratio: 2 / 3;
 	object-fit: cover;
 	border-radius: var(--library-radius-small);
@@ -1415,6 +1481,34 @@ library-recap {
 			animation-range: entry 0% entry 100%;
 		}
 
+		/* A list cut keeps its fade as it comes in */
+		.library-recap__screen > .library-recap__cut {
+			animation: library-recap-in linear both, library-recap-cut linear both;
+			animation-timeline: view(), scroll(self);
+			animation-range: entry 0% entry 100%, normal;
+		}
+
+		/* The rows of the last screen go by, each at its pace, every other one the other way */
+		.library-recap__marquee > ul {
+			animation: library-recap-marquee var(--library-recap-pace) linear infinite;
+
+			&:nth-child(even) {
+				animation-direction: reverse;
+			}
+
+			&:nth-child(3n + 1) {
+				--library-recap-pace: 89s;
+			}
+
+			&:nth-child(3n + 2) {
+				--library-recap-pace: 55s;
+			}
+
+			&:nth-child(3n) {
+				--library-recap-pace: 144s;
+			}
+		}
+
 		.library-recap__bar {
 			animation: library-recap-grow linear both;
 			animation-timeline: view();
@@ -1436,6 +1530,13 @@ library-recap {
 	from {
 		opacity: 0;
 		translate: 0 var(--app-u1);
+	}
+}
+
+/* A row is its covers twice: half its width along, the second ones stand where the first were */
+@keyframes library-recap-marquee {
+	to {
+		translate: -50% 0;
 	}
 }
 

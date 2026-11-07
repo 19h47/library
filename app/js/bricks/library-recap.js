@@ -30,6 +30,9 @@ import { urlOf } from 'library-app/router';
  * @import { Loading } from 'library-app/store'
  */
 
+// The rows of covers going by behind the last screen, and the covers a row has at least, to go past its width.
+const MARQUEE_ROWS = 10;
+const MARQUEE_COVERS = 12;
 // How long a figure counts up to its value, slowing down to it.
 const COUNT_MS = 1000;
 const reducedMotion = matchMedia( '(prefers-reduced-motion: reduce)' );
@@ -161,8 +164,13 @@ class LibraryRecapElement extends Brick {
 			...this.#years( recap ),
 		} );
 
+		const covered = read.filter( ( book ) => book.cover );
+
 		this.querySelector( '[data-list="covers"]' ).replaceChildren(
-			...read.filter( ( book ) => book.cover ).map( renderTile )
+			...covered.map( renderTile )
+		);
+		this.querySelector( '[data-list="marquee"]' ).replaceChildren(
+			...this.#renderMarquee( covered )
 		);
 		this.querySelector( '[data-list="months"]' ).replaceChildren(
 			...renderMonths( recap.months, recap.year )
@@ -407,6 +415,45 @@ class LibraryRecapElement extends Brick {
 					  )
 					: '',
 		};
+	}
+
+	/**
+	 * The rows of covers going by behind the last screen: the books in turn, a row each, as many times as a row needs to
+	 * be wider than the screen, then twice over, for a row to go round without a gap. They load at once, as they move
+	 * into sight sideways, and the first screen has loaded them already.
+	 *
+	 * @param {Book[]} books The books read, with a cover.
+	 * @return {HTMLUListElement[]} The rows, none without a book.
+	 */
+	#renderMarquee( books ) {
+		if ( ! books.length ) {
+			return [];
+		}
+
+		return [ ...Array( MARQUEE_ROWS ).keys() ].map( ( row ) => {
+			const $row = document.createElement( 'ul' );
+			const own = books.filter(
+				( _book, index ) => row === index % MARQUEE_ROWS
+			);
+			const shown = own.length ? own : books;
+			const once = [
+				...Array( Math.max( shown.length, MARQUEE_COVERS ) ).keys(),
+			].map( ( index ) => shown[ index % shown.length ] );
+
+			$row.append(
+				...[ ...once, ...once ].map( ( book ) => {
+					const $tile = renderTile( book );
+
+					/** @type {HTMLImageElement} */ (
+						$tile.firstElementChild
+					).loading = 'eager';
+
+					return $tile;
+				} )
+			);
+
+			return $row;
+		} );
 	}
 
 	/**

@@ -367,7 +367,7 @@ import {
  * @property {{code: string, readings: number}[]}                  languages    The original languages, as ISO 639 codes, the most read first.
  * @property {RecapSeries[]}                                       series       The series read, the most read first.
  * @property {number|null}                                         rating       The average rating of the books read, none without one.
- * @property {number[]}                                            best         The IDs of the books read rated the highest.
+ * @property {number[]}                                            best         The IDs of the books read with a rating, the highest first.
  * @property {{longest: number, shortest: number, oldest: number}} records      The IDs of the longest, the shortest and the oldest books read, 0 for none.
  * @property {Achievement[]}                                       achievements The achievements earned in the year.
  * @property {number}                                              added        The books added in the year, but those to buy.
