@@ -401,7 +401,7 @@ use Library\Meta;
 				</library-view>
 
 				<?php // A screen per subject, each as high as the screen, those without anything to say hidden. ?>
-				<library-view name="recap" <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="recap" data-immersive <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-recap>
 						<section class="library-recap__screen library-recap__opening">
 							<library-back class="library-back">

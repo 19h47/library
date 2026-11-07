@@ -30,9 +30,10 @@ import { urlOf } from 'library-app/router';
  * @import { Loading } from 'library-app/store'
  */
 
-// The rows of covers going by behind the last screen, and the covers a row has at least, to go past its width.
-const MARQUEE_ROWS = 10;
-const MARQUEE_COVERS = 12;
+// The columns of covers going by behind the last screen, more than the widest frame holds, one in the middle, and the
+// covers a column has at least, to go past the height of a screen.
+const MARQUEE_COLUMNS = 15;
+const MARQUEE_COVERS = 16;
 // How long a figure counts up to its value, slowing down to it.
 const COUNT_MS = 1000;
 const reducedMotion = matchMedia( '(prefers-reduced-motion: reduce)' );
@@ -418,29 +419,35 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
-	 * The rows of covers going by behind the last screen: the books in turn, a row each, as many times as a row needs to
-	 * be wider than the screen, then twice over, for a row to go round without a gap. They load at once, as they move
-	 * into sight sideways, and the first screen has loaded them already.
+	 * The columns of covers going by behind the last screen: the books in turn, a column each, as many times as a column
+	 * needs to be higher than the screen, then twice over, for a column to go round without a gap. They load at once, as
+	 * they move into sight, and the first screen has loaded them already.
 	 *
 	 * @param {Book[]} books The books read, with a cover.
-	 * @return {HTMLUListElement[]} The rows, none without a book.
+	 * @return {HTMLUListElement[]} The columns, none without a book.
 	 */
 	#renderMarquee( books ) {
 		if ( ! books.length ) {
 			return [];
 		}
 
-		return [ ...Array( MARQUEE_ROWS ).keys() ].map( ( row ) => {
-			const $row = document.createElement( 'ul' );
+		return [ ...Array( MARQUEE_COLUMNS ).keys() ].map( ( column ) => {
+			const $column = document.createElement( 'ul' );
+
+			// Its place, for its round to start at a point of its own.
+			$column.style.setProperty(
+				'--library-recap-column',
+				column.toString()
+			);
 			const own = books.filter(
-				( _book, index ) => row === index % MARQUEE_ROWS
+				( _book, index ) => column === index % MARQUEE_COLUMNS
 			);
 			const shown = own.length ? own : books;
 			const once = [
 				...Array( Math.max( shown.length, MARQUEE_COVERS ) ).keys(),
 			].map( ( index ) => shown[ index % shown.length ] );
 
-			$row.append(
+			$column.append(
 				...[ ...once, ...once ].map( ( book ) => {
 					const $tile = renderTile( book );
 
@@ -452,7 +459,7 @@ class LibraryRecapElement extends Brick {
 				} )
 			);
 
-			return $row;
+			return $column;
 		} );
 	}
 
@@ -573,7 +580,7 @@ class LibraryRecapElement extends Brick {
 			...lines
 				.filter( ( { id } ) => books[ id ] )
 				.map( ( { id, label, detail } ) => {
-					const $row = renderRow( books[ id ] );
+					const $column = renderRow( books[ id ] );
 					const $label = document.createElement( 'p' );
 
 					$label.className = 'app-item__meta';
@@ -581,11 +588,11 @@ class LibraryRecapElement extends Brick {
 						label,
 						detail( books[ id ] ),
 					] );
-					$row.querySelector( '.library-row__body' ).prepend(
-						$label
-					);
+					$column
+						.querySelector( '.library-row__body' )
+						.prepend( $label );
 
-					return $row;
+					return $column;
 				} )
 		);
 	}

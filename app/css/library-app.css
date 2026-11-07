@@ -35,6 +35,11 @@
 	text-decoration: none;
 }
 
+/* A view that takes the whole screen says so, data-immersive, such as the recap: the page leaves its footer out then */
+.app-page:has(library-view[data-immersive]:not([hidden])) > .app-footer {
+	display: none;
+}
+
 /* Custom elements are inline: these hold blocks */
 library-app-name,
 library-back,
@@ -1135,7 +1140,7 @@ library-volumes {
 /*
  * The recap of a year: a screen per subject, in a frame as high as the screen allows under the toolbar, a step from it,
  * and above the footer, or the tab bar on a phone, its content in the middle, so that the page, stopping at each one as it scrolls,
- * shows a whole one; at its top, the name of the app where the content starts, and at its end.
+ * shows a whole one; at its top, the name of the app where the content starts.
  */
 :root:has(library-view[name="recap"]:not([hidden])) {
 	scroll-snap-type: y mandatory;
@@ -1144,21 +1149,13 @@ library-volumes {
 		scroll-snap-align: start;
 		scroll-margin-block-start: var(--app-toolbar-top);
 	}
-
-	/* On a phone, the footer ends the page, above the tab bar: the page stops there too, at its end */
-	@media (width < 42rem) {
-		& .app-footer {
-			scroll-snap-align: end;
-			scroll-margin-block-end: var(--library-recap-bottom);
-		}
-	}
 }
 
 library-recap {
 	/* Where a screen stops: under the toolbar, a step from it */
 	--library-recap-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
-	/* What stays at the bottom of the screen, which a screen ends above: the footer, its line between its paddings */
-	--library-recap-bottom: calc(2 * var(--app-u2) + var(--app-font-small) * var(--app-line-height) + 1px);
+	/* What stays at the bottom of the screen, which a screen ends above: nothing, the recap taking the whole screen */
+	--library-recap-bottom: 0px;
 	/* The padding of a frame at its sides, as the one of a card */
 	--library-recap-padding: var(--app-u1);
 
@@ -1173,7 +1170,7 @@ library-recap {
 	}
 }
 
-/* On a phone, the tab bar, the footer ending the page above it */
+/* On a phone, the tab bar */
 @media (width < 42rem) {
 	library-recap {
 		--library-recap-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
@@ -1338,7 +1335,7 @@ library-recap {
 }
 
 /* A shape of its own, as its image has none of its sizes="auto" in Safari: the tiles in rows */
-.library-recap__mosaic img,
+:is(.library-recap__mosaic, .library-recap__marquee) img,
 .library-recap__wall :is(.library-cover__image, .library-cover__frame) {
 	display: block;
 	inline-size: 100%;
@@ -1349,20 +1346,27 @@ library-recap {
 }
 
 /*
- * The last screen, over the covers of the year in rows going by behind it: a backdrop, faint so that its words read as
- * well, fading at its top and its bottom as the wall of the first screen; drawn only while on the screen.
+ * The last screen, over the covers of the year in columns going by behind it, the wall of the first screen in motion:
+ * a backdrop, faint so that its words read as well, fading at its top and its bottom; drawn only while on the screen.
  */
 .library-recap__closing {
 	position: relative;
 	isolation: isolate;
 }
 
+/*
+ * Its columns side by side, a screen high, wider than the frame and in its middle, as an image that covers it: what
+ * goes past its sides, out of sight
+ */
 .library-recap__marquee {
 	position: absolute;
 	inset: 0;
 	z-index: -1;
 	display: grid;
-	align-content: center;
+	grid-template-rows: 100%;
+	grid-auto-flow: column;
+	grid-auto-columns: calc(var(--app-u3) * sqrt(var(--app-phi)));
+	justify-content: center;
 	gap: var(--app-gap-small);
 	overflow: clip;
 	border-radius: inherit;
@@ -1371,10 +1375,10 @@ library-recap {
 	pointer-events: none;
 }
 
+/* As high as its covers, past the screen, for half of it to be one copy of them */
 .library-recap__marquee > ul {
 	list-style: none;
-	display: flex;
-	inline-size: max-content;
+	align-self: start;
 	opacity: calc(1 / var(--app-phi) / var(--app-phi) / var(--app-phi));
 }
 
@@ -1384,18 +1388,9 @@ library-recap {
 	backdrop-filter: var(--app-blur-floating);
 }
 
-/* The space after each cover rather than a gap, for half the row to be one copy of its covers to the pixel */
+/* The space under each cover rather than a gap, for half the column to be one copy of its covers to the pixel */
 .library-recap__marquee li {
-	padding-inline-end: var(--app-gap-small);
-}
-
-.library-recap__marquee img {
-	display: block;
-	block-size: calc(var(--app-u3) * var(--app-phi));
-	inline-size: auto;
-	aspect-ratio: 2 / 3;
-	object-fit: cover;
-	border-radius: var(--library-radius-small);
+	padding-block-end: var(--app-gap-small);
 }
 
 /* The bars of the months, their number above, their initial under, side by side from January */
@@ -1488,24 +1483,36 @@ library-recap {
 			animation-range: entry 0% entry 100%, normal;
 		}
 
-		/* The rows of the last screen go by, each at its pace, every other one the other way */
+		/*
+		 * The columns of the last screen go by, each at one of five paces on the scale, every other one the other way, each
+		 * from its own point of its round, so that no two go side by side
+		 */
 		.library-recap__marquee > ul {
 			animation: library-recap-marquee var(--library-recap-pace) linear infinite;
+			animation-delay: calc(var(--library-recap-column) * -13s);
 
 			&:nth-child(even) {
 				animation-direction: reverse;
 			}
 
-			&:nth-child(3n + 1) {
+			&:nth-child(5n + 1) {
 				--library-recap-pace: 89s;
 			}
 
-			&:nth-child(3n + 2) {
+			&:nth-child(5n + 2) {
 				--library-recap-pace: 55s;
 			}
 
-			&:nth-child(3n) {
+			&:nth-child(5n + 3) {
 				--library-recap-pace: 144s;
+			}
+
+			&:nth-child(5n + 4) {
+				--library-recap-pace: 34s;
+			}
+
+			&:nth-child(5n) {
+				--library-recap-pace: calc(55s * sqrt(var(--app-phi)));
 			}
 		}
 
@@ -1533,10 +1540,10 @@ library-recap {
 	}
 }
 
-/* A row is its covers twice: half its width along, the second ones stand where the first were */
+/* A column is its covers twice: half its height up, the second ones stand where the first were */
 @keyframes library-recap-marquee {
 	to {
-		translate: -50% 0;
+		translate: 0 -50%;
 	}
 }
 
