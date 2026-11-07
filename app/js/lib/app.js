@@ -13,11 +13,13 @@ export const {
 	editUrl,
 	forms,
 	icons,
+	inLibrary,
 	maxPerPage,
 	notKept,
 	perPage,
 	roles,
 	serviceWorkerUrl,
 	statuses,
+	storageKey,
 	toBuy,
 } = window.libraryApp;

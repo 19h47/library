@@ -1,7 +1,7 @@
-import { __, _n, sprintf } from 'library-app/app';
+import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatBooks, formatNumber, join } from 'library-app/format';
+import { formatBooks, formatRead, join } from 'library-app/format';
 import { fill, renderCover } from 'library-app/render';
 import { urlOf } from 'library-app/router';
 
@@ -32,18 +32,16 @@ class LibraryVolumesElement extends Brick {
 			}
 
 			const { series_id: seriesId } = books[ id ];
-			const readCount = series.items.filter(
+			const read = series.items.filter(
 				( item ) => books[ item ].read
 			).length;
-			const read = sprintf(
-				/* translators: %s: number of books read, after the number of books of a series. */
-				_n( '%s read', '%s read', readCount, 'library' ),
-				formatNumber( readCount )
-			);
 
 			fill( this, {
 				name: series.name,
-				count: join( [ formatBooks( series.total ), read ] ),
+				count: join( [
+					formatBooks( series.total ),
+					formatRead( read ),
+				] ),
 			} );
 			$name.href = urlOf( { view: 'series', id: seriesId } );
 			$list.replaceChildren(

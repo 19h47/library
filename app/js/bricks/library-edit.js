@@ -1,4 +1,4 @@
-import { __, editUrl, toBuy } from 'library-app/app';
+import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
@@ -437,7 +437,7 @@ class LibraryEditElement extends Brick {
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
-					$status.value = listedStatus || 'publish';
+					$status.value = listedStatus || inLibrary;
 					$bookForm.value = 'books' === view ? form : '';
 					showPeople( book?.people ?? [] );
 

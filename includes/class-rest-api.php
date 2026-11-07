@@ -40,7 +40,8 @@ class Rest_API {
 
 	/**
 	 * Register the fields added to the books of the core REST API: its credits, and what a list of books shows of its
-	 * cover and terms, so that it needs to embed neither the image nor the terms, whole.
+	 * cover and terms, so that it needs to embed neither the image nor the terms, whole; and to the series and the
+	 * publishers, their names as a book types them.
 	 *
 	 * @return void
 	 */
@@ -119,6 +120,31 @@ class Rest_API {
 			);
 
 			register_rest_field( 'library_book', $name, $field );
+		}
+
+		// The names the form of a book suggests, as a book types them: a series after its cycles, a collection after the
+		// collections it is part of, under the ID of its publisher.
+		$term_fields = array(
+			array( 'library_series', 'path', 'string', array( Taxonomies::class, 'get_series_path' ) ),
+			array( 'library_publisher', 'collection', 'string', array( Taxonomies::class, 'get_collection_name' ) ),
+			array( 'library_publisher', 'publisher', 'integer', fn( WP_Term $term ) => current( Taxonomies::get_top_level_terms( array( $term ) ) )->term_id ?? $term->term_id ),
+		);
+
+		foreach ( $term_fields as [ $taxonomy, $name, $type, $callback ] ) {
+			$field = array(
+				'get_callback' => function ( array $item ) use ( $taxonomy, $callback ) {
+					$term = get_term( $item['id'], $taxonomy );
+
+					return $term instanceof WP_Term ? $callback( $term ) : null;
+				},
+				'schema'       => array(
+					'type'     => $type,
+					'context'  => array( 'view', 'edit' ),
+					'readonly' => true,
+				),
+			);
+
+			register_rest_field( $taxonomy, $name, $field );
 		}
 	}
 

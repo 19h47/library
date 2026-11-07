@@ -1,10 +1,9 @@
 import { __, sprintf } from 'library-app/app';
+import { PAGE_VIEWS } from 'library-app/api';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
+import { formatRecap } from 'library-app/format';
 import { routeOf, urlOf } from 'library-app/router';
-
-// The pages named after what they show, once it is loaded.
-const NAMED_PAGES = [ 'person', 'series', 'publisher' ];
 
 /**
  * The links to the views, which mark the current one; the one to the books leads to their search. Their row at the top
@@ -32,16 +31,13 @@ class LibraryNavElement extends Brick {
 				return state.books[ state.book ]?.title ?? '';
 			}
 
-			if ( NAMED_PAGES.includes( state.view ) ) {
+			// The page of a person, a series or a collection, once it is loaded.
+			if ( PAGE_VIEWS.includes( state.view ) ) {
 				return state[ state.view ].name;
 			}
 
 			if ( 'recap' === state.view ) {
-				return sprintf(
-					/* translators: %s: year. */
-					__( 'Recap of %s', 'library' ),
-					state.recap.year.toString()
-				);
+				return formatRecap( state.recap.year );
 			}
 
 			if ( 'books' === state.view ) {

@@ -7,7 +7,7 @@ import {
 	formatTranslation,
 	listFormat,
 } from 'library-app/format';
-import { fill, fillCover, linkPeople } from 'library-app/render';
+import { fill, fillCover, fillHtml, linkPeople } from 'library-app/render';
 import { focusTitle, showBusy } from 'library-app/behaviors';
 
 /** @import { Book } from 'library-app/api' */
@@ -78,9 +78,6 @@ class LibraryBookElement extends Brick {
 	 * @param {Book} book The book.
 	 */
 	#render( book ) {
-		/** @type {HTMLElement} */
-		const $content = this.querySelector( '[data-html="content"]' );
-
 		fillCover( this.querySelector( '[data-field="cover"]' ), book.cover );
 		fill( this, {
 			credits: book.credits,
@@ -122,9 +119,7 @@ class LibraryBookElement extends Brick {
 				linkPeople( $field, book[ role ] );
 			}
 		} );
-		// HTML as the API renders it, from the notes of the book.
-		$content.innerHTML = book.content;
-		$content.hidden = ! book.content;
+		fillHtml( this.querySelector( '[data-html="content"]' ), book.content );
 	}
 }
 customElements.define( 'library-book', LibraryBookElement );

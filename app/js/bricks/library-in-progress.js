@@ -2,7 +2,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks } from 'library-app/format';
 import { fill, renderCurrent } from 'library-app/render';
-import { renderKeyed, showBusy } from 'library-app/behaviors';
+import { followBooks, renderKeyed, showBusy } from 'library-app/behaviors';
 
 /**
  * The books being read, as their covers in a row that scrolls sideways, which open them, each with its button
@@ -12,7 +12,6 @@ import { renderKeyed, showBusy } from 'library-app/behaviors';
 class LibraryInProgressElement extends Brick {
 	connect( signal ) {
 		const $list = this.querySelector( 'ul' );
-		let previous = store.get().books;
 
 		$list.addEventListener(
 			'click',
@@ -55,26 +54,13 @@ class LibraryInProgressElement extends Brick {
 					this.hidden = ! ids.length;
 				}
 			),
-			// A book being read that changed, such as its cover, is drawn again in its place.
-			store.select(
-				( state ) => state.books,
-				( books ) => {
-					[ ...$list.children ].forEach(
-						( /** @type {HTMLElement} */ $item ) => {
-							const book = books[ $item.dataset.id ];
-
-							// A book finished leaves as the books being read load again: its cover stays until then, its focus with it.
-							if (
-								book?.in_progress &&
-								book !== previous[ $item.dataset.id ]
-							) {
-								$item.replaceWith( renderCurrent( book ) );
-							}
-						}
-					);
-					previous = books;
+			// A book being read that changed, such as its cover, is drawn again in its place. A book finished leaves as the
+			// books being read load again: its cover stays until then, its focus with it.
+			followBooks( $list, '.library-current', ( $item, book ) => {
+				if ( book?.in_progress ) {
+					$item.replaceWith( renderCurrent( book ) );
 				}
-			),
+			} ),
 		];
 	}
 }

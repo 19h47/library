@@ -55,6 +55,18 @@ export function fill( $root, fields ) {
 }
 
 /**
+ * Sets the HTML of `$element`, as the API renders it: a description, among the few tags core keeps when it saves one, or
+ * the notes of a book. Hidden without.
+ *
+ * @param {HTMLElement} $element The element.
+ * @param {string}      html     Its HTML.
+ */
+export function fillHtml( $element, html ) {
+	$element.innerHTML = html;
+	$element.hidden = ! html;
+}
+
+/**
  * A link to what `route` shows, which the router opens without reloading, such as the books a search finds.
  *
  * @param {Partial<Route>} route What it shows.
@@ -325,14 +337,10 @@ export function renderBook( book, state ) {
  */
 function renderTerm( $link, description, line ) {
 	const $item = clone( 'library-term' );
-	/** @type {HTMLElement} */
-	const $description = $item.querySelector( '[data-html="description"]' );
 
 	fill( $item, { line } );
 	$item.querySelector( '.library-term__name' ).append( $link );
-	// HTML as the API renders it, among the few tags core keeps when it saves a description.
-	$description.innerHTML = description;
-	$description.hidden = ! description;
+	fillHtml( $item.querySelector( '[data-html="description"]' ), description );
 
 	return $item;
 }
@@ -520,6 +528,24 @@ function span( text, className ) {
 }
 
 /**
+ * Gives each of `$items` its share of the most of `values`, by their order, from 0 to 1, which sets the length of its
+ * bar: --library-share.
+ *
+ * @param {HTMLElement[]} $items The elements, such as the lines of a list.
+ * @param {number[]}      values Their values, such as their readings.
+ */
+function setShares( $items, values ) {
+	const most = Math.max( 1, ...values );
+
+	$items.forEach( ( $item, index ) =>
+		$item.style.setProperty(
+			'--library-share',
+			( values[ index ] / most ).toString()
+		)
+	);
+}
+
+/**
  * A cover of the wall of the books read of a recap, which opens nothing: their cards are a tap away, in the diary.
  *
  * @param {Book} book The book.
@@ -546,9 +572,7 @@ export function renderTile( book ) {
  * @return {HTMLElement[]} The months.
  */
 export function renderMonths( months, year ) {
-	const most = Math.max( 1, ...months );
-
-	return months.map( ( readings, month ) => {
+	const $months = months.map( ( readings, month ) => {
 		const $item = document.createElement( 'li' );
 		const date = new Date( year, month );
 		const $shown = [
@@ -559,10 +583,6 @@ export function renderMonths( months, year ) {
 
 		$shown.forEach( ( $span ) =>
 			$span.setAttribute( 'aria-hidden', 'true' )
-		);
-		$item.style.setProperty(
-			'--library-share',
-			( readings / most ).toString()
 		);
 		$item.append(
 			...$shown,
@@ -579,6 +599,10 @@ export function renderMonths( months, year ) {
 
 		return $item;
 	} );
+
+	setShares( $months, months );
+
+	return $months;
 }
 
 /**
@@ -589,19 +613,13 @@ export function renderMonths( months, year ) {
  * @return {HTMLElement[]} The lines.
  */
 export function renderShares( shares ) {
-	const most = Math.max( 1, ...shares.map( ( share ) => share.readings ) );
-
-	return shares.map( ( share ) => {
+	const $lines = shares.map( ( share ) => {
 		const $item = document.createElement( 'li' );
 		const $name = span( '', 'library-recap__name' );
 		const $bar = span( '', 'library-recap__bar' );
 
 		$name.append( share.name );
 		$bar.setAttribute( 'aria-hidden', 'true' );
-		$item.style.setProperty(
-			'--library-share',
-			( share.readings / most ).toString()
-		);
 		$item.append(
 			$name,
 			span( formatBooks( share.readings ), 'app-meta' ),
@@ -610,4 +628,11 @@ export function renderShares( shares ) {
 
 		return $item;
 	} );
+
+	setShares(
+		$lines,
+		shares.map( ( share ) => share.readings )
+	);
+
+	return $lines;
 }
