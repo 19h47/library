@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision ba28065.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 63dd12c.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -31,12 +31,6 @@
     --app-line: light-dark(rgb(201, 196, 184), rgb(58, 56, 52));
     --app-line-soft: color-mix(in srgb, var(--app-line) 50%, transparent);
     --app-fill: color-mix(in srgb, var(--app-line) 8%, transparent);
-    /*
-     * What floats over the content, a control or a bar, lets it show through, blurred: 1 − 1/φ⁵ ≈ 91 % of the background
-     * keeps text at 4.5:1 and an icon at rest at 3:1 in both themes, whatever passes under it, black or white
-     */
-    --app-bg-floating: color-mix(in srgb, var(--app-bg) 91%, transparent);
-    --app-blur-floating: blur(var(--app-gap));
 
     --app-font-mono:
       "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New",
@@ -504,8 +498,7 @@
     bottom: 0;
     padding-block: var(--app-u2);
     border-top: 1px solid var(--app-line-soft);
-    background: var(--app-bg-floating);
-    backdrop-filter: var(--app-blur-floating);
+    background: var(--app-bg);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -542,8 +535,7 @@
     height: var(--app-control-size);
     border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
     border-radius: var(--app-radius);
-    background: var(--app-bg-floating);
-    backdrop-filter: var(--app-blur-floating);
+    background: var(--app-bg);
     color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
     cursor: pointer;
     /* Buttons don't inherit the page font, links do: set it for both */
@@ -567,7 +559,7 @@
 
   /*
    * A control pressed, such as a mode switched on, stands out as the pill of the current page does: the color of the
-   * text, a firmer line and the fill, laid over its floating background
+   * text, a firmer line and the fill, laid over its background
    */
   .app-control[aria-pressed="true"] {
     border-color: var(--app-line);

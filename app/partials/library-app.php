@@ -905,13 +905,7 @@ use Library\Meta;
 					<span class="library-current__title" data-field="title"></span>
 					<span class="app-meta library-item__tag library-item__status" data-field="status" hidden></span>
 				</a>
-				<button
-					class="app-control"
-					type="button"
-					data-action="finish"
-					aria-label="<?php esc_attr_e( 'Finished', 'library' ); ?>"
-					title="<?php esc_attr_e( 'Finished', 'library' ); ?>"
-				>✓&#xFE0E;</button>
+				<button class="app-pill" type="button" data-action="finish"><span aria-hidden="true">✓&#xFE0E;</span> <?php esc_html_e( 'Finished', 'library' ); ?></button>
 			</li>
 		</template>
 

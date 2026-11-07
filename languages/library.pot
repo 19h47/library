@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 9.29.2\n"
+"Project-Id-Version: Library 9.29.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T15:55:52+00:00\n"
+"POT-Creation-Date: 2026-11-07T17:20:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: admin/class-books-list.php:93
 #: admin/partials/library-read-date.php:29
-#: app/partials/library-app.php:923
+#: app/partials/library-app.php:917
 msgid "Read date"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:151
-#: app/partials/library-app.php:941
+#: app/partials/library-app.php:935
 msgid "Unknown date"
 msgstr ""
 
@@ -416,7 +416,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:538
+#: app/js/lib/render.js:521
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -462,7 +462,7 @@ msgstr ""
 #: includes/class-books.php:303
 #: includes/class-books.php:308
 #: includes/class-books.php:326
-#: app/js/lib/render.js:650
+#: app/js/lib/render.js:633
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -600,10 +600,10 @@ msgid "The role of each name of the book: a colorist, for instance, is not one o
 msgstr ""
 
 #: admin/partials/library-read-date.php:35
-#: app/partials/library-app.php:932
-#: app/partials/library-app.php:933
-#: app/partials/library-app.php:946
-#: app/partials/library-app.php:947
+#: app/partials/library-app.php:926
+#: app/partials/library-app.php:927
+#: app/partials/library-app.php:940
+#: app/partials/library-app.php:941
 msgid "Remove this reading"
 msgstr ""
 
@@ -860,17 +860,16 @@ msgstr ""
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:912
-#: app/partials/library-app.php:913
+#: app/partials/library-app.php:908
 msgid "Finished"
 msgstr ""
 
-#: app/partials/library-app.php:972
+#: app/partials/library-app.php:966
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:982
-#: app/partials/library-app.php:983
+#: app/partials/library-app.php:976
+#: app/partials/library-app.php:977
 msgid "Remove this person"
 msgstr ""
 
@@ -2590,7 +2589,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:451
+#: app/js/lib/render.js:434
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"

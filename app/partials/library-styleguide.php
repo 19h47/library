@@ -16,7 +16,7 @@
 
 use Library\Markup;
 
-$colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--app-bg-floating', '--library-status', '--library-error', '--library-success', '--library-warning' );
+$colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status', '--library-error', '--library-success', '--library-warning' );
 $steps  = array( '--app-u0', '--app-u1', '--app-u2', '--app-u3' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
 // The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
@@ -390,7 +390,7 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished over its cover</figcaption>
+				<figcaption><code>.library-current</code>, a book being read, as the home shows it: with a cover, not kept without, with a long title, each with its button Finished under it</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="current"></ul>
 				</div>
