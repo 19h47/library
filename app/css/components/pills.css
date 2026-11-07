@@ -52,4 +52,9 @@
 		flex-wrap: wrap;
 		gap: var(--app-gap);
 	}
+
+	/* A pill longer than the line, such as the name of a long series on a phone, goes on as many lines as it needs too */
+	.library-pills .app-pill {
+		white-space: normal;
+	}
 }
