@@ -1,7 +1,8 @@
 /**
  * What the pages of the plugin give their scripts: the packages of WordPress as wp, and the data of the reading app,
  * which get_config() of the app prints; the quick edit of WordPress; and what the browsers have that TypeScript does not
- * type yet: the Navigation API, which the router of the app goes through, and moveBefore().
+ * type yet: the Navigation API, which the router of the app goes through, moveBefore() and the focusVisible option of
+ * focus().
  */
 
 import type apiFetch from '@wordpress/api-fetch';
@@ -47,6 +48,11 @@ declare global {
 	interface Element {
 		/** Moves a child before another one, or last, keeping its state, such as its focus; not in every browser yet. */
 		moveBefore?: ( node: Node, child: Node | null ) => void;
+	}
+
+	interface FocusOptions {
+		/** Whether the element focused shows its outline, rather than as the browser guesses. */
+		focusVisible?: boolean;
 	}
 
 	interface NavigationHistoryEntry {

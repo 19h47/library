@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-06T14:47:00+00:00\n"
+"POT-Creation-Date: 2026-11-07T08:31:20+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -248,7 +248,7 @@ msgstr "Meilleure : %1$s (%2$s)"
 #. translators: %s: number of books read, after the number of books of a person in a series.
 #. translators: %s: number of books read, after the number of books of a series.
 #: admin/class-dashboard.php:470 app/js/bricks/library-person.js:91
-#: app/js/bricks/library-volumes.js:40 app/js/lib/term-page.js:64
+#: app/js/bricks/library-volumes.js:40 app/js/lib/term-page.js:69
 #, php-format
 msgid "%s read"
 msgid_plural "%s read"
@@ -2425,7 +2425,7 @@ msgid "First published in %s"
 msgstr "Paru en %s"
 
 #: app/js/bricks/library-status.js:15 app/js/lib/store.js:1252
-#: app/js/lib/term-page.js:72
+#: app/js/lib/term-page.js:77
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 

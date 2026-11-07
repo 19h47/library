@@ -1,5 +1,6 @@
 /**
- * The covers of the reading app: sharp on a dense screen, in their shape, a photo picked for a cover too.
+ * The covers of the reading app: sharp on a dense screen, in their shape, a photo picked for a cover too, held by their
+ * card from the list to the grid and back.
  */
 
 import { fileURLToPath } from 'node:url';
@@ -67,6 +68,39 @@ test.describe( 'Covers', () => {
 		// The medium size, its source, is 200 wide: three times the width it shows takes a larger one.
 		expect( shape.source ).not.toBe( shape.src );
 		expect( shape.shown ).toBeCloseTo( shape.natural, 1 );
+	} );
+
+	test( 'a card holds its cover, from the list to the grid and back', async ( {
+		page,
+	} ) => {
+		await openApp( page );
+		await waitForIdle( page );
+
+		const books = page.locator( 'library-view[name="books"]' );
+		const toggle = books.getByRole( 'checkbox', { name: 'Covers' } );
+		const card = books
+			.locator( 'library-list .library-item' )
+			.filter( { hasText: 'The Cover Test' } );
+
+		// The height of the card and of its cover: a card Safari leaves undrawn is as high as its padding, or of none.
+		const heightsOf = () =>
+			card.evaluate( ( item ) => ( {
+				card: item.getBoundingClientRect().height,
+				cover: item
+					.querySelector( '.library-item__cover' )
+					.getBoundingClientRect().height,
+			} ) );
+
+		for ( const covers of [ false, true, false ] ) {
+			await toggle.setChecked( covers );
+			await expect
+				.poll( async () => ( await heightsOf() ).cover )
+				.toBeGreaterThan( 0 );
+
+			const heights = await heightsOf();
+
+			expect( heights.card ).toBeGreaterThanOrEqual( heights.cover );
+		}
 	} );
 
 	test( 'a photo picked for a cover shows in its shape', async ( {

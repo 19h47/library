@@ -1,5 +1,6 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
+import { focusTitle } from 'library-app/behaviors';
 
 /**
  * A view, shown when it is the current one. Opened, it gives the focus to its title, if it has one to take it, such as
@@ -55,8 +56,8 @@ class LibraryViewElement extends Brick {
 			this.contains( this.#focused )
 		) {
 			this.#focused.focus( { preventScroll: true } );
-		} else if ( 'forward' === moved ) {
-			$title?.focus( { preventScroll: true } );
+		} else if ( 'forward' === moved && $title ) {
+			focusTitle( $title );
 		}
 	}
 }
