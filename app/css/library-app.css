@@ -698,8 +698,8 @@ library-view > .library-back {
 	color: var(--app-text-muted);
 }
 
-/* A field of a form, such as a read date or the title of a book */
-:is(.library-field, .library-input-list__item) :is(input, select, textarea) {
+/* A field of a form, such as a read date or the title of a book; a checkbox is the one of its pill */
+:is(.library-field, .library-input-list__item) :is(input:not([type="checkbox"]), select, textarea) {
 	/* As a pill or the search, in em of its text */
 	--library-field-padding-inline: 1em;
 	--app-select-padding-inline: var(--library-field-padding-inline);
@@ -1019,8 +1019,8 @@ library-volumes {
 	cursor: pointer;
 }
 
-/* Its text as the one around it, unless its own class sets it, as .app-meta does */
-:where(.library-link) {
+/* Its text as the one around it, unless it is a meta, whose text is the one of the interface */
+.library-link:not(.app-meta) {
 	color: inherit;
 	font: inherit;
 	text-transform: inherit;
