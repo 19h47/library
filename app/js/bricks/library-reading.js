@@ -20,9 +20,9 @@ const daysOf = ( dates ) => JSON.stringify( toDays( dates ) );
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in
- * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Each change is saved at once, as the
- * button Finished of the home saves, and the notice that says so offers Undo; a change made while the one before saves waits for it,
- * the form showing what was chosen until then rather than what the book was.
+ * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Each change is saved at once, and the
+ * notice that says so offers Undo; a change made while the one before saves waits for it, the form showing what was chosen until then
+ * rather than what the book was.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
