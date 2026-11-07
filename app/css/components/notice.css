@@ -1,0 +1,34 @@
+/**
+ * The notice: what an action done says, at the bottom of the screen.
+ */
+
+@layer library.components {
+	/* What an action done says, at the bottom of the screen, over the page; empty, it has no box */
+	.library-notice {
+		position: fixed;
+		/* Above the bar of the views, on a phone */
+		inset-block-end: var(--library-notice-bottom, var(--app-u2));
+		inset-inline-start: 50%;
+		translate: -50%;
+		display: flex;
+		align-items: baseline;
+		gap: var(--app-gap);
+		/* A long one on several lines, within the screen, its corners as round as the ends of a pill of one line; its action whole */
+		width: max-content;
+		max-width: calc(100vw - 2 * var(--app-u2));
+		border-radius: calc(var(--app-line-height) * 1em / 2 + var(--app-pill-padding-block));
+		white-space: normal;
+		background: var(--app-bg-floating);
+		backdrop-filter: var(--app-blur-floating);
+		color: var(--app-text);
+
+		& .library-link {
+			white-space: nowrap;
+		}
+
+		&:has([data-field="text"]:empty) {
+			padding: 0;
+			border: 0;
+		}
+	}
+}

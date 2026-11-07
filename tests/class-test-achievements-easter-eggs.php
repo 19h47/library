@@ -943,6 +943,30 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	}
 
 	/**
+	 * A volume without series is one of the series of its title, as the reading order and the reading ideas count it.
+	 *
+	 * @return void
+	 */
+	public function test_back_to_the_start_of_a_series_named_by_its_title(): void {
+		$this->add_read(
+			'2024-01-10',
+			array(
+				'title' => 'City Hunter',
+				'meta'  => array( 'library_volume_number' => 'Tome 03' ),
+			)
+		);
+		$first_id = $this->add_read(
+			'2024-02-10',
+			array(
+				'title' => 'City Hunter',
+				'meta'  => array( 'library_volume_number' => 'Tome 01' ),
+			)
+		);
+
+		$this->assertSame( $first_id, $this->get_earned()['back-to-the-start'][0]['target']['id'] );
+	}
+
+	/**
 	 * Volumes read in order earn nothing, nor does a first volume after a later one of another series.
 	 *
 	 * @return void

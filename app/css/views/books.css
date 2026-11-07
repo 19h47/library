@@ -1,0 +1,31 @@
+/**
+ * The books: their controls, the filters and the order, the title of the list under the home and the search.
+ */
+
+@layer library.views {
+	/* The filters and the order of the books, under their title: they head the list, as a title does */
+	library-view > .library-books__controls {
+		margin-bottom: var(--app-u1);
+	}
+
+	/* The button of the filters and their choices made take their place among the controls: the choices on a line of their own, after the order */
+	library-filters {
+		display: contents;
+	}
+
+	.library-filters__chosen {
+		order: 1;
+		flex-basis: 100%;
+	}
+
+	/* The title of the books, with their number: under the home when it shows */
+	library-home:not([hidden]) + .library-books__title {
+		margin-top: var(--app-u3);
+	}
+
+	/* The field of the search, then its keywords a gap under it: the room of their focus, out of their row, comes off it */
+	.app-search {
+		display: grid;
+		gap: var(--app-gap);
+	}
+}

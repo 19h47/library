@@ -1,7 +1,6 @@
-import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatBooks } from 'library-app/format';
+import { formatTotal } from 'library-app/format';
 
 /** The number of books of a list, those found or the one its `list` attribute names. */
 class LibraryCountElement extends Brick {
@@ -10,13 +9,9 @@ class LibraryCountElement extends Brick {
 
 		return [
 			store.select(
-				( state ) =>
-					state[ list ].loaded ? state[ list ].total : null,
+				( state ) => formatTotal( state[ list ] ),
 				( total ) => {
-					this.textContent =
-						null === total
-							? __( 'Loading…', 'library' )
-							: formatBooks( total );
+					this.textContent = total;
 				}
 			),
 		];

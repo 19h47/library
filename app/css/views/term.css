@@ -1,0 +1,30 @@
+/**
+ * The page of a person, of a series or of a collection: its names, its reading, its completion and its sections.
+ */
+
+@layer library.views {
+	/* The page of a person: their names and their reading, then the completion their books count for, then their books */
+	.library-person {
+		display: grid;
+		gap: var(--app-gap-small);
+	}
+
+	/* The page of a person, of a series or of a collection spaces its names and its reading, then its completion, from what follows */
+	:is(library-person, library-series, library-publisher) > :is(.library-person, .library-person__completion) {
+		margin-bottom: var(--app-u2);
+	}
+
+	.library-person > p {
+		color: var(--app-text-muted);
+	}
+
+	/* The names spaces the description from the lines around it */
+	.library-person > .library-person__description {
+		margin-block: var(--app-gap);
+	}
+
+	/* The sections of a page before its books: the series of a cycle, the collections of a publisher, the authors, the series of a person */
+	:is(library-series, library-publisher, library-person) > .library-section {
+		margin-bottom: var(--app-u2);
+	}
+}

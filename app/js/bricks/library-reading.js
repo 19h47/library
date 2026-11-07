@@ -1,7 +1,7 @@
-import { notKept, toBuy } from 'library-app/app';
-import { store } from 'library-app/store';
+import { statusOf, store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
+import { toDays } from 'library-app/api';
 import { fill } from 'library-app/render';
 import { inputList, showBusy, showErrors } from 'library-app/behaviors';
 
@@ -15,12 +15,8 @@ import { inputList, showBusy, showErrors } from 'library-app/behaviors';
  * @property {HTMLSelectElement} status              Whether it is in the library, not kept or to buy.
  */
 
-// A book in another status, such as a draft, shows as in the library.
-const statusOf = ( book ) =>
-	[ notKept, toBuy ].includes( book.status ) ? book.status : 'publish';
 // Read dates by their days, in order, to compare: a reading of the day keeps its time once saved.
-const daysOf = ( dates ) =>
-	JSON.stringify( dates.map( ( date ) => date.slice( 0, 10 ) ).sort() );
+const daysOf = ( dates ) => JSON.stringify( toDays( dates ) );
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in

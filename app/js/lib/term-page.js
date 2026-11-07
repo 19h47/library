@@ -2,21 +2,21 @@
  * The base of the page of a term, a person, a series or a collection.
  */
 
-import { __, _n, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
 	formatBooks,
-	formatNumber,
+	formatListStatus,
+	formatRead,
 	formatState,
 	join,
 } from 'library-app/format';
-import { fill, fillCompletion, renderBook } from 'library-app/render';
+import { fill, fillCompletion, fillHtml } from 'library-app/render';
 import {
 	focusTitle,
-	followBooks,
+	followCards,
 	observeEnd,
-	renderKeyed,
+	renderBooks,
 } from 'library-app/behaviors';
 
 /**
@@ -60,35 +60,22 @@ export class TermPage extends Brick {
 		);
 
 		return [
-			followBooks( $items, ( book ) => this.line( book ) ),
+			followCards( $items, ( book ) => this.line( book ) ),
 			store.select(
 				( state ) => state[ key ],
 				( page ) => {
-					const read = sprintf(
-						/* translators: %s: number of books read, after the number of books of a person, a series or a collection. */
-						_n( '%s read', '%s read', page.read, 'library' ),
-						formatNumber( page.read )
-					);
-
 					fill( this, {
-						status:
-							page.error ||
-							( page.loaded && ! page.total
-								? __( 'No book found.', 'library' )
-								: '' ),
+						status: formatListStatus( page ),
 						name: page.name,
 						summary: page.name
 							? join( [
 									formatBooks( page.total ),
-									read,
+									formatRead( page.read ),
 									...this.summary( page ),
 							  ] )
 							: '',
 					} );
-
-					// HTML as the API renders it, among the few tags core keeps when it saves a description.
-					$description.innerHTML = page.description;
-					$description.hidden = ! page.description;
+					fillHtml( $description, page.description );
 					this.fillPage( page );
 				}
 			),
@@ -112,15 +99,8 @@ export class TermPage extends Brick {
 			store.select(
 				( state ) => state[ key ].items,
 				( ids ) => {
-					const { books } = store.get();
-
 					// A card per book, kept from a page to the next one, as from a person to another one who shares it.
-					renderKeyed(
-						$items,
-						ids.filter( ( id ) => id in books ),
-						( id ) =>
-							renderBook( books[ id ], this.line( books[ id ] ) )
-					);
+					renderBooks( $items, ids, ( book ) => this.line( book ) );
 					observe();
 				}
 			),

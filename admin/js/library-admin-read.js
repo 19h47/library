@@ -9,12 +9,11 @@
 	'use strict';
 
 	const { apiFetch } = window.wp;
-	const { __, sprintf } = window.wp.i18n;
+	const { __ } = window.wp.i18n;
 	const { speak } = window.wp.a11y;
+	const percentSelector = '.js-library-read-percentage';
 	/** @type {HTMLElement} */
-	const readPercentageEl = document.querySelector(
-		'.js-library-read-percentage'
-	);
+	const readPercentageEl = document.querySelector( percentSelector );
 
 	if ( ! readPercentageEl ) {
 		return;
@@ -22,44 +21,33 @@
 
 	const checkboxes = document.querySelectorAll( '.js-library-checkbox' );
 
-	const updatePercent = ( percent ) => {
-		const label = sprintf(
-			/* translators: %s: reading percentage. */
-			__( '%s%% read', 'library' ),
-			percent.toLocaleString()
+	// The read date of the book and the percentage as the server renders them, from the list again: the date in the
+	// format of the site, the readings counted. Quick edit reads the inline data, so it follows the dates kept too.
+	const refresh = async ( id ) => {
+		const response = await fetch( location.href, {
+			credentials: 'same-origin',
+		} );
+		const list = new DOMParser().parseFromString(
+			await response.text(),
+			'text/html'
 		);
+
+		[
+			`#post-${ id } .column-library_read_date`,
+			`#inline_${ id } .library_read_date`,
+		].forEach( ( selector ) => {
+			const rendered = list.querySelector( selector );
+			const shown = document.querySelector( selector );
+
+			if ( rendered && shown ) {
+				shown.textContent = rendered.textContent;
+			}
+		} );
+
+		const label = list.querySelector( percentSelector )?.textContent ?? '—';
 
 		readPercentageEl.textContent = label;
 		speak( label );
-	};
-
-	// Quick edit reads the inline data, so it must follow the date the server kept.
-	// The checkbox adds or clears a single date: the cell of a book read several times stays as it is.
-	const updateReadDates = ( id, readDates ) => {
-		const cell = document.querySelector(
-			`#post-${ id } .column-library_read_date`
-		);
-		const inlineDate = document.querySelector(
-			`#inline_${ id } .library_read_date`
-		);
-
-		if ( ! cell || ! inlineDate || readDates.length > 1 ) {
-			return;
-		}
-
-		// Its day: a reading of today has its time too.
-		const [ readDate = '' ] = readDates.map( ( date ) =>
-			date.slice( 0, 10 )
-		);
-		const label = readDate
-			? new Date( `${ readDate }T00:00` ).toLocaleDateString(
-					document.documentElement.lang,
-					{ dateStyle: 'long' }
-			  )
-			: '—';
-
-		cell.textContent = label;
-		inlineDate.textContent = readDate;
 	};
 
 	const handleChange = async ( event ) => {
@@ -79,11 +67,9 @@
 		// now, its time with it, and its reading in progress ends.
 		const meta = { library_read: checkbox.checked };
 
-		let book;
-
 		try {
-			book = await apiFetch( {
-				path: `/library/v1/books/${ id }?_fields=meta`,
+			await apiFetch( {
+				path: `/library/v1/books/${ id }?_fields=id`,
 				method: 'POST',
 				data: { meta },
 			} );
@@ -99,15 +85,9 @@
 			return;
 		}
 
-		// Saved, the book as it is now: what follows only shows it.
-		updateReadDates( id, book.meta.library_read_date );
-
+		// Saved: what follows only shows it.
 		try {
-			const stats = await apiFetch( {
-				path: '/library/v1/books/reading-stats',
-			} );
-
-			updatePercent( stats.percent );
+			await refresh( id );
 		} catch {
 			readPercentageEl.textContent = '—';
 		} finally {

@@ -367,7 +367,7 @@ import {
  * @property {{code: string, readings: number}[]}                  languages    The original languages, as ISO 639 codes, the most read first.
  * @property {RecapSeries[]}                                       series       The series read, the most read first.
  * @property {number|null}                                         rating       The average rating of the books read, none without one.
- * @property {number[]}                                            best         The IDs of the books read rated the highest.
+ * @property {number[]}                                            best         The IDs of the books read with a rating, the highest first.
  * @property {{longest: number, shortest: number, oldest: number}} records      The IDs of the longest, the shortest and the oldest books read, 0 for none.
  * @property {Achievement[]}                                       achievements The achievements earned in the year.
  * @property {number}                                              added        The books added in the year, but those to buy.
@@ -391,6 +391,18 @@ import {
  * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
  * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
  * @property {string}                  form_name              The name of its form, HTML.
+ */
+
+/**
+ * A term of the core REST API, with the fields of the plugin the form of a book reads.
+ *
+ * @typedef {Object} ApiTerm
+ * @property {number} id           Its term ID.
+ * @property {string} name         Its name, HTML.
+ * @property {number} parent       The term ID of its parent, 0 at the top.
+ * @property {string} [path]       A series after its cycles, in plain text.
+ * @property {number} [publisher]  The term ID of the publisher of a collection, its own for a publisher.
+ * @property {string} [collection] A collection after the collections it is part of, without its publisher, in plain text.
  */
 
 const parser = new DOMParser();
@@ -420,6 +432,17 @@ export function toReadings( dates ) {
 		...dates.filter( ( date ) => '' === date ),
 		...new Set( dates.filter( Boolean ) ),
 	].sort();
+}
+
+/**
+ * Read dates by their days, as the forms give them and send them, in order, the unknown ones first. Two readings of a
+ * day stay two: the server keeps the time of each reading of today, and merges a day given twice otherwise.
+ *
+ * @param {string[]} dates Read dates, in any order, with their time or not.
+ * @return {string[]} Their days.
+ */
+export function toDays( dates ) {
+	return dates.map( ( date ) => date.slice( 0, 10 ) ).sort();
 }
 
 /**
@@ -518,6 +541,35 @@ function toForm( item ) {
 }
 
 /**
+ * A page of a list of the API, its items, and how many items and pages the list has in all, from its headers.
+ *
+ * @template T
+ * @typedef {Object} Paged
+ * @property {T[]}    items Its items.
+ * @property {number} total How many items the list has in all.
+ * @property {number} pages How many pages it has.
+ */
+
+/**
+ * A page of a list of the API, as `options` ask for it, with its totals: see Paged.
+ *
+ * @template T
+ * @param {Object}      options          The request.
+ * @param {string}      options.path     Its path.
+ * @param {AbortSignal} [options.signal] Cancels it.
+ * @return {Promise<Paged<T>>} The page.
+ */
+async function fetchPaged( options ) {
+	const response = await apiFetch( { ...options, parse: false } );
+
+	return {
+		items: await response.json(),
+		total: Number( response.headers.get( 'X-WP-Total' ) ),
+		pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
+	};
+}
+
+/**
  * The pages of a person, of a series and of a collection, by their view: their route, and what their state takes from
  * it, `books` and their count aside.
  */
@@ -584,14 +636,14 @@ export async function getBooks( ids, { signal } = {} ) {
 	/** @type {ApiBook[][]} */
 	const loaded = await Promise.all(
 		chunks.map( ( chunk ) => {
-			const params = new URLSearchParams( {
+			const path = addQueryArgs( '/wp/v2/books', {
 				...BOOK_QUERY,
 				status: statuses,
 				include: chunk.join( ',' ),
-				per_page: chunk.length.toString(),
+				per_page: chunk.length,
 			} );
 
-			return apiFetch( { path: `/wp/v2/books?${ params }`, signal } );
+			return apiFetch( { path, signal } );
 		} )
 	);
 
@@ -607,7 +659,7 @@ export async function getBooks( ids, { signal } = {} ) {
 export async function getBook( id ) {
 	return toBook(
 		await apiFetch( {
-			path: `/wp/v2/books/${ id }?${ new URLSearchParams( BOOK_QUERY ) }`,
+			path: addQueryArgs( `/wp/v2/books/${ id }`, BOOK_QUERY ),
 		} )
 	);
 }
@@ -627,22 +679,16 @@ export async function findBooks(
 	query,
 	{ offset = 0, count = perPage, signal } = {}
 ) {
-	const params = new URLSearchParams( {
+	const path = addQueryArgs( '/wp/v2/books', {
 		...BOOK_QUERY,
 		...query,
-		per_page: count.toString(),
-		offset: offset.toString(),
+		per_page: count,
+		offset,
 	} );
-	const response = await apiFetch( {
-		path: `/wp/v2/books?${ params }`,
-		parse: false,
-		signal,
-	} );
+	/** @type {Paged<ApiBook>} */
+	const { items, total } = await fetchPaged( { path, signal } );
 
-	return {
-		books: ( await response.json() ).map( toBook ),
-		total: Number( response.headers.get( 'X-WP-Total' ) ),
-	};
+	return { books: items.map( toBook ), total };
 }
 
 /**
@@ -653,19 +699,19 @@ export async function findBooks(
  * @return {Promise<boolean>} Whether it finds it.
  */
 export async function finds( query, id ) {
-	const params = new URLSearchParams( {
+	const path = addQueryArgs( '/wp/v2/books', {
 		...query,
-		include: id.toString(),
+		include: id,
 		_fields: 'id',
 	} );
 	/** @type {Array<{id: number}>} */
-	const found = await apiFetch( { path: `/wp/v2/books?${ params }` } );
+	const found = await apiFetch( { path } );
 
 	return found.length > 0;
 }
 
 /**
- * The books of the series `name`, in reading order, as a search for it lists them.
+ * The books of the series `name`, all of them, in reading order, as a search for it lists them.
  *
  * @param {string}      name             The series, after its cycles.
  * @param {Object}      [options]        Options.
@@ -673,17 +719,15 @@ export async function finds( query, id ) {
  * @return {Promise<Book[]>} Its books.
  */
 export async function getVolumes( name, { signal } = {} ) {
-	const params = new URLSearchParams( {
+	const path = addQueryArgs( '/wp/v2/books', {
 		...BOOK_QUERY,
 		search: `series:"${ name }"`,
 		status: statuses,
-		per_page: maxPerPage.toString(),
+		// Every page, however many volumes: apiFetch loads the first one, as the page preloads it, then the others.
+		per_page: -1,
 	} );
 	/** @type {ApiBook[]} */
-	const books = await apiFetch( {
-		path: `/wp/v2/books?${ params }`,
-		signal,
-	} );
+	const books = await apiFetch( { path, signal } );
 
 	return books.map( toBook );
 }
@@ -695,14 +739,14 @@ export async function getVolumes( name, { signal } = {} ) {
  * @return {Promise<number>} The ID of the book, 0 for none.
  */
 export async function findIsbn( digits ) {
-	const params = new URLSearchParams( {
+	const path = addQueryArgs( '/wp/v2/books', {
 		search: `isbn:${ digits }`,
 		status: statuses,
-		per_page: '1',
+		per_page: 1,
 		_fields: 'id',
 	} );
 	/** @type {Array<{id: number}>} */
-	const [ found ] = await apiFetch( { path: `/wp/v2/books?${ params }` } );
+	const [ found ] = await apiFetch( { path } );
 
 	return found?.id ?? 0;
 }
@@ -715,12 +759,10 @@ export async function findIsbn( digits ) {
  * @return {Promise<CatalogBook|null>} The book, or none.
  */
 export async function findInBnf( isbn ) {
-	const params = new URLSearchParams( { isbn } );
-
 	try {
 		/** @type {CatalogBook} */
 		const book = await apiFetch( {
-			path: `/library/v1/books/bnf?${ params }`,
+			path: addQueryArgs( '/library/v1/books/bnf', { isbn } ),
 		} );
 
 		return toForm( book );
@@ -741,20 +783,16 @@ export async function findInBnf( isbn ) {
  * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, and how many months and pages in all.
  */
 export async function getReadings( page ) {
-	const response = await apiFetch( {
-		path: `/library/v1/books/readings?page=${ page }`,
-		parse: false,
+	/** @type {Paged<{month: string, readings: Array<{date: string, book: number}>}>} */
+	const { items, total, pages } = await fetchPaged( {
+		path: addQueryArgs( '/library/v1/books/readings', { page } ),
 	} );
-	const months = ( await response.json() ).map( ( { month, readings } ) => ( {
+	const months = items.map( ( { month, readings } ) => ( {
 		month,
 		readings: readings.map( ( { date, book } ) => ( { date, id: book } ) ),
 	} ) );
 
-	return {
-		months,
-		total: Number( response.headers.get( 'X-WP-Total' ) ),
-		pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
-	};
+	return { months, total, pages };
 }
 
 /**
@@ -765,7 +803,7 @@ export async function getReadings( page ) {
  */
 export function getIdea( position ) {
 	return apiFetch( {
-		path: `/library/v1/books/reading-idea?position=${ position }`,
+		path: addQueryArgs( '/library/v1/books/reading-idea', { position } ),
 	} );
 }
 
@@ -833,62 +871,43 @@ export function getStats() {
 
 /**
  * Every person and their other names, publisher and collection, with its publisher and after the collections it is part of,
- * and series after its cycles: apiFetch loads all their pages. The original languages are in the page.
+ * and series after its cycles, as the server names them, the publishers and the series in the order of their IDs: apiFetch
+ * loads all their pages. The original languages are in the page.
  *
  * @return {Promise<Suggestions>} The names to suggest.
  */
 export async function getTerms() {
-	const bases = [ 'people', 'publishers', 'series' ];
-	/** @type {Suggestion[][]} */
-	const [ people, publishers, series ] = await Promise.all(
-		bases.map( ( base ) =>
-			apiFetch( {
-				path: `/wp/v2/${ base }?per_page=-1&_fields=id,name,parent`,
-			} )
-		)
-	);
-	/** @type {( term: Suggestion ) => Suggestion} */
+	/** @type {( base: string, args: Object<string, string> ) => Promise<ApiTerm[]>} */
+	const fetchAll = ( base, args ) =>
+		apiFetch( {
+			path: addQueryArgs( `/wp/v2/${ base }`, { ...args, per_page: -1 } ),
+		} );
+	const [ people, publishers, series ] = await Promise.all( [
+		fetchAll( 'people', { _fields: 'id,name,parent' } ),
+		fetchAll( 'publishers', {
+			_fields: 'id,name,parent,publisher,collection',
+			orderby: 'id',
+		} ),
+		fetchAll( 'series', { _fields: 'id,parent,path', orderby: 'id' } ),
+	] );
+	/** @type {( term: ApiTerm ) => Suggestion} */
 	const toTerm = ( { id, name, parent } ) => ( {
 		id,
 		name: text( name ),
 		parent,
 	} );
-	const byId = Object.fromEntries(
-		series.map( ( term ) => [ term.id, toTerm( term ) ] )
-	);
-	// A series after its cycles, as a book types it.
-	/** @type {( term: Suggestion ) => string} */
-	const pathOf = ( term ) =>
-		term.parent in byId
-			? `${ pathOf( byId[ term.parent ] ) }, ${ term.name }`
-			: term.name;
-	const publishersById = Object.fromEntries(
-		publishers.map( ( term ) => [ term.id, toTerm( term ) ] )
-	);
-	/** @type {( term: Suggestion ) => Suggestion} */
-	const publisherOf = ( term ) =>
-		term.parent in publishersById
-			? publisherOf( publishersById[ term.parent ] )
-			: term;
-	// A collection after the collections it is part of, without its publisher, as a book types it.
-	/** @type {( term: Suggestion ) => string} */
-	const collectionOf = ( term ) =>
-		publishersById[ term.parent ]?.parent
-			? `${ collectionOf( publishersById[ term.parent ] ) }, ${
-					term.name
-			  }`
-			: term.name;
 
 	return {
 		people: people.map( toTerm ),
-		publishers: Object.values( publishersById ).map( ( term ) => ( {
-			...term,
-			publisher: publisherOf( term ).id,
-			collection: collectionOf( term ),
+		publishers: publishers.map( ( term ) => ( {
+			...toTerm( term ),
+			publisher: term.publisher,
+			collection: term.collection,
 		} ) ),
-		series: Object.values( byId ).map( ( term ) => ( {
-			...term,
-			name: pathOf( term ),
+		series: series.map( ( { id, path, parent } ) => ( {
+			id,
+			name: path,
+			parent,
 		} ) ),
 	};
 }
@@ -916,9 +935,7 @@ export async function getForm( id ) {
 export async function saveBook( id, data ) {
 	return toBook(
 		await apiFetch( {
-			path: `/library/v1/books/${ id }?${ new URLSearchParams(
-				BOOK_QUERY
-			) }`,
+			path: addQueryArgs( `/library/v1/books/${ id }`, BOOK_QUERY ),
 			method: 'POST',
 			data,
 		} )
@@ -934,7 +951,7 @@ export async function saveBook( id, data ) {
 export async function addBook( data ) {
 	return toBook(
 		await apiFetch( {
-			path: `/library/v1/books?${ new URLSearchParams( BOOK_QUERY ) }`,
+			path: addQueryArgs( '/library/v1/books', BOOK_QUERY ),
 			method: 'POST',
 			data,
 		} )

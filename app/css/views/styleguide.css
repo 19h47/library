@@ -1,0 +1,121 @@
+/**
+ * The styleguide, for development: the tokens of the app and its components.
+ */
+
+@layer library.views {
+	/* The styleguide: its introduction, then the tokens and the components, each in a frame */
+	/* The title of the styleguide and its introduction, a step apart */
+	.library-styleguide__header {
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	.library-styleguide__intro {
+		color: var(--app-text-muted);
+	}
+
+	/* A frame keeps the width of the page: a component wider than it goes past its border, rather than widening the others */
+	.library-styleguide__samples {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--app-u2);
+	}
+
+	/* The caption of a sample and what a size of the text sets: small text, as the interface without its capitals */
+	.library-styleguide__samples figcaption,
+	.library-styleguide__use {
+		color: var(--app-text-muted);
+		font-family: var(--app-font-ui);
+		font-size: var(--app-font-small);
+	}
+
+	/* A sample: its caption, then its frame, a gap under it */
+	.library-styleguide__samples > figure {
+		display: grid;
+		gap: var(--app-gap);
+	}
+
+	.library-styleguide__samples code {
+		font-family: var(--app-font-mono);
+		overflow-wrap: anywhere;
+	}
+
+	/* A frame around a component, to see its box */
+	/* A frame spaces the components it holds, one under the other, rather than their margins */
+	.library-styleguide__frame {
+		display: grid;
+		gap: var(--app-u1);
+		padding: var(--app-u1);
+		border: 1px dashed var(--app-line);
+		border-radius: var(--app-radius);
+	}
+
+	/* What the app places over the page, the notice and the filters, drawn in its frame */
+	.library-styleguide__frame :is(.library-notice, .library-filters__dialog) {
+		position: relative;
+		inset: auto;
+		translate: none;
+		margin: 0;
+	}
+
+	/* Components side by side, or one under the other, as the place that holds them in the app sets them */
+	.library-styleguide__row {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: start;
+		gap: var(--app-gap);
+	}
+
+	.library-styleguide__tokens {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--library-cover-height) * var(--app-phi) * sqrt(var(--app-phi)))), 1fr));
+		gap: var(--app-gap);
+	}
+
+	.library-styleguide__tokens li {
+		display: flex;
+		align-items: center;
+		gap: var(--app-gap);
+	}
+
+	.library-styleguide__swatch {
+		flex: none;
+		width: var(--app-u3);
+		height: var(--app-u3);
+		border: 1px solid var(--app-line);
+		border-radius: var(--library-radius-small);
+		background: var(--library-token);
+	}
+
+	.library-styleguide__step {
+		flex: none;
+		width: var(--library-token);
+		height: var(--app-u3);
+		background: var(--app-text);
+	}
+
+	.library-styleguide__font {
+		font-family: var(--library-token);
+		font-size: var(--app-u2);
+	}
+
+	/* The sizes of the text, one under the other: a sample, then its size and what it sets */
+	.library-styleguide__sizes {
+		list-style: none;
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	.library-styleguide__size {
+		display: block;
+		font-family: var(--library-family);
+		font-size: var(--library-token);
+	}
+
+	.library-styleguide__use {
+		display: block;
+		overflow-wrap: anywhere;
+	}
+}

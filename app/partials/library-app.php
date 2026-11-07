@@ -18,7 +18,7 @@
  * @var object                                        $labels         Labels of the book post type.
  * @var object                                        $person_labels    Labels of the people taxonomy.
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
- * @var object                                        $language_labels  Labels of the original languages taxonomy.
+ * @var object                                        $language_labels  Labels of the languages taxonomy.
  * @var object                                        $form_labels      Labels of the forms taxonomy.
  * @var array<int,string>                             $form_choices     Forms the filter of the books and the form of a book offer, by term ID.
  * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
@@ -45,7 +45,7 @@ use Library\Meta;
 		<link rel="manifest" href="<?php echo esc_url( $manifest_url ); ?>" crossorigin="use-credentials">
 		<link rel="icon" type="image/svg+xml" href="<?php echo esc_url( $favicon_url ); ?>">
 		<link rel="apple-touch-icon" href="<?php echo esc_url( $touch_icon_url ); ?>">
-		<?php wp_print_styles( 'library-app' ); ?>
+		<?php wp_print_styles( 'library-app-sheets' ); ?>
 		<?php wp_print_scripts( 'library-app-theme' ); ?>
 		<?php
 		// The bricks are script modules, run once the page is read: their translations and the import map first, then the modules and their preloads.
@@ -401,7 +401,7 @@ use Library\Meta;
 				</library-view>
 
 				<?php // A screen per subject, each as high as the screen, those without anything to say hidden. ?>
-				<library-view name="recap" <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
+				<library-view name="recap" data-immersive <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-recap>
 						<section class="library-recap__screen library-recap__opening">
 							<library-back class="library-back">
@@ -450,12 +450,11 @@ use Library\Meta;
 							<h3 class="library-recap__title"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="discoveries"></p>
 							<p data-field="discovered"></p>
-							<ul class="library-pills" data-row="discoveries" data-list="discoveries"></ul>
-							<p class="app-meta" data-field="moreDiscoveries"></p>
+							<ul class="library-pills library-recap__cloud library-recap__cut" data-row="discoveries" data-list="discoveries"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>
-							<h3 class="library-recap__title"><?php echo esc_html( $language_labels->name ); ?></h3>
+							<h3 class="library-recap__title"><?php echo esc_html( $language_labels->name_for_book ); ?></h3>
 							<p class="library-recap__figure" data-field="languages"></p>
 							<ul class="library-recap__shares" data-list="languages"></ul>
 						</section>
@@ -471,18 +470,18 @@ use Library\Meta;
 							<h3 class="library-recap__title"><?php esc_html_e( 'Favourites', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="rating"></p>
 							<p><?php esc_html_e( 'Average rating', 'library' ); ?></p>
-							<ul class="library-strip" data-list="best"></ul>
+							<ul class="library-recap__wall library-recap__cut" data-list="best"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="records" hidden>
 							<h3 class="library-recap__title"><?php esc_html_e( 'Records', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="records"></ul>
+							<ul class="library-recap__records" data-list="records"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="achievements" hidden>
 							<h3 class="library-recap__title"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="achievements"></p>
-							<ul class="app-list__items" data-list="achievements"></ul>
+							<ul class="library-pills library-recap__cloud library-recap__cut" data-list="achievements"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pile" hidden>
@@ -493,6 +492,7 @@ use Library\Meta;
 						</section>
 
 						<section class="library-recap__screen library-recap__closing" data-screen="closing" hidden>
+							<div class="library-recap__marquee" data-list="marquee" aria-hidden="true"></div>
 							<p class="library-recap__figure" data-field="closing"></p>
 							<nav class="library-pills" aria-label="<?php esc_attr_e( 'Other years', 'library' ); ?>">
 								<a class="app-pill" data-field="previousYear" href=""></a>
@@ -792,7 +792,7 @@ use Library\Meta;
 							'checkboxes-field',
 							array(
 								'id'      => 'library-edit-languages',
-								'label'   => $language_labels->name,
+								'label'   => $language_labels->name_for_book,
 								'name'    => 'languages',
 								'choices' => $language_choices,
 							)

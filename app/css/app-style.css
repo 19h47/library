@@ -4,582 +4,596 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 365c703.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision ba28065.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
  * A component carries no margin of its own: the place that holds it spaces it, with a gap or a margin.
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
  * Custom properties and classes are prefixed "app-".
+ * Every rule is in the layer app-base: an app's own styles, out of any layer, come first whatever their specificity.
  */
 
-:root {
-  color-scheme: light dark;
+@layer app-base {
+  :root {
+    color-scheme: light dark;
 
-  /* Golden ratio (φ) and derived scale */
-  --app-phi: 1.618034;
-  --app-u0: calc(var(--app-u1) / var(--app-phi));
-  --app-u1: 1rem;
-  --app-u2: calc(var(--app-phi) * var(--app-u1));
-  --app-u3: calc(var(--app-phi) * var(--app-u2));
+    /* Golden ratio (φ) and derived scale */
+    --app-phi: 1.618034;
+    --app-u0: calc(var(--app-u1) / var(--app-phi));
+    --app-u1: 1rem;
+    --app-u2: calc(var(--app-phi) * var(--app-u1));
+    --app-u3: calc(var(--app-phi) * var(--app-u2));
 
-  --app-bg: light-dark(rgb(255, 255, 255), rgb(26, 26, 26));
-  --app-text: light-dark(rgb(69, 69, 69), rgb(186, 186, 186));
-  --app-text-muted: light-dark(rgb(92, 92, 92), rgb(154, 151, 144));
-  --app-line: light-dark(rgb(201, 196, 184), rgb(58, 56, 52));
-  --app-line-soft: color-mix(in srgb, var(--app-line) 50%, transparent);
-  --app-fill: color-mix(in srgb, var(--app-line) 8%, transparent);
-  /*
-   * What floats over the content, a control or a bar, lets it show through, blurred: 1 − 1/φ⁵ ≈ 91 % of the background
-   * keeps text at 4.5:1 and an icon at rest at 3:1 in both themes, whatever passes under it, black or white
-   */
-  --app-bg-floating: color-mix(in srgb, var(--app-bg) 91%, transparent);
-  --app-blur-floating: blur(var(--app-gap));
+    --app-bg: light-dark(rgb(255, 255, 255), rgb(26, 26, 26));
+    --app-text: light-dark(rgb(69, 69, 69), rgb(186, 186, 186));
+    --app-text-muted: light-dark(rgb(92, 92, 92), rgb(154, 151, 144));
+    --app-line: light-dark(rgb(201, 196, 184), rgb(58, 56, 52));
+    --app-line-soft: color-mix(in srgb, var(--app-line) 50%, transparent);
+    --app-fill: color-mix(in srgb, var(--app-line) 8%, transparent);
+    /*
+     * What floats over the content, a control or a bar, lets it show through, blurred: 1 − 1/φ⁵ ≈ 91 % of the background
+     * keeps text at 4.5:1 and an icon at rest at 3:1 in both themes, whatever passes under it, black or white
+     */
+    --app-bg-floating: color-mix(in srgb, var(--app-bg) 91%, transparent);
+    --app-blur-floating: blur(var(--app-gap));
 
-  --app-font-mono:
-    "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New",
-    monospace;
-  --app-font-ui:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /*
-   * The sizes of the text, named after the keywords of font-size: the body, medium, at --app-u1, small and large text
-   * half a step below and above it; the title of a page, x-large, half a step above --app-u2; a figure that stands
-   * alone, xx-large, a step above --app-u3, and xxx-large two
-   */
-  --app-font-small: calc(var(--app-u1) / sqrt(var(--app-phi)));
-  --app-font-medium: var(--app-u1);
-  --app-font-large: calc(var(--app-u1) * sqrt(var(--app-phi)));
-  --app-font-x-large: calc(var(--app-u2) * sqrt(var(--app-phi)));
-  --app-font-xx-large: calc(var(--app-u3) * var(--app-phi));
-  --app-font-xxx-large: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
+    --app-font-mono:
+      "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New",
+      monospace;
+    --app-font-ui:
+      system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /*
+     * The sizes of the text, named after the keywords of font-size: the body, medium, at --app-u1, small and large text
+     * half a step below and above it; the title of a page, x-large, half a step above --app-u2; a figure that stands
+     * alone, xx-large, a step above --app-u3, and xxx-large two
+     */
+    --app-font-small: calc(var(--app-u1) / sqrt(var(--app-phi)));
+    --app-font-medium: var(--app-u1);
+    --app-font-large: calc(var(--app-u1) * sqrt(var(--app-phi)));
+    --app-font-x-large: calc(var(--app-u2) * sqrt(var(--app-phi)));
+    --app-font-xx-large: calc(var(--app-u3) * var(--app-phi));
+    --app-font-xxx-large: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
 
-  --app-max-width: calc(100 / var(--app-phi) * 1ch);
-  --app-line-height: var(--app-phi);
-  --app-radius: var(--app-u0);
-  --app-gap: var(--app-u0);
-  --app-gap-small: calc(var(--app-u0) / var(--app-phi));
-  /* Size of an item off screen, until it renders: set it to the app's usual item */
-  --app-item-size: 12rem;
+    --app-max-width: calc(100 / var(--app-phi) * 1ch);
+    --app-line-height: var(--app-phi);
+    --app-radius: var(--app-u0);
+    --app-gap: var(--app-u0);
+    --app-gap-small: calc(var(--app-u0) / var(--app-phi));
+    /* Size of an item off screen, until it renders: set it to the app's usual item */
+    --app-item-size: 12rem;
 
-  /* A control, a field of one line or the square of an icon, such as the fixed ones at the top-right corner: a step high */
-  --app-control-size: var(--app-u3);
-  --app-control-gap: calc(var(--app-u0) / var(--app-phi));
-  /* 1/φ ≈ 0.618: icons at rest keep a 3:1 contrast in both themes */
-  --app-control-opacity: calc(1 / var(--app-phi));
-  --app-control-rest: calc(var(--app-control-opacity) * 100%);
+    /* A control, a field of one line or the square of an icon, such as the fixed ones at the top-right corner: a step high */
+    --app-control-size: var(--app-u3);
+    /* The top of the content and of the toolbar beside it, on a line: a step on a phone, a step and a half beyond */
+    --app-toolbar-top: var(--app-u2);
+    --app-control-gap: calc(var(--app-u0) / var(--app-phi));
+    /* 1/φ ≈ 0.618: icons at rest keep a 3:1 contrast in both themes */
+    --app-control-opacity: calc(1 / var(--app-phi));
+    --app-control-rest: calc(var(--app-control-opacity) * 100%);
 
-  --app-focus-outline: 2px solid var(--app-text);
-  --app-focus-outline-offset: 2px;
-  --app-transition-1: 0.15s;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* An element hidden stays hidden, whatever its display */
-[hidden] {
-  display: none !important;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-
-html {
-  background: var(--app-bg);
-  scrollbar-width: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-body {
-  color: var(--app-text);
-  font-family: var(--app-font-mono);
-  font-size: var(--app-font-medium);
-  line-height: var(--app-line-height);
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-  text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
-  text-underline-offset: 0.2em;
-}
-
-:focus-visible {
-  outline: var(--app-focus-outline);
-  outline-offset: var(--app-focus-outline-offset);
-}
-
-/*
- * A select draws its own chevron, the same in every browser, as Safari keeps a native select to the size of its text:
- * each arm a line at 45° in a box taller than it, so that the point falls inside and the arms meet in it. The chevron
- * stands at the end, within the inline padding the place of the select gives it in --app-select-padding-inline:
- * a space of one arm, then its two arms, of 1/φ² em each.
- */
-select {
-  --app-chevron-arm: calc(1em / var(--app-phi) / var(--app-phi));
-
-  appearance: none;
-  padding-inline-end: calc(var(--app-select-padding-inline, 0px) + 3 * var(--app-chevron-arm));
-  background:
-    linear-gradient(45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
-      right calc(var(--app-select-padding-inline, 0px) + var(--app-chevron-arm)) center / var(--app-chevron-arm) calc(1em / var(--app-phi)) no-repeat,
-    linear-gradient(-45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
-      right var(--app-select-padding-inline, 0px) center / var(--app-chevron-arm) calc(1em / var(--app-phi)) no-repeat;
-}
-
-/* Page: one column, the footer at the bottom */
-
-.app-page {
-  min-height: 100dvh;
-  max-width: var(--app-max-width);
-  margin-inline: auto;
-  padding-inline: var(--app-u2);
-  display: flex;
-  flex-direction: column;
-}
-
-.app-content {
-  flex: 1;
-  padding-block: var(--app-u2);
-}
-
-@media (min-width: 42rem) {
-  .app-content {
-    padding-block: var(--app-u3);
-  }
-}
-
-/* The content spaces its parts: a step under the header, a step and a half under the controls, a gap under a status */
-.app-content > .app-header {
-  margin-bottom: var(--app-u2);
-}
-
-.app-content > .app-controls {
-  margin-bottom: var(--app-u3);
-}
-
-.app-content > .app-status {
-  margin-bottom: var(--app-gap);
-}
-
-.app-header {
-  display: grid;
-  gap: var(--app-gap);
-}
-
-/* The title of the page: large text on a phone, x-large beyond; its line is as high as the toolbar */
-.app-header h1 {
-  font-size: var(--app-font-large);
-  line-height: var(--app-u3);
-  letter-spacing: -0.02em;
-}
-
-@media (min-width: 42rem) {
-  .app-header h1 {
-    font-size: var(--app-font-x-large);
-  }
-}
-
-.app-header p {
-  color: var(--app-text-muted);
-}
-
-/* Controls: the search on its own line, the pills under it */
-
-.app-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--app-gap);
-}
-
-/* The search has a line of its own among the controls; its field looks the same anywhere */
-.app-controls > .app-search {
-  flex: 1 1 100%;
-}
-
-.app-search input[type="search"] {
-  width: 100%;
-}
-
-/*
- * A field of one line, the search or .app-field on any other, such as a number: as high as a control, its text
- * centered in it, and its text on each side
- */
-.app-search input[type="search"],
-.app-field {
-  block-size: var(--app-control-size);
-  padding: 0 1em;
-  border-radius: var(--app-radius);
-  border: 1px solid var(--app-line-soft);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-}
-
-.app-search input[type="search"]::placeholder,
-.app-field::placeholder {
-  color: var(--app-text-muted);
-}
-
-/*
- * The small text of the interface, a pill, the meta line of an item or the footer, and .app-meta on any other element,
- * such as the label of a field or a count beside a title: muted, in capitals, half a step below the text, never bold,
- * even in a heading.
- */
-.app-pill,
-.app-item__meta,
-.app-footer,
-.app-meta {
-  color: var(--app-text-muted);
-  font-family: var(--app-font-ui);
-  font-size: var(--app-font-small);
-  font-weight: normal;
-  text-transform: uppercase;
-}
-
-.app-pill {
-  /* As a field, in em of its text; named, for the select a pill holds to take it */
-  --app-pill-padding-block: calc(1em / sqrt(var(--app-phi)));
-  --app-pill-padding-inline: 1em;
-
-  display: inline-flex;
-  align-items: center;
-  gap: var(--app-gap);
-  padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
-  border-radius: calc(infinity * 1px);
-  border: 1px solid var(--app-line-soft);
-  /* A button does not inherit it: the lines of every pill on the scale */
-  line-height: var(--app-line-height);
-  white-space: nowrap;
-}
-
-/* The pill shows the focus of the select or checkbox it holds */
-.app-pill:has(:focus-visible) {
-  outline: var(--app-focus-outline);
-  outline-offset: var(--app-focus-outline-offset);
-}
-
-.app-pill :focus-visible {
-  outline: none;
-}
-
-.app-pill strong {
-  color: var(--app-text);
-}
-
-/* A pill that acts, the label of a control, a button or a link: pointed at, it takes the color of the text and a firmer line */
-:is(label, button, a).app-pill {
-  cursor: pointer;
-}
-
-:is(label, button, a).app-pill:hover {
-  color: var(--app-text);
-  border-color: var(--app-line);
-}
-
-label.app-pill {
-  user-select: none;
-}
-
-button.app-pill {
-  background: transparent;
-}
-
-/* A link needs no underline in a pill, which shows it acts */
-a.app-pill {
-  text-decoration: none;
-}
-
-/*
- * The pill of the current page, in a navigation, or of the main action of a form, such as the one that saves it,
- * stands out: the main action weighs as much as the current page, over the transparent background of a button pill.
- */
-:is(.app-pill[aria-current="page"], .app-pill--primary) {
-  color: var(--app-text);
-  border-color: var(--app-line);
-  background: var(--app-fill);
-}
-
-/* A button at work, such as one that saves, waits */
-button.app-pill:disabled {
-  cursor: progress;
-  opacity: var(--app-control-opacity);
-}
-
-/* A checkbox as high as the text of its pill, rather than the size of the browser */
-.app-pill input[type="checkbox"] {
-  font: inherit;
-  inline-size: 1em;
-  block-size: 1em;
-  accent-color: var(--app-text);
-}
-
-/*
- * The select reaches the edges of its pill, with the padding of the pill: a click anywhere on the pill opens it,
- * rather than only focusing it. A form control does not inherit the case: the value reads like the rest of the pill.
- */
-.app-pill select {
-  --app-select-padding-inline: var(--app-pill-padding-inline);
-
-  margin: calc(-1 * var(--app-pill-padding-block)) calc(-1 * var(--app-pill-padding-inline));
-  padding-block: var(--app-pill-padding-block);
-  padding-inline-start: var(--app-pill-padding-inline);
-  border: none;
-  /* As round as its pill, rather than the corners Safari gives a select */
-  border-radius: inherit;
-  color: inherit;
-  font: inherit;
-  text-transform: inherit;
-  cursor: pointer;
-}
-
-/*
- * Where the browser allows it, the select of a pill is customizable: the button it holds first shows the name of the
- * select, in a strong, before the selected content, so that a click on the name opens it too. The name is hidden from
- * assistive technologies, which take it from the label, hidden in its turn: a classic select shows its value only.
- *
- *   <label class="app-pill">
- *     <span class="sr-only">Format</span>
- *     <select>
- *       <button><strong aria-hidden="true">Format</strong> <selectedcontent></selectedcontent></button>
- *       <option>A3</option>
- *     </select>
- *   </label>
- *
- * Its picker floats as a panel, a gap away: the browser keeps it within the screen, below or above its select, and
- * lets it scroll. The chevron of the select stands for the icon of the picker.
- */
-@supports (appearance: base-select) {
-  .app-pill select,
-  .app-pill select::picker(select) {
-    appearance: base-select;
+    --app-focus-outline: 2px solid var(--app-text);
+    --app-focus-outline-offset: 2px;
+    --app-transition-1: 0.15s;
   }
 
-  .app-pill select > button {
-    display: flex;
-    align-items: baseline;
-    gap: var(--app-gap);
-  }
-
-  .app-pill select::picker-icon {
-    display: none;
-  }
-
-  /*
-   * Written rather than left to the browser, which does not keep a long picker within the screen everywhere, such as
-   * Safari 27 with twenty options: below its select or above it, whole where it fits, else as high as the room of the
-   * side with the most, scrolling beyond. A picker held to its room fits everywhere: that one comes last.
-   */
-  .app-pill select::picker(select) {
-    position-area: block-end span-inline-end;
-    position-try:
-      most-block-size flip-block, flip-inline, flip-block flip-inline,
-      --app-picker-held, --app-picker-held flip-block, --app-picker-held flip-inline, --app-picker-held flip-block flip-inline;
-    overflow-y: auto;
-    margin-block: var(--app-gap);
-    padding: var(--app-gap-small);
-    border: 1px solid var(--app-line-soft);
-    border-radius: var(--app-radius);
-    background: var(--app-bg);
-    color: var(--app-text-muted);
-    /* An option reads as it is written */
-    text-transform: none;
-  }
-
-  .app-pill option {
-    padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
-    border-radius: calc(var(--app-radius) - var(--app-gap-small));
-  }
-
-  .app-pill option:is(:hover, :focus-visible, :checked) {
-    color: var(--app-text);
-  }
-
-  .app-pill option:is(:hover, :focus-visible) {
-    background: var(--app-fill);
-  }
-
-  /* Inside the picker, which would clip it */
-  .app-pill option:focus-visible {
-    outline-offset: calc(-1 * var(--app-focus-outline-offset));
-  }
-
-  @position-try --app-picker-held {
-    max-block-size: stretch;
-  }
-}
-
-.app-status {
-  display: block;
-  padding: var(--app-u2);
-  border: 1px solid var(--app-line-soft);
-  border-radius: var(--app-radius);
-  background: var(--app-fill);
-  color: var(--app-text-muted);
-}
-
-/* List of items */
-
-.app-list__items {
-  list-style: none;
-  display: grid;
-  gap: var(--app-gap);
-}
-
-.app-item {
-  /* Off screen, no layout: a search redraws a whole batch */
-  content-visibility: auto;
-  contain-intrinsic-size: auto var(--app-item-size);
-  display: grid;
-  gap: var(--app-gap-small);
-  /* On a phone, a step below: the width goes to the text */
-  padding: var(--app-u1);
-  border: 1px solid var(--app-line-soft);
-  border-radius: var(--app-radius);
-  overflow: hidden;
-}
-
-@media (min-width: 42rem) {
-  .app-item {
-    padding: var(--app-u2);
-  }
-}
-
-.app-item__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--app-gap-small) var(--app-gap);
-  align-items: baseline;
-  overflow-wrap: anywhere;
-}
-
-.app-item__text {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-/* Footer, sticky at the bottom */
-
-.app-footer {
-  position: sticky;
-  bottom: 0;
-  padding-block: var(--app-u2);
-  border-top: 1px solid var(--app-line-soft);
-  background: var(--app-bg-floating);
-  backdrop-filter: var(--app-blur-floating);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--app-u2);
-}
-
-.app-footer__right {
-  display: flex;
-  gap: var(--app-gap);
-  align-items: center;
-  white-space: nowrap;
-}
-
-.app-progress {
-  font-variant-numeric: tabular-nums;
-}
-
-/*
- * Toolbar: fixed controls, top-right corner; a control, a square button or link of an icon, floating, its icon and
- * its border faded at rest: by their color rather than by opacity, which would fade its background too
- */
-
-.app-toolbar {
-  position: fixed;
-  top: var(--app-u2);
-  right: var(--app-u2);
-  z-index: 1;
-  display: flex;
-  gap: var(--app-control-gap);
-}
-
-.app-control {
-  width: var(--app-control-size);
-  height: var(--app-control-size);
-  border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
-  border-radius: var(--app-radius);
-  background: var(--app-bg-floating);
-  backdrop-filter: var(--app-blur-floating);
-  color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
-  cursor: pointer;
-  /* Buttons don't inherit the page font, links do: set it for both */
-  font-family: var(--app-font-ui);
-  font-size: var(--app-font-medium);
-  line-height: var(--app-line-height);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    color var(--app-transition-1),
-    border-color var(--app-transition-1);
-}
-
-.app-control:hover,
-.app-control:focus-visible {
-  border-color: var(--app-line);
-  color: var(--app-text);
-}
-
-/*
- * A control pressed, such as a mode switched on, stands out as the pill of the current page does: the color of the
- * text, a firmer line and the fill, laid over its floating background
- */
-.app-control[aria-pressed="true"] {
-  border-color: var(--app-line);
-  color: var(--app-text);
-  background-image: linear-gradient(var(--app-fill), var(--app-fill));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    transition-duration: 0s !important;
-  }
-}
-
-@media print {
-  html {
+  :root[data-theme="light"] {
     color-scheme: light;
   }
 
-  .app-footer {
-    position: static;
+  :root[data-theme="dark"] {
+    color-scheme: dark;
   }
 
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* An element hidden stays hidden, whatever its display */
+  [hidden] {
+    display: none !important;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  html {
+    background: var(--app-bg);
+    scrollbar-width: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    color: var(--app-text);
+    font-family: var(--app-font-mono);
+    font-size: var(--app-font-medium);
+    line-height: var(--app-line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+    text-underline-offset: 0.2em;
+  }
+
+  :focus-visible {
+    outline: var(--app-focus-outline);
+    outline-offset: var(--app-focus-outline-offset);
+  }
+
+  /*
+   * A select draws its own chevron, the same in every browser, as Safari keeps a native select to the size of its text:
+   * each arm a line at 45° in a box taller than it, so that the point falls inside and the arms meet in it. The chevron
+   * stands at the end, within the inline padding the place of the select gives it in --app-select-padding-inline:
+   * a space of one arm, then its two arms, of 1/φ² em each.
+   */
+  select {
+    --app-chevron-arm: calc(1em / var(--app-phi) / var(--app-phi));
+
+    appearance: none;
+    padding-inline-end: calc(var(--app-select-padding-inline, 0px) + 3 * var(--app-chevron-arm));
+    background:
+      linear-gradient(45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
+        right calc(var(--app-select-padding-inline, 0px) + var(--app-chevron-arm)) center / var(--app-chevron-arm) calc(1em / var(--app-phi)) no-repeat,
+      linear-gradient(-45deg, transparent calc(50% - 0.6px), currentColor 0 calc(50% + 0.6px), transparent 0)
+        right var(--app-select-padding-inline, 0px) center / var(--app-chevron-arm) calc(1em / var(--app-phi)) no-repeat;
+  }
+
+  /* Page: one column, the footer at the bottom */
+
+  .app-page {
+    min-height: 100dvh;
+    max-width: var(--app-max-width);
+    margin-inline: auto;
+    padding-inline: var(--app-u2);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-content {
+    flex: 1;
+    padding-block: var(--app-toolbar-top);
+  }
+
+  @media (min-width: 42rem) {
+    :root {
+      --app-toolbar-top: var(--app-u3);
+    }
+  }
+
+  /*
+   * The content spaces its parts: a step under the header, a step and a half under the controls, a gap under a status.
+   * The header is as far from what follows as the toolbar is from what goes under it, a small step.
+   */
+  .app-content > .app-header {
+    margin-bottom: var(--app-u1);
+  }
+
+  .app-content > .app-controls {
+    margin-bottom: var(--app-u3);
+  }
+
+  .app-content > .app-status {
+    margin-bottom: var(--app-gap);
+  }
+
+  .app-header {
+    display: grid;
+    gap: var(--app-gap);
+  }
+
+  /* The title of the page: large text on a phone, x-large beyond; its line is as high as the toolbar */
+  .app-header h1 {
+    font-size: var(--app-font-large);
+    line-height: var(--app-u3);
+    letter-spacing: -0.02em;
+  }
+
+  @media (min-width: 42rem) {
+    .app-header h1 {
+      font-size: var(--app-font-x-large);
+    }
+  }
+
+  .app-header p {
+    color: var(--app-text-muted);
+  }
+
+  /* Controls: the search on its own line, the pills under it */
+
+  .app-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--app-gap);
+  }
+
+  /* The search has a line of its own among the controls; its field looks the same anywhere */
+  .app-controls > .app-search {
+    flex: 1 1 100%;
+  }
+
+  .app-search input[type="search"] {
+    width: 100%;
+  }
+
+  /*
+   * A field of one line, the search or .app-field on any other, such as a number: as high as a control, its text
+   * centered in it, and its text on each side
+   */
+  .app-search input[type="search"],
+  .app-field {
+    block-size: var(--app-control-size);
+    padding: 0 1em;
+    border-radius: var(--app-radius);
+    border: 1px solid var(--app-line-soft);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+
+  .app-search input[type="search"]::placeholder,
+  .app-field::placeholder {
+    color: var(--app-text-muted);
+  }
+
+  /*
+   * The small text of the interface, a pill, the meta line of an item or the footer, and .app-meta on any other element,
+   * such as the label of a field or a count beside a title: muted, in capitals, half a step below the text, never bold,
+   * even in a heading.
+   */
+  .app-pill,
+  .app-item__meta,
+  .app-footer,
+  .app-meta {
+    color: var(--app-text-muted);
+    font-family: var(--app-font-ui);
+    font-size: var(--app-font-small);
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+
+  .app-pill {
+    /* As a field, in em of its text; named, for the select a pill holds to take it */
+    --app-pill-padding-block: calc(1em / sqrt(var(--app-phi)));
+    --app-pill-padding-inline: 1em;
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--app-gap);
+    padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
+    border-radius: calc(infinity * 1px);
+    border: 1px solid var(--app-line-soft);
+    /* A button does not inherit it: the lines of every pill on the scale */
+    line-height: var(--app-line-height);
+    white-space: nowrap;
+  }
+
+  /* A small pill, its padding a step down, for many of them together, such as a cloud of names */
+  .app-pill--small {
+    --app-pill-padding-block: calc(1em / var(--app-phi) / var(--app-phi));
+    --app-pill-padding-inline: calc(1em / var(--app-phi));
+  }
+
+  /* The pill shows the focus of the select or checkbox it holds */
+  .app-pill:has(:focus-visible) {
+    outline: var(--app-focus-outline);
+    outline-offset: var(--app-focus-outline-offset);
+  }
+
+  .app-pill :focus-visible {
+    outline: none;
+  }
+
+  .app-pill strong {
+    color: var(--app-text);
+  }
+
+  /* A pill that acts, the label of a control, a button or a link: pointed at, it takes the color of the text and a firmer line */
+  :is(label, button, a).app-pill {
+    cursor: pointer;
+  }
+
+  :is(label, button, a).app-pill:hover {
+    color: var(--app-text);
+    border-color: var(--app-line);
+  }
+
+  label.app-pill {
+    user-select: none;
+  }
+
+  button.app-pill {
+    background: transparent;
+  }
+
+  /* A link needs no underline in a pill, which shows it acts */
+  a.app-pill {
+    text-decoration: none;
+  }
+
+  /*
+   * The pill of the current page, in a navigation, or of the main action of a form, such as the one that saves it,
+   * stands out: the main action weighs as much as the current page, over the transparent background of a button pill.
+   */
+  :is(.app-pill[aria-current="page"], .app-pill--primary) {
+    color: var(--app-text);
+    border-color: var(--app-line);
+    background: var(--app-fill);
+  }
+
+  /* A button at work, such as one that saves, waits */
+  button.app-pill:disabled {
+    cursor: progress;
+    opacity: var(--app-control-opacity);
+  }
+
+  /* A checkbox as high as the text of its pill, rather than the size of the browser */
+  .app-pill input[type="checkbox"] {
+    font: inherit;
+    inline-size: 1em;
+    block-size: 1em;
+    accent-color: var(--app-text);
+  }
+
+  /*
+   * The select reaches the edges of its pill, with the padding of the pill: a click anywhere on the pill opens it,
+   * rather than only focusing it. A form control does not inherit the case: the value reads like the rest of the pill.
+   */
+  .app-pill select {
+    --app-select-padding-inline: var(--app-pill-padding-inline);
+
+    margin: calc(-1 * var(--app-pill-padding-block)) calc(-1 * var(--app-pill-padding-inline));
+    padding-block: var(--app-pill-padding-block);
+    padding-inline-start: var(--app-pill-padding-inline);
+    border: none;
+    /* As round as its pill, rather than the corners Safari gives a select */
+    border-radius: inherit;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  /*
+   * Where the browser allows it, the select of a pill is customizable: the button it holds first shows the name of the
+   * select, in a strong, before the selected content, so that a click on the name opens it too. The name is hidden from
+   * assistive technologies, which take it from the label, hidden in its turn: a classic select shows its value only.
+   *
+   *   <label class="app-pill">
+   *     <span class="sr-only">Format</span>
+   *     <select>
+   *       <button><strong aria-hidden="true">Format</strong> <selectedcontent></selectedcontent></button>
+   *       <option>A3</option>
+   *     </select>
+   *   </label>
+   *
+   * Its picker floats as a panel, a gap away: the browser keeps it within the screen, below or above its select, and
+   * lets it scroll. The chevron of the select stands for the icon of the picker.
+   */
+  @supports (appearance: base-select) {
+    .app-pill select,
+    .app-pill select::picker(select) {
+      appearance: base-select;
+    }
+
+    .app-pill select > button {
+      display: flex;
+      align-items: baseline;
+      gap: var(--app-gap);
+    }
+
+    .app-pill select::picker-icon {
+      display: none;
+    }
+
+    /*
+     * Written rather than left to the browser, which does not keep a long picker within the screen everywhere, such as
+     * Safari 27 with twenty options: below its select or above it, whole where it fits, else as high as the room of the
+     * side with the most, scrolling beyond. A picker held to its room fits everywhere: that one comes last.
+     */
+    .app-pill select::picker(select) {
+      position-area: block-end span-inline-end;
+      position-try:
+        most-block-size flip-block, flip-inline, flip-block flip-inline,
+        --app-picker-held, --app-picker-held flip-block, --app-picker-held flip-inline, --app-picker-held flip-block flip-inline;
+      overflow-y: auto;
+      margin-block: var(--app-gap);
+      padding: var(--app-gap-small);
+      border: 1px solid var(--app-line-soft);
+      border-radius: var(--app-radius);
+      background: var(--app-bg);
+      color: var(--app-text-muted);
+      /* An option reads as it is written */
+      text-transform: none;
+    }
+
+    .app-pill option {
+      padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
+      border-radius: calc(var(--app-radius) - var(--app-gap-small));
+    }
+
+    .app-pill option:is(:hover, :focus-visible, :checked) {
+      color: var(--app-text);
+    }
+
+    .app-pill option:is(:hover, :focus-visible) {
+      background: var(--app-fill);
+    }
+
+    /* Inside the picker, which would clip it */
+    .app-pill option:focus-visible {
+      outline-offset: calc(-1 * var(--app-focus-outline-offset));
+    }
+
+    @position-try --app-picker-held {
+      max-block-size: stretch;
+    }
+  }
+
+  .app-status {
+    display: block;
+    padding: var(--app-u2);
+    border: 1px solid var(--app-line-soft);
+    border-radius: var(--app-radius);
+    background: var(--app-fill);
+    color: var(--app-text-muted);
+  }
+
+  /* List of items */
+
+  .app-list__items {
+    list-style: none;
+    display: grid;
+    gap: var(--app-gap);
+  }
+
+  .app-item {
+    /* Off screen, no layout: a search redraws a whole batch */
+    content-visibility: auto;
+    contain-intrinsic-size: auto var(--app-item-size);
+    display: grid;
+    gap: var(--app-gap-small);
+    /* On a phone, a step below: the width goes to the text */
+    padding: var(--app-u1);
+    border: 1px solid var(--app-line-soft);
+    border-radius: var(--app-radius);
+    overflow: hidden;
+  }
+
+  @media (min-width: 42rem) {
+    .app-item {
+      padding: var(--app-u2);
+    }
+  }
+
+  .app-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--app-gap-small) var(--app-gap);
+    align-items: baseline;
+    overflow-wrap: anywhere;
+  }
+
+  .app-item__text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* Footer, sticky at the bottom */
+
+  .app-footer {
+    position: sticky;
+    bottom: 0;
+    padding-block: var(--app-u2);
+    border-top: 1px solid var(--app-line-soft);
+    background: var(--app-bg-floating);
+    backdrop-filter: var(--app-blur-floating);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--app-u2);
+  }
+
+  .app-footer__right {
+    display: flex;
+    gap: var(--app-gap);
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .app-progress {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Toolbar: fixed controls, top-right corner; a control, a square button or link of an icon, floating, its icon and
+   * its border faded at rest: by their color rather than by opacity, which would fade its background too
+   */
+
   .app-toolbar {
-    display: none;
+    position: fixed;
+    top: var(--app-toolbar-top);
+    right: var(--app-u2);
+    z-index: 1;
+    display: flex;
+    gap: var(--app-control-gap);
+  }
+
+  .app-control {
+    width: var(--app-control-size);
+    height: var(--app-control-size);
+    border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
+    border-radius: var(--app-radius);
+    background: var(--app-bg-floating);
+    backdrop-filter: var(--app-blur-floating);
+    color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
+    cursor: pointer;
+    /* Buttons don't inherit the page font, links do: set it for both */
+    font-family: var(--app-font-ui);
+    font-size: var(--app-font-medium);
+    line-height: var(--app-line-height);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      color var(--app-transition-1),
+      border-color var(--app-transition-1);
+  }
+
+  .app-control:hover,
+  .app-control:focus-visible {
+    border-color: var(--app-line);
+    color: var(--app-text);
+  }
+
+  /*
+   * A control pressed, such as a mode switched on, stands out as the pill of the current page does: the color of the
+   * text, a firmer line and the fill, laid over its floating background
+   */
+  .app-control[aria-pressed="true"] {
+    border-color: var(--app-line);
+    color: var(--app-text);
+    background-image: linear-gradient(var(--app-fill), var(--app-fill));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      transition-duration: 0s !important;
+    }
+  }
+
+  @media print {
+    html {
+      color-scheme: light;
+    }
+
+    .app-footer {
+      position: static;
+    }
+
+    .app-toolbar {
+      display: none;
+    }
   }
 }

@@ -16,6 +16,7 @@ use Library\Posts;
 use Library\Status;
 use Library\Taxonomies;
 use WP_Post;
+use WP_Term;
 
 /**
  * Renders and saves the book information metabox and the "Not kept" box of the publish box, and types the people in a tag box.
@@ -87,28 +88,19 @@ class Metaboxes {
 	public function render_metabox( WP_Post $post ): void {
 		wp_nonce_field( 'library_metabox_nonce', 'library_metabox_nonce' );
 
-		$values = array();
+		$values       = Meta::get_values( $post->ID );
+		$own_language = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 
-		foreach ( Meta::KEYS as $key ) {
-			$values[ $key ] = get_post_meta( $post->ID, $key, true );
+		// A book added is in the language of the reader, as in the form of the app.
+		if ( 'auto-draft' === $post->post_status && $own_language instanceof WP_Term ) {
+			$values['library_edition_languages'] = array( $own_language->term_id );
 		}
 
-		$values['library_read_date']         = Meta::get_read_dates( $post->ID );
-		$values['library_edition_languages'] = Meta::get_edition_languages( $post->ID );
-		$languages                           = get_terms(
-			array(
-				'taxonomy'   => 'library_language',
-				'hide_empty' => false,
-				'fields'     => 'id=>name',
-			)
-		);
-		$languages                           = is_array( $languages ) ? $languages : array();
-		$series                              = Taxonomies::get_series( $post->ID );
-		$series                              = $series ? Taxonomies::get_series_path( $series ) : '';
-		$paths                               = Taxonomies::get_series_paths();
-		$names                               = get_the_terms( $post->ID, 'library_person' );
-		$names                               = is_array( $names ) ? $names : array();
-		$roles                               = Meta::get_roles( $post->ID );
+		$languages = Taxonomies::get_term_choices( 'library_language' );
+		$series    = Taxonomies::get_series_name( $post->ID );
+		$paths     = Taxonomies::get_series_paths();
+		$names     = Taxonomies::get_book_terms( $post->ID, 'library_person' );
+		$roles     = Meta::get_roles( $post->ID );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}
@@ -138,7 +130,7 @@ class Metaboxes {
 
 		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.
 		if ( isset( $values['series'] ) ) {
-			wp_set_object_terms( $post_id, array_filter( array( Taxonomies::get_path_id( 'library_series', sanitize_text_field( $values['series'] ), true ) ) ), 'library_series' );
+			Taxonomies::set_series( $post_id, sanitize_text_field( $values['series'] ) );
 		}
 
 		// The names of the book are saved first: a name just added is an author, its role chosen once it is saved.
@@ -217,7 +209,7 @@ class Metaboxes {
 		}
 
 		$status_choices = Status::get_choices();
-		$selected       = isset( $status_choices[ $post->post_status ] ) ? $post->post_status : 'publish';
+		$selected       = isset( $status_choices[ $post->post_status ] ) ? $post->post_status : Status::In_Library->value;
 		?>
 		<div class="misc-pub-section misc-pub-library-status">
 			<?php wp_nonce_field( 'library_status', 'library_status_nonce' ); ?>
@@ -251,12 +243,12 @@ class Metaboxes {
 		}
 
 		$status   = sanitize_key( wp_unslash( $postarr['library_status'] ?? '' ) );
-		$statuses = array( Status::Not_Kept->value, Status::To_Buy->value );
+		$statuses = Status::get_other_values();
 
 		if ( in_array( $status, $statuses, true ) ) {
 			$data['post_status'] = $status;
 		} elseif ( in_array( $data['post_status'], $statuses, true ) ) {
-			$data['post_status'] = 'publish';
+			$data['post_status'] = Status::In_Library->value;
 		}
 
 		return $data;

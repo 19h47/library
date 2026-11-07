@@ -79,7 +79,7 @@ class Test_Recap extends TestCase {
 	}
 
 	/**
-	 * The average rating takes each book once, the books rated the highest first, the latest read among a rating.
+	 * The average rating takes each book once; every book rated shows, the highest first, the latest read among a rating.
 	 *
 	 * @return void
 	 */
@@ -87,12 +87,13 @@ class Test_Recap extends TestCase {
 		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
 		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
 		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'library_rating' => 10 ) ) );
+		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'library_rating' => 5 ) ) );
 		$this->add_read( '2025-04-01' );
 
 		$recap = Recap::get_recap( 2025 );
 
-		$this->assertEqualsWithDelta( 8.7, $recap['rating'], 0.01 );
-		$this->assertSame( array( $best, $better, $good ), $recap['best'] );
+		$this->assertEqualsWithDelta( 6.6, $recap['rating'], 0.01 );
+		$this->assertSame( array( $best, $better, $good, ...array_reverse( $lower ) ), $recap['best'] );
 	}
 
 	/**
@@ -150,7 +151,8 @@ class Test_Recap extends TestCase {
 
 	/**
 	 * A series is started when its first reading is of the year, finished when every book of it is read, the last one
-	 * first read in the year; a book to buy lacks to a series.
+	 * first read in the year, as the achievements finish it: a book to buy lacks to a series, and a series of one book is
+	 * never finished.
 	 *
 	 * @return void
 	 */
@@ -166,6 +168,7 @@ class Test_Recap extends TestCase {
 				'status' => Status::To_Buy->value,
 			)
 		);
+		$this->add_read( '2025-05-01', array( 'series' => 'Alone' ) );
 
 		$series = array_column( Recap::get_recap( 2025 )['series'], null, 'name' );
 
@@ -176,6 +179,24 @@ class Test_Recap extends TestCase {
 		$this->assertTrue( $series['Finished']['finished'] );
 		$this->assertTrue( $series['Started']['started'] );
 		$this->assertFalse( $series['Started']['finished'] );
+		$this->assertTrue( $series['Alone']['started'] );
+		$this->assertFalse( $series['Alone']['finished'] );
+	}
+
+	/**
+	 * A collective book, an anthology, is part of the work of none of its authors: they are neither the people read the
+	 * most nor read for the first time.
+	 *
+	 * @return void
+	 */
+	public function test_a_collective_book_counts_for_no_author(): void {
+		$this->add_read( '2025-01-01', $this->by( 'Ann Writer' ) );
+		$this->add_read( '2025-02-01', $this->by( 'Contributor' ) + array( 'meta' => array( 'library_collective' => true ) ) );
+
+		$recap = Recap::get_recap( 2025 );
+
+		$this->assertSame( array( 'Ann Writer' ), array_column( $recap['people'], 'name' ) );
+		$this->assertSame( array( 'Ann Writer' ), array_column( $recap['discoveries'], 'name' ) );
 	}
 
 	/**

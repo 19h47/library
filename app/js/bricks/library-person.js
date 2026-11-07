@@ -3,6 +3,8 @@ import { store } from 'library-app/store';
 import {
 	formatBooks,
 	formatNumber,
+	formatPages,
+	formatRead,
 	formatState,
 	join,
 	listFormat,
@@ -37,15 +39,8 @@ class LibraryPersonElement extends TermPage {
 				__( '%s/10 on average', 'library' ),
 				formatNumber( person.rating )
 			);
-		const bookPages =
-			person.bookPages &&
-			sprintf(
-				/* translators: %s: number of pages. */
-				_n( '%s page', '%s pages', person.bookPages, 'library' ),
-				formatNumber( person.bookPages )
-			);
 
-		return [ rating, bookPages ];
+		return [ rating, person.bookPages && formatPages( person.bookPages ) ];
 	}
 
 	/**
@@ -85,23 +80,15 @@ class LibraryPersonElement extends TermPage {
 				( series ) =>
 					fillFolded(
 						$series,
-						series.map( ( item ) => {
-							const read = sprintf(
-								/* translators: %s: number of books read, after the number of books of a person in a series. */
-								_n(
-									'%s read',
-									'%s read',
-									item.read,
-									'library'
-								),
-								formatNumber( item.read )
-							);
-
-							return renderSeries(
+						series.map( ( item ) =>
+							renderSeries(
 								item,
-								join( [ formatBooks( item.books ), read ] )
-							);
-						} ),
+								join( [
+									formatBooks( item.books ),
+									formatRead( item.read ),
+								] )
+							)
+						),
 						( folded ) =>
 							sprintf(
 								/* translators: %s: number of series of a person, after the first ones. */

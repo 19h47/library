@@ -89,12 +89,12 @@ class ISBN {
 	}
 
 	/**
-	 * Characters of a code without its hyphens and spaces, a check digit of 10 as X.
+	 * Characters of a code without its hyphens and spaces, a check digit of 10 as X: 9782070360246 for 978-2-07-036024-6.
 	 *
 	 * @param string $code ISBN or EAN-13 as typed.
 	 * @return string
 	 */
-	private static function get_digits( string $code ): string {
+	public static function get_digits( string $code ): string {
 		return strtoupper( (string) preg_replace( '/[\s-]+/', '', $code ) );
 	}
 
@@ -117,16 +117,43 @@ class ISBN {
 		}
 
 		if ( preg_match( '/^\d{9}[\dX]$/', $digits ) ) {
-			$sum = 0;
-
-			foreach ( str_split( $digits ) as $index => $digit ) {
-				$sum += ( 'X' === $digit ? 10 : (int) $digit ) * ( 10 - $index );
-			}
-
-			return 0 === $sum % 11;
+			return 0 === self::get_isbn10_sum( $digits ) % 11;
 		}
 
 		return false;
+	}
+
+	/**
+	 * The ISBN-10 of an ISBN-13 of 978, which the books of before 2007 have alone: 2-07-036024-5 for 978-2-07-036024-6, as
+	 * its digits, 2070360245; empty for another code.
+	 *
+	 * @param string $code ISBN or EAN-13 as typed.
+	 * @return string
+	 */
+	public static function to_isbn10( string $code ): string {
+		if ( ! preg_match( '/^978(\d{9})\d$/', self::get_digits( $code ), $matches ) ) {
+			return '';
+		}
+
+		$check = ( 11 - self::get_isbn10_sum( $matches[1] ) % 11 ) % 11;
+
+		return $matches[1] . ( 10 === $check ? 'X' : $check );
+	}
+
+	/**
+	 * Sum of the digits of an ISBN-10 weighted from 10 down, X as 10: its first nine digits, or all ten.
+	 *
+	 * @param string $digits Digits of an ISBN-10, with its check digit or without.
+	 * @return int
+	 */
+	private static function get_isbn10_sum( string $digits ): int {
+		$sum = 0;
+
+		foreach ( str_split( $digits ) as $index => $digit ) {
+			$sum += ( 'X' === $digit ? 10 : (int) $digit ) * ( 10 - $index );
+		}
+
+		return $sum;
 	}
 
 	/**

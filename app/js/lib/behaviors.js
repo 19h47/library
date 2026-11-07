@@ -1,11 +1,12 @@
 /**
- * What bricks share: a book opened from its card or its cover, the cards following the books, a list
- * drawn by keys, the next page as the end of a list comes, a list of inputs to add and remove, the title of a page
- * opened, the errors of a form at its fields and the button that sends it while it saves.
+ * What bricks share: a book opened from its card or its cover, the elements of the books following them, its cards
+ * among them, a list drawn by keys, a list of cards of books so, the next page as the end of a list comes, a list of
+ * inputs to add and remove, the title of a page opened, the errors of a form at its fields and the button that sends it
+ * while it saves.
  */
 
 import { store } from 'library-app/store';
-import { clone, fillBook } from 'library-app/render';
+import { clone, fillBook, renderBook } from 'library-app/render';
 
 /** @import { Book } from 'library-app/api' */
 
@@ -23,26 +24,27 @@ const errorMessages = new WeakMap();
 let errorCount = 0;
 
 /**
- * Fills again the cards of `$root` whose book changed, such as a book saved; `stateOf` gives the line
- * of a card. Returns the unsubscribe function.
+ * Draws again the elements `selector` of `$root` whose book changed, such as a book saved, its data-id: `redraw` draws
+ * one, from the element and its book, such as a card filled again in place. Returns the unsubscribe function.
  *
- * @param {Element}                                      $root   The element of the cards.
- * @param {( book: Book, $item: HTMLElement ) => string} stateOf The line of a card, from its book and the card.
+ * @param {Element}                                    $root    The element of the books.
+ * @param {string}                                     selector The elements of the books, such as their cards.
+ * @param {( $item: HTMLElement, book: Book ) => void} redraw   Draws an element again, from its book.
  * @return {() => void} The unsubscribe function.
  */
-export function followBooks( $root, stateOf ) {
+export function followBooks( $root, selector, redraw ) {
 	let previous = store.get().books;
 
 	return store.select(
 		( state ) => state.books,
 		( books ) => {
 			$root
-				.querySelectorAll( '.library-item' )
+				.querySelectorAll( selector )
 				.forEach( ( /** @type {HTMLElement} */ $item ) => {
 					const book = books[ $item.dataset.id ];
 
 					if ( book !== previous[ $item.dataset.id ] ) {
-						fillBook( $item, book, stateOf( book, $item ) );
+						redraw( $item, book );
 					}
 				} );
 			previous = books;
@@ -116,6 +118,38 @@ export function renderKeyed( $list, keys, render ) {
 	) {
 		$active.focus( { preventScroll: true } );
 	}
+}
+
+/**
+ * Fills again the cards of `$root` whose book changed, in place, their focus too: see followBooks(); `line` gives the
+ * line of a card. Returns the unsubscribe function.
+ *
+ * @param {Element}                                      $root The element of the cards.
+ * @param {( book: Book, $item: HTMLElement ) => string} line  The line of a card, from its book and the card.
+ * @return {() => void} The unsubscribe function.
+ */
+export function followCards( $root, line ) {
+	return followBooks( $root, '.library-item', ( $item, book ) =>
+		fillBook( $item, book, line( book, $item ) )
+	);
+}
+
+/**
+ * Draws in `$items` a card per book of `ids` loaded, in their order, as renderKeyed() draws them: a card stays while its
+ * book does, a new one shows `line( book )` under its title.
+ *
+ * @param {Element}                  $items The list of the cards.
+ * @param {number[]}                 ids    Book IDs.
+ * @param {( book: Book ) => string} line   The line of a card, from its book.
+ */
+export function renderBooks( $items, ids, line ) {
+	const { books } = store.get();
+
+	renderKeyed(
+		$items,
+		ids.filter( ( id ) => id in books ),
+		( id ) => renderBook( books[ id ], line( books[ id ] ) )
+	);
 }
 
 /**

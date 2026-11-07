@@ -1,11 +1,10 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatState } from 'library-app/format';
-import { renderBook } from 'library-app/render';
 import {
-	followBooks,
+	followCards,
 	observeEnd,
-	renderKeyed,
+	renderBooks,
 	showBusy,
 } from 'library-app/behaviors';
 
@@ -29,15 +28,11 @@ class LibraryListElement extends Brick {
 		);
 
 		return [
-			followBooks( $items, formatState ),
+			followCards( $items, formatState ),
 			store.select(
 				( state ) => state[ list ].items,
 				( ids ) => {
-					const { books } = store.get();
-
-					renderKeyed( $items, ids, ( id ) =>
-						renderBook( books[ id ], formatState( books[ id ] ) )
-					);
+					renderBooks( $items, ids, formatState );
 					observe();
 				}
 			),

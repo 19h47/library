@@ -1,0 +1,24 @@
+/**
+ * Tags: the form and the status of a book, and an error of the server, in a tint of their color.
+ */
+
+@layer library.components {
+	/* A tag or a message, the form of a book or an error of the server: a line and a tint of its color */
+	.library-item__tag,
+	.app-status[role="alert"] {
+		border-color: color-mix(in oklab, currentColor 40%, transparent);
+		background: color-mix(in oklab, currentColor 10%, transparent);
+	}
+
+	/* The tags after the line of the state of a book: its form, and its status when it is not kept or to buy, in a color */
+	.library-item__tag {
+		padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
+		border-width: 1px;
+		border-style: solid;
+		border-radius: calc(var(--app-radius) / var(--app-phi) / var(--app-phi) / var(--app-phi));
+	}
+
+	.library-item__status {
+		color: var(--library-status);
+	}
+}

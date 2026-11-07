@@ -114,6 +114,27 @@ final readonly class Book {
 	}
 
 	/**
+	 * The authors whose work it is part of, their names by term ID: none for a collective book, a magazine or an anthology,
+	 * which is only found through its authors.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_work_authors(): array {
+		return $this->collective ? array() : array_combine( $this->author_ids, $this->authors );
+	}
+
+	/**
+	 * The year it first came out, or else the year of its edition, from Books::get_date(): null without either.
+	 *
+	 * @return int|null
+	 */
+	public function get_first_year(): ?int {
+		$date = Books::get_date( $this );
+
+		return '' !== $date ? (int) substr( $date, 0, 4 ) : null;
+	}
+
+	/**
 	 * Its first reading: its first read date, empty when unknown, which comes first, or when it is not read.
 	 *
 	 * @return string
@@ -154,12 +175,21 @@ final readonly class Book {
 	}
 
 	/**
-	 * Whether it is on the reading pile: not read, and at hand, in the library or passing through, not kept once read; a
-	 * book to buy is not. The one rule of the books to read, for the stats, the reading ideas and the achievements.
+	 * Whether it is at hand: in the library or passing through, not kept once read; a book to buy is not yet.
+	 *
+	 * @return bool
+	 */
+	public function is_at_hand(): bool {
+		return Status::To_Buy !== $this->status;
+	}
+
+	/**
+	 * Whether it is on the reading pile: not read, and at hand. The one rule of the books to read, for the stats, the
+	 * reading ideas and the achievements.
 	 *
 	 * @return bool
 	 */
 	public function is_on_the_pile(): bool {
-		return ! $this->read && Status::To_Buy !== $this->status;
+		return ! $this->read && $this->is_at_hand();
 	}
 }

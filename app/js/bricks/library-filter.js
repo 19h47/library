@@ -1,6 +1,10 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 
+// A search for a series, which the server lists in reading order, as it reads the keyword (Query::parse_keywords()):
+// whatever its case, not excluded, with a name, quoted or not.
+const SERIES_SEARCH = /(?:^|\s)series:(?:"[^"]*\S[^"]*"|[^\s",])/i;
+
 /**
  * A filter of the books, or their order, its select named by `data-filter`: read, status, form or sort. A select whose
  * first choice has another name for a search for a series, `data-series`, takes it: such a search lists the series in
@@ -27,7 +31,7 @@ class LibraryFilterElement extends Brick {
 				}
 			),
 			store.select(
-				( state ) => /(^|\s)series:/.test( state.query ),
+				( state ) => SERIES_SEARCH.test( state.query ),
 				( isSeries ) => {
 					$first.textContent = isSeries
 						? $select.dataset.series ?? label

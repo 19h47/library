@@ -1,7 +1,12 @@
 import { __, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatBooks, formatNumber, join } from 'library-app/format';
+import {
+	formatBooks,
+	formatNumber,
+	formatTotal,
+	join,
+} from 'library-app/format';
 import { fill } from 'library-app/render';
 
 /**
@@ -71,18 +76,15 @@ class LibraryFiltersElement extends Brick {
 			),
 			store.select(
 				( state ) =>
-					state.search.loaded ? state.search.total : null,
-				( total ) => {
-					fill( this, {
-						show:
-							null === total
-								? __( 'Loading…', 'library' )
-								: sprintf(
-										/* translators: %s: number of books found, e.g. 19 books. */
-										__( 'Show %s', 'library' ),
-										formatBooks( total )
-								  ),
-					} );
+					formatTotal( state.search, ( total ) =>
+						sprintf(
+							/* translators: %s: number of books found, e.g. 19 books. */
+							__( 'Show %s', 'library' ),
+							formatBooks( total )
+						)
+					),
+				( show ) => {
+					fill( this, { show } );
 				}
 			),
 		];

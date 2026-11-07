@@ -1,0 +1,23 @@
+/**
+ * A button in words, as the links of the page.
+ */
+
+@layer library.components {
+	/* A button in words, as the links of the page: the action of a notice, such as Undo, or another reading idea on the home */
+	.library-link {
+		padding: 0;
+		border: 0;
+		background: none;
+		text-decoration: underline;
+		text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+		text-underline-offset: 0.2em;
+		cursor: pointer;
+	}
+
+	/* Its text as the one around it, unless it is a meta, whose text is the one of the interface */
+	.library-link:not(.app-meta) {
+		color: inherit;
+		font: inherit;
+		text-transform: inherit;
+	}
+}

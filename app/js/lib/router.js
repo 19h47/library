@@ -7,6 +7,7 @@
  */
 
 import { appUrl } from 'library-app/app';
+import { PAGE_VIEWS } from 'library-app/api';
 import { store } from 'library-app/store';
 
 /**
@@ -29,7 +30,7 @@ const NAMED_VIEWS = [
 ];
 // The pages of a book, a person, a series or a collection, with its ID in the argument of the same name: ?view=book&book=564;
 // the recap of a year, with its year: ?view=recap&recap=2025.
-const PAGE_VIEWS = [ 'book', 'person', 'series', 'publisher', 'recap' ];
+const ID_VIEWS = [ 'book', ...PAGE_VIEWS, 'recap' ];
 
 const app = new URL( appUrl );
 /**
@@ -83,7 +84,7 @@ export function routeOf( url ) {
 	const name = searchParams.get( 'view' );
 	const id = Number( searchParams.get( name ) );
 	const isPage =
-		PAGE_VIEWS.includes( name ) && Number.isInteger( id ) && id > 0;
+		ID_VIEWS.includes( name ) && Number.isInteger( id ) && id > 0;
 	const view = isPage || NAMED_VIEWS.includes( name ) ? name : 'books';
 
 	return {

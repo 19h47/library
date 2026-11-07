@@ -55,6 +55,18 @@ export function fill( $root, fields ) {
 }
 
 /**
+ * Sets the HTML of `$element`, as the API renders it: a description, among the few tags core keeps when it saves one, or
+ * the notes of a book. Hidden without.
+ *
+ * @param {HTMLElement} $element The element.
+ * @param {string}      html     Its HTML.
+ */
+export function fillHtml( $element, html ) {
+	$element.innerHTML = html;
+	$element.hidden = ! html;
+}
+
+/**
  * A link to what `route` shows, which the router opens without reloading, such as the books a search finds.
  *
  * @param {Partial<Route>} route What it shows.
@@ -98,15 +110,16 @@ export function pageLink( view, id, name ) {
 /**
  * Fills `$list` with `$links` as pills, one per item, such as the series of a cycle; its [data-row] hides without one.
  *
- * @param {Element}             $list  The list.
- * @param {HTMLAnchorElement[]} $links The links.
+ * @param {Element}             $list             The list.
+ * @param {HTMLAnchorElement[]} $links            The links.
+ * @param {string}              [pill='app-pill'] The class of a pill, such as a small one.
  */
-export function fillPills( $list, $links ) {
+export function fillPills( $list, $links, pill = 'app-pill' ) {
 	$list.replaceChildren(
 		...$links.map( ( $link ) => {
 			const $item = document.createElement( 'li' );
 
-			$link.className = 'app-pill';
+			$link.className = pill;
 			$item.append( $link );
 
 			return $item;
@@ -137,15 +150,15 @@ export function linkPeople( $field, people ) {
 }
 
 /**
- * Links the subject of an achievement to what it leads to in the app: its book, the page of its author, of its series or
- * of its collection, or the books its search finds.
+ * A link to what an achievement leads to in the app: its book, the page of its author, of its series or of its
+ * collection, or the books its search finds; none without.
  *
- * @param {Element}     $field               The field of its subject.
+ * @param {string}      text                 The text of the link.
  * @param {Object}      achievement          The achievement.
- * @param {Target|null} [achievement.target] What its subject leads to, if anything.
+ * @param {Target|null} [achievement.target] What it leads to, if anything.
+ * @return {HTMLAnchorElement|null} The link, or none.
  */
-function linkAchievement( $field, { target } ) {
-	const text = $field.textContent;
+function achievementLink( text, { target } ) {
 	const links = {
 		book: () => pageLink( 'book', target.id, text ),
 		author: () => pageLink( 'person', target.id, text ),
@@ -154,8 +167,21 @@ function linkAchievement( $field, { target } ) {
 		search: () => link( { query: target.search }, text ),
 	};
 
-	if ( text && target?.type in links ) {
-		$field.replaceChildren( links[ target.type ]() );
+	return text && target?.type in links ? links[ target.type ]() : null;
+}
+
+/**
+ * Links the subject of an achievement to what it leads to in the app: see achievementLink().
+ *
+ * @param {Element}     $field               The field of its subject.
+ * @param {Object}      achievement          The achievement.
+ * @param {Target|null} [achievement.target] What its subject leads to, if anything.
+ */
+function linkAchievement( $field, achievement ) {
+	const $link = achievementLink( $field.textContent, achievement );
+
+	if ( $link ) {
+		$field.replaceChildren( $link );
 	}
 }
 
@@ -325,14 +351,10 @@ export function renderBook( book, state ) {
  */
 function renderTerm( $link, description, line ) {
 	const $item = clone( 'library-term' );
-	/** @type {HTMLElement} */
-	const $description = $item.querySelector( '[data-html="description"]' );
 
 	fill( $item, { line } );
 	$item.querySelector( '.library-term__name' ).append( $link );
-	// HTML as the API renders it, among the few tags core keeps when it saves a description.
-	$description.innerHTML = description;
-	$description.hidden = ! description;
+	fillHtml( $item.querySelector( '[data-html="description"]' ), description );
 
 	return $item;
 }
@@ -441,6 +463,33 @@ export function renderAchievement( achievement ) {
 }
 
 /**
+ * An achievement earned as a small pill, as the cloud of a recap shows it: its title and its subject, leading where its
+ * subject does; its detail and its date said to assistive technologies only.
+ *
+ * @param {Achievement} achievement The achievement.
+ * @return {HTMLLIElement} Its item.
+ */
+export function renderAchievementPill( achievement ) {
+	const $item = document.createElement( 'li' );
+	const text = join( [ achievement.title, achievement.subject ] );
+	const $pill = achievementLink( text, achievement ) ?? span( text, '' );
+	const said = join( [
+		achievement.detail,
+		achievement.date && formatDate( achievement.date ),
+	] );
+
+	$pill.className = 'app-pill app-pill--small';
+
+	if ( said ) {
+		$pill.append( span( ` · ${ said }`, 'sr-only' ) );
+	}
+
+	$item.append( $pill );
+
+	return $item;
+}
+
+/**
  * An achievement close to be earned: its subject, or else its title, and its progress, which the element `id` labels.
  *
  * @param {CloseAchievement} achievement The achievement.
@@ -520,6 +569,24 @@ function span( text, className ) {
 }
 
 /**
+ * Gives each of `$items` its share of the most of `values`, by their order, from 0 to 1, which sets the length of its
+ * bar: --library-share.
+ *
+ * @param {HTMLElement[]} $items The elements, such as the lines of a list.
+ * @param {number[]}      values Their values, such as their readings.
+ */
+function setShares( $items, values ) {
+	const most = Math.max( 1, ...values );
+
+	$items.forEach( ( $item, index ) =>
+		$item.style.setProperty(
+			'--library-share',
+			( values[ index ] / most ).toString()
+		)
+	);
+}
+
+/**
  * A cover of the wall of the books read of a recap, which opens nothing: their cards are a tap away, in the diary.
  *
  * @param {Book} book The book.
@@ -546,9 +613,7 @@ export function renderTile( book ) {
  * @return {HTMLElement[]} The months.
  */
 export function renderMonths( months, year ) {
-	const most = Math.max( 1, ...months );
-
-	return months.map( ( readings, month ) => {
+	const $months = months.map( ( readings, month ) => {
 		const $item = document.createElement( 'li' );
 		const date = new Date( year, month );
 		const $shown = [
@@ -559,10 +624,6 @@ export function renderMonths( months, year ) {
 
 		$shown.forEach( ( $span ) =>
 			$span.setAttribute( 'aria-hidden', 'true' )
-		);
-		$item.style.setProperty(
-			'--library-share',
-			( readings / most ).toString()
 		);
 		$item.append(
 			...$shown,
@@ -579,6 +640,10 @@ export function renderMonths( months, year ) {
 
 		return $item;
 	} );
+
+	setShares( $months, months );
+
+	return $months;
 }
 
 /**
@@ -589,19 +654,13 @@ export function renderMonths( months, year ) {
  * @return {HTMLElement[]} The lines.
  */
 export function renderShares( shares ) {
-	const most = Math.max( 1, ...shares.map( ( share ) => share.readings ) );
-
-	return shares.map( ( share ) => {
+	const $lines = shares.map( ( share ) => {
 		const $item = document.createElement( 'li' );
 		const $name = span( '', 'library-recap__name' );
 		const $bar = span( '', 'library-recap__bar' );
 
 		$name.append( share.name );
 		$bar.setAttribute( 'aria-hidden', 'true' );
-		$item.style.setProperty(
-			'--library-share',
-			( share.readings / most ).toString()
-		);
 		$item.append(
 			$name,
 			span( formatBooks( share.readings ), 'app-meta' ),
@@ -610,4 +669,11 @@ export function renderShares( shares ) {
 
 		return $item;
 	} );
+
+	setShares(
+		$lines,
+		shares.map( ( share ) => share.readings )
+	);
+
+	return $lines;
 }

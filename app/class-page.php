@@ -169,9 +169,9 @@ class Page {
 		$publisher_labels   = get_taxonomy( 'library_publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library_language' )->labels;
 		$form_labels        = get_taxonomy( 'library_form' )->labels;
-		$form_choices       = self::get_term_choices( 'library_form' );
-		$language_choices   = self::get_term_choices( 'library_language' );
-		$own_language       = get_term_by( 'slug', explode( '_', get_user_locale() )[0], 'library_language' );
+		$form_choices       = Taxonomies::get_term_choices( 'library_form' );
+		$language_choices   = Taxonomies::get_term_choices( 'library_language' );
+		$own_language       = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 		$own_language_id    = $own_language instanceof WP_Term ? $own_language->term_id : 0;
 		$rating_choices     = Meta::get_rating_choices();
 		$status_choices     = Status::get_choices();
@@ -193,8 +193,9 @@ class Page {
 	/**
 	 * Give the app the data it asks for first, in the page itself, as the editor of WordPress does: the server runs those
 	 * requests of the REST API while it renders the page, and wp.apiFetch answers them from it, without network. They
-	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown and
-	 * its series, the page of a series or of a collection, or the recap of a year. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
+	 * are the stats, the books to buy and, as the view needs them, the books found and the home, the book shown, the
+	 * page of a series or of a collection, or the recap of a year; not the volumes of the series of the book, which load
+	 * once the page has, when no preloaded answer is read any more. Their paths are the ones the store asks for, in any order: a filter kept on the phone asks for another,
 	 * which goes to the network. The reading idea and the achievements load after, as they take longer than the rest.
 	 *
 	 * @param string $view View shown.
@@ -202,8 +203,9 @@ class Page {
 	 * @return void
 	 */
 	private function preload( string $view, int $id ): void {
+		// The paths of books with a space as %20, as wp.url encodes it: wp.apiFetch matches the paths once decoded, a + as itself.
 		$statuses = implode( ',', Status::get_values() );
-		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args );
+		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args, '', '&', PHP_QUERY_RFC3986 );
 		$list     = fn( array $args ) => $books(
 			$args + array(
 				'per_page' => self::PER_PAGE,
@@ -261,23 +263,6 @@ class Page {
 
 		foreach ( self::RECAP_VIEW === $view ? array_chunk( $recap_books, self::MAX_PER_PAGE ) : array() as $chunk ) {
 			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $chunk, $statuses ) );
-		}
-
-		// The series of the book shown, in reading order.
-		$series = self::BOOK_VIEW === $view ? Taxonomies::get_series( $id ) : null;
-		$series = $series ? Taxonomies::get_series_path( $series ) : '';
-
-		if ( '' !== $series ) {
-			$data = rest_preload_api_request(
-				$data,
-				$books(
-					array(
-						'search'   => sprintf( 'series:"%s"', $series ),
-						'status'   => $statuses,
-						'per_page' => self::MAX_PER_PAGE,
-					)
-				)
-			);
 		}
 
 		// Only the first requests of the page, until it has loaded: a request after, such as a search again without a filter
@@ -400,7 +385,8 @@ JS;
 	/**
 	 * Register the styles and scripts the page prints: the theme in the head, before the first paint, the router then the bricks after the markup.
 	 *
-	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist.
+	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist:
+	 * library-app.css, the order of their layers and their tokens, then a sheet per component and per view.
 	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
 	 * all, so that the import map gives them all, with versioned URLs that an update loads again, the store among them.
 	 * WordPress gives each module its translations.
@@ -413,6 +399,23 @@ JS;
 
 		[ $style_url, $style_version ] = Plugin::get_asset( 'app/css/library-app.css' );
 		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
+
+		$sheets = array();
+
+		foreach ( array( 'components', 'views' ) as $folder ) {
+			$sheet_files = glob( LIBRARY_DIR_PATH . "app/css/$folder/*.css" );
+
+			foreach ( $sheet_files ? $sheet_files : array() as $file ) {
+				$name              = basename( $file, '.css' );
+				$handle            = "library-app-$folder-$name";
+				[ $url, $version ] = Plugin::get_asset( "app/css/$folder/$name.css" );
+				$sheets[]          = $handle;
+				wp_register_style( $handle, $url, array( 'library-app' ), $version );
+			}
+		}
+
+		// No file of its own: printed, it prints its sheets, the components then the views, as their layers follow one another.
+		wp_register_style( 'library-app-sheets', false, $sheets ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No URL to version.
 
 		// The theme before the first paint, with what the modules take from WordPress: wp.apiFetch, wp.i18n, wp.url and the config.
 		[ $theme_url, $theme_version ] = Plugin::get_asset( 'app/js/library-app-theme.js' );
@@ -445,24 +448,6 @@ JS;
 	}
 
 	/**
-	 * Terms of `$taxonomy` the app offers in the page, by term ID, with their name as text: the forms, which the filter of the
-	 * books and the form of a book offer, and the original languages, which the form of a book offers.
-	 *
-	 * @param string $taxonomy Taxonomy.
-	 * @return array<int,string>
-	 */
-	private static function get_term_choices( string $taxonomy ): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'hide_empty' => false,
-			)
-		);
-
-		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( is_array( $terms ) ? $terms : array(), null, 'term_id' ) );
-	}
-
-	/**
 	 * What the scripts need from the server: the statuses and forms to list and the URLs. Their strings are translated by WordPress,
 	 * from the JSON files of the languages folder.
 	 *
@@ -477,7 +462,8 @@ JS;
 			'bookFields'       => self::BOOK_FIELDS,
 			'perPage'          => self::PER_PAGE,
 			'maxPerPage'       => self::MAX_PER_PAGE,
-			'forms'            => implode( ',', array_keys( self::get_term_choices( 'library_form' ) ) ),
+			'forms'            => implode( ',', array_keys( Taxonomies::get_term_choices( 'library_form' ) ) ),
+			'inLibrary'        => Status::In_Library->value,
 			'notKept'          => Status::Not_Kept->value,
 			'toBuy'            => Status::To_Buy->value,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
@@ -487,6 +473,8 @@ JS;
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.
 			'serviceWorkerUrl' => add_query_arg( 'service-worker', '1', self::get_url() ),
+			// The key of localStorage the app keeps its choices in, its theme read before the first paint.
+			'storageKey'       => 'library-app',
 			'icons'            => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,

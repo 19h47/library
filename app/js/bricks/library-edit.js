@@ -1,4 +1,4 @@
-import { __, editUrl, toBuy } from 'library-app/app';
+import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
@@ -41,6 +41,11 @@ function openBook( id ) {
 			.finished.finally( () => store.closeEdit() );
 	}
 }
+
+// Compares names whatever their case and accents.
+const nameCollator = new Intl.Collator( document.documentElement.lang, {
+	sensitivity: 'base',
+} );
 
 /**
  * Checks the checkboxes of the term IDs given, and only them, such as the original languages of a book.
@@ -173,11 +178,14 @@ class LibraryEditElement extends Brick {
 		$details.addEventListener( 'input', countDetails, { signal } );
 
 		// The collections of the publisher typed, at any depth, when the library has it; a collection needs a publisher.
+		// Its name is compared case and accents aside, as the server finds a term by its name.
 		const suggestCollections = () => {
-			const name = $publisher.value.trim().toLowerCase();
+			const name = $publisher.value.trim();
 			const { publishers } = store.get().terms;
 			const publisher = publishers.find(
-				( term ) => ! term.parent && name === term.name.toLowerCase()
+				( term ) =>
+					! term.parent &&
+					0 === nameCollator.compare( name, term.name )
 			);
 			const collections = publisher
 				? publishers.filter(
@@ -429,7 +437,7 @@ class LibraryEditElement extends Brick {
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
-					$status.value = listedStatus || 'publish';
+					$status.value = listedStatus || inLibrary;
 					$bookForm.value = 'books' === view ? form : '';
 					showPeople( book?.people ?? [] );
 

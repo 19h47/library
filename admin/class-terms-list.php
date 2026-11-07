@@ -17,8 +17,8 @@ use Library\Taxonomies;
 use WP_Term;
 
 /**
- * Adds "Not kept" and "To buy" columns and a "Without books" view to the lists of people, publishers, series, original
- * languages and forms, and names their messages.
+ * Adds "Not kept" and "To buy" columns and a "Without books" view to the lists of people, publishers, series, languages
+ * and forms, and names their messages.
  *
  * @since      6.1.1
  * @package    Library
@@ -33,16 +33,6 @@ class Terms_List {
 	 * @var string
 	 */
 	public const string WITHOUT_BOOKS = 'library_without_books';
-
-	/**
-	 * Statuses counted in a column of their own, by column: the count of core only counts the books in the library.
-	 *
-	 * @var array<string,string>
-	 */
-	private const array STATUS_COLUMNS = array(
-		'library_not_kept' => Status::Not_Kept->value,
-		'library_to_buy'   => Status::To_Buy->value,
-	);
 
 	/**
 	 * Books of each status by term ID, by taxonomy; a term without books has none.
@@ -138,8 +128,8 @@ class Terms_List {
 	 * @return string[]
 	 */
 	public function add_status_columns( array $columns ): array {
-		foreach ( self::STATUS_COLUMNS as $column => $status ) {
-			$columns[ $column ] = get_post_status_object( $status )->label;
+		foreach ( self::get_status_columns() as $column => $status ) {
+			$columns[ $column ] = $status->label();
 		}
 
 		return $columns;
@@ -154,29 +144,36 @@ class Terms_List {
 	 * @return string
 	 */
 	public function render_status_column( string $content, string $column_name, int $term_id ): string {
-		$status = self::STATUS_COLUMNS[ $column_name ] ?? null;
+		$status = self::get_status_columns()[ $column_name ] ?? null;
 		$term   = get_term( $term_id );
 
 		if ( ! $status || ! $term instanceof WP_Term ) {
 			return $content;
 		}
 
-		$books = $this->get_counts( $term->taxonomy )[ $term_id ][ $status ] ?? 0;
+		$books = $this->get_counts( $term->taxonomy )[ $term_id ][ $status->value ] ?? 0;
 
 		if ( ! $books ) {
 			return number_format_i18n( $books );
 		}
 
-		$url = add_query_arg(
-			array(
-				'post_type'     => 'library_book',
-				'post_status'   => $status,
-				$term->taxonomy => $term->slug,
-			),
-			admin_url( 'edit.php' )
-		);
+		return sprintf( '<a href="%s">%s</a>', esc_url( Books_List::get_term_url( $term, $status->value ) ), esc_html( number_format_i18n( $books ) ) );
+	}
 
-		return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( number_format_i18n( $books ) ) );
+	/**
+	 * Statuses counted in a column of their own, those out of the library, by column, named after the status: the count
+	 * of core only counts the books in the library.
+	 *
+	 * @return array<string,Status> Statuses by column, such as library_not_kept for library-not-kept.
+	 */
+	private static function get_status_columns(): array {
+		$columns = array();
+
+		foreach ( Status::get_others() as $status ) {
+			$columns[ str_replace( '-', '_', $status->value ) ] = $status;
+		}
+
+		return $columns;
 	}
 
 	/**
@@ -211,7 +208,7 @@ class Terms_List {
 		);
 		$count         = wp_count_terms( array( 'taxonomy' => $taxonomy ) );
 		$terms         = is_wp_error( $count ) ? 0 : (int) $count;
-		$without_books = $terms - count( $this->get_counts( $taxonomy ) );
+		$without_books = $terms - count( $this->get_used_ids( $taxonomy ) );
 		/* translators: %s: number of terms. */
 		$without_label = _n_noop( 'Without books <span class="count">(%s)</span>', 'Without books <span class="count">(%s)</span>', 'library' );
 		$all_label     = sprintf( '%s <span class="count">(%s)</span>', esc_html( get_taxonomy( $taxonomy )->labels->all_items ), number_format_i18n( $terms ) );
@@ -255,7 +252,7 @@ class Terms_List {
 			return $args;
 		}
 
-		$args['exclude'] = array( ...wp_parse_id_list( $args['exclude'] ), ...array_keys( $this->get_counts( $taxonomies[0] ) ) );
+		$args['exclude'] = array( ...wp_parse_id_list( $args['exclude'] ), ...$this->get_used_ids( $taxonomies[0] ) );
 
 		return $args;
 	}
@@ -281,6 +278,33 @@ class Terms_List {
 		$attributes = $current ? ' class="current" aria-current="page"' : '';
 
 		return sprintf( '<a href="%s"%s>%s</a>', esc_url( $url ), $attributes, $label );
+	}
+
+	/**
+	 * Terms a book has, or uses otherwise: a language that is the one of the text of a book, an edition language, though
+	 * no book was written in it, as French for the books translated. The view of the terms without books leaves them out,
+	 * as deleting one would leave books without it.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 * @return int[] Term IDs.
+	 */
+	private function get_used_ids( string $taxonomy ): array {
+		$term_ids = array_keys( $this->get_counts( $taxonomy ) );
+
+		if ( 'library_language' !== $taxonomy ) {
+			return $term_ids;
+		}
+
+		global $wpdb;
+
+		$edition_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
+			"SELECT DISTINCT pm.meta_value
+			FROM {$wpdb->postmeta} AS pm
+			INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )
+			WHERE pm.meta_key = 'library_edition_languages'"
+		);
+
+		return array_values( array_unique( array( ...$term_ids, ...array_map( 'intval', $edition_ids ) ) ) );
 	}
 
 	/**

@@ -398,7 +398,8 @@ class Test_Reading_Idea extends TestCase {
 	}
 
 	/**
-	 * A book first published in a decade with no book read, and not one of a decade read or without date.
+	 * A book of a decade with no book read, and not one of a decade read or without date; a book without first published
+	 * date counts by its edition, as the achievements date it.
 	 *
 	 * @return void
 	 */
@@ -411,12 +412,21 @@ class Test_Reading_Idea extends TestCase {
 				),
 			)
 		);
+		$this->add_book(
+			array(
+				'meta' => array(
+					'library_edition_date' => '1975-03-01',
+					'library_read_date'    => array( '2024-04-01' ),
+				),
+			)
+		);
 		$sixties = $this->add_book( array( 'meta' => array( 'library_published_date' => '1962-05' ) ) );
 		$this->add_book( array( 'meta' => array( 'library_published_date' => '1997-10-02' ) ) );
+		$this->add_book( array( 'meta' => array( 'library_edition_date' => '1978-01-01' ) ) );
 		$this->add_book( array() );
 
 		$this->assertSame(
-			array( $sixties => array( 'You have not read any book first published in the 1960s yet.' ) ),
+			array( $sixties => array( 'You have not read any book from the 1960s yet.' ) ),
 			$this->get_ideas_of( 'change' )
 		);
 	}

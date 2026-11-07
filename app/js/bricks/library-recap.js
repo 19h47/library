@@ -3,7 +3,6 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
 	formatBooks,
-	formatDate,
 	formatLanguage,
 	formatNumber,
 	formatRating,
@@ -12,12 +11,12 @@ import {
 } from 'library-app/format';
 import {
 	fill,
+	fillCover,
 	fillPills,
 	pageLink,
-	renderAchievement,
+	renderAchievementPill,
 	renderCover,
 	renderMonths,
-	renderRow,
 	renderShares,
 	renderTile,
 } from 'library-app/render';
@@ -29,8 +28,10 @@ import { urlOf } from 'library-app/router';
  * @import { Loading } from 'library-app/store'
  */
 
-// The people read for the first time a recap names, the others counted after them.
-const SHOWN_DISCOVERIES = 12;
+// The columns of covers going by behind the last screen, more than the widest frame holds, one in the middle, and the
+// covers a column has at least, to go past the height of a screen.
+const MARQUEE_COLUMNS = 15;
+const MARQUEE_COVERS = 16;
 // How long a figure counts up to its value, slowing down to it.
 const COUNT_MS = 1000;
 const reducedMotion = matchMedia( '(prefers-reduced-motion: reduce)' );
@@ -116,21 +117,6 @@ class LibraryRecapElement extends Brick {
 				recap.discoveries.length,
 				'library'
 			),
-			moreDiscoveries:
-				recap.discoveries.length > SHOWN_DISCOVERIES
-					? sprintf(
-							/* translators: %s: number of people read for the first time in the year, after the ones named. */
-							_n(
-								'And %s more',
-								'And %s more',
-								recap.discoveries.length - SHOWN_DISCOVERIES,
-								'library'
-							),
-							formatNumber(
-								recap.discoveries.length - SHOWN_DISCOVERIES
-							)
-					  )
-					: '',
 			languages: formatNumber( recap.languages.length ),
 			series: formatNumber( recap.series.length ),
 			seriesState: join( [
@@ -177,8 +163,13 @@ class LibraryRecapElement extends Brick {
 			...this.#years( recap ),
 		} );
 
+		const covered = read.filter( ( book ) => book.cover );
+
 		this.querySelector( '[data-list="covers"]' ).replaceChildren(
-			...read.filter( ( book ) => book.cover ).map( renderTile )
+			...covered.map( renderTile )
+		);
+		this.querySelector( '[data-list="marquee"]' ).replaceChildren(
+			...this.#renderMarquee( covered )
 		);
 		this.querySelector( '[data-list="months"]' ).replaceChildren(
 			...renderMonths( recap.months, recap.year )
@@ -194,11 +185,13 @@ class LibraryRecapElement extends Brick {
 				readings,
 			} ) )
 		);
+		// Every one, small, in a cloud the screen cuts under a fade: the recap shows them, a search lists them.
 		fillPills(
 			this.querySelector( '[data-list="discoveries"]' ),
-			recap.discoveries
-				.slice( 0, SHOWN_DISCOVERIES )
-				.map( ( { id, name } ) => pageLink( 'person', id, name ) )
+			recap.discoveries.map( ( { id, name } ) =>
+				pageLink( 'person', id, name )
+			),
+			'app-pill app-pill--small'
 		);
 		this.#fillShares(
 			'languages',
@@ -221,7 +214,7 @@ class LibraryRecapElement extends Brick {
 		);
 		this.#fillRecords( recap, books );
 		this.querySelector( '[data-list="achievements"]' ).replaceChildren(
-			...recap.achievements.map( renderAchievement )
+			...recap.achievements.map( renderAchievementPill )
 		);
 
 		this.#prepareCounts( recap.year, {
@@ -232,6 +225,8 @@ class LibraryRecapElement extends Brick {
 			series: recap.series.length,
 			achievements: recap.achievements.length,
 			added: recap.added,
+			recordLongest: books[ recap.records.longest ]?.pages ?? 0,
+			recordShortest: books[ recap.records.shortest ]?.pages ?? 0,
 		} );
 		this.#showScreens( {
 			readings: isShown,
@@ -424,6 +419,51 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
+	 * The columns of covers going by behind the last screen: the books in turn, a column each, as many times as a column
+	 * needs to be higher than the screen, then twice over, for a column to go round without a gap. They load at once, as
+	 * they move into sight, and the first screen has loaded them already.
+	 *
+	 * @param {Book[]} books The books read, with a cover.
+	 * @return {HTMLUListElement[]} The columns, none without a book.
+	 */
+	#renderMarquee( books ) {
+		if ( ! books.length ) {
+			return [];
+		}
+
+		return [ ...Array( MARQUEE_COLUMNS ).keys() ].map( ( column ) => {
+			const $column = document.createElement( 'ul' );
+
+			// Its place, for its round to start at a point of its own.
+			$column.style.setProperty(
+				'--library-recap-column',
+				column.toString()
+			);
+			const own = books.filter(
+				( _book, index ) => column === index % MARQUEE_COLUMNS
+			);
+			const shown = own.length ? own : books;
+			const once = [
+				...Array( Math.max( shown.length, MARQUEE_COVERS ) ).keys(),
+			].map( ( index ) => shown[ index % shown.length ] );
+
+			$column.append(
+				...[ ...once, ...once ].map( ( book ) => {
+					const $tile = renderTile( book );
+
+					/** @type {HTMLImageElement} */ (
+						$tile.firstElementChild
+					).loading = 'eager';
+
+					return $tile;
+				} )
+			);
+
+			return $column;
+		} );
+	}
+
+	/**
 	 * The month read the most, the first one of them.
 	 *
 	 * @param {Recap} recap The recap.
@@ -510,64 +550,80 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
-	 * The records: the longest book read, the shortest, by their pages, and the oldest, by the date it first came out.
+	 * The records of the year, a line each: its cover, its figure, as large as the figures of the recap, and what it
+	 * counts, then which record it is and the book, which it opens; the longest and the shortest by their pages, which
+	 * count up as the others, the oldest by the year it first came out.
 	 *
 	 * @param {Recap}                recap The recap.
-	 * @param {Object<number, Book>} books The books loaded.
+	 * @param {Object<number, Book>} books The books, by their IDs.
 	 */
 	#fillRecords( { records }, books ) {
-		/** @type {{id: number, label: string, detail: ( book: Book ) => string}[]} */
+		const year = ( book ) =>
+			( book.published_date || book.edition_date ).slice( 0, 4 );
+		/** @type {{id: number, field: string, label: string, figure: ( book: Book ) => string, unit: ( book: Book ) => string}[]} */
 		const lines = [
 			{
 				id: records.longest,
+				field: 'recordLongest',
 				label: __( 'The longest', 'library' ),
-				detail: ( book ) => this.#formatPages( book.pages ),
+				figure: ( book ) => formatNumber( book.pages ),
+				unit: ( book ) =>
+					/* translators: what the figure of a record counts, after it: 1 947 pages. */
+					_n( 'page', 'pages', book.pages, 'library' ),
 			},
 			{
 				id: records.shortest,
+				field: 'recordShortest',
 				label: __( 'The shortest', 'library' ),
-				detail: ( book ) => this.#formatPages( book.pages ),
+				figure: ( book ) => formatNumber( book.pages ),
+				unit: ( book ) =>
+					/* translators: what the figure of a record counts, after it: 1 947 pages. */
+					_n( 'page', 'pages', book.pages, 'library' ),
 			},
 			{
 				id: records.oldest,
+				field: 'recordOldest',
 				label: __( 'The oldest', 'library' ),
-				detail: ( book ) =>
-					formatDate( book.published_date || book.edition_date ),
+				figure: year,
+				unit: () => '',
 			},
 		];
 
 		this.querySelector( '[data-list="records"]' ).replaceChildren(
 			...lines
 				.filter( ( { id } ) => books[ id ] )
-				.map( ( { id, label, detail } ) => {
-					const $row = renderRow( books[ id ] );
+				.map( ( { id, field, label, figure, unit } ) => {
+					const book = books[ id ];
+					const $item = document.createElement( 'li' );
+					const $cover = document.createElement( 'img' );
+					const $text = document.createElement( 'div' );
+					const $figure = document.createElement( 'p' );
 					const $label = document.createElement( 'p' );
+					const $value = document.createElement( 'span' );
+					const $unit = document.createElement( 'span' );
 
-					$label.className = 'app-item__meta';
-					$label.textContent = join( [
-						label,
-						detail( books[ id ] ),
-					] );
-					$row.querySelector( '.library-row__body' ).prepend(
-						$label
+					// The title names the book: its cover is an image of it only.
+					$cover.alt = '';
+					$cover.loading = 'lazy';
+					fillCover( $cover, book.cover );
+					$value.dataset.field = field;
+					$value.textContent = figure( book );
+					$unit.className = 'app-meta';
+					$unit.textContent = unit( book );
+					$figure.className = 'library-recap__record-figure';
+					$figure.append( $value, ' ', $unit );
+					$label.className = 'app-meta';
+					$label.textContent = label;
+					$text.append(
+						$figure,
+						$label,
+						pageLink( 'book', id, book.title )
 					);
+					$item.className = 'library-recap__record';
+					$item.append( $cover, $text );
 
-					return $row;
+					return $item;
 				} )
-		);
-	}
-
-	/**
-	 * A number of pages: "320 pages".
-	 *
-	 * @param {number} pages The pages.
-	 * @return {string} The pages.
-	 */
-	#formatPages( pages ) {
-		return sprintf(
-			/* translators: %s: number of pages. */
-			_n( '%s page', '%s pages', pages, 'library' ),
-			formatNumber( pages )
 		);
 	}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Book taxonomies: person, publisher, series, original language and form.
+ * Book taxonomies: person, publisher, series, language and form.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -15,6 +15,7 @@ use Locale;
 use ResourceBundle;
 use WP_Ajax_Response;
 use WP_Error;
+use WP_Screen;
 use WP_Term;
 
 /**
@@ -35,6 +36,34 @@ class Taxonomies {
 	public const array TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
 
 	/**
+	 * Codes of ISO 639-2 that catalogues give as bibliographic codes, such as fre, by their terminological codes, which ICU knows.
+	 *
+	 * @var array<string,string>
+	 */
+	private const array LANGUAGE_CODES = array(
+		'alb' => 'sqi',
+		'arm' => 'hye',
+		'baq' => 'eus',
+		'bur' => 'mya',
+		'chi' => 'zho',
+		'cze' => 'ces',
+		'dut' => 'nld',
+		'fre' => 'fra',
+		'geo' => 'kat',
+		'ger' => 'deu',
+		'gre' => 'ell',
+		'ice' => 'isl',
+		'mac' => 'mkd',
+		'mao' => 'mri',
+		'may' => 'msa',
+		'per' => 'fas',
+		'rum' => 'ron',
+		'slo' => 'slk',
+		'tib' => 'bod',
+		'wel' => 'cym',
+	);
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -47,6 +76,7 @@ class Taxonomies {
 		add_filter( 'wp_insert_term_data', array( $this, 'name_language' ), 10, 2 );
 		// Before core adds the languages typed in the box of a book, at 10.
 		add_action( 'wp_ajax_add-library_language', array( $this, 'explain_refused_language' ), 9 );
+		add_action( 'current_screen', array( $this, 'name_original_languages' ) );
 	}
 
 	/**
@@ -283,9 +313,19 @@ class Taxonomies {
 	 * @return WP_Term|null
 	 */
 	public static function get_series( int $book_id ): ?WP_Term {
-		$terms = get_the_terms( $book_id, 'library_series' );
+		return self::get_book_terms( $book_id, 'library_series' )[0] ?? null;
+	}
 
-		return is_array( $terms ) ? $terms[0] : null;
+	/**
+	 * Give a book the series it types after its cycles, such as "Star Wars, Young Jedi Knights": a name not found adds a
+	 * series, or a cycle; an empty path leaves the book without series.
+	 *
+	 * @param int    $book_id Book ID.
+	 * @param string $path    Series, after its cycles, separated with commas.
+	 * @return void
+	 */
+	public static function set_series( int $book_id, string $path ): void {
+		wp_set_object_terms( $book_id, array_filter( array( self::get_path_id( 'library_series', $path, true ) ) ), 'library_series' );
 	}
 
 	/**
@@ -296,6 +336,18 @@ class Taxonomies {
 	 */
 	public static function get_series_path( WP_Term $series ): string {
 		return implode( ', ', self::get_path_names( $series ) );
+	}
+
+	/**
+	 * The series of a book from its cycle, as it types it, in plain text: see get_series_path(); empty without one.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return string
+	 */
+	public static function get_series_name( int $book_id ): string {
+		$series = self::get_series( $book_id );
+
+		return $series ? self::get_series_path( $series ) : '';
 	}
 
 	/**
@@ -331,7 +383,7 @@ class Taxonomies {
 	}
 
 	/**
-	 * The series a search names, case aside, with the series of their cycles: "Star Wars" the cycle and its series, "Star
+	 * The series a search names, case and accents aside, with the series of their cycles: "Star Wars" the cycle and its series, "Star
 	 * Wars, Young Jedi Knights" this one, "Young Jedi Knights" any series of that name; a name may hold a comma, such as
 	 * "Talli, fille de la lune".
 	 *
@@ -339,7 +391,7 @@ class Taxonomies {
 	 * @return int[] Term IDs.
 	 */
 	public static function find_series_ids( string $value ): array {
-		$names = array_map( 'mb_strtolower', Books::split( $value ) );
+		$names = array_map( array( self::class, 'get_name_key' ), Books::split( $value ) );
 
 		if ( ! $names ) {
 			return array();
@@ -358,7 +410,7 @@ class Taxonomies {
 		$ids        = array();
 
 		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$path = mb_strtolower( implode( ', ', self::get_path_names( $term ) ) );
+			$path = self::get_name_key( implode( ', ', self::get_path_names( $term ) ) );
 
 			if ( $path === $search || str_ends_with( $path, ', ' . $search ) ) {
 				$children = get_term_children( $term->term_id, 'library_series' );
@@ -430,18 +482,19 @@ class Taxonomies {
 	}
 
 	/**
-	 * Register original language
+	 * Register language
 	 *
-	 * A language is identified by its ISO 639 code, the slug of the term, e.g. "it". A book read in its original
-	 * language is one in a foreign language, i.e. not the language of the admin, without translator.
+	 * A language is identified by its ISO 639 code, the slug of the term, e.g. "it". The languages are those of the
+	 * library: the terms of a book are its original languages, and the meta library_edition_languages the languages of
+	 * its text, from the same terms. The label name_for_book names them as the terms of a book.
 	 *
 	 * @return void
 	 */
 	public function register_language() {
 		$labels = array(
-			'name'                  => _x( 'Original languages', 'library languages general name', 'library' ),
-			'singular_name'         => _x( 'Original language', 'library languages singular name', 'library' ),
-			'menu_name'             => _x( 'Languages', 'library languages menu name', 'library' ),
+			'name'                  => _x( 'Languages', 'library languages general name', 'library' ),
+			'singular_name'         => _x( 'Language', 'library languages singular name', 'library' ),
+			'name_for_book'         => _x( 'Original languages', 'library languages of a book', 'library' ),
 			'search_items'          => __( 'Search Languages', 'library' ),
 			'all_items'             => __( 'All Languages', 'library' ),
 			'edit_item'             => __( 'Edit Language', 'library' ),
@@ -535,12 +588,19 @@ class Taxonomies {
 			return $term;
 		}
 
-		$typed = empty( $args['slug'] ) ? $term : $args['slug'];
-		$code  = sanitize_title( $typed );
+		$slug  = (string) ( $args['slug'] ?? '' );
+		$typed = '' !== $slug ? $slug : $term;
+		$code  = self::normalize_language_code( sanitize_title( $typed ) );
 
-		if ( ! preg_match( '/^[a-z]{2,3}$/', $code ) ) {
-			$code = empty( $args['slug'] ) ? self::get_language_code( $term ) : '';
+		// A name, the code of the language its name gives, which names it again.
+		if ( '' === $slug ) {
+			$code = '' !== $code ? $code : self::get_language_code( $term );
 			$term = $code;
+		}
+
+		if ( '' !== $slug && '' !== $code && $slug !== $code ) {
+			/* translators: 1: code typed for a language, e.g. fra; 2: its code in the library, e.g. fr. */
+			return new WP_Error( 'library_language_code', sprintf( __( 'The library writes %1$s as %2$s.', 'library' ), $slug, $code ), array( 'status' => 400 ) );
 		}
 
 		if ( '' === $code ) {
@@ -561,6 +621,43 @@ class Taxonomies {
 	}
 
 	/**
+	 * Key of a name to compare, the same whatever its case and accents, as the database compares the names of terms:
+	 * "chroniques de l'etrange" for "Chroniques de l'Étrange".
+	 *
+	 * @param string $name Name, its entities decoded or not.
+	 * @return string
+	 */
+	public static function get_name_key( string $name ): string {
+		return remove_accents( mb_strtolower( trim( wp_specialchars_decode( $name, ENT_QUOTES ) ) ) );
+	}
+
+	/**
+	 * The code of a language as the library writes it, the slug of its term, from any of its ISO 639 codes: its two-letter
+	 * code when it has one, such as fr for fre, fra or fr; empty for what is no code.
+	 *
+	 * @param string $code ISO 639 code, of two or three letters, bibliographic or terminological.
+	 * @return string
+	 */
+	public static function normalize_language_code( string $code ): string {
+		$code = strtolower( trim( $code ) );
+
+		if ( ! preg_match( '/^[a-z]{2,3}$/', $code ) ) {
+			return '';
+		}
+
+		return (string) Locale::getPrimaryLanguage( (string) Locale::canonicalize( self::LANGUAGE_CODES[ $code ] ?? $code ) );
+	}
+
+	/**
+	 * The code of the language of the reader, the one of their admin, as the library writes it: fr for fr_FR.
+	 *
+	 * @return string
+	 */
+	public static function get_own_language_code(): string {
+		return self::normalize_language_code( (string) Locale::getPrimaryLanguage( get_user_locale() ) );
+	}
+
+	/**
 	 * ISO 639 code of a language from its name, in the language of the user, of the site or in English, whatever its case
 	 * and accents, such as no for Norvégien, norvegien or Norwegian; empty when no language has that name.
 	 *
@@ -574,13 +671,13 @@ class Taxonomies {
 			return '';
 		}
 
-		$name = remove_accents( mb_strtolower( trim( $name ) ) );
+		$name = self::get_name_key( $name );
 
 		foreach ( array_unique( array( get_user_locale(), get_locale(), 'en' ) ) as $locale ) {
 			$languages = ResourceBundle::create( $locale, 'ICUDATA-lang' )?->get( 'Languages' ) ?? array();
 
 			foreach ( $languages as $code => $language ) {
-				if ( preg_match( '/^[a-z]{2,3}$/', $code ) && remove_accents( mb_strtolower( $language ) ) === $name ) {
+				if ( preg_match( '/^[a-z]{2,3}$/', $code ) && self::get_name_key( $language ) === $name ) {
 					return $code;
 				}
 			}
@@ -638,16 +735,46 @@ class Taxonomies {
 	}
 
 	/**
+	 * Terms of a book in a taxonomy, from the cache the query of the books filled; none for a book without.
+	 *
+	 * @param int    $book_id  Book ID.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return WP_Term[]
+	 */
+	public static function get_book_terms( int $book_id, string $taxonomy ): array {
+		$terms = get_the_terms( $book_id, $taxonomy );
+
+		return is_array( $terms ) ? $terms : array();
+	}
+
+	/**
+	 * Terms of a taxonomy a form offers, by term ID, with their name in plain text, by name: the forms, which the filter of
+	 * the books of the app and the form of a book offer, and the languages, which the forms of a book offer.
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @return array<int,string>
+	 */
+	public static function get_term_choices( string $taxonomy ): array {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+			)
+		);
+
+		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( is_array( $terms ) ? $terms : array(), null, 'term_id' ) );
+	}
+
+	/**
 	 * Authors of a book, i.e. its names without another role, such as a colorist.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return WP_Term[]
 	 */
 	public static function get_authors( int $book_id ): array {
-		$terms = get_the_terms( $book_id, 'library_person' );
 		$roles = Meta::get_roles( $book_id );
 
-		return array_values( array_filter( is_array( $terms ) ? $terms : array(), fn( WP_Term $term ) => ! isset( $roles[ $term->term_id ] ) ) );
+		return array_values( array_filter( self::get_book_terms( $book_id, 'library_person' ), fn( WP_Term $term ) => ! isset( $roles[ $term->term_id ] ) ) );
 	}
 
 	/**
@@ -658,12 +785,11 @@ class Taxonomies {
 	 * @return WP_Term[]
 	 */
 	public static function get_contributors( int $book_id, string $role = '' ): array {
-		$terms = get_the_terms( $book_id, 'library_person' );
 		$roles = Meta::get_roles( $book_id );
 
 		return array_values(
 			array_filter(
-				is_array( $terms ) ? $terms : array(),
+				self::get_book_terms( $book_id, 'library_person' ),
 				fn( WP_Term $term ) => isset( $roles[ $term->term_id ] ) && ( '' === $role || $role === $roles[ $term->term_id ] )
 			)
 		);
@@ -688,9 +814,7 @@ class Taxonomies {
 	 * @return WP_Term[]
 	 */
 	public static function get_collections( int $book_id ): array {
-		$terms = get_the_terms( $book_id, 'library_publisher' );
-
-		return array_values( wp_list_filter( is_array( $terms ) ? $terms : array(), array( 'parent' => 0 ), 'NOT' ) );
+		return array_values( wp_list_filter( self::get_book_terms( $book_id, 'library_publisher' ), array( 'parent' => 0 ), 'NOT' ) );
 	}
 
 	/**
@@ -721,10 +845,9 @@ class Taxonomies {
 	 * @return int[]
 	 */
 	public static function get_term_ids_and_ancestors( int $book_id, string $taxonomy ): array {
-		$terms = get_the_terms( $book_id, $taxonomy );
-		$ids   = array();
+		$ids = array();
 
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+		foreach ( self::get_book_terms( $book_id, $taxonomy ) as $term ) {
 			$ids = array( ...$ids, $term->term_id, ...get_ancestors( $term->term_id, $taxonomy, 'taxonomy' ) );
 		}
 
@@ -764,6 +887,22 @@ class Taxonomies {
 		}
 
 		return array_values( $top_level_terms );
+	}
+
+	/**
+	 * On the list of the books and the edit screen of a book, name the languages as its terms: its original languages,
+	 * in its box, the column of the list and the quick and bulk edit, which core names after the taxonomy.
+	 *
+	 * @param WP_Screen $screen Current screen.
+	 * @return void
+	 */
+	public function name_original_languages( WP_Screen $screen ): void {
+		if ( 'library_book' !== $screen->post_type || ! in_array( $screen->base, array( 'edit', 'post' ), true ) ) {
+			return;
+		}
+
+		$labels       = get_taxonomy( 'library_language' )->labels;
+		$labels->name = $labels->name_for_book;
 	}
 
 	/**

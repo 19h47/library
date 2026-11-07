@@ -9,6 +9,8 @@
  * @var array<int,array>                                $charts
  */
 
+use Library\Books;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -23,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					/* translators: 1: number of books rated, 2: average rating (e.g. 7.5). */
 					esc_html__( '%1$s rated, average %2$s/10', 'library' ),
 					esc_html( number_format_i18n( $ratings['count'] ) ),
-					esc_html( number_format_i18n( $ratings['average'], 1 ) )
+					esc_html( Books::format_rating( $ratings['average'] ) )
 				);
 				?>
 			</p>

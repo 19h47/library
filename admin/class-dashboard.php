@@ -16,7 +16,6 @@ use Library\Books;
 use Library\Plugin;
 use Library\Posts;
 use Library\Stats;
-use Library\Status;
 use Library\Taxonomies;
 
 /**
@@ -88,7 +87,7 @@ class Dashboard {
 	public function render_reading(): void {
 		$stats        = Stats::get_reading_stats();
 		$year_to_date = Stats::get_reading_year_to_date();
-		$pages_read   = $this->get_pages_read_this_year();
+		$pages_read   = Stats::count_pages( Stats::get_year_readings( (int) wp_date( 'Y' ) ) );
 		$charts       = $this->get_reading_charts();
 
 		$this->render_partial( 'reading', compact( 'stats', 'year_to_date', 'pages_read', 'charts' ) );
@@ -119,7 +118,7 @@ class Dashboard {
 	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and edition years.
 	 */
 	public function render_collection(): void {
-		$books       = self::get_kept_books();
+		$books       = Stats::get_kept_books();
 		$authors     = self::count_books_by( $books, 'author_ids' );
 		$publishers  = self::count_books_by( $books, 'publisher_ids' );
 		$collections = self::count_books_by( $books, 'collection_ids' );
@@ -153,7 +152,7 @@ class Dashboard {
 			'authors'    => count( $authors ),
 			'publishers' => count( $publishers ),
 			'languages'  => count( $languages ),
-			'translated' => count( array_filter( $books, fn( Book $book ) => (bool) $book->translators ) ),
+			'translated' => count( array_filter( $books, fn( Book $book ) => $book->is_translated() ) ),
 		);
 		$charts      = array( $this->get_edition_chart() );
 
@@ -253,22 +252,6 @@ class Dashboard {
 	}
 
 	/**
-	 * Pages read this year, over the books read this year with their number of pages;
-	 * a book read again counts once per reading.
-	 *
-	 * @return array{pages:int,books:int}
-	 */
-	private function get_pages_read_this_year(): array {
-		$this_year = wp_date( 'Y-01-01' );
-		$readings  = array_filter( Stats::get_readings(), fn( Book $reading ) => $reading->read_date >= $this_year && null !== $reading->pages );
-
-		return array(
-			'pages' => array_sum( array_column( $readings, 'pages' ) ),
-			'books' => count( $readings ),
-		);
-	}
-
-	/**
 	 * Books read by year, by month this year and by month over all years, from the read dates;
 	 * a book read again counts once per reading.
 	 *
@@ -311,7 +294,7 @@ class Dashboard {
 	 * @return Chart
 	 */
 	private function get_edition_chart(): array {
-		$books_by_year = self::count_by_start( array_column( self::get_kept_books(), 'edition_date' ), 4 );
+		$books_by_year = self::count_by_start( array_column( Stats::get_kept_books(), 'edition_date' ), 4 );
 
 		if ( count( $books_by_year ) <= 40 ) {
 			$items = array();
@@ -376,13 +359,8 @@ class Dashboard {
 	 * @return Chart
 	 */
 	private function get_average_rating_chart(): array {
-		$read_by_year = array();
-
-		foreach ( Stats::get_readings() as $reading ) {
-			$read_by_year[ (int) substr( $reading->read_date, 0, 4 ) ][ $reading->id ] = $reading;
-		}
-
-		$average_by_year = array_filter( array_map( array( Books::class, 'get_average_rating' ), $read_by_year ), 'is_float' );
+		$years           = array_keys( Stats::count_by_year() );
+		$average_by_year = array_filter( array_combine( $years, array_map( fn( int $year ) => Books::get_average_rating( Stats::get_year_books( $year ) ), $years ) ), 'is_float' );
 
 		$items = array_map(
 			function ( int $year ) use ( $average_by_year ) {
@@ -455,15 +433,6 @@ class Dashboard {
 	}
 
 	/**
-	 * The books in the library, i.e. kept, from Books::get_books().
-	 *
-	 * @return array<int,Book>
-	 */
-	private static function get_kept_books(): array {
-		return array_filter( Books::get_books(), fn( Book $book ) => Status::In_Library === $book->status );
-	}
-
-	/**
 	 * Books and books read of each term the books count for, as their field of term IDs gives them, such as author_ids: an
 	 * author under the name they are known by, a publisher with its collections, a collection with its sub-collections. A
 	 * collective book is not part of the work of its authors. The terms with the most books come first, then the most read,
@@ -477,11 +446,9 @@ class Dashboard {
 		$counts = array();
 
 		foreach ( $books as $book ) {
-			if ( 'author_ids' === $field && $book->collective ) {
-				continue;
-			}
+			$term_ids = 'author_ids' === $field ? array_keys( $book->get_work_authors() ) : $book->$field;
 
-			foreach ( $book->$field as $term_id ) {
+			foreach ( $term_ids as $term_id ) {
 				$counts[ $term_id ] = array(
 					'books'      => ( $counts[ $term_id ]['books'] ?? 0 ) + 1,
 					'books_read' => ( $counts[ $term_id ]['books_read'] ?? 0 ) + (int) $book->read,
@@ -523,7 +490,7 @@ class Dashboard {
 
 			$items[] = array(
 				'name' => 'library_publisher' === $taxonomy ? Taxonomies::get_collection_name( $term ) : $term->name,
-				'url'  => admin_url( 'edit.php?post_type=library_book&' . $taxonomy . '=' . $term->slug ),
+				'url'  => Books_List::get_term_url( $term ),
 				'text' => self::format_books_read( $count ),
 			);
 		}
@@ -532,13 +499,13 @@ class Dashboard {
 	}
 
 	/**
-	 * Add the number of published books to the "At a Glance" dashboard widget.
+	 * Add the number of books in the library to the "At a Glance" dashboard widget.
 	 *
 	 * @param string[] $items Items.
 	 * @return string[]
 	 */
 	public function add_books_at_a_glance( array $items ): array {
-		$count = (int) wp_count_posts( 'library_book' )->publish;
+		$count = count( Stats::get_kept_books() );
 
 		if ( ! $count ) {
 			return $items;

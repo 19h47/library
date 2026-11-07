@@ -40,7 +40,8 @@ class Rest_API {
 
 	/**
 	 * Register the fields added to the books of the core REST API: its credits, and what a list of books shows of its
-	 * cover and terms, so that it needs to embed neither the image nor the terms, whole.
+	 * cover and terms, so that it needs to embed neither the image nor the terms, whole; and to the series and the
+	 * publishers, their names as a book types them.
 	 *
 	 * @return void
 	 */
@@ -72,7 +73,7 @@ class Rest_API {
 						'id'   => $term->term_id,
 						'name' => $term->name,
 					),
-					$this->get_book_terms( $book['id'], 'library_person' )
+					Taxonomies::get_book_terms( $book['id'], 'library_person' )
 				),
 				'schema'       => array(
 					'description' => __( 'Names of the book, as named on it, each with its term ID; the role meta tell the ones with another role than author.', 'library' ),
@@ -81,7 +82,7 @@ class Rest_API {
 				),
 			),
 			'language_codes'         => array(
-				'get_callback' => fn( array $book ) => wp_list_pluck( $this->get_book_terms( $book['id'], 'library_language' ), 'slug' ),
+				'get_callback' => fn( array $book ) => wp_list_pluck( Taxonomies::get_book_terms( $book['id'], 'library_language' ), 'slug' ),
 				'schema'       => array(
 					'description' => __( 'Original languages of the book, as ISO 639 codes, the slugs of their terms.', 'library' ),
 					'type'        => 'array',
@@ -97,18 +98,14 @@ class Rest_API {
 				),
 			),
 			'series_name'            => array(
-				'get_callback' => function ( array $book ): string {
-					$series = Taxonomies::get_series( $book['id'] );
-
-					return $series ? Taxonomies::get_series_path( $series ) : '';
-				},
+				'get_callback' => fn( array $book ) => Taxonomies::get_series_name( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Series of the book, after its cycles, in plain text, such as “Star Wars, Young Jedi Knights”, or empty.', 'library' ),
 					'type'        => 'string',
 				),
 			),
 			'form_name'              => array(
-				'get_callback' => fn( array $book ) => (string) ( current( $this->get_book_terms( $book['id'], 'library_form' ) )->name ?? '' ),
+				'get_callback' => fn( array $book ) => (string) ( current( Taxonomies::get_book_terms( $book['id'], 'library_form' ) )->name ?? '' ),
 				'schema'       => array(
 					'description' => __( 'Name of the form of the book, such as a novel, or empty.', 'library' ),
 					'type'        => 'string',
@@ -123,6 +120,31 @@ class Rest_API {
 			);
 
 			register_rest_field( 'library_book', $name, $field );
+		}
+
+		// The names the form of a book suggests, as a book types them: a series after its cycles, a collection after the
+		// collections it is part of, under the ID of its publisher.
+		$term_fields = array(
+			array( 'library_series', 'path', 'string', array( Taxonomies::class, 'get_series_path' ) ),
+			array( 'library_publisher', 'collection', 'string', array( Taxonomies::class, 'get_collection_name' ) ),
+			array( 'library_publisher', 'publisher', 'integer', fn( WP_Term $term ) => current( Taxonomies::get_top_level_terms( array( $term ) ) )->term_id ?? $term->term_id ),
+		);
+
+		foreach ( $term_fields as [ $taxonomy, $name, $type, $callback ] ) {
+			$field = array(
+				'get_callback' => function ( array $item ) use ( $taxonomy, $callback ) {
+					$term = get_term( $item['id'], $taxonomy );
+
+					return $term instanceof WP_Term ? $callback( $term ) : null;
+				},
+				'schema'       => array(
+					'type'     => $type,
+					'context'  => array( 'view', 'edit' ),
+					'readonly' => true,
+				),
+			);
+
+			register_rest_field( $taxonomy, $name, $field );
 		}
 	}
 
@@ -160,19 +182,6 @@ class Rest_API {
 		$terms = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, 'library_language' ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
 
 		return array_values( wp_list_pluck( $terms, 'slug' ) );
-	}
-
-	/**
-	 * Terms of a book in a taxonomy, from the cache the query of the books filled.
-	 *
-	 * @param int    $book_id  Book ID.
-	 * @param string $taxonomy Taxonomy.
-	 * @return WP_Term[]
-	 */
-	private function get_book_terms( int $book_id, string $taxonomy ): array {
-		$terms = get_the_terms( $book_id, $taxonomy );
-
-		return is_array( $terms ) ? $terms : array();
 	}
 
 	/**
@@ -511,7 +520,7 @@ class Rest_API {
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
 			'post_content' => $request['content'],
-		) + $this->get_slug_fields( 0, $meta );
+		) + Posts::get_slug_fields( 0, $meta );
 
 		$book_id = wp_insert_post( wp_slash( $post ), true );
 
@@ -545,21 +554,14 @@ class Rest_API {
 		}
 
 		$collection = current( Taxonomies::get_collections( $book->ID ) );
-		$publishers = get_the_terms( $book, 'library_publisher' );
-		$publisher  = current( Taxonomies::get_top_level_terms( $collection ? array( $collection ) : ( is_array( $publishers ) ? $publishers : array() ) ) );
+		$publishers = $collection ? array( $collection ) : Taxonomies::get_book_terms( $book->ID, 'library_publisher' );
+		$publisher  = current( Taxonomies::get_top_level_terms( $publishers ) );
 		$people     = wp_get_post_terms( $book->ID, 'library_person' );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
-		$series     = Taxonomies::get_series( $book->ID );
 		$roles      = Meta::get_roles( $book->ID );
-		$meta       = array();
-
 		// The read dates are the reading of the book, which its own form edits.
-		foreach ( array_diff( Meta::KEYS, array( 'library_read_date' ) ) as $key ) {
-			$meta[ $key ] = get_post_meta( $book->ID, $key, true );
-		}
-
-		$meta['library_edition_languages'] = Meta::get_edition_languages( $book->ID );
+		$meta = array_diff_key( Meta::get_values( $book->ID ), array( 'library_read_date' => true ) );
 
 		return rest_ensure_response(
 			array(
@@ -576,7 +578,7 @@ class Rest_API {
 				),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
-				'series'     => $series ? Taxonomies::get_series_path( $series ) : '',
+				'series'     => Taxonomies::get_series_name( $book->ID ),
 				'languages'  => $languages,
 				'form'       => (int) current( $forms ),
 				'meta'       => $meta,
@@ -621,7 +623,7 @@ class Rest_API {
 		// The names first, so that a book is never left half edited.
 		$roles = $this->get_roles( $request );
 		$terms = $this->get_terms( $request, $roles );
-		$post  = array( 'ID' => $book_id ) + $this->get_slug_fields( $book_id, $meta );
+		$post  = array( 'ID' => $book_id ) + Posts::get_slug_fields( $book_id, $meta );
 
 		if ( $request->has_param( 'title' ) ) {
 			$post['post_title'] = $request['title'];
@@ -675,10 +677,6 @@ class Rest_API {
 			$terms['library_publisher'] = array_filter( array( $collection_id ? $collection_id : $publisher_id ) );
 		}
 
-		if ( $request->has_param( 'series' ) ) {
-			$terms['library_series'] = array_filter( array( Taxonomies::get_path_id( 'library_series', $request['series'], true ) ) );
-		}
-
 		if ( $request->has_param( 'languages' ) ) {
 			$terms['library_language'] = array_filter( $request['languages'] );
 		}
@@ -710,26 +708,8 @@ class Rest_API {
 	}
 
 	/**
-	 * Fields the slug of a book is built from, which Posts::slug() reads with its post: the ISBN, the ISSN and the
-	 * volume number sent, or else those of the book.
-	 *
-	 * @param int                 $book_id Book ID, 0 for a book to add.
-	 * @param array<string,mixed> $meta    Book meta sent.
-	 * @return array<string,string>
-	 */
-	private function get_slug_fields( int $book_id, array $meta ): array {
-		$fields = array();
-
-		foreach ( array( 'library_isbn', 'library_issn', 'library_volume_number' ) as $key ) {
-			$fields[ $key ] = $meta[ $key ] ?? (string) get_post_meta( $book_id, $key, true );
-		}
-
-		return $fields;
-	}
-
-	/**
-	 * Save what is sent for a book, after its post: its meta through Meta, its terms, and its cover, the featured_media
-	 * sent, which becomes an image of the book; 0 removes it.
+	 * Save what is sent for a book, after its post: its meta through Meta, its terms, its series, and its cover, the
+	 * featured_media sent, which becomes an image of the book; 0 removes it.
 	 *
 	 * @param int                 $book_id Book ID.
 	 * @param WP_REST_Request     $request Request.
@@ -744,6 +724,10 @@ class Rest_API {
 
 		foreach ( $terms as $taxonomy => $term_ids ) {
 			wp_set_object_terms( $book_id, $term_ids, $taxonomy );
+		}
+
+		if ( $request->has_param( 'series' ) ) {
+			Taxonomies::set_series( $book_id, $request['series'] );
 		}
 
 		if ( $request->has_param( 'people' ) ) {
@@ -921,7 +905,7 @@ class Rest_API {
 					$series
 				),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
+				'read'        => Books::count_read( $books ),
 				'rating'      => Books::get_average_rating( $books ),
 				'pages'       => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
@@ -962,7 +946,7 @@ class Rest_API {
 				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Books::sort_in_reading_order( $books ), 'id' ),
-				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
+				'read'        => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
@@ -1025,7 +1009,7 @@ class Rest_API {
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => count( array_filter( $books, fn( Book $book ) => $book->read ) ),
+				'read'        => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);
