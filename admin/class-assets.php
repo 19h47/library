@@ -73,7 +73,7 @@ class Assets {
 			'library-admin-inline-edit',
 			'libraryInlineEdit',
 			array(
-				'statusChoices' => array_diff_key( Status::get_choices(), array( 'publish' => true ) ),
+				'statusChoices' => array_intersect_key( Status::get_choices(), array_flip( Status::get_other_values() ) ),
 			)
 		);
 	}

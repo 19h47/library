@@ -35,16 +35,6 @@ class Terms_List {
 	public const string WITHOUT_BOOKS = 'library_without_books';
 
 	/**
-	 * Statuses counted in a column of their own, by column: the count of core only counts the books in the library.
-	 *
-	 * @var array<string,string>
-	 */
-	private const array STATUS_COLUMNS = array(
-		'library_not_kept' => Status::Not_Kept->value,
-		'library_to_buy'   => Status::To_Buy->value,
-	);
-
-	/**
 	 * Books of each status by term ID, by taxonomy; a term without books has none.
 	 *
 	 * @var array<string,array<int,array<string,int>>>
@@ -138,8 +128,8 @@ class Terms_List {
 	 * @return string[]
 	 */
 	public function add_status_columns( array $columns ): array {
-		foreach ( self::STATUS_COLUMNS as $column => $status ) {
-			$columns[ $column ] = get_post_status_object( $status )->label;
+		foreach ( self::get_status_columns() as $column => $status ) {
+			$columns[ $column ] = $status->label();
 		}
 
 		return $columns;
@@ -154,29 +144,36 @@ class Terms_List {
 	 * @return string
 	 */
 	public function render_status_column( string $content, string $column_name, int $term_id ): string {
-		$status = self::STATUS_COLUMNS[ $column_name ] ?? null;
+		$status = self::get_status_columns()[ $column_name ] ?? null;
 		$term   = get_term( $term_id );
 
 		if ( ! $status || ! $term instanceof WP_Term ) {
 			return $content;
 		}
 
-		$books = $this->get_counts( $term->taxonomy )[ $term_id ][ $status ] ?? 0;
+		$books = $this->get_counts( $term->taxonomy )[ $term_id ][ $status->value ] ?? 0;
 
 		if ( ! $books ) {
 			return number_format_i18n( $books );
 		}
 
-		$url = add_query_arg(
-			array(
-				'post_type'     => 'library_book',
-				'post_status'   => $status,
-				$term->taxonomy => $term->slug,
-			),
-			admin_url( 'edit.php' )
-		);
+		return sprintf( '<a href="%s">%s</a>', esc_url( Books_List::get_term_url( $term, $status->value ) ), esc_html( number_format_i18n( $books ) ) );
+	}
 
-		return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( number_format_i18n( $books ) ) );
+	/**
+	 * Statuses counted in a column of their own, those out of the library, by column, named after the status: the count
+	 * of core only counts the books in the library.
+	 *
+	 * @return array<string,Status> Statuses by column, such as library_not_kept for library-not-kept.
+	 */
+	private static function get_status_columns(): array {
+		$columns = array();
+
+		foreach ( Status::get_others() as $status ) {
+			$columns[ str_replace( '-', '_', $status->value ) ] = $status;
+		}
+
+		return $columns;
 	}
 
 	/**

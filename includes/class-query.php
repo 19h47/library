@@ -382,7 +382,7 @@ class Query {
 					$wpdb->esc_like( $value ) . '%'
 				);
 			case 'isbn':
-				$digits = '%' . $wpdb->esc_like( (string) preg_replace( '/[\s-]/', '', $value ) ) . '%';
+				$digits = '%' . $wpdb->esc_like( ISBN::get_digits( $value ) ) . '%';
 
 				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
 			case 'read':

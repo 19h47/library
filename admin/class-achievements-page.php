@@ -182,13 +182,12 @@ class Achievements_Page {
 			return (string) get_edit_post_link( $target['id'], 'raw' );
 		}
 
-		$url = admin_url( 'edit.php?post_type=library_book' );
-
-		if ( $target['not_kept'] ) {
-			$url = add_query_arg( 'post_status', Status::Not_Kept->value, $url );
-		}
+		$status = $target['not_kept'] ? Status::Not_Kept->value : '';
 
 		if ( 'search' === $target['type'] ) {
+			$url = admin_url( 'edit.php?post_type=library_book' );
+			$url = '' !== $status ? add_query_arg( 'post_status', $status, $url ) : $url;
+
 			return add_query_arg( 's', rawurlencode( $target['search'] ), $url );
 		}
 
@@ -200,6 +199,6 @@ class Achievements_Page {
 		$taxonomy   = $taxonomies[ $target['type'] ];
 		$term       = get_term( $target['id'], $taxonomy );
 
-		return $term instanceof WP_Term ? add_query_arg( $taxonomy, $term->slug, $url ) : '';
+		return $term instanceof WP_Term ? Books_List::get_term_url( $term, $status ) : '';
 	}
 }

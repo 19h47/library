@@ -134,7 +134,7 @@ class BnF {
 	 * @return Record|null|WP_Error
 	 */
 	private static function get_record( string $isbn ): array|null|WP_Error {
-		$digits = strtoupper( (string) preg_replace( '/[^\dX]+/i', '', $isbn ) );
+		$digits = ISBN::get_digits( $isbn );
 		$key    = "library_bnf_$digits";
 		/**
 		 * The record cached, an empty array for an ISBN the catalogue does not know, false for none.
@@ -147,7 +147,7 @@ class BnF {
 			return $cached ? $cached : null;
 		}
 
-		$codes    = array_filter( array( $digits, self::to_isbn10( $digits ) ) );
+		$codes    = array_filter( array( $digits, ISBN::to_isbn10( $digits ) ) );
 		$queries  = array_map( fn( string $code ) => sprintf( 'bib.isbn all "%s"', $code ), $codes );
 		$url      = add_query_arg(
 			array(
@@ -169,7 +169,7 @@ class BnF {
 		// The catalogue finds an ISBN in other fields too, such as the one of another edition: the record of the book has it as its own.
 		$record = array_find(
 			self::parse( wp_remote_retrieve_body( $response ) ),
-			fn( array $item ) => (bool) array_intersect( $codes, array_map( fn( string $code ) => strtoupper( (string) preg_replace( '/[^\dX]+/i', '', $code ) ), array_merge( ...array_column( array_column( $item['010'] ?? array(), 'subfields' ), 'a' ) ) ) )
+			fn( array $item ) => (bool) array_intersect( $codes, array_map( array( ISBN::class, 'get_digits' ), array_merge( ...array_column( array_column( $item['010'] ?? array(), 'subfields' ), 'a' ) ) ) )
 		);
 
 		set_transient( $key, $record ?? array(), DAY_IN_SECONDS );
@@ -357,13 +357,9 @@ class BnF {
 		if ( count( $parts ) >= 4 ) {
 			// The ISBN-10 of an older book, the same without 978.
 			$registrant = '978' === $parts[0] ? sprintf( '^(978-)?%s-%s-', $parts[1], $parts[2] ) : sprintf( '^%s-%s-%s-', ...$parts );
-			$books      = get_posts(
+			$books      = self::get_some_book_ids(
 				array(
-					'post_type'      => 'library_book',
-					'post_status'    => Status::get_values(),
-					'posts_per_page' => 20,
-					'fields'         => 'ids',
-					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- A search typed once, on one meta.
+					'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- A search typed once, on one meta.
 						array(
 							'key'     => 'library_isbn',
 							'value'   => $registrant,
@@ -375,19 +371,13 @@ class BnF {
 			$names      = array();
 
 			foreach ( $books as $book_id ) {
-				$terms = get_the_terms( $book_id, 'library_publisher' );
-
-				foreach ( Taxonomies::get_top_level_terms( is_array( $terms ) ? $terms : array() ) as $publisher ) {
+				foreach ( Taxonomies::get_top_level_terms( Taxonomies::get_book_terms( $book_id, 'library_publisher' ) ) as $publisher ) {
 					$names[] = wp_specialchars_decode( $publisher->name, ENT_QUOTES );
 				}
 			}
 
 			if ( $names ) {
-				$counts = array_count_values( $names );
-
-				arsort( $counts );
-
-				return (string) array_key_first( $counts );
+				return (string) self::get_most_common( $names );
 			}
 		}
 
@@ -605,13 +595,9 @@ class BnF {
 	 */
 	private static function find_form( array $record, ?WP_Term $series ): int {
 		if ( $series ) {
-			$books = get_posts(
+			$books = self::get_some_book_ids(
 				array(
-					'post_type'      => 'library_book',
-					'post_status'    => Status::get_values(),
-					'posts_per_page' => 20,
-					'fields'         => 'ids',
-					'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- The books of one series.
+					'tax_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- The books of one series.
 						array(
 							'taxonomy'         => 'library_series',
 							'terms'            => $series->term_id,
@@ -628,11 +614,7 @@ class BnF {
 			}
 
 			if ( $forms ) {
-				$counts = array_count_values( array_map( 'intval', $forms ) );
-
-				arsort( $counts );
-
-				return (int) array_key_first( $counts );
+				return (int) self::get_most_common( array_map( 'intval', $forms ) );
 			}
 		}
 
@@ -665,25 +647,34 @@ class BnF {
 	}
 
 	/**
-	 * The ISBN-10 of an ISBN-13 of 978, which the catalogue holds for the books of before 2007; empty for another code.
+	 * IDs of 20 books of the library, of any status, among those a query finds: enough to tell what most of them have.
 	 *
-	 * @param string $digits Digits of an ISBN.
-	 * @return string
+	 * @param array{meta_query?:array<mixed>,tax_query?:array<mixed>} $query Meta or tax query of get_posts() that finds the books.
+	 * @return int[]
 	 */
-	private static function to_isbn10( string $digits ): string {
-		if ( ! preg_match( '/^978(\d{9})\d$/', $digits, $matches ) ) {
-			return '';
-		}
+	private static function get_some_book_ids( array $query ): array {
+		return get_posts(
+			array(
+				'post_type'      => 'library_book',
+				'post_status'    => Status::get_values(),
+				'posts_per_page' => 20,
+				'fields'         => 'ids',
+			) + $query
+		);
+	}
 
-		$sum = 0;
+	/**
+	 * The value given the most often, the first one given among those given as often.
+	 *
+	 * @param non-empty-array<int|string> $values Values, such as names or term IDs.
+	 * @return int|string
+	 */
+	private static function get_most_common( array $values ): int|string {
+		$counts = array_count_values( $values );
 
-		foreach ( str_split( $matches[1] ) as $index => $digit ) {
-			$sum += (int) $digit * ( 10 - $index );
-		}
+		arsort( $counts );
 
-		$check = ( 11 - $sum % 11 ) % 11;
-
-		return $matches[1] . ( 10 === $check ? 'X' : $check );
+		return array_key_first( $counts );
 	}
 
 	/**
