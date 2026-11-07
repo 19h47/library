@@ -211,7 +211,7 @@ class Terms_List {
 		);
 		$count         = wp_count_terms( array( 'taxonomy' => $taxonomy ) );
 		$terms         = is_wp_error( $count ) ? 0 : (int) $count;
-		$without_books = $terms - count( $this->get_counts( $taxonomy ) );
+		$without_books = $terms - count( $this->get_used_ids( $taxonomy ) );
 		/* translators: %s: number of terms. */
 		$without_label = _n_noop( 'Without books <span class="count">(%s)</span>', 'Without books <span class="count">(%s)</span>', 'library' );
 		$all_label     = sprintf( '%s <span class="count">(%s)</span>', esc_html( get_taxonomy( $taxonomy )->labels->all_items ), number_format_i18n( $terms ) );
@@ -255,7 +255,7 @@ class Terms_List {
 			return $args;
 		}
 
-		$args['exclude'] = array( ...wp_parse_id_list( $args['exclude'] ), ...array_keys( $this->get_counts( $taxonomies[0] ) ) );
+		$args['exclude'] = array( ...wp_parse_id_list( $args['exclude'] ), ...$this->get_used_ids( $taxonomies[0] ) );
 
 		return $args;
 	}
@@ -281,6 +281,33 @@ class Terms_List {
 		$attributes = $current ? ' class="current" aria-current="page"' : '';
 
 		return sprintf( '<a href="%s"%s>%s</a>', esc_url( $url ), $attributes, $label );
+	}
+
+	/**
+	 * Terms a book has, or uses otherwise: a language that is the one of the text of a book, an edition language, though
+	 * no book was written in it, as French for the books translated. The view of the terms without books leaves them out,
+	 * as deleting one would leave books without it.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 * @return int[] Term IDs.
+	 */
+	private function get_used_ids( string $taxonomy ): array {
+		$term_ids = array_keys( $this->get_counts( $taxonomy ) );
+
+		if ( 'library_language' !== $taxonomy ) {
+			return $term_ids;
+		}
+
+		global $wpdb;
+
+		$edition_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
+			"SELECT DISTINCT pm.meta_value
+			FROM {$wpdb->postmeta} AS pm
+			INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )
+			WHERE pm.meta_key = 'library_edition_languages'"
+		);
+
+		return array_values( array_unique( array( ...$term_ids, ...array_map( 'intval', $edition_ids ) ) ) );
 	}
 
 	/**

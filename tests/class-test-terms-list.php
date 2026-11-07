@@ -82,4 +82,39 @@ class Test_Terms_List extends TestCase {
 
 		$this->assertSame( array( 'Don Rosa', 'Romano Scarpa' ), $names );
 	}
+
+	/**
+	 * The view of the languages without books leaves out a language that is only the one of the text of a book, an
+	 * edition language: deleting it would leave the book without it.
+	 *
+	 * @return void
+	 */
+	public function test_the_view_of_the_languages_leaves_out_the_edition_languages(): void {
+		$english = $this->get_language( 'en', 'English' );
+		$french  = $this->get_language( 'fr', 'French' );
+
+		$this->get_language( 'de', 'German' );
+		$this->add_book(
+			array(
+				'languages' => array( $english ),
+				'meta'      => array( 'library_edition_languages' => array( $french ) ),
+			)
+		);
+
+		$terms_list = new Terms_List();
+
+		add_filter( 'get_terms_args', array( $terms_list, 'exclude_terms_with_books' ), 10, 2 );
+
+		$names = get_terms(
+			array(
+				'taxonomy'   => 'library_language',
+				'hide_empty' => false,
+				'fields'     => 'names',
+			)
+		);
+
+		remove_filter( 'get_terms_args', array( $terms_list, 'exclude_terms_with_books' ) );
+
+		$this->assertSame( array( 'German' ), $names );
+	}
 }
