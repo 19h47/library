@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-07T17:20:09+00:00\n"
+"POT-Creation-Date: 2026-11-07T17:28:02+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -67,7 +67,7 @@ msgid "Authors"
 msgstr "Auteurs/autrices"
 
 #: admin/class-books-list.php:93 admin/partials/library-read-date.php:29
-#: app/partials/library-app.php:917
+#: app/partials/library-app.php:916
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -77,7 +77,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-books-list.php:151 app/partials/library-app.php:935
+#: admin/class-books-list.php:151 app/partials/library-app.php:934
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -405,7 +405,7 @@ msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:521
+#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:516
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -448,7 +448,7 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:303
 #: includes/class-books.php:308 includes/class-books.php:326
-#: app/js/lib/render.js:633
+#: app/js/lib/render.js:628
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -593,9 +593,9 @@ msgstr ""
 "est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
 "autrice : enregistrez le livre pour lui choisir un autre rôle."
 
-#: admin/partials/library-read-date.php:35 app/partials/library-app.php:926
-#: app/partials/library-app.php:927 app/partials/library-app.php:940
-#: app/partials/library-app.php:941
+#: admin/partials/library-read-date.php:35 app/partials/library-app.php:925
+#: app/partials/library-app.php:926 app/partials/library-app.php:939
+#: app/partials/library-app.php:940
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
@@ -845,15 +845,11 @@ msgstr "Enregistrer"
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:908
-msgid "Finished"
-msgstr "Terminé"
-
-#: app/partials/library-app.php:966
+#: app/partials/library-app.php:965
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:976 app/partials/library-app.php:977
+#: app/partials/library-app.php:975 app/partials/library-app.php:976
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -2615,7 +2611,7 @@ msgstr "Les livres n’ont pas pu être chargés."
 msgid "Recap of %s"
 msgstr "Bilan %s"
 
-#: app/js/lib/format.js:120 app/js/lib/store.js:1295
+#: app/js/lib/format.js:120 app/js/lib/store.js:1263
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
@@ -2649,23 +2645,26 @@ msgstr[0] "Lu %s fois"
 msgstr[1] "Lu %s fois"
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:434
+#: app/js/lib/render.js:429
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
 msgstr[1] "%s autres auteurs/autrices"
 
-#: app/js/lib/store.js:1061
+#: app/js/lib/store.js:1029
 msgid "Reading undone."
 msgstr "Lecture annulée."
 
-#: app/js/lib/store.js:1074
+#: app/js/lib/store.js:1042
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
 
-#: app/js/lib/store.js:1075
+#: app/js/lib/store.js:1043
 msgid "Undo"
 msgstr "Annuler"
+
+#~ msgid "Finished"
+#~ msgstr "Terminé"
 
 #~ msgid "And %s more"
 #~ msgid_plural "And %s more"

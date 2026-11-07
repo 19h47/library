@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T17:20:19+00:00\n"
+"POT-Creation-Date: 2026-11-07T17:28:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: admin/class-books-list.php:93
 #: admin/partials/library-read-date.php:29
-#: app/partials/library-app.php:917
+#: app/partials/library-app.php:916
 msgid "Read date"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:151
-#: app/partials/library-app.php:935
+#: app/partials/library-app.php:934
 msgid "Unknown date"
 msgstr ""
 
@@ -416,7 +416,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:521
+#: app/js/lib/render.js:516
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -462,7 +462,7 @@ msgstr ""
 #: includes/class-books.php:303
 #: includes/class-books.php:308
 #: includes/class-books.php:326
-#: app/js/lib/render.js:633
+#: app/js/lib/render.js:628
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -600,10 +600,10 @@ msgid "The role of each name of the book: a colorist, for instance, is not one o
 msgstr ""
 
 #: admin/partials/library-read-date.php:35
+#: app/partials/library-app.php:925
 #: app/partials/library-app.php:926
-#: app/partials/library-app.php:927
+#: app/partials/library-app.php:939
 #: app/partials/library-app.php:940
-#: app/partials/library-app.php:941
 msgid "Remove this reading"
 msgstr ""
 
@@ -860,16 +860,12 @@ msgstr ""
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:908
-msgid "Finished"
-msgstr ""
-
-#: app/partials/library-app.php:966
+#: app/partials/library-app.php:965
 msgid "Role"
 msgstr ""
 
+#: app/partials/library-app.php:975
 #: app/partials/library-app.php:976
-#: app/partials/library-app.php:977
 msgid "Remove this person"
 msgstr ""
 
@@ -2551,7 +2547,7 @@ msgid "Recap of %s"
 msgstr ""
 
 #: app/js/lib/format.js:120
-#: app/js/lib/store.js:1295
+#: app/js/lib/store.js:1263
 msgid "No book found."
 msgstr ""
 
@@ -2589,21 +2585,21 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:434
+#: app/js/lib/render.js:429
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/lib/store.js:1061
+#: app/js/lib/store.js:1029
 msgid "Reading undone."
 msgstr ""
 
-#: app/js/lib/store.js:1074
+#: app/js/lib/store.js:1042
 msgid "Reading saved."
 msgstr ""
 
-#: app/js/lib/store.js:1075
+#: app/js/lib/store.js:1043
 msgid "Undo"
 msgstr ""
