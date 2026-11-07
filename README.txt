@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.29.2
+Stable tag: 9.29.3
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.29.3 =
+* Fixed: reading app: the cover of a book being read no longer stays blank in Safari once back from the book: its button Finished goes under its title, a pill, rather than over the cover, and nothing floating is blurred any more, the bars, the controls and the notices opaque; Safari laid out the cover wrongly under a blurred control once the view transition ended (WebKit bug 275698).
+* Changed: reading app: the covers of the books being read load as the others do again, lazy, at the size they show.
 
 = 9.29.2 =
 * Changed: reading app: a view gives way to the next one rather than both crossing, the view left fading out before the one opened fades in; the header, the toolbar and the tab bar stay as they are; the cover of a book opened goes to its page at once, the one of its card lent until its own has loaded.

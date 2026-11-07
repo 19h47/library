@@ -11,7 +11,7 @@
  * Plugin Name:       Library
  * Plugin URI:        https://www.github.com/19h47/library
  * Description:       Enables a Book post type, taxonomy and metaboxes.
- * Version:           9.29.2
+ * Version:           9.29.3
  * Requires at least: 7.1
  * Requires PHP:      8.4
  * Author:            Jérémy Levron
