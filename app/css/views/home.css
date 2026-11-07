@@ -9,6 +9,8 @@
 	 * button that opens the book rather than in it.
 	 */
 	.library-current {
+		--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
+
 		position: relative;
 		display: grid;
 		justify-items: start;
