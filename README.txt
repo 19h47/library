@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.28.0
+Stable tag: 9.29.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,19 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.29.0 =
+* Reading app: the recap of a year, each screen as high as the screen, the page stopping at each one only: the wall of covers of the first one cut under its fade; the favourites, every book rated, in a wall of covers; the people read for the first time and the achievements in clouds of small pills; the records a line each with their cover and their figure; the last screen over the covers of the year in columns going by, still for a reader who asks for less motion. On a phone, the recap leaves the footer out; beyond, its screens end above it.
+* Reading app: the name of the app on a line with the buttons of the toolbar, and the header a small step above what follows.
+* Fixed: a reading added again the same day, or a book finished again the same day, is saved, and two readings of a day stay two.
+* Fixed: the volumes of a series past the hundredth show, and are counted.
+* Fixed: a search for a series finds it whatever its accents, and the form of a book suggests the collections of a publisher whatever its case and accents.
+* Fixed: a language typed by another of its codes, such as fra, is the one the library has; the catalogue of the BnF numbers a volume "3-4" as 3.
+* Fixed: the read date of the books list after its checkbox is in the format of the site; the form of a book saved unchanged sends nothing.
+* Changed: a book is translated, for the dashboard as for the reading ideas, when a translator is credited or its text is in a language it was not written in; a book is dated by when it first came out, or else by its edition, for the reading ideas as for the achievements; a series of the recap is finished as the achievements finish it, and a collective book counts for none of its authors there either; Back to the start counts a volume without series as one of its title; the latest reads of the reading ideas have a date.
+* Changed: the screen of the languages says languages, a book its original languages; its view of the languages without books leaves out the edition languages. A book added from the admin is in the language of the reader.
+* Changed: REST API: library/v1/recaps/<year> gives every book rated of the year in best, rather than five; the series and collections of wp/v2 give their path; the page no longer preloads the volumes of the book shown.
+* Code only: each rule written once, the readings, the stats of a year, the averages, the names and the codes among them; the readings of a request worked out once; the styles of the app in cascade layers, a file per component and per view; base styles from the gist, revision ba28065.
 
 = 9.28.0 =
 * Edition languages: the languages of the text of a book, several for a multilingual edition, in its form in the app and in the box of the admin. A book added is in the language of the reader, unless the catalogue of the BnF gives others.
