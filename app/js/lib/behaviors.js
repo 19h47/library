@@ -1,7 +1,7 @@
 /**
  * What bricks share: a book opened from its card or its cover, the cards following the books, a list
- * drawn by keys, the next page as the end of a list comes, a list of inputs to add and remove, the errors of a form at
- * its fields and the button that sends it while it saves.
+ * drawn by keys, the next page as the end of a list comes, a list of inputs to add and remove, the title of a page
+ * opened, the errors of a form at its fields and the button that sends it while it saves.
  */
 
 import { store } from 'library-app/store';
@@ -250,6 +250,16 @@ export function showError( $field, message = $field.validationMessage ) {
 
 	$field.setAttribute( 'aria-invalid', 'true' );
 	describe( $field, $message, true );
+}
+
+/**
+ * Gives the focus to the title of a page opened, where assistive technologies read on, without its outline: the title
+ * is no control, and Safari on iOS draws it after a tap, as a link tapped there takes no focus to tell.
+ *
+ * @param {HTMLElement} $title The title.
+ */
+export function focusTitle( $title ) {
+	$title.focus( { preventScroll: true, focusVisible: false } );
 }
 
 /**

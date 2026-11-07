@@ -12,7 +12,12 @@ import {
 	join,
 } from 'library-app/format';
 import { fill, fillCompletion, renderBook } from 'library-app/render';
-import { followBooks, observeEnd, renderKeyed } from 'library-app/behaviors';
+import {
+	focusTitle,
+	followBooks,
+	observeEnd,
+	renderKeyed,
+} from 'library-app/behaviors';
 
 /**
  * @import { Book, PageView } from 'library-app/api'
@@ -100,7 +105,7 @@ export class TermPage extends Brick {
 				( state ) => state[ key ].name,
 				( name ) => {
 					if ( name && 'forward' === store.get().moved ) {
-						$name.focus( { preventScroll: true } );
+						focusTitle( $name );
 					}
 				}
 			),

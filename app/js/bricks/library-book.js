@@ -8,7 +8,7 @@ import {
 	listFormat,
 } from 'library-app/format';
 import { fill, fillCover, linkPeople } from 'library-app/render';
-import { showBusy } from 'library-app/behaviors';
+import { focusTitle, showBusy } from 'library-app/behaviors';
 
 /** @import { Book } from 'library-app/api' */
 
@@ -57,9 +57,7 @@ class LibraryBookElement extends Brick {
 
 			// The same book saved keeps the focus where it is; a book gone back to, the view gives it.
 			if ( book.id !== shown && 'forward' === moved ) {
-				requestAnimationFrame( () =>
-					$title.focus( { preventScroll: true } )
-				);
+				requestAnimationFrame( () => focusTitle( $title ) );
 			}
 
 			shown = book.id;
