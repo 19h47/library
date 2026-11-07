@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-07T14:20:56+00:00\n"
+"POT-Creation-Date: 2026-11-07T15:39:48+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -405,7 +405,7 @@ msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:521
+#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:538
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -448,7 +448,7 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:303
 #: includes/class-books.php:308 includes/class-books.php:326
-#: app/js/lib/render.js:633
+#: app/js/lib/render.js:650
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -2649,7 +2649,7 @@ msgstr[0] "Lu %s fois"
 msgstr[1] "Lu %s fois"
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:434
+#: app/js/lib/render.js:451
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"

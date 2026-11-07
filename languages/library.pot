@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 9.29.0\n"
+"Project-Id-Version: Library 9.29.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T15:08:32+00:00\n"
+"POT-Creation-Date: 2026-11-07T15:39:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -416,7 +416,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:521
+#: app/js/lib/render.js:538
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -462,7 +462,7 @@ msgstr ""
 #: includes/class-books.php:303
 #: includes/class-books.php:308
 #: includes/class-books.php:326
-#: app/js/lib/render.js:633
+#: app/js/lib/render.js:650
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -2590,7 +2590,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:434
+#: app/js/lib/render.js:451
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"
