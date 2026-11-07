@@ -482,22 +482,28 @@ class Achievements {
 	/**
 	 * When each series, author or collection of a kind was finished, as its completion is earned: its books all read,
 	 * with as many books as a completion needs. The latest first reading of its books, empty when unknown, by term ID.
+	 * Kept until a book changes, as the achievements are.
 	 *
 	 * @param string $kind Kind: series, author or collection.
 	 * @return array<int,string>
 	 */
 	public function get_finished( string $kind ): array {
-		$finished = array();
+		return Cache::remember(
+			"finished_$kind",
+			function () use ( $kind ): array {
+				$finished = array();
 
-		foreach ( self::get_completion_groups( self::get_dated_books() ) as $kinds ) {
-			foreach ( $kinds[ $kind ] ?? array() as $term_id => $group ) {
-				if ( array_all( $group, fn( Book $book ) => $book->read ) ) {
-					$finished[ $term_id ] = self::get_latest_read_date( $group );
+				foreach ( self::get_completion_groups( self::get_dated_books() ) as $kinds ) {
+					foreach ( $kinds[ $kind ] ?? array() as $term_id => $group ) {
+						if ( array_all( $group, fn( Book $book ) => $book->read ) ) {
+							$finished[ $term_id ] = self::get_latest_read_date( $group );
+						}
+					}
 				}
-			}
-		}
 
-		return $finished;
+				return $finished;
+			}
+		);
 	}
 
 	/**

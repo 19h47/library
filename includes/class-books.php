@@ -29,6 +29,13 @@ class Books {
 	private static ?array $books = null;
 
 	/**
+	 * Readings of the books of the current request, worked out once from them: see get_readings().
+	 *
+	 * @var list<Book>|null
+	 */
+	private static ?array $readings = null;
+
+	/**
 	 * All the books, kept, not kept or to buy.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
@@ -47,7 +54,10 @@ class Books {
 	 * @return array<int,Book>
 	 */
 	public static function get_books(): array {
-		self::$books ??= Cache::remember( 'books', fn() => self::compute_books() );
+		if ( null === self::$books ) {
+			self::$books    = Cache::remember( 'books', fn() => self::compute_books() );
+			self::$readings = null;
+		}
 
 		return self::$books;
 	}
@@ -162,15 +172,33 @@ class Books {
 	/**
 	 * The readings of books, one per read date, kept or not: each one a copy of its book with the date of the reading as
 	 * read date, see Book::with(). Those whose date is unknown come first, then by date, then by book. A book read again
-	 * counts once per reading.
+	 * counts once per reading. Those of all the books are worked out once a request, as the stats ask for them often.
 	 *
 	 * @param array<int,Book>|null $books Books, all of them when null.
 	 * @return list<Book>
 	 */
 	public static function get_readings( ?array $books = null ): array {
+		if ( null !== $books ) {
+			return self::compute_readings( $books );
+		}
+
+		$all_books = self::get_books();
+
+		self::$readings ??= self::compute_readings( $all_books );
+
+		return self::$readings;
+	}
+
+	/**
+	 * The readings of books: see get_readings().
+	 *
+	 * @param array<int,Book> $books Books.
+	 * @return list<Book>
+	 */
+	private static function compute_readings( array $books ): array {
 		$readings = array();
 
-		foreach ( $books ?? self::get_books() as $book ) {
+		foreach ( $books as $book ) {
 			foreach ( $book->read_dates as $read_date ) {
 				$readings[] = $book->with( read_date: $read_date );
 			}
