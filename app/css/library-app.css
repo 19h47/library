@@ -81,7 +81,7 @@ library-filters {
 	max-height: calc(100dvh - var(--app-u3));
 	margin: auto 0 0;
 	padding: var(--app-u2);
-	padding-top: calc(var(--app-u2) + var(--app-control-size) + var(--app-u1));
+	padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
 	border: 0;
 	border-top: 1px solid var(--app-line);
 	border-radius: var(--app-radius) var(--app-radius) 0 0;
@@ -530,7 +530,7 @@ library-view > .library-back {
 	height: 100%;
 	max-height: none;
 	padding: var(--app-u2);
-	padding-top: calc(var(--app-u2) + var(--app-control-size) + var(--app-u1));
+	padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
 	border: 0;
 	background: var(--app-bg);
 	color: var(--app-text);
@@ -788,8 +788,8 @@ library-latest {
 /*
  * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
  * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
- * volumes of a series, of the books of a recap rated the highest. The first item starts where the content does, the
- * last one ends where it does.
+ * volumes of a series; on the screens of a recap, the books rated the highest, the records, the achievements and the
+ * people read for the first time. The first item starts where the content does, the last one ends where it does.
  */
 .library-strip {
 	/*
@@ -854,10 +854,15 @@ library-latest {
 		overflow-x: visible;
 	}
 
-	/* A tab of several words, such as To buy in English, goes on two lines where the narrowest phones leave too little room */
+	/*
+	 * A tab of several words, such as To buy in English, goes on two lines where the narrowest phones leave too little room.
+	 * No stop of a strip: the row no longer scrolls, the page would take its tabs, fixed at the bottom of the screen, for
+	 * stops of its own, always the height of the screen above the bar further, and rest the recap between two screens.
+	 */
 	library-nav .library-nav li {
 		flex: 0 1 auto;
 		min-width: min-content;
+		scroll-snap-align: none;
 	}
 
 	library-nav .app-pill {
@@ -895,8 +900,7 @@ library-latest {
 
 /*
  * A row of pills, which goes on as many lines as it needs: the reading of the book open, the filters chosen, the buttons
- * under a list of inputs, the series of a cycle, the collections of a publisher, the people read for the first time in
- * a year and the other years of its recap
+ * under a list of inputs, the series of a cycle, the collections of a publisher and the other years of a recap
  */
 .library-pills {
 	list-style: none;
@@ -1129,33 +1133,31 @@ library-volumes {
 
 /*
  * The recap of a year: a screen per subject, in a frame as high as the screen allows under the toolbar, a step from it,
- * and above the tab bar on a phone, its content in the middle; the page stops at each one as it scrolls, at its top,
- * the name of the app where the content starts, and at its end.
+ * and above the footer, or the tab bar on a phone, its content in the middle, so that the page, stopping at each one as it scrolls,
+ * shows a whole one; at its top, the name of the app where the content starts, and at its end.
  */
 :root:has(library-view[name="recap"]:not([hidden])) {
 	scroll-snap-type: y mandatory;
 
 	& .app-header {
 		scroll-snap-align: start;
-		scroll-margin-block-start: var(--app-u2);
-
-		@media (min-width: 42rem) {
-			scroll-margin-block-start: var(--app-u3);
-		}
+		scroll-margin-block-start: var(--app-toolbar-top);
 	}
 
 	/* On a phone, the footer ends the page, above the tab bar: the page stops there too, at its end */
 	@media (width < 42rem) {
 		& .app-footer {
 			scroll-snap-align: end;
-			scroll-margin-block-end: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
+			scroll-margin-block-end: var(--library-recap-bottom);
 		}
 	}
 }
 
 library-recap {
 	/* Where a screen stops: under the toolbar, a step from it */
-	--library-recap-top: calc(var(--app-u2) + var(--app-control-size) + var(--app-u1));
+	--library-recap-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
+	/* What stays at the bottom of the screen, which a screen ends above: the footer, its line between its paddings */
+	--library-recap-bottom: calc(2 * var(--app-u2) + var(--app-font-small) * var(--app-line-height) + 1px);
 	/* The padding of a frame at its sides, as the one of a card */
 	--library-recap-padding: var(--app-u1);
 
@@ -1170,11 +1172,25 @@ library-recap {
 	}
 }
 
+/* On a phone, the tab bar, the footer ending the page above it */
+@media (width < 42rem) {
+	library-recap {
+		--library-recap-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
+	}
+}
+
 .library-recap__screen {
+	/* Where its frame starts on the screen, the page stopped at it */
+	--library-recap-screen-top: var(--library-recap-top);
+
 	display: grid;
 	align-content: center;
 	gap: var(--app-u1);
-	min-block-size: calc(100dvh - var(--library-recap-top) - var(--library-tab-bar-height, 0px) - env(safe-area-inset-bottom) - var(--app-u1));
+	/*
+	 * From there to the tab bar, a step above it: its content made to fit, as the wall of the first screen and the
+	 * strips; higher only where it cannot, on a screen too short for it or with a larger text, the page then scrolling it.
+	 */
+	min-block-size: calc(100dvh - var(--library-recap-screen-top) - var(--library-recap-bottom) - var(--app-u1));
 	padding: var(--app-u2) var(--library-recap-padding);
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--app-radius);
@@ -1183,17 +1199,41 @@ library-recap {
 }
 
 /*
- * The first screen from its top: the way back, the year, then the wall of the covers of its books. It shows under the
- * name of the app, where the page stops at its top: a stop of its own, a little lower, the page would take it instead.
+ * The first screen from its top: the way back, the year, then the wall of the covers of its books, in the room left.
+ * It shows under the name of the app, where the page stops at its top, a step under it as the content: a stop of its
+ * own, a little lower, the page would take it instead.
  */
 .library-recap__opening {
-	align-content: start;
+	--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u2));
+
+	display: flex;
+	flex-direction: column;
 	scroll-snap-align: none;
 }
 
-/* The covers rated the highest, out to the edges of the frame rather than of the screen */
+/* Beyond a phone, the pills of the views are in the header too, under the name of the app, a gap from it */
+@media (min-width: 42rem) {
+	.library-recap__opening {
+		--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-gap) + var(--app-font-small) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2px + var(--app-u2));
+	}
+}
+
+/*
+ * The covers rated the highest, the records, the achievements and the people read for the first time, out to the edges
+ * of the frame rather than of the screen: sideways, so that a screen holds them all, however many
+ */
 .library-recap__screen .library-strip {
 	--library-bleed: var(--library-recap-padding);
+}
+
+/*
+ * A card a step narrower than the frame, the next one showing at its side: there is more. As high as the highest of
+ * the strip, its content at its top; drawn even out of sight, a few of them, for the strip to know that height.
+ */
+.library-recap__screen .library-strip > .app-item {
+	content-visibility: visible;
+	align-content: start;
+	inline-size: calc(100% - var(--app-u2));
 }
 
 .library-recap__heading {
@@ -1225,14 +1265,20 @@ library-recap {
 	text-wrap: balance;
 }
 
-/* The covers of the books read, a tile each, fading out at the bottom of the screen: as many as fit */
+/*
+ * The covers of the books read, a tile each, fading out at the bottom of the screen: as many as fit in the room the
+ * year leaves, those past it cut, out of sight. Its covers do not make the screen higher, they only fill it.
+ */
 .library-recap__mosaic {
 	list-style: none;
+	flex: 1 1 0;
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(var(--app-u3), 1fr));
+	align-content: start;
 	gap: var(--app-gap-small);
-	max-block-size: 50dvh;
-	overflow: hidden;
+	/* A row of covers at least, on a screen too short for more */
+	min-block-size: calc(var(--app-u3) * var(--app-phi));
+	overflow: clip;
 	mask-image: linear-gradient(to bottom, black 50%, transparent);
 }
 
@@ -1301,6 +1347,18 @@ library-recap {
 .library-recap__name {
 	min-width: 0;
 	overflow-wrap: anywhere;
+}
+
+/*
+ * The people and the series ranked, a line each, so that the five of them fit on a screen: a name too long cut short,
+ * its link naming it whole and leading to its page; the ring of focus of the link in the room around it.
+ */
+.library-recap__ranking .library-recap__name {
+	margin: calc(-1 * var(--library-focus-room));
+	padding: var(--library-focus-room);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 /* A language named in the middle of a sentence, as French names them: the first letter of a line */

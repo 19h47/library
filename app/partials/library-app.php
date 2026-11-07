@@ -450,7 +450,7 @@ use Library\Meta;
 							<h3 class="library-recap__title"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="discoveries"></p>
 							<p data-field="discovered"></p>
-							<ul class="library-pills" data-row="discoveries" data-list="discoveries"></ul>
+							<ul class="library-strip" data-row="discoveries" data-list="discoveries"></ul>
 							<p class="app-meta" data-field="moreDiscoveries"></p>
 						</section>
 
@@ -476,13 +476,13 @@ use Library\Meta;
 
 						<section class="library-recap__screen" data-screen="records" hidden>
 							<h3 class="library-recap__title"><?php esc_html_e( 'Records', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="records"></ul>
+							<ul class="app-list__items library-strip" data-list="records"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="achievements" hidden>
 							<h3 class="library-recap__title"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="achievements"></p>
-							<ul class="app-list__items" data-list="achievements"></ul>
+							<ul class="app-list__items library-strip" data-list="achievements"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pile" hidden>

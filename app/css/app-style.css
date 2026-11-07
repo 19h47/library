@@ -63,6 +63,8 @@
 
   /* A control, a field of one line or the square of an icon, such as the fixed ones at the top-right corner: a step high */
   --app-control-size: var(--app-u3);
+  /* The top of the content and of the toolbar beside it, on a line: a step on a phone, a step and a half beyond */
+  --app-toolbar-top: var(--app-u2);
   --app-control-gap: calc(var(--app-u0) / var(--app-phi));
   /* 1/φ ≈ 0.618: icons at rest keep a 3:1 contrast in both themes */
   --app-control-opacity: calc(1 / var(--app-phi));
@@ -165,12 +167,12 @@ select {
 
 .app-content {
   flex: 1;
-  padding-block: var(--app-u2);
+  padding-block: var(--app-toolbar-top);
 }
 
 @media (min-width: 42rem) {
-  .app-content {
-    padding-block: var(--app-u3);
+  :root {
+    --app-toolbar-top: var(--app-u3);
   }
 }
 
@@ -517,7 +519,7 @@ button.app-pill:disabled {
 
 .app-toolbar {
   position: fixed;
-  top: var(--app-u2);
+  top: var(--app-toolbar-top);
   right: var(--app-u2);
   z-index: 1;
   display: flex;
