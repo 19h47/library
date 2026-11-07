@@ -35,9 +35,14 @@
 	text-decoration: none;
 }
 
-/* A view that takes the whole screen says so, data-immersive, such as the recap: the page leaves its footer out then */
-.app-page:has(library-view[data-immersive]:not([hidden])) > .app-footer {
-	display: none;
+/*
+ * A view that takes the whole screen says so, data-immersive, such as the recap: on a phone, where the footer ends the
+ * page under it, the page leaves its footer out then; beyond, the footer stays at the bottom of the screen
+ */
+@media (width < 42rem) {
+	.app-page:has(library-view[data-immersive]:not([hidden])) > .app-footer {
+		display: none;
+	}
 }
 
 /* Custom elements are inline: these hold blocks */
@@ -1154,8 +1159,8 @@ library-volumes {
 library-recap {
 	/* Where a screen stops: under the toolbar, a step from it */
 	--library-recap-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
-	/* What stays at the bottom of the screen, which a screen ends above: nothing, the recap taking the whole screen */
-	--library-recap-bottom: 0px;
+	/* What stays at the bottom of the screen, which a screen ends above: the footer, its line between its paddings */
+	--library-recap-bottom: calc(2 * var(--app-u2) + var(--app-font-small) * var(--app-line-height) + 1px);
 	/* The padding of a frame at its sides, as the one of a card */
 	--library-recap-padding: var(--app-u1);
 
