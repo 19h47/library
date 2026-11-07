@@ -446,7 +446,7 @@ JS;
 
 	/**
 	 * Terms of `$taxonomy` the app offers in the page, by term ID, with their name as text: the forms, which the filter of the
-	 * books and the form of a book offer, and the original languages, which the form of a book offers.
+	 * books and the form of a book offer, and the languages, which the form of a book offers as its original and edition languages.
 	 *
 	 * @param string $taxonomy Taxonomy.
 	 * @return array<int,string>
