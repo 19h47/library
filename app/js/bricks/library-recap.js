@@ -3,22 +3,20 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
 	formatBooks,
-	formatDate,
 	formatLanguage,
 	formatNumber,
-	formatPages,
 	formatRating,
 	join,
 	monthNameFormat,
 } from 'library-app/format';
 import {
 	fill,
+	fillCover,
 	fillPills,
 	pageLink,
-	renderAchievement,
+	renderAchievementPill,
 	renderCover,
 	renderMonths,
-	renderRow,
 	renderShares,
 	renderTile,
 } from 'library-app/render';
@@ -216,7 +214,7 @@ class LibraryRecapElement extends Brick {
 		);
 		this.#fillRecords( recap, books );
 		this.querySelector( '[data-list="achievements"]' ).replaceChildren(
-			...recap.achievements.map( renderAchievement )
+			...recap.achievements.map( renderAchievementPill )
 		);
 
 		this.#prepareCounts( recap.year, {
@@ -227,6 +225,8 @@ class LibraryRecapElement extends Brick {
 			series: recap.series.length,
 			achievements: recap.achievements.length,
 			added: recap.added,
+			recordLongest: books[ recap.records.longest ]?.pages ?? 0,
+			recordShortest: books[ recap.records.shortest ]?.pages ?? 0,
 		} );
 		this.#showScreens( {
 			readings: isShown,
@@ -550,49 +550,79 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
-	 * The records: the longest book read, the shortest, by their pages, and the oldest, by the date it first came out.
+	 * The records of the year, a line each: its cover, its figure, as large as the figures of the recap, and what it
+	 * counts, then which record it is and the book, which it opens; the longest and the shortest by their pages, which
+	 * count up as the others, the oldest by the year it first came out.
 	 *
 	 * @param {Recap}                recap The recap.
-	 * @param {Object<number, Book>} books The books loaded.
+	 * @param {Object<number, Book>} books The books, by their IDs.
 	 */
 	#fillRecords( { records }, books ) {
-		/** @type {{id: number, label: string, detail: ( book: Book ) => string}[]} */
+		const year = ( book ) =>
+			( book.published_date || book.edition_date ).slice( 0, 4 );
+		/** @type {{id: number, field: string, label: string, figure: ( book: Book ) => string, unit: ( book: Book ) => string}[]} */
 		const lines = [
 			{
 				id: records.longest,
+				field: 'recordLongest',
 				label: __( 'The longest', 'library' ),
-				detail: ( book ) => formatPages( book.pages ),
+				figure: ( book ) => formatNumber( book.pages ),
+				unit: ( book ) =>
+					/* translators: what the figure of a record counts, after it: 1 947 pages. */
+					_n( 'page', 'pages', book.pages, 'library' ),
 			},
 			{
 				id: records.shortest,
+				field: 'recordShortest',
 				label: __( 'The shortest', 'library' ),
-				detail: ( book ) => formatPages( book.pages ),
+				figure: ( book ) => formatNumber( book.pages ),
+				unit: ( book ) =>
+					/* translators: what the figure of a record counts, after it: 1 947 pages. */
+					_n( 'page', 'pages', book.pages, 'library' ),
 			},
 			{
 				id: records.oldest,
+				field: 'recordOldest',
 				label: __( 'The oldest', 'library' ),
-				detail: ( book ) =>
-					formatDate( book.published_date || book.edition_date ),
+				figure: year,
+				unit: () => '',
 			},
 		];
 
 		this.querySelector( '[data-list="records"]' ).replaceChildren(
 			...lines
 				.filter( ( { id } ) => books[ id ] )
-				.map( ( { id, label, detail } ) => {
-					const $column = renderRow( books[ id ] );
+				.map( ( { id, field, label, figure, unit } ) => {
+					const book = books[ id ];
+					const $item = document.createElement( 'li' );
+					const $cover = document.createElement( 'img' );
+					const $text = document.createElement( 'div' );
+					const $figure = document.createElement( 'p' );
 					const $label = document.createElement( 'p' );
+					const $value = document.createElement( 'span' );
+					const $unit = document.createElement( 'span' );
 
-					$label.className = 'app-item__meta';
-					$label.textContent = join( [
-						label,
-						detail( books[ id ] ),
-					] );
-					$column
-						.querySelector( '.library-row__body' )
-						.prepend( $label );
+					// The title names the book: its cover is an image of it only.
+					$cover.alt = '';
+					$cover.loading = 'lazy';
+					fillCover( $cover, book.cover );
+					$value.dataset.field = field;
+					$value.textContent = figure( book );
+					$unit.className = 'app-meta';
+					$unit.textContent = unit( book );
+					$figure.className = 'library-recap__record-figure';
+					$figure.append( $value, ' ', $unit );
+					$label.className = 'app-meta';
+					$label.textContent = label;
+					$text.append(
+						$figure,
+						$label,
+						pageLink( 'book', id, book.title )
+					);
+					$item.className = 'library-recap__record';
+					$item.append( $cover, $text );
 
-					return $column;
+					return $item;
 				} )
 		);
 	}

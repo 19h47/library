@@ -798,8 +798,7 @@ library-latest {
 /*
  * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
  * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
- * volumes of a series; on the screens of a recap, the records and the achievements. The first item starts where the
- * content does, the last one ends where it does.
+ * volumes of a series. The first item starts where the content does, the last one ends where it does.
  */
 .library-strip {
 	/*
@@ -911,7 +910,7 @@ library-latest {
 /*
  * A row of pills, which goes on as many lines as it needs: the reading of the book open, the filters chosen, the buttons
  * under a list of inputs, the series of a cycle, the collections of a publisher, the other years of a recap and the
- * people read for the first time in it
+ * people read for the first time in it and its achievements
  */
 .library-pills {
 	list-style: none;
@@ -1224,8 +1223,8 @@ library-recap {
 }
 
 /*
- * A screen of a list cut where the screen ends, such as the cloud of the people read for the first time or the wall of
- * the books rated: never higher than the screen, the list taking the room left, its content in the middle when it fits
+ * A screen of a list cut where the screen ends, such as the clouds of the people read for the first time and of the
+ * achievements, or the wall of the books rated: never higher than the screen, the list taking the room left, its content in the middle when it fits
  */
 .library-recap__screen:has(> .library-recap__cut) {
 	display: flex;
@@ -1264,24 +1263,6 @@ library-recap {
 	}
 }
 
-/*
- * The records and the achievements, out to the edges of the frame rather than of the screen: sideways, so that a
- * screen holds them all, however many
- */
-.library-recap__screen .library-strip {
-	--library-bleed: var(--library-recap-padding);
-}
-
-/*
- * A card a step narrower than the frame, the next one showing at its side: there is more. As high as the highest of
- * the strip, its content at its top; drawn even out of sight, a few of them, for the strip to know that height.
- */
-.library-recap__screen .library-strip > .app-item {
-	content-visibility: visible;
-	align-content: start;
-	inline-size: calc(100% - var(--app-u2));
-}
-
 .library-recap__heading {
 	display: grid;
 	gap: var(--app-gap);
@@ -1309,6 +1290,43 @@ library-recap {
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
 	text-wrap: balance;
+}
+
+/* The records, a line each, a step apart: no card, the frame of the screen holds them */
+.library-recap__records {
+	list-style: none;
+	display: grid;
+	gap: var(--app-u1);
+}
+
+/* Its cover, a tile as the wall of the first screen shows it, larger; beside it, its figure, what it is and the book */
+.library-recap__record {
+	display: grid;
+	grid-template-columns: calc(var(--app-u3) * var(--app-phi)) minmax(0, 1fr);
+	align-items: center;
+	gap: var(--app-u1);
+
+	& img {
+		inline-size: 100%;
+		block-size: auto;
+		aspect-ratio: 2 / 3;
+		object-fit: cover;
+		border-radius: var(--library-radius-small);
+	}
+
+	& > div {
+		display: grid;
+		gap: var(--app-gap-small);
+		/* Beside its cover, or alone in its line without one */
+		grid-column: 2;
+	}
+}
+
+/* Its figure, a step under the figures of the screens, what it counts after it */
+.library-recap__record-figure {
+	font-size: var(--app-font-x-large);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
 }
 
 /* A wall of covers in rows, as wide as the frame: its columns at least as wide as a tile */

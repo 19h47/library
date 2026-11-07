@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T13:59:43+00:00\n"
+"POT-Creation-Date: 2026-11-07T14:20:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -416,7 +416,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:481
+#: app/js/lib/render.js:521
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -462,7 +462,7 @@ msgstr ""
 #: includes/class-books.php:303
 #: includes/class-books.php:308
 #: includes/class-books.php:326
-#: app/js/lib/render.js:593
+#: app/js/lib/render.js:633
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -670,7 +670,7 @@ msgstr ""
 
 #: app/partials/library-app.php:162
 #: app/js/bricks/library-book.js:45
-#: app/js/bricks/library-recap.js:323
+#: app/js/bricks/library-recap.js:324
 #: app/js/lib/format.js:108
 msgid "Loading…"
 msgstr ""
@@ -2412,21 +2412,21 @@ msgid "First published in %s"
 msgstr ""
 
 #. translators: %s: number of readings of a book read again in the year.
-#: app/js/bricks/library-recap.js:103
+#: app/js/bricks/library-recap.js:102
 #, js-format
 msgid "Including %s read again"
 msgid_plural "Including %s read again"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:115
+#: app/js/bricks/library-recap.js:114
 msgid "person read for the first time"
 msgid_plural "people read for the first time"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of series first read in the year.
-#: app/js/bricks/library-recap.js:127
+#: app/js/bricks/library-recap.js:126
 #, js-format
 msgid "%s started"
 msgid_plural "%s started"
@@ -2434,37 +2434,37 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of series read in full, the last book in the year.
-#: app/js/bricks/library-recap.js:138
+#: app/js/bricks/library-recap.js:137
 #, js-format
 msgid "%s finished"
 msgid_plural "%s finished"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:150
+#: app/js/bricks/library-recap.js:149
 msgid "book added"
 msgid_plural "books added"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: year of the recap.
-#: app/js/bricks/library-recap.js:160
+#: app/js/bricks/library-recap.js:159
 #, js-format
 msgid "That was %s"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:326
+#: app/js/bricks/library-recap.js:327
 msgid "No readings that year."
 msgstr ""
 
 #. translators: %d: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:344
+#: app/js/bricks/library-recap.js:345
 #, js-format
 msgid "As many as in %d"
 msgstr ""
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:350
+#: app/js/bricks/library-recap.js:351
 #, js-format
 msgid "%1$s more than in %2$d"
 msgid_plural "%1$s more than in %2$d"
@@ -2472,7 +2472,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:363
+#: app/js/bricks/library-recap.js:364
 #, js-format
 msgid "%1$s fewer than in %2$d"
 msgid_plural "%1$s fewer than in %2$d"
@@ -2480,19 +2480,19 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of pages read a day, on average.
-#: app/js/bricks/library-recap.js:392
+#: app/js/bricks/library-recap.js:393
 #, js-format
 msgid "About %s a day"
 msgstr ""
 
 #. translators: %s: number of pages of a book read, on average.
-#: app/js/bricks/library-recap.js:399
+#: app/js/bricks/library-recap.js:400
 #, js-format
 msgid "%s a book on average"
 msgstr ""
 
 #. translators: 1: number of books read with their number of pages, 2: number of books read.
-#: app/js/bricks/library-recap.js:407
+#: app/js/bricks/library-recap.js:408
 #, js-format
 msgid "Pages filled in for %1$s book out of %2$s."
 msgid_plural "Pages filled in for %1$s books out of %2$s."
@@ -2500,36 +2500,44 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: name of a month, 2: number of books read in it.
-#: app/js/bricks/library-recap.js:474
+#: app/js/bricks/library-recap.js:481
 #, js-format
 msgid "The month read the most: %1$s, %2$s"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:489
+#: app/js/bricks/library-recap.js:496
 msgid "The pile held steady."
 msgstr ""
 
 #. translators: %s: number of books, those added beyond those read.
-#: app/js/bricks/library-recap.js:497
+#: app/js/bricks/library-recap.js:504
 #, js-format
 msgid "The pile grew by %s."
 msgstr ""
 
 #. translators: %s: number of books, those read beyond those added.
-#: app/js/bricks/library-recap.js:504
+#: app/js/bricks/library-recap.js:511
 #, js-format
 msgid "The pile went down by %s."
 msgstr ""
 
-#: app/js/bricks/library-recap.js:556
+#: app/js/bricks/library-recap.js:568
 msgid "The longest"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:561
+#. translators: what the figure of a record counts, after it: 1 947 pages.
+#: app/js/bricks/library-recap.js:572
+#: app/js/bricks/library-recap.js:581
+msgid "page"
+msgid_plural "pages"
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/js/bricks/library-recap.js:577
 msgid "The shortest"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:566
+#: app/js/bricks/library-recap.js:586
 msgid "The oldest"
 msgstr ""
 
@@ -2582,7 +2590,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:421
+#: app/js/lib/render.js:434
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"

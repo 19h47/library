@@ -475,13 +475,13 @@ use Library\Meta;
 
 						<section class="library-recap__screen" data-screen="records" hidden>
 							<h3 class="library-recap__title"><?php esc_html_e( 'Records', 'library' ); ?></h3>
-							<ul class="app-list__items library-strip" data-list="records"></ul>
+							<ul class="library-recap__records" data-list="records"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="achievements" hidden>
 							<h3 class="library-recap__title"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="achievements"></p>
-							<ul class="app-list__items library-strip" data-list="achievements"></ul>
+							<ul class="library-pills library-recap__cloud library-recap__cut" data-list="achievements"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pile" hidden>

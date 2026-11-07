@@ -150,15 +150,15 @@ export function linkPeople( $field, people ) {
 }
 
 /**
- * Links the subject of an achievement to what it leads to in the app: its book, the page of its author, of its series or
- * of its collection, or the books its search finds.
+ * A link to what an achievement leads to in the app: its book, the page of its author, of its series or of its
+ * collection, or the books its search finds; none without.
  *
- * @param {Element}     $field               The field of its subject.
+ * @param {string}      text                 The text of the link.
  * @param {Object}      achievement          The achievement.
- * @param {Target|null} [achievement.target] What its subject leads to, if anything.
+ * @param {Target|null} [achievement.target] What it leads to, if anything.
+ * @return {HTMLAnchorElement|null} The link, or none.
  */
-function linkAchievement( $field, { target } ) {
-	const text = $field.textContent;
+function achievementLink( text, { target } ) {
 	const links = {
 		book: () => pageLink( 'book', target.id, text ),
 		author: () => pageLink( 'person', target.id, text ),
@@ -167,8 +167,21 @@ function linkAchievement( $field, { target } ) {
 		search: () => link( { query: target.search }, text ),
 	};
 
-	if ( text && target?.type in links ) {
-		$field.replaceChildren( links[ target.type ]() );
+	return text && target?.type in links ? links[ target.type ]() : null;
+}
+
+/**
+ * Links the subject of an achievement to what it leads to in the app: see achievementLink().
+ *
+ * @param {Element}     $field               The field of its subject.
+ * @param {Object}      achievement          The achievement.
+ * @param {Target|null} [achievement.target] What its subject leads to, if anything.
+ */
+function linkAchievement( $field, achievement ) {
+	const $link = achievementLink( $field.textContent, achievement );
+
+	if ( $link ) {
+		$field.replaceChildren( $link );
 	}
 }
 
@@ -445,6 +458,33 @@ export function renderAchievement( achievement ) {
 		$item.querySelector( '[data-field="subject"]' ),
 		achievement
 	);
+
+	return $item;
+}
+
+/**
+ * An achievement earned as a small pill, as the cloud of a recap shows it: its title and its subject, leading where its
+ * subject does; its detail and its date said to assistive technologies only.
+ *
+ * @param {Achievement} achievement The achievement.
+ * @return {HTMLLIElement} Its item.
+ */
+export function renderAchievementPill( achievement ) {
+	const $item = document.createElement( 'li' );
+	const text = join( [ achievement.title, achievement.subject ] );
+	const $pill = achievementLink( text, achievement ) ?? span( text, '' );
+	const said = join( [
+		achievement.detail,
+		achievement.date && formatDate( achievement.date ),
+	] );
+
+	$pill.className = 'app-pill app-pill--small';
+
+	if ( said ) {
+		$pill.append( span( ` · ${ said }`, 'sr-only' ) );
+	}
+
+	$item.append( $pill );
 
 	return $item;
 }
