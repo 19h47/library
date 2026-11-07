@@ -51,8 +51,38 @@ let isWritingSearch = false;
 const COVER = 'img[data-field="cover"]:not([hidden])';
 // The name the cover of a book takes in a view transition, on its card or row, then on its page, or the other way.
 const COVER_TRANSITION = 'library-cover';
-// How long a view transition waits for the cover of a page to load before it shows the page: a moment, then the page all the same.
+// How long a view transition waits for the cover of a page to load before it shows the page, when it cannot take the one
+// of the card: a moment, then the page all the same.
 const COVER_WAIT = 300;
+
+/**
+ * Shows in `$cover` the image `$shown` shows already, loaded, until `until` settles, then its own sources again, which
+ * load: the cover of a page takes the one of its card for a view transition, rather than holding it while its own,
+ * larger, loads, and shows its own, sharper, once it has.
+ *
+ * @param {HTMLImageElement} $cover The cover, not loaded yet.
+ * @param {HTMLImageElement} $shown A cover of the same book, loaded.
+ * @param {Promise<unknown>} until  Settles when the cover may take its own sources again.
+ * @return {Promise<void>} Once the cover shows the image lent.
+ */
+function lendCover( $cover, $shown, until ) {
+	// Its sizes before its sources, as fillCover() sets them.
+	const names = [ 'sizes', 'srcset', 'src' ];
+	const own = names.map( ( attribute ) => $cover.getAttribute( attribute ) );
+
+	$cover.removeAttribute( 'srcset' );
+	$cover.removeAttribute( 'sizes' );
+	$cover.src = $shown.currentSrc;
+	until.finally( () =>
+		names.forEach( ( attribute, index ) =>
+			null === own[ index ]
+				? $cover.removeAttribute( attribute )
+				: $cover.setAttribute( attribute, own[ index ] )
+		)
+	);
+
+	return $cover.decode().catch( () => {} );
+}
 
 /**
  * Whether `url` is in the app: its page, whatever it shows.
@@ -209,7 +239,11 @@ async function transition( event, from, link, show ) {
 		}
 	};
 
-	name( id ? coverOf( from, id, link ) : null );
+	const $left = id ? coverOf( from, id, link ) : null;
+	// Settles once the transition is over, for a cover lent to show its own sources again.
+	const { promise: finished, resolve: finish } = Promise.withResolvers();
+
+	name( $left );
 
 	const viewTransition = document.startViewTransition( async () => {
 		covers.forEach( ( $cover ) => nameCover( $cover, false ) );
@@ -223,8 +257,15 @@ async function transition( event, from, link, show ) {
 
 		name( $cover );
 
-		// The cover of a page, which loads as large as it shows, for a moment at most.
-		if ( $cover && ! $cover.complete ) {
+		if ( ! $cover || $cover.complete ) {
+			return;
+		}
+
+		// The cover of a page, which loads as large as it shows: the one of the card at once, its own after the transition,
+		// else its own for a moment at most.
+		if ( $left?.complete && $left.currentSrc ) {
+			await lendCover( $cover, $left, finished );
+		} else {
 			await Promise.race( [
 				$cover.decode().catch( () => {} ),
 				new Promise( ( resolve ) => setTimeout( resolve, COVER_WAIT ) ),
@@ -232,9 +273,10 @@ async function transition( event, from, link, show ) {
 		}
 	} );
 
-	viewTransition.finished.finally( () =>
-		covers.forEach( ( $cover ) => nameCover( $cover, false ) )
-	);
+	viewTransition.finished.finally( () => {
+		covers.forEach( ( $cover ) => nameCover( $cover, false ) );
+		finish();
+	} );
 
 	return viewTransition.updateCallbackDone;
 }

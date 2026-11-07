@@ -154,9 +154,45 @@
 	}
 
 	/*
-	 * A view gives way to the next one in a view transition, which the router starts: the views cross-fade, and the cover of
-	 * a book opened goes from its card to its page, and back. Without motion, the cover stays in place: the views only fade.
+	 * A view gives way to the next one in a view transition, which the router starts: the view left fades out, then the one
+	 * opened fades in, rather than both at once, whose words would cross; the cover of a book opened goes from its card to
+	 * its page, and back, over them. What both views share stays as it is: the header, the toolbar and the tab bar. Without
+	 * motion, the cover stays in place: the views only fade.
 	 */
+	.app-content > .app-header {
+		view-transition-name: library-header;
+	}
+
+	body > .app-toolbar {
+		view-transition-name: library-toolbar;
+	}
+
+	::view-transition-old(root) {
+		animation: library-view-out var(--app-transition-1) ease-in both;
+	}
+
+	::view-transition-new(root) {
+		animation: library-view-in calc(var(--app-transition-1) * var(--app-phi)) ease-out var(--app-transition-1) both;
+	}
+
+	/* The cover, as long as the views take to give way, slowing down to its place */
+	::view-transition-group(library-cover) {
+		animation-duration: calc(var(--app-transition-1) * (1 + var(--app-phi)));
+		animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+	}
+
+	@keyframes library-view-out {
+		to {
+			opacity: 0;
+		}
+	}
+
+	@keyframes library-view-in {
+		from {
+			opacity: 0;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		/* Its name only: the images of the transition take their duration from it */
 		::view-transition-group(*) {
