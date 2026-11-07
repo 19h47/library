@@ -490,7 +490,7 @@ class Dashboard {
 
 			$items[] = array(
 				'name' => 'library_publisher' === $taxonomy ? Taxonomies::get_collection_name( $term ) : $term->name,
-				'url'  => admin_url( 'edit.php?post_type=library_book&' . $taxonomy . '=' . $term->slug ),
+				'url'  => Books_List::get_term_url( $term ),
 				'text' => self::format_books_read( $count ),
 			);
 		}

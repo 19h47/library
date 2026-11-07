@@ -65,6 +65,24 @@ class Meta {
 	private const string ISSN_PATTERN = '^\\S{4}-\\S{4}$';
 
 	/**
+	 * Limits of a rating, which its schema states and sanitize_rating() keeps: from 1 to 10, by half points.
+	 *
+	 * @var array{minimum:int,maximum:int,multipleOf:float}
+	 */
+	private const array RATING_LIMITS = array(
+		'minimum'    => 1,
+		'maximum'    => 10,
+		'multipleOf' => 0.5,
+	);
+
+	/**
+	 * Fewest pages of a book, which the schema of its pages states and sanitize_pages() keeps.
+	 *
+	 * @var int
+	 */
+	private const int MIN_PAGES = 1;
+
+	/**
 	 * Meta of the names of a book with another role than author, by role, such as its colorists: the term IDs of these
 	 * names in the people taxonomy, as catalogues give each name its function. A name of a book without role is one of
 	 * its authors.
@@ -214,7 +232,7 @@ class Meta {
 				'label'             => $labels['library_pages'],
 				'single'            => true,
 				'show_in_rest'      => array(
-					'schema' => array( 'minimum' => 1 ),
+					'schema' => array( 'minimum' => self::MIN_PAGES ),
 				),
 				'sanitize_callback' => array( self::class, 'sanitize_pages' ),
 			)
@@ -229,11 +247,7 @@ class Meta {
 				'description'       => $descriptions['library_rating'],
 				'single'            => true,
 				'show_in_rest'      => array(
-					'schema' => array(
-						'minimum'    => 1,
-						'maximum'    => 10,
-						'multipleOf' => 0.5,
-					),
+					'schema' => self::RATING_LIMITS,
 				),
 				'sanitize_callback' => array( self::class, 'sanitize_rating' ),
 			)
@@ -311,13 +325,13 @@ class Meta {
 	}
 
 	/**
-	 * Roles a form offers for a name of a book, by value, with their label: author, then the other roles.
+	 * Roles a form offers for a name of a book, by value, with their label: author, then the other roles, those of ROLE_KEYS,
+	 * in their order.
 	 *
 	 * @return array<string,string>
 	 */
 	public static function get_role_choices(): array {
-		return array(
-			'author'         => _x( 'Author', 'role', 'library' ),
+		$labels  = array(
 			'translator'     => _x( 'Translator', 'role', 'library' ),
 			'colorist'       => _x( 'Colorist', 'role', 'library' ),
 			'inker'          => _x( 'Inker', 'role', 'library' ),
@@ -326,6 +340,13 @@ class Meta {
 			/* translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri. */
 			'adapted_author' => _x( 'Adapted author', 'role', 'library' ),
 		);
+		$choices = array( 'author' => _x( 'Author', 'role', 'library' ) );
+
+		foreach ( array_keys( self::ROLE_KEYS ) as $role ) {
+			$choices[ $role ] = $labels[ $role ];
+		}
+
+		return $choices;
 	}
 
 	/**
@@ -404,16 +425,15 @@ class Meta {
 	}
 
 	/**
-	 * Ratings a form offers, by value, with their label: none, then the ones the meta is registered with, from 1 to 10 by
-	 * half points.
+	 * Ratings a form offers, by value, with their label: none, then the ones within RATING_LIMITS, from 1 to 10 by half
+	 * points.
 	 *
-	 * @return array<string,string>
+	 * @return array<int|string,string> Labels by rating, a whole rating keyed as an integer, as PHP keys "7".
 	 */
 	public static function get_rating_choices(): array {
-		$schema  = get_registered_meta_keys( 'post', 'library_book' )['library_rating']['show_in_rest']['schema'];
 		$ratings = array( '' => __( 'No rating', 'library' ) );
 
-		for ( $rating = $schema['minimum']; $rating <= $schema['maximum']; $rating += $schema['multipleOf'] ) {
+		for ( $rating = self::RATING_LIMITS['minimum']; $rating <= self::RATING_LIMITS['maximum']; $rating += self::RATING_LIMITS['multipleOf'] ) {
 			$ratings[ (string) $rating ] = Books::format_rating_out_of_ten( $rating );
 		}
 
@@ -491,6 +511,25 @@ class Meta {
 	 */
 	public static function get_read_dates( int $post_id ): array {
 		return self::to_readings( get_post_meta( $post_id, 'library_read_date', false ) );
+	}
+
+	/**
+	 * Values of a book as its forms edit them, by meta key, in the order of KEYS, then its edition languages: one value
+	 * each, the read dates and the edition languages as lists.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<string,mixed>
+	 */
+	public static function get_values( int $post_id ): array {
+		$values = array();
+
+		foreach ( self::KEYS as $key ) {
+			$values[ $key ] = 'library_read_date' === $key ? self::get_read_dates( $post_id ) : get_post_meta( $post_id, $key, true );
+		}
+
+		$values['library_edition_languages'] = self::get_edition_languages( $post_id );
+
+		return $values;
 	}
 
 	/**
@@ -711,9 +750,8 @@ class Meta {
 	 */
 	public static function sanitize_date( $value ): string {
 		$value = (string) $value;
-		$date  = DateTimeImmutable::createFromFormat( '!Y-m-d', $value );
 
-		return $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
+		return self::is_date( $value, 'Y-m-d' ) ? $value : '';
 	}
 
 	/**
@@ -725,9 +763,8 @@ class Meta {
 	public static function sanitize_read_date( $value ): string {
 		$value  = (string) $value;
 		$format = 10 === strlen( $value ) ? 'Y-m-d' : self::READ_TIME_FORMAT;
-		$date   = DateTimeImmutable::createFromFormat( "!$format", $value );
 
-		return $date && $date->format( $format ) === $value ? $value : '';
+		return self::is_date( $value, $format ) ? $value : '';
 	}
 
 	/**
@@ -744,19 +781,31 @@ class Meta {
 			10 => 'Y-m-d',
 		);
 		$format  = $formats[ strlen( $value ) ] ?? null;
-		$date    = $format ? DateTimeImmutable::createFromFormat( "!$format", $value ) : false;
 
-		return $date && $date->format( $format ) === $value ? $value : '';
+		return $format && self::is_date( $value, $format ) ? $value : '';
 	}
 
 	/**
-	 * Keep a number of pages from 1, anything else becomes empty.
+	 * Whether a value is a date of a format, written as the format writes it: 2026-02-30 is none, nor 2026-2-3.
+	 *
+	 * @param string $value  Value.
+	 * @param string $format Format of DateTimeImmutable, such as Y-m-d.
+	 * @return bool
+	 */
+	private static function is_date( string $value, string $format ): bool {
+		$date = DateTimeImmutable::createFromFormat( "!$format", $value );
+
+		return $date && $date->format( $format ) === $value;
+	}
+
+	/**
+	 * Keep a number of pages from MIN_PAGES, 1, anything else becomes empty.
 	 *
 	 * @param mixed $value Raw value.
 	 * @return int|string
 	 */
 	public static function sanitize_pages( $value ): int|string {
-		if ( ! is_numeric( $value ) || $value < 1 ) {
+		if ( ! is_numeric( $value ) || $value < self::MIN_PAGES ) {
 			return '';
 		}
 
@@ -764,16 +813,18 @@ class Meta {
 	}
 
 	/**
-	 * Keep a rating from 1 to 10 by half points, anything else becomes empty.
+	 * Keep a rating within RATING_LIMITS, from 1 to 10, rounded to its step, half points; anything else becomes empty.
 	 *
 	 * @param mixed $value Raw value.
 	 * @return float|string
 	 */
 	public static function sanitize_rating( $value ): float|string {
-		if ( ! is_numeric( $value ) || $value < 1 || $value > 10 ) {
+		$limits = self::RATING_LIMITS;
+
+		if ( ! is_numeric( $value ) || $value < $limits['minimum'] || $value > $limits['maximum'] ) {
 			return '';
 		}
 
-		return round( (float) $value * 2 ) / 2;
+		return round( (float) $value / $limits['multipleOf'] ) * $limits['multipleOf'];
 	}
 }

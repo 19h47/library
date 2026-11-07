@@ -40,6 +40,22 @@ enum Status: string {
 	}
 
 	/**
+	 * Its label with a count, as the views of the books list name it: "To buy (3)".
+	 *
+	 * @return array{0:string,1:string,singular:string,plural:string,context:null,domain:string|null} Noop of _n_noop(), as register_post_status() takes it.
+	 */
+	public function label_count(): array {
+		return match ( $this ) {
+			/* translators: %s: number of books. */
+			self::In_Library => _n_noop( 'In the library <span class="count">(%s)</span>', 'In the library <span class="count">(%s)</span>', 'library' ),
+			/* translators: %s: number of books. */
+			self::Not_Kept   => _n_noop( 'Not kept <span class="count">(%s)</span>', 'Not kept <span class="count">(%s)</span>', 'library' ),
+			/* translators: %s: number of books. */
+			self::To_Buy     => _n_noop( 'To buy <span class="count">(%s)</span>', 'To buy <span class="count">(%s)</span>', 'library' ),
+		};
+	}
+
+	/**
 	 * Every status, as a form offers it: its label by its value.
 	 *
 	 * @return array<string,string>
@@ -55,5 +71,23 @@ enum Status: string {
 	 */
 	public static function get_values(): array {
 		return array_column( self::cases(), 'value' );
+	}
+
+	/**
+	 * The statuses out of the library, not kept and to buy, which core does not know: the plugin registers them.
+	 *
+	 * @return self[]
+	 */
+	public static function get_others(): array {
+		return array_values( array_filter( self::cases(), fn( self $status ) => self::In_Library !== $status ) );
+	}
+
+	/**
+	 * The values of the statuses out of the library, as the forms of a book and the lists of terms tell them apart.
+	 *
+	 * @return string[]
+	 */
+	public static function get_other_values(): array {
+		return array_column( self::get_others(), 'value' );
 	}
 }

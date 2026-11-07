@@ -14,7 +14,7 @@
  * @var string[]          $paths  Every series, after its cycles, to suggest.
  * @var WP_Term[]         $names  Names of the book, authors or with another role.
  * @var array<int,string> $roles  Roles of the names with another role than author, by term ID.
- * @var array<int,string> $languages Languages of the library, by term ID, which its edition languages are among.
+ * @var array<int,string> $languages Languages of the library, by term ID, in plain text, which its edition languages are among.
  */
 
 use Library\Markup;

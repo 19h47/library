@@ -15,6 +15,7 @@ use Library\Books;
 use Library\Meta;
 use Library\Posts;
 use Library\Stats;
+use Library\Status;
 use Library\Taxonomies;
 use WP_HTML_Tag_Processor;
 use WP_Post;
@@ -403,8 +404,26 @@ class Books_List {
 			return;
 		}
 
-		/* translators: %s: number of books. */
-		get_post_status_object( 'publish' )->label_count = _n_noop( 'In the library <span class="count">(%s)</span>', 'In the library <span class="count">(%s)</span>', 'library' );
+		get_post_status_object( Status::In_Library->value )->label_count = Status::In_Library->label_count();
+	}
+
+	/**
+	 * URL of the books of a term in the books list, in the view of a status, or else in the "All" view.
+	 *
+	 * @param WP_Term $term   Term of a book taxonomy.
+	 * @param string  $status Status of the view, empty for the "All" view.
+	 * @return string
+	 */
+	public static function get_term_url( WP_Term $term, string $status = '' ): string {
+		$query_args = array_filter(
+			array(
+				'post_type'     => 'library_book',
+				'post_status'   => $status,
+				$term->taxonomy => $term->slug,
+			)
+		);
+
+		return add_query_arg( $query_args, admin_url( 'edit.php' ) );
 	}
 
 	/**
@@ -442,21 +461,7 @@ class Books_List {
 			return array( '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . esc_html( $no_terms ) . '</span>' );
 		}
 
-		$links = array_map(
-			function ( WP_Term $term ) use ( $taxonomy, $status ) {
-				$query_args = array_filter(
-					array(
-						'post_type'   => 'library_book',
-						'post_status' => $status,
-						$taxonomy     => $term->slug,
-					)
-				);
-				$url        = add_query_arg( $query_args, admin_url( 'edit.php' ) );
-
-				return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $term->name ) );
-			},
-			$terms
-		);
+		$links = array_map( fn( WP_Term $term ) => sprintf( '<a href="%s">%s</a>', esc_url( self::get_term_url( $term, $status ) ), esc_html( $term->name ) ), $terms );
 
 		if ( 'library_person' === $taxonomy && Posts::is_collective( (int) get_the_ID() ) ) {
 			$last_link = array_key_last( $links );

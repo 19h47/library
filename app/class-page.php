@@ -169,8 +169,8 @@ class Page {
 		$publisher_labels   = get_taxonomy( 'library_publisher' )->labels;
 		$language_labels    = get_taxonomy( 'library_language' )->labels;
 		$form_labels        = get_taxonomy( 'library_form' )->labels;
-		$form_choices       = self::get_term_choices( 'library_form' );
-		$language_choices   = self::get_term_choices( 'library_language' );
+		$form_choices       = Taxonomies::get_term_choices( 'library_form' );
+		$language_choices   = Taxonomies::get_term_choices( 'library_language' );
 		$own_language       = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 		$own_language_id    = $own_language instanceof WP_Term ? $own_language->term_id : 0;
 		$rating_choices     = Meta::get_rating_choices();
@@ -444,24 +444,6 @@ JS;
 	}
 
 	/**
-	 * Terms of `$taxonomy` the app offers in the page, by term ID, with their name as text: the forms, which the filter of the
-	 * books and the form of a book offer, and the languages, which the form of a book offers as its original and edition languages.
-	 *
-	 * @param string $taxonomy Taxonomy.
-	 * @return array<int,string>
-	 */
-	private static function get_term_choices( string $taxonomy ): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'hide_empty' => false,
-			)
-		);
-
-		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( is_array( $terms ) ? $terms : array(), null, 'term_id' ) );
-	}
-
-	/**
 	 * What the scripts need from the server: the statuses and forms to list and the URLs. Their strings are translated by WordPress,
 	 * from the JSON files of the languages folder.
 	 *
@@ -476,7 +458,7 @@ JS;
 			'bookFields'       => self::BOOK_FIELDS,
 			'perPage'          => self::PER_PAGE,
 			'maxPerPage'       => self::MAX_PER_PAGE,
-			'forms'            => implode( ',', array_keys( self::get_term_choices( 'library_form' ) ) ),
+			'forms'            => implode( ',', array_keys( Taxonomies::get_term_choices( 'library_form' ) ) ),
 			'notKept'          => Status::Not_Kept->value,
 			'toBuy'            => Status::To_Buy->value,
 			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.

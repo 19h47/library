@@ -313,9 +313,19 @@ class Taxonomies {
 	 * @return WP_Term|null
 	 */
 	public static function get_series( int $book_id ): ?WP_Term {
-		$terms = get_the_terms( $book_id, 'library_series' );
+		return self::get_book_terms( $book_id, 'library_series' )[0] ?? null;
+	}
 
-		return is_array( $terms ) ? $terms[0] : null;
+	/**
+	 * Give a book the series it types after its cycles, such as "Star Wars, Young Jedi Knights": a name not found adds a
+	 * series, or a cycle; an empty path leaves the book without series.
+	 *
+	 * @param int    $book_id Book ID.
+	 * @param string $path    Series, after its cycles, separated with commas.
+	 * @return void
+	 */
+	public static function set_series( int $book_id, string $path ): void {
+		wp_set_object_terms( $book_id, array_filter( array( self::get_path_id( 'library_series', $path, true ) ) ), 'library_series' );
 	}
 
 	/**
@@ -725,16 +735,46 @@ class Taxonomies {
 	}
 
 	/**
+	 * Terms of a book in a taxonomy, from the cache the query of the books filled; none for a book without.
+	 *
+	 * @param int    $book_id  Book ID.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return WP_Term[]
+	 */
+	public static function get_book_terms( int $book_id, string $taxonomy ): array {
+		$terms = get_the_terms( $book_id, $taxonomy );
+
+		return is_array( $terms ) ? $terms : array();
+	}
+
+	/**
+	 * Terms of a taxonomy a form offers, by term ID, with their name in plain text, by name: the forms, which the filter of
+	 * the books of the app and the form of a book offer, and the languages, which the forms of a book offer.
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @return array<int,string>
+	 */
+	public static function get_term_choices( string $taxonomy ): array {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+			)
+		);
+
+		return array_map( fn( WP_Term $term ) => wp_specialchars_decode( $term->name, ENT_QUOTES ), array_column( is_array( $terms ) ? $terms : array(), null, 'term_id' ) );
+	}
+
+	/**
 	 * Authors of a book, i.e. its names without another role, such as a colorist.
 	 *
 	 * @param int $book_id Book ID.
 	 * @return WP_Term[]
 	 */
 	public static function get_authors( int $book_id ): array {
-		$terms = get_the_terms( $book_id, 'library_person' );
 		$roles = Meta::get_roles( $book_id );
 
-		return array_values( array_filter( is_array( $terms ) ? $terms : array(), fn( WP_Term $term ) => ! isset( $roles[ $term->term_id ] ) ) );
+		return array_values( array_filter( self::get_book_terms( $book_id, 'library_person' ), fn( WP_Term $term ) => ! isset( $roles[ $term->term_id ] ) ) );
 	}
 
 	/**
@@ -745,12 +785,11 @@ class Taxonomies {
 	 * @return WP_Term[]
 	 */
 	public static function get_contributors( int $book_id, string $role = '' ): array {
-		$terms = get_the_terms( $book_id, 'library_person' );
 		$roles = Meta::get_roles( $book_id );
 
 		return array_values(
 			array_filter(
-				is_array( $terms ) ? $terms : array(),
+				self::get_book_terms( $book_id, 'library_person' ),
 				fn( WP_Term $term ) => isset( $roles[ $term->term_id ] ) && ( '' === $role || $role === $roles[ $term->term_id ] )
 			)
 		);
@@ -775,9 +814,7 @@ class Taxonomies {
 	 * @return WP_Term[]
 	 */
 	public static function get_collections( int $book_id ): array {
-		$terms = get_the_terms( $book_id, 'library_publisher' );
-
-		return array_values( wp_list_filter( is_array( $terms ) ? $terms : array(), array( 'parent' => 0 ), 'NOT' ) );
+		return array_values( wp_list_filter( self::get_book_terms( $book_id, 'library_publisher' ), array( 'parent' => 0 ), 'NOT' ) );
 	}
 
 	/**
@@ -808,10 +845,9 @@ class Taxonomies {
 	 * @return int[]
 	 */
 	public static function get_term_ids_and_ancestors( int $book_id, string $taxonomy ): array {
-		$terms = get_the_terms( $book_id, $taxonomy );
-		$ids   = array();
+		$ids = array();
 
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+		foreach ( self::get_book_terms( $book_id, $taxonomy ) as $term ) {
 			$ids = array( ...$ids, $term->term_id, ...get_ancestors( $term->term_id, $taxonomy, 'taxonomy' ) );
 		}
 

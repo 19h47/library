@@ -21,7 +21,12 @@ namespace Library;
  */
 class Posts {
 
-
+	/**
+	 * Meta keys the slug of a book is built from, after its title: its ISBN, or else its ISSN and its volume number.
+	 *
+	 * @var string[]
+	 */
+	public const array SLUG_KEYS = array( 'library_isbn', 'library_issn', 'library_volume_number' );
 
 	/**
 	 * Register hooks.
@@ -67,23 +72,15 @@ class Posts {
 			'show_in_admin_status_list' => true,
 		);
 
-		register_post_status(
-			Status::Not_Kept->value,
-			array(
-				'label'       => _x( 'Not kept', 'book status', 'library' ),
-				/* translators: %s: number of books. */
-				'label_count' => _n_noop( 'Not kept <span class="count">(%s)</span>', 'Not kept <span class="count">(%s)</span>', 'library' ),
-			) + $args
-		);
-
-		register_post_status(
-			Status::To_Buy->value,
-			array(
-				'label'       => _x( 'To buy', 'book status', 'library' ),
-				/* translators: %s: number of books. */
-				'label_count' => _n_noop( 'To buy <span class="count">(%s)</span>', 'To buy <span class="count">(%s)</span>', 'library' ),
-			) + $args
-		);
+		foreach ( Status::get_others() as $status ) {
+			register_post_status(
+				$status->value,
+				array(
+					'label'       => $status->label(),
+					'label_count' => $status->label_count(),
+				) + $args
+			);
+		}
 	}
 
 	/**
@@ -127,10 +124,10 @@ class Posts {
 
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
 		$title   = sanitize_text_field( wp_unslash( $postarr['post_title'] ?? '' ) );
-		$fields  = array();
+		$fields  = self::get_slug_fields( $post_id, wp_unslash( array_intersect_key( $postarr, array_flip( self::SLUG_KEYS ) ) ) );
 
-		foreach ( array( 'library_isbn', 'library_issn', 'library_volume_number' ) as $key ) {
-			$fields[ $key ] = sanitize_meta( $key, isset( $postarr[ $key ] ) ? wp_unslash( $postarr[ $key ] ) : (string) get_post_meta( $post_id, $key, true ), 'post', 'library_book' );
+		foreach ( $fields as $key => $value ) {
+			$fields[ $key ] = sanitize_meta( $key, $value, 'post', 'library_book' );
 		}
 
 		if ( $fields['library_issn'] && $fields['library_volume_number'] ) {
@@ -151,6 +148,23 @@ class Posts {
 		$data['post_name'] = wp_unique_post_slug( $slug, $post_id, $data['post_status'], 'library_book', $data['post_parent'] );
 
 		return $data;
+	}
+
+	/**
+	 * Fields the slug of a book is built from, those of SLUG_KEYS: the values sent, or else those of the book, as saved.
+	 *
+	 * @param int                 $post_id Post ID, 0 for a book to add.
+	 * @param array<string,mixed> $values  Unslashed values sent, by meta key.
+	 * @return array<string,mixed>
+	 */
+	public static function get_slug_fields( int $post_id, array $values ): array {
+		$fields = array();
+
+		foreach ( self::SLUG_KEYS as $key ) {
+			$fields[ $key ] = $values[ $key ] ?? (string) get_post_meta( $post_id, $key, true );
+		}
+
+		return $fields;
 	}
 
 	/**
