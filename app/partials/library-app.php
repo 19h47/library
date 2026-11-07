@@ -63,7 +63,7 @@ use Library\Meta;
 					</library-app-name>
 					<library-nav>
 						<nav>
-							<ul class="library-nav">
+							<ul class="library-strip library-nav">
 								<?php foreach ( $views as $name => $item ) : ?>
 									<li>
 										<a
@@ -103,7 +103,7 @@ use Library\Meta;
 								'rating:9'               => __( 'Rated 9 or more', 'library' ),
 							);
 							?>
-							<p class="library-search__keywords" hidden>
+							<p class="library-strip library-search__keywords" hidden>
 								<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
 								<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
 									<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
@@ -118,7 +118,7 @@ use Library\Meta;
 								<?php echo esc_html( Meta::get_label( 'library_in_progress' ) ); ?>
 								<span class="app-meta" data-field="count"></span>
 							</h3>
-							<ul class="library-covers"></ul>
+							<ul class="library-strip"></ul>
 						</library-in-progress>
 						<library-year class="library-year library-section">
 							<p data-field="yearToDate"></p>
@@ -128,7 +128,7 @@ use Library\Meta;
 								<h3 class="library-title__heading"><?php esc_html_e( 'Latest readings', 'library' ); ?></h3>
 								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
 							</div>
-							<ul class="library-covers"></ul>
+							<ul class="library-strip"></ul>
 						</library-latest>
 						<?php // As a row, its next idea at the end of its title, as the view of the idea has it in full. ?>
 						<library-idea class="library-section" compact hidden>
@@ -186,7 +186,7 @@ use Library\Meta;
 							<button class="app-pill" type="button" data-action="open-filters" aria-haspopup="dialog">
 								<span data-field="label"><?php esc_html_e( 'Filters', 'library' ); ?></span>
 							</button>
-							<p class="library-filters__chosen" hidden>
+							<p class="library-filters__chosen library-pills" hidden>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
 									<?php foreach ( array_filter( $filter_args['options'], 'strlen', ARRAY_FILTER_USE_KEY ) as $value => $label ) : ?>
 										<button class="app-pill" type="button" data-filter="<?php echo esc_attr( $book_filter ); ?>" data-value="<?php echo esc_attr( $value ); ?>" hidden>
@@ -344,7 +344,7 @@ use Library\Meta;
 						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="library-section__pills" data-list="parts"></ul>
+							<ul class="library-pills" data-list="parts"></ul>
 						</section>
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
@@ -376,7 +376,7 @@ use Library\Meta;
 						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="collections" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
-							<ul class="library-section__pills" data-list="collections"></ul>
+							<ul class="library-pills" data-list="collections"></ul>
 						</section>
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
@@ -406,7 +406,7 @@ use Library\Meta;
 						<p class="library-book__translation" data-field="translation"></p>
 						<library-reading>
 							<form class="library-reading">
-								<div class="library-reading__pills">
+								<div class="library-pills">
 									<?php
 									Markup::render_component(
 										'pill-checkbox',
@@ -471,7 +471,7 @@ use Library\Meta;
 								<a data-field="name" href=""></a>
 								<span class="app-meta" data-field="count"></span>
 							</h3>
-							<ul class="library-covers"></ul>
+							<ul class="library-strip"></ul>
 						</library-volumes>
 						<dl class="library-book__fields">
 							<div data-row="authors">

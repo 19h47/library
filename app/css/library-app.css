@@ -70,9 +70,6 @@ library-filters {
 .library-filters__chosen {
 	order: 1;
 	flex-basis: 100%;
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--app-gap);
 }
 
 /* The filters: on a phone, a sheet from the bottom of the screen; beyond, a dialog in the middle, as the one of a book */
@@ -643,12 +640,6 @@ library-view > .library-back {
 	margin-inline-start: var(--app-gap);
 }
 
-.library-reading__pills {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--app-gap);
-}
-
 /*
  * A list of inputs, such as the people of a book or its read dates: its legend above it as the label of a field, then
  * its rows, its description and the button that adds one, a gap apart. A row holds its input and the control that removes it.
@@ -692,13 +683,6 @@ library-view > .library-back {
 	border: 1px solid var(--app-line-soft);
 	border-radius: var(--app-radius);
 	color: var(--app-text-muted);
-}
-
-/* The buttons under the rows, side by side */
-.library-input-list > p {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--app-gap);
 }
 
 /* A field of a form, such as a read date or the title of a book */
@@ -799,12 +783,11 @@ library-latest {
 }
 
 /*
- * The views, the keywords of the search and the covers of the latest readings, in a row that scrolls sideways across the viewport:
- * the first item starts where the content does, the last one ends where it does.
+ * A strip, the counterpart of a row of pills, which scrolls sideways across the viewport rather than going on another
+ * line: the views, the keywords of the search, the covers of the books being read, of the latest readings, of the
+ * volumes of a series. The first item starts where the content does, the last one ends where it does.
  */
-.library-nav,
-.library-search__keywords,
-.library-covers {
+.library-strip {
 	/*
 	 * From an edge of the content to the one of the viewport: the page is centered, and has no scrollbar.
 	 * A length rather than a percentage, which scroll-padding would take from the row itself.
@@ -824,10 +807,7 @@ library-latest {
 	scrollbar-width: none;
 }
 
-.library-nav li,
-.library-search__keywords > *,
-.library-cover,
-.library-current {
+.library-strip > * {
 	flex: none;
 	scroll-snap-align: start;
 }
@@ -909,8 +889,11 @@ library-latest {
 	margin-bottom: var(--app-u2);
 }
 
-/* The series of a cycle, the collections of a publisher */
-.library-section__pills {
+/*
+ * A row of pills, which goes on as many lines as it needs: the reading of the book open, the filters chosen, the buttons
+ * under a list of inputs, the series of a cycle, the collections of a publisher
+ */
+.library-pills {
 	list-style: none;
 	display: flex;
 	flex-wrap: wrap;

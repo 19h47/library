@@ -135,13 +135,13 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-section__pills</code>, the series of a cycle or the collections of a publisher on its page, under its <code>.library-person</code> header</figcaption>
+				<figcaption><code>.library-pills</code>, a row of pills on as many lines as it needs: the series of a cycle or the collections of a publisher on its page, under its <code>.library-person</code> header</figcaption>
 				<div class="library-styleguide__frame">
 					<header class="library-person">
 						<h4 class="library-person__name">A Cycle</h4>
 						<p>20 books · 14 read</p>
 					</header>
-					<ul class="library-section__pills">
+					<ul class="library-pills">
 						<li><a class="app-pill" href="#top">A Series</a></li>
 						<li><a class="app-pill" href="#top">Another Series, with a longer name</a></li>
 					</ul>
@@ -234,9 +234,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-nav</code>, the views, a row of pills that scrolls sideways: under the title, or on a phone in a bar at the bottom of the screen</figcaption>
+				<figcaption><code>.library-strip</code>, a row that scrolls sideways across the viewport, the counterpart of <code>.library-pills</code>: <code>.library-nav</code>, the views, under the title, or on a phone in a bar at the bottom of the screen</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="library-nav">
+					<ul class="library-strip library-nav">
 						<li><a class="app-pill" href="#top" aria-current="page">Books</a></li>
 						<li><a class="app-pill" href="#top">Diary</a></li>
 						<li><a class="app-pill" href="#top">Idea</a></li>
@@ -267,7 +267,7 @@ $sizes = array(
 					<div class="app-controls">
 						<div class="app-search">
 							<input type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
-							<p class="library-search__keywords">
+							<p class="library-strip library-search__keywords">
 								<button class="app-pill" type="button">Series</button>
 								<button class="app-pill" type="button">Author</button>
 								<button class="app-pill" type="button">Publisher</button>
@@ -292,7 +292,7 @@ $sizes = array(
 							)
 						);
 						?>
-						<p class="library-filters__chosen">
+						<p class="library-filters__chosen library-pills">
 							<button class="app-pill" type="button">To read <span aria-hidden="true">×</span></button>
 							<button class="app-pill" type="button">A form <span aria-hidden="true">×</span></button>
 						</p>
@@ -324,9 +324,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-reading__pills</code></figcaption>
+				<figcaption><code>.library-pills</code>, the reading of the book open</figcaption>
 				<div class="library-styleguide__frame">
-					<div class="library-reading__pills">
+					<div class="library-pills">
 						<?php
 						Markup::render_component(
 							'pill-checkbox',
