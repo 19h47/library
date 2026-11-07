@@ -324,12 +324,16 @@ library-styleguide {
 	}
 }
 
+/*
+ * A cover is laid out off screen too, as cheap as it is: Safari leaves a card whose display changes skipped, of no
+ * height, where it shows, and the cards of the list that were on screen came back as their padding.
+ */
 .app-list__items[data-covers] > .library-item {
+	content-visibility: visible;
 	display: block;
 	padding: 0;
 	border: 0;
 	background: none;
-	contain-intrinsic-size: auto var(--library-cover-height);
 }
 
 .app-list__items[data-covers] .library-item__cover {
