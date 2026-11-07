@@ -16,6 +16,7 @@ use Library\Posts;
 use Library\Status;
 use Library\Taxonomies;
 use WP_Post;
+use WP_Term;
 
 /**
  * Renders and saves the book information metabox and the "Not kept" box of the publish box, and types the people in a tag box.
@@ -95,20 +96,27 @@ class Metaboxes {
 
 		$values['library_read_date']         = Meta::get_read_dates( $post->ID );
 		$values['library_edition_languages'] = Meta::get_edition_languages( $post->ID );
-		$languages                           = get_terms(
+		$own_language                        = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
+
+		// A book added is in the language of the reader, as in the form of the app.
+		if ( 'auto-draft' === $post->post_status && $own_language instanceof WP_Term ) {
+			$values['library_edition_languages'] = array( $own_language->term_id );
+		}
+
+		$languages = get_terms(
 			array(
 				'taxonomy'   => 'library_language',
 				'hide_empty' => false,
 				'fields'     => 'id=>name',
 			)
 		);
-		$languages                           = is_array( $languages ) ? $languages : array();
-		$series                              = Taxonomies::get_series( $post->ID );
-		$series                              = $series ? Taxonomies::get_series_path( $series ) : '';
-		$paths                               = Taxonomies::get_series_paths();
-		$names                               = get_the_terms( $post->ID, 'library_person' );
-		$names                               = is_array( $names ) ? $names : array();
-		$roles                               = Meta::get_roles( $post->ID );
+		$languages = is_array( $languages ) ? $languages : array();
+		$series    = Taxonomies::get_series( $post->ID );
+		$series    = $series ? Taxonomies::get_series_path( $series ) : '';
+		$paths     = Taxonomies::get_series_paths();
+		$names     = get_the_terms( $post->ID, 'library_person' );
+		$names     = is_array( $names ) ? $names : array();
+		$roles     = Meta::get_roles( $post->ID );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-form.php';
 	}

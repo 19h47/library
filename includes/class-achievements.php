@@ -331,16 +331,6 @@ class Achievements {
 	}
 
 	/**
-	 * Key of a name, such as a translator or a title, the same whatever its case.
-	 *
-	 * @param string $name Name.
-	 * @return string
-	 */
-	private static function get_name_key( string $name ): string {
-		return mb_strtolower( trim( $name ) );
-	}
-
-	/**
 	 * The books read, dated by their first reading, those without read date first, then by read date.
 	 *
 	 * @param array<int,Book> $books All the books.
@@ -479,13 +469,24 @@ class Achievements {
 	}
 
 	/**
-	 * Authors whose work the book is part of: none for a collective book, which is only found through its authors.
+	 * When each series, author or collection of a kind was finished, as its completion is earned: its books all read,
+	 * with as many books as a completion needs. The latest first reading of its books, empty when unknown, by term ID.
 	 *
-	 * @param Book $book Book.
-	 * @return int[]
+	 * @param string $kind Kind: series, author or collection.
+	 * @return array<int,string>
 	 */
-	private static function get_work_author_ids( Book $book ): array {
-		return $book->collective ? array() : $book->author_ids;
+	public function get_finished( string $kind ): array {
+		$finished = array();
+
+		foreach ( self::get_completion_groups( self::get_dated_books() ) as $kinds ) {
+			foreach ( $kinds[ $kind ] ?? array() as $term_id => $group ) {
+				if ( array_all( $group, fn( Book $book ) => $book->read ) ) {
+					$finished[ $term_id ] = self::get_latest_read_date( $group );
+				}
+			}
+		}
+
+		return $finished;
 	}
 
 	/**
@@ -510,7 +511,7 @@ class Achievements {
 				$groups['series'][ $series_id ][] = $book;
 			}
 
-			foreach ( self::get_work_author_ids( $book ) as $author_id ) {
+			foreach ( array_keys( $book->get_work_authors() ) as $author_id ) {
 				$groups['author'][ $author_id ][] = $book;
 			}
 
@@ -890,18 +891,6 @@ class Achievements {
 	}
 
 	/**
-	 * Year a work first came out.
-	 *
-	 * @param Book $book Book.
-	 * @return int|null
-	 */
-	private static function get_first_year( Book $book ): ?int {
-		$date = Books::get_date( $book );
-
-		return '' !== $date ? (int) substr( $date, 0, 4 ) : null;
-	}
-
-	/**
 	 * The latest of books that earned an achievement, with how many did.
 	 *
 	 * @param Achievement_Kind $kind        Kind.
@@ -950,10 +939,10 @@ class Achievements {
 	private function get_discoveries( array $books, array $reads ): array {
 		$dated = array_values( array_filter( $reads, fn( Book $book ) => '' !== $book->read_date ) );
 
-		$hot_off_the_press = array_filter( $dated, fn( Book $book ) => self::get_first_year( $book ) === (int) substr( $book->read_date, 0, 4 ) );
+		$hot_off_the_press = array_filter( $dated, fn( Book $book ) => $book->get_first_year() === (int) substr( $book->read_date, 0, 4 ) );
 		$centenarians      = array_filter(
 			$dated,
-			fn( Book $book ) => null !== self::get_first_year( $book ) && (int) substr( $book->read_date, 0, 4 ) - self::get_first_year( $book ) >= self::CENTENARIAN_YEARS
+			fn( Book $book ) => null !== $book->get_first_year() && (int) substr( $book->read_date, 0, 4 ) - $book->get_first_year() >= self::CENTENARIAN_YEARS
 		);
 
 		return array_merge(
@@ -1009,7 +998,7 @@ class Achievements {
 		$decades = array();
 
 		foreach ( $reads as $book ) {
-			$year = self::get_first_year( $book ) ?? 0;
+			$year = $book->get_first_year() ?? 0;
 
 			if ( $year >= 1900 && $year < 2000 && ! isset( $decades[ intdiv( $year, 10 ) ] ) ) {
 				$decades[ intdiv( $year, 10 ) ] = $book;
@@ -1168,8 +1157,8 @@ class Achievements {
 
 		foreach ( $reads as $book ) {
 			foreach ( $book->translators as $translator ) {
-				$translators[ self::get_name_key( $translator ) ][] = $book;
-				$names[ self::get_name_key( $translator ) ]       ??= $translator;
+				$translators[ Taxonomies::get_name_key( $translator ) ][] = $book;
+				$names[ Taxonomies::get_name_key( $translator ) ]       ??= $translator;
 			}
 		}
 
@@ -1258,7 +1247,7 @@ class Achievements {
 	 * @return list<Achievement>
 	 */
 	private function get_language_feats( array $reads, array $readings ): array {
-		$own_language = explode( '_', get_user_locale() )[0];
+		$own_language = Taxonomies::get_own_language_code();
 		$dated        = array_values( array_filter( $readings, fn( Book $book ) => '' !== $book->read_date ) );
 		$languages    = fn( Book $book ) => $book->languages;
 		$feats        = self::get_latest_achievement(
@@ -1313,11 +1302,11 @@ class Achievements {
 
 		foreach ( $reads as $book ) {
 			foreach ( $book->translators as $translator ) {
-				$names[ self::get_name_key( $translator ) ] ??= $translator;
-				$books[ self::get_name_key( $translator ) ][] = $book;
+				$names[ Taxonomies::get_name_key( $translator ) ] ??= $translator;
+				$books[ Taxonomies::get_name_key( $translator ) ][] = $book;
 
 				foreach ( $book->languages as $language ) {
-					$from[ self::get_name_key( $translator ) ][ $language ] ??= $book;
+					$from[ Taxonomies::get_name_key( $translator ) ][ $language ] ??= $book;
 				}
 			}
 		}
@@ -1487,7 +1476,7 @@ class Achievements {
 	 * @return list<Achievement>
 	 */
 	private function get_time_machine( array $dated ): array {
-		$century = fn( Book $book ) => null !== self::get_first_year( $book ) ? array( intdiv( self::get_first_year( $book ), 100 ) ) : array();
+		$century = fn( Book $book ) => null !== $book->get_first_year() ? array( intdiv( $book->get_first_year(), 100 ) ) : array();
 		$trip    = self::get_latest_variety( $dated, fn( Book $book ) => substr( $book->read_date, 0, 7 ), $century, self::TIME_MACHINE_CENTURIES );
 
 		if ( ! $trip ) {
@@ -1517,8 +1506,8 @@ class Achievements {
 		$seen  = array();
 		$twins = null;
 
-		foreach ( array_filter( $dated, fn( Book $book ) => null !== self::get_first_year( $book ) && self::get_work_author_ids( $book ) ) as $book ) {
-			$key = $book->read_date . self::get_first_year( $book );
+		foreach ( array_filter( $dated, fn( Book $book ) => null !== $book->get_first_year() && array_keys( $book->get_work_authors() ) ) as $book ) {
+			$key = $book->read_date . $book->get_first_year();
 
 			foreach ( $seen[ $key ] ?? array() as $twin ) {
 				if ( ! array_intersect( $twin->author_ids, $book->author_ids ) ) {
@@ -1542,7 +1531,7 @@ class Achievements {
 					/* translators: 1: title of the other book, 2: year both first came out. */
 					__( 'Read the same day as %1$s, both came out in %2$s', 'library' ),
 					$twins[0]->full_title,
-					self::get_first_year( $twins[1] )
+					$twins[1]->get_first_year()
 				),
 				self::build_book_target( $twins[1]->id ),
 				$twins[1]->read_date
@@ -1738,11 +1727,11 @@ class Achievements {
 		$found  = null;
 
 		foreach ( $reads as $book ) {
-			$key        = self::get_name_key( $book->title );
-			$author_ids = self::get_work_author_ids( $book );
+			$key        = Taxonomies::get_name_key( $book->title );
+			$author_ids = array_keys( $book->get_work_authors() );
 
 			foreach ( $titles[ $key ] ?? array() as $other ) {
-				$other_author_ids = self::get_work_author_ids( $other );
+				$other_author_ids = array_keys( $other->get_work_authors() );
 
 				if ( $author_ids && $other_author_ids && ! array_intersect( $author_ids, $other_author_ids ) ) {
 					$found = $book;
@@ -1757,7 +1746,7 @@ class Achievements {
 			return array();
 		}
 
-		$books = $titles[ self::get_name_key( $found->title ) ];
+		$books = $titles[ Taxonomies::get_name_key( $found->title ) ];
 		$title = $books[0]->title;
 
 		return array( self::build_achievement( Achievement_Kind::Namesakes, __( 'Namesakes', 'library' ), $title, __( 'The same title, different authors', 'library' ), self::build_search_target( $title, $books ), $found->read_date ) );
@@ -1773,15 +1762,16 @@ class Achievements {
 		$later = array();
 		$found = null;
 
+		// The series of a volume, as Books::get_books() names it: a volume without series is one of its title.
 		foreach ( $dated as $book ) {
-			if ( null === $book->volume || ! $book->series_id ) {
+			if ( null === $book->volume || '' === $book->series ) {
 				continue;
 			}
 
-			if ( 1 === $book->volume && isset( $later[ $book->series_id ] ) ) {
+			if ( 1 === $book->volume && isset( $later[ $book->series ] ) ) {
 				$found = $book;
 			} elseif ( $book->volume > 1 ) {
-				$later[ $book->series_id ] = true;
+				$later[ $book->series ] = true;
 			}
 		}
 

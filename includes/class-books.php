@@ -77,7 +77,7 @@ class Books {
 
 		foreach ( $posts as $post ) {
 			$read_dates     = Meta::get_read_dates( $post->ID );
-			$volume         = preg_match( '/\d+/', (string) get_post_meta( $post->ID, 'library_volume_number', true ), $match ) ? (int) $match[0] : null;
+			$volume         = self::get_volume_number( (string) get_post_meta( $post->ID, 'library_volume_number', true ) );
 			$series         = Taxonomies::get_series( $post->ID );
 			$series_name    = $series ? Taxonomies::get_series_path( $series ) : ( null !== $volume ? $post->post_title : '' );
 			$rating         = get_post_meta( $post->ID, 'library_rating', true );
@@ -127,6 +127,16 @@ class Books {
 		}
 
 		return $books;
+	}
+
+	/**
+	 * The number of a volume, its first number, as "Tome 08" or "3-4" give 8 and 3: null without one, such as "Chant II".
+	 *
+	 * @param string $volume Volume number, as typed or as the catalogue gives it.
+	 * @return int|null
+	 */
+	public static function get_volume_number( string $volume ): ?int {
+		return preg_match( '/\d+/', $volume, $match ) ? (int) $match[0] : null;
 	}
 
 	/**

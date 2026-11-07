@@ -171,7 +171,7 @@ class Page {
 		$form_labels        = get_taxonomy( 'library_form' )->labels;
 		$form_choices       = self::get_term_choices( 'library_form' );
 		$language_choices   = self::get_term_choices( 'library_language' );
-		$own_language       = get_term_by( 'slug', explode( '_', get_user_locale() )[0], 'library_language' );
+		$own_language       = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 		$own_language_id    = $own_language instanceof WP_Term ? $own_language->term_id : 0;
 		$rating_choices     = Meta::get_rating_choices();
 		$status_choices     = Status::get_choices();

@@ -114,6 +114,27 @@ final readonly class Book {
 	}
 
 	/**
+	 * The authors whose work it is part of, their names by term ID: none for a collective book, a magazine or an anthology,
+	 * which is only found through its authors.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_work_authors(): array {
+		return $this->collective ? array() : array_combine( $this->author_ids, $this->authors );
+	}
+
+	/**
+	 * The year it first came out, or else the year of its edition, from Books::get_date(): null without either.
+	 *
+	 * @return int|null
+	 */
+	public function get_first_year(): ?int {
+		$date = Books::get_date( $this );
+
+		return '' !== $date ? (int) substr( $date, 0, 4 ) : null;
+	}
+
+	/**
 	 * Its first reading: its first read date, empty when unknown, which comes first, or when it is not read.
 	 *
 	 * @return string

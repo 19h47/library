@@ -423,6 +423,17 @@ export function toReadings( dates ) {
 }
 
 /**
+ * Read dates by their days, as the forms give them and send them, in order, the unknown ones first. Two readings of a
+ * day stay two: the server keeps the time of each reading of today, and merges a day given twice otherwise.
+ *
+ * @param {string[]} dates Read dates, in any order, with their time or not.
+ * @return {string[]} Their days.
+ */
+export function toDays( dates ) {
+	return dates.map( ( date ) => date.slice( 0, 10 ) ).sort();
+}
+
+/**
  * The message of a failed request: the one of the API, or a generic one.
  *
  * @param {{message?: string}} error What the request threw: an error, or the one of the API.
@@ -665,7 +676,7 @@ export async function finds( query, id ) {
 }
 
 /**
- * The books of the series `name`, in reading order, as a search for it lists them.
+ * The books of the series `name`, all of them, in reading order, as a search for it lists them.
  *
  * @param {string}      name             The series, after its cycles.
  * @param {Object}      [options]        Options.
@@ -677,7 +688,8 @@ export async function getVolumes( name, { signal } = {} ) {
 		...BOOK_QUERY,
 		search: `series:"${ name }"`,
 		status: statuses,
-		per_page: maxPerPage.toString(),
+		// Every page, however many volumes: apiFetch loads the first one, as the page preloads it, then the others.
+		per_page: '-1',
 	} );
 	/** @type {ApiBook[]} */
 	const books = await apiFetch( {

@@ -153,7 +153,7 @@ class Dashboard {
 			'authors'    => count( $authors ),
 			'publishers' => count( $publishers ),
 			'languages'  => count( $languages ),
-			'translated' => count( array_filter( $books, fn( Book $book ) => (bool) $book->translators ) ),
+			'translated' => count( array_filter( $books, fn( Book $book ) => $book->is_translated() ) ),
 		);
 		$charts      = array( $this->get_edition_chart() );
 
@@ -477,11 +477,9 @@ class Dashboard {
 		$counts = array();
 
 		foreach ( $books as $book ) {
-			if ( 'author_ids' === $field && $book->collective ) {
-				continue;
-			}
+			$term_ids = 'author_ids' === $field ? array_keys( $book->get_work_authors() ) : $book->$field;
 
-			foreach ( $book->$field as $term_id ) {
+			foreach ( $term_ids as $term_id ) {
 				$counts[ $term_id ] = array(
 					'books'      => ( $counts[ $term_id ]['books'] ?? 0 ) + 1,
 					'books_read' => ( $counts[ $term_id ]['books_read'] ?? 0 ) + (int) $book->read,

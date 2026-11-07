@@ -306,9 +306,7 @@ function readingOf( book ) {
 	const meta = {
 		library_read: book.read,
 		library_in_progress: book.in_progress,
-		library_read_date: api.toReadings(
-			book.read_date.map( ( date ) => date.slice( 0, 10 ) )
-		),
+		library_read_date: api.toDays( book.read_date ),
 		library_rating: book.rating || null,
 	};
 
@@ -1021,7 +1019,7 @@ class LibraryStore extends Store {
 		const finished = {
 			library_read: true,
 			library_in_progress: false,
-			library_read_date: api.toReadings( [
+			library_read_date: api.toDays( [
 				...meta.library_read_date,
 				today(),
 			] ),
@@ -1093,7 +1091,7 @@ class LibraryStore extends Store {
 	} ) {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
-		const dates = api.toReadings( readDates );
+		const dates = api.toDays( readDates );
 		// As in the "Library" menu of the book form, a book in another status than not kept or to buy, such as a draft,
 		// shows as in the library, and stays in it unless another one is chosen.
 		const shown = [ notKept, toBuy ].includes( book.status )
@@ -1112,9 +1110,7 @@ class LibraryStore extends Store {
 		}
 
 		// By their days, as the form gives them: the server keeps the time of a reading of the day.
-		const saved = api.toReadings(
-			book.read_date.map( ( date ) => date.slice( 0, 10 ) )
-		);
+		const saved = api.toDays( book.read_date );
 		// One by one: an unknown date, empty, is a reading, which a book without reading has not.
 		const datesChanged =
 			dates.length !== saved.length ||

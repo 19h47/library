@@ -13,7 +13,6 @@ namespace Library;
 
 use DOMDocument;
 use DOMElement;
-use Locale;
 use WP_Error;
 use WP_Term;
 
@@ -57,34 +56,6 @@ class BnF {
 	);
 
 	/**
-	 * Codes of ISO 639-2 the catalogue gives as bibliographic codes, by their terminological codes, which ICU knows.
-	 *
-	 * @var array<string,string>
-	 */
-	private const array LANGUAGE_CODES = array(
-		'alb' => 'sqi',
-		'arm' => 'hye',
-		'baq' => 'eus',
-		'bur' => 'mya',
-		'chi' => 'zho',
-		'cze' => 'ces',
-		'dut' => 'nld',
-		'fre' => 'fra',
-		'geo' => 'kat',
-		'ger' => 'deu',
-		'gre' => 'ell',
-		'ice' => 'isl',
-		'mac' => 'mkd',
-		'mao' => 'mri',
-		'may' => 'msa',
-		'per' => 'fas',
-		'rum' => 'ron',
-		'slo' => 'slk',
-		'tib' => 'bod',
-		'wel' => 'cym',
-	);
-
-	/**
 	 * Names a form of the library may have, by what the catalogue tells: a comic by its type of illustrations, else a
 	 * literary form by the code of the record or by the words after the title, such as "roman" or "nouvelles".
 	 *
@@ -120,15 +91,15 @@ class BnF {
 		}
 
 		// The title of a volume, else of a book, which a volume without a title of its own shares with its series.
-		$title        = self::get_first( $record, '200', 'i' );
-		$title        = '' !== $title ? $title : self::get_first( $record, '200', 'a' );
-		$people       = self::find_people( $record );
-		$imprint      = self::get_first( $record, '210', 'c' );
-		$publisher    = self::find_publisher( $isbn, '' !== $imprint ? $imprint : self::get_first( $record, '214', 'c' ) );
-		$series       = self::get_series( $record );
-		$series_term  = $series['name'] ? self::find_series( $series['name'] ) : null;
-		$collection   = self::find_collection( $record, $publisher, $series['name'] );
-		$volume_digit = (int) preg_replace( '/\D+/', '', $series['number'] );
+		$title       = self::get_first( $record, '200', 'i' );
+		$title       = '' !== $title ? $title : self::get_first( $record, '200', 'a' );
+		$people      = self::find_people( $record );
+		$imprint     = self::get_first( $record, '210', 'c' );
+		$publisher   = self::find_publisher( $isbn, '' !== $imprint ? $imprint : self::get_first( $record, '214', 'c' ) );
+		$series      = self::get_series( $record );
+		$series_term = $series['name'] ? self::find_series( $series['name'] ) : null;
+		$collection  = self::find_collection( $record, $publisher, $series['name'] );
+		$volume      = Books::get_volume_number( $series['number'] );
 
 		// A volume titled as its series, such as a manga, takes the name the library gives the series.
 		if ( $series_term && self::normalize( $title ) === self::normalize( $series['name'] ) ) {
@@ -146,7 +117,7 @@ class BnF {
 			'meta'       => array(
 				'library_subtitle'          => self::get_subtitle( $record ),
 				// The numbers of the volumes of the library: "Tome 05".
-				'library_volume_number'     => $volume_digit ? sprintf( 'Tome %02d', $volume_digit ) : '',
+				'library_volume_number'     => $volume ? sprintf( 'Tome %02d', $volume ) : '',
 				'library_collection_number' => $collection['number'],
 				'library_pages'             => self::get_pages( $record ),
 				'library_edition_languages' => self::find_edition_languages( $record ),
@@ -618,8 +589,8 @@ class BnF {
 	 * @return int Term ID.
 	 */
 	private static function find_language_term( string $code ): int {
-		$code = $code ? Locale::getPrimaryLanguage( Locale::canonicalize( self::LANGUAGE_CODES[ $code ] ?? $code ) ?? '' ) ?? '' : '';
-		$term = $code ? get_term_by( 'slug', $code, 'library_language' ) : false;
+		$code = Taxonomies::normalize_language_code( $code );
+		$term = '' !== $code ? get_term_by( 'slug', $code, 'library_language' ) : false;
 
 		return $term instanceof WP_Term ? $term->term_id : 0;
 	}
@@ -733,7 +704,7 @@ class BnF {
 	 * @return string
 	 */
 	private static function normalize( string $name ): string {
-		$name = remove_accents( mb_strtolower( wp_specialchars_decode( $name, ENT_QUOTES ) ) );
+		$name = Taxonomies::get_name_key( $name );
 
 		return trim( (string) preg_replace( '/[^a-z0-9\[\]]+/', ' ', $name ) );
 	}

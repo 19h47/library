@@ -150,7 +150,8 @@ class Test_Recap extends TestCase {
 
 	/**
 	 * A series is started when its first reading is of the year, finished when every book of it is read, the last one
-	 * first read in the year; a book to buy lacks to a series.
+	 * first read in the year, as the achievements finish it: a book to buy lacks to a series, and a series of one book is
+	 * never finished.
 	 *
 	 * @return void
 	 */
@@ -166,6 +167,7 @@ class Test_Recap extends TestCase {
 				'status' => Status::To_Buy->value,
 			)
 		);
+		$this->add_read( '2025-05-01', array( 'series' => 'Alone' ) );
 
 		$series = array_column( Recap::get_recap( 2025 )['series'], null, 'name' );
 
@@ -176,6 +178,24 @@ class Test_Recap extends TestCase {
 		$this->assertTrue( $series['Finished']['finished'] );
 		$this->assertTrue( $series['Started']['started'] );
 		$this->assertFalse( $series['Started']['finished'] );
+		$this->assertTrue( $series['Alone']['started'] );
+		$this->assertFalse( $series['Alone']['finished'] );
+	}
+
+	/**
+	 * A collective book, an anthology, is part of the work of none of its authors: they are neither the people read the
+	 * most nor read for the first time.
+	 *
+	 * @return void
+	 */
+	public function test_a_collective_book_counts_for_no_author(): void {
+		$this->add_read( '2025-01-01', $this->by( 'Ann Writer' ) );
+		$this->add_read( '2025-02-01', $this->by( 'Contributor' ) + array( 'meta' => array( 'library_collective' => true ) ) );
+
+		$recap = Recap::get_recap( 2025 );
+
+		$this->assertSame( array( 'Ann Writer' ), array_column( $recap['people'], 'name' ) );
+		$this->assertSame( array( 'Ann Writer' ), array_column( $recap['discoveries'], 'name' ) );
 	}
 
 	/**

@@ -35,6 +35,34 @@ class Taxonomies {
 	public const array TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
 
 	/**
+	 * Codes of ISO 639-2 that catalogues give as bibliographic codes, such as fre, by their terminological codes, which ICU knows.
+	 *
+	 * @var array<string,string>
+	 */
+	private const array LANGUAGE_CODES = array(
+		'alb' => 'sqi',
+		'arm' => 'hye',
+		'baq' => 'eus',
+		'bur' => 'mya',
+		'chi' => 'zho',
+		'cze' => 'ces',
+		'dut' => 'nld',
+		'fre' => 'fra',
+		'geo' => 'kat',
+		'ger' => 'deu',
+		'gre' => 'ell',
+		'ice' => 'isl',
+		'mac' => 'mkd',
+		'mao' => 'mri',
+		'may' => 'msa',
+		'per' => 'fas',
+		'rum' => 'ron',
+		'slo' => 'slk',
+		'tib' => 'bod',
+		'wel' => 'cym',
+	);
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -331,7 +359,7 @@ class Taxonomies {
 	}
 
 	/**
-	 * The series a search names, case aside, with the series of their cycles: "Star Wars" the cycle and its series, "Star
+	 * The series a search names, case and accents aside, with the series of their cycles: "Star Wars" the cycle and its series, "Star
 	 * Wars, Young Jedi Knights" this one, "Young Jedi Knights" any series of that name; a name may hold a comma, such as
 	 * "Talli, fille de la lune".
 	 *
@@ -339,7 +367,7 @@ class Taxonomies {
 	 * @return int[] Term IDs.
 	 */
 	public static function find_series_ids( string $value ): array {
-		$names = array_map( 'mb_strtolower', Books::split( $value ) );
+		$names = array_map( array( self::class, 'get_name_key' ), Books::split( $value ) );
 
 		if ( ! $names ) {
 			return array();
@@ -358,7 +386,7 @@ class Taxonomies {
 		$ids        = array();
 
 		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			$path = mb_strtolower( implode( ', ', self::get_path_names( $term ) ) );
+			$path = self::get_name_key( implode( ', ', self::get_path_names( $term ) ) );
 
 			if ( $path === $search || str_ends_with( $path, ', ' . $search ) ) {
 				$children = get_term_children( $term->term_id, 'library_series' );
@@ -535,12 +563,19 @@ class Taxonomies {
 			return $term;
 		}
 
-		$typed = empty( $args['slug'] ) ? $term : $args['slug'];
-		$code  = sanitize_title( $typed );
+		$slug  = (string) ( $args['slug'] ?? '' );
+		$typed = '' !== $slug ? $slug : $term;
+		$code  = self::normalize_language_code( sanitize_title( $typed ) );
 
-		if ( ! preg_match( '/^[a-z]{2,3}$/', $code ) ) {
-			$code = empty( $args['slug'] ) ? self::get_language_code( $term ) : '';
+		// A name, the code of the language its name gives, which names it again.
+		if ( '' === $slug ) {
+			$code = '' !== $code ? $code : self::get_language_code( $term );
 			$term = $code;
+		}
+
+		if ( '' !== $slug && '' !== $code && $slug !== $code ) {
+			/* translators: 1: code typed for a language, e.g. fra; 2: its code in the library, e.g. fr. */
+			return new WP_Error( 'library_language_code', sprintf( __( 'The library writes %1$s as %2$s.', 'library' ), $slug, $code ), array( 'status' => 400 ) );
 		}
 
 		if ( '' === $code ) {
@@ -561,6 +596,43 @@ class Taxonomies {
 	}
 
 	/**
+	 * Key of a name to compare, the same whatever its case and accents, as the database compares the names of terms:
+	 * "chroniques de l'etrange" for "Chroniques de l'Étrange".
+	 *
+	 * @param string $name Name, its entities decoded or not.
+	 * @return string
+	 */
+	public static function get_name_key( string $name ): string {
+		return remove_accents( mb_strtolower( trim( wp_specialchars_decode( $name, ENT_QUOTES ) ) ) );
+	}
+
+	/**
+	 * The code of a language as the library writes it, the slug of its term, from any of its ISO 639 codes: its two-letter
+	 * code when it has one, such as fr for fre, fra or fr; empty for what is no code.
+	 *
+	 * @param string $code ISO 639 code, of two or three letters, bibliographic or terminological.
+	 * @return string
+	 */
+	public static function normalize_language_code( string $code ): string {
+		$code = strtolower( trim( $code ) );
+
+		if ( ! preg_match( '/^[a-z]{2,3}$/', $code ) ) {
+			return '';
+		}
+
+		return (string) Locale::getPrimaryLanguage( (string) Locale::canonicalize( self::LANGUAGE_CODES[ $code ] ?? $code ) );
+	}
+
+	/**
+	 * The code of the language of the reader, the one of their admin, as the library writes it: fr for fr_FR.
+	 *
+	 * @return string
+	 */
+	public static function get_own_language_code(): string {
+		return self::normalize_language_code( (string) Locale::getPrimaryLanguage( get_user_locale() ) );
+	}
+
+	/**
 	 * ISO 639 code of a language from its name, in the language of the user, of the site or in English, whatever its case
 	 * and accents, such as no for Norvégien, norvegien or Norwegian; empty when no language has that name.
 	 *
@@ -574,13 +646,13 @@ class Taxonomies {
 			return '';
 		}
 
-		$name = remove_accents( mb_strtolower( trim( $name ) ) );
+		$name = self::get_name_key( $name );
 
 		foreach ( array_unique( array( get_user_locale(), get_locale(), 'en' ) ) as $locale ) {
 			$languages = ResourceBundle::create( $locale, 'ICUDATA-lang' )?->get( 'Languages' ) ?? array();
 
 			foreach ( $languages as $code => $language ) {
-				if ( preg_match( '/^[a-z]{2,3}$/', $code ) && remove_accents( mb_strtolower( $language ) ) === $name ) {
+				if ( preg_match( '/^[a-z]{2,3}$/', $code ) && self::get_name_key( $language ) === $name ) {
 					return $code;
 				}
 			}

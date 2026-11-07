@@ -352,13 +352,13 @@ class Reading_Idea {
 	}
 
 	/**
-	 * Books part of the work of their authors: all but the collective ones.
+	 * Books part of the work of their authors: see Book::get_work_authors().
 	 *
 	 * @param array<int,Book> $books Books.
 	 * @return array<int,Book>
 	 */
 	private static function get_authored_books( array $books ): array {
-		return array_filter( $books, fn( Book $book ) => ! $book->collective );
+		return array_filter( $books, fn( Book $book ) => (bool) $book->get_work_authors() );
 	}
 
 	/**
@@ -604,14 +604,15 @@ class Reading_Idea {
 
 	/**
 	 * Books to read unlike the latest reads: translated or not, volume of a series or not,
-	 * and first published in a decade with nothing read.
+	 * and of a decade with nothing read.
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
 	 * @return list<Idea>
 	 */
 	private function get_change_ideas( array $books, array $to_read ): array {
-		$latest_reads = array_slice( array_reverse( Books::get_readings( $books ) ), 0, self::LATEST_READS );
+		// Of a known date: one of an unknown date is no latest read.
+		$latest_reads = array_slice( Stats::get_readings(), 0, self::LATEST_READS );
 		$ideas        = $this->get_decade_ideas( $books, $to_read );
 
 		if ( count( $latest_reads ) < self::LATEST_READS ) {
@@ -681,18 +682,18 @@ class Reading_Idea {
 	}
 
 	/**
-	 * Books to read first published in a decade with no book read.
+	 * Books to read of a decade with no book read, by the year they first came out, or else of their edition, as the achievements date them.
 	 *
 	 * @param array<int,Book> $books   All the books.
 	 * @param array<int,Book> $to_read Books to read.
 	 * @return list<Idea>
 	 */
 	private function get_decade_ideas( array $books, array $to_read ): array {
-		$decade       = fn( Book $book ) => intdiv( (int) self::get_year( $book->published_date ), 10 ) * 10;
+		$decade       = fn( Book $book ) => intdiv( (int) $book->get_first_year(), 10 ) * 10;
 		$read_decades = array();
 
 		foreach ( $books as $book ) {
-			if ( $book->read && '' !== $book->published_date ) {
+			if ( $book->read && null !== $book->get_first_year() ) {
 				$read_decades[ $decade( $book ) ] = true;
 			}
 		}
@@ -700,7 +701,7 @@ class Reading_Idea {
 		$ideas = array();
 
 		foreach ( $to_read as $book ) {
-			if ( '' === $book->published_date || isset( $read_decades[ $decade( $book ) ] ) ) {
+			if ( null === $book->get_first_year() || isset( $read_decades[ $decade( $book ) ] ) ) {
 				continue;
 			}
 
@@ -708,7 +709,7 @@ class Reading_Idea {
 				'id'     => $book->id,
 				'reason' => sprintf(
 					/* translators: %d: decade, e.g. 1960. */
-					__( 'You have not read any book first published in the %ds yet.', 'library' ),
+					__( 'You have not read any book from the %ds yet.', 'library' ),
 					$decade( $book )
 				),
 			);

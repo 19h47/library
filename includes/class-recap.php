@@ -62,7 +62,7 @@ class Recap {
 			),
 			'months'       => array_values( Stats::count_by_month( $readings ) ),
 			'forms'        => self::count_terms( $readings, fn( Book $book ) => array_combine( $book->form_ids, $book->forms ) ),
-			'people'       => array_slice( self::count_terms( $readings, fn( Book $book ) => array_combine( $book->author_ids, $book->authors ) ), 0, self::TOP ),
+			'people'       => array_slice( self::count_terms( $readings, fn( Book $book ) => $book->get_work_authors() ), 0, self::TOP ),
 			'discoveries'  => self::get_discoveries( $books, $year ),
 			'languages'    => array_map(
 				fn( array $language ) => array(
@@ -111,7 +111,8 @@ class Recap {
 
 	/**
 	 * The people read for the first time in `$year`, by the name they are known by, in the order they were read: their first
-	 * reading is of the year, none of an unknown date, which was before.
+	 * reading is of the year, none of an unknown date, which was before. A collective book is part of the work of none of
+	 * its authors, as for the people read the most: see Book::get_work_authors().
 	 *
 	 * @param array<int,Book> $books Books.
 	 * @param int             $year  Year.
@@ -123,7 +124,7 @@ class Recap {
 		foreach ( array_filter( $books, fn( Book $book ) => $book->read ) as $book ) {
 			$date = $book->get_first_read_date();
 
-			foreach ( array_combine( $book->author_ids, $book->authors ) as $id => $name ) {
+			foreach ( $book->get_work_authors() as $id => $name ) {
 				if ( ! isset( $first[ $id ] ) || $date < $first[ $id ]['date'] ) {
 					$first[ $id ] = array(
 						'id'   => $id,
@@ -148,8 +149,8 @@ class Recap {
 	}
 
 	/**
-	 * The series read in `$year`, the most read first: started when their first reading is of the year, finished when
-	 * every book of theirs is read, the last one first read in the year. The books to buy count, which a series lacks.
+	 * The series read in `$year`, the most read first: started when their first reading is of the year, finished in the
+	 * year as the achievements finish a series: see Achievements::get_finished().
 	 *
 	 * @param array<int,Book> $books    Books.
 	 * @param Book[]          $readings Readings of the year.
@@ -157,16 +158,17 @@ class Recap {
 	 * @return list<Recap_Series>
 	 */
 	private static function get_series( array $books, array $readings, int $year ): array {
-		$series = self::count_terms( $readings, fn( Book $book ) => $book->series_id ? array( $book->series_id => $book->series ) : array() );
+		$series   = self::count_terms( $readings, fn( Book $book ) => $book->series_id ? array( $book->series_id => $book->series ) : array() );
+		$finished = array_keys( array_filter( new Achievements()->get_finished( 'series' ), fn( string $date ) => str_starts_with( $date, "$year-" ) ) );
 
 		return array_map(
-			function ( array $item ) use ( $books, $year ): array {
-				$volumes = array_filter( $books, fn( Book $book ) => $item['id'] === $book->series_id );
-				$firsts  = array_map( fn( Book $book ) => $book->get_first_read_date(), array_filter( $volumes, fn( Book $book ) => $book->read ) );
+			function ( array $item ) use ( $books, $year, $finished ): array {
+				$volumes = array_filter( $books, fn( Book $book ) => $item['id'] === $book->series_id && $book->read );
+				$firsts  = array_map( fn( Book $book ) => $book->get_first_read_date(), $volumes );
 
 				return $item + array(
 					'started'  => $firsts && str_starts_with( min( $firsts ), "$year-" ),
-					'finished' => $firsts && count( $firsts ) === count( $volumes ) && str_starts_with( max( $firsts ), "$year-" ),
+					'finished' => in_array( $item['id'], $finished, true ),
 				);
 			},
 			$series
