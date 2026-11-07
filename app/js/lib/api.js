@@ -325,6 +325,47 @@ import {
 /** @typedef {'person'|'series'|'publisher'} PageView The views of the pages of a term. */
 
 /**
+ * A term of the books read in a year, such as a form or a person, with its readings.
+ *
+ * @typedef {Object} RecapTerm
+ * @property {number} id       Its term ID.
+ * @property {string} name     Its name.
+ * @property {number} readings Its readings in the year.
+ */
+
+/**
+ * A series read in a year, with its readings: started when first read in the year, finished when every book of it is read, the last one in the year.
+ *
+ * @typedef {RecapTerm & {started: boolean, finished: boolean}} RecapSeries
+ */
+
+/**
+ * The recap of a year: a reading is a read date of the year, a book read again counting once per reading; the books
+ * read, the ratings and the records take each book once.
+ *
+ * @typedef {Object} Recap
+ * @property {number}                                              year         The year.
+ * @property {number[]}                                            years        The years with a reading, the earliest first.
+ * @property {number}                                              days         Its days gone by: all of them for a year gone.
+ * @property {number}                                              readings     Its readings.
+ * @property {number}                                              previous     The readings of the year before.
+ * @property {number}                                              rereads      Its readings of a book read again in the year.
+ * @property {number[]}                                            books        The IDs of the books read, in the order they were read.
+ * @property {{total: number, counted: number}}                    pages        The pages read, and the readings of a book with its number of pages.
+ * @property {number[]}                                            months       The readings of each month, from January.
+ * @property {RecapTerm[]}                                         forms        The forms read, the most read first.
+ * @property {RecapTerm[]}                                         people       The people read the most, by the name they are known by.
+ * @property {Term[]}                                              discoveries  The people read for the first time, in the order they were read.
+ * @property {{code: string, readings: number}[]}                  languages    The original languages, as ISO 639 codes, the most read first.
+ * @property {RecapSeries[]}                                       series       The series read, the most read first.
+ * @property {number|null}                                         rating       The average rating of the books read, none without one.
+ * @property {number[]}                                            best         The IDs of the books read rated the highest.
+ * @property {{longest: number, shortest: number, oldest: number}} records      The IDs of the longest, the shortest and the oldest books read, 0 for none.
+ * @property {Achievement[]}                                       achievements The achievements earned in the year.
+ * @property {number}                                              added        The books added in the year, but those to buy.
+ */
+
+/**
  * A book as the REST API of core gives it, with the fields of the plugin, those the app asks for.
  *
  * @typedef {Object} ApiBook
@@ -736,6 +777,30 @@ export async function getPage( view, id, { signal } = {} ) {
 	} );
 
 	return { ...from( data ), books: data.books };
+}
+
+/**
+ * The recap of `year`, its names in plain text.
+ *
+ * @param {number}      year             The year.
+ * @param {Object}      [options]        Options.
+ * @param {AbortSignal} [options.signal] Cancels the request.
+ * @return {Promise<Recap>} The recap.
+ */
+export async function getRecap( year, { signal } = {} ) {
+	/** @type {Recap} */
+	const recap = await apiFetch( {
+		path: `/library/v1/recaps/${ year }`,
+		signal,
+	} );
+
+	return {
+		...recap,
+		forms: recap.forms.map( toPlainName ),
+		people: recap.people.map( toPlainName ),
+		discoveries: recap.discoveries.map( toPlainName ),
+		series: recap.series.map( toPlainName ),
+	};
 }
 
 /**

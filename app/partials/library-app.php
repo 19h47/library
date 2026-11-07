@@ -1,7 +1,7 @@
 <?php
 /**
  * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the books to buy,
- * the page of a person, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
+ * the page of a person, the recap of a year, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the router then switches views without reloading.
@@ -63,7 +63,7 @@ use Library\Meta;
 					</library-app-name>
 					<library-nav>
 						<nav>
-							<ul class="library-nav">
+							<ul class="library-strip library-nav">
 								<?php foreach ( $views as $name => $item ) : ?>
 									<li>
 										<a
@@ -103,7 +103,7 @@ use Library\Meta;
 								'rating:9'               => __( 'Rated 9 or more', 'library' ),
 							);
 							?>
-							<p class="library-search__keywords" hidden>
+							<p class="library-strip library-search__keywords" hidden>
 								<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
 								<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
 									<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
@@ -113,12 +113,19 @@ use Library\Meta;
 					</div>
 
 					<library-home>
+						<?php // In January only, the recap of the year just gone by. ?>
+						<library-recap-link hidden>
+							<a class="app-item library-recap-link" href="">
+								<span class="library-recap-link__year" data-field="year"></span>
+								<span><?php esc_html_e( 'The recap of the year', 'library' ); ?></span>
+							</a>
+						</library-recap-link>
 						<library-in-progress class="library-section" hidden>
 							<h3 class="library-title">
 								<?php echo esc_html( Meta::get_label( 'library_in_progress' ) ); ?>
 								<span class="app-meta" data-field="count"></span>
 							</h3>
-							<ul class="library-covers"></ul>
+							<ul class="library-strip"></ul>
 						</library-in-progress>
 						<library-year class="library-year library-section">
 							<p data-field="yearToDate"></p>
@@ -128,7 +135,7 @@ use Library\Meta;
 								<h3 class="library-title__heading"><?php esc_html_e( 'Latest readings', 'library' ); ?></h3>
 								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
 							</div>
-							<ul class="library-covers"></ul>
+							<ul class="library-strip"></ul>
 						</library-latest>
 						<?php // As a row, its next idea at the end of its title, as the view of the idea has it in full. ?>
 						<library-idea class="library-section" compact hidden>
@@ -186,7 +193,7 @@ use Library\Meta;
 							<button class="app-pill" type="button" data-action="open-filters" aria-haspopup="dialog">
 								<span data-field="label"><?php esc_html_e( 'Filters', 'library' ); ?></span>
 							</button>
-							<p class="library-filters__chosen" hidden>
+							<p class="library-filters__chosen library-pills" hidden>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
 									<?php foreach ( array_filter( $filter_args['options'], 'strlen', ARRAY_FILTER_USE_KEY ) as $value => $label ) : ?>
 										<button class="app-pill" type="button" data-filter="<?php echo esc_attr( $book_filter ); ?>" data-value="<?php echo esc_attr( $value ); ?>" hidden>
@@ -344,7 +351,7 @@ use Library\Meta;
 						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="library-section__pills" data-list="parts"></ul>
+							<ul class="library-pills" data-list="parts"></ul>
 						</section>
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
@@ -376,7 +383,7 @@ use Library\Meta;
 						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="collections" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
-							<ul class="library-section__pills" data-list="collections"></ul>
+							<ul class="library-pills" data-list="collections"></ul>
 						</section>
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
@@ -390,6 +397,108 @@ use Library\Meta;
 						<ul class="app-list__items" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-publisher>
+				</library-view>
+
+				<?php // A screen per subject, each as high as the screen, those without anything to say hidden. ?>
+				<library-view name="recap" <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
+					<library-recap>
+						<section class="library-recap__screen library-recap__opening">
+							<library-back class="library-back">
+								<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+							</library-back>
+							<hgroup class="library-recap__heading">
+								<h2 class="library-recap__year" data-field="year" tabindex="-1"></h2>
+								<p><?php esc_html_e( 'A year of reading', 'library' ); ?></p>
+							</hgroup>
+							<p class="app-status" data-field="status" hidden></p>
+							<ul class="library-recap__mosaic" data-list="covers" aria-hidden="true"></ul>
+						</section>
+
+						<section class="library-recap__screen" data-screen="readings" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Books read', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="readings"></p>
+							<p data-field="previous"></p>
+							<p class="app-meta" data-field="rereads"></p>
+						</section>
+
+						<section class="library-recap__screen" data-screen="pages" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Pages read', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="pages"></p>
+							<p data-field="perDay"></p>
+							<p data-field="perBook"></p>
+							<p class="app-meta" data-field="counted"></p>
+						</section>
+
+						<section class="library-recap__screen" data-screen="months" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Month by month', 'library' ); ?></h3>
+							<ol class="library-recap__months" data-list="months"></ol>
+							<p data-field="bestMonth"></p>
+						</section>
+
+						<section class="library-recap__screen" data-screen="forms" hidden>
+							<h3 class="library-recap__title"><?php echo esc_html( $form_labels->name ); ?></h3>
+							<ul class="library-recap__shares" data-list="forms"></ul>
+						</section>
+
+						<section class="library-recap__screen" data-screen="people" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Read the most', 'library' ); ?></h3>
+							<ol class="library-recap__ranking" data-list="people"></ol>
+						</section>
+
+						<section class="library-recap__screen" data-screen="discoveries" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="discoveries"></p>
+							<p data-field="discovered"></p>
+							<ul class="library-pills" data-row="discoveries" data-list="discoveries"></ul>
+							<p class="app-meta" data-field="moreDiscoveries"></p>
+						</section>
+
+						<section class="library-recap__screen" data-screen="languages" hidden>
+							<h3 class="library-recap__title"><?php echo esc_html( $language_labels->name ); ?></h3>
+							<p class="library-recap__figure" data-field="languages"></p>
+							<ul class="library-recap__shares" data-list="languages"></ul>
+						</section>
+
+						<section class="library-recap__screen" data-screen="series" hidden>
+							<h3 class="library-recap__title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
+							<p class="library-recap__figure" data-field="series"></p>
+							<p data-field="seriesState"></p>
+							<ol class="library-recap__ranking" data-list="series"></ol>
+						</section>
+
+						<section class="library-recap__screen" data-screen="rating" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Favourites', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="rating"></p>
+							<p><?php esc_html_e( 'Average rating', 'library' ); ?></p>
+							<ul class="library-strip" data-list="best"></ul>
+						</section>
+
+						<section class="library-recap__screen" data-screen="records" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Records', 'library' ); ?></h3>
+							<ul class="app-list__items" data-list="records"></ul>
+						</section>
+
+						<section class="library-recap__screen" data-screen="achievements" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="achievements"></p>
+							<ul class="app-list__items" data-list="achievements"></ul>
+						</section>
+
+						<section class="library-recap__screen" data-screen="pile" hidden>
+							<h3 class="library-recap__title"><?php esc_html_e( 'The pile', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="added"></p>
+							<p data-field="addedBooks"></p>
+							<p data-field="pile"></p>
+						</section>
+
+						<section class="library-recap__screen library-recap__closing" data-screen="closing" hidden>
+							<p class="library-recap__figure" data-field="closing"></p>
+							<nav class="library-pills" aria-label="<?php esc_attr_e( 'Other years', 'library' ); ?>">
+								<a class="app-pill" data-field="previousYear" href=""></a>
+								<a class="app-pill" data-field="nextYear" href=""></a>
+							</nav>
+						</section>
+					</library-recap>
 				</library-view>
 
 				<library-view name="book" <?php echo Page::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
@@ -406,7 +515,7 @@ use Library\Meta;
 						<p class="library-book__translation" data-field="translation"></p>
 						<library-reading>
 							<form class="library-reading">
-								<div class="library-reading__pills">
+								<div class="library-pills">
 									<?php
 									Markup::render_component(
 										'pill-checkbox',
@@ -471,7 +580,7 @@ use Library\Meta;
 								<a data-field="name" href=""></a>
 								<span class="app-meta" data-field="count"></span>
 							</h3>
-							<ul class="library-covers"></ul>
+							<ul class="library-strip"></ul>
 						</library-volumes>
 						<dl class="library-book__fields">
 							<div data-row="authors">
@@ -861,6 +970,12 @@ use Library\Meta;
 					title="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
 				>×</button>
 			</li>
+		</template>
+
+		<template id="library-diary-recap">
+			<p class="library-diary__recap">
+				<a class="app-pill" data-field="recap" href=""></a>
+			</p>
 		</template>
 
 		<template id="library-month">

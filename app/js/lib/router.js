@@ -1,6 +1,6 @@
 /**
  * The router of the reading app: the URL says what shows, its view, the book, the person, the series or the collection
- * open, and the search of the books. The links of the app are links: the Navigation API turns a navigation within the
+ * open, the year of a recap, and the search of the books. The links of the app are links: the Navigation API turns a navigation within the
  * app into a change of view, without reloading, puts a view gone back to where it was, and leaves a link opened in a
  * new tab or window to the browser. A view gives way to the next one in a view transition, in which the cover of a book
  * opened goes from its card to its page, and back.
@@ -14,7 +14,7 @@ import { store } from 'library-app/store';
  *
  * @typedef {Object} Route
  * @property {string} view  Its view, such as "books" or "person".
- * @property {number} id    The ID of the book or the term of its page, 0 for none.
+ * @property {number} id    The ID of the book or the term of its page, or the year of a recap, 0 for none.
  * @property {string} query The search of the books, empty for another view.
  */
 
@@ -27,8 +27,9 @@ const NAMED_VIEWS = [
 	'to-buy',
 	'styleguide',
 ];
-// The pages of a book, a person, a series or a collection, with its ID in the argument of the same name: ?view=book&book=564.
-const PAGE_VIEWS = [ 'book', 'person', 'series', 'publisher' ];
+// The pages of a book, a person, a series or a collection, with its ID in the argument of the same name: ?view=book&book=564;
+// the recap of a year, with its year: ?view=recap&recap=2025.
+const PAGE_VIEWS = [ 'book', 'person', 'series', 'publisher', 'recap' ];
 
 const app = new URL( appUrl );
 /**

@@ -11,7 +11,7 @@ const NAMED_PAGES = [ 'person', 'series', 'publisher' ];
  * of the page scrolls sideways where it is too narrow: it scrolls as little as it takes for the current one to show
  * whole, the page staying where it is. On a phone, they are the tabs of a bar at the bottom of the screen, all in sight.
  * The document is named after what shows, before the name of the app, as WordPress names a page: the book, the person,
- * the series or the collection open, the search, or the view; the home by the name of the app alone.
+ * the series or the collection open, the recap of a year, the search, or the view; the home by the name of the app alone.
  */
 class LibraryNavElement extends Brick {
 	connect() {
@@ -34,6 +34,14 @@ class LibraryNavElement extends Brick {
 
 			if ( NAMED_PAGES.includes( state.view ) ) {
 				return state[ state.view ].name;
+			}
+
+			if ( 'recap' === state.view ) {
+				return sprintf(
+					/* translators: %s: year. */
+					__( 'Recap of %s', 'library' ),
+					state.recap.year.toString()
+				);
 			}
 
 			if ( 'books' === state.view ) {

@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision a747cdf.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 365c703.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -41,9 +41,17 @@
     monospace;
   --app-font-ui:
     system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* The text: the body at --app-u1, small and large text half a step below and above it */
+  /*
+   * The sizes of the text, named after the keywords of font-size: the body, medium, at --app-u1, small and large text
+   * half a step below and above it; the title of a page, x-large, half a step above --app-u2; a figure that stands
+   * alone, xx-large, a step above --app-u3, and xxx-large two
+   */
   --app-font-small: calc(var(--app-u1) / sqrt(var(--app-phi)));
+  --app-font-medium: var(--app-u1);
   --app-font-large: calc(var(--app-u1) * sqrt(var(--app-phi)));
+  --app-font-x-large: calc(var(--app-u2) * sqrt(var(--app-phi)));
+  --app-font-xx-large: calc(var(--app-u3) * var(--app-phi));
+  --app-font-xxx-large: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
 
   --app-max-width: calc(100 / var(--app-phi) * 1ch);
   --app-line-height: var(--app-phi);
@@ -110,7 +118,7 @@ html {
 body {
   color: var(--app-text);
   font-family: var(--app-font-mono);
-  font-size: var(--app-u1);
+  font-size: var(--app-font-medium);
   line-height: var(--app-line-height);
   -webkit-font-smoothing: antialiased;
 }
@@ -184,7 +192,7 @@ select {
   gap: var(--app-gap);
 }
 
-/* The title of the page: large text on a phone, half a step above --app-u2 beyond; its line is as high as the toolbar */
+/* The title of the page: large text on a phone, x-large beyond; its line is as high as the toolbar */
 .app-header h1 {
   font-size: var(--app-font-large);
   line-height: var(--app-u3);
@@ -193,7 +201,7 @@ select {
 
 @media (min-width: 42rem) {
   .app-header h1 {
-    font-size: calc(var(--app-u2) * sqrt(var(--app-phi)));
+    font-size: var(--app-font-x-large);
   }
 }
 
@@ -527,7 +535,7 @@ button.app-pill:disabled {
   cursor: pointer;
   /* Buttons don't inherit the page font, links do: set it for both */
   font-family: var(--app-font-ui);
-  font-size: var(--app-u1);
+  font-size: var(--app-font-medium);
   line-height: var(--app-line-height);
   text-decoration: none;
   display: flex;

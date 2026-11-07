@@ -43,7 +43,7 @@ echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	<?php if ( '' !== $args['description'] ) : ?>
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>
 	<?php endif; ?>
-	<p>
+	<p class="library-pills">
 		<button class="app-pill" type="button" data-action="<?php echo esc_attr( $args['action'] ); ?>"><?php echo esc_html( $args['add'] ); ?></button>
 		<?php foreach ( $args['actions'] as $other_action => $label ) : ?>
 			<button class="app-pill" type="button" data-action="<?php echo esc_attr( $other_action ); ?>"><?php echo esc_html( $label ); ?></button>

@@ -19,8 +19,11 @@ import {
 	renderCloseAchievement,
 	renderCover,
 	renderCurrent,
+	renderMonths,
 	renderRow,
 	renderSeries,
+	renderShares,
+	renderTile,
 } from 'library-app/render';
 import { showError } from 'library-app/behaviors';
 
@@ -184,6 +187,20 @@ class LibraryStyleguideElement extends Brick {
 					] )
 				),
 			],
+			mosaic: () =>
+				Array.from( { length: 14 }, () => renderTile( BOOKS[ 0 ] ) ),
+			// A month without a reading keeps a line.
+			months: () =>
+				renderMonths( [ 2, 7, 5, 8, 10, 11, 0, 8, 12, 3, 2, 5 ], 2025 ),
+			shares: () =>
+				renderShares( [
+					{ name: 'A form', readings: 45 },
+					{ name: 'Another form', readings: 30 },
+					{
+						name: 'A form of a name long enough to go on two lines',
+						readings: 3,
+					},
+				] ),
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () =>
 				CLOSE_ACHIEVEMENTS.map( ( achievement, index ) =>

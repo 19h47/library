@@ -23,6 +23,13 @@ export const dayFormat = new Intl.DateTimeFormat( lang, {
 	month: 'long',
 } );
 export const listFormat = new Intl.ListFormat( lang, { type: 'unit' } );
+// The name of a month, and its initial, such as the recap of a year shows them under its bars.
+export const monthNameFormat = new Intl.DateTimeFormat( lang, {
+	month: 'long',
+} );
+export const monthInitialFormat = new Intl.DateTimeFormat( lang, {
+	month: 'narrow',
+} );
 
 /**
  * A number in the language of the page: "1,234".
@@ -84,6 +91,16 @@ export function formatRating( rating ) {
 				formatNumber( rating )
 		  )
 		: '';
+}
+
+/**
+ * The name of a language, from its ISO 639 code: "Italian".
+ *
+ * @param {string} code The code.
+ * @return {string} Its name.
+ */
+export function formatLanguage( code ) {
+	return languageNames.of( code );
 }
 
 /**

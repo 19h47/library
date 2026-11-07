@@ -22,9 +22,11 @@ $fonts  = array( '--app-font-mono', '--app-font-ui' );
 // The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
 $sizes = array(
 	array( 'var(--app-font-small)', 'var(--app-font-ui)', 'Pills, meta lines, labels, the excerpt of a card: half a step below the text' ),
-	array( 'var(--app-u1)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections' ),
+	array( 'var(--app-font-medium)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections: --app-u1' ),
 	array( 'var(--app-font-large)', 'var(--app-font-mono)', 'The year, the title of a book, the name of a person, the title of the page on a phone: half a step above' ),
-	array( 'calc(var(--app-u2) * sqrt(var(--app-phi)))', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
+	array( 'var(--app-font-x-large)', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
+	array( 'var(--app-font-xx-large)', 'var(--app-font-mono)', 'The figure of a screen of the recap, the year of its link on the home: a step above --app-u3' ),
+	array( 'var(--app-font-xxx-large)', 'var(--app-font-mono)', 'The year of the recap: two steps above --app-u3' ),
 );
 ?>
 <library-styleguide lang="en">
@@ -135,13 +137,13 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-section__pills</code>, the series of a cycle or the collections of a publisher on its page, under its <code>.library-person</code> header</figcaption>
+				<figcaption><code>.library-pills</code>, a row of pills on as many lines as it needs: the series of a cycle or the collections of a publisher on its page, under its <code>.library-person</code> header</figcaption>
 				<div class="library-styleguide__frame">
 					<header class="library-person">
 						<h4 class="library-person__name">A Cycle</h4>
 						<p>20 books · 14 read</p>
 					</header>
-					<ul class="library-section__pills">
+					<ul class="library-pills">
 						<li><a class="app-pill" href="#top">A Series</a></li>
 						<li><a class="app-pill" href="#top">Another Series, with a longer name</a></li>
 					</ul>
@@ -234,9 +236,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-nav</code>, the views, a row of pills that scrolls sideways: under the title, or on a phone in a bar at the bottom of the screen</figcaption>
+				<figcaption><code>.library-strip</code>, a row that scrolls sideways across the viewport, the counterpart of <code>.library-pills</code>: <code>.library-nav</code>, the views, under the title, or on a phone in a bar at the bottom of the screen</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="library-nav">
+					<ul class="library-strip library-nav">
 						<li><a class="app-pill" href="#top" aria-current="page">Books</a></li>
 						<li><a class="app-pill" href="#top">Diary</a></li>
 						<li><a class="app-pill" href="#top">Idea</a></li>
@@ -267,7 +269,7 @@ $sizes = array(
 					<div class="app-controls">
 						<div class="app-search">
 							<input type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
-							<p class="library-search__keywords">
+							<p class="library-strip library-search__keywords">
 								<button class="app-pill" type="button">Series</button>
 								<button class="app-pill" type="button">Author</button>
 								<button class="app-pill" type="button">Publisher</button>
@@ -292,7 +294,7 @@ $sizes = array(
 							)
 						);
 						?>
-						<p class="library-filters__chosen">
+						<p class="library-filters__chosen library-pills">
 							<button class="app-pill" type="button">To read <span aria-hidden="true">×</span></button>
 							<button class="app-pill" type="button">A form <span aria-hidden="true">×</span></button>
 						</p>
@@ -324,9 +326,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-reading__pills</code></figcaption>
+				<figcaption><code>.library-pills</code>, the reading of the book open</figcaption>
 				<div class="library-styleguide__frame">
-					<div class="library-reading__pills">
+					<div class="library-pills">
 						<?php
 						Markup::render_component(
 							'pill-checkbox',
@@ -442,6 +444,58 @@ with its line breaks.</p>
 				<figcaption><code>.library-achievement</code>, close to it</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list__items" data-sample="close"></ul>
+				</div>
+			</figure>
+		</div>
+	</section>
+
+	<section class="library-section">
+		<h3 class="library-title">Recap</h3>
+		<div class="library-styleguide__samples">
+			<figure>
+				<figcaption><code>.library-recap__screen</code>, a screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, its lines</figcaption>
+				<div class="library-styleguide__frame">
+					<section class="library-recap__screen">
+						<h3 class="library-recap__title">Books read</h3>
+						<p class="library-recap__figure">82</p>
+						<p>19 more than in 2024</p>
+						<p class="app-meta">Including 2 read again</p>
+					</section>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-recap__mosaic</code>, the covers of the books read, under the year on the first screen</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="library-recap__mosaic" data-sample="mosaic"></ul>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-recap__months</code>, the readings of each month, which assistive technologies read as the name of the month and its books</figcaption>
+				<div class="library-styleguide__frame">
+					<ol class="library-recap__months" data-sample="months"></ol>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-recap__shares</code>, the forms or the languages, and <code>.library-recap__ranking</code>, the people or the series, a link each: a bar as long as the share of the first one</figcaption>
+				<div class="library-styleguide__frame">
+					<ul class="library-recap__shares" data-sample="shares"></ul>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-recap-link</code>, the recap of the year gone by on the home, in January</figcaption>
+				<div class="library-styleguide__frame">
+					<a class="app-item library-recap-link" href="">
+						<span class="library-recap-link__year">2025</span>
+						<span>The recap of the year</span>
+					</a>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>.library-diary__recap</code>, the recap of a year gone by, before its latest month in the diary</figcaption>
+				<div class="library-styleguide__frame">
+					<p class="library-diary__recap">
+						<a class="app-pill" href="">Recap of 2025</a>
+					</p>
 				</div>
 			</figure>
 		</div>
