@@ -5,7 +5,7 @@
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
-import { deleteAllBooks, openApp } from './library.js';
+import { addBook, deleteAllBooks, openApp } from './library.js';
 
 // The route of the catalogue, in a pretty or a plain permalink.
 const ROUTE = /books(\/|%2F)bnf/;
@@ -80,6 +80,33 @@ test.describe( 'BnF', () => {
 		await expect(
 			form.locator( '[name="library_collection_number"]' )
 		).toHaveValue( '5702' );
+	} );
+
+	test( 'an ISBN already added links to its book', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		const book = await addBook( requestUtils, {
+			title: 'Added before',
+			meta: { library_isbn: '9782070360024' },
+		} );
+
+		await openApp( page );
+		await page.getByRole( 'button', { name: 'Add New Book' } ).click();
+
+		const form = page.locator( 'library-edit' );
+
+		await form
+			.locator( '[name="library_isbn"]' )
+			.fill( '978-2-07-036002-4' );
+		await form.locator( '[name="library_isbn"]' ).press( 'Tab' );
+		await form.getByRole( 'link', { name: 'Added before' } ).click();
+
+		// The page of the book, the form closed over it.
+		await expect( page ).toHaveURL( new RegExp( `book=${ book.id }` ) );
+		await expect(
+			page.getByRole( 'dialog', { name: 'Add New Book' } )
+		).toBeHidden();
 	} );
 
 	test( 'an ISBN the catalogue does not know leaves the form as it is', async ( {
