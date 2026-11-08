@@ -2,6 +2,7 @@ import { __, _n, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
+	dayFormat,
 	formatBooks,
 	formatLanguage,
 	formatNumber,
@@ -39,8 +40,8 @@ const reducedMotion = matchMedia( '(prefers-reduced-motion: reduce)' );
 /**
  * The recap of a year, a screen per subject: the books read, against the year before, the pages read, the readings of
  * each month, the forms, the people read the most and those read for the first time, the original languages, the series,
- * the average rating with the books rated the highest, the records, the achievements earned and the books added; a
- * screen without anything to say hides. The last one leads to the recaps of the years before and after, those gone by.
+ * the days of reading, over the calendar of the year, the average rating with the books rated the highest, the records,
+ * the achievements earned and the books added; a screen without anything to say hides. The last one leads to the recaps of the years before and after, those gone by.
  * Its figures count up to their value as their screen comes, once per year shown.
  */
 class LibraryRecapElement extends Brick {
@@ -110,6 +111,7 @@ class LibraryRecapElement extends Brick {
 				: '',
 			...this.#pages( recap ),
 			bestMonth: this.#bestMonth( recap ),
+			...this.#days( recap ),
 			discoveries: formatNumber( recap.discoveries.length ),
 			discovered: _n(
 				'person read for the first time',
@@ -174,6 +176,7 @@ class LibraryRecapElement extends Brick {
 		this.querySelector( '[data-list="months"]' ).replaceChildren(
 			...renderMonths( recap.months, recap.year )
 		);
+		this.#fillCalendar( recap );
 		this.#fillShares(
 			'forms',
 			recap.forms.map( ( { name, readings } ) => ( { name, readings } ) )
@@ -220,6 +223,7 @@ class LibraryRecapElement extends Brick {
 		this.#prepareCounts( recap.year, {
 			readings: recap.readings,
 			pages: recap.pages.total,
+			daysRead: recap.calendar.read,
 			discoveries: recap.discoveries.length,
 			languages: recap.languages.length,
 			series: recap.series.length,
@@ -232,6 +236,7 @@ class LibraryRecapElement extends Brick {
 			readings: isShown,
 			pages: isShown && recap.pages.counted > 0,
 			months: isShown,
+			days: isShown,
 			forms: isShown && recap.forms.length > 0,
 			people: isShown && recap.people.length > 0,
 			discoveries: isShown && recap.discoveries.length > 0,
@@ -482,6 +487,106 @@ class LibraryRecapElement extends Brick {
 			monthNameFormat.format( new Date( year, months.indexOf( most ) ) ),
 			formatBooks( most )
 		);
+	}
+
+	/**
+	 * The days of reading: how many, the most in a row, the day the most pages were read, and the readings they go by,
+	 * while some have no start.
+	 *
+	 * @param {Recap} recap The recap.
+	 * @return {{daysRead: string, daysReadLabel: string, streak: string, bestDay: string, dated: string}} The fields.
+	 */
+	#days( { year, readings, calendar } ) {
+		const { read, streak, best, dated } = calendar;
+
+		return {
+			daysRead: formatNumber( read ),
+			daysReadLabel: _n(
+				'day of reading',
+				'days of reading',
+				read,
+				'library'
+			),
+			streak:
+				streak > 1
+					? sprintf(
+							/* translators: %s: number of days read in a row, the most of the year. */
+							_n(
+								'Up to %s day in a row',
+								'Up to %s days in a row',
+								streak,
+								'library'
+							),
+							formatNumber( streak )
+					  )
+					: '',
+			bestDay: best
+				? sprintf(
+						/* translators: 1: number of pages read in a day, the most of the year, 2: the day, such as 12 March. */
+						_n(
+							'The biggest day: %1$s page, on %2$s',
+							'The biggest day: %1$s pages, on %2$s',
+							best.pages,
+							'library'
+						),
+						formatNumber( best.pages ),
+						dayFormat.format( new Date( year, 0, 1 + best.day ) )
+				  )
+				: '',
+			dated:
+				dated < readings
+					? sprintf(
+							/* translators: 1: number of readings of the year with their start date, 2: number of readings of the year. */
+							_n(
+								'Start date known for %1$s reading out of %2$s.',
+								'Start date known for %1$s readings out of %2$s.',
+								dated,
+								'library'
+							),
+							formatNumber( dated ),
+							formatNumber( readings )
+					  )
+					: '',
+		};
+	}
+
+	/**
+	 * The calendar behind the screen of the days: every day of the year, from January 1st, in weeks from Monday, the
+	 * first one in the column of its weekday; each as dark as its level, a day to come blank, a memorable one pulsing.
+	 *
+	 * @param {Recap} recap The recap.
+	 */
+	#fillCalendar( { year, calendar } ) {
+		/** @type {HTMLOListElement} */
+		const $list = this.querySelector( '[data-list="calendar"]' );
+		const length = 1 === new Date( year, 1, 29 ).getMonth() ? 366 : 365;
+		// Monday first, as the weeks of ISO 8601.
+		const weekday = ( new Date( year, 0, 1 ).getDay() + 6 ) % 7;
+		const memorable = new Set( calendar.memorable );
+
+		const $days = [ ...Array( year ? length : 0 ).keys() ].map( ( day ) => {
+			const $day = document.createElement( 'li' );
+
+			if ( day >= calendar.levels.length ) {
+				$day.className = 'library-recap__later';
+			} else {
+				$day.dataset.level = calendar.levels[ day ].toString();
+			}
+
+			if ( memorable.has( day ) ) {
+				$day.className = 'library-recap__memorable';
+				// Its own point of its pulse, so that no two beat together.
+				$day.style.setProperty( '--library-recap-day', day.toString() );
+			}
+
+			return $day;
+		} );
+
+		$days[ 0 ]?.style.setProperty(
+			'grid-column-start',
+			( weekday + 1 ).toString()
+		);
+		$list.replaceChildren( ...$days );
 	}
 
 	/**

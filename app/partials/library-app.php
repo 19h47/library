@@ -436,6 +436,19 @@ use Library\Meta;
 							<p data-field="bestMonth"></p>
 						</section>
 
+						<?php // Over its days, a backdrop: those read, as dark as the pages read, the memorable ones pulsing. ?>
+						<section class="library-recap__screen library-recap__days" data-screen="days" hidden>
+							<div class="library-recap__calendar" aria-hidden="true">
+								<ol data-list="calendar"></ol>
+							</div>
+							<h3 class="library-recap__title"><?php esc_html_e( 'Day by day', 'library' ); ?></h3>
+							<p class="library-recap__figure" data-field="daysRead"></p>
+							<p data-field="daysReadLabel"></p>
+							<p data-field="streak"></p>
+							<p data-field="bestDay"></p>
+							<p class="app-meta" data-field="dated"></p>
+						</section>
+
 						<section class="library-recap__screen" data-screen="forms" hidden>
 							<h3 class="library-recap__title"><?php echo esc_html( $form_labels->name ); ?></h3>
 							<ul class="library-recap__shares" data-list="forms"></ul>

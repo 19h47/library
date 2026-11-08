@@ -25,7 +25,14 @@ namespace Library;
 final readonly class Book {
 
 	/**
-	 * Whether it is read: whether it has a reading, of a known date or not.
+	 * Read dates, the ends of its readings ended, from the first to the latest, the unknown ones empty and first.
+	 *
+	 * @var string[]
+	 */
+	public array $read_dates;
+
+	/**
+	 * Whether it is read: whether it has a reading ended, of a known date or not.
 	 *
 	 * @var bool
 	 */
@@ -43,7 +50,7 @@ final readonly class Book {
 	 * @param int[]                $series_ids        Term IDs of its series and of the cycles it is part of, the widest last.
 	 * @param int|null             $volume            Volume number, null without.
 	 * @param bool                 $collective        Whether it is a collective work.
-	 * @param string[]             $read_dates        Read dates, from the first to the latest, the unknown ones empty and first.
+	 * @param string[]             $readings          Readings, from their starts to their ends, in order: see Meta::get_readings().
 	 * @param float|null           $rating            Rating out of 10, null without.
 	 * @param int|null             $pages             Number of pages, null without.
 	 * @param string               $edition_date      Edition date, Y-m-d, or empty.
@@ -74,7 +81,7 @@ final readonly class Book {
 		public array $series_ids,
 		public ?int $volume,
 		public bool $collective,
-		public array $read_dates,
+		public array $readings,
 		public ?float $rating,
 		public ?int $pages,
 		public string $edition_date,
@@ -95,7 +102,8 @@ final readonly class Book {
 		public array $form_ids,
 		public string $read_date = '',
 	) {
-		$this->read = (bool) $read_dates;
+		$this->read_dates = array_map( fn( string $reading ) => Meta::split_reading( $reading )[1], Meta::get_ended( $readings ) );
+		$this->read       = (bool) $this->read_dates;
 	}
 
 	/**
@@ -107,8 +115,8 @@ final readonly class Book {
 	public function with( mixed ...$changes ): self {
 		$fields = get_object_vars( $this );
 
-		// Worked out from its read dates.
-		unset( $fields['read'] );
+		// Worked out from its readings.
+		unset( $fields['read_dates'], $fields['read'] );
 
 		return new self( ...array_replace( $fields, $changes ) );
 	}

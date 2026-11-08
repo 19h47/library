@@ -73,6 +73,25 @@ test.describe( 'Recap', () => {
 			'March: 2 books'
 		);
 
+		// The days of reading over the calendar of the year, a backdrop: the readings without their start, their ends
+		// alone, the one of the favourite memorable, March 2nd.
+		const days = recap.locator( '[data-screen="days"]' );
+		const calendar = days.locator( '[data-list="calendar"] li' );
+
+		await expect(
+			days.locator( '[data-field="daysRead"] .sr-only' )
+		).toHaveText( '3' );
+		await expect( days ).toContainText(
+			'Start date known for 0 readings out of 3.'
+		);
+		await expect( calendar ).toHaveCount( 365 );
+		await expect( calendar.nth( 60 ) ).toHaveClass(
+			'library-recap__memorable'
+		);
+		await expect(
+			days.locator( '.library-recap__calendar' )
+		).toHaveAttribute( 'aria-hidden', 'true' );
+
 		// The person read the most leads to their page; read for the first time this year.
 		await expect(
 			recap

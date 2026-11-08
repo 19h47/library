@@ -364,6 +364,19 @@ import {
  */
 
 /**
+ * The days of a year gone by, from January 1st: a day is read while a reading ended was open, or on its end alone when
+ * its start is unknown, the pages of a book read from a known start spread over its days.
+ *
+ * @typedef {Object} RecapCalendar
+ * @property {number[]}                          levels    The level of each day, 0 for none read, then 1 to 4 by its pages.
+ * @property {number[]}                          memorable The memorable days, by their index: the biggest one, and those a favourite was finished.
+ * @property {number}                            read      The days read.
+ * @property {number}                            streak    The most days read in a row.
+ * @property {{day: number, pages: number}|null} best      The day the most pages were read, by its index, none without pages.
+ * @property {number}                            dated     The readings ended in the year with their start known.
+ */
+
+/**
  * The recap of a year: a reading is a read date of the year, a book read again counting once per reading; the books
  * read, the ratings and the records take each book once.
  *
@@ -387,6 +400,7 @@ import {
  * @property {{longest: number, shortest: number, oldest: number}} records      The IDs of the longest, the shortest and the oldest books read, 0 for none.
  * @property {Achievement[]}                                       achievements The achievements earned in the year.
  * @property {number}                                              added        The books added in the year, but those to buy.
+ * @property {RecapCalendar}                                       calendar     Its days of reading.
  */
 
 /**
