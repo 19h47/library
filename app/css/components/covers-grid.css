@@ -48,11 +48,6 @@
 		opacity: 0;
 	}
 
-	/*
-	 * The frame is a few characters wide: a word with its comma or its colon is often wider. Broken with hyphens, as the
-	 * frame of a cover, the word keeps its punctuation; without them, overflow-wrap broke it at its last character that
-	 * fitted, before the comma.
-	 */
 	.app-list__items[data-covers] .library-item__cover[hidden] + .library-item__body {
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
@@ -60,6 +55,5 @@
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--library-radius-small);
 		font-size: var(--app-font-small);
-		hyphens: auto;
 	}
 }
