@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-08T14:32:01+00:00\n"
+"POT-Creation-Date: 2026-11-08T14:53:19+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2636,36 +2636,36 @@ msgid_plural "Start date known for %1$s readings out of %2$s."
 msgstr[0] "Date de début connue pour %1$s lecture sur %2$s."
 msgstr[1] "Date de début connue pour %1$s lectures sur %2$s."
 
-#: app/js/bricks/library-recap.js:608
+#: app/js/bricks/library-recap.js:601
 msgid "The pile held steady."
 msgstr "La pile n’a pas bougé."
 
 #. translators: %s: number of books, those added beyond those read.
-#: app/js/bricks/library-recap.js:616
+#: app/js/bricks/library-recap.js:609
 msgid "The pile grew by %s."
 msgstr "La pile a grandi de %s."
 
 #. translators: %s: number of books, those read beyond those added.
-#: app/js/bricks/library-recap.js:623
+#: app/js/bricks/library-recap.js:616
 msgid "The pile went down by %s."
 msgstr "La pile a baissé de %s."
 
-#: app/js/bricks/library-recap.js:680
+#: app/js/bricks/library-recap.js:673
 msgid "The longest"
 msgstr "Le plus long"
 
 #. translators: what the figure of a record counts, after it: 1 947 pages.
-#: app/js/bricks/library-recap.js:684 app/js/bricks/library-recap.js:693
+#: app/js/bricks/library-recap.js:677 app/js/bricks/library-recap.js:686
 msgid "page"
 msgid_plural "pages"
 msgstr[0] "page"
 msgstr[1] "pages"
 
-#: app/js/bricks/library-recap.js:689
+#: app/js/bricks/library-recap.js:682
 msgid "The shortest"
 msgstr "Le plus court"
 
-#: app/js/bricks/library-recap.js:698
+#: app/js/bricks/library-recap.js:691
 msgid "The oldest"
 msgstr "Le plus ancien"
 

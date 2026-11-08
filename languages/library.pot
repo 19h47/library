@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-08T14:32:01+00:00\n"
+"POT-Creation-Date: 2026-11-08T14:53:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -2566,39 +2566,39 @@ msgid_plural "Start date known for %1$s readings out of %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:608
+#: app/js/bricks/library-recap.js:601
 msgid "The pile held steady."
 msgstr ""
 
 #. translators: %s: number of books, those added beyond those read.
-#: app/js/bricks/library-recap.js:616
+#: app/js/bricks/library-recap.js:609
 #, js-format
 msgid "The pile grew by %s."
 msgstr ""
 
 #. translators: %s: number of books, those read beyond those added.
-#: app/js/bricks/library-recap.js:623
+#: app/js/bricks/library-recap.js:616
 #, js-format
 msgid "The pile went down by %s."
 msgstr ""
 
-#: app/js/bricks/library-recap.js:680
+#: app/js/bricks/library-recap.js:673
 msgid "The longest"
 msgstr ""
 
 #. translators: what the figure of a record counts, after it: 1 947 pages.
-#: app/js/bricks/library-recap.js:684
-#: app/js/bricks/library-recap.js:693
+#: app/js/bricks/library-recap.js:677
+#: app/js/bricks/library-recap.js:686
 msgid "page"
 msgid_plural "pages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:689
+#: app/js/bricks/library-recap.js:682
 msgid "The shortest"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:698
+#: app/js/bricks/library-recap.js:691
 msgid "The oldest"
 msgstr ""
 
