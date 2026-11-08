@@ -16,6 +16,7 @@ pnpm-workspace.yaml export-ignore
 .wp-env.json export-ignore
 phpcs.xml export-ignore
 phpunit.xml.dist export-ignore
+ARCHITECTURE.md export-ignore
 RELEASING.md export-ignore
 tests export-ignore
 types export-ignore

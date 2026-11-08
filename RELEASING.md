@@ -1,8 +1,6 @@
 # Releasing
 
-WordPress updates the plugin from the latest [GitHub release](https://github.com/19h47/library/releases): the `Update URI` header of `library.php` routes the update check to GitHub, and the "View details" modal shows `README.txt` as it is in the release. The package it installs is `library.zip`, which the Package workflow builds and attaches to each release once it is published: the files of the repository but those listed `export-ignore` in `.gitattributes`, with the dependencies of Composer. A release is offered once its package is there, a minute or so after it is published.
-
-No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder.
+WordPress updates the plugin from the latest [GitHub release](https://github.com/19h47/library/releases): the `Update URI` header of `library.php` routes the update check to GitHub, and the "View details" modal shows `README.txt` as it is in the release. The package it installs is `library.zip`, which the Package workflow builds and attaches to each release once it is published: the files of the repository but those listed `export-ignore` in `.gitattributes`, with the dependencies of Composer. A release is offered once its package is there, a minute or so after it is published, except to a plugin folder that is a Git working copy: see the Updates section of `README.txt`.
 
 ## Steps
 
@@ -24,9 +22,9 @@ No update is offered when the plugin folder is a Git working copy, since updatin
    The agency adds ranges as it gives prefixes to new publishers: the hyphens of an ISBN of a range missing from the file are not placed. It dates its message as it sends it: the script writes the file only when the ranges change.
 5. Bump the version in a `:bookmark: x.y.z` commit:
    - `Version` in `library.php`;
-   - `Stable tag` in `README.txt`, with an entry in its changelog: one line per change, `* Fixed: …` for a fix, `* Changed: …` or `* Breaking: …` for a change that breaks the REST API or the data;
+   - `Stable tag` in `README.txt`, with an entry in its changelog: one line per change, without prefix for a feature, `* Fixed: …` for a fix, `* Changed: …` for a change, `* Breaking: …` for a change that breaks the REST API or the data, with its migration, and `* Code only: …` for a change the reader does not see;
    - the translations, updated again by the script of step 3, which puts the version in `languages/library.pot`.
-6. Open a pull request titled `x.y.z`, wait for its check of the coding standards, then merge it:
+6. Open a pull request titled `x.y.z`, then merge it once its checks pass: `main` takes a change through a pull request only, after the coding standards (`phpcs`), PHPStan (`phpstan`), the scripts (`scripts`), the tests (`phpunit (8.4)`, `phpunit (8.5)`, `playwright`) and the translations (`update-translations`):
 
    ```sh
    gh pr checks --watch
@@ -43,4 +41,6 @@ No update is offered when the plugin folder is a Git working copy, since updatin
 
 - Patch, `x.y.Z`: a fix, or a change the reader does not see.
 - Minor, `x.Y.0`: a new feature.
-- Major, `X.0.0`: a breaking change to the REST API, the meta or the data. Migrate the data of each site before updating it: the changelog names the change, not the migration.
+- Major, `X.0.0`: a breaking change to the REST API, the meta or the data. Migrate the data of each site before updating it, as its `* Breaking: …` line says, in SQL with the table prefix `wp_`.
+
+While the plugin runs on a single site, a breaking change stays a minor version: its `* Breaking: …` line still gives the migration.
