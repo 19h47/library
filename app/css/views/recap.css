@@ -191,13 +191,24 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	/* A wall of covers in rows, as wide as the frame: its columns at least as wide as a tile */
+	/*
+	 * A wall of covers, as wide as the frame: its columns at least as wide as a tile, a cover as high as its book, on a line
+	 * as on a shelf
+	 */
 	:is(.library-recap__mosaic, .library-recap__wall) {
 		list-style: none;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(var(--library-recap-tile), 1fr));
 		align-content: start;
+		align-items: end;
 		gap: var(--app-gap-small);
+	}
+
+	/* Where the browser lays out grid lanes, the covers of each column follow one another, as the grid of covers of a list: masonry */
+	@supports (display: grid-lanes) {
+		:is(.library-recap__mosaic, .library-recap__wall) {
+			display: grid-lanes;
+		}
 	}
 
 	/*
@@ -219,15 +230,27 @@
 		--library-recap-tile: min(calc(var(--app-u3) * var(--app-phi) * var(--app-phi)), (100% - 2 * var(--app-gap-small)) / 3);
 	}
 
-	/* A shape of its own, as its image has none of its sizes="auto" in Safari: the tiles in rows */
+	/* A tile as wide as its column */
 	:is(.library-recap__mosaic, .library-recap__marquee) img,
 	.library-recap__wall :is(.library-cover__image, .library-cover__frame) {
 		display: block;
 		inline-size: 100%;
 		block-size: auto;
+		border-radius: var(--library-radius-small);
+	}
+
+	/*
+	 * The columns going by, a shape of their own, as the image has none of its sizes="auto" in Safari; a cover of the walls,
+	 * the one of its book, from the width and the height of its image; a book without one, the frame of a cover, a golden rectangle
+	 */
+	.library-recap__marquee img {
 		aspect-ratio: 2 / 3;
 		object-fit: cover;
-		border-radius: var(--library-radius-small);
+	}
+
+	.library-recap__wall .library-cover__frame {
+		aspect-ratio: 1 / var(--app-phi);
+		overflow: hidden;
 	}
 
 	/*
