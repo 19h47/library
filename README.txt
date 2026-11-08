@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.32.2
+Stable tag: 9.33.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,11 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.33.0 =
+* Reading app: the recap of a year has a screen of its days, Day by day: the days read, the most in a row, the day the most pages were read and the readings with their start known, over the calendar of the year. A day is read while a reading ended was open, or on its end alone when its start is unknown, as dark as the pages read that day; the memorable days, the biggest one and those a favourite was finished, pulse.
+* Fixed: reading app: a date typed in the form of a reading is saved once left, rather than at each key: its error shows then, without taking the focus back, and goes as soon as it is valid, an end as soon as its start goes before it.
+* Code only: a book holds its readings, its read dates worked out from them.
 
 = 9.32.2 =
 * Fixed: reading app: the link to a book already added, under the ISBN typed in the form of a book to add, opens its page rather than the home.
