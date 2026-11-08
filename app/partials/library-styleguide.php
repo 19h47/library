@@ -259,7 +259,7 @@ $sizes = array(
 				<figcaption><code>.app-search</code></figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-search">
-						<input type="search" placeholder="Title, author, series, ISBN…" aria-label="A search">
+						<input id="library-styleguide-search" type="search" placeholder="Title, author, series, ISBN…" aria-label="A search">
 					</div>
 				</div>
 			</figure>
@@ -268,7 +268,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
 						<div class="app-search">
-							<input type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
+							<input id="library-styleguide-search-keywords" type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
 							<p class="library-strip library-search__keywords">
 								<button class="app-pill" type="button">Series</button>
 								<button class="app-pill" type="button">Author</button>
