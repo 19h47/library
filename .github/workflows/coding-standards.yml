@@ -2,6 +2,11 @@ name: Coding standards
 
 on: pull_request
 
+# One run per pull request: a push cancels the one still running for the push before.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -17,7 +22,8 @@ jobs:
           coverage: none
           tools: composer
 
-      - run: composer install --no-progress --no-interaction
+      # The dependencies of composer.lock, from the cache of Composer once downloaded.
+      - uses: ramsey/composer-install@v3
 
       - run: vendor/bin/phpcs
 
@@ -32,7 +38,8 @@ jobs:
           coverage: none
           tools: composer
 
-      - run: composer install --no-progress --no-interaction
+      # The dependencies of composer.lock, from the cache of Composer once downloaded.
+      - uses: ramsey/composer-install@v3
 
       - run: composer analyse
 

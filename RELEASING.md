@@ -8,7 +8,7 @@ No update is offered when the plugin folder is a Git working copy, since updatin
 
 1. Branch `release/x.y.z` from an up-to-date `main`.
 2. Commit the changes, with a [gitmoji](https://gitmoji.dev).
-3. Update the translations, with WP-CLI and gettext:
+3. Update the translations, with gettext and the dependencies of Composer, `composer install`, which hold the WP-CLI the files are written with:
 
    ```sh
    sh bin/update-translations.sh
