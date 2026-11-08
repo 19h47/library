@@ -59,7 +59,7 @@ class Test_Reading_Idea extends TestCase {
 		);
 		$city_hunter = $volume( 'City Hunter', 3 );
 		$akira       = $volume( 'Akira', 1 );
-		$volume( 'Akira', 2, array( 'library_read_date' => array( '2024-01-01' ) ) );
+		$volume( 'Akira', 2, array( 'library_reading' => array( '/2024-01-01' ) ) );
 
 		$this->assertSame( array( $akira => array( 'Next in Akira: you have read 1 volume, in 2024.' ) ), $this->get_ideas_of( 'series' ) );
 		$this->assertArrayHasKey( $city_hunter, $this->get_ideas_of( 'pile' ) );
@@ -290,7 +290,7 @@ class Test_Reading_Idea extends TestCase {
 		$this->add_by( 'Ursula K. Le Guin' );
 		$this->add_by( 'Ursula K. Le Guin' );
 		$this->add_by( 'Ursula K. Le Guin' );
-		$this->add_by( 'Ursula K. Le Guin', array( 'meta' => array( 'library_read_date' => array( '2024-03-01' ) ) ) );
+		$this->add_by( 'Ursula K. Le Guin', array( 'meta' => array( 'library_reading' => array( '/2024-03-01' ) ) ) );
 
 		$this->assertSame( array(), $this->get_ideas_of( 'unread_author' ) );
 	}
@@ -389,7 +389,7 @@ class Test_Reading_Idea extends TestCase {
 			array(
 				'meta' => array(
 					'library_published_date' => ( $year - 10 ) . "-$month-15",
-					'library_read_date'      => array( '2024-03-01' ),
+					'library_reading'        => array( '/2024-03-01' ),
 				),
 			)
 		);
@@ -408,7 +408,7 @@ class Test_Reading_Idea extends TestCase {
 			array(
 				'meta' => array(
 					'library_published_date' => '1994',
-					'library_read_date'      => array( '2024-03-01' ),
+					'library_reading'        => array( '/2024-03-01' ),
 				),
 			)
 		);
@@ -416,7 +416,7 @@ class Test_Reading_Idea extends TestCase {
 			array(
 				'meta' => array(
 					'library_edition_date' => '1975-03-01',
-					'library_read_date'    => array( '2024-04-01' ),
+					'library_reading'      => array( '/2024-04-01' ),
 				),
 			)
 		);
@@ -502,7 +502,7 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	public function test_change_counts_the_latest_six_readings(): void {
 		$this->add_reads( array( '2010-01-10' ) );
-		$this->add_book( $this->translated( array( 'library_read_date' => array( '2024-01-10', '2024-02-10', '2024-03-10', '2024-04-10', '2024-05-10', '2024-06-10' ) ) ) );
+		$this->add_book( $this->translated( array( 'library_reading' => array( '/2024-01-10', '/2024-02-10', '/2024-03-10', '/2024-04-10', '/2024-05-10', '/2024-06-10' ) ) ) );
 		$book = $this->add_book( array() );
 
 		$this->assertSame(
@@ -568,7 +568,7 @@ class Test_Reading_Idea extends TestCase {
 
 		$book = $this->add_book( array(), $days_ago( 5 ) );
 		$this->add_book( array(), $days_ago( 40 ) );
-		$this->add_book( array( 'meta' => array( 'library_read_date' => array( '2024-03-01' ) ) ), $days_ago( 2 ) );
+		$this->add_book( array( 'meta' => array( 'library_reading' => array( '/2024-03-01' ) ) ), $days_ago( 2 ) );
 		$this->add_book( array( 'status' => Status::To_Buy->value ), $days_ago( 2 ) );
 
 		$this->assertSame(
@@ -589,12 +589,12 @@ class Test_Reading_Idea extends TestCase {
 		$not_kept = $this->add_rated( 'Frank Herbert', 9.5, '2001-06-01', array( 'status' => Status::Not_Kept->value ) );
 		$this->add_rated( 'Frank Herbert', 10, ( $year + 1 ) . '-01-01' );
 		$this->add_rated( 'Frank Herbert', 8.5, '2001-06-01' );
-		$this->add_book( array( 'meta' => array( 'library_read_date' => array( '2001-06-01' ) ) ) );
+		$this->add_book( array( 'meta' => array( 'library_reading' => array( '/2001-06-01' ) ) ) );
 		$this->add_book(
 			array(
 				'meta' => array(
-					'library_rating'    => 10,
-					'library_read_date' => array( '2001-06-01', '2024-06-01' ),
+					'library_rating'  => 10,
+					'library_reading' => array( '/2001-06-01', '/2024-06-01' ),
 				),
 			)
 		);
@@ -619,7 +619,7 @@ class Test_Reading_Idea extends TestCase {
 		$next     = $this->add_volume( 'Earthsea', 1, array(), array(), '2021-09-12 10:00:00' );
 		$this->add_volume( 'Earthsea', 2 );
 		$this->add_book( array( 'status' => Status::To_Buy->value ) );
-		$this->add_book( array( 'meta' => array( 'library_read_date' => array( '2024-03-01' ) ) ) );
+		$this->add_book( array( 'meta' => array( 'library_reading' => array( '/2024-03-01' ) ) ) );
 
 		$this->assertSame(
 			array(
@@ -762,7 +762,7 @@ class Test_Reading_Idea extends TestCase {
 			array(
 				'meta' => array(
 					'library_published_date' => "$year-01-01",
-					'library_read_date'      => array( '2024-03-01' ),
+					'library_reading'        => array( '/2024-03-01' ),
 				),
 			),
 			'2015-03-10 10:00:00'
@@ -840,7 +840,7 @@ class Test_Reading_Idea extends TestCase {
 			'series' => $series,
 			'meta'   => array( 'library_volume_number' => sprintf( 'Tome %02d', $volume ) ),
 		);
-		$read_fields   = $read_dates ? array( 'meta' => array( 'library_read_date' => $read_dates ) ) : array();
+		$read_fields   = $read_dates ? array( 'meta' => array( 'library_reading' => array_map( fn( string $read_date ) => "/$read_date", $read_dates ) ) ) : array();
 
 		return $this->add_book( array_replace_recursive( $volume_fields, $read_fields, $book ), $added );
 	}
@@ -867,8 +867,8 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	private function rated( float $rating, string $read_date ): array {
 		return array(
-			'library_rating'    => $rating,
-			'library_read_date' => array( $read_date ),
+			'library_rating'  => $rating,
+			'library_reading' => array( "/$read_date" ),
 		);
 	}
 

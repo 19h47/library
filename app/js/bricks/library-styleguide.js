@@ -45,7 +45,10 @@ const BOOKS = [
 		credits: 'An Author · A Publisher, A Collection · 2024',
 		cover: COVER,
 		read: true,
-		read_date: [ '', '2026-10-28' ],
+		readings: [
+			{ start: '', end: '' },
+			{ start: '2026-10-20', end: '2026-10-28' },
+		],
 		rating: 8,
 	},
 	{
@@ -94,7 +97,8 @@ const BOOKS = [
 			cover: null,
 			status: '',
 			read: false,
-			read_date: [],
+			readings: [],
+			started: '',
 			rating: 0,
 			form: '',
 			languages: [],
@@ -216,14 +220,9 @@ class LibraryStyleguideElement extends Brick {
 				[ 'A Person', '' ].map( ( name ) =>
 					this.#renderInput( 'library-edit-person', name )
 				),
-			dates: () =>
-				[ '', '2026-10-28', '2126-10-28' ].map( ( date ) =>
-					this.#renderInput(
-						date
-							? 'library-read-date'
-							: 'library-read-date-unknown',
-						date
-					)
+			readings: () =>
+				[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
+					( interval ) => this.#renderReading( interval )
 				),
 		};
 
@@ -261,7 +260,9 @@ class LibraryStyleguideElement extends Brick {
 
 		showError( $invalid, $invalid.dataset.error );
 		showError(
-			this.querySelector( '[data-sample="dates"] li:last-child input' ),
+			this.querySelector(
+				'[data-sample="readings"] li:last-child [name="library_reading_end"]'
+			),
 			'A date later than today, as the browser says it.'
 		);
 
@@ -344,6 +345,31 @@ class LibraryStyleguideElement extends Brick {
 		const $item = clone( template );
 
 		$item.querySelector( 'input' ).value = value;
+
+		return $item;
+	}
+
+	/**
+	 * A row of a reading, of its unknown dates, or its start and end in their inputs.
+	 *
+	 * @param {string} interval The reading, as an interval: 2026-10-20/2026-10-28.
+	 * @return {HTMLElement} The row.
+	 */
+	#renderReading( interval ) {
+		const [ start, end ] = interval.split( '/' );
+		const $item = clone(
+			'/' === interval
+				? 'library-reading-unknown'
+				: 'library-reading-ended'
+		);
+
+		/** @type {HTMLInputElement} */
+		const $start = $item.querySelector( '[name="library_reading_start"]' );
+		/** @type {HTMLInputElement} */
+		const $end = $item.querySelector( '[name="library_reading_end"]' );
+
+		$start.value = start;
+		$end.value = end;
 
 		return $item;
 	}

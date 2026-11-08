@@ -554,14 +554,32 @@ use Library\Meta;
 									);
 									?>
 								</div>
+								<?php // The day the reading in progress started, while there is one. ?>
+								<div class="library-reading__started" hidden>
+									<?php
+									Markup::render_component(
+										'field',
+										array(
+											'id'          => 'library-reading-started',
+											'label'       => __( 'Started', 'library' ),
+											'control'     => '<input type="date">',
+											'description' => Meta::get_description( 'library_in_progress' ),
+											'attributes'  => array(
+												'name'     => 'library_started',
+												'disabled' => true,
+											),
+										)
+									);
+									?>
+								</div>
 								<?php
 								Markup::render_component(
 									'input-list',
 									array(
-										'id'          => 'library-reading-dates',
-										'class'       => 'library-reading__dates',
-										'legend'      => Meta::get_label( 'library_read_date' ),
-										'description' => Meta::get_description( 'library_read_date' ),
+										'id'          => 'library-reading-readings',
+										'class'       => 'library-reading__readings',
+										'legend'      => Meta::get_label( 'library_reading' ),
+										'description' => Meta::get_description( 'library_reading' ),
 										'add'         => __( 'Add a reading', 'library' ),
 										'action'      => 'add',
 										// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
@@ -611,6 +629,11 @@ use Library\Meta;
 							<div data-row="published_date">
 								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_published_date' ) ); ?></dt>
 								<dd data-field="published_date"></dd>
+							</div>
+							<?php // How long the latest reading took, from its start to its end. ?>
+							<div data-row="reading_time">
+								<dt class="app-meta"><?php esc_html_e( 'Read in', 'library' ); ?></dt>
+								<dd data-field="reading_time"></dd>
 							</div>
 						</dl>
 						<p>
@@ -910,16 +933,11 @@ use Library\Meta;
 			</li>
 		</template>
 
-		<template id="library-read-date">
-			<li class="library-input-list__item">
-				<?php
-				$control = Meta::get_control(
-					'library_read_date',
-					array( 'aria-label' => __( 'Read date', 'library' ) )
-				);
-
-				echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
-				?>
+		<template id="library-reading-ended">
+			<li class="library-input-list__item library-reading__item">
+				<input type="date" name="library_reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
+				<span class="library-reading__arrow" aria-hidden="true">→</span>
+				<input type="date" name="library_reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
 				<button
 					class="app-control"
 					type="button"
@@ -930,9 +948,10 @@ use Library\Meta;
 			</li>
 		</template>
 
-		<template id="library-read-date-unknown">
+		<template id="library-reading-unknown">
 			<li class="library-input-list__item">
-				<input type="hidden" name="library_read_date" value="">
+				<input type="hidden" name="library_reading_start" value="">
+				<input type="hidden" name="library_reading_end" value="">
 				<span class="library-input-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
 				<button
 					class="app-control"

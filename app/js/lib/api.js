@@ -45,7 +45,6 @@ import {
  * @property {string}   collection_number Its number in its collection.
  * @property {string}   edition_date      The date of its edition: a day, a month or a year.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
- * @property {string[]} read_date         Its readings, from the first to the latest, an unknown date empty.
  * @property {number}   pages             Its number of pages, 0 for unknown.
  * @property {number}   rating            Its rating out of 10, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
@@ -86,10 +85,27 @@ import {
  */
 
 /**
- * A book as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover
- * with its size, its authors and the names with another role, its original languages, those of its text and its form.
+ * A reading ended, from its start to its end, either empty when it is unknown: their days, or their times when the reading
+ * started or ended the day it was saved.
  *
- * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookRoles} Book
+ * @typedef {Object} ReadingPeriod
+ * @property {string} start Its start, or empty.
+ * @property {string} end   Its end, or empty.
+ */
+
+/**
+ * The readings of a book: the ones ended, from the first to the latest, and the start of the one in progress.
+ *
+ * @typedef {Object} BookReadings
+ * @property {ReadingPeriod[]} readings Its readings ended, from the first to the latest, the ones of an unknown end first.
+ * @property {string}          started  The start of its reading in progress, empty without one or when it is unknown.
+ */
+
+/**
+ * A book as the app shows it: plain text but its notes, its meta by their names, its readings in order, its cover with
+ * its size, its authors and the names with another role, its original languages, those of its text and its form.
+ *
+ * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookReadings & BookRoles} Book
  */
 
 /**
@@ -384,6 +400,7 @@ import {
  * @property {string}                  credits                Its credits, HTML.
  * @property {string}                  status                 Its status.
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
+ * @property {string[]}                readings               Its readings, in order, as intervals: 2026-10-20/2026-11-02.
  * @property {Cover|null}              cover                  Its cover, none without one.
  * @property {Term[]}                  names                  Its names, HTML, each with its term ID.
  * @property {number[]}                series                 The term IDs of its series.
@@ -420,29 +437,48 @@ export function text( html ) {
 	return parser.parseFromString( html, 'text/html' ).body.textContent;
 }
 
+// The end of a reading in progress, which has none yet, as an interval of ISO 8601-2 left open: 2026-11-08/..
+export const IN_PROGRESS = '..';
+
 /**
- * Read dates as readings, from the first to the latest: each unknown date, empty, is a reading of its own, first; a
- * known date is one reading, as a date saved twice by an old import. As the server counts them.
+ * Readings as the API gives them, in order, intervals from their starts to their ends, as the app reads them: the ones
+ * ended, and the start of the one in progress.
  *
- * @param {string[]} dates Read dates, in any order.
- * @return {string[]} The readings.
+ * @param {string[]} intervals Readings, from the first to the latest, the one in progress last.
+ * @return {BookReadings} The readings ended and the start of the one in progress.
  */
-export function toReadings( dates ) {
-	return [
-		...dates.filter( ( date ) => '' === date ),
-		...new Set( dates.filter( Boolean ) ),
-	].sort();
+export function toReadings( intervals ) {
+	const all = intervals.map( ( interval ) => {
+		const [ start, end = '' ] = interval.split( '/' );
+
+		return { start, end };
+	} );
+
+	return {
+		readings: all.filter( ( { end } ) => IN_PROGRESS !== end ),
+		started: all.find( ( { end } ) => IN_PROGRESS === end )?.start ?? '',
+	};
 }
 
 /**
- * Read dates by their days, as the forms give them and send them, in order, the unknown ones first. Two readings of a
- * day stay two: the server keeps the time of each reading of today, and merges a day given twice otherwise.
+ * A reading as the API takes it, an interval from its start to its end.
  *
- * @param {string[]} dates Read dates, in any order, with their time or not.
- * @return {string[]} Their days.
+ * @param {ReadingPeriod} reading The reading.
+ * @return {string} The interval: 2026-10-20/2026-11-02.
  */
-export function toDays( dates ) {
-	return dates.map( ( date ) => date.slice( 0, 10 ) ).sort();
+export function toInterval( { start, end } ) {
+	return `${ start }/${ end }`;
+}
+
+/**
+ * A reading by its days, as the forms give it and send it: the server keeps the time of a start or an end of today, and
+ * of one saved with its time given by its day.
+ *
+ * @param {ReadingPeriod} reading A reading, its start and end with their times or not.
+ * @return {ReadingPeriod} Its days.
+ */
+export function toDays( { start, end } ) {
+	return { start: start.slice( 0, 10 ), end: end.slice( 0, 10 ) };
 }
 
 /**
@@ -491,7 +527,7 @@ function toBook( item ) {
 
 	return {
 		...meta,
-		read_date: toReadings( meta.read_date ),
+		...toReadings( item.readings ),
 		id: item.id,
 		title: text( item.title.rendered ),
 		excerpt: text( item.excerpt.rendered ),

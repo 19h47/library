@@ -21,8 +21,3 @@ parameters:
 		-
 			identifier: argument.templateType
 			message: '#rest_sanitize_boolean#'
-		# register_meta() takes null as its auth_callback, its default; its stub takes a callable only.
-		-
-			identifier: argument.type
-			message: '#^Parameter \#3 \$args of function register_post_meta expects .* auth_callback: .*\|null\} given\.$#'
-			path: includes/class-meta.php

@@ -24,7 +24,7 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_readings(): void {
 		$first  = $this->add_read( '2025-03-02' );
-		$again  = $this->add_book( array( 'meta' => array( 'library_read_date' => array( '2025-01-10', '2025-03-20' ) ) ) );
+		$again  = $this->add_book( array( 'meta' => array( 'library_reading' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
 		$before = $this->add_read( '2024-12-31' );
 		$this->add_read( '2024-06-01' );
 

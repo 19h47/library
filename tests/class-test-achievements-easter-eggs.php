@@ -151,7 +151,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read again',
-				'meta'  => array( 'library_read_date' => array( '2023-05-01', '2024-02-29' ) ),
+				'meta'  => array( 'library_reading' => array( '/2023-05-01', '/2024-02-29' ) ),
 			)
 		);
 
@@ -170,7 +170,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Twice',
-				'meta'  => array( 'library_read_date' => array( '2020-02-29', '2024-02-29' ) ),
+				'meta'  => array( 'library_reading' => array( '/2020-02-29', '/2024-02-29' ) ),
 			)
 		);
 
@@ -832,8 +832,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'meta' => array(
-					'library_rating'    => 10,
-					'library_read_date' => array( '2024-05-01', '2024-05-02', '2024-05-03' ),
+					'library_rating'  => 10,
+					'library_reading' => array( '/2024-05-01', '/2024-05-02', '/2024-05-03' ),
 				),
 			)
 		);
@@ -850,8 +850,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'meta' => array(
-					'library_rating'    => 10,
-					'library_read_date' => array( '2024-05-01', '2024-05-02' ),
+					'library_rating'  => 10,
+					'library_reading' => array( '/2024-05-01', '/2024-05-02' ),
 				),
 			)
 		);
@@ -989,7 +989,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	public function test_back_to_the_start_not_a_first_volume_read_again(): void {
 		$first = self::get_volume( 'Foundation', 'Tome 01', 'Foundation' );
 
-		$first['meta']['library_read_date'] = array( '2023-01-10', '2025-01-10' );
+		$first['meta']['library_reading'] = array( '/2023-01-10', '/2025-01-10' );
 
 		$this->add_book( $first );
 		$this->add_read( '2024-02-10', self::get_volume( 'Foundation', 'Tome 02', 'Foundation and Empire' ) );

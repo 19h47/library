@@ -167,7 +167,7 @@ class LibraryDiaryElement extends Brick {
 	 * @return {string} The line.
 	 */
 	#state( book, date ) {
-		const isFirstReading = date === book.read_date[ 0 ];
+		const isFirstReading = date === book.readings[ 0 ]?.end;
 
 		return join( [
 			formatDate( date, dayFormat ),

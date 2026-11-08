@@ -37,7 +37,7 @@ class Assets {
 
 	/**
 	 * Enqueue the styles of the books list, of the screen of a book and of the terms lists, the books list scripts, and
-	 * the script of the read dates of a book.
+	 * the script of the readings of a book.
 	 *
 	 * @since 1.0.0
 	 * @return void
@@ -47,8 +47,8 @@ class Assets {
 		$screens = array( 'library_book', 'edit-library_book', ...array_map( fn( string $taxonomy ) => "edit-{$taxonomy}", Taxonomies::TAXONOMIES ) );
 
 		if ( $screen && 'library_book' === $screen->id ) {
-			[ $read_dates_url, $read_dates_version ] = Plugin::get_asset( 'admin/js/library-admin-read-dates.js' );
-			wp_enqueue_script( 'library-admin-read-dates', $read_dates_url, array(), $read_dates_version, true );
+			[ $readings_url, $readings_version ] = Plugin::get_asset( 'admin/js/library-admin-readings.js' );
+			wp_enqueue_script( 'library-admin-readings', $readings_url, array(), $readings_version, true );
 		}
 
 		if ( ! $screen || ! in_array( $screen->id, $screens, true ) ) {

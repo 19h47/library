@@ -254,15 +254,16 @@ class Books_List {
 			return;
 		}
 
-		// Quick edit edits the latest reading.
-		$labels = array( 'library_read_date' => __( 'Last read date', 'library' ) );
+		// Quick edit edits the end of the latest reading, which is no meta of its own.
+		$labels   = array( 'library_read_date' => __( 'Last read date', 'library' ) );
+		$controls = array( 'library_read_date' => '<input type="date" name="library_read_date">' );
 		?>
 		<fieldset class="inline-edit-col-right">
 			<div class="inline-edit-col">
 				<?php foreach ( Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
 						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Meta::get_label( $key ) ); ?></span>
-						<span class="input-text-wrap"><?php echo Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
+						<span class="input-text-wrap"><?php echo $controls[ $key ] ?? Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Written here, or built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>
@@ -309,7 +310,7 @@ class Books_List {
 		$values = wp_unslash( $_POST );
 
 		if ( isset( $values['library_read_date'] ) ) {
-			$values['library_read_date'] = Meta::replace_latest_read_date( $post_id, (string) $values['library_read_date'] );
+			$values['library_reading'] = Meta::replace_latest_read_date( $post_id, (string) $values['library_read_date'] );
 		}
 
 		Meta::save( $post_id, $values );

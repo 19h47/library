@@ -83,7 +83,7 @@ class Test_Achievements_Discoveries extends TestCase {
 				'title' => 'Read twice',
 				'meta'  => array(
 					'library_published_date' => '2020',
-					'library_read_date'      => array( '2020-06-01', '2024-01-01' ),
+					'library_reading'        => array( '/2020-06-01', '/2024-01-01' ),
 				),
 			)
 		);
@@ -254,7 +254,7 @@ class Test_Achievements_Discoveries extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read long ago',
-				'meta'  => array( 'library_read_date' => array( '' ) ),
+				'meta'  => array( 'library_reading' => array( '/' ) ),
 			),
 			'2024-01-01 10:00:00'
 		);
@@ -345,7 +345,7 @@ class Test_Achievements_Discoveries extends TestCase {
 		return $this->add_book(
 			array(
 				'title' => $title,
-				'meta'  => array( 'library_read_date' => array( $read_date ) ) + $meta,
+				'meta'  => array( 'library_reading' => array( "/$read_date" ) ) + $meta,
 			),
 			$added
 		);

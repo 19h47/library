@@ -37,8 +37,8 @@ abstract class TestCase extends WP_UnitTestCase {
 	/**
 	 * Add a book through `POST library/v1/books`, as its form sends it, with its date added.
 	 *
-	 * Read dates go in `meta.library_read_date`, which also checks it as read: `array( '2024-03-14' )`, or `array( '' )`
-	 * for a reading on an unknown date; `library_read` alone would date it today.
+	 * Readings go in `meta.library_reading`, which also makes it read: `array( '/2024-03-14' )`, or `array( '/' )` for a
+	 * reading on an unknown date; `library_read` alone would date it today.
 	 *
 	 * @param array  $book  Book, as the route takes it: title, people, series, meta… A title is made up when missing.
 	 * @param string $added Date added, Y-m-d H:i:s, or empty for now.
@@ -46,10 +46,6 @@ abstract class TestCase extends WP_UnitTestCase {
 	 */
 	protected function add_book( array $book = array(), string $added = '' ): int {
 		$book += array( 'title' => 'Book ' . wp_generate_password( 6, false ) );
-
-		if ( ! empty( $book['meta']['library_read_date'] ) ) {
-			$book['meta'] += array( 'library_read' => true );
-		}
 
 		$request = new WP_REST_Request( 'POST', '/library/v1/books' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -85,7 +81,7 @@ abstract class TestCase extends WP_UnitTestCase {
 	 * @return int Book ID.
 	 */
 	protected function add_read( string $read_date, array $book = array(), string $added = '' ): int {
-		return $this->add_book( array_replace_recursive( $book, array( 'meta' => array( 'library_read_date' => array( $read_date ) ) ) ), $added );
+		return $this->add_book( array_replace_recursive( $book, array( 'meta' => array( 'library_reading' => array( "/$read_date" ) ) ) ), $added );
 	}
 
 	/**
