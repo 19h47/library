@@ -20,7 +20,12 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
-          tools: wp-cli:${{ steps.wp-cli.outputs.version }}
+
+      # From its release, which setup-php failed to set up.
+      - run: |
+          curl -sSfL -o "$RUNNER_TEMP/wp" "https://github.com/wp-cli/wp-cli/releases/download/v${{ steps.wp-cli.outputs.version }}/wp-cli-${{ steps.wp-cli.outputs.version }}.phar"
+          sudo install "$RUNNER_TEMP/wp" /usr/local/bin/wp
+          wp --info
 
       - run: sudo apt-get install -y gettext
 
