@@ -20,16 +20,7 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
-
-      # Its release, else the latest one from the builds of WP-CLI, which must be the same: the downloads of the releases
-      # of GitHub may fail, as setup-php did.
-      - env:
-          VERSION: ${{ steps.wp-cli.outputs.version }}
-        run: |
-          curl -sSfL --retry 3 --retry-all-errors -o "$RUNNER_TEMP/wp" "https://github.com/wp-cli/wp-cli/releases/download/v$VERSION/wp-cli-$VERSION.phar" \
-            || curl -sSfL --retry 3 --retry-all-errors -o "$RUNNER_TEMP/wp" https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-release.phar
-          sudo install "$RUNNER_TEMP/wp" /usr/local/bin/wp
-          test "$(wp --version)" = "WP-CLI $VERSION"
+          tools: wp-cli:${{ steps.wp-cli.outputs.version }}
 
       - run: sudo apt-get install -y gettext
 
