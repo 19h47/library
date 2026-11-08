@@ -15,6 +15,15 @@
 		border-radius: var(--library-radius-small);
 	}
 
+	/*
+	 * A cover in the shape of its book, which its image gives before it loads: the views that cut it in a tile of their
+	 * own still do. The ratio holds for its border as well, which the image covers rather than stretching.
+	 */
+	:where(img) {
+		aspect-ratio: var(--library-cover-ratio, auto);
+		object-fit: cover;
+	}
+
 	/* A cover at the height of the row of the latest readings, as wide as its image: in that row and in the form of a book */
 	.library-cover__image,
 	.library-image-field__preview {
