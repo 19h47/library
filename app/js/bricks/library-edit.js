@@ -48,14 +48,20 @@ const nameCollator = new Intl.Collator( document.documentElement.lang, {
 } );
 
 /**
- * Checks the checkboxes of the term IDs given, and only them, such as the original languages of a book.
+ * Checks the checkboxes of the term IDs given, and only them, such as the original languages of a book; the ones it
+ * changes tell it, as a click would, for the pills of the choices made.
  *
  * @param {HTMLInputElement[]} $checkboxes The checkboxes, a term ID each.
  * @param {number[]}           ids         The term IDs to check.
  */
 function checkIds( $checkboxes, ids ) {
 	$checkboxes.forEach( ( $checkbox ) => {
-		$checkbox.checked = ids.includes( Number( $checkbox.value ) );
+		const checked = ids.includes( Number( $checkbox.value ) );
+
+		if ( checked !== $checkbox.checked ) {
+			$checkbox.checked = checked;
+			$checkbox.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		}
 	} );
 }
 

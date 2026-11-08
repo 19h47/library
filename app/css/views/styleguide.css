@@ -50,8 +50,8 @@
 		border-radius: var(--app-radius);
 	}
 
-	/* What the app places over the page, the notice and the filters, drawn in its frame */
-	.library-styleguide__frame :is(.library-notice, .library-filters__dialog) {
+	/* What the app places over the page, the notice and a sheet, drawn in its frame; a sheet opened by its field stays over the page */
+	.library-styleguide__frame :is(.library-notice, .library-sheet:not(:modal)) {
 		position: relative;
 		inset: auto;
 		translate: none;
