@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.31.0
+Stable tag: 9.31.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,10 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.31.1 =
+* Fixed: reading app: a book opened shows at once, in its transition, rather than seconds later without one: the transition waits a moment at most for the cover of the book, which a slow network held.
+* Changed: reading app: a cover the app keeps shows at once, without waiting for the network, as on a slow network the first time the app opens.
 
 = 9.31.0 =
 * Changed: reading app: the languages of a book in its form show the ones chosen, a pill each that removes it, and a button that opens all of them in a sheet, a checkbox each, rather than a pill for every language of the library.

@@ -4,8 +4,9 @@
  * Served from the URL of the app, which is its scope: it controls the app only, and every request of the app, its
  * page, its scripts, the REST API and the covers. A request goes to the network first, and what comes back is kept;
  * without network, what was kept answers. Opening the app waits a few seconds at most for the network, then shows the
- * app kept, while the network fills the cache for the next time. Only reading goes through it: a book saved needs
- * the network.
+ * app kept, while the network fills the cache for the next time. A cover kept answers at once, without the network:
+ * the URL of an image names it alone, and it never changes. Only reading goes through it: a book saved needs the
+ * network.
  *
  * The app itself, its page, scripts and styles, is kept apart from what it loads, the REST API and the covers: the
  * covers of a long scroll never push the app out, so it opens without network.
@@ -58,13 +59,23 @@ self.addEventListener( 'fetch', ( event ) => {
 } );
 
 /**
- * The response of the network, kept, or else the one kept; a view of the app not kept yet takes the app kept.
+ * The response of the network, kept, or else the one kept; a view of the app not kept yet takes the app kept. An
+ * image kept, such as a cover, comes first.
  *
  * @param {FetchEvent} event The request of the app.
  * @return {Promise<Response>} Its response.
  */
 async function respond( event ) {
 	const { request } = event;
+
+	if ( 'image' === request.destination ) {
+		const image = await caches.match( request );
+
+		if ( image ) {
+			return image;
+		}
+	}
+
 	const isNavigation = 'navigate' === request.mode;
 	const name = SHELL_DESTINATIONS.includes( request.destination )
 		? 'library-app-shell'

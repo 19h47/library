@@ -51,8 +51,8 @@ let isWritingSearch = false;
 const COVER = 'img[data-field="cover"]:not([hidden])';
 // The name the cover of a book takes in a view transition, on its card or row, then on its page, or the other way.
 const COVER_TRANSITION = 'library-cover';
-// How long a view transition waits for the cover of a page to load before it shows the page, when it cannot take the one
-// of the card: a moment, then the page all the same.
+// How long a view transition waits for the cover of a page, the one of its card or its own, before it shows the page: a
+// moment, then the page all the same, as the transition holds the frames until then.
 const COVER_WAIT = 300;
 
 /**
@@ -261,16 +261,17 @@ async function transition( event, from, link, show ) {
 			return;
 		}
 
-		// The cover of a page, which loads as large as it shows: the one of the card at once, its own after the transition,
-		// else its own for a moment at most.
-		if ( $left?.complete && $left.currentSrc ) {
-			await lendCover( $cover, $left, finished );
-		} else {
-			await Promise.race( [
-				$cover.decode().catch( () => {} ),
-				new Promise( ( resolve ) => setTimeout( resolve, COVER_WAIT ) ),
-			] );
-		}
+		// The cover of a page, which loads as large as it shows: the one of the card, its own after the transition, else its
+		// own; a moment at most either way, as the image of the card may be asked again of a slow network.
+		const shown =
+			$left?.complete && $left.currentSrc
+				? lendCover( $cover, $left, finished )
+				: $cover.decode().catch( () => {} );
+
+		await Promise.race( [
+			shown,
+			new Promise( ( resolve ) => setTimeout( resolve, COVER_WAIT ) ),
+		] );
 	} );
 
 	viewTransition.finished.finally( () => {
