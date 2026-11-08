@@ -86,7 +86,6 @@ class Books {
 		$language_terms = array_column( is_array( $language_terms ) ? $language_terms : array(), null, 'term_id' );
 
 		foreach ( $posts as $post ) {
-			$read_dates     = Meta::get_read_dates( $post->ID );
 			$volume_number  = (string) get_post_meta( $post->ID, 'library_volume_number', true );
 			$volume         = self::get_volume_number( $volume_number );
 			$series         = Taxonomies::get_series_name( $post->ID );
@@ -124,7 +123,7 @@ class Books {
 				series_ids:         $series_ids,
 				volume:             $volume,
 				collective:         Posts::is_collective( $post->ID ),
-				read_dates:         $read_dates,
+				readings:           Meta::get_readings( $post->ID ),
 				rating:             '' !== $rating ? (float) $rating : null,
 				pages:              $pages ? $pages : null,
 				edition_date:       $edition_date,

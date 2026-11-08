@@ -7,6 +7,7 @@
 
 namespace Library\Tests;
 
+use DateTimeImmutable;
 use Library\Recap;
 use Library\Status;
 
@@ -211,5 +212,86 @@ class Test_Recap extends TestCase {
 		$this->add_book( array(), '2024-12-31 10:00:00' );
 
 		$this->assertSame( 2, Recap::get_recap( 2025 )['added'] );
+	}
+
+	/**
+	 * A day is read while a reading is open, on its end alone when its start is unknown; the pages of a book read from a
+	 * known start spread over its days, which give the levels, the most days in a row and the biggest day. The memorable
+	 * days are the biggest one and the days a favourite was finished; the readings dated have their start known.
+	 *
+	 * @return void
+	 */
+	public function test_calendar(): void {
+		$this->add_book( $this->read_from( '2025-03-01/2025-03-03', 300, 7 ) );
+		$this->add_book( $this->read_from( '2025-03-03/2025-03-03', 50, 9 ) );
+		$this->add_book( $this->read_from( '/2025-03-10', 200, 9 ) );
+		$this->add_book( $this->read_from( '2024-12-30/2025-01-02', 40 ) );
+
+		$calendar = Recap::get_recap( 2025 )['calendar'];
+
+		$this->assertCount( 365, $calendar['levels'] );
+		// January 1st and 2nd, March 1st to 3rd and 10th: 10, 10, 100, 100, 150 pages and an unknown number.
+		$this->assertSame(
+			array(
+				0  => 1,
+				1  => 1,
+				59 => 2,
+				60 => 2,
+				61 => 4,
+				68 => 1,
+			),
+			array_filter( $calendar['levels'] )
+		);
+		$this->assertSame( 6, $calendar['read'] );
+		$this->assertSame( 3, $calendar['streak'] );
+		$this->assertSame(
+			array(
+				'day'   => 61,
+				'pages' => 150,
+			),
+			$calendar['best']
+		);
+		$this->assertSame( array( 61, 68 ), $calendar['memorable'] );
+		$this->assertSame( 3, $calendar['dated'] );
+	}
+
+	/**
+	 * A reading in progress, which may have been left for years, reads no day until it ends; no day after today is gone by.
+	 *
+	 * @return void
+	 */
+	public function test_calendar_leaves_out_the_reading_in_progress(): void {
+		$today = new DateTimeImmutable( 'now', wp_timezone() );
+		$year  = (int) $today->format( 'Y' );
+
+		$this->add_read( "$year-01-01" );
+		$this->add_book( $this->read_from( '2022-09-04/..', 300 ) );
+
+		$calendar = Recap::get_recap( $year )['calendar'];
+
+		$this->assertCount( (int) $today->format( 'z' ) + 1, $calendar['levels'] );
+		$this->assertSame( 1, $calendar['read'] );
+		$this->assertSame( 0, $calendar['dated'] );
+		$this->assertNull( $calendar['best'] );
+	}
+
+	/**
+	 * A book read once, from its start to its end, with its pages and its rating.
+	 *
+	 * @param string     $reading Reading, start/end.
+	 * @param int        $pages   Number of pages.
+	 * @param float|null $rating  Rating, none when null.
+	 * @return array<string,mixed>
+	 */
+	private function read_from( string $reading, int $pages, ?float $rating = null ): array {
+		return array(
+			'meta' => array_filter(
+				array(
+					'library_reading' => array( $reading ),
+					'library_pages'   => $pages,
+					'library_rating'  => $rating,
+				)
+			),
+		);
 	}
 }
