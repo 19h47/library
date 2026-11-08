@@ -106,6 +106,7 @@ The routes of the plugin, to users who can edit posts:
 = 9.33.0 =
 * Reading app: the recap of a year has a screen of its days, Day by day: the days read, the most in a row, the day the most pages were read and the readings with their start known, over the calendar of the year. A day is read while a reading ended was open, or on its end alone when its start is unknown, as dark as the pages read that day; the memorable days, the biggest one and those a favourite was finished, pulse.
 * Fixed: reading app: a date typed in the form of a reading is saved once left, rather than at each key: its error shows then, without taking the focus back, and goes as soon as it is valid, an end as soon as its start goes before it.
+* Fixed: reading app: Chrome no longer lists issues on the app: the covers take the shape of their book from their width and height, a photo picked no longer keeping the size of the cover it replaces, and the search fields of the styleguide have an id.
 * Code only: a book holds its readings, its read dates worked out from them.
 
 = 9.32.2 =

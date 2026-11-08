@@ -215,9 +215,18 @@ export function fillCover( $image, cover ) {
 
 	$image.src = cover.url;
 
+	// Its shape as well, which the covers take from --library-cover-ratio: Chrome counts a lazy image of an automatic width
+	// as unsized whatever its width and height say. A photo picked has none, nor the ones of the cover it replaces.
 	if ( cover.width ) {
+		const ratio = `${ cover.width } / ${ cover.height }`;
+
 		$image.width = cover.width;
 		$image.height = cover.height;
+		$image.style.setProperty( '--library-cover-ratio', ratio );
+	} else {
+		$image.removeAttribute( 'width' );
+		$image.removeAttribute( 'height' );
+		$image.style.removeProperty( '--library-cover-ratio' );
 	}
 }
 
