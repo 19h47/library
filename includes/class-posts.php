@@ -37,6 +37,7 @@ class Posts {
 		add_action( 'after_setup_theme', array( $this, 'add_thumbnail_support' ), 11 );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_post_statuses' ) );
+		add_filter( 'wp_untrash_post_status', array( $this, 'restore_status' ), 10, 3 );
 		// After the status of the post is known, which the "Library" menu of the publish box may change.
 		add_filter( 'wp_insert_post_data', array( $this, 'build_slug' ), 11, 2 );
 		add_filter( 'wp_insert_post_data', array( $this, 'set_bought_date' ), 11, 2 );
@@ -81,6 +82,19 @@ class Posts {
 				) + $args
 			);
 		}
+	}
+
+	/**
+	 * Restore a book from the trash in the status it had, in the library, not kept or to buy, rather than as a draft, as core
+	 * restores a post since WordPress 5.6: a draft leaves the app, the stats and the achievements, and its status is lost.
+	 *
+	 * @param string $new_status      Status core restores the post in.
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status Status of the post before it was trashed.
+	 * @return string
+	 */
+	public function restore_status( string $new_status, int $post_id, string $previous_status ): string {
+		return 'library_book' === get_post_type( $post_id ) ? $previous_status : $new_status;
 	}
 
 	/**

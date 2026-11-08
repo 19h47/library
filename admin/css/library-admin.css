@@ -63,3 +63,9 @@
 	width: 96px;
 	text-align: center;
 }
+
+/* The publish box of a book: its "Library" menu is its status, rather than the status and Save Draft of core, which only know the statuses of core */
+.post-type-library_book #misc-publishing-actions .misc-pub-post-status,
+.post-type-library_book #save-action {
+	display: none;
+}

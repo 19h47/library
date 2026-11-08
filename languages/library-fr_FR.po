@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-08T09:53:07+00:00\n"
+"POT-Creation-Date: 2026-11-08T10:02:27+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -150,8 +150,8 @@ msgstr "Collections les plus présentes"
 msgid "Most present original languages"
 msgstr "Langues d’origine les plus présentes"
 
-#: admin/class-dashboard.php:223 includes/class-posts.php:180
-#: includes/class-posts.php:182 includes/class-posts.php:215
+#: admin/class-dashboard.php:223 includes/class-posts.php:194
+#: includes/class-posts.php:196 includes/class-posts.php:229
 msgid "Books"
 msgstr "Livres"
 
@@ -1562,87 +1562,87 @@ msgstr ""
 "Le dernier chiffre de l’ISBN %s, sa clé de contrôle, ne correspond pas aux "
 "autres : vérifiez-les."
 
-#: includes/class-posts.php:181 includes/class-posts.php:183
+#: includes/class-posts.php:195 includes/class-posts.php:197
 msgid "Book"
 msgstr "Livre"
 
-#: includes/class-posts.php:184
+#: includes/class-posts.php:198
 msgid "Book Archives"
 msgstr "Archives des livres"
 
-#: includes/class-posts.php:185
+#: includes/class-posts.php:199
 msgid "All books"
 msgstr "Tous les livres"
 
-#: includes/class-posts.php:186
+#: includes/class-posts.php:200
 msgid "Add New Book"
 msgstr "Ajouter un livre"
 
-#: includes/class-posts.php:187
+#: includes/class-posts.php:201
 msgid "Add New"
 msgstr "Ajouter"
 
-#: includes/class-posts.php:188
+#: includes/class-posts.php:202
 msgid "New Book"
 msgstr "Nouveau livre"
 
-#: includes/class-posts.php:189
+#: includes/class-posts.php:203
 msgid "Edit book"
 msgstr "Modifier le livre"
 
-#: includes/class-posts.php:190
+#: includes/class-posts.php:204
 msgid "View Book"
 msgstr "Voir le livre"
 
-#: includes/class-posts.php:191
+#: includes/class-posts.php:205
 msgid "View Books"
 msgstr "Voir les livres"
 
-#: includes/class-posts.php:192
+#: includes/class-posts.php:206
 msgid "Search Book"
 msgstr "Rechercher un livre"
 
-#: includes/class-posts.php:193
+#: includes/class-posts.php:207
 msgid "Not found"
 msgstr "Introuvable"
 
-#: includes/class-posts.php:194
+#: includes/class-posts.php:208
 msgid "Not found in Trash"
 msgstr "Introuvable dans la corbeille"
 
-#: includes/class-posts.php:195
+#: includes/class-posts.php:209
 msgid "Featured Image"
 msgstr "Image à la une"
 
-#: includes/class-posts.php:196
+#: includes/class-posts.php:210
 msgid "Set featured image"
 msgstr "Définir l'image à la une"
 
-#: includes/class-posts.php:197
+#: includes/class-posts.php:211
 msgid "Remove featured image"
 msgstr "Supprimer l'image à la une"
 
-#: includes/class-posts.php:198
+#: includes/class-posts.php:212
 msgid "Use as featured image"
 msgstr "Utiliser comme image à la une"
 
-#: includes/class-posts.php:199
+#: includes/class-posts.php:213
 msgid "Insert into book"
 msgstr "Insérer dans le livre"
 
-#: includes/class-posts.php:200
+#: includes/class-posts.php:214
 msgid "Uploaded to this book"
 msgstr "Envoyé vers ce livre"
 
-#: includes/class-posts.php:201
+#: includes/class-posts.php:215
 msgid "Books list"
 msgstr "Liste des livres"
 
-#: includes/class-posts.php:202
+#: includes/class-posts.php:216
 msgid "Books list navigation"
 msgstr "Navigation de la liste des livres"
 
-#: includes/class-posts.php:203
+#: includes/class-posts.php:217
 msgid "Filter books list"
 msgstr "Filtrer la liste des livres"
 
@@ -1875,9 +1875,9 @@ msgid ""
 "starts to their ends, either empty when unknown, the end of the one in "
 "progress “..”: 2026-10-20/2026-11-02."
 msgstr ""
-"Lectures du livre, de la première à la dernière, en intervalles de leur début "
-"à leur fin, chacun vide quand il est inconnu, la fin de celle en cours « .. » : "
-"2026-10-20/2026-11-02."
+"Lectures du livre, de la première à la dernière, en intervalles de leur "
+"début à leur fin, chacun vide quand il est inconnu, la fin de celle en cours "
+"« .. » : 2026-10-20/2026-11-02."
 
 #: includes/class-rest-api.php:72
 msgid ""
