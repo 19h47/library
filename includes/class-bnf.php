@@ -96,9 +96,16 @@ class BnF {
 		$people      = self::find_people( $record );
 		$imprint     = self::get_first( $record, '210', 'c' );
 		$publisher   = self::find_publisher( $isbn, '' !== $imprint ? $imprint : self::get_first( $record, '214', 'c' ) );
-		$series      = self::get_series( $record );
-		$series_term = $series['name'] ? self::find_series( $series['name'] ) : null;
-		$collection  = self::find_collection( $record, $publisher, $series['name'] );
+		$terms       = get_terms(
+			array(
+				'taxonomy'   => 'library_series',
+				'hide_empty' => false,
+			)
+		);
+		$all_series  = is_array( $terms ) ? $terms : array();
+		$series      = self::get_series( $record, $all_series );
+		$series_term = $series['name'] ? self::find_named( $all_series, $series['name'] ) : null;
+		$collection  = self::find_collection( $record, $publisher, $series['name'], $all_series );
 		$volume      = Books::get_volume_number( $series['number'] );
 
 		// A volume titled as its series, such as a manga, takes the name the library gives the series.
@@ -402,10 +409,11 @@ class BnF {
 	 * The series of a record and the number of the book in it, as the catalogue names them: its link to its series, a
 	 * series the catalogue gives as such, one the library has, else the title of a volume with its number; empty for none.
 	 *
-	 * @param array<int|string,list<Field>> $record Record.
+	 * @param array<int|string,list<Field>> $record     Record.
+	 * @param WP_Term[]                     $all_series Series of the library.
 	 * @return array{name:string,number:string}
 	 */
-	private static function get_series( array $record ): array {
+	private static function get_series( array $record, array $all_series ): array {
 		$series = array_map(
 			fn( array $field ) => array(
 				'name'   => self::clean( $field['subfields']['t'][0] ?? '' ),
@@ -417,7 +425,7 @@ class BnF {
 		foreach ( $record['225'] ?? array() as $field ) {
 			$name = self::clean( $field['subfields']['a'][0] ?? '' );
 
-			if ( '9' === $field['ind2'] || self::find_series( $name ) ) {
+			if ( self::is_series( $field, $name, $all_series ) ) {
 				$series[] = array(
 					'name'   => $name,
 					'number' => $field['subfields']['v'][0] ?? '',
@@ -446,12 +454,13 @@ class BnF {
 	 * publisher, such as 10/18, gives its number alone; a series is left out. An older record may name the collection in
 	 * its link to it only: "Mango poche (Paris)", "Folio. Science-fiction".
 	 *
-	 * @param array<int|string,list<Field>> $record    Record.
-	 * @param string                        $publisher Name of the publisher, as the library gives it.
-	 * @param string                        $series    Name of the series of the record in the catalogue, empty for none.
+	 * @param array<int|string,list<Field>> $record     Record.
+	 * @param string                        $publisher  Name of the publisher, as the library gives it.
+	 * @param string                        $series     Name of the series of the record in the catalogue, empty for none.
+	 * @param WP_Term[]                     $all_series Series of the library.
 	 * @return array{name:string,number:string}
 	 */
-	private static function find_collection( array $record, string $publisher, string $series ): array {
+	private static function find_collection( array $record, string $publisher, string $series, array $all_series ): array {
 		$parent      = get_terms(
 			array(
 				'taxonomy'   => 'library_publisher',
@@ -468,12 +477,13 @@ class BnF {
 			)
 		) : array();
 		$collections = is_array( $collections ) ? $collections : array();
-		$named       = fn( string $name ) => array_find( $collections, fn( WP_Term $term ) => self::compact( $term->name ) === self::compact( $name ) );
+		$named       = fn( string $name ) => self::find_named( $collections, $name );
 		$links       = array_map(
 			function ( array $field ) {
 				$parts = explode( '. ', (string) preg_replace( '/\s*\([^)]*\)/', '', $field['subfields']['t'][0] ?? '' ), 2 );
 
 				return array(
+					'ind1'      => '',
 					'ind2'      => '',
 					'subfields' => array(
 						'a' => array( $parts[0] ),
@@ -493,7 +503,7 @@ class BnF {
 			$number = $field['subfields']['v'][0] ?? self::get_first( $record, '410', 'v' );
 
 			// A series, or a director named in place of a collection.
-			if ( '9' === $field['ind2'] || ! $name || self::compact( $name ) === self::compact( $series ) || self::find_series( $name ) || str_starts_with( self::normalize( $name ), 'dirigee par' ) ) {
+			if ( ! $name || self::compact( $name ) === self::compact( $series ) || self::is_series( $field, $name, $all_series ) || str_starts_with( self::normalize( $name ), 'dirigee par' ) ) {
 				continue;
 			}
 
@@ -521,21 +531,30 @@ class BnF {
 	}
 
 	/**
-	 * The series of the library of a name, whatever its case, accents and spaces, its cycles aside: "Lastman" for "Last
-	 * Man"; null for none.
+	 * Whether a series statement of a record names a series rather than a collection: the catalogue gives it as such, or
+	 * the library has a series of that name.
 	 *
-	 * @param string $name Name of the series in the catalogue.
+	 * @param array     $field      Series statement, or link to a collection.
+	 * @param string    $name       Name it gives.
+	 * @param WP_Term[] $all_series Series of the library.
+	 * @return bool
+	 *
+	 * @phpstan-param Field $field
+	 */
+	private static function is_series( array $field, string $name, array $all_series ): bool {
+		return '9' === $field['ind2'] || null !== self::find_named( $all_series, $name );
+	}
+
+	/**
+	 * The term of a name, whatever its case, accents and spaces, a series without its cycles: "Lastman" for "Last Man";
+	 * null for none.
+	 *
+	 * @param WP_Term[] $terms Terms.
+	 * @param string    $name  Name in the catalogue.
 	 * @return WP_Term|null
 	 */
-	private static function find_series( string $name ): ?WP_Term {
-		$series = get_terms(
-			array(
-				'taxonomy'   => 'library_series',
-				'hide_empty' => false,
-			)
-		);
-
-		return array_find( is_array( $series ) ? $series : array(), fn( WP_Term $term ) => self::compact( $term->name ) === self::compact( $name ) );
+	private static function find_named( array $terms, string $name ): ?WP_Term {
+		return array_find( $terms, fn( WP_Term $term ) => self::compact( $term->name ) === self::compact( $name ) );
 	}
 
 	/**
