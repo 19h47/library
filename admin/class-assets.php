@@ -36,15 +36,15 @@ class Assets {
 	}
 
 	/**
-	 * Enqueue the styles of the books list and of the terms lists, the books list scripts, and the script of the read
-	 * dates of a book.
+	 * Enqueue the styles of the books list, of the screen of a book and of the terms lists, the books list scripts, and
+	 * the script of the read dates of a book.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
 		$screen  = get_current_screen();
-		$screens = array( 'edit-library_book', ...array_map( fn( string $taxonomy ) => "edit-{$taxonomy}", Taxonomies::TAXONOMIES ) );
+		$screens = array( 'library_book', 'edit-library_book', ...array_map( fn( string $taxonomy ) => "edit-{$taxonomy}", Taxonomies::TAXONOMIES ) );
 
 		if ( $screen && 'library_book' === $screen->id ) {
 			[ $read_dates_url, $read_dates_version ] = Plugin::get_asset( 'admin/js/library-admin-read-dates.js' );
