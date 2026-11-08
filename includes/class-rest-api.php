@@ -560,8 +560,8 @@ class Rest_API {
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
 		$roles      = Meta::get_roles( $book->ID );
-		// The read dates are the reading of the book, which its own form edits.
-		$meta = array_diff_key( Meta::get_values( $book->ID ), array( 'library_read_date' => true ) );
+		// The readings are the reading of the book, which its own form edits.
+		$meta = array_diff_key( Meta::get_values( $book->ID ), array( 'library_reading' => true ) );
 
 		return rest_ensure_response(
 			array(

@@ -1,6 +1,6 @@
 /**
  * The reading of a book in the reading app: each change saved at once, with Undo, a change made while the one before
- * saves, the focus kept; Finished on the home.
+ * saves, the focus kept; a reading in progress, from the day it started, which Read ends.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -66,6 +66,9 @@ test.describe( 'Reading', () => {
 		requestUtils,
 	} ) => {
 		const posts = [];
+		const today = await page.evaluate( () =>
+			new Date().toLocaleDateString( 'sv' )
+		);
 
 		// A save that takes its time, so that the second change comes while the first one saves.
 		await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
@@ -91,7 +94,12 @@ test.describe( 'Reading', () => {
 
 		expect( posts ).toEqual( [
 			{ meta: { library_rating: 8 } },
-			{ meta: { library_in_progress: true } },
+			{
+				meta: {
+					library_in_progress: true,
+					library_reading: [ `${ today }/..` ],
+				},
+			},
 		] );
 
 		await expect
@@ -126,9 +134,58 @@ test.describe( 'Reading', () => {
 			.poll( async () =>
 				(
 					await getBook( requestUtils, book.id )
-				).meta.library_read_date.map( ( date ) => date.slice( 0, 10 ) )
+				).meta.library_reading.map( ( reading ) =>
+					reading.split( '/' )[ 1 ].slice( 0, 10 )
+				)
 			)
 			.toEqual( [ today ] );
 		await expect( read ).toBeFocused();
+	} );
+
+	test( 'a reading in progress, from the day it started, ends with Read', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await openApp( page, `&view=book&book=${ book.id }` );
+		await waitForIdle( page );
+
+		const started = page.locator(
+			'library-reading [name="library_started"]'
+		);
+		const today = await page.evaluate( () =>
+			new Date().toLocaleDateString( 'sv' )
+		);
+
+		await page
+			.locator( 'library-reading [name="library_in_progress"]' )
+			.check();
+		await waitForIdle( page );
+		await expect( started ).toHaveValue( today );
+
+		await started.fill( '2020-01-01' );
+		await waitForIdle( page );
+		await expect
+			.poll(
+				async () =>
+					( await getBook( requestUtils, book.id ) ).meta
+						.library_reading
+			)
+			.toEqual( [ '2020-01-01/..' ] );
+
+		await page.locator( 'library-reading [name="library_read"]' ).check();
+		await waitForIdle( page );
+		await expect
+			.poll( async () =>
+				(
+					await getBook( requestUtils, book.id )
+				).meta.library_reading.map( ( reading ) =>
+					reading.slice( 0, 21 )
+				)
+			)
+			.toEqual( [ `2020-01-01/${ today }` ] );
+		await expect(
+			page.locator( 'library-reading [name="library_reading_start"]' )
+		).toHaveValue( '2020-01-01' );
+		await expect( started ).toBeHidden();
 	} );
 } );

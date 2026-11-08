@@ -1,9 +1,13 @@
 import { statusOf, store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { today } from 'library-app/format';
-import { toDays } from 'library-app/api';
+import { toDays, toInterval } from 'library-app/api';
 import { fill } from 'library-app/render';
 import { inputList, showBusy, showErrors } from 'library-app/behaviors';
+
+/**
+ * @import { ReadingPeriod } from 'library-app/api'
+ */
 
 /**
  * The fields of the reading of a book, by their names.
@@ -11,18 +15,41 @@ import { inputList, showBusy, showErrors } from 'library-app/behaviors';
  * @typedef {Object} ReadingFields
  * @property {HTMLInputElement}  library_read        Whether it is read.
  * @property {HTMLInputElement}  library_in_progress Whether it is being read.
+ * @property {HTMLInputElement}  library_started     The day its reading in progress started.
  * @property {HTMLSelectElement} library_rating      Its rating.
  * @property {HTMLSelectElement} status              Whether it is in the library, not kept or to buy.
  */
 
-// Read dates by their days, in order, to compare: a reading of the day keeps its time once saved.
-const daysOf = ( dates ) => JSON.stringify( toDays( dates ) );
+/**
+ * The readings ended the form gives, a start and an end per row, by their days, either empty when it is unknown.
+ *
+ * @param {FormData} data The values of the form.
+ * @return {ReadingPeriod[]} The readings.
+ */
+function readingsOf( data ) {
+	// The values of date inputs are strings.
+	const starts = /** @type {string[]} */ (
+		data.getAll( 'library_reading_start' )
+	);
+	const ends = /** @type {string[]} */ (
+		data.getAll( 'library_reading_end' )
+	);
+
+	return starts.map( ( start, index ) => ( { start, end: ends[ index ] } ) );
+}
+
+// Readings by their days, as intervals in order, to compare: a reading of the day keeps its times once saved.
+const intervalsOf = ( /** @type {ReadingPeriod[]} */ readings ) =>
+	JSON.stringify(
+		readings.map( ( reading ) => toInterval( toDays( reading ) ) ).sort()
+	);
 
 /**
- * The reading of the book open, as a form: whether it is read, whether it is being read, its read dates, its rating and whether it is in
- * the library, not kept or to buy. A reading added ends the one in progress, as the server does. Each change is saved at once, and the
- * notice that says so offers Undo; a change made while the one before saves waits for it, the form showing what was chosen until then
- * rather than what the book was.
+ * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
+ * from their starts to their ends, its rating and whether it is in the library, not kept or to buy. A reading added ends
+ * the one in progress, from its start, as the server does. Each change is saved at once, and the notice that says so
+ * offers Undo; a change made while the one before saves waits for it, the form showing what was chosen until then rather
+ * than what the book was.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
@@ -30,18 +57,21 @@ class LibraryReadingElement extends Brick {
 		const {
 			library_read: $read,
 			library_in_progress: $inProgress,
+			library_started: $started,
 			library_rating: $rating,
 			status: $status,
 		} = /** @type {HTMLFormControlsCollection & ReadingFields} */ (
 			$form.elements
 		);
+		/** @type {HTMLElement} */
+		const $startedField = this.querySelector( '.library-reading__started' );
 		/** @type {HTMLFieldSetElement} */
-		const $dates = this.querySelector( '.library-reading__dates' );
-		const $list = $dates.querySelector( 'ul' );
+		const $readings = this.querySelector( '.library-reading__readings' );
+		const $list = $readings.querySelector( 'ul' );
 		/** @type {HTMLButtonElement} */
-		const $add = $dates.querySelector( '[data-action="add"]' );
+		const $add = $readings.querySelector( '[data-action="add"]' );
 		/** @type {HTMLButtonElement} */
-		const $addUnknown = $dates.querySelector(
+		const $addUnknown = $readings.querySelector(
 			'[data-action="add-unknown"]'
 		);
 		// Whether a change waits for the saving of the one before.
@@ -56,38 +86,83 @@ class LibraryReadingElement extends Brick {
 			$form.requestSubmit();
 		};
 
-		// A reading is today, unless changed, and never later; a reading whose date is unknown has no date input.
-		const addDate = inputList( {
+		// A start never after its end, an end never before its start, and neither later than today.
+		const limit = ( /** @type {Element} */ $row ) => {
+			const [ $start, $end ] = /** @type {HTMLInputElement[]} */ ( [
+				...$row.querySelectorAll( 'input[type="date"]' ),
+			] );
+
+			if ( $start && $end ) {
+				$start.max = $end.value || today();
+				$end.min = $start.value;
+				$end.max = today();
+			}
+		};
+
+		// A reading ends today, unless changed, from the start of the one in progress, which it ends; a reading whose dates
+		// are unknown has no date input.
+		const addReading = inputList( {
 			$list,
 			$add,
-			id: ( date ) =>
-				date ? 'library-read-date' : 'library-read-date-unknown',
+			id: ( interval ) =>
+				'/' === interval
+					? 'library-reading-unknown'
+					: 'library-reading-ended',
 			signal,
-			value: today,
-			setup: ( $input ) => {
-				$input.max = today();
+			value: () =>
+				`${ $inProgress.checked ? $started.value : '' }/${ today() }`,
+			setup: ( $start, interval ) => {
+				const [ start, end ] = interval.split( '/' );
+				const $row = $start.closest( 'li' );
+				/** @type {HTMLInputElement} */
+				const $end = $row.querySelector(
+					'[name="library_reading_end"]'
+				);
+
+				$start.value = start;
+				$end.value = end;
+				limit( $row );
 			},
 		} );
 
 		const clearErrors = showErrors( $form, signal );
+
+		// The day the reading in progress started, while there is one: today, unless changed, as it starts.
+		const showStarted = () => {
+			$started.max = today();
+			$started.disabled = ! $inProgress.checked;
+			$startedField.hidden = ! $inProgress.checked;
+
+			if ( $inProgress.checked && ! $started.value ) {
+				$started.value = today();
+			}
+		};
+
+		// Unread, the book has no readings ended: they are left out of the form.
+		const showReadings = () => {
+			$readings.disabled = ! $read.checked;
+			$readings.hidden = ! $read.checked;
+		};
 
 		// Its row has no input to focus: its button does. A book may have been read several times at dates unknown.
 		$addUnknown.addEventListener(
 			'click',
 			() =>
 				/** @type {HTMLButtonElement} */ (
-					addDate( '' )
+					addReading( '/' )
 						.closest( 'li' )
 						.querySelector( '[data-action="remove"]' )
 				).focus(),
 			{ signal }
 		);
 
+		// A reading added ends the one in progress, which its row took the start of.
 		[ $add, $addUnknown ].forEach( ( $button ) =>
 			$button.addEventListener(
 				'click',
 				() => {
 					$inProgress.checked = false;
+					showStarted();
 					save();
 				},
 				{ signal }
@@ -103,6 +178,15 @@ class LibraryReadingElement extends Brick {
 				) && save(),
 			{ signal }
 		);
+		$list.addEventListener(
+			'input',
+			( event ) =>
+				limit(
+					/** @type {Element} */ ( event.target ).closest( 'li' )
+				),
+			{ signal }
+		);
+		$inProgress.addEventListener( 'change', showStarted, { signal } );
 		$form.addEventListener( 'change', save, { signal } );
 
 		// Whether the form shows the reading of `book` already, such as the one it just saved: it stays as it is, its focus too.
@@ -112,30 +196,28 @@ class LibraryReadingElement extends Brick {
 			return (
 				data.has( 'library_read' ) === book.read &&
 				data.has( 'library_in_progress' ) === book.in_progress &&
-				daysOf( data.getAll( 'library_read_date' ) ) ===
-					daysOf( book.read_date ) &&
+				( ! book.in_progress ||
+					data.get( 'library_started' ) ===
+						book.started.slice( 0, 10 ) ) &&
+				intervalsOf( readingsOf( data ) ) ===
+					intervalsOf( book.readings ) &&
 				data.get( 'library_rating' ) ===
 					( book.rating || '' ).toString() &&
 				data.get( 'status' ) === statusOf( book )
 			);
 		};
 
-		// Unread, the book has no read dates: they are left out of the form.
-		const showDates = () => {
-			$dates.disabled = ! $read.checked;
-			$dates.hidden = ! $read.checked;
-		};
-
 		$read.addEventListener(
 			'change',
 			() => {
-				// Read today, unless a date is there already.
+				// Read today, from the start of the reading in progress, which it ends, unless a reading is there already.
 				if ( $read.checked && ! $list.children.length ) {
-					addDate();
+					addReading();
 					$inProgress.checked = false;
+					showStarted();
 				}
 
-				showDates();
+				showReadings();
 			},
 			{ signal }
 		);
@@ -151,9 +233,10 @@ class LibraryReadingElement extends Brick {
 					read: data.has( 'library_read' ),
 					inProgress: data.has( 'library_in_progress' ),
 					// The values of date inputs and selects are strings.
-					readDates: /** @type {string[]} */ (
-						data.getAll( 'library_read_date' )
+					started: /** @type {string} */ (
+						data.get( 'library_started' ) ?? ''
 					),
+					readings: readingsOf( data ),
 					rating: rating ? Number( rating ) : null,
 					status: /** @type {string} */ ( data.get( 'status' ) ),
 				} );
@@ -173,12 +256,14 @@ class LibraryReadingElement extends Brick {
 					clearErrors();
 					$read.checked = book.read;
 					$inProgress.checked = book.in_progress;
+					// By its day, as a date field takes it: a reading started today keeps its time once saved.
+					$started.value = book.started.slice( 0, 10 );
+					showStarted();
 					$list.replaceChildren();
-					// By its day, as a date field takes it: a reading of the day keeps its time once saved.
-					book.read_date.forEach( ( date ) =>
-						addDate( date.slice( 0, 10 ) )
+					book.readings.forEach( ( reading ) =>
+						addReading( toInterval( toDays( reading ) ) )
 					);
-					showDates();
+					showReadings();
 					$rating.value = ( book.rating || '' ).toString();
 					$status.value = statusOf( book );
 				}

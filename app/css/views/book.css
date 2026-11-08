@@ -47,6 +47,38 @@
 		border-top: 1px solid var(--app-line-soft);
 	}
 
+	/*
+	 * A reading ended: its start above its end, closer to each other than to the readings around, the button that removes
+	 * it beside them; on one line beyond a phone, an arrow between them, where two dates fit side by side
+	 */
+	.library-reading__item {
+		gap: var(--app-gap-small) var(--app-gap);
+
+		& > [data-action="remove"] {
+			grid-column: 2;
+			grid-row: 1 / span 2;
+		}
+	}
+
+	.library-reading__arrow {
+		display: none;
+	}
+
+	@media (min-width: 42rem) {
+		.library-reading__item {
+			grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+
+			& > [data-action="remove"] {
+				grid-column: auto;
+				grid-row: auto;
+			}
+		}
+
+		.library-reading__arrow {
+			display: revert;
+		}
+	}
+
 	.library-book__fields {
 		display: grid;
 		gap: var(--app-gap);

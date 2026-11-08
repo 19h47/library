@@ -122,9 +122,17 @@ class Metaboxes {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta.
 		$values = wp_unslash( $_POST );
 
-		// A book whose readings were all removed sends none, and so does one without edition language.
-		$values['library_read_date']         ??= array();
+		// The readings ended, a start and an end each, then the one in progress, since its start; a book whose readings were
+		// all removed sends none, and so does one without edition language.
+		$starts = (array) ( $values['library_reading_start'] ?? array() );
+		$ends   = (array) ( $values['library_reading_end'] ?? array() );
+
+		$values['library_reading']             = array_map( fn( $start, $end ) => "$start/$end", $starts, $ends );
 		$values['library_edition_languages'] ??= array();
+
+		if ( rest_sanitize_boolean( $values['library_in_progress'] ?? false ) ) {
+			$values['library_reading'][] = ( $values['library_started'] ?? '' ) . '/' . Meta::IN_PROGRESS;
+		}
 
 		Meta::save( $post_id, $values );
 

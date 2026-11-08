@@ -38,7 +38,7 @@ class Query {
 	 *
 	 * @var string[]
 	 */
-	public const array ORDERS = array( 'rating', 'read' );
+	public const array ORDERS = array( 'rating', 'read', 'started' );
 
 	/**
 	 * Register hooks.
@@ -210,8 +210,9 @@ class Query {
 	}
 
 	/**
-	 * Order the books by rating, highest first, or by latest read date, latest first; the books without come last, by
-	 * date added. A read date unknown orders nothing.
+	 * Order the books by rating, highest first, by latest read date, latest first, or by the start of their reading in
+	 * progress, latest first; the books without come last, by date added. A read date or a start unknown orders nothing.
+	 * The end of a reading follows its slash, its start comes before it.
 	 *
 	 * @param array<string,string> $clauses Query clauses.
 	 * @param WP_Query             $query   Query instance.
@@ -228,8 +229,13 @@ class Query {
 		}
 
 		if ( 'read' === $order ) {
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( meta_value ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date' AND meta_value != '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( SUBSTRING_INDEX( meta_value, '/', -1 ) ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value NOT LIKE '%/' AND meta_value NOT LIKE '%/..' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.read_date IS NULL, library_order.read_date DESC, {$wpdb->posts}.post_date DESC";
+		}
+
+		if ( 'started' === $order ) {
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( SUBSTRING_INDEX( meta_value, '/', 1 ) ) AS started FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value LIKE '_%/..' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['orderby'] = "library_order.started IS NULL, library_order.started DESC, {$wpdb->posts}.post_date DESC";
 		}
 
 		return $clauses;
@@ -386,8 +392,8 @@ class Query {
 
 				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
 			case 'read':
-				// A book is read once it has a reading, of a known date or not.
-				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date'";
+				// A book is read once it has a reading ended, of a known date or not.
+				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value NOT LIKE '%/..'";
 
 				if ( 'yes' === $value ) {
 					return $read;
@@ -402,9 +408,9 @@ class Query {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_read_date' AND meta_value LIKE %s", $value . '%' );
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND SUBSTRING_INDEX( meta_value, '/', -1 ) LIKE %s", $value . '%' );
 			case 'progress':
-				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_in_progress' AND meta_value = '1'";
+				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value LIKE '%/..'";
 
 				if ( 'yes' === $value ) {
 					return $in_progress;

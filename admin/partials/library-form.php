@@ -9,7 +9,7 @@
  * @subpackage Library/admin/partials
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
- * @var array             $values Values of the book, by meta key; the read dates as a list.
+ * @var array             $values Values of the book, by meta key; the readings as a list.
  * @var string            $series Series of the book, after its cycles, or empty.
  * @var string[]          $paths  Every series, after its cycles, to suggest.
  * @var WP_Term[]         $names  Names of the book, authors or with another role.
@@ -72,36 +72,58 @@ use Library\Meta;
 	</tr>
 
 	<?php
-	foreach ( array( 'library_collective', 'library_issn', 'library_read', 'library_in_progress' ) as $key ) {
+	foreach ( array( 'library_collective', 'library_issn', 'library_read' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
+
+	// The reading in progress, since its start: today when it starts.
+	$in_progress = array_find( $values['library_reading'], fn( string $reading ) => Meta::IN_PROGRESS === Meta::split_reading( $reading )[1] );
+	$started     = null !== $in_progress ? substr( Meta::split_reading( $in_progress )[0], 0, 10 ) : current_time( 'Y-m-d' );
 	?>
 
-	<!-- Read Dates -->
+	<!-- In progress -->
 	<tr>
 		<th scope="row">
-			<?php echo esc_html( Meta::get_label( 'library_read_date' ) ); ?>
+			<label for="library-in-progress"><?php echo esc_html( Meta::get_label( 'library_in_progress' ) ); ?></label>
 		</th>
 		<td>
-			<fieldset class="library-read-dates" aria-describedby="library-read-date-description">
-				<legend class="screen-reader-text"><?php echo esc_html( Meta::get_label( 'library_read_date' ) ); ?></legend>
+			<input type="hidden" name="library_in_progress" value="0">
+			<input id="library-in-progress" type="checkbox" name="library_in_progress" value="1" <?php checked( null !== $in_progress ); ?> aria-describedby="library-in-progress-description">
+			<label>
+				<?php esc_html_e( 'Started', 'library' ); ?>
+				<input type="date" name="library_started" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" value="<?php echo esc_attr( $started ); ?>">
+			</label>
+			<p class="description" id="library-in-progress-description"><?php echo esc_html( Meta::get_description( 'library_in_progress' ) ); ?></p>
+		</td>
+	</tr>
+
+	<!-- Readings -->
+	<tr>
+		<th scope="row">
+			<?php echo esc_html( Meta::get_label( 'library_reading' ) ); ?>
+		</th>
+		<td>
+			<fieldset class="library-readings" aria-describedby="library-reading-description">
+				<legend class="screen-reader-text"><?php echo esc_html( Meta::get_label( 'library_reading' ) ); ?></legend>
 				<ul>
-					<?php foreach ( $values['library_read_date'] as $read_date ) : ?>
-						<?php include __DIR__ . '/library-read-date.php'; ?>
+					<?php foreach ( $values['library_reading'] as $reading ) : ?>
+						<?php if ( $reading !== $in_progress ) : ?>
+							<?php include __DIR__ . '/library-reading.php'; ?>
+						<?php endif; ?>
 					<?php endforeach; ?>
 				</ul>
 				<button class="button" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
 				<template>
 					<?php
-					// A reading added is today, unless changed.
-					$read_date = current_time( 'Y-m-d' );
+					// A reading added ends today, unless changed.
+					$reading = '/' . current_time( 'Y-m-d' );
 
-					require __DIR__ . '/library-read-date.php';
+					require __DIR__ . '/library-reading.php';
 					?>
 				</template>
 			</fieldset>
-			<p class="description" id="library-read-date-description">
-				<?php esc_html_e( 'Optional. One date per reading, left empty when it is unknown. Setting a date marks the book as read; marking it as read without a date sets today.', 'library' ); ?>
+			<p class="description" id="library-reading-description">
+				<?php esc_html_e( 'Optional. One line per reading, from its start to its end, each left empty when it is unknown. Ending a reading marks the book as read; marking it as read without a reading ends one today.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>

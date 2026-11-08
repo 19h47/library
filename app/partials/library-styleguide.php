@@ -628,19 +628,19 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>input-list</code>, the read dates of a book, with a description, the first one unknown, the last one in error</figcaption>
+				<figcaption><code>input-list</code>, the readings of a book, from their starts to their ends, with a description, the first one of unknown dates, the last one in error</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
 						'input-list',
 						array(
-							'id'          => 'library-styleguide-dates',
-							'legend'      => 'Read dates',
-							'description' => 'One date per reading; a reading whose date is unknown has none.',
+							'id'          => 'library-styleguide-readings',
+							'legend'      => 'Readings',
+							'description' => 'From its start to its end, each one left empty when it is unknown.',
 							'add'         => 'Add a reading',
 							'action'      => 'add',
 							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
-							'list'        => array( 'data-sample' => 'dates' ),
+							'list'        => array( 'data-sample' => 'readings' ),
 						)
 					);
 					?>

@@ -17,6 +17,7 @@ const monthFormat = new Intl.DateTimeFormat( lang, {
 const andFormat = new Intl.ListFormat( lang );
 const languageNames = new Intl.DisplayNames( lang, { type: 'language' } );
 const { language: pageLanguage } = new Intl.Locale( lang );
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const dayFormat = new Intl.DateTimeFormat( lang, {
 	day: 'numeric',
@@ -145,6 +146,33 @@ export function formatDate( date, format = dateFormat ) {
 }
 
 /**
+ * How long the latest reading of a book took, when its start and its end are known: "12 days", the day it started and
+ * the day it ended counted; empty otherwise.
+ *
+ * @param {Book} book The book.
+ * @return {string} How long it took, or empty.
+ */
+export function formatReadingTime( book ) {
+	const reading = book.readings.at( -1 );
+
+	if ( ! reading?.start || ! reading.end ) {
+		return '';
+	}
+
+	const [ start, end ] = [ reading.start, reading.end ].map( ( date ) =>
+		new Date( `${ date.slice( 0, 10 ) }T00:00` ).getTime()
+	);
+	// A day of a change of time is an hour shorter or longer.
+	const days = Math.round( ( end - start ) / DAY_MS ) + 1;
+
+	return sprintf(
+		/* translators: %s: number of days a reading took, the first and the last counted, e.g. 12. */
+		_n( '%s day', '%s days', days, 'library' ),
+		formatNumber( days )
+	);
+}
+
+/**
  * A rating out of 10: "7.5/10"; none for none.
  *
  * @param {number} rating The rating, 0 for none.
@@ -268,7 +296,7 @@ export function formatStatus( book ) {
  * @return {string} Its state.
  */
 export function formatState( book ) {
-	const readings = book.read_date.length;
+	const readings = book.readings.length;
 	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
 	const read =
 		readings > 1

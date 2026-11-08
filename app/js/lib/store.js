@@ -26,7 +26,7 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
 /**
- * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ReadingPeriod, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -124,7 +124,7 @@ import * as api from 'library-app/api';
  * @property {Object}      meta                     Its meta.
  * @property {boolean}     meta.library_read        Whether it is read.
  * @property {boolean}     meta.library_in_progress Whether it is being read.
- * @property {string[]}    meta.library_read_date   Its read dates, by their days, an unknown date empty.
+ * @property {string[]}    meta.library_reading     Its readings, by their days, as intervals: 2026-10-20/2026-11-02.
  * @property {number|null} meta.library_rating      Its rating, none for none.
  * @property {string}      [status]                 Its status, unless another one than in the library, not kept or to buy.
  */
@@ -306,8 +306,25 @@ function searchOf( { query, read } ) {
 }
 
 /**
+ * The readings of `book` by their days, as the form gives them, as intervals: the ones ended, then the one in progress.
+ *
+ * @param {Book} book The book.
+ * @return {string[]} Its readings.
+ */
+function intervalsOf( book ) {
+	const ended = book.readings.map( ( reading ) =>
+		api.toInterval( api.toDays( reading ) )
+	);
+	const started = book.started.slice( 0, 10 );
+
+	return book.in_progress
+		? [ ...ended, `${ started }/${ api.IN_PROGRESS }` ]
+		: ended;
+}
+
+/**
  * The reading of `book`, as the route of its form takes it, to put it back as it was: whether it is read and being read,
- * its read dates by their days, as the form gives them, its rating, and its status unless another one, such as a draft.
+ * its readings by their days, as the form gives them, its rating, and its status unless another one, such as a draft.
  *
  * @param {Book} book The book.
  * @return {BookReading} Its reading.
@@ -316,7 +333,7 @@ function readingOf( book ) {
 	const meta = {
 		library_read: book.read,
 		library_in_progress: book.in_progress,
-		library_read_date: api.toDays( book.read_date ),
+		library_reading: intervalsOf( book ),
 		library_rating: book.rating || null,
 	};
 
@@ -328,7 +345,7 @@ function readingOf( book ) {
 /**
  * What a list asks the API for: `search` the books the search finds, of the status chosen, else of any status but
  * to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen; `toBuy` the books
- * to buy; `inProgress` the books being read.
+ * to buy; `inProgress` the books being read, the latest started first.
  *
  * @param {List}  list  The list.
  * @param {State} state The state, its search and filters.
@@ -340,7 +357,7 @@ function queryOf( list, state ) {
 	}
 
 	if ( 'inProgress' === list ) {
-		return { search: 'progress:yes', status: statuses };
+		return { search: 'progress:yes', status: statuses, orderby: 'started' };
 	}
 
 	const search = searchOf( state );
@@ -1047,27 +1064,32 @@ class LibraryStore extends Store {
 
 	/**
 	 * Saves the reading of the book open, which says so, with Undo. Only what changed is sent, so a value the form
-	 * cannot show stays as it is; marked as unread, the book loses its read dates on the server.
-	 * It goes through the route of the book form, which writes the read dates at once: the core API, which
-	 * removes a meta value by value, would remove them all with an unknown date, empty.
+	 * cannot show stays as it is; marked as unread, the book loses its readings ended on the server.
+	 * It goes through the route of the book form, which writes the readings at once: the core API, which removes a
+	 * meta value by value, would remove two readings of unknown dates, the same, together.
 	 *
-	 * @param {Object}      reading            The reading, as the form gives it.
-	 * @param {boolean}     reading.read       Whether the book is read.
-	 * @param {boolean}     reading.inProgress Whether it is being read.
-	 * @param {string[]}    reading.readDates  Its read dates, by their days, an unknown date empty.
-	 * @param {number|null} reading.rating     Its rating, none for none.
-	 * @param {string}      reading.status     Its status, as the form shows it.
+	 * @param {Object}          reading            The reading, as the form gives it.
+	 * @param {boolean}         reading.read       Whether the book is read.
+	 * @param {boolean}         reading.inProgress Whether it is being read.
+	 * @param {string}          reading.started    The day its reading in progress started, or empty.
+	 * @param {ReadingPeriod[]} reading.readings   Its readings ended, by their days.
+	 * @param {number|null}     reading.rating     Its rating, none for none.
+	 * @param {string}          reading.status     Its status, as the form shows it.
 	 */
 	async saveReading( {
 		read,
 		inProgress,
-		readDates,
+		started,
+		readings,
 		rating,
 		status: chosen,
 	} ) {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
-		const dates = api.toDays( readDates );
+		const ended = readings.map( api.toInterval );
+		const intervals = inProgress
+			? [ ...ended, `${ started }/${ api.IN_PROGRESS }` ]
+			: ended;
 		// A book in another status, such as a draft, stays in it unless another one is chosen.
 		const status = chosen === statusOf( book ) ? book.status : chosen;
 		/** @type {Object<string, unknown>} */
@@ -1081,15 +1103,11 @@ class LibraryStore extends Store {
 			meta.library_in_progress = inProgress;
 		}
 
-		// By their days, as the form gives them: the server keeps the time of a reading of the day.
-		const saved = api.toDays( book.read_date );
-		// One by one: an unknown date, empty, is a reading, which a book without reading has not.
-		const datesChanged =
-			dates.length !== saved.length ||
-			dates.some( ( date, index ) => date !== saved[ index ] );
+		// By their days, as the form gives them, in any order: the server keeps the time of a reading of the day.
+		const saved = intervalsOf( book );
 
-		if ( read && datesChanged ) {
-			meta.library_read_date = dates;
+		if ( [ ...intervals ].sort().join() !== [ ...saved ].sort().join() ) {
+			meta.library_reading = intervals;
 		}
 
 		if ( rating !== ( book.rating || null ) ) {

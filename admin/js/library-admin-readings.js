@@ -1,11 +1,11 @@
 /**
- * Read dates of the book information metabox: "Add a reading" adds a date, today unless changed, and each reading has
+ * Readings of the book information metabox: "Add a reading" adds one, ended today unless changed, and each reading has
  * a button that removes it, as in the reading app.
  */
 ( () => {
 	'use strict';
 
-	const fieldset = document.querySelector( '.library-read-dates' );
+	const fieldset = document.querySelector( '.library-readings' );
 
 	if ( ! fieldset ) {
 		return;

@@ -4,6 +4,7 @@ import { Brick } from 'library-app/brick';
 import {
 	formatDate,
 	formatNumber,
+	formatReadingTime,
 	formatTranslation,
 	listFormat,
 } from 'library-app/format';
@@ -95,6 +96,7 @@ class LibraryBookElement extends Brick {
 			published_date: book.published_date
 				? formatDate( book.published_date )
 				: '',
+			reading_time: formatReadingTime( book ),
 		} );
 		linkPeople(
 			this.querySelector( '[data-field="authors"]' ),

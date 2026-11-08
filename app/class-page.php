@@ -222,8 +222,9 @@ class Page {
 			if ( '' === $query ) {
 				$paths[] = $list(
 					array(
-						'search' => 'progress:yes',
-						'status' => $statuses,
+						'search'  => 'progress:yes',
+						'status'  => $statuses,
+						'orderby' => 'started',
 					)
 				);
 				$paths[] = '/library/v1/books/readings?page=1';

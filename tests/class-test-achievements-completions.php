@@ -688,8 +688,8 @@ class Test_Achievements_Completions extends TestCase {
 			wp_json_encode(
 				array(
 					'meta' => array(
-						'library_read'      => true,
-						'library_read_date' => array( $read_date ),
+						'library_read'    => true,
+						'library_reading' => array( "/$read_date" ),
 					),
 				)
 			)
