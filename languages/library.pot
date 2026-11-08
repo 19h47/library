@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 9.30.1\n"
+"Project-Id-Version: Library 9.31.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T19:55:23+00:00\n"
+"POT-Creation-Date: 2026-11-08T07:38:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: admin/class-books-list.php:93
 #: admin/partials/library-read-date.php:29
-#: app/partials/library-app.php:916
+#: app/partials/library-app.php:918
 msgid "Read date"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:151
-#: app/partials/library-app.php:934
+#: app/partials/library-app.php:936
 msgid "Unknown date"
 msgstr ""
 
@@ -600,10 +600,10 @@ msgid "The role of each name of the book: a colorist, for instance, is not one o
 msgstr ""
 
 #: admin/partials/library-read-date.php:35
-#: app/partials/library-app.php:925
-#: app/partials/library-app.php:926
-#: app/partials/library-app.php:939
-#: app/partials/library-app.php:940
+#: app/partials/library-app.php:927
+#: app/partials/library-app.php:928
+#: app/partials/library-app.php:941
+#: app/partials/library-app.php:942
 msgid "Remove this reading"
 msgstr ""
 
@@ -621,6 +621,20 @@ msgstr ""
 
 #: app/class-page.php:319
 msgid "To buy"
+msgstr ""
+
+#: app/components/checkboxes-field.php:44
+msgid "Remove:"
+msgstr ""
+
+#: app/components/checkboxes-field.php:53
+#: app/partials/library-app.php:210
+#: app/partials/library-app.php:663
+msgid "Close"
+msgstr ""
+
+#: app/components/checkboxes-field.php:75
+msgid "Done"
 msgstr ""
 
 #: app/components/covers-toggle.php:22
@@ -703,11 +717,6 @@ msgstr ""
 
 #: app/partials/library-app.php:201
 msgid "Remove the filter:"
-msgstr ""
-
-#: app/partials/library-app.php:210
-#: app/partials/library-app.php:663
-msgid "Close"
 msgstr ""
 
 #: app/partials/library-app.php:238
@@ -840,32 +849,37 @@ msgstr ""
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:825
+#: app/partials/library-app.php:797
+#: app/partials/library-app.php:808
+msgid "Add a language"
+msgstr ""
+
+#: app/partials/library-app.php:827
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:837
+#: app/partials/library-app.php:839
 msgid "Notes"
 msgstr ""
 
-#: app/partials/library-app.php:849
+#: app/partials/library-app.php:851
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:849
+#: app/partials/library-app.php:851
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:853
+#: app/partials/library-app.php:855
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:965
+#: app/partials/library-app.php:967
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:975
-#: app/partials/library-app.php:976
+#: app/partials/library-app.php:977
+#: app/partials/library-app.php:978
 msgid "Remove this person"
 msgstr ""
 
@@ -1338,7 +1352,7 @@ msgid "Volume 1 read after a later volume"
 msgstr ""
 
 #: includes/class-bnf.php:166
-#: app/js/bricks/library-edit.js:505
+#: app/js/bricks/library-edit.js:511
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr ""
 
@@ -1921,7 +1935,7 @@ msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 
 #: includes/class-rest-api.php:601
-#: app/js/bricks/library-edit.js:501
+#: app/js/bricks/library-edit.js:507
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
@@ -2358,11 +2372,11 @@ msgstr ""
 msgid "Read again"
 msgstr ""
 
-#: app/js/bricks/library-edit.js:493
+#: app/js/bricks/library-edit.js:499
 msgid "Searching the catalogue of the BnF…"
 msgstr ""
 
-#: app/js/bricks/library-edit.js:497
+#: app/js/bricks/library-edit.js:503
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr ""
 

@@ -19,8 +19,11 @@
 		cursor: pointer;
 	}
 
-	/* The details, a field or a pill per line, such as a collective work, a step apart */
-	.library-edit__details :is(.library-field, .app-pill) {
+	/*
+	 * The details, a field or a pill per line, such as a collective work, a step apart; the pills of a row, such as the
+	 * languages, keep the gap of their row
+	 */
+	.library-edit__details > :is(.library-field, .app-pill, library-choices) {
 		margin-top: var(--app-u1);
 	}
 }

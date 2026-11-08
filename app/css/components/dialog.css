@@ -1,10 +1,10 @@
 /**
- * Dialogs over the page: the filters of the books and the form of a book.
+ * Dialogs over the page: the filters of the books, the choices of a field and the form of a book.
  */
 
 @layer library.components {
-	/* The filters: on a phone, a sheet from the bottom of the screen; beyond, a dialog in the middle, as the one of a book */
-	.library-filters__dialog {
+	/* A sheet, the filters or the choices of a field: on a phone, from the bottom of the screen; beyond, a dialog in the middle, as the one of a book */
+	.library-sheet {
 		width: 100%;
 		max-width: none;
 		max-height: calc(100dvh - var(--app-u3));
@@ -33,7 +33,7 @@
 	}
 
 	@media (min-width: 42rem) {
-		.library-filters__dialog {
+		.library-sheet {
 			width: min(100% - 2 * var(--app-u2), var(--app-max-width));
 			margin: auto;
 			padding: var(--app-u3);

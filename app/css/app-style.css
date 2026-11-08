@@ -4,7 +4,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 63dd12c.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 4156900.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -381,64 +381,69 @@
    *
    * Its picker floats as a panel, a gap away: the browser keeps it within the screen, below or above its select, and
    * lets it scroll. The chevron of the select stands for the icon of the picker.
+   *
+   * With a mouse or a trackpad only: a touch screen keeps the picker of the system, made for a finger, where the one of
+   * Safari 27 on a phone, as long as twenty ratings, was hard to pick from.
    */
   @supports (appearance: base-select) {
-    .app-pill select,
-    .app-pill select::picker(select) {
-      appearance: base-select;
-    }
+    @media (pointer: fine) {
+      .app-pill select,
+      .app-pill select::picker(select) {
+        appearance: base-select;
+      }
 
-    .app-pill select > button {
-      display: flex;
-      align-items: baseline;
-      gap: var(--app-gap);
-    }
+      .app-pill select > button {
+        display: flex;
+        align-items: baseline;
+        gap: var(--app-gap);
+      }
 
-    .app-pill select::picker-icon {
-      display: none;
-    }
+      .app-pill select::picker-icon {
+        display: none;
+      }
 
-    /*
-     * Written rather than left to the browser, which does not keep a long picker within the screen everywhere, such as
-     * Safari 27 with twenty options: below its select or above it, whole where it fits, else as high as the room of the
-     * side with the most, scrolling beyond. A picker held to its room fits everywhere: that one comes last.
-     */
-    .app-pill select::picker(select) {
-      position-area: block-end span-inline-end;
-      position-try:
-        most-block-size flip-block, flip-inline, flip-block flip-inline,
-        --app-picker-held, --app-picker-held flip-block, --app-picker-held flip-inline, --app-picker-held flip-block flip-inline;
-      overflow-y: auto;
-      margin-block: var(--app-gap);
-      padding: var(--app-gap-small);
-      border: 1px solid var(--app-line-soft);
-      border-radius: var(--app-radius);
-      background: var(--app-bg);
-      color: var(--app-text-muted);
-      /* An option reads as it is written */
-      text-transform: none;
-    }
+      /*
+       * Written rather than left to the browser, which does not keep a long picker within the screen everywhere, such as
+       * Safari 27 with twenty options: below its select or above it, whole where it fits, else as high as the room of the
+       * side with the most, scrolling beyond. A picker held to its room fits everywhere: that one comes last.
+       */
+      .app-pill select::picker(select) {
+        position-area: block-end span-inline-end;
+        position-try:
+          most-block-size flip-block, flip-inline, flip-block flip-inline,
+          --app-picker-held, --app-picker-held flip-block, --app-picker-held flip-inline, --app-picker-held flip-block flip-inline;
+        overflow-y: auto;
+        margin-block: var(--app-gap);
+        padding: var(--app-gap-small);
+        border: 1px solid var(--app-line-soft);
+        border-radius: var(--app-radius);
+        background: var(--app-bg);
+        color: var(--app-text-muted);
+        /* An option reads as it is written */
+        text-transform: none;
+      }
 
-    .app-pill option {
-      padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
-      border-radius: calc(var(--app-radius) - var(--app-gap-small));
-    }
+      .app-pill option {
+        padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
+        border-radius: calc(var(--app-radius) - var(--app-gap-small));
+      }
 
-    .app-pill option:is(:hover, :focus-visible, :checked) {
-      color: var(--app-text);
-    }
+      .app-pill option:is(:hover, :focus-visible, :checked) {
+        color: var(--app-text);
+      }
 
-    .app-pill option:is(:hover, :focus-visible) {
-      background: var(--app-fill);
-    }
+      .app-pill option:is(:hover, :focus-visible) {
+        background: var(--app-fill);
+      }
 
-    /* Inside the picker, which would clip it */
-    .app-pill option:focus-visible {
-      outline-offset: calc(-1 * var(--app-focus-outline-offset));
-    }
+      /* Inside the picker, which would clip it */
+      .app-pill option:focus-visible {
+        outline-offset: calc(-1 * var(--app-focus-outline-offset));
+      }
 
-    @position-try --app-picker-held {
-      max-block-size: stretch;
+      @position-try --app-picker-held {
+        max-block-size: stretch;
+      }
     }
   }
 

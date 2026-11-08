@@ -205,7 +205,7 @@ use Library\Meta;
 									<?php endforeach; ?>
 								<?php endforeach; ?>
 							</p>
-							<dialog class="library-filters__dialog" aria-labelledby="library-filters-title">
+							<dialog class="library-sheet" aria-labelledby="library-filters-title">
 								<form class="app-toolbar" method="dialog">
 									<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
 								</form>
@@ -794,6 +794,7 @@ use Library\Meta;
 								'id'      => 'library-edit-languages',
 								'label'   => $language_labels->name_for_book,
 								'name'    => 'languages',
+								'add'     => __( 'Add a language', 'library' ),
 								'choices' => $language_choices,
 							)
 						);
@@ -804,6 +805,7 @@ use Library\Meta;
 								'id'          => 'library-edit-edition-languages',
 								'label'       => Meta::get_label( 'library_edition_languages' ),
 								'name'        => 'library_edition_languages',
+								'add'         => __( 'Add a language', 'library' ),
 								'choices'     => $language_choices,
 								'checked'     => array( $own_language_id ),
 								'description' => Meta::get_description( 'library_edition_languages' ),

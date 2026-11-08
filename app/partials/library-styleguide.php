@@ -302,9 +302,9 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-filters__dialog</code>, the filters, a sheet from the bottom of the screen on a phone, a dialog beyond, drawn here in its place</figcaption>
+				<figcaption><code>.library-sheet</code>, the filters or the choices of a field, a sheet from the bottom of the screen on a phone, a dialog beyond, drawn here in its place</figcaption>
 				<div class="library-styleguide__frame">
-					<dialog class="library-filters__dialog" open>
+					<dialog class="library-sheet" open>
 						<p class="app-toolbar">
 							<button class="app-control" type="button" aria-label="Close">×</button>
 						</p>
@@ -572,7 +572,7 @@ with its line breaks.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>checkboxes-field</code>, a pill per choice, two checked, with a description</figcaption>
+				<figcaption><code>checkboxes-field</code>, two choices made, a pill each that removes it, the button that opens all of them in a sheet, a checkbox each, with a description</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -581,6 +581,7 @@ with its line breaks.</p>
 							'id'          => 'library-styleguide-choices',
 							'label'       => 'Choices',
 							'name'        => 'choices',
+							'add'         => 'Add a choice',
 							'choices'     => array(
 								'en' => 'English',
 								'fr' => 'French',

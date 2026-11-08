@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.30.1
+Stable tag: 9.31.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,11 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.31.0 =
+* Changed: reading app: the languages of a book in its form show the ones chosen, a pill each that removes it, and a button that opens all of them in a sheet, a checkbox each, rather than a pill for every language of the library.
+* Changed: reading app: the walls of covers of a recap keep the shape of each book, in masonry where the browser lays out grid lanes, as Safari 26.4.
+* Changed: reading app: on a touch screen, a select, such as the rating of a book, opens the picker of the system, made for a finger, rather than the one of the app, which Safari 27 made hard to pick from on a phone.
 
 = 9.30.1 =
 * Fixed: reading app: nothing goes out of a phone of 320 px any more: a pill longer than the line, such as the name of a long series, goes on several lines, and the button that removes a read date stays in the form.
