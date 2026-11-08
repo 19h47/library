@@ -47,9 +47,9 @@ const intervalsOf = ( /** @type {ReadingPeriod[]} */ readings ) =>
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
  * from their starts to their ends, its rating and whether it is in the library, not kept or to buy. A reading added ends
- * the one in progress, from its start, as the server does. Each change is saved at once, and the notice that says so
- * offers Undo; a change made while the one before saves waits for it, the form showing what was chosen until then rather
- * than what the book was.
+ * the one in progress, from its start, as the server does. Each change is saved at once, a date typed once left, a field
+ * in error showing it without taking the focus, and the notice that says so offers Undo; a change made while the one
+ * before saves waits for it, the form showing what was chosen until then rather than what the book was.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
@@ -76,6 +76,13 @@ class LibraryReadingElement extends Brick {
 		);
 		// Whether a change waits for the saving of the one before.
 		let isPending = false;
+		/**
+		 * The date field typed in, which changes at each key, through the dates on the way, such as the year 0002 of 2025:
+		 * it is saved once left.
+		 *
+		 * @type {HTMLInputElement|null}
+		 */
+		let $typed = null;
 		// The date fields check theirs first, such as a date later than today: an invalid one is not sent.
 		const save = () => {
 			if ( store.get().saving.loading ) {
@@ -125,7 +132,7 @@ class LibraryReadingElement extends Brick {
 			},
 		} );
 
-		const clearErrors = showErrors( $form, signal );
+		const clearErrors = showErrors( $form, signal, { focus: false } );
 
 		// The day the reading in progress started, while there is one: today, unless changed, as it starts.
 		const showStarted = () => {
@@ -187,7 +194,32 @@ class LibraryReadingElement extends Brick {
 			{ signal }
 		);
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
-		$form.addEventListener( 'change', save, { signal } );
+		$form.addEventListener(
+			'change',
+			( event ) => {
+				const $field = /** @type {HTMLInputElement} */ ( event.target );
+
+				if ( 'date' === $field.type && $field.matches( ':focus' ) ) {
+					$typed = $field;
+					return;
+				}
+
+				save();
+			},
+			{ signal }
+		);
+		$form.addEventListener(
+			'focusout',
+			( event ) => {
+				if ( event.target !== $typed ) {
+					return;
+				}
+
+				$typed = null;
+				save();
+			},
+			{ signal }
+		);
 
 		// Whether the form shows the reading of `book` already, such as the one it just saved: it stays as it is, its focus too.
 		const isShown = ( book ) => {
@@ -248,8 +280,8 @@ class LibraryReadingElement extends Brick {
 			store.select(
 				( state ) => state.books[ state.book ] ?? null,
 				( book ) => {
-					// A change waiting to be saved keeps what was chosen, which it sends.
-					if ( ! book || isPending || isShown( book ) ) {
+					// A change waiting to be saved, or a date being typed, keeps what was chosen, which it sends.
+					if ( ! book || isPending || $typed || isShown( book ) ) {
 						return;
 					}
 

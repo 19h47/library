@@ -1,6 +1,7 @@
 /**
  * The reading of a book in the reading app: each change saved at once, with Undo, a change made while the one before
- * saves, the focus kept; a reading in progress, from the day it started, which Read ends.
+ * saves, the focus kept; a reading in progress, from the day it started, which Read ends; a date typed, saved once left,
+ * its error shown then, without taking the focus, and gone as soon as it is valid.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -11,6 +12,26 @@ import {
 	openApp,
 	waitForIdle,
 } from './library.js';
+
+/**
+ * Types `dates` in the date field `$field` as Chrome and Firefox give them, focused: a date at each key, through the
+ * dates on the way, each with an input and a change event.
+ *
+ * @param {import('@playwright/test').Locator} $field The date field.
+ * @param {string[]}                           dates  The dates, one per key.
+ * @return {Promise<void>}
+ */
+async function typeDates( $field, dates ) {
+	await $field.focus();
+
+	for ( const date of dates ) {
+		await $field.evaluate( ( $input, value ) => {
+			$input.value = value;
+			$input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			$input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		}, date );
+	}
+}
 
 test.describe( 'Reading', () => {
 	let book;
@@ -161,6 +182,7 @@ test.describe( 'Reading', () => {
 		await expect( started ).toHaveValue( today );
 
 		await started.fill( '2020-01-01' );
+		await started.blur();
 		await waitForIdle( page );
 		await expect
 			.poll(
@@ -181,5 +203,96 @@ test.describe( 'Reading', () => {
 			page.locator( 'library-reading [name="library_reading_start"]' )
 		).toHaveValue( '2020-01-01' );
 		await expect( started ).toBeHidden();
+	} );
+
+	test.describe( 'a date typed', () => {
+		const posts = [];
+
+		test.beforeEach( async ( { page, requestUtils } ) => {
+			posts.length = 0;
+			await requestUtils.rest( {
+				method: 'POST',
+				path: `/library/v1/books/${ book.id }`,
+				data: {
+					meta: { library_reading: [ '2025-03-10/2025-03-20' ] },
+				},
+			} );
+			await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
+				if ( 'POST' === route.request().method() ) {
+					posts.push( route.request().postDataJSON() );
+				}
+
+				await route.continue();
+			} );
+			await openApp( page, `&view=book&book=${ book.id }` );
+			await waitForIdle( page );
+		} );
+
+		test( 'is saved once left, without an error on the way', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			const end = page.locator(
+				'library-reading [name="library_reading_end"]'
+			);
+
+			// The year 0002, then 0020 and 0202, on the way to 2025, before its start.
+			await typeDates( end, [
+				'2025-03-01',
+				'2025-03-15',
+				'0002-03-15',
+				'0020-03-15',
+				'0202-03-15',
+				'2025-03-15',
+			] );
+			await expect(
+				page.locator( 'library-reading [aria-invalid="true"]' )
+			).toHaveCount( 0 );
+			expect( posts ).toEqual( [] );
+
+			await end.blur();
+			await waitForIdle( page );
+
+			expect( posts ).toEqual( [
+				{ meta: { library_reading: [ '2025-03-10/2025-03-15' ] } },
+			] );
+			await expect
+				.poll(
+					async () =>
+						( await getBook( requestUtils, book.id ) ).readings
+				)
+				.toEqual( [ '2025-03-10/2025-03-15' ] );
+		} );
+
+		test( 'before its start shows its error once left, the focus going on, until the start goes before it', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			const start = page.locator(
+				'library-reading [name="library_reading_start"]'
+			);
+			const end = page.locator(
+				'library-reading [name="library_reading_end"]'
+			);
+
+			await typeDates( end, [ '2025-03-05' ] );
+			await start.focus();
+
+			await expect( end ).toHaveAttribute( 'aria-invalid', 'true' );
+			await expect( start ).toBeFocused();
+			expect( posts ).toEqual( [] );
+
+			await typeDates( start, [ '2025-03-01' ] );
+			await expect( end ).not.toHaveAttribute( 'aria-invalid' );
+
+			await start.blur();
+			await waitForIdle( page );
+			await expect
+				.poll(
+					async () =>
+						( await getBook( requestUtils, book.id ) ).readings
+				)
+				.toEqual( [ '2025-03-01/2025-03-05' ] );
+		} );
 	} );
 } );
