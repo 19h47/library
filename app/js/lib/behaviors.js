@@ -342,14 +342,18 @@ function clearError( $field ) {
 
 /**
  * Shows at its fields what the browser finds wrong with `$form` when it is sent, rather than in a bubble on the first one:
- * the details that hold a field in error open, the first one takes the focus. A field changed loses its error once valid.
+ * the details that hold a field in error open, the first one takes the focus, unless `focus` is false, as for a form saved
+ * as it changes, which leaves the focus where it went. A field in error loses it once valid, as it changes or as another
+ * one bounds it, such as an end by its start; it shows it again only when the form is sent, not at each key on the way.
  * Returns the function that clears the errors, for a form filled again.
  *
- * @param {HTMLFormElement} $form  The form.
- * @param {AbortSignal}     signal Removes the listeners.
+ * @param {HTMLFormElement} $form           The form.
+ * @param {AbortSignal}     signal          Removes the listeners.
+ * @param {Object}          [options]       Options.
+ * @param {boolean}         [options.focus] Whether the first field in error takes the focus, true by default.
  * @return {() => void} The function that clears the errors.
  */
-export function showErrors( $form, signal ) {
+export function showErrors( $form, signal, { focus = true } = {} ) {
 	let focused = false;
 
 	// The browser tells each field in error, one after the other, as the form is sent.
@@ -362,7 +366,7 @@ export function showErrors( $form, signal ) {
 			showError( $field );
 			$field.closest( 'details' )?.setAttribute( 'open', '' );
 
-			if ( ! focused ) {
+			if ( focus && ! focused ) {
 				focused = true;
 				$field.focus();
 				setTimeout( () => {
@@ -375,19 +379,13 @@ export function showErrors( $form, signal ) {
 
 	$form.addEventListener(
 		'input',
-		( event ) => {
-			const $field = /** @type {Field} */ ( event.target );
-
-			if ( 'true' !== $field.getAttribute( 'aria-invalid' ) ) {
-				return;
-			}
-
-			if ( $field.validity.valid ) {
-				clearError( $field );
-			} else {
-				showError( $field );
-			}
-		},
+		() =>
+			$form
+				.querySelectorAll( '[aria-invalid="true"]' )
+				.forEach(
+					( /** @type {Field} */ $field ) =>
+						$field.validity.valid && clearError( $field )
+				),
 		{ signal }
 	);
 

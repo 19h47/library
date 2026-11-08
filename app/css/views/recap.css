@@ -300,6 +300,129 @@
 		padding-block-end: var(--app-gap-small);
 	}
 
+	/*
+	 * The screen of the days, over the calendar of the year, a backdrop as the columns of the last screen, fading at its
+	 * top and its bottom; drawn only while on the screen.
+	 */
+	.library-recap__days {
+		position: relative;
+		isolation: isolate;
+	}
+
+	/* The frame, its padding inside, which the days fill, their rows in its middle, past it when higher */
+	.library-recap__calendar {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		display: grid;
+		align-content: center;
+		padding: var(--library-recap-padding);
+		overflow: clip;
+		border-radius: inherit;
+		container-type: size;
+		mask-image: linear-gradient(transparent, black 25%, black 75%, transparent);
+		content-visibility: auto;
+		pointer-events: none;
+	}
+
+	/*
+	 * Over the days, the background of the page, as a veil: they show through it a little, 1 / φ³ of them, 1 / φ⁴ in the dark,
+	 * so that the words over them read as well, even the muted ones over the darkest day.
+	 */
+	.library-recap__calendar::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: light-dark(
+			color-mix(in srgb, var(--app-bg) calc(100% - 100% / var(--app-phi) / var(--app-phi) / var(--app-phi)), transparent),
+			color-mix(in srgb, var(--app-bg) calc(100% - 100% / var(--app-phi) / var(--app-phi) / var(--app-phi) / var(--app-phi)), transparent)
+		);
+	}
+
+	/*
+	 * The days in weeks from Monday, squares as wide as the frame lets them, as many weeks a row as keep their rows
+	 * closest to its height: two on a phone, more as the frame widens.
+	 */
+	.library-recap__calendar ol {
+		--library-recap-gap: calc(var(--app-gap-small) / 2);
+
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: var(--library-recap-gap);
+	}
+
+	/*
+	 * A week more a row as the frame widens: from w weeks to w + 1 at a ratio of w (w + 1) × 7 / 53, where both are as
+	 * far from its height
+	 */
+	@container (aspect-ratio > 4 / 15) {
+		.library-recap__calendar ol {
+			grid-template-columns: repeat(14, 1fr);
+		}
+	}
+
+	@container (aspect-ratio > 4 / 5) {
+		.library-recap__calendar ol {
+			grid-template-columns: repeat(21, 1fr);
+		}
+	}
+
+	@container (aspect-ratio > 8 / 5) {
+		.library-recap__calendar ol {
+			grid-template-columns: repeat(28, 1fr);
+		}
+	}
+
+	@container (aspect-ratio > 8 / 3) {
+		.library-recap__calendar ol {
+			grid-template-columns: repeat(35, 1fr);
+		}
+	}
+
+	@container (aspect-ratio > 4) {
+		.library-recap__calendar ol {
+			grid-template-columns: repeat(42, 1fr);
+		}
+	}
+
+	/* A day, a square as dark as its level, from the lines to the muted text: a day without reading, their fill */
+	.library-recap__calendar li {
+		aspect-ratio: 1;
+		border-radius: var(--library-radius-small);
+		background: var(--app-fill);
+	}
+
+	.library-recap__calendar [data-level="1"] {
+		background: var(--app-line-soft);
+	}
+
+	.library-recap__calendar [data-level="2"] {
+		background: var(--app-line);
+	}
+
+	.library-recap__calendar [data-level="3"] {
+		background: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi) / var(--app-phi)));
+	}
+
+	.library-recap__calendar [data-level="4"] {
+		background: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi)));
+	}
+
+	/* A day to come, its outline */
+	.library-recap__calendar .library-recap__later {
+		background: none;
+		box-shadow: inset 0 0 0 1px var(--app-line-soft);
+	}
+
+	/* A memorable day, the darkest, the muted text, a ring around it */
+	.library-recap__calendar .library-recap__memorable {
+		--library-recap-ring: var(--app-text-muted);
+
+		background: var(--library-recap-ring);
+		box-shadow: 0 0 0 var(--library-recap-gap) var(--app-bg), 0 0 0 calc(2 * var(--library-recap-gap)) var(--library-recap-ring);
+	}
+
 	/* The bars of the months, their number above, their initial under, side by side from January */
 	.library-recap__months {
 		/* The height of the bar of the month read the most */
@@ -423,6 +546,12 @@
 				}
 			}
 
+			/* The memorable days pulse, their ring going out from them, each from its own point, so that no two go together */
+			.library-recap__calendar .library-recap__memorable {
+				animation: library-recap-pulse calc(2s * var(--app-phi)) ease-out infinite;
+				animation-delay: calc(var(--library-recap-day) * -0.13s);
+			}
+
 			.library-recap__bar {
 				animation: library-recap-grow linear both;
 				animation-timeline: view();
@@ -451,6 +580,16 @@
 	@keyframes library-recap-marquee {
 		to {
 			translate: 0 -50%;
+		}
+	}
+
+	@keyframes library-recap-pulse {
+		from {
+			box-shadow: 0 0 0 0 var(--library-recap-ring);
+		}
+
+		to {
+			box-shadow: 0 0 0 calc(4 * var(--library-recap-gap)) transparent;
 		}
 	}
 

@@ -604,7 +604,7 @@ class Meta {
 	 * @param string[] $readings Readings.
 	 * @return string[]
 	 */
-	private static function get_ended( array $readings ): array {
+	public static function get_ended( array $readings ): array {
 		return array_values( array_filter( $readings, fn( string $reading ) => self::IN_PROGRESS !== self::split_reading( $reading )[1] ) );
 	}
 

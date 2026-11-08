@@ -310,9 +310,9 @@ class Achievements {
 	private static function get_dated_books(): array {
 		return array_map(
 			function ( Book $book ): Book {
-				$read_dates = array_map( fn( string $read_date ) => substr( $read_date, 0, 10 ), $book->read_dates );
+				$readings = array_map( fn( string $reading ) => implode( '/', array_map( fn( string $date ) => substr( $date, 0, 10 ), Meta::split_reading( $reading ) ) ), $book->readings );
 
-				return $book->with( read_dates: $read_dates, read_date: $read_dates[0] ?? '' );
+				return $book->with( readings: $readings, read_date: substr( $book->get_first_read_date(), 0, 10 ) );
 			},
 			Books::get_books()
 		);
