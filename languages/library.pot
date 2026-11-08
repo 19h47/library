@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-08T13:56:46+00:00\n"
+"POT-Creation-Date: 2026-11-08T14:54:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -416,7 +416,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:516
+#: app/js/lib/render.js:525
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -462,7 +462,7 @@ msgstr ""
 #: includes/class-books.php:303
 #: includes/class-books.php:308
 #: includes/class-books.php:326
-#: app/js/lib/render.js:628
+#: app/js/lib/render.js:637
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -2625,7 +2625,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:429
+#: app/js/lib/render.js:438
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"
