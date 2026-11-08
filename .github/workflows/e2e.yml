@@ -2,6 +2,11 @@ name: End to end
 
 on: pull_request
 
+# One run per pull request: a push cancels the one still running for the push before.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -32,7 +37,9 @@ jobs:
           coverage: none
           tools: composer
 
-      - run: composer install --no-dev --no-progress --no-interaction
+      - uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-dev
 
       # The latest WordPress with the plugin, on PHP 8.4, one environment, at localhost:8889.
       - run: pnpm exec wp-env start
