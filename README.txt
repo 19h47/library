@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.32.0
+Stable tag: 9.32.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -102,6 +102,9 @@ The routes of the plugin, to users who can edit posts:
 * `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
 
 == Changelog ==
+
+= 9.32.1 =
+* Fixed: reading app: in the grid of covers, the title of a book without a cover breaks its words with hyphens, its comma with its word, rather than at the start of the next line.
 
 = 9.32.0 =
 * Breaking: a reading has its start and its end, one row each in `library_reading`, an interval of ISO 8601, either left empty when it is unknown, the end of a reading in progress `..`: `2026-10-20/2026-11-02`, `/2019-06-14`, `2026-11-08/..`. It replaces `library_read_date` and `library_in_progress`: a book is read and being read from its readings, which the REST API gives in order in `readings`. Migrate the data before updating, with your table prefix: `UPDATE wp_postmeta SET meta_key = 'library_reading', meta_value = CONCAT( '/', meta_value ) WHERE meta_key = 'library_read_date'`, then `INSERT INTO wp_postmeta ( post_id, meta_key, meta_value ) SELECT post_id, 'library_reading', CONCAT( CURDATE(), '/..' ) FROM wp_postmeta WHERE meta_key = 'library_in_progress' AND meta_value = '1'`, then `DELETE FROM wp_postmeta WHERE meta_key = 'library_in_progress'`.
