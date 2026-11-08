@@ -132,10 +132,8 @@ test.describe( 'Reading', () => {
 
 		await expect
 			.poll( async () =>
-				(
-					await getBook( requestUtils, book.id )
-				).meta.library_reading.map( ( reading ) =>
-					reading.split( '/' )[ 1 ].slice( 0, 10 )
+				( await getBook( requestUtils, book.id ) ).readings.map(
+					( reading ) => reading.split( '/' )[ 1 ].slice( 0, 10 )
 				)
 			)
 			.toEqual( [ today ] );
@@ -166,9 +164,7 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 		await expect
 			.poll(
-				async () =>
-					( await getBook( requestUtils, book.id ) ).meta
-						.library_reading
+				async () => ( await getBook( requestUtils, book.id ) ).readings
 			)
 			.toEqual( [ '2020-01-01/..' ] );
 
@@ -176,10 +172,8 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 		await expect
 			.poll( async () =>
-				(
-					await getBook( requestUtils, book.id )
-				).meta.library_reading.map( ( reading ) =>
-					reading.slice( 0, 21 )
+				( await getBook( requestUtils, book.id ) ).readings.map(
+					( reading ) => reading.slice( 0, 21 )
 				)
 			)
 			.toEqual( [ `2020-01-01/${ today }` ] );

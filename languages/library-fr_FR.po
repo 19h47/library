@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-08T08:49:25+00:00\n"
+"POT-Creation-Date: 2026-11-08T09:53:07+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -217,7 +217,7 @@ msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-dashboard.php:369 includes/class-meta.php:465
+#: admin/class-dashboard.php:369 includes/class-meta.php:463
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -474,7 +474,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1119
+#: includes/class-rest-api.php:1131
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -1516,44 +1516,44 @@ msgstr ""
 "dans sa langue d’origine quand elles sont toutes des langues d’origine du "
 "livre."
 
-#: includes/class-meta.php:366
+#: includes/class-meta.php:364
 msgctxt "role"
 msgid "Translator"
 msgstr "Traduction"
 
-#: includes/class-meta.php:367
+#: includes/class-meta.php:365
 msgctxt "role"
 msgid "Colorist"
 msgstr "Couleurs"
 
-#: includes/class-meta.php:368
+#: includes/class-meta.php:366
 msgctxt "role"
 msgid "Inker"
 msgstr "Encrage"
 
-#: includes/class-meta.php:369
+#: includes/class-meta.php:367
 msgctxt "role"
 msgid "Letterer"
 msgstr "Lettrage"
 
-#: includes/class-meta.php:370
+#: includes/class-meta.php:368
 msgctxt "role"
 msgid "Publishing director"
 msgstr "Direction de publication"
 
 #. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
-#: includes/class-meta.php:372
+#: includes/class-meta.php:370
 msgctxt "role"
 msgid "Adapted author"
 msgstr "D’après"
 
-#: includes/class-meta.php:374
+#: includes/class-meta.php:372
 msgctxt "role"
 msgid "Author"
 msgstr "Auteur/autrice"
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-meta.php:883
+#: includes/class-meta.php:881
 #, php-format
 msgid ""
 "The last digit of the ISBN %s, its check digit, does not match the others: "
@@ -1871,13 +1871,23 @@ msgstr ""
 
 #: includes/class-rest-api.php:60
 msgid ""
+"Readings of the book, from the first to the latest, as intervals from their "
+"starts to their ends, either empty when unknown, the end of the one in "
+"progress “..”: 2026-10-20/2026-11-02."
+msgstr ""
+"Lectures du livre, de la première à la dernière, en intervalles de leur début "
+"à leur fin, chacun vide quand il est inconnu, la fin de celle en cours « .. » : "
+"2026-10-20/2026-11-02."
+
+#: includes/class-rest-api.php:72
+msgid ""
 "Cover of the book, its medium size, else the image itself, with its width "
 "and height, and its sizes as a srcset; null without cover."
 msgstr ""
 "Couverture du livre, sa taille moyenne, sinon l’image elle-même, avec sa "
 "largeur et sa hauteur, et ses tailles en srcset ; null sans couverture."
 
-#: includes/class-rest-api.php:79
+#: includes/class-rest-api.php:91
 msgid ""
 "Names of the book, as named on it, each with its term ID; the role meta tell "
 "the ones with another role than author."
@@ -1885,20 +1895,20 @@ msgstr ""
 "Noms du livre, tels qu’il les donne, chacun avec l’ID de son terme ; les "
 "méta des rôles disent ceux qui ont un autre rôle qu’auteur."
 
-#: includes/class-rest-api.php:87
+#: includes/class-rest-api.php:99
 msgid ""
 "Original languages of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 "Langues originales du livre, en codes ISO 639, les slugs de leurs termes."
 
-#: includes/class-rest-api.php:95
+#: includes/class-rest-api.php:107
 msgid ""
 "Languages of the text of the book, as ISO 639 codes, the slugs of their "
 "terms."
 msgstr ""
 "Langues du texte du livre, en codes ISO 639, les slugs de leurs termes."
 
-#: includes/class-rest-api.php:103
+#: includes/class-rest-api.php:115
 msgid ""
 "Series of the book, after its cycles, in plain text, such as “Star Wars, "
 "Young Jedi Knights”, or empty."
@@ -1906,65 +1916,65 @@ msgstr ""
 "Série du livre, après ses cycles, en texte brut, comme « Star Wars, Les "
 "Jeunes Chevaliers Jedi », ou vide."
 
-#: includes/class-rest-api.php:110
+#: includes/class-rest-api.php:122
 msgid "Name of the form of the book, such as a novel, or empty."
 msgstr "Nom de la forme du livre, comme un roman, ou vide."
 
-#: includes/class-rest-api.php:213
+#: includes/class-rest-api.php:225
 msgid "ID of the book."
 msgstr "ID du livre."
 
-#: includes/class-rest-api.php:241
+#: includes/class-rest-api.php:253
 msgid "File name of the photo picked, whose extension the cover keeps."
 msgstr ""
 "Nom de fichier de la photo choisie, dont la couverture garde l’extension."
 
-#: includes/class-rest-api.php:258
+#: includes/class-rest-api.php:270
 msgid "ISBN of the book, with or without hyphens."
 msgstr "ISBN du livre, avec ou sans tirets."
 
-#: includes/class-rest-api.php:286
+#: includes/class-rest-api.php:298
 msgid "Page of the months."
 msgstr "Page des mois."
 
-#: includes/class-rest-api.php:292
+#: includes/class-rest-api.php:304
 msgid "Number of months per page."
 msgstr "Nombre de mois par page."
 
-#: includes/class-rest-api.php:311
+#: includes/class-rest-api.php:323
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
 msgstr ""
 "Position dans la liste des idées de la semaine, 0 pour l’idée de la semaine."
 
-#: includes/class-rest-api.php:339
+#: includes/class-rest-api.php:351
 msgid "Year of the recap."
 msgstr "Année du bilan."
 
-#: includes/class-rest-api.php:356
+#: includes/class-rest-api.php:368
 msgid "Term ID of the series, or of the cycle."
 msgstr "ID du terme de la série, ou du cycle."
 
-#: includes/class-rest-api.php:373
+#: includes/class-rest-api.php:385
 msgid "Term ID of the collection, or of the publisher."
 msgstr "ID du terme de la collection, ou de l’éditeur."
 
-#: includes/class-rest-api.php:390
+#: includes/class-rest-api.php:402
 msgid "Term ID of the person, or of one of their other names."
 msgstr "ID du terme de la personne, ou de l’un de ses autres noms."
 
-#: includes/class-rest-api.php:410
+#: includes/class-rest-api.php:422
 msgid "Title of the book."
 msgstr "Titre du livre."
 
-#: includes/class-rest-api.php:419
+#: includes/class-rest-api.php:431
 msgid "Summary of the book in a few words, its excerpt."
 msgstr "Résumé du livre en quelques mots, son extrait."
 
-#: includes/class-rest-api.php:424
+#: includes/class-rest-api.php:436
 msgid "Notes on the book, its content."
 msgstr "Notes sur le livre, son contenu."
 
-#: includes/class-rest-api.php:429
+#: includes/class-rest-api.php:441
 msgid ""
 "People of the book, by their name or another one, each with its role, such "
 "as colorist; a name not found adds a person."
@@ -1972,11 +1982,11 @@ msgstr ""
 "Personnes du livre, sous leur nom ou un autre, chacune avec son rôle, comme "
 "les couleurs ; un nom introuvable ajoute une personne."
 
-#: includes/class-rest-api.php:449
+#: includes/class-rest-api.php:461
 msgid "Name of the publisher; a name not found adds a publisher."
 msgstr "Nom de l’éditeur ; un nom introuvable ajoute un éditeur."
 
-#: includes/class-rest-api.php:454
+#: includes/class-rest-api.php:466
 msgid ""
 "Collection, under the publisher and sent with it, a sub-collection after its "
 "collection, separated with commas, such as “Folio, Science-fiction”; a name "
@@ -1986,7 +1996,7 @@ msgstr ""
 "collection, séparées par des virgules, comme « Folio, Science-fiction » ; un "
 "nom introuvable ajoute une collection."
 
-#: includes/class-rest-api.php:459
+#: includes/class-rest-api.php:471
 msgid ""
 "Series, after its cycles, separated with commas, such as “Star Wars, Young "
 "Jedi Knights”; a name not found adds a series, or a cycle."
@@ -1994,31 +2004,31 @@ msgstr ""
 "Série, après ses cycles, séparés par des virgules, comme « Star Wars, Les "
 "Jeunes Chevaliers Jedi » ; un nom introuvable ajoute une série, ou un cycle."
 
-#: includes/class-rest-api.php:464
+#: includes/class-rest-api.php:476
 msgid "Term IDs of the original languages."
 msgstr "ID des termes des langues d’origine."
 
-#: includes/class-rest-api.php:470
+#: includes/class-rest-api.php:482
 msgid "Term ID of the form, such as a novel or a comic."
 msgstr "ID du terme de la forme, comme un roman ou une bande dessinée."
 
-#: includes/class-rest-api.php:475
+#: includes/class-rest-api.php:487
 msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr "ID de l’image envoyée comme couverture, 0 pour aucune."
 
-#: includes/class-rest-api.php:480
+#: includes/class-rest-api.php:492
 msgid "Book meta, such as library_isbn, as the book form saves them."
 msgstr ""
 "Métas du livre, comme library_isbn, telles que le formulaire du livre les "
 "enregistre."
 
-#: includes/class-rest-api.php:485
+#: includes/class-rest-api.php:497
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 "Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
 "envie."
 
-#: includes/class-rest-api.php:601 app/js/bricks/library-edit.js:507
+#: includes/class-rest-api.php:613 app/js/bricks/library-edit.js:507
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
@@ -2628,7 +2638,7 @@ msgstr "Le plus court"
 msgid "The oldest"
 msgstr "Le plus ancien"
 
-#: app/js/lib/api.js:512
+#: app/js/lib/api.js:491
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 

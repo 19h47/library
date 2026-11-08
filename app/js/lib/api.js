@@ -45,7 +45,6 @@ import {
  * @property {string}   collection_number Its number in its collection.
  * @property {string}   edition_date      The date of its edition: a day, a month or a year.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
- * @property {string[]} reading           Its readings, as intervals from their starts to their ends: 2026-10-20/2026-11-02.
  * @property {number}   pages             Its number of pages, 0 for unknown.
  * @property {number}   rating            Its rating out of 10, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
@@ -106,7 +105,7 @@ import {
  * A book as the app shows it: plain text but its notes, its meta by their names, its readings in order, its cover with
  * its size, its authors and the names with another role, its original languages, those of its text and its form.
  *
- * @typedef {BookFields & Omit<BookMeta, 'edition_languages'|'reading'> & BookReadings & BookRoles} Book
+ * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookReadings & BookRoles} Book
  */
 
 /**
@@ -401,6 +400,7 @@ import {
  * @property {string}                  credits                Its credits, HTML.
  * @property {string}                  status                 Its status.
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
+ * @property {string[]}                readings               Its readings, in order, as intervals: 2026-10-20/2026-11-02.
  * @property {Cover|null}              cover                  Its cover, none without one.
  * @property {Term[]}                  names                  Its names, HTML, each with its term ID.
  * @property {number[]}                series                 The term IDs of its series.
@@ -440,16 +440,11 @@ export function text( html ) {
 // The end of a reading in progress, which has none yet, as an interval of ISO 8601-2 left open: 2026-11-08/..
 export const IN_PROGRESS = '..';
 
-// Compares two starts or ends of readings, an unknown one, empty, first.
-const compareDates = ( a, b ) => Number( a > b ) - Number( a < b );
-
 /**
- * Readings as the API gives them, intervals from their starts to their ends, as the app reads them: the ones ended, from
- * the first to the latest, by their ends then their starts, each one of an unknown end a reading of its own, first, and
- * one of a known end once, as one saved twice by an old import, as the server counts them; and the start of the one in
- * progress, the latest started.
+ * Readings as the API gives them, in order, intervals from their starts to their ends, as the app reads them: the ones
+ * ended, and the start of the one in progress.
  *
- * @param {string[]} intervals Readings, in any order.
+ * @param {string[]} intervals Readings, from the first to the latest, the one in progress last.
  * @return {BookReadings} The readings ended and the start of the one in progress.
  */
 export function toReadings( intervals ) {
@@ -458,26 +453,10 @@ export function toReadings( intervals ) {
 
 		return { start, end };
 	} );
-	const ended = all.filter( ( { end } ) => IN_PROGRESS !== end );
-	const known = new Map(
-		ended
-			.filter( ( { end } ) => end )
-			.map( ( reading ) => [ toInterval( reading ), reading ] )
-	);
-	const starts = all
-		.filter( ( { end } ) => IN_PROGRESS === end )
-		.map( ( { start } ) => start )
-		.sort();
 
 	return {
-		readings: [
-			...ended.filter( ( { end } ) => ! end ),
-			...known.values(),
-		].sort(
-			( a, b ) =>
-				compareDates( a.end, b.end ) || compareDates( a.start, b.start )
-		),
-		started: starts.at( -1 ) ?? '',
+		readings: all.filter( ( { end } ) => IN_PROGRESS !== end ),
+		started: all.find( ( { end } ) => IN_PROGRESS === end )?.start ?? '',
 	};
 }
 
@@ -548,7 +527,7 @@ function toBook( item ) {
 
 	return {
 		...meta,
-		...toReadings( meta.reading ),
+		...toReadings( item.readings ),
 		id: item.id,
 		title: text( item.title.rendered ),
 		excerpt: text( item.excerpt.rendered ),

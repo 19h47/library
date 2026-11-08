@@ -60,7 +60,7 @@ class Meta {
 	 *
 	 * @var string
 	 */
-	private const string READING_PATTERN = '^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?/(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?|\.\.)?$';
+	public const string READING_PATTERN = '^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?/(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?|\.\.)?$';
 
 	/**
 	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
@@ -220,7 +220,8 @@ class Meta {
 			);
 		}
 
-		// One row per reading, read again or not. The readings are written at once, through Meta::save(), as the book route
+		// One row per reading, read again or not. The REST API gives them in order, as the readings of a book, rather than as
+		// their rows: see Rest_Api::register_rest_fields(). They are written at once, through Meta::save(), as the book route
 		// does: the core REST API removes a value by value, and two readings of unknown dates, the same, would go together.
 		register_post_meta(
 			'library_book',
@@ -230,9 +231,6 @@ class Meta {
 				'label'             => $labels['library_reading'],
 				'description'       => $descriptions['library_reading'],
 				'single'            => false,
-				'show_in_rest'      => array(
-					'schema' => array( 'pattern' => self::READING_PATTERN ),
-				),
 				'sanitize_callback' => array( self::class, 'sanitize_reading' ),
 				'auth_callback'     => '__return_false',
 			)

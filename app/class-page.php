@@ -80,7 +80,7 @@ class Page {
 	 *
 	 * @var string
 	 */
-	public const string BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name';
+	public const string BOOK_FIELDS = 'id,title,excerpt,content,credits,status,meta,readings,cover,names,series,series_name,language_codes,edition_language_codes,form_name';
 
 	/**
 	 * Books a list of the app loads at once, then as its end comes.
