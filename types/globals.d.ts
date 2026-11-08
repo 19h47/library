@@ -100,11 +100,16 @@ declare global {
 			options?: { history?: 'auto' | 'push' | 'replace' }
 		) => NavigationResult;
 		back: () => NavigationResult;
-		addEventListener: (
+		addEventListener: ( (
 			type: 'navigate',
 			listener: ( event: NavigateEvent ) => void,
 			options?: boolean | AddEventListenerOptions
-		) => void;
+		) => void ) &
+			( (
+				type: 'navigatesuccess',
+				listener: ( event: Event ) => void,
+				options?: boolean | AddEventListenerOptions
+			) => void );
 	}
 
 	var navigation: Navigation;

@@ -329,10 +329,18 @@ class LibraryEditElement extends Brick {
 			{ signal }
 		);
 
-		// The link to the book leaves the form, which forgets the book.
-		$duplicate.addEventListener( 'click', () => store.closeEdit(), {
-			signal,
-		} );
+		// The link to the book opens it under the form, then closes the form over it, as openBook() does: closed at the
+		// click, the form would forget the book, and the link with it, before the browser follows it.
+		$duplicate.addEventListener(
+			'click',
+			() =>
+				navigation.addEventListener(
+					'navigatesuccess',
+					() => store.closeEdit(),
+					{ once: true, signal }
+				),
+			{ signal }
+		);
 		$buy.addEventListener(
 			'click',
 			async () =>
