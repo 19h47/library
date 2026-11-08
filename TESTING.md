@@ -1,6 +1,6 @@
 # Testing
 
-The tests run on the test suite of WordPress: the core installed by Composer, the plugin loaded as a must-use plugin, and books added through the route of the book form, `POST library/v1/books`, then read through `Library\Books`, as the achievements and the reading idea read them.
+The tests run on the test suite of WordPress: the core installed by Composer, the plugin loaded as a must-use plugin, and books added through the route of the book form, `POST library/v1/books`, then read as the plugin reads them: the achievements, the reading idea, the readings, the recap, the dashboard, the statuses, the names of the terms and their lists. The catalogue of the BnF answers with the records of `tests/fixtures/bnf`, by their ISBN, without the network.
 
 ## Database
 
@@ -36,7 +36,7 @@ composer test
 
 ## Writing a test
 
-A test class, in the namespace `Library\Tests`, extends `TestCase` (`tests/class-testcase.php`), in a file `tests/class-test-*.php`; Composer loads them, as it loads the classes of the plugin. Each test is a request of its own: it starts with no book, adds the ones it needs with `add_book()` or `add_reads()`, then reads the achievements with `get_earned()` and `get_close()`, or the reading idea.
+A test class, in the namespace `Library\Tests`, extends `TestCase` (`tests/class-testcase.php`), in a file `tests/class-test-*.php`; Composer loads them, as it loads the classes of the plugin. Each test starts with no book, adds the ones it needs with `add_book()`, `add_read()` or `add_reads()`, the terms with `get_language()` or `get_form()`, then reads what it checks, such as the achievements with `get_earned()` and `get_close()`.
 
 ## Static analysis
 
@@ -62,10 +62,10 @@ pnpm test:e2e
 `wp-env` needs Docker: it serves the latest WordPress with the plugin at `http://localhost:8889`, logged in as `admin` / `password`. Another WordPress of the tests, without Docker, is given by its URL and its login:
 
 ```sh
-WP_BASE_URL=http://localhost:8889 WP_USERNAME=admin WP_PASSWORD=password pnpm test:e2e
+WP_BASE_URL=http://library-tests.local WP_USERNAME=admin WP_PASSWORD=password pnpm test:e2e
 ```
 
-They run on a phone in Chrome, and the covers in the engine of Safari too, which lays them out its own way: `--project=safari` runs these alone. `pnpm test:e2e -- reading` runs one file, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
+They run on a phone in Chrome, and the covers in the engine of Safari too, which lays them out its own way: `--project=safari` runs these alone. `pnpm test:e2e -- reading` runs one file of `tests/e2e`, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
 
 ## The scripts
 

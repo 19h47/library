@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-08T17:30:31+00:00\n"
+"POT-Creation-Date: 2026-11-08T17:35:19+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -38,8 +38,12 @@ msgstr "https://www.github.com/19h47/library"
 
 #. Description of the plugin
 #: library.php:13
-msgid "Enables a Book post type, taxonomy and metaboxes."
-msgstr "Active un type de contenu Livre, des taxonomies et des metaboxes."
+msgid ""
+"Catalogue your books and log your readings, from the admin or from an app on "
+"your phone."
+msgstr ""
+"Cataloguez vos livres et notez vos lectures, depuis l’administration ou "
+"depuis une app sur votre téléphone."
 
 #. Author of the plugin
 #: library.php:17
@@ -2736,6 +2740,9 @@ msgstr "Lecture enregistrée."
 #: app/js/lib/store.js:1068
 msgid "Undo"
 msgstr "Annuler"
+
+#~ msgid "Enables a Book post type, taxonomy and metaboxes."
+#~ msgstr "Active un type de contenu Livre, des taxonomies et des metaboxes."
 
 #~ msgid ""
 #~ "Optional. One date per reading, left empty when it is unknown. Setting a "

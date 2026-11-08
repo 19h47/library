@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       Library
  * Plugin URI:        https://www.github.com/19h47/library
- * Description:       Enables a Book post type, taxonomy and metaboxes.
+ * Description:       Catalogue your books and log your readings, from the admin or from an app on your phone.
  * Version:           9.33.0
  * Requires at least: 7.1
  * Requires PHP:      8.4

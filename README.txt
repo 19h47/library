@@ -10,33 +10,34 @@ Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Catalogue your books and log your readings: authors, publishers, original languages, ratings, a reading dashboard, achievements and a phone app.
+Catalogue your books and log your readings: people, series, publishers, ratings, a dashboard, achievements, the recap of each year and a phone app.
 
 == Description ==
 
-Library adds a **Book** post type and five taxonomies, **People**, **Series**, **Publishers**, **Original languages** and **Forms**, to catalogue your books and log your readings from the WordPress admin, or from your phone.
+Library adds a **Book** post type and five taxonomies, **People**, **Series**, **Publishers**, **Languages** and **Forms**. Catalogue your books and log your readings from the WordPress admin, or from your phone.
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, number in its collection, ISBN, ISSN, number of pages, edition date and date first published, a summary in a few words, notes, readings and rating from 1 to 10 by half points. A series is typed after its cycle, if any, such as “Star Wars, Young Jedi Knights”, among those of **Books > Series**, where it has a description, and a name not found adds it. A title shows its series, volume and subtitle the same way everywhere: “Series, vol. 3: Title: Subtitle”; a volume whose title is its series, as for a manga, is named after its series only: “City Hunter, vol. 1”. The number in its collection follows the collection: “Pocket Science-fiction no. 5667”. An ISBN typed with or without hyphens is saved with them, where its parts end: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes the 13 digits of its barcode, its EAN-13. Its form, such as a novel, a comic or a magazine, is one of those added in **Books > Forms**.
-* **People** – Each name of a book is a person, the author unless a role is chosen: translator, colorist, inker, letterer, publishing director or adapted author, the author of the work a book is adapted from or continues, as Goscinny for an Asterix by Ferri. A collective work, a magazine or an anthology, is credited to its publishing directors, “X (dir.)”, else to no one: it is found through each of its people, but counts among the books of none of them.
-* **People, series, publishers and languages** – The other names of a person, such as a pseudonym or their birth name, are children of the name they are known by, series children of their cycle, collections children of their publisher and sub-collections of their collection, as the BnF has them, such as Science-fiction under Folio under Gallimard: filtering by a person, a cycle, a publisher or a collection includes them. An original language is added by its name, in the language of the admin or in English, or by its ISO 639 code, which becomes its slug, and named in the site language: a name no language has is refused, with the reason.
-* **Readings** – A book is read or not, each reading from its start to its end, either left empty when it is unknown: a book read again keeps each one, and the readings whose end is unknown come first, each a reading, such as a book read several times as a child. A start or an end of its day keeps its time, which orders the readings of a day. A book being read, for the first time or again, is in progress since the day it started, until a reading added ends it, from that start; the page of a book says how long its latest reading took. A book not kept, borrowed or passing through, gets the “Not kept” status: it leaves the library, but stays on the reading pile until it is read, and its readings count. A book to buy gets the “To buy” status: it is not in the library yet, nor on the reading pile, and is added the day it leaves the books to buy.
-* **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search matches every field of a book, and keywords such as `series:SAS` or `read:2024` narrow it to one: see the Help tab.
-* **Terms lists** – The lists of people, publishers, series, languages and forms count the books not kept and the books to buy of each term in columns of their own, beside the count of the books in the library, and list the terms without books, in any status, in a view of their own: the books of the other names of a person, or of the collections of a publisher, count for them.
+* **Books** – Cover, subtitle, series and volume, collection number, ISBN, ISSN, pages, edition date, date first published, excerpt, notes, readings and a rating from 1 to 10 by half points. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes its EAN-13.
+* **People** – Every name of a book is a person, the author unless another role is chosen: translator, colorist, inker, letterer, publishing director or adapted author. A magazine or an anthology is a collective work: it counts for none of its people.
+* **Cycles, collections and pseudonyms** – A series belongs to its cycle, a collection to its publisher, a sub-collection to its collection, as the BnF has them, and a pseudonym to the name the person is known by. Filtering by a cycle, a publisher or a person includes what belongs to them.
+* **Readings** – Each reading has a start and an end, either one unknown if need be. A book read again keeps every reading. A book being read is in progress from the day it started.
+* **Statuses** – A book is in the library, “Not kept”, borrowed or passed on, or “To buy”. A book not kept stays on the reading pile until it is read.
+* **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search covers every field, and keywords such as `series:SAS` or `read:2024` narrow it: see the Help tab.
+* **Terms lists** – People, publishers, series, languages and forms count their books not kept and to buy, and list the terms without books in a view of their own.
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
-* **Reading idea of the week** – A book to read, and why: the next volume of a series in progress or the next part of a cycle, an author rated well, an anniversary, a short book to catch up… and now and then a book to buy. “Another idea” moves to the next one.
-* **Achievements** – Computed from the books, nothing stored: authors, series and their cycles, and collections read in full, milestones of books and pages, records, forms, languages, and a few easter eggs to find. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search, with its keywords at hand, filtered by reading state, by status and by form in a panel, the filters chosen shown as pills that remove them, ordered by date added, title, rating or latest reading, a series in reading order, as cards or as a grid of their covers, as chosen, the books to buy too, in masonry where the browser lays out grid lanes, the diary of the readings, the reading idea, the stats of the year, the achievements, the books to buy and the page of each person, of each series and of each collection: its cycle, or its publisher and its collection, its description, its reading, the series of a cycle or the collections of a publisher, then its books, a series in reading order, a collection by its sub-collections, in the order of their number. A book opens as a page, as a person or a series does, with a button to go back where it was opened from, the place in the list kept; it shows the covers of the volumes of its series, with how many are read, and leads to the page of its series. A book is edited there, its reading and the rest, and a book is added in the same form, with a photo of its cover; an ISBN already in the library shows its book, and a book to buy is bought from there; another ISBN fills in the fields left empty from the catalogue of the BnF, with the names of the library: see the FAQ. Back to the app after a while, its data load again; without network, it shows what it loaded, the books to buy included, as in a bookshop.
-* **REST API** – Books and their taxonomies in the core REST API, and routes of their own for adding and editing a book, finding a book in the catalogue of the BnF, the reading stats, the readings, the reading idea, the achievements, the people, the series and the publishers: see the FAQ.
+* **Reading idea of the week** – A book to read, and why: the next volume of a series, an author rated well, an anniversary, a short book… and now and then a book to buy.
+* **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, and an ISBN fills the form from the catalogue of the BnF. Without network, it shows what it loaded.
+* **REST API** – Books and their taxonomies in the core REST API, and routes for the book form, the BnF, the stats, the readings, the reading idea, the achievements, the recap and the pages of the app: see the FAQ.
 * **Translatable** – French translation included.
 
 = Technical =
 
 * Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_series`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn`, `library_reading` and so on, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
-* The hyphens of an ISBN come from `includes/isbn-ranges.json`, the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation) for every group, refreshed before each release with `php bin/update-isbn-ranges.php`. Another EAN-13 keeps its 13 digits; an ISBN of a range missing from it, or a code whose check digit is wrong, is kept as typed.
-* The reading app is an admin page rendered full screen that reads the REST API. Its bricks are script modules, one per custom element, without a build. Its router follows its links on the Navigation API, which it needs: Safari 26.2, Firefox 147 or Chrome 135 at least, and shows each view in a view transition, the cover of a book opened going from its card to its page and back, a fade only without motion. Its store, a module too, holds the state the bricks read, which `library-app/api` fills from the REST API. Its styles start from `app/css/app-style.css`, a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header, its rules in the cascade layer app-base. Its own come in the layers after it: `app/css/library-app.css` declares their order and holds the tokens, then a sheet per component, in `app/css/components`, and per view, in `app/css/views`, whose rules win over the components whatever their specificity. Every size is on the scale of the golden ratio: its steps for space, half steps for text. Its markup comes from small PHP components, in `app/components`, included with `Library\Markup::render_component()`; a component carries no margin of its own, its place spaces it. Searching `styleguide` in the app opens its styleguide, for development: its tokens, then each of its components with its own markup alone, in English.
+* The hyphens of an ISBN come from the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation), in `includes/isbn-ranges.json`. An ISBN outside them, or with a wrong check digit, is kept as typed.
+* The reading app needs the Navigation API: Safari 26.2, Firefox 147 or Chrome 135 at least. How it is built: see [ARCHITECTURE.md](https://github.com/19h47/library/blob/main/ARCHITECTURE.md).
 
 == Installation ==
 
@@ -46,33 +47,35 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 
 = Updates =
 
-The plugin updates from the latest release of [19h47/library](https://github.com/19h47/library/releases), like any other plugin in **Dashboard > Updates**. No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder. To publish a release, see `RELEASING.md`.
+The plugin updates from the latest release of [19h47/library](https://github.com/19h47/library/releases), like any other plugin in **Dashboard > Updates**. No update is offered when the plugin folder is a Git working copy, since updating replaces the whole folder. To publish a release, see [RELEASING.md](https://github.com/19h47/library/blob/main/RELEASING.md).
 
 == Frequently Asked Questions ==
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. Its name, at the top, leads back to its home, the books without their search; a view touched again goes back to its top. A book edits its reading: read, in progress since the day it started, readings from their starts to their ends, one of unknown dates included, rating, and in the library, not kept or to buy; **Edit book** edits the rest, the fields most books have first, in the order a book in hand gives them, its ISBN first, and the others under **More details**, its excerpt and notes included, and links to the admin for its date added or the trash. The **+** at the top adds a book in the same form, with the status of the books shown: to buy from the **To buy** view, or the status the books are filtered by, and the form they are filtered by.
+Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. The page of a book edits its reading, and **Edit book** the rest. The **+** at the top adds a book.
 
 = Can several readers share the library? =
 
-No, the plugin has one reader per site. The readings, ratings and statuses like “Not kept” belong to the book, not to a user: every user of the site sees and changes the same ones. Each reader keeps their library on their own site.
+No, the plugin has one reader per site. The readings, ratings and statuses belong to the book, not to a user: every user of the site sees and changes the same ones. Each reader keeps their library on their own site.
 
 = How do I log a book read again? =
 
-In the Information box, or in the reading of the book in the app, add a reading under the readings: each line is a reading, from its start to its end, and its button removes it. A date left empty is an unknown one, such as a reading long ago: a reading of an unknown end counts, before any other, and the first dated one shows as read again. A book read again counts once per reading in the reading stats, and once, by its first reading, in the achievements that count books.
+Add a reading in the Information box of the book, or in its reading in the app: one line per reading, from its start to its end. Leave a date empty when it is unknown. A book read again counts once per reading in the stats, and once in the achievements.
 
 = How do I add a series to a cycle? =
 
-Type the cycle, then the series, separated with a comma, in the Series field of the book: “Star Wars, Young Jedi Knights”. A name not found adds the series under its cycle, and the cycle if needed. In **Books > Series**, write their description, or move a series to another cycle: its books follow.
+Type the cycle, then the series, separated with a comma, in the Series field of the book: “Star Wars, Young Jedi Knights”. A name not found adds the series, and its cycle if needed. In **Books > Series**, write their description, or move a series to another cycle: its books follow.
 
 = How do I add a pseudonym or a collection? =
 
-Add the pseudonym, or any other name of the person, their birth name included, as a child of the name they are known by in **Books > People**, and the collection as a child of its publisher in **Books > Publishers** or with **Add New Publisher** in the Publishers box of a book, a sub-collection as a child of its collection. Check the narrowest collection, not its publisher, on the book. The books list and the dashboard count them for their publisher; a sub-collection counts for its collection too. In the form of the app, type a sub-collection after its collection: “Folio, Science-fiction”.
+In **Books > People**, add the pseudonym, or any other name of the person, as a child of the name they are known by. In **Books > Publishers**, add a collection as a child of its publisher, and a sub-collection as a child of its collection; on the book, check the narrowest one. In the form of the app, type a sub-collection after its collection: “Folio, Science-fiction”.
 
 = Where does the app find a book by its ISBN? =
 
-In the catalogue of the Bibliothèque nationale de France, through its [SRU API](https://api.bnf.fr/fr/api-sru-catalogue-general), which describes the books published in France, as their legal deposit gives them; an older book is found by its ISBN-10 too. Only the ISBN is sent to the BnF, by the site, not by the phone, and its answer is kept a day. The form takes its title, its people with their roles (author, illustrator, translator, adapted author, publishing director), its publisher, collection and number, its series and volume, its subtitle, its pages, its original language and its form, in the fields left empty: what was typed stays. The names the library has are kept: a person whatever the accents or the order of their name, “Tsukasa Hojo” for “Hōjō, Tsukasa”; the publisher of the books of the library whose ISBN has the same publisher part, “Casterman” for a book of its imprint KSTR; a collection or a series of the library of the same name; the form most books of its series have. Check what it gives before saving: the catalogue writes its titles in sentence case, and counts the pages its own way.
+In the catalogue of the Bibliothèque nationale de France, through its [SRU API](https://api.bnf.fr/fr/api-sru-catalogue-general): the books published in France, an older one by its ISBN-10 too. Only the ISBN is sent, by the site, not by the phone, and the answer is kept a day.
+
+The form fills its empty fields only: the title, the people and their roles, the publisher, the collection and its number, the series and the volume, the subtitle, the pages, the languages and the form. It keeps the names the library has: a person whatever their accents or the order of their name, “Tsukasa Hojo” for “Hōjō, Tsukasa”; a publisher by the publisher part of the ISBN; a collection or a series of the same name. Check it before saving: the catalogue writes its titles in sentence case, and counts the pages its own way.
 
 = Can I import books from a WordPress export? =
 
@@ -84,22 +87,34 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 
 = How do I get book data from the REST API? =
 
-Books are at `/wp-json/wp/v2/books`, with their fields under `meta`, described by the schema of the route, and the line shown under their title in `credits`; what a list shows of their cover and terms is in `cover`, `names`, `series_name`, its series after its cycles, `language_codes` and `form_name`, so that it needs not embed them. The readings of a book, from the first to the latest, are in `readings`, intervals of ISO 8601 from their starts to their ends, `Y-m-d` or with their time, either empty when unknown, the end of a reading in progress `..`, such as `2026-10-20/2026-11-01T21:40`, `/2019-06-14` or `2026-11-08/..`; they are written as `meta.library_reading` through `POST /wp-json/library/v1/books/<id>`, which writes them at once, and `library_read` and `library_in_progress` are read from them. People, series, publishers, original languages and forms are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`; a series of a cycle is a series with a `parent`, as a collection is a publisher with one. The books of a form are listed with `?forms=<id>`. Books not kept are listed with `?status=library-not-kept`, books to buy with `?status=library-to-buy`, and the search keywords work too: `?search=series:SAS`. A search for a series lists its books in reading order, a series at the date of its first book with its volumes in order, unless `orderby` is given. Besides the orders of core, `orderby=rating` lists the books by rating and `orderby=read` by latest read date and `orderby=started` by the start of their reading in progress, the books without last.
+Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields of core, a book gives:
 
-The routes of the plugin, to users who can edit posts:
+* `credits` – the line shown under its title.
+* `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.library_reading` through `POST /wp-json/library/v1/books/<id>`; `library_read` and `library_in_progress` are worked out from them.
+* `cover`, `names`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
 
-* `GET /wp-json/library/v1/books/reading-stats` – books, books read, this year against last year, and the books to read with the year they would all be read in at this pace.
-* `GET /wp-json/library/v1/books/readings` – the readings by month, latest first: `page` and `per_page` count months.
-* `GET /wp-json/library/v1/books/reading-idea` – the idea of the week and its reason: `?position=1` gives the next one.
-* `GET /wp-json/library/v1/books/achievements` – the achievements earned and those close to it, each with the `target` its subject leads to.
-* `GET /wp-json/library/v1/people/<id>` – a person, their other names, their description, their series with how many of their books they hold and are read, their books in the order they first came out, whatever their role, and their reading.
-* `GET /wp-json/library/v1/series/<id>` – a series or a cycle, its cycle, its description, the series of a cycle, its authors with their description and how many of its books they wrote, its books in reading order, those of its series with them, its reading and its completion.
-* `GET /wp-json/library/v1/publishers/<id>` – a collection or a publisher, a sub-collection after its collection, its publisher, the collection it is part of, its description, its collections, its authors with their description and how many of its books they wrote, its books by collection in the order of their number, its reading and its completion.
-* `POST /wp-json/library/v1/books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts, and gives it back as `/wp-json/wp/v2/books/<id>` does, `_fields` included.
-* `GET /wp-json/library/v1/books/<id>` – a book as its form edits it: its title, excerpt and notes as typed, its people by name with their role, its series after its cycles, its publisher and collection by name, its original language, its form and its meta, to users who can edit it.
-* `POST /wp-json/library/v1/books/<id>` – edits a book as the book form does, with the fields of `POST /wp-json/library/v1/books`: only those sent change, and a `featured_media` of 0 removes the cover; it gives the book back as it is now.
-* `GET /wp-json/library/v1/books/bnf?isbn=<isbn>` – the book of an ISBN in the catalogue of the BnF, as `GET /wp-json/library/v1/books/<id>` gives a book, without its ID, excerpt and notes, the names of the library kept; 404 for an ISBN the catalogue has no book of, 502 when it does not answer; to users who can publish posts.
-* `GET /wp-json/library/v1/books/cover-name` – the file name of the image of a cover, from the `title`, `people`, `series` and `meta` of the book form and the `photo` picked: its first author by name and the title to show, the extension of the photo kept, such as `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`, to users who can upload files.
+The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and a publisher its `collection` name and the ID of its top `publisher`.
+
+The books take these parameters, besides those of core:
+
+* `forms=<id>` – the books of a form.
+* `status=library-not-kept` or `status=library-to-buy` – the books not kept, or to buy.
+* `search=series:SAS` – the search keywords. A series is listed in reading order, unless `orderby` is given.
+* `orderby=rating`, `orderby=read` or `orderby=started` – by rating, by latest read date or by start of the reading in progress, the books without last.
+
+The routes of the plugin, under `/wp-json/library/v1`, to users who can edit posts unless said otherwise:
+
+* `POST /books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts. It gives the book back as `wp/v2/books/<id>` does, `_fields` included.
+* `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it.
+* `POST /books/<id>` – edits a book: only the fields sent change, and a `featured_media` of 0 removes the cover. It gives the book back.
+* `GET /books/bnf?isbn=<isbn>` – the book of an ISBN in the catalogue of the BnF, as `GET /books/<id>` gives a book; 404 when the catalogue does not know it, 502 when it does not answer. To users who can publish posts.
+* `GET /books/cover-name` – the file name of a cover photo, from the fields of the book form: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. To users who can upload files.
+* `GET /books/reading-stats` – the books, the books read this year against last year, and the year the books to read would all be read at this pace.
+* `GET /books/readings` – the readings by month, latest first: `page` and `per_page` count months.
+* `GET /books/reading-idea` – the idea of the week and its reason: `position=1` gives the next one.
+* `GET /books/achievements` – the achievements earned and the closest ones, each with its `target`.
+* `GET /recaps/<year>` – the recap of a year, as the screens of the app show it.
+* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
 
 == Changelog ==
 
