@@ -3,6 +3,8 @@
 	"core": null,
 	"phpVersion": "8.4",
 	"plugins": [ "." ],
+	"port": 8889,
+	"testsEnvironment": false,
 	"config": {
 		"WP_DEBUG": true,
 		"SCRIPT_DEBUG": false
