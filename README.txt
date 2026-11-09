@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.33.0
+Stable tag: 9.33.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,10 @@ The routes of the plugin, under `/wp-json/library/v1`, to users who can edit pos
 * `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
 
 == Changelog ==
+
+= 9.33.1 =
+* Changed: reading app: its icon is the book of Material Symbols, like the icons of the other apps of the suite, rather than the one of Dashicons; still grey on dark on the home screen of a phone, following the theme in the browser tab.
+* Code only: the series rules of the BnF are written once: a series statement is a series when the catalogue says so or the library has a series of that name, and the series of the library are loaded once per record.
 
 = 9.33.0 =
 * Reading app: the recap of a year has a screen of its days, Day by day: the days read, the most in a row, the day the most pages were read and the readings with their start known, over the calendar of the year. A day is read while a reading ended was open, or on its end alone when its start is unknown, as dark as the pages read that day; the memorable days, the biggest one and those a favourite was finished, pulse.
