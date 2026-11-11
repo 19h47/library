@@ -226,7 +226,7 @@ class Page {
 				'offset'   => 0,
 			)
 		);
-		$paths    = array( '/library/v1/books/reading-stats', $list( array( 'status' => Status::To_Buy->value ) ) );
+		$paths    = array( '/library/v1/stats', $list( array( 'status' => Status::To_Buy->value ) ) );
 
 		if ( 'books' === $view ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads the search shown, changes nothing.
@@ -241,7 +241,7 @@ class Page {
 						'orderby' => 'started',
 					)
 				);
-				$paths[] = '/library/v1/books/readings?page=1';
+				$paths[] = '/library/v1/readings?page=1';
 			}
 		}
 
@@ -264,7 +264,7 @@ class Page {
 		$data = array_reduce( $paths, 'rest_preload_api_request', array() );
 
 		// The books of the first readings of the diary, as the store asks for them.
-		$months = $data['/library/v1/books/readings?page=1']['body'] ?? array();
+		$months = $data['/library/v1/readings?page=1']['body'] ?? array();
 		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book' ), $months ) );
 
 		if ( $read ) {

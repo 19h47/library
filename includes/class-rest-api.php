@@ -273,7 +273,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/reading-stats',
+			'stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( Stats::get_reading_stats() + array( 'year_to_date' => Stats::get_reading_year_to_date() ) ),
@@ -283,7 +283,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/readings',
+			'readings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_readings' ),
@@ -308,7 +308,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/reading-idea',
+			'idea',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_reading_idea' ),
@@ -326,7 +326,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/achievements',
+			'achievements',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( new Achievements()->get_achievements() ),

@@ -836,7 +836,7 @@ export async function findInBnf( isbn ) {
 export async function getReadings( page ) {
 	/** @type {Paged<{month: string, readings: Array<{date: string, book: number}>}>} */
 	const { items, total, pages } = await fetchPaged( {
-		path: addQueryArgs( '/library/v1/books/readings', { page } ),
+		path: addQueryArgs( '/library/v1/readings', { page } ),
 	} );
 	const months = items.map( ( { month, readings } ) => ( {
 		month,
@@ -854,7 +854,7 @@ export async function getReadings( page ) {
  */
 export function getIdea( position ) {
 	return apiFetch( {
-		path: addQueryArgs( '/library/v1/books/reading-idea', { position } ),
+		path: addQueryArgs( '/library/v1/idea', { position } ),
 	} );
 }
 
@@ -908,7 +908,7 @@ export async function getRecap( year, { signal } = {} ) {
  * @return {Promise<Achievements>} The achievements.
  */
 export function getAchievements() {
-	return apiFetch( { path: '/library/v1/books/achievements' } );
+	return apiFetch( { path: '/library/v1/achievements' } );
 }
 
 /**
@@ -917,7 +917,7 @@ export function getAchievements() {
  * @return {Promise<Stats>} The stats.
  */
 export function getStats() {
-	return apiFetch( { path: '/library/v1/books/reading-stats' } );
+	return apiFetch( { path: '/library/v1/stats' } );
 }
 
 /**

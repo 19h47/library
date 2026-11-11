@@ -40,7 +40,7 @@ test.describe( 'Store', () => {
 	} ) => {
 		let isOffline = true;
 
-		await page.route( /reading-idea/, ( route ) =>
+		await page.route( /library\/v1\/idea/, ( route ) =>
 			isOffline ? route.abort( 'internetdisconnected' ) : route.continue()
 		);
 		await openApp( page );
