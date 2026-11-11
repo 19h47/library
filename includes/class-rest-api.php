@@ -1,6 +1,8 @@
 <?php
 /**
- * REST API: a book added or edited, the photo of its cover, reading stats, readings by month, reading idea, achievements, the recap of a year, people and the credits of a book.
+ * REST API: the fields of the books and of the terms of core, and the routes of the plugin: a book added or edited, the
+ * catalogue of the BnF, the photo of a cover, the reading stats, the readings by month, the reading idea, the achievements,
+ * the recap of a year, and the pages of a person, a series and a collection.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -19,7 +21,8 @@ use WP_REST_Server;
 use WP_Term;
 
 /**
- * Registers REST routes for books.
+ * Adds the fields of the books and of the terms to the core REST API, and registers the routes of the plugin with their
+ * schemas.
  *
  * @since      1.0.0
  * @package    Library
@@ -41,7 +44,8 @@ class Rest_API {
 	/**
 	 * Register the fields added to the books of the core REST API: its credits, its readings in order, and what a list of
 	 * books shows of its cover and terms, so that it needs to embed neither the image nor the terms, whole; and to the
-	 * series and the publishers, their names as a book types them.
+	 * series and the publishers, their path as a book types them, after their cycles or their collections, and the ID of
+	 * the publisher of a collection.
 	 *
 	 * @return void
 	 */
@@ -197,7 +201,8 @@ class Rest_API {
 	}
 
 	/**
-	 * Register REST routes.
+	 * Register the routes of the plugin, then the schema of each one, from Rest_Schemas, which the index gives asked for
+	 * help.
 	 *
 	 * @since  1.0.0
 	 * @return void
@@ -570,7 +575,8 @@ class Rest_API {
 
 	/**
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta, its edition languages among them.
+	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them, its readings
+	 * apart, which their own form edits.
 	 *
 	 * The form edits one publisher and one collection, after the collections it is part of: a book given more gives its first
 	 * collection, or else publisher.
@@ -620,8 +626,8 @@ class Rest_API {
 
 	/**
 	 * A book to add as the catalogue of the BnF describes it, from its ISBN, as its form takes it: its title, its people
-	 * with their roles, its publisher, collection and series, its original languages, its form and its meta, its edition
-	 * languages among them, with the names of the library.
+	 * with their roles, its publisher, collection and series, its original languages, its form and its meta by their names, its
+	 * edition languages among them, with the names of the library.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -833,7 +839,8 @@ class Rest_API {
 	}
 
 	/**
-	 * The readings by month, latest first: one per read date, so a book read again comes once per reading, kept or not.
+	 * The readings by month, latest first, each with the ID of its book: one per read date, so a book read again comes once
+	 * per reading, kept or not.
 	 *
 	 * A page holds whole months, so a month never goes on in the next one; the totals in the X-WP-Total and
 	 * X-WP-TotalPages headers count months.
@@ -965,8 +972,8 @@ class Rest_API {
 	}
 
 	/**
-	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its series if
-	 * it is a cycle, its authors, its books in reading order, those of its series with them, how many are read, and the
+	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its parts, the
+	 * series of a cycle, its authors, its books in reading order, those of its series with them, how many are read, and the
 	 * completion they count for.
 	 *
 	 * @param WP_REST_Request $request Request.
