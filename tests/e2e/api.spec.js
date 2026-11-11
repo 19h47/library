@@ -65,7 +65,8 @@ test.describe( 'API reference', () => {
 			.fill( String( book.id ) );
 		await route.getByRole( 'button', { name: 'Try' } ).click();
 		await expect( route.getByRole( 'status' ) ).toContainText( '200' );
-		await expect( route.locator( 'pre' ) ).toContainText(
+		// The answer of the GET request: the other endpoints of the route, POST among them, hold theirs hidden.
+		await expect( route.locator( 'pre:visible' ) ).toContainText(
 			'"title": "Reference Book"'
 		);
 	} );
