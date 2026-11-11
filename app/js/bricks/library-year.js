@@ -31,7 +31,7 @@ class LibraryYearElement extends Brick {
 					const toRead = _n(
 						'%1$s book to read, read in %2$d at this pace',
 						'%1$s books to read, all read in %2$d at this pace',
-						year?.to_read ?? 0,
+						year?.to_read_count ?? 0,
 						'library'
 					);
 
@@ -39,31 +39,33 @@ class LibraryYearElement extends Brick {
 						summary: stats
 							? sprintf(
 									summary,
-									formatNumber( stats.total ),
-									formatNumber( stats.read ),
+									formatNumber( stats.book_count ),
+									formatNumber( stats.read_count ),
 									formatNumber( stats.percent )
 							  )
 							: '',
 						yearToDate: year
 							? sprintf(
 									yearToDate,
-									formatNumber( year.this_year ),
+									formatNumber( year.read_count ),
 									year.year,
-									formatNumber( year.last_year )
+									formatNumber( year.last_year_read_count )
 							  )
 							: '',
 						projection:
-							year && null !== year.projection
+							year && null !== year.projected_read_count
 								? sprintf(
 										projection,
-										formatNumber( year.projection )
+										formatNumber(
+											year.projected_read_count
+										)
 								  )
 								: '',
 						toRead:
 							year && null !== year.all_read_in
 								? sprintf(
 										toRead,
-										formatNumber( year.to_read ),
+										formatNumber( year.to_read_count ),
 										year.all_read_in
 								  )
 								: '',

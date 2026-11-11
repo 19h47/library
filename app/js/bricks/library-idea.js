@@ -24,11 +24,11 @@ class LibraryIdeaElement extends Brick {
 			store.select(
 				( state ) => state.idea,
 				( idea ) => {
-					const book = store.get().books[ idea.id ];
+					const book = store.get().books[ idea.book_id ];
 
 					this.hidden = ! idea.loaded;
 					$next.disabled = idea.loading;
-					$next.hidden = idea.total < 2;
+					$next.hidden = idea.idea_count < 2;
 					fill( this, {
 						status: idea.error,
 						reason: book ? idea.reason : '',

@@ -88,25 +88,26 @@ class LibraryRecapElement extends Brick {
 	#render( recap ) {
 		const { books } = store.get();
 		const read = recap.books.map( ( id ) => books[ id ] ).filter( Boolean );
-		const isShown = recap.loaded && ! recap.error && recap.readings > 0;
+		const isShown =
+			recap.loaded && ! recap.error && recap.reading_count > 0;
 		const started = recap.series.filter( ( series ) => series.started );
 		const finished = recap.series.filter( ( series ) => series.finished );
 
 		fill( this, {
 			year: recap.year ? recap.year.toString() : '',
 			status: this.#status( recap ),
-			readings: formatNumber( recap.readings ),
+			readings: formatNumber( recap.reading_count ),
 			previous: this.#previous( recap ),
-			rereads: recap.rereads
+			rereads: recap.reread_count
 				? sprintf(
 						/* translators: %s: number of readings of a book read again in the year. */
 						_n(
 							'Including %s read again',
 							'Including %s read again',
-							recap.rereads,
+							recap.reread_count,
 							'library'
 						),
-						formatNumber( recap.rereads )
+						formatNumber( recap.reread_count )
 				  )
 				: '',
 			...this.#pages( recap ),
@@ -147,14 +148,14 @@ class LibraryRecapElement extends Brick {
 			] ),
 			rating: formatRating( recap.rating ),
 			achievements: formatNumber( recap.achievements.length ),
-			added: formatNumber( recap.added ),
+			added: formatNumber( recap.added_count ),
 			addedBooks: _n(
 				'book added',
 				'books added',
-				recap.added,
+				recap.added_count,
 				'library'
 			),
-			pile: this.#pile( recap.added, read.length ),
+			pile: this.#pile( recap.added_count, read.length ),
 			closing: recap.year
 				? sprintf(
 						/* translators: %s: year of the recap. */
@@ -179,11 +180,14 @@ class LibraryRecapElement extends Brick {
 		this.#fillCalendar( recap );
 		this.#fillShares(
 			'forms',
-			recap.forms.map( ( { name, readings } ) => ( { name, readings } ) )
+			recap.forms.map( ( { name, reading_count: readings } ) => ( {
+				name,
+				readings,
+			} ) )
 		);
 		this.#fillShares(
 			'people',
-			recap.people.map( ( { id, name, readings } ) => ( {
+			recap.people.map( ( { id, name, reading_count: readings } ) => ( {
 				name: pageLink( 'person', id, name ),
 				readings,
 			} ) )
@@ -198,17 +202,19 @@ class LibraryRecapElement extends Brick {
 		);
 		this.#fillShares(
 			'languages',
-			recap.languages.map( ( { code, readings } ) => ( {
+			recap.languages.map( ( { code, reading_count: readings } ) => ( {
 				name: formatLanguage( code ),
 				readings,
 			} ) )
 		);
 		this.#fillShares(
 			'series',
-			recap.series.slice( 0, 5 ).map( ( { id, name, readings } ) => ( {
-				name: pageLink( 'series', id, name ),
-				readings,
-			} ) )
+			recap.series
+				.slice( 0, 5 )
+				.map( ( { id, name, reading_count: readings } ) => ( {
+					name: pageLink( 'series', id, name ),
+					readings,
+				} ) )
 		);
 		this.querySelector( '[data-list="best"]' ).replaceChildren(
 			...recap.best
@@ -221,14 +227,14 @@ class LibraryRecapElement extends Brick {
 		);
 
 		this.#prepareCounts( recap.year, {
-			readings: recap.readings,
+			readings: recap.reading_count,
 			pages: recap.pages.total,
-			daysRead: recap.calendar.read,
+			daysRead: recap.calendar.read_day_count,
 			discoveries: recap.discoveries.length,
 			languages: recap.languages.length,
 			series: recap.series.length,
 			achievements: recap.achievements.length,
-			added: recap.added,
+			added: recap.added_count,
 			recordLongest: books[ recap.records.longest ]?.pages ?? 0,
 			recordShortest: books[ recap.records.shortest ]?.pages ?? 0,
 		} );
@@ -329,7 +335,9 @@ class LibraryRecapElement extends Brick {
 			return recap.loading ? __( 'Loading…', 'library' ) : '';
 		}
 
-		return recap.readings ? '' : __( 'No readings that year.', 'library' );
+		return recap.reading_count
+			? ''
+			: __( 'No readings that year.', 'library' );
 	}
 
 	/**
@@ -338,7 +346,11 @@ class LibraryRecapElement extends Brick {
 	 * @param {Recap} recap The recap.
 	 * @return {string} The comparison, or empty without a reading the year before.
 	 */
-	#previous( { year, readings, previous } ) {
+	#previous( {
+		year,
+		reading_count: readings,
+		previous_reading_count: previous,
+	} ) {
 		if ( ! previous ) {
 			return '';
 		}
@@ -384,7 +396,7 @@ class LibraryRecapElement extends Brick {
 	 * @param {Recap} recap The recap.
 	 * @return {{pages: string, perDay: string, perBook: string, counted: string}} The fields.
 	 */
-	#pages( { pages, days, readings } ) {
+	#pages( { pages, day_count: days, reading_count: readings } ) {
 		const perDay = days ? Math.round( pages.total / days ) : 0;
 		const perBook = pages.counted
 			? Math.round( pages.total / pages.counted )
@@ -496,8 +508,13 @@ class LibraryRecapElement extends Brick {
 	 * @param {Recap} recap The recap.
 	 * @return {{daysRead: string, daysReadLabel: string, streak: string, bestDay: string, dated: string}} The fields.
 	 */
-	#days( { year, readings, calendar } ) {
-		const { read, streak, best, dated } = calendar;
+	#days( { year, reading_count: readings, calendar } ) {
+		const {
+			read_day_count: read,
+			streak,
+			best,
+			dated_reading_count: dated,
+		} = calendar;
 
 		return {
 			daysRead: formatNumber( read ),

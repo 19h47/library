@@ -722,9 +722,9 @@ class Test_Reading_Idea extends TestCase {
 		$first        = $reading_idea->get_idea();
 		$again        = $reading_idea->get_idea( 4 );
 
-		$this->assertContains( $first['id'], $books );
+		$this->assertContains( $first['book_id'], $books );
 		$this->assertSame( 0, $first['position'] );
-		$this->assertSame( 3, $first['total'] );
+		$this->assertSame( 3, $first['idea_count'] );
 		$this->assertSame( $reading_idea->get_idea( 1 ), $again );
 		$this->assertSame( 1, $again['position'] );
 	}
@@ -796,7 +796,7 @@ class Test_Reading_Idea extends TestCase {
 		$reasons = array();
 
 		foreach ( $method->invokeArgs( new Reading_Idea(), $args ) as $idea ) {
-			$reasons[ $idea['id'] ][] = $idea['reason'];
+			$reasons[ $idea['book_id'] ][] = $idea['reason'];
 		}
 
 		ksort( $reasons );
@@ -811,13 +811,13 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	private function get_all_ideas(): array {
 		$reading_idea = new Reading_Idea();
-		$total        = $reading_idea->get_idea()['total'] ?? 0;
+		$total        = $reading_idea->get_idea()['idea_count'] ?? 0;
 		$reasons      = array();
 
 		for ( $position = 0; $position < $total; $position++ ) {
 			$idea = $reading_idea->get_idea( $position );
 
-			$reasons[ $idea['id'] ][] = $idea['reason'];
+			$reasons[ $idea['book_id'] ][] = $idea['reason'];
 		}
 
 		ksort( $reasons );

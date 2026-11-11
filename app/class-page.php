@@ -265,7 +265,7 @@ class Page {
 
 		// The books of the first readings of the diary, as the store asks for them.
 		$months = $data['/library/v1/readings?page=1']['body'] ?? array();
-		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book' ), $months ) );
+		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book_id' ), $months ) );
 
 		if ( $read ) {
 			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $read, $statuses ) );

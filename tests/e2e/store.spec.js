@@ -54,7 +54,7 @@ test.describe( 'Store', () => {
 			.poll( () =>
 				page.evaluate(
 					() =>
-						window.store.get().idea.id > 0 &&
+						window.store.get().idea.book_id > 0 &&
 						! window.store.get().idea.error
 				)
 			)

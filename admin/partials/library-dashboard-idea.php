@@ -57,7 +57,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							/* translators: 1: position of the idea, 2: number of ideas. */
 							esc_html__( '%1$s of %2$s', 'library' ),
 							esc_html( number_format_i18n( $idea['position'] + 1 ) ),
-							esc_html( number_format_i18n( $idea['total'] ) )
+							esc_html( number_format_i18n( $idea['idea_count'] ) )
 						);
 						?>
 					</span>

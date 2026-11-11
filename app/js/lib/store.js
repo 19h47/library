@@ -414,10 +414,10 @@ function pages( items = [] ) {
  */
 function idea() {
 	return {
-		id: 0,
+		book_id: 0,
 		reason: '',
 		position: 0,
-		total: 0,
+		idea_count: 0,
 		loading: false,
 		loaded: false,
 		error: '',
@@ -452,10 +452,10 @@ function recap( year = 0 ) {
 	return {
 		year,
 		years: [],
-		days: 0,
-		readings: 0,
-		previous: 0,
-		rereads: 0,
+		day_count: 0,
+		reading_count: 0,
+		previous_reading_count: 0,
+		reread_count: 0,
 		books: [],
 		pages: { total: 0, counted: 0 },
 		months: [],
@@ -468,14 +468,14 @@ function recap( year = 0 ) {
 		best: [],
 		records: { longest: 0, shortest: 0, oldest: 0 },
 		achievements: [],
-		added: 0,
+		added_count: 0,
 		calendar: {
 			levels: [],
 			memorable: [],
-			read: 0,
+			read_day_count: 0,
 			streak: 0,
 			best: null,
-			dated: 0,
+			dated_reading_count: 0,
 		},
 		loading: false,
 		loaded: false,
@@ -848,7 +848,7 @@ class LibraryStore extends Store {
 
 	/** The next idea of the week, back to the first one after the last. */
 	nextIdea() {
-		const { position, total, loading } = this.get().idea;
+		const { position, idea_count: total, loading } = this.get().idea;
 
 		if ( ! loading && total ) {
 			this.#fetchIdea( ( position + 1 ) % total );
@@ -1689,18 +1689,18 @@ class LibraryStore extends Store {
 		const isLoaded = await this.#request( 'idea', async () => {
 			const found = await api.getIdea( position );
 
-			await this.#fetchBooks( [ found.id ] );
+			await this.#fetchBooks( [ found.book_id ] );
 
 			return () => ( {
-				id: found.id,
+				book_id: found.book_id,
 				reason: found.reason,
 				position: found.position,
-				total: found.total,
+				idea_count: found.idea_count,
 			} );
 		} );
 
 		if ( ! isLoaded ) {
-			this.#update( 'idea', () => ( { id: 0 } ) );
+			this.#update( 'idea', () => ( { book_id: 0 } ) );
 		}
 	}
 

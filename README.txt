@@ -93,7 +93,7 @@ Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields
 * `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.library_reading` through `POST /wp-json/library/v1/books/<id>`; `library_read` and `library_in_progress` are worked out from them.
 * `cover`, `names`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
 
-The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a publisher gives its `collection` name and the ID of its top `publisher`.
+The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a collection its `path` after the collections it is part of, “Folio, Science-fiction”, and the ID of its publisher, `publisher_id`.
 
 The books take these parameters, besides those of core:
 
@@ -114,7 +114,9 @@ The routes of the plugin, under `/wp-json/library/v1`, to users who can edit pos
 * `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
 * `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
 * `GET /recaps/<year>` – the recap of a year, as the screens of the app show it.
-* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
+* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series, the `parts` of a cycle or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
+
+A field that counts ends in `_count`, such as `read_count` or `book_count`, a field that holds one ID in `_id`, such as `book_id`, and a list of IDs is named after what it lists, such as `books`.
 
 == Changelog ==
 

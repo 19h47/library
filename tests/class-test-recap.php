@@ -31,13 +31,13 @@ class Test_Recap extends TestCase {
 
 		$recap = Recap::get_recap( 2025 );
 
-		$this->assertSame( 3, $recap['readings'] );
-		$this->assertSame( 2, $recap['previous'] );
-		$this->assertSame( 1, $recap['rereads'] );
+		$this->assertSame( 3, $recap['reading_count'] );
+		$this->assertSame( 2, $recap['previous_reading_count'] );
+		$this->assertSame( 1, $recap['reread_count'] );
 		$this->assertSame( array( $again, $first ), $recap['books'] );
 		$this->assertSame( array( 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 ), $recap['months'] );
 		$this->assertSame( array( 2024, 2025 ), $recap['years'] );
-		$this->assertSame( 365, $recap['days'] );
+		$this->assertSame( 365, $recap['day_count'] );
 		$this->assertNotContains( $before, $recap['books'] );
 	}
 
@@ -118,13 +118,13 @@ class Test_Recap extends TestCase {
 		$recap = Recap::get_recap( 2025 );
 
 		$this->assertSame( array( 'Novel', 'Comic' ), array_column( $recap['forms'], 'name' ) );
-		$this->assertSame( array( 2, 1 ), array_column( $recap['forms'], 'readings' ) );
+		$this->assertSame( array( 2, 1 ), array_column( $recap['forms'], 'reading_count' ) );
 		$this->assertSame( array( 'Ann Writer', 'Bob Drawer' ), array_column( $recap['people'], 'name' ) );
 		$this->assertSame(
 			array(
 				array(
-					'code'     => 'it',
-					'readings' => 2,
+					'code'          => 'it',
+					'reading_count' => 2,
 				),
 			),
 			$recap['languages']
@@ -175,7 +175,7 @@ class Test_Recap extends TestCase {
 
 		$this->assertTrue( $series['Started And Finished']['started'] );
 		$this->assertTrue( $series['Started And Finished']['finished'] );
-		$this->assertSame( 2, $series['Started And Finished']['readings'] );
+		$this->assertSame( 2, $series['Started And Finished']['reading_count'] );
 		$this->assertFalse( $series['Finished']['started'] );
 		$this->assertTrue( $series['Finished']['finished'] );
 		$this->assertTrue( $series['Started']['started'] );
@@ -211,7 +211,7 @@ class Test_Recap extends TestCase {
 		$this->add_book( array( 'status' => Status::To_Buy->value ), '2025-05-01 10:00:00' );
 		$this->add_book( array(), '2024-12-31 10:00:00' );
 
-		$this->assertSame( 2, Recap::get_recap( 2025 )['added'] );
+		$this->assertSame( 2, Recap::get_recap( 2025 )['added_count'] );
 	}
 
 	/**
@@ -242,7 +242,7 @@ class Test_Recap extends TestCase {
 			),
 			array_filter( $calendar['levels'] )
 		);
-		$this->assertSame( 6, $calendar['read'] );
+		$this->assertSame( 6, $calendar['read_day_count'] );
 		$this->assertSame( 3, $calendar['streak'] );
 		$this->assertSame(
 			array(
@@ -252,7 +252,7 @@ class Test_Recap extends TestCase {
 			$calendar['best']
 		);
 		$this->assertSame( array( 61, 68 ), $calendar['memorable'] );
-		$this->assertSame( 3, $calendar['dated'] );
+		$this->assertSame( 3, $calendar['dated_reading_count'] );
 	}
 
 	/**
@@ -270,8 +270,8 @@ class Test_Recap extends TestCase {
 		$calendar = Recap::get_recap( $year )['calendar'];
 
 		$this->assertCount( (int) $today->format( 'z' ) + 1, $calendar['levels'] );
-		$this->assertSame( 1, $calendar['read'] );
-		$this->assertSame( 0, $calendar['dated'] );
+		$this->assertSame( 1, $calendar['read_day_count'] );
+		$this->assertSame( 0, $calendar['dated_reading_count'] );
 		$this->assertNull( $calendar['best'] );
 	}
 

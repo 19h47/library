@@ -138,8 +138,8 @@ class Rest_API {
 		// collections it is part of, under the ID of its publisher.
 		$term_fields = array(
 			array( 'library_series', 'path', 'string', array( Taxonomies::class, 'get_series_path' ) ),
-			array( 'library_publisher', 'collection', 'string', array( Taxonomies::class, 'get_collection_name' ) ),
-			array( 'library_publisher', 'publisher', 'integer', fn( WP_Term $term ) => current( Taxonomies::get_top_level_terms( array( $term ) ) )->term_id ?? $term->term_id ),
+			array( 'library_publisher', 'path', 'string', array( Taxonomies::class, 'get_collection_name' ) ),
+			array( 'library_publisher', 'publisher_id', 'integer', fn( WP_Term $term ) => current( Taxonomies::get_top_level_terms( array( $term ) ) )->term_id ?? $term->term_id ),
 		);
 
 		foreach ( $term_fields as [ $taxonomy, $name, $type, $callback ] ) {
@@ -837,8 +837,8 @@ class Rest_API {
 
 		foreach ( Stats::get_readings() as $reading ) {
 			$months[ substr( $reading->read_date, 0, 7 ) ][] = array(
-				'date' => $reading->read_date,
-				'book' => $reading->id,
+				'date'    => $reading->read_date,
+				'book_id' => $reading->id,
 			);
 		}
 
@@ -940,15 +940,15 @@ class Rest_API {
 						'id'          => $term->term_id,
 						'name'        => Taxonomies::get_series_path( $term ),
 						'description' => term_description( $term->term_id ),
-						'books'       => $book_count[ $term->term_id ],
-						'read'        => $read_count[ $term->term_id ] ?? 0,
+						'book_count'  => $book_count[ $term->term_id ],
+						'read_count'  => $read_count[ $term->term_id ] ?? 0,
 					),
 					$series
 				),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => Books::count_read( $books ),
+				'read_count'  => Books::count_read( $books ),
 				'rating'      => Books::get_average_rating( $books ),
-				'pages'       => array_sum( array_column( $books, 'pages' ) ),
+				'page_count'  => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
 			)
 		);
@@ -986,10 +986,10 @@ class Rest_API {
 				'cycle'       => self::build_term_link( $cycle, array( Taxonomies::class, 'get_series_path' ) ),
 				'issn'        => Taxonomies::get_issn( $series->term_id ),
 				'description' => term_description( $series->term_id ),
-				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
+				'parts'       => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Books::sort_in_reading_order( $books ), 'id' ),
-				'read'        => Books::count_read( $books ),
+				'read_count'  => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
@@ -1052,7 +1052,7 @@ class Rest_API {
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => Books::count_read( $books ),
+				'read_count'  => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);
@@ -1116,7 +1116,7 @@ class Rest_API {
 	 * of the books they wrote: those who wrote the most first, then by name.
 	 *
 	 * @param array<int,Book> $books Books, from Books::get_books().
-	 * @return array<int,array{id:int,name:string,description:string,books:int}>
+	 * @return array<int,array{id:int,name:string,description:string,book_count:int}>
 	 */
 	private static function get_authors_of( array $books ): array {
 		$book_count = array_count_values( array_merge( ...array_column( $books, 'author_ids' ) ) );
@@ -1143,7 +1143,7 @@ class Rest_API {
 				'id'          => $author->term_id,
 				'name'        => wp_specialchars_decode( $author->name, ENT_QUOTES ),
 				'description' => term_description( $author->term_id ),
-				'books'       => $book_count[ $author->term_id ],
+				'book_count'  => $book_count[ $author->term_id ],
 			),
 			$authors
 		);

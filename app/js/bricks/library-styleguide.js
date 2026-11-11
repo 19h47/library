@@ -115,17 +115,22 @@ const AUTHORS = [
 		name: 'An Author',
 		description:
 			'<p>A description long enough to be clamped at three lines, as on the page of a series, where the page of the author shows it in full, with its paragraphs.</p>\n<p>Its second paragraph.</p>',
-		books: 12,
+		book_count: 12,
 	},
-	{ id: 2, name: 'An Author Without Description', description: '', books: 1 },
+	{
+		id: 2,
+		name: 'An Author Without Description',
+		description: '',
+		book_count: 1,
+	},
 ];
 
 const SERIES = {
 	id: 1,
 	name: 'A Cycle, A Series',
 	description: '<p>The description of a series, on the page of a person.</p>',
-	books: 3,
-	read: 2,
+	book_count: 3,
+	read_count: 2,
 };
 
 const ACHIEVEMENTS = [
@@ -184,13 +189,13 @@ class LibraryStyleguideElement extends Brick {
 			volumes: () => this.#renderVolumes(),
 			terms: () => [
 				...AUTHORS.map( ( author ) =>
-					renderAuthor( author, formatBooks( author.books ) )
+					renderAuthor( author, formatBooks( author.book_count ) )
 				),
 				renderSeries(
 					SERIES,
 					join( [
-						formatBooks( SERIES.books ),
-						`${ SERIES.read } read`,
+						formatBooks( SERIES.book_count ),
+						`${ SERIES.read_count } read`,
 					] )
 				),
 			],

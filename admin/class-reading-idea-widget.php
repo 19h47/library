@@ -56,7 +56,7 @@ class Reading_Idea_Widget {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only position in the list.
 		$position = isset( $_GET[ self::QUERY_ARG ] ) ? absint( $_GET[ self::QUERY_ARG ] ) : 0;
 		$idea     = new Reading_Idea()->get_idea( $position );
-		$book     = $idea ? get_post( $idea['id'] ) : null;
+		$book     = $idea ? get_post( $idea['book_id'] ) : null;
 		$next_url = add_query_arg( self::QUERY_ARG, $position + 1, admin_url( 'index.php' ) );
 
 		include plugin_dir_path( __FILE__ ) . 'partials/library-dashboard-idea.php';

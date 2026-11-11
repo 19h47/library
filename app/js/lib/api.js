@@ -206,8 +206,8 @@ import {
  * The reading stats: all the books, those read, and this year against the last one.
  *
  * @typedef {Object} Stats
- * @property {number}    total        The books.
- * @property {number}    read         The books read.
+ * @property {number}    book_count   The books.
+ * @property {number}    read_count   The books read.
  * @property {number}    percent      The percentage of books read.
  * @property {YearStats} year_to_date This year against the last one.
  */
@@ -216,12 +216,12 @@ import {
  * The readings of the year to date, against the same date last year, and the pace.
  *
  * @typedef {Object} YearStats
- * @property {number}      year        This year.
- * @property {number}      this_year   The books read this year.
- * @property {number}      last_year   The books read by this date last year.
- * @property {number|null} projection  The books read by the end of the year at this pace, none without a pace.
- * @property {number}      to_read     The books to read.
- * @property {number|null} all_read_in The year they would all be read in at this pace, none without a pace.
+ * @property {number}      year                 This year.
+ * @property {number}      read_count           The books read this year.
+ * @property {number}      last_year_read_count The books read by this date last year.
+ * @property {number|null} projected_read_count The books read by the end of the year at this pace, none without a pace.
+ * @property {number}      to_read_count        The books to read.
+ * @property {number|null} all_read_in          The year they would all be read in at this pace, none without a pace.
  */
 
 /**
@@ -244,10 +244,10 @@ import {
  * A reading idea of the week's list, with the ID of its book.
  *
  * @typedef {Object} Idea
- * @property {number} id       The ID of its book.
- * @property {string} reason   Why it is an idea.
- * @property {number} position Its position in the week's list.
- * @property {number} total    The ideas of the week.
+ * @property {number} book_id    The ID of its book.
+ * @property {string} reason     Why it is an idea.
+ * @property {number} position   Its position in the week's list.
+ * @property {number} idea_count The ideas of the week.
  */
 
 /**
@@ -286,7 +286,7 @@ import {
  * @property {number} id          Their term ID.
  * @property {string} name        Their name.
  * @property {string} description Their description, HTML.
- * @property {number} books       How many of its books they wrote.
+ * @property {number} book_count  How many of its books they wrote.
  */
 
 /**
@@ -296,8 +296,8 @@ import {
  * @property {number} id          Its term ID.
  * @property {string} name        Its name, after its cycles.
  * @property {string} description Its description, HTML.
- * @property {number} books       How many of their books it holds.
- * @property {number} read        How many of these are read.
+ * @property {number} book_count  How many of their books it holds.
+ * @property {number} read_count  How many of these are read.
  */
 
 /**
@@ -352,9 +352,9 @@ import {
  * A term of the books read in a year, such as a form or a person, with its readings.
  *
  * @typedef {Object} RecapTerm
- * @property {number} id       Its term ID.
- * @property {string} name     Its name.
- * @property {number} readings Its readings in the year.
+ * @property {number} id            Its term ID.
+ * @property {string} name          Its name.
+ * @property {number} reading_count Its readings in the year.
  */
 
 /**
@@ -368,12 +368,12 @@ import {
  * its start is unknown, the pages of a book read from a known start spread over its days.
  *
  * @typedef {Object} RecapCalendar
- * @property {number[]}                          levels    The level of each day, 0 for none read, then 1 to 4 by its pages.
- * @property {number[]}                          memorable The memorable days, by their index: the biggest one, and those a favourite was finished.
- * @property {number}                            read      The days read.
- * @property {number}                            streak    The most days read in a row.
- * @property {{day: number, pages: number}|null} best      The day the most pages were read, by its index, none without pages.
- * @property {number}                            dated     The readings ended in the year with their start known.
+ * @property {number[]}                          levels              The level of each day, 0 for none read, then 1 to 4 by its pages.
+ * @property {number[]}                          memorable           The memorable days, by their index: the biggest one, and those a favourite was finished.
+ * @property {number}                            read_day_count      The days read.
+ * @property {number}                            streak              The most days read in a row.
+ * @property {{day: number, pages: number}|null} best                The day the most pages were read, by its index, none without pages.
+ * @property {number}                            dated_reading_count The readings ended in the year with their start known.
  */
 
 /**
@@ -381,26 +381,26 @@ import {
  * read, the ratings and the records take each book once.
  *
  * @typedef {Object} Recap
- * @property {number}                                              year         The year.
- * @property {number[]}                                            years        The years with a reading, the earliest first.
- * @property {number}                                              days         Its days gone by: all of them for a year gone.
- * @property {number}                                              readings     Its readings.
- * @property {number}                                              previous     The readings of the year before.
- * @property {number}                                              rereads      Its readings of a book read again in the year.
- * @property {number[]}                                            books        The IDs of the books read, in the order they were read.
- * @property {{total: number, counted: number}}                    pages        The pages read, and the readings of a book with its number of pages.
- * @property {number[]}                                            months       The readings of each month, from January.
- * @property {RecapTerm[]}                                         forms        The forms read, the most read first.
- * @property {RecapTerm[]}                                         people       The people read the most, by the name they are known by.
- * @property {Term[]}                                              discoveries  The people read for the first time, in the order they were read.
- * @property {{code: string, readings: number}[]}                  languages    The original languages, as ISO 639 codes, the most read first.
- * @property {RecapSeries[]}                                       series       The series read, the most read first.
- * @property {number|null}                                         rating       The average rating of the books read, none without one.
- * @property {number[]}                                            best         The IDs of the books read with a rating, the highest first.
- * @property {{longest: number, shortest: number, oldest: number}} records      The IDs of the longest, the shortest and the oldest books read, 0 for none.
- * @property {Achievement[]}                                       achievements The achievements earned in the year.
- * @property {number}                                              added        The books added in the year, but those to buy.
- * @property {RecapCalendar}                                       calendar     Its days of reading.
+ * @property {number}                                              year                   The year.
+ * @property {number[]}                                            years                  The years with a reading, the earliest first.
+ * @property {number}                                              day_count              Its days gone by: all of them for a year gone.
+ * @property {number}                                              reading_count          Its readings.
+ * @property {number}                                              previous_reading_count The readings of the year before.
+ * @property {number}                                              reread_count           Its readings of a book read again in the year.
+ * @property {number[]}                                            books                  The IDs of the books read, in the order they were read.
+ * @property {{total: number, counted: number}}                    pages                  The pages read, and the readings of a book with its number of pages.
+ * @property {number[]}                                            months                 The readings of each month, from January.
+ * @property {RecapTerm[]}                                         forms                  The forms read, the most read first.
+ * @property {RecapTerm[]}                                         people                 The people read the most, by the name they are known by.
+ * @property {Term[]}                                              discoveries            The people read for the first time, in the order they were read.
+ * @property {{code: string, reading_count: number}[]}             languages              The original languages, as ISO 639 codes, the most read first.
+ * @property {RecapSeries[]}                                       series                 The series read, the most read first.
+ * @property {number|null}                                         rating                 The average rating of the books read, none without one.
+ * @property {number[]}                                            best                   The IDs of the books read with a rating, the highest first.
+ * @property {{longest: number, shortest: number, oldest: number}} records                The IDs of the longest, the shortest and the oldest books read, 0 for none.
+ * @property {Achievement[]}                                       achievements           The achievements earned in the year.
+ * @property {number}                                              added_count            The books added in the year, but those to buy.
+ * @property {RecapCalendar}                                       calendar               Its days of reading.
  */
 
 /**
@@ -428,12 +428,12 @@ import {
  * A term of the core REST API, with the fields of the plugin the form of a book reads.
  *
  * @typedef {Object} ApiTerm
- * @property {number} id           Its term ID.
- * @property {string} name         Its name, HTML.
- * @property {number} parent       The term ID of its parent, 0 at the top.
- * @property {string} [path]       A series after its cycles, in plain text.
- * @property {number} [publisher]  The term ID of the publisher of a collection, its own for a publisher.
- * @property {string} [collection] A collection after the collections it is part of, without its publisher, in plain text.
+ * @property {number} id             Its term ID.
+ * @property {string} name           Its name, HTML.
+ * @property {number} parent         The term ID of its parent, 0 at the top.
+ * @property {number} [publisher_id] The term ID of the publisher of a collection, its own for a publisher.
+ * @property {string} [path]         A series after its cycles, or a collection after the collections it is part of,
+ *                                   without its publisher, in plain text.
  */
 
 const parser = new DOMParser();
@@ -631,9 +631,9 @@ const PAGES = {
 			otherNames: data.other_names.map( text ),
 			description: data.description,
 			series: data.series.map( toPlainName ),
-			read: data.read,
+			read: data.read_count,
 			rating: data.rating,
-			bookPages: data.pages,
+			bookPages: data.page_count,
 			completion: data.completion,
 		} ),
 	},
@@ -643,10 +643,10 @@ const PAGES = {
 			name: text( data.name ),
 			cycle: toPlainName( data.cycle ),
 			issn: data.issn,
-			parts: data.series.map( toPlainName ),
+			parts: data.parts.map( toPlainName ),
 			authors: data.authors.map( toPlainName ),
 			description: data.description,
-			read: data.read,
+			read: data.read_count,
 			completion: data.completion,
 		} ),
 	},
@@ -659,7 +659,7 @@ const PAGES = {
 			collections: data.collections.map( toPlainName ),
 			authors: data.authors.map( toPlainName ),
 			description: data.description,
-			read: data.read,
+			read: data.read_count,
 			completion: data.completion,
 		} ),
 	},
@@ -834,13 +834,13 @@ export async function findInBnf( isbn ) {
  * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, and how many months and pages in all.
  */
 export async function getReadings( page ) {
-	/** @type {Paged<{month: string, readings: Array<{date: string, book: number}>}>} */
+	/** @type {Paged<{month: string, readings: Array<{date: string, book_id: number}>}>} */
 	const { items, total, pages } = await fetchPaged( {
 		path: addQueryArgs( '/library/v1/readings', { page } ),
 	} );
 	const months = items.map( ( { month, readings } ) => ( {
 		month,
-		readings: readings.map( ( { date, book } ) => ( { date, id: book } ) ),
+		readings: readings.map( ( { date, book_id: id } ) => ( { date, id } ) ),
 	} ) );
 
 	return { months, total, pages };
@@ -936,7 +936,7 @@ export async function getTerms() {
 	const [ people, publishers, series ] = await Promise.all( [
 		fetchAll( 'people', { _fields: 'id,name,parent' } ),
 		fetchAll( 'publishers', {
-			_fields: 'id,name,parent,publisher,collection',
+			_fields: 'id,name,parent,publisher_id,path',
 			orderby: 'id',
 		} ),
 		fetchAll( 'series', { _fields: 'id,parent,path', orderby: 'id' } ),
@@ -952,8 +952,8 @@ export async function getTerms() {
 		people: people.map( toTerm ),
 		publishers: publishers.map( ( term ) => ( {
 			...toTerm( term ),
-			publisher: term.publisher,
-			collection: term.collection,
+			publisher: term.publisher_id,
+			collection: term.path,
 		} ) ),
 		series: series.map( ( { id, path, parent } ) => ( {
 			id,

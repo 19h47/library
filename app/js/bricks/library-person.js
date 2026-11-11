@@ -84,8 +84,8 @@ class LibraryPersonElement extends TermPage {
 							renderSeries(
 								item,
 								join( [
-									formatBooks( item.books ),
-									formatRead( item.read ),
+									formatBooks( item.book_count ),
+									formatRead( item.read_count ),
 								] )
 							)
 						),

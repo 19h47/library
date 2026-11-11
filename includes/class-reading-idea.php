@@ -29,7 +29,7 @@ use WP_Term;
  * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
- * @phpstan-type Idea array{id:int,reason:string}
+ * @phpstan-type Idea array{book_id:int,reason:string}
  * @phpstan-type Series_Reads array{volumes:int,latest_read:string}
  * @phpstan-type Next_Part array{cycle:string,volumes:int,latest_read:string}
  */
@@ -109,7 +109,7 @@ class Reading_Idea {
 	 * The idea at a position of this week's list, which loops.
 	 *
 	 * @param int $position Position, 0 for the idea of the week.
-	 * @return array{id:int,reason:string,position:int,total:int}|null Null when there is nothing to suggest.
+	 * @return array{book_id:int,reason:string,position:int,idea_count:int}|null Null when there is nothing to suggest.
 	 */
 	public function get_idea( int $position = 0 ): ?array {
 		// Kept until a book changes, for the day: some ideas read the date, such as the books added lately.
@@ -123,8 +123,8 @@ class Reading_Idea {
 		$position = $position % $total;
 
 		return $ideas[ $position ] + array(
-			'position' => $position,
-			'total'    => $total,
+			'position'   => $position,
+			'idea_count' => $total,
 		);
 	}
 
@@ -161,7 +161,7 @@ class Reading_Idea {
 		$kinds          = array_merge( array_slice( $kinds, $first ), array_slice( $kinds, 0, $first ) );
 
 		foreach ( $kinds as &$kind ) {
-			usort( $kind, fn( array $a, array $b ) => strcmp( md5( $week . $a['id'] ), md5( $week . $b['id'] ) ) );
+			usort( $kind, fn( array $a, array $b ) => strcmp( md5( $week . $a['book_id'] ), md5( $week . $b['book_id'] ) ) );
 		}
 		unset( $kind );
 
@@ -172,8 +172,8 @@ class Reading_Idea {
 			foreach ( $kinds as $kind ) {
 				$idea = $kind[ $round ] ?? null;
 
-				if ( $idea && ! isset( $ideas[ $idea['id'] ] ) ) {
-					$ideas[ $idea['id'] ] = $idea;
+				if ( $idea && ! isset( $ideas[ $idea['book_id'] ] ) ) {
+					$ideas[ $idea['book_id'] ] = $idea;
 				}
 			}
 		}
@@ -259,8 +259,8 @@ class Reading_Idea {
 				);
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => $reason,
+				'book_id' => $book->id,
+				'reason'  => $reason,
 			);
 		}
 
@@ -409,8 +409,8 @@ class Reading_Idea {
 
 			if ( null !== $name ) {
 				$ideas[] = array(
-					'id'     => $book->id,
-					'reason' => $reason( (string) $name, $names[ $name ] ),
+					'book_id' => $book->id,
+					'reason'  => $reason( (string) $name, $names[ $name ] ),
 				);
 			}
 		}
@@ -491,8 +491,8 @@ class Reading_Idea {
 				}
 
 				$ideas[] = array(
-					'id'     => $book->id,
-					'reason' => sprintf(
+					'book_id' => $book->id,
+					'reason'  => sprintf(
 						/* translators: 1: author, 2: number of books. */
 						__( 'You have %2$s books by %1$s, and none read.', 'library' ),
 						$author,
@@ -575,8 +575,8 @@ class Reading_Idea {
 			}
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => $reason,
+				'book_id' => $book->id,
+				'reason'  => $reason,
 			);
 		}
 
@@ -672,8 +672,8 @@ class Reading_Idea {
 		foreach ( $to_read as $book ) {
 			if ( $has_trait( $book ) === $wanted ) {
 				$ideas[] = array(
-					'id'     => $book->id,
-					'reason' => $reason,
+					'book_id' => $book->id,
+					'reason'  => $reason,
 				);
 			}
 		}
@@ -706,8 +706,8 @@ class Reading_Idea {
 			}
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => sprintf(
+				'book_id' => $book->id,
+				'reason'  => sprintf(
 					/* translators: %d: decade, e.g. 1960. */
 					__( 'You have not read any book from the %ds yet.', 'library' ),
 					$decade( $book )
@@ -727,7 +727,7 @@ class Reading_Idea {
 	private function get_short_ideas( array $to_read ): array {
 		$pace = Stats::get_reading_year_to_date();
 
-		if ( $pace['this_year'] >= $pace['last_year'] ) {
+		if ( $pace['read_count'] >= $pace['last_year_read_count'] ) {
 			return array();
 		}
 
@@ -739,13 +739,13 @@ class Reading_Idea {
 			}
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => sprintf(
+				'book_id' => $book->id,
+				'reason'  => sprintf(
 					/* translators: 1: number of pages, 2: number of books read this year, 3: number of books read by the same date last year. */
-					_n( '%1$s pages, to catch up: %2$s book read this year against %3$s by this date last year.', '%1$s pages, to catch up: %2$s books read this year against %3$s by this date last year.', $pace['this_year'], 'library' ),
+					_n( '%1$s pages, to catch up: %2$s book read this year against %3$s by this date last year.', '%1$s pages, to catch up: %2$s books read this year against %3$s by this date last year.', $pace['read_count'], 'library' ),
 					number_format_i18n( $book->pages ),
-					number_format_i18n( $pace['this_year'] ),
-					number_format_i18n( $pace['last_year'] )
+					number_format_i18n( $pace['read_count'] ),
+					number_format_i18n( $pace['last_year_read_count'] )
 				),
 			);
 		}
@@ -771,8 +771,8 @@ class Reading_Idea {
 			}
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => sprintf(
+				'book_id' => $book->id,
+				'reason'  => sprintf(
 					/* translators: %s: time since the book was added, e.g. "12 days". */
 					__( 'Added %s ago.', 'library' ),
 					human_time_diff( $added )
@@ -801,8 +801,8 @@ class Reading_Idea {
 			}
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => sprintf(
+				'book_id' => $book->id,
+				'reason'  => sprintf(
 					/* translators: 1: rating, 2: year read. */
 					__( 'Rated %1$s/10, read in %2$s: read it again?', 'library' ),
 					Books::format_rating( $book->rating ),
@@ -832,8 +832,8 @@ class Reading_Idea {
 			}
 
 			$ideas[] = array(
-				'id'     => $book->id,
-				'reason' => $reason,
+				'book_id' => $book->id,
+				'reason'  => $reason,
 			);
 		}
 
@@ -864,8 +864,8 @@ class Reading_Idea {
 			$series = $next_parts[ $book->series ]['cycle'] ?? $book->series;
 
 			$ideas[ $book->id ] = array(
-				'id'     => $book->id,
-				'reason' => sprintf(
+				'book_id' => $book->id,
+				'reason'  => sprintf(
 					/* translators: 1: series, 2: number of volumes read. */
 					_n( 'To buy, next in %1$s: you have read %2$s volume.', 'To buy, next in %1$s: you have read %2$s volumes.', $read['volumes'], 'library' ),
 					$series,
@@ -887,6 +887,6 @@ class Reading_Idea {
 			)
 		);
 
-		return array_values( $ideas + array_column( $author_ideas, null, 'id' ) );
+		return array_values( $ideas + array_column( $author_ideas, null, 'book_id' ) );
 	}
 }
