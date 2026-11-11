@@ -22,11 +22,11 @@ namespace Library;
 class Posts {
 
 	/**
-	 * Meta keys the slug of a book is built from, after its title: its ISBN, or else its ISSN and its volume number.
+	 * Meta keys the slug of a book is built from, after its title: its ISBN, or else its volume number.
 	 *
 	 * @var string[]
 	 */
-	public const array SLUG_KEYS = array( 'library_isbn', 'library_issn', 'library_volume_number' );
+	public const array SLUG_KEYS = array( 'library_isbn', 'library_volume_number' );
 
 	/**
 	 * Register hooks.
@@ -118,11 +118,11 @@ class Posts {
 	}
 
 	/**
-	 * Build the slug from the title and the ISBN, or the ISSN and volume number, or else from the title alone: an ISBN
-	 * removed leaves the slug too.
+	 * Build the slug from the title and the ISBN, or the volume number, such as the issue of a magazine, or else from the
+	 * title alone: an ISBN removed leaves the slug too.
 	 *
 	 * Only the forms of a book send its ISBN, even empty: any other save, such as moving it to the trash, keeps the slug.
-	 * Quick edit sends neither the ISSN nor the volume number, which are then those of the book. The fields are taken as
+	 * Quick edit does not send the volume number, which is then the one of the book. The fields are taken as
 	 * they are saved, an ISBN with its hyphens.
 	 *
 	 * Runs before the post is written, so no second update is needed.
@@ -144,10 +144,10 @@ class Posts {
 			$fields[ $key ] = sanitize_meta( $key, $value, 'post', 'library_book' );
 		}
 
-		if ( $fields['library_issn'] && $fields['library_volume_number'] ) {
-			$parts = array( $title, $fields['library_issn'], $fields['library_volume_number'] );
-		} elseif ( $fields['library_isbn'] ) {
+		if ( $fields['library_isbn'] ) {
 			$parts = array( $title, $fields['library_isbn'] );
+		} elseif ( $fields['library_volume_number'] ) {
+			$parts = array( $title, $fields['library_volume_number'] );
 		} else {
 			$parts = array( $title );
 		}

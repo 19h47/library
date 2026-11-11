@@ -17,6 +17,7 @@ use Library\Admin\Books_List;
 use Library\Admin\Dashboard;
 use Library\Admin\Metaboxes;
 use Library\Admin\Reading_Idea_Widget;
+use Library\Admin\Term_Fields;
 use Library\Admin\Terms_List;
 use Library\App\Login;
 use Library\App\Page;
@@ -65,6 +66,7 @@ class Plugin {
 		new Metaboxes()->hooks();
 		new Books_List()->hooks();
 		new Terms_List()->hooks();
+		new Term_Fields()->hooks();
 		new Dashboard()->hooks();
 		new Reading_Idea_Widget()->hooks();
 		new Achievements_Page()->hooks();

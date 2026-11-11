@@ -9,21 +9,21 @@ import { TermPage } from 'library-app/term-page';
  */
 
 /**
- * The page of a series, or of a cycle: its name after its cycles, its cycle, its description, how many of its books are
- * read and the completion they count for, the series of a cycle, its authors, then its books in reading order, those of
- * its series with them.
+ * The page of a series, or of a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description,
+ * how many of its books are read and the completion they count for, the series of a cycle, its authors, then its books
+ * in reading order, those of its series with them.
  */
 class LibrarySeriesElement extends TermPage {
 	/** @type {PageView} */
 	static page = 'series';
 
 	/**
-	 * Fills its cycle and the series of a cycle.
+	 * Fills its cycle, its ISSN and the series of a cycle.
 	 *
 	 * @param {SeriesPage} series The series.
 	 */
 	fillPage( series ) {
-		fill( this, { cycle: series.cycle?.name ?? '' } );
+		fill( this, { cycle: series.cycle?.name ?? '', issn: series.issn } );
 
 		if ( series.cycle ) {
 			/** @type {HTMLAnchorElement} */ (
