@@ -134,15 +134,15 @@ class Test_Achievements_Languages extends TestCase {
 			'2024-04-01',
 			array(
 				'people' => array( $this->get_translator( 'René de Ceccatty' ) ),
-				'meta'   => array( 'library_edition_languages' => array( $french ) ),
+				'meta'   => array( 'edition_languages' => array( $french ) ),
 			)
 		);
-		$this->add_read_in( 'it', '2024-04-02', array( 'meta' => array( 'library_edition_languages' => array( $french ) ) ) );
-		$this->add_read_in( 'de', '2024-04-03', array( 'meta' => array( 'library_edition_languages' => array( 1 => $french ) ) ) );
+		$this->add_read_in( 'it', '2024-04-02', array( 'meta' => array( 'edition_languages' => array( $french ) ) ) );
+		$this->add_read_in( 'de', '2024-04-03', array( 'meta' => array( 'edition_languages' => array( 1 => $french ) ) ) );
 		$this->add_book(
 			array(
 				'languages' => array( $this->get_language( 'es', self::LANGUAGES['es'] ) ),
-				'meta'      => array( 'library_reading' => array( '/2024-04-04' ) ),
+				'meta'      => array( 'reading' => array( '/2024-04-04' ) ),
 			)
 		);
 		$this->add_read_in( 'en', '2024-04-05' );
@@ -190,7 +190,7 @@ class Test_Achievements_Languages extends TestCase {
 			array(
 				'title'     => 'Read twice',
 				'languages' => array( $this->get_language( 'ja', self::LANGUAGES['ja'] ) ),
-				'meta'      => array( 'library_reading' => array( '/2024-01-01', '/2024-06-01' ) ),
+				'meta'      => array( 'reading' => array( '/2024-01-01', '/2024-06-01' ) ),
 			)
 		);
 		$this->add_languages_read( array( 'it', 'de', 'es', 'ru' ), '2024-01-02' );
@@ -419,8 +419,8 @@ class Test_Achievements_Languages extends TestCase {
 				array(
 					'languages' => array( $language ),
 					'meta'      => array(
-						'library_reading'           => array( "/$read_date" ),
-						'library_edition_languages' => array( $language ),
+						'reading'           => array( "/$read_date" ),
+						'edition_languages' => array( $language ),
 					),
 				),
 				$book

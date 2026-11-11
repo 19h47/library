@@ -150,7 +150,7 @@ class Test_Achievements_Completions extends TestCase {
 	 */
 	public function test_a_collective_book_is_not_part_of_the_work_of_its_authors(): void {
 		$this->add_reads( array( '2024-01-10', '2024-02-10' ), $this->by( 'Ursula K. Le Guin' ) );
-		$this->add_reads( array( '2024-03-05' ), array( 'meta' => array( 'library_collective' => true ) ) + $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_reads( array( '2024-03-05' ), array( 'meta' => array( 'collective' => true ) ) + $this->by( 'Ursula K. Le Guin' ) );
 
 		$this->assertArrayNotHasKey( 'author', $this->get_earned() );
 		$this->assertArrayNotHasKey( 'author', $this->get_close() );
@@ -688,8 +688,8 @@ class Test_Achievements_Completions extends TestCase {
 			wp_json_encode(
 				array(
 					'meta' => array(
-						'library_read'    => true,
-						'library_reading' => array( "/$read_date" ),
+						'read'    => true,
+						'reading' => array( "/$read_date" ),
 					),
 				)
 			)

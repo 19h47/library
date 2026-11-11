@@ -129,12 +129,12 @@ import * as api from 'library-app/api';
  * The reading of a book, as the route of its form takes it.
  *
  * @typedef {Object} BookReading
- * @property {Object}      meta                     Its meta.
- * @property {boolean}     meta.library_read        Whether it is read.
- * @property {boolean}     meta.library_in_progress Whether it is being read.
- * @property {string[]}    meta.library_reading     Its readings, by their days, as intervals: 2026-10-20/2026-11-02.
- * @property {number|null} meta.library_rating      Its rating, none for none.
- * @property {string}      [status]                 Its status, unless another one than in the library, not kept or to buy.
+ * @property {Object}      meta             Its meta.
+ * @property {boolean}     meta.read        Whether it is read.
+ * @property {boolean}     meta.in_progress Whether it is being read.
+ * @property {string[]}    meta.reading     Its readings, by their days, as intervals: 2026-10-20/2026-11-02.
+ * @property {number|null} meta.rating      Its rating, none for none.
+ * @property {string}      [status]         Its status, unless another one than in the library, not kept or to buy.
  */
 
 /**
@@ -342,10 +342,10 @@ function intervalsOf( book ) {
  */
 function readingOf( book ) {
 	const meta = {
-		library_read: book.read,
-		library_in_progress: book.in_progress,
-		library_reading: intervalsOf( book ),
-		library_rating: book.rating || null,
+		read: book.read,
+		in_progress: book.in_progress,
+		reading: intervalsOf( book ),
+		rating: book.rating || null,
 	};
 
 	return STATUSES.includes( book.status )
@@ -1147,22 +1147,22 @@ class LibraryStore extends Store {
 		const meta = {};
 
 		if ( read !== book.read ) {
-			meta.library_read = read;
+			meta.read = read;
 		}
 
 		if ( inProgress !== book.in_progress ) {
-			meta.library_in_progress = inProgress;
+			meta.in_progress = inProgress;
 		}
 
 		// By their days, as the form gives them, in any order: the server keeps the time of a reading of the day.
 		const saved = intervalsOf( book );
 
 		if ( [ ...intervals ].sort().join() !== [ ...saved ].sort().join() ) {
-			meta.library_reading = intervals;
+			meta.reading = intervals;
 		}
 
 		if ( rating !== ( book.rating || null ) ) {
-			meta.library_rating = rating;
+			meta.rating = rating;
 		}
 
 		if ( ! Object.keys( meta ).length && status === book.status ) {

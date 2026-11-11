@@ -67,9 +67,7 @@ test.describe( 'Store', () => {
 		await openApp( page, `&view=book&book=${ books[ 0 ].id }` );
 		await waitForIdle( page );
 
-		const rating = page.locator(
-			'library-reading [name="library_rating"]'
-		);
+		const rating = page.locator( 'library-reading [name="rating"]' );
 
 		// Typed, not chosen yet: no change, nothing saved.
 		await rating.evaluate( ( select ) => {

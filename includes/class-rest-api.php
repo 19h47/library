@@ -484,7 +484,7 @@ class Rest_API {
 				'default'     => 0,
 			),
 			'meta'           => array(
-				'description' => __( 'Book meta, such as library_isbn, as the book form saves them.', 'library' ),
+				'description' => __( 'Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them.', 'library' ),
 				'type'        => 'object',
 				'default'     => array(),
 			),
@@ -531,7 +531,7 @@ class Rest_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function create_book( WP_REST_Request $request ) {
-		$meta  = (array) $request['meta'];
+		$meta  = Meta::from_names( (array) $request['meta'] );
 		$error = Meta::check_isbn( 0, (string) ( $meta['library_isbn'] ?? '' ) );
 
 		if ( $error ) {
@@ -555,7 +555,7 @@ class Rest_API {
 			return $book_id;
 		}
 
-		$this->save_book( $book_id, $request, $terms, $roles );
+		$this->save_book( $book_id, $request, $meta, $terms, $roles );
 
 		$response = $this->get_book_response( $book_id );
 		$response->set_status( 201 );
@@ -608,7 +608,7 @@ class Rest_API {
 				'series'     => Taxonomies::get_series_name( $book->ID ),
 				'languages'  => $languages,
 				'form'       => (int) current( $forms ),
-				'meta'       => $meta,
+				'meta'       => Meta::to_names( $meta ),
 			)
 		);
 	}
@@ -628,6 +628,10 @@ class Rest_API {
 			return new WP_Error( 'library_not_in_bnf', __( 'The catalogue of the BnF has no book of this ISBN.', 'library' ), array( 'status' => 404 ) );
 		}
 
+		if ( is_array( $book ) ) {
+			$book['meta'] = Meta::to_names( $book['meta'] );
+		}
+
 		return rest_ensure_response( $book );
 	}
 
@@ -640,7 +644,7 @@ class Rest_API {
 	 */
 	public function update_book( WP_REST_Request $request ) {
 		$book_id = $request['id'];
-		$meta    = (array) $request['meta'];
+		$meta    = Meta::from_names( (array) $request['meta'] );
 		$error   = Meta::check_isbn( $book_id, (string) ( $meta['library_isbn'] ?? '' ) );
 
 		if ( $error ) {
@@ -674,7 +678,7 @@ class Rest_API {
 			return $updated;
 		}
 
-		$this->save_book( $book_id, $request, $terms, $roles );
+		$this->save_book( $book_id, $request, $meta, $terms, $roles );
 
 		return $this->get_book_response( $book_id );
 	}
@@ -740,13 +744,14 @@ class Rest_API {
 	 *
 	 * @param int                 $book_id Book ID.
 	 * @param WP_REST_Request     $request Request.
+	 * @param array<string,mixed> $meta    Meta sent, by key, from Meta::from_names().
 	 * @param array<string,int[]> $terms   Term IDs by taxonomy, from get_terms().
 	 * @param array<int,string>   $roles   Roles of the names sent, by term ID, from get_roles().
 	 * @return void
 	 */
-	private function save_book( int $book_id, WP_REST_Request $request, array $terms, array $roles ): void {
+	private function save_book( int $book_id, WP_REST_Request $request, array $meta, array $terms, array $roles ): void {
 		if ( $request->has_param( 'meta' ) ) {
-			Meta::save( $book_id, (array) $request['meta'] );
+			Meta::save( $book_id, $meta );
 		}
 
 		foreach ( $terms as $taxonomy => $term_ids ) {
@@ -810,7 +815,7 @@ class Rest_API {
 		}
 
 		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
-		$name    = Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], (array) $request['meta'], $photo['name'] );
+		$name    = Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], Meta::from_names( (array) $request['meta'] ), $photo['name'] );
 		$media   = new WP_REST_Request( 'POST', '/wp/v2/media' );
 
 		// A photo without name keeps none.

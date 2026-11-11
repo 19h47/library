@@ -128,7 +128,7 @@ import {
  * @property {string}                  series           Its series, after its cycles.
  * @property {number[]}                languages        The term IDs of its original languages.
  * @property {number}                  form             The term ID of its form, 0 for none.
- * @property {Object<string, unknown>} meta             Its meta, by their keys, library_isbn… and its edition languages.
+ * @property {Object<string, unknown>} meta             Its meta, by their names, isbn… and its edition languages.
  * @property {string}                  [status]         The status of a book to add.
  * @property {number}                  [featured_media] The ID of the image of its cover, 0 for none.
  */
@@ -151,9 +151,10 @@ import {
  */
 
 /**
- * The meta of a book as its form edits them, by their keys: library_isbn… and the term IDs of its edition languages.
+ * The meta of a book as its form edits them, by their names, as the REST API of the plugin names them: isbn… and the
+ * term IDs of its edition languages.
  *
- * @typedef {Object<string, string|boolean> & {library_edition_languages: number[]}} FormMeta
+ * @typedef {Object<string, string|boolean> & {edition_languages: number[]}} FormMeta
  */
 
 /**

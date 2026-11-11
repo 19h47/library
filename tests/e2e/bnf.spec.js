@@ -23,11 +23,11 @@ const BOOK = {
 	languages: [],
 	form: 0,
 	meta: {
-		library_subtitle: '',
-		library_volume_number: 'Tome 01',
-		library_collection_number: '5702',
-		library_pages: '',
-		library_edition_languages: [],
+		subtitle: '',
+		volume_number: 'Tome 01',
+		collection_number: '5702',
+		pages: '',
+		edition_languages: [],
 	},
 };
 
@@ -49,10 +49,8 @@ test.describe( 'BnF', () => {
 		const title = form.locator( '[name="title"]' );
 
 		await title.fill( 'Typed before' );
-		await form
-			.locator( '[name="library_isbn"]' )
-			.fill( '978-2-266-08975-3' );
-		await form.locator( '[name="library_isbn"]' ).press( 'Tab' );
+		await form.locator( '[name="isbn"]' ).fill( '978-2-266-08975-3' );
+		await form.locator( '[name="isbn"]' ).press( 'Tab' );
 
 		await expect(
 			form.getByText( 'Filled in from the catalogue of the BnF' )
@@ -74,11 +72,11 @@ test.describe( 'BnF', () => {
 		await expect( form.locator( '[name="series"]' ) ).toHaveValue(
 			'Le bouclier des étoiles'
 		);
+		await expect( form.locator( '[name="volume_number"]' ) ).toHaveValue(
+			'Tome 01'
+		);
 		await expect(
-			form.locator( '[name="library_volume_number"]' )
-		).toHaveValue( 'Tome 01' );
-		await expect(
-			form.locator( '[name="library_collection_number"]' )
+			form.locator( '[name="collection_number"]' )
 		).toHaveValue( '5702' );
 	} );
 
@@ -88,7 +86,7 @@ test.describe( 'BnF', () => {
 	} ) => {
 		const book = await addBook( requestUtils, {
 			title: 'Added before',
-			meta: { library_isbn: '9782070360024' },
+			meta: { isbn: '9782070360024' },
 		} );
 
 		await openApp( page );
@@ -96,10 +94,8 @@ test.describe( 'BnF', () => {
 
 		const form = page.locator( 'library-edit' );
 
-		await form
-			.locator( '[name="library_isbn"]' )
-			.fill( '978-2-07-036002-4' );
-		await form.locator( '[name="library_isbn"]' ).press( 'Tab' );
+		await form.locator( '[name="isbn"]' ).fill( '978-2-07-036002-4' );
+		await form.locator( '[name="isbn"]' ).press( 'Tab' );
 		await form.getByRole( 'link', { name: 'Added before' } ).click();
 
 		// The page of the book, the form closed over it.
@@ -128,10 +124,8 @@ test.describe( 'BnF', () => {
 
 		const form = page.locator( 'library-edit' );
 
-		await form
-			.locator( '[name="library_isbn"]' )
-			.fill( '978-2-266-08975-3' );
-		await form.locator( '[name="library_isbn"]' ).press( 'Tab' );
+		await form.locator( '[name="isbn"]' ).fill( '978-2-266-08975-3' );
+		await form.locator( '[name="isbn"]' ).press( 'Tab' );
 
 		await expect(
 			form.getByText(

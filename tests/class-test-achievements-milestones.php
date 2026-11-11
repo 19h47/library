@@ -65,7 +65,7 @@ class Test_Achievements_Milestones extends TestCase {
 	 */
 	public function test_a_book_read_again_counts_once(): void {
 		$this->add_read_books( 98, '2024-01-01' );
-		$this->add_book( array( 'meta' => array( 'library_reading' => array( '/2023-01-01', '/2024-06-01' ) ) ) );
+		$this->add_book( array( 'meta' => array( 'reading' => array( '/2023-01-01', '/2024-06-01' ) ) ) );
 
 		$this->assertArrayNotHasKey( 'read', $this->get_earned() );
 		$this->assertSame( 99, $this->get_close()['read'][0]['done'] );
@@ -82,7 +82,7 @@ class Test_Achievements_Milestones extends TestCase {
 			array(
 				'title'  => 'Given away',
 				'status' => 'library-not-kept',
-				'meta'   => array( 'library_reading' => array( '/2024-12-01' ) ),
+				'meta'   => array( 'reading' => array( '/2024-12-01' ) ),
 			)
 		);
 
@@ -102,7 +102,7 @@ class Test_Achievements_Milestones extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read once upon a time',
-				'meta'  => array( 'library_reading' => array( '/' ) ),
+				'meta'  => array( 'reading' => array( '/' ) ),
 			)
 		);
 
@@ -194,7 +194,7 @@ class Test_Achievements_Milestones extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'In Search of Lost Time',
-				'meta'  => array( 'library_pages' => 20000 ),
+				'meta'  => array( 'pages' => 20000 ),
 			)
 		);
 
@@ -306,7 +306,7 @@ class Test_Achievements_Milestones extends TestCase {
 	 */
 	public function test_a_book_read_again_counts_in_the_record_at_each_reading(): void {
 		$this->add_reads( array( '2023-03-01', '2023-09-01' ) );
-		$this->add_book( array( 'meta' => array( 'library_reading' => array( '/2024-01-05', '/2024-06-05', '/2024-11-05' ) ) ) );
+		$this->add_book( array( 'meta' => array( 'reading' => array( '/2024-01-05', '/2024-06-05', '/2024-11-05' ) ) ) );
 
 		$record = $this->get_earned()['record-year'];
 
@@ -366,7 +366,7 @@ class Test_Achievements_Milestones extends TestCase {
 		$book_id = $this->add_book(
 			array(
 				'title' => 'The Left Hand of Darkness',
-				'meta'  => array( 'library_reading' => array( '/2024-06-01', '/2019-05-01' ) ),
+				'meta'  => array( 'reading' => array( '/2024-06-01', '/2019-05-01' ) ),
 			)
 		);
 
@@ -392,7 +392,7 @@ class Test_Achievements_Milestones extends TestCase {
 	 * @return void
 	 */
 	public function test_a_book_first_read_on_an_unknown_date(): void {
-		$this->add_book( array( 'meta' => array( 'library_reading' => array( '/', '/2024-03-01' ) ) ) );
+		$this->add_book( array( 'meta' => array( 'reading' => array( '/', '/2024-03-01' ) ) ) );
 
 		$reread = $this->get_earned()['reread'];
 
@@ -410,13 +410,13 @@ class Test_Achievements_Milestones extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Dune',
-				'meta'  => array( 'library_reading' => array( '/2020-01-01', '/2024-01-01' ) ),
+				'meta'  => array( 'reading' => array( '/2020-01-01', '/2024-01-01' ) ),
 			)
 		);
 		$this->add_book(
 			array(
 				'title' => 'Hyperion',
-				'meta'  => array( 'library_reading' => array( '/2021-01-01', '/2022-01-01' ) ),
+				'meta'  => array( 'reading' => array( '/2021-01-01', '/2022-01-01' ) ),
 			)
 		);
 
@@ -436,13 +436,13 @@ class Test_Achievements_Milestones extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Dune',
-				'meta'  => array( 'library_reading' => array( '/2020-01-01', '/2021-01-01', '/2022-01-01' ) ),
+				'meta'  => array( 'reading' => array( '/2020-01-01', '/2021-01-01', '/2022-01-01' ) ),
 			)
 		);
 		$this->add_book(
 			array(
 				'title' => 'Hyperion',
-				'meta'  => array( 'library_reading' => array( '/2023-01-01', '/2024-01-01' ) ),
+				'meta'  => array( 'reading' => array( '/2023-01-01', '/2024-01-01' ) ),
 			)
 		);
 
@@ -467,7 +467,7 @@ class Test_Achievements_Milestones extends TestCase {
 			fn( int $index ) => $this->add_book(
 				array(
 					'title' => sprintf( 'Book %03d', $index + 1 ),
-					'meta'  => array( 'library_reading' => array( '/' . gmdate( 'Y-m-d', strtotime( "$first +$index days" ) ) ) ),
+					'meta'  => array( 'reading' => array( '/' . gmdate( 'Y-m-d', strtotime( "$first +$index days" ) ) ) ),
 				)
 			),
 			range( 0, $count - 1 )
@@ -486,8 +486,8 @@ class Test_Achievements_Milestones extends TestCase {
 		return array(
 			'title' => $title,
 			'meta'  => array(
-				'library_pages'   => $pages,
-				'library_reading' => array_map( fn( string $read_date ) => "/$read_date", $read_dates ),
+				'pages'   => $pages,
+				'reading' => array_map( fn( string $read_date ) => "/$read_date", $read_dates ),
 			),
 		);
 	}

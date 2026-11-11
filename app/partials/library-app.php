@@ -553,7 +553,7 @@ use Library\Meta;
 										array(
 											'id'      => 'library-reading-read',
 											'label'   => Meta::get_label( 'library_read' ),
-											'control' => Meta::get_control( 'library_read' ),
+											'control' => Meta::get_control( 'library_read', array( 'name' => Meta::get_name( 'library_read' ) ) ),
 										)
 									);
 									Markup::render_component(
@@ -561,7 +561,7 @@ use Library\Meta;
 										array(
 											'id'      => 'library-reading-in-progress',
 											'label'   => Meta::get_label( 'library_in_progress' ),
-											'control' => Meta::get_control( 'library_in_progress' ),
+											'control' => Meta::get_control( 'library_in_progress', array( 'name' => Meta::get_name( 'library_in_progress' ) ) ),
 										)
 									);
 									Markup::render_component(
@@ -570,7 +570,7 @@ use Library\Meta;
 											'id'         => 'library-reading-rating',
 											'label'      => Meta::get_label( 'library_rating' ),
 											'options'    => $rating_choices,
-											'attributes' => array( 'name' => 'library_rating' ),
+											'attributes' => array( 'name' => Meta::get_name( 'library_rating' ) ),
 										)
 									);
 									Markup::render_component(
@@ -595,7 +595,7 @@ use Library\Meta;
 											'control'     => '<input type="date">',
 											'description' => Meta::get_description( 'library_in_progress' ),
 											'attributes'  => array(
-												'name'     => 'library_started',
+												'name'     => 'started',
 												'disabled' => true,
 											),
 										)
@@ -866,7 +866,7 @@ use Library\Meta;
 							array(
 								'id'          => 'library-edit-edition-languages',
 								'label'       => Meta::get_label( 'library_edition_languages' ),
-								'name'        => 'library_edition_languages',
+								'name'        => Meta::get_name( 'library_edition_languages' ),
 								'add'         => __( 'Add a language', 'library' ),
 								'choices'     => $language_choices,
 								'checked'     => array( $own_language_id ),
@@ -878,7 +878,13 @@ use Library\Meta;
 							array(
 								'id'      => 'library-edit-collective',
 								'label'   => Meta::get_label( 'library_collective' ),
-								'control' => Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
+								'control' => Meta::get_control(
+									'library_collective',
+									array(
+										'name'      => Meta::get_name( 'library_collective' ),
+										'data-meta' => true,
+									)
+								),
 							)
 						);
 						Markup::render_component(
@@ -973,9 +979,9 @@ use Library\Meta;
 
 		<template id="library-reading-ended">
 			<li class="library-input-list__item library-reading__item">
-				<input type="date" name="library_reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
+				<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
 				<span class="library-reading__arrow" aria-hidden="true">→</span>
-				<input type="date" name="library_reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+				<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
 				<button
 					class="app-control"
 					type="button"
@@ -988,8 +994,8 @@ use Library\Meta;
 
 		<template id="library-reading-unknown">
 			<li class="library-input-list__item">
-				<input type="hidden" name="library_reading_start" value="">
-				<input type="hidden" name="library_reading_end" value="">
+				<input type="hidden" name="reading_start" value="">
+				<input type="hidden" name="reading_end" value="">
 				<span class="library-input-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
 				<button
 					class="app-control"

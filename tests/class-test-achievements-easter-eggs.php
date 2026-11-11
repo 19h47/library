@@ -151,7 +151,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read again',
-				'meta'  => array( 'library_reading' => array( '/2023-05-01', '/2024-02-29' ) ),
+				'meta'  => array( 'reading' => array( '/2023-05-01', '/2024-02-29' ) ),
 			)
 		);
 
@@ -170,7 +170,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Twice',
-				'meta'  => array( 'library_reading' => array( '/2020-02-29', '/2024-02-29' ) ),
+				'meta'  => array( 'reading' => array( '/2020-02-29', '/2024-02-29' ) ),
 			)
 		);
 
@@ -242,7 +242,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_brick(): void {
-		$this->add_read( '2024-05-10', array( 'meta' => array( 'library_pages' => 1000 ) ) );
+		$this->add_read( '2024-05-10', array( 'meta' => array( 'pages' => 1000 ) ) );
 
 		$brick = $this->get_earned()['brick'];
 
@@ -258,7 +258,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_brick_not_under_1000_pages(): void {
-		$this->add_read( '2024-05-10', array( 'meta' => array( 'library_pages' => 999 ) ) );
+		$this->add_read( '2024-05-10', array( 'meta' => array( 'pages' => 999 ) ) );
 
 		$this->assertArrayNotHasKey( 'brick', $this->get_earned() );
 	}
@@ -269,7 +269,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_brick_read_without_date(): void {
-		$this->add_read( '', array( 'meta' => array( 'library_pages' => 1200 ) ) );
+		$this->add_read( '', array( 'meta' => array( 'pages' => 1200 ) ) );
 
 		$brick = $this->get_earned()['brick'];
 
@@ -288,7 +288,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			array(
 				'title'  => 'Gone',
 				'status' => 'library-not-kept',
-				'meta'   => array( 'library_rating' => 9 ),
+				'meta'   => array( 'rating' => 9 ),
 			)
 		);
 
@@ -311,10 +311,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-05-10',
 			array(
 				'status' => 'library-not-kept',
-				'meta'   => array( 'library_rating' => 8.5 ),
+				'meta'   => array( 'rating' => 8.5 ),
 			)
 		);
-		$this->add_read( '2024-05-11', array( 'meta' => array( 'library_rating' => 10 ) ) );
+		$this->add_read( '2024-05-11', array( 'meta' => array( 'rating' => 10 ) ) );
 
 		$this->assertArrayNotHasKey( 'one-that-got-away', $this->get_earned() );
 	}
@@ -348,7 +348,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			array(
 				'title'  => str_repeat( 'é', 59 ),
 				'series' => 'A series whose name is long enough',
-				'meta'   => array( 'library_volume_number' => 'Tome 01' ),
+				'meta'   => array( 'volume_number' => 'Tome 01' ),
 			)
 		);
 
@@ -384,7 +384,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-05-10',
 			array(
 				'title' => 'Odd',
-				'meta'  => array( 'library_pages' => $pages ),
+				'meta'  => array( 'pages' => $pages ),
 			)
 		);
 
@@ -407,8 +407,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_odd_pages_one_page_off( string $kind, int $pages ): void {
-		$this->add_read( '2024-05-10', array( 'meta' => array( 'library_pages' => $pages - 1 ) ) );
-		$this->add_read( '2024-05-11', array( 'meta' => array( 'library_pages' => $pages + 1 ) ) );
+		$this->add_read( '2024-05-10', array( 'meta' => array( 'pages' => $pages - 1 ) ) );
+		$this->add_read( '2024-05-11', array( 'meta' => array( 'pages' => $pages + 1 ) ) );
 
 		$this->assertArrayNotHasKey( $kind, $this->get_earned() );
 	}
@@ -441,7 +441,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-12-20',
 			array(
 				'title' => 'The answer',
-				'meta'  => array( 'library_pages' => 42 ),
+				'meta'  => array( 'pages' => 42 ),
 			)
 		);
 
@@ -461,7 +461,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2023-06-01',
 			array(
 				'title' => 'Short',
-				'meta'  => array( 'library_pages' => 42 ),
+				'meta'  => array( 'pages' => 42 ),
 			)
 		);
 		$this->add_reads( self::get_days( '2024-01-01', 41 ) );
@@ -491,9 +491,9 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_splits(): void {
-		$this->add_read( '2024-03-05', array( 'meta' => array( 'library_pages' => 49 ) ) );
-		$this->add_read( '2024-03-20', array( 'meta' => array( 'library_pages' => 801 ) ) );
-		$this->add_read( '2024-03-25', array( 'meta' => array( 'library_pages' => 30 ) ) );
+		$this->add_read( '2024-03-05', array( 'meta' => array( 'pages' => 49 ) ) );
+		$this->add_read( '2024-03-20', array( 'meta' => array( 'pages' => 801 ) ) );
+		$this->add_read( '2024-03-25', array( 'meta' => array( 'pages' => 30 ) ) );
 
 		$splits = $this->get_earned()['splits'];
 
@@ -510,10 +510,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_splits_latest_month(): void {
-		$this->add_read( '2023-06-01', array( 'meta' => array( 'library_pages' => 20 ) ) );
-		$this->add_read( '2023-06-02', array( 'meta' => array( 'library_pages' => 900 ) ) );
-		$this->add_read( '2024-03-05', array( 'meta' => array( 'library_pages' => 900 ) ) );
-		$this->add_read( '2024-03-06', array( 'meta' => array( 'library_pages' => 20 ) ) );
+		$this->add_read( '2023-06-01', array( 'meta' => array( 'pages' => 20 ) ) );
+		$this->add_read( '2023-06-02', array( 'meta' => array( 'pages' => 900 ) ) );
+		$this->add_read( '2024-03-05', array( 'meta' => array( 'pages' => 900 ) ) );
+		$this->add_read( '2024-03-06', array( 'meta' => array( 'pages' => 20 ) ) );
 
 		$splits = $this->get_earned()['splits'];
 
@@ -528,10 +528,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_splits_not_at_50_and_800_pages(): void {
-		$this->add_read( '2024-03-05', array( 'meta' => array( 'library_pages' => 50 ) ) );
-		$this->add_read( '2024-03-06', array( 'meta' => array( 'library_pages' => 801 ) ) );
-		$this->add_read( '2024-04-05', array( 'meta' => array( 'library_pages' => 49 ) ) );
-		$this->add_read( '2024-04-06', array( 'meta' => array( 'library_pages' => 800 ) ) );
+		$this->add_read( '2024-03-05', array( 'meta' => array( 'pages' => 50 ) ) );
+		$this->add_read( '2024-03-06', array( 'meta' => array( 'pages' => 801 ) ) );
+		$this->add_read( '2024-04-05', array( 'meta' => array( 'pages' => 49 ) ) );
+		$this->add_read( '2024-04-06', array( 'meta' => array( 'pages' => 800 ) ) );
 
 		$this->assertArrayNotHasKey( 'splits', $this->get_earned() );
 	}
@@ -542,8 +542,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_splits_not_across_months(): void {
-		$this->add_read( '2024-03-31', array( 'meta' => array( 'library_pages' => 20 ) ) );
-		$this->add_read( '2024-04-01', array( 'meta' => array( 'library_pages' => 900 ) ) );
+		$this->add_read( '2024-03-31', array( 'meta' => array( 'pages' => 20 ) ) );
+		$this->add_read( '2024-04-01', array( 'meta' => array( 'pages' => 900 ) ) );
 
 		$this->assertArrayNotHasKey( 'splits', $this->get_earned() );
 	}
@@ -554,8 +554,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_everest_on_the_last_day_of_the_window(): void {
-		$this->add_read( '2024-01-01', array( 'meta' => array( 'library_pages' => 4424 ) ) );
-		$this->add_read( '2024-12-30', array( 'meta' => array( 'library_pages' => 4424 ) ) );
+		$this->add_read( '2024-01-01', array( 'meta' => array( 'pages' => 4424 ) ) );
+		$this->add_read( '2024-12-30', array( 'meta' => array( 'pages' => 4424 ) ) );
 
 		$everest = $this->get_earned()['everest'];
 
@@ -572,8 +572,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_everest_not_on_the_day_after_the_window(): void {
-		$this->add_read( '2024-01-01', array( 'meta' => array( 'library_pages' => 4424 ) ) );
-		$this->add_read( '2024-12-31', array( 'meta' => array( 'library_pages' => 4424 ) ) );
+		$this->add_read( '2024-01-01', array( 'meta' => array( 'pages' => 4424 ) ) );
+		$this->add_read( '2024-12-31', array( 'meta' => array( 'pages' => 4424 ) ) );
 
 		$this->assertArrayNotHasKey( 'everest', $this->get_earned() );
 	}
@@ -584,8 +584,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_everest_not_a_page_short(): void {
-		$this->add_read( '2024-01-01', array( 'meta' => array( 'library_pages' => 4424 ) ) );
-		$this->add_read( '2024-06-01', array( 'meta' => array( 'library_pages' => 4423 ) ) );
+		$this->add_read( '2024-01-01', array( 'meta' => array( 'pages' => 4424 ) ) );
+		$this->add_read( '2024-06-01', array( 'meta' => array( 'pages' => 4423 ) ) );
 
 		$this->assertArrayNotHasKey( 'everest', $this->get_earned() );
 	}
@@ -596,9 +596,9 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_everest_latest_climb(): void {
-		$this->add_read( '2020-06-01', array( 'meta' => array( 'library_pages' => 8848 ) ) );
-		$this->add_read( '2023-02-01', array( 'meta' => array( 'library_pages' => 5000 ) ) );
-		$this->add_read( '2024-01-31', array( 'meta' => array( 'library_pages' => 3848 ) ) );
+		$this->add_read( '2020-06-01', array( 'meta' => array( 'pages' => 8848 ) ) );
+		$this->add_read( '2023-02-01', array( 'meta' => array( 'pages' => 5000 ) ) );
+		$this->add_read( '2024-01-31', array( 'meta' => array( 'pages' => 3848 ) ) );
 
 		$everest = $this->get_earned()['everest'];
 
@@ -613,9 +613,9 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_time_machine(): void {
-		$this->add_read( '2024-03-02', array( 'meta' => array( 'library_published_date' => '1850' ) ) );
-		$this->add_read( '2024-03-10', array( 'meta' => array( 'library_published_date' => '1950-06' ) ) );
-		$this->add_read( '2024-03-28', array( 'meta' => array( 'library_edition_date' => '2010-05-01' ) ) );
+		$this->add_read( '2024-03-02', array( 'meta' => array( 'published_date' => '1850' ) ) );
+		$this->add_read( '2024-03-10', array( 'meta' => array( 'published_date' => '1950-06' ) ) );
+		$this->add_read( '2024-03-28', array( 'meta' => array( 'edition_date' => '2010-05-01' ) ) );
 
 		$time_machine = $this->get_earned()['time-machine'];
 
@@ -632,10 +632,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_time_machine_not_two_centuries(): void {
-		$this->add_read( '2024-03-02', array( 'meta' => array( 'library_published_date' => '1850' ) ) );
-		$this->add_read( '2024-03-10', array( 'meta' => array( 'library_published_date' => '1950' ) ) );
+		$this->add_read( '2024-03-02', array( 'meta' => array( 'published_date' => '1850' ) ) );
+		$this->add_read( '2024-03-10', array( 'meta' => array( 'published_date' => '1950' ) ) );
 		$this->add_read( '2024-03-28', array() );
-		$this->add_read( '2024-04-01', array( 'meta' => array( 'library_published_date' => '2010' ) ) );
+		$this->add_read( '2024-04-01', array( 'meta' => array( 'published_date' => '2010' ) ) );
 
 		$this->assertArrayNotHasKey( 'time-machine', $this->get_earned() );
 	}
@@ -691,7 +691,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 */
 	public function test_twins_not_a_collective_work(): void {
 		$this->add_read( '2024-05-10', self::get_work( 'Dune', '1965', 'Frank Herbert' ) );
-		$this->add_read( '2024-05-10', array_replace_recursive( self::get_work( 'Anthology', '1965', 'John Brunner' ), array( 'meta' => array( 'library_collective' => true ) ) ) );
+		$this->add_read( '2024-05-10', array_replace_recursive( self::get_work( 'Anthology', '1965', 'John Brunner' ), array( 'meta' => array( 'collective' => true ) ) ) );
 
 		$this->assertArrayNotHasKey( 'twins', $this->get_earned() );
 	}
@@ -789,13 +789,13 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_hat_trick(): void {
-		$this->add_read( '2024-05-01', array( 'meta' => array( 'library_rating' => 10 ) ) );
-		$this->add_read( '2024-05-02', array( 'meta' => array( 'library_rating' => 10 ) ) );
+		$this->add_read( '2024-05-01', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-02', array( 'meta' => array( 'rating' => 10 ) ) );
 		$third_id = $this->add_read(
 			'2024-05-03',
 			array(
 				'title' => 'Third',
-				'meta'  => array( 'library_rating' => 10 ),
+				'meta'  => array( 'rating' => 10 ),
 			)
 		);
 
@@ -815,10 +815,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_hat_trick_broken_by_a_lower_rating(): void {
-		$this->add_read( '2024-05-01', array( 'meta' => array( 'library_rating' => 10 ) ) );
-		$this->add_read( '2024-05-02', array( 'meta' => array( 'library_rating' => 10 ) ) );
-		$this->add_read( '2024-05-03', array( 'meta' => array( 'library_rating' => 9.5 ) ) );
-		$this->add_read( '2024-05-04', array( 'meta' => array( 'library_rating' => 10 ) ) );
+		$this->add_read( '2024-05-01', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-02', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-03', array( 'meta' => array( 'rating' => 9.5 ) ) );
+		$this->add_read( '2024-05-04', array( 'meta' => array( 'rating' => 10 ) ) );
 
 		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
 	}
@@ -832,8 +832,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'meta' => array(
-					'library_rating'  => 10,
-					'library_reading' => array( '/2024-05-01', '/2024-05-02', '/2024-05-03' ),
+					'rating'  => 10,
+					'reading' => array( '/2024-05-01', '/2024-05-02', '/2024-05-03' ),
 				),
 			)
 		);
@@ -850,12 +850,12 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'meta' => array(
-					'library_rating'  => 10,
-					'library_reading' => array( '/2024-05-01', '/2024-05-02' ),
+					'rating'  => 10,
+					'reading' => array( '/2024-05-01', '/2024-05-02' ),
 				),
 			)
 		);
-		$this->add_read( '2024-05-03', array( 'meta' => array( 'library_rating' => 10 ) ) );
+		$this->add_read( '2024-05-03', array( 'meta' => array( 'rating' => 10 ) ) );
 
 		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
 
@@ -863,7 +863,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-05-04',
 			array(
 				'title' => 'Third',
-				'meta'  => array( 'library_rating' => 10 ),
+				'meta'  => array( 'rating' => 10 ),
 			)
 		);
 
@@ -917,7 +917,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	public function test_namesakes_not_the_same_author(): void {
 		$this->add_read( '2023-02-01', self::get_work( 'Solaris', '1961', 'Stanisław Lem' ) );
 		$this->add_read( '2024-05-10', self::get_work( 'Solaris', '1961', 'Stanisław Lem' ) );
-		$this->add_read( '2024-05-11', array_replace_recursive( self::get_work( 'Solaris', '2002', 'Someone Else' ), array( 'meta' => array( 'library_collective' => true ) ) ) );
+		$this->add_read( '2024-05-11', array_replace_recursive( self::get_work( 'Solaris', '2002', 'Someone Else' ), array( 'meta' => array( 'collective' => true ) ) ) );
 		$this->add_book( self::get_work( 'Solaris', '2010', 'Another One' ) );
 
 		$this->assertArrayNotHasKey( 'namesakes', $this->get_earned() );
@@ -952,14 +952,14 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-01-10',
 			array(
 				'title' => 'City Hunter',
-				'meta'  => array( 'library_volume_number' => 'Tome 03' ),
+				'meta'  => array( 'volume_number' => 'Tome 03' ),
 			)
 		);
 		$first_id = $this->add_read(
 			'2024-02-10',
 			array(
 				'title' => 'City Hunter',
-				'meta'  => array( 'library_volume_number' => 'Tome 01' ),
+				'meta'  => array( 'volume_number' => 'Tome 01' ),
 			)
 		);
 
@@ -1015,7 +1015,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 				),
 				$authors
 			),
-			'meta'   => array( 'library_published_date' => $published_date ),
+			'meta'   => array( 'published_date' => $published_date ),
 		);
 	}
 
@@ -1031,7 +1031,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		return array(
 			'title'  => $title,
 			'series' => $series,
-			'meta'   => array( 'library_volume_number' => $volume ),
+			'meta'   => array( 'volume_number' => $volume ),
 		);
 	}
 }

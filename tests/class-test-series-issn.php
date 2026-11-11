@@ -42,7 +42,7 @@ class Test_Series_Issn extends TestCase {
 			$book + array(
 				'title'  => 'White Dwarf',
 				'series' => 'White Dwarf',
-				'meta'   => array( 'library_volume_number' => '56' ),
+				'meta'   => array( 'volume_number' => '56' ),
 			)
 		);
 
@@ -141,8 +141,8 @@ class Test_Series_Issn extends TestCase {
 			array(
 				'title' => 'Dune',
 				'meta'  => array(
-					'library_isbn'          => '9782266320481',
-					'library_volume_number' => '1',
+					'isbn'          => '9782266320481',
+					'volume_number' => '1',
 				),
 			)
 		);

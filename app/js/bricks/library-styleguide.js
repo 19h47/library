@@ -266,7 +266,7 @@ class LibraryStyleguideElement extends Brick {
 		showError( $invalid, $invalid.dataset.error );
 		showError(
 			this.querySelector(
-				'[data-sample="readings"] li:last-child [name="library_reading_end"]'
+				'[data-sample="readings"] li:last-child [name="reading_end"]'
 			),
 			'A date later than today, as the browser says it.'
 		);
@@ -369,9 +369,9 @@ class LibraryStyleguideElement extends Brick {
 		);
 
 		/** @type {HTMLInputElement} */
-		const $start = $item.querySelector( '[name="library_reading_start"]' );
+		const $start = $item.querySelector( '[name="reading_start"]' );
 		/** @type {HTMLInputElement} */
-		const $end = $item.querySelector( '[name="library_reading_end"]' );
+		const $end = $item.querySelector( '[name="reading_end"]' );
 
 		$start.value = start;
 		$end.value = end;

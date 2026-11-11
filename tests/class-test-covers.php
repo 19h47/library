@@ -70,7 +70,7 @@ class Test_Covers extends TestCase {
 						),
 					),
 					'series' => 'Walking Dead',
-					'meta'   => array( 'library_volume_number' => '25' ),
+					'meta'   => array( 'volume_number' => '25' ),
 				)
 			)
 		);
@@ -101,8 +101,8 @@ class Test_Covers extends TestCase {
 						),
 					),
 					'meta'   => array(
-						'library_volume_number' => '56',
-						'library_collective'    => '1',
+						'volume_number' => '56',
+						'collective'    => '1',
 					),
 				)
 			)

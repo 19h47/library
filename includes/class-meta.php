@@ -26,6 +26,13 @@ use WP_Error;
 class Meta {
 
 	/**
+	 * The prefix of the keys of the book meta, which the database needs among the meta of every plugin.
+	 *
+	 * @var string
+	 */
+	public const string PREFIX = 'library_';
+
+	/**
 	 * Text meta keys.
 	 *
 	 * @var string[]
@@ -419,6 +426,44 @@ class Meta {
 		$keys = "'" . implode( "', '", self::ROLE_KEYS ) . "'";
 
 		return "( SELECT DISTINCT post_id, CAST( meta_value AS UNSIGNED ) AS term_id FROM {$wpdb->postmeta} WHERE meta_key IN ( {$keys} ) )";
+	}
+
+	/**
+	 * The name of a book meta in the REST API of the plugin and in the forms of the app: its key without the prefix the
+	 * database needs among the meta of every plugin, isbn for library_isbn.
+	 *
+	 * @param string $key Meta key.
+	 * @return string
+	 */
+	public static function get_name( string $key ): string {
+		return substr( $key, strlen( self::PREFIX ) );
+	}
+
+	/**
+	 * The meta of a book by their names, as the REST API of the plugin gives them: isbn for library_isbn.
+	 *
+	 * @param array<string,mixed> $values Values, by meta key.
+	 * @return array<string,mixed>
+	 */
+	public static function to_names( array $values ): array {
+		return array_combine( array_map( array( self::class, 'get_name' ), array_keys( $values ) ), $values );
+	}
+
+	/**
+	 * The meta of a book by their keys, from their names as the REST API of the plugin takes them: those of a book only,
+	 * its readings and its edition languages among them; another name is left out.
+	 *
+	 * @param array<string,mixed> $values Values, by name.
+	 * @return array<string,mixed>
+	 */
+	public static function from_names( array $values ): array {
+		$keys = array( ...self::KEYS, 'library_edition_languages' );
+		$keys = array_combine( array_map( array( self::class, 'get_name' ), $keys ), $keys );
+
+		return array_combine(
+			array_map( fn( string $name ) => $keys[ $name ], array_keys( array_intersect_key( $values, $keys ) ) ),
+			array_intersect_key( $values, $keys )
+		);
 	}
 
 	/**

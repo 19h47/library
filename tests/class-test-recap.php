@@ -25,7 +25,7 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_readings(): void {
 		$first  = $this->add_read( '2025-03-02' );
-		$again  = $this->add_book( array( 'meta' => array( 'library_reading' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
+		$again  = $this->add_book( array( 'meta' => array( 'reading' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
 		$before = $this->add_read( '2024-12-31' );
 		$this->add_read( '2024-06-01' );
 
@@ -48,17 +48,17 @@ class Test_Recap extends TestCase {
 	 * @return void
 	 */
 	public function test_pages_and_records(): void {
-		$long  = $this->add_read( '2025-02-01', array( 'meta' => array( 'library_pages' => 600 ) ) );
+		$long  = $this->add_read( '2025-02-01', array( 'meta' => array( 'pages' => 600 ) ) );
 		$short = $this->add_read(
 			'2025-04-01',
 			array(
 				'meta' => array(
-					'library_pages'          => 40,
-					'library_published_date' => '1932',
+					'pages'          => 40,
+					'published_date' => '1932',
 				),
 			)
 		);
-		$this->add_read( '2025-05-01', array( 'meta' => array( 'library_published_date' => '1990-04' ) ) );
+		$this->add_read( '2025-05-01', array( 'meta' => array( 'published_date' => '1990-04' ) ) );
 
 		$recap = Recap::get_recap( 2025 );
 
@@ -85,10 +85,10 @@ class Test_Recap extends TestCase {
 	 * @return void
 	 */
 	public function test_ratings(): void {
-		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
-		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
-		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'library_rating' => 10 ) ) );
-		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'library_rating' => 5 ) ) );
+		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'rating' => 8 ) ) );
+		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'rating' => 8 ) ) );
+		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'rating' => 10 ) ) );
+		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'rating' => 5 ) ) );
 		$this->add_read( '2025-04-01' );
 
 		$recap = Recap::get_recap( 2025 );
@@ -192,7 +192,7 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_a_collective_book_counts_for_no_author(): void {
 		$this->add_read( '2025-01-01', $this->by( 'Ann Writer' ) );
-		$this->add_read( '2025-02-01', $this->by( 'Contributor' ) + array( 'meta' => array( 'library_collective' => true ) ) );
+		$this->add_read( '2025-02-01', $this->by( 'Contributor' ) + array( 'meta' => array( 'collective' => true ) ) );
 
 		$recap = Recap::get_recap( 2025 );
 
@@ -287,9 +287,9 @@ class Test_Recap extends TestCase {
 		return array(
 			'meta' => array_filter(
 				array(
-					'library_reading' => array( $reading ),
-					'library_pages'   => $pages,
-					'library_rating'  => $rating,
+					'reading' => array( $reading ),
+					'pages'   => $pages,
+					'rating'  => $rating,
 				)
 			),
 		);
