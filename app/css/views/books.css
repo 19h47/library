@@ -29,4 +29,19 @@
 		display: grid;
 		gap: var(--app-gap);
 	}
+
+	/* The field, then its button, on one line: the field takes the room left */
+	.library-search__row {
+		display: flex;
+		gap: var(--app-gap);
+	}
+
+	.library-search__row > input {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.library-search__row > button {
+		flex: none;
+	}
 }

@@ -42,8 +42,12 @@ test.describe( 'API reference', () => {
 
 		const search = page.getByRole( 'searchbox' );
 
+		// The button, as on a phone whose keyboard does not show Enter.
 		await search.fill( 'api' );
-		await search.press( 'Enter' );
+		await page
+			.getByRole( 'search' )
+			.getByRole( 'button', { name: 'Search' } )
+			.click();
 		await expect( page ).toHaveURL( /view=api/ );
 		await expect( search ).toHaveValue( '' );
 

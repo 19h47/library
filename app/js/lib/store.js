@@ -781,18 +781,20 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The search of the books, as typed.
+	 * The search of the books, as typed: it waits for a pause in the typing, unless it is submitted, `now`.
 	 *
-	 * @param {string} query The search.
+	 * @param {string}  query         The search.
+	 * @param {Object}  [options]     Options.
+	 * @param {boolean} [options.now] Whether it searches at once.
 	 */
-	setQuery( query ) {
+	setQuery( query, { now = false } = {} ) {
 		this.set( ( state ) => ( { ...state, query } ) );
 		this.#loadHome();
 
 		clearTimeout( this.#timeout );
 		this.#timeout = setTimeout(
 			() => this.#fetchList( 'search' ),
-			SEARCH_DELAY
+			now ? 0 : SEARCH_DELAY
 		);
 	}
 

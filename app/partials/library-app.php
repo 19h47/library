@@ -86,16 +86,20 @@ use Library\Meta;
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
 					<div class="app-controls">
 						<library-search class="app-search">
-							<?php // A search landmark, which Enter submits: the search follows the typing, Enter opens the styleguide or the reference of the API typed. ?>
+							<?php // A search landmark: the search follows the typing; submitted, it searches at once, or opens the styleguide or the reference of the API typed. ?>
 							<form class="library-search__form" role="search">
 								<label class="sr-only" for="library-search"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
-								<input
-									id="library-search"
-									type="search"
-									placeholder="<?php esc_attr_e( 'Title, author, series, ISBN…', 'library' ); ?>"
-									autocomplete="off"
-									enterkeyhint="search"
-								>
+								<?php // The field, then its button, which the keyboard of a phone does not always show: Enter or the button submits. ?>
+								<p class="library-search__row">
+									<input
+										id="library-search"
+										type="search"
+										placeholder="<?php esc_attr_e( 'Title, author, series, ISBN…', 'library' ); ?>"
+										autocomplete="off"
+										enterkeyhint="search"
+									>
+									<button class="app-pill" type="submit"><?php echo esc_html_x( 'Search', 'verb', 'library' ); ?></button>
+								</p>
 								<?php
 								// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
 								$search_keywords = array(
