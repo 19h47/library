@@ -26,7 +26,7 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
 /**
- * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ReadingPeriod, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ReadingPeriod, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -108,7 +108,15 @@ import * as api from 'library-app/api';
  * The parts of the state that change part by part: the resources, the books of the series of the book open, the
  * saving of its reading, the form of a book and the names it suggests.
  *
- * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'} Part
+ * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
+ */
+
+/**
+ * The reference of the API: its routes, and the requests tried from it, by endpoint.
+ *
+ * @typedef {Object} Reference
+ * @property {ApiRoute[]}                                  routes Its routes.
+ * @property {Object<string, ApiTry & {loading: boolean}>} tries  The requests tried, by the key of their endpoint.
  */
 
 /**
@@ -171,6 +179,7 @@ import * as api from 'library-app/api';
  * @property {SeriesPage}             series       The series open.
  * @property {PublisherPage}          publisher    The collection open.
  * @property {Recap & Loading}        recap        The recap of the year open.
+ * @property {Reference & Loading}    reference    The reference of the API.
  */
 
 // Kept between visits, under the key of the config. The query, the view and the page open are in the URL only, which the router reads.
@@ -193,6 +202,8 @@ const FILTERS = [ 'read', 'status', 'form', 'sort' ];
 const BOOK_VIEW = 'book';
 // The recap of a year, opened from the diary or, in January, from the home.
 const RECAP_VIEW = 'recap';
+// The reference of the API, for development, opened by searching its name: it loads as it first shows, and never goes stale.
+const API_VIEW = 'api';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 /** @type {string[]} */
 const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
@@ -423,6 +434,15 @@ function achievements() {
 }
 
 /**
+ * The reference of the API, none loaded.
+ *
+ * @return {Reference & Loading} The reference.
+ */
+function reference() {
+	return { routes: [], tries: {}, loading: false, loaded: false, error: '' };
+}
+
+/**
  * The recap of `year`, none loaded.
  *
  * @param {number} [year] The year.
@@ -568,6 +588,7 @@ function page( view, id = 0 ) {
  * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
  * `person` the person open, `series` the series open, `publisher` the collection open, `recap` the recap of the year open, `book` the book open, `volumes` the books of its series,
  * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
+ * `reference` the reference of the API and the requests tried from it,
  * `notice` what an action done says, such as a reading saved, with the `action` that undoes it if any, once: a new object each time,
  * `view` the view shown, none until the router shows the one of the URL, `query` the search of the books,
  * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
@@ -668,6 +689,7 @@ class LibraryStore extends Store {
 				saving: saving(),
 				editing: editing(),
 				terms: terms(),
+				reference: reference(),
 				notice: null,
 				moved: '',
 			} )
@@ -737,6 +759,25 @@ class LibraryStore extends Store {
 				) ),
 		} ) );
 		this.#show( view, id );
+	}
+
+	/**
+	 * Tries a GET request from the reference of the API, for the endpoint `key`: its answer replaces the one before.
+	 *
+	 * @param {string} key  The key of the endpoint.
+	 * @param {string} path The path, with its arguments.
+	 */
+	async tryRoute( key, path ) {
+		const tried = ( update ) =>
+			this.#update( 'reference', ( current ) => ( {
+				tries: {
+					...current.tries,
+					[ key ]: { ...current.tries[ key ], ...update },
+				},
+			} ) );
+
+		tried( { loading: true } );
+		tried( { ...( await api.tryRoute( path ) ), loading: false } );
 	}
 
 	/**
@@ -1256,6 +1297,10 @@ class LibraryStore extends Store {
 			this.#loadBook( id );
 		}
 
+		if ( API_VIEW === view ) {
+			this.#loadReference();
+		}
+
 		this.#loadShown();
 	}
 
@@ -1766,6 +1811,19 @@ class LibraryStore extends Store {
 
 			return () => ( { earned, close } );
 		} );
+	}
+
+	/** The reference of the API, unless it is loading or loaded: once it could not, it loads again as it shows. */
+	#loadReference() {
+		const { loading, loaded, error } = this.get().reference;
+
+		if ( ! loading && ( ! loaded || error ) ) {
+			this.#request( 'reference', async () => {
+				const routes = await api.getReference();
+
+				return () => ( { routes } );
+			} );
+		}
 	}
 
 	/** The names the form of a book suggests. */

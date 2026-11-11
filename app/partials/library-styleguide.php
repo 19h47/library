@@ -1,6 +1,6 @@
 <?php
 /**
- * The styleguide: the tokens and the components of the app, for development, opened by searching "styleguide".
+ * The styleguide: the tokens and the components of the app, for development, opened by searching "styleguide" then Enter.
  *
  * Each component shows with its own markup alone, in a frame: one that needs its place in the app to look right
  * shows it here. The components of PHP render with Markup::render_component(), as in the app; the [data-sample] lists are

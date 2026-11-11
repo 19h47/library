@@ -1,7 +1,8 @@
 <?php
 /**
  * The reading app page: the books with the home above them, the diary, the reading idea, the achievements, the books to buy,
- * the page of a person, the recap of a year, the styleguide, the book open with the form of its reading, and the form of a book, to add or edit.
+ * the page of a person, the recap of a year, the styleguide, the reference of the API, the book open with the form of its reading, and the
+ * form of a book, to add or edit.
  *
  * The bricks (custom elements) fill the markup from the store; the templates hold the translated labels.
  * The view asked for in the URL shows from the first paint; the router then switches views without reloading.
@@ -85,31 +86,34 @@ use Library\Meta;
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
 					<div class="app-controls">
 						<library-search class="app-search">
-							<label class="sr-only" for="library-search"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
-							<input
-								id="library-search"
-								type="search"
-								placeholder="<?php esc_attr_e( 'Title, author, series, ISBN…', 'library' ); ?>"
-								autocomplete="off"
-								enterkeyhint="search"
-							>
-							<?php
-							// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
-							$search_keywords = array(
-								'series:""'              => get_taxonomy( 'library_series' )->labels->singular_name,
-								'author:""'              => Meta::get_role_choices()['author'],
-								'publisher:""'           => $publisher_labels->singular_name,
-								/* translators: %s: current year. */
-								'read:' . wp_date( 'Y' ) => sprintf( __( 'Read in %s', 'library' ), wp_date( 'Y' ) ),
-								'rating:9'               => __( 'Rated 9 or more', 'library' ),
-							);
-							?>
-							<p class="library-strip library-search__keywords" hidden>
-								<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
-								<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
-									<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
-								<?php endforeach; ?>
-							</p>
+							<?php // A search landmark, which Enter submits: the search follows the typing, Enter opens the styleguide or the reference of the API typed. ?>
+							<form class="library-search__form" role="search">
+								<label class="sr-only" for="library-search"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
+								<input
+									id="library-search"
+									type="search"
+									placeholder="<?php esc_attr_e( 'Title, author, series, ISBN…', 'library' ); ?>"
+									autocomplete="off"
+									enterkeyhint="search"
+								>
+								<?php
+								// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
+								$search_keywords = array(
+									'series:""'    => get_taxonomy( 'library_series' )->labels->singular_name,
+									'author:""'    => Meta::get_role_choices()['author'],
+									'publisher:""' => $publisher_labels->singular_name,
+									/* translators: %s: current year. */
+									'read:' . wp_date( 'Y' ) => sprintf( __( 'Read in %s', 'library' ), wp_date( 'Y' ) ),
+									'rating:9'     => __( 'Rated 9 or more', 'library' ),
+								);
+								?>
+								<p class="library-strip library-search__keywords" hidden>
+									<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
+									<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
+										<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
+									<?php endforeach; ?>
+								</p>
+							</form>
 						</library-search>
 					</div>
 
@@ -658,6 +662,10 @@ use Library\Meta;
 
 				<library-view name="styleguide" <?php echo Page::STYLEGUIDE_VIEW === $view ? '' : 'hidden'; ?>>
 					<?php require __DIR__ . '/library-styleguide.php'; ?>
+				</library-view>
+
+				<library-view name="api" <?php echo Page::API_VIEW === $view ? '' : 'hidden'; ?>>
+					<?php require __DIR__ . '/library-api.php'; ?>
 				</library-view>
 			</div>
 

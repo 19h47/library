@@ -2,13 +2,14 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { urlOf } from 'library-app/router';
 
-// The components of the app, for development: a view out of the navigation, opened by searching its name.
-const STYLEGUIDE = 'styleguide';
+// The views for development, out of the navigation, opened by searching their name then Enter: the styleguide and the
+// reference of the API. Typed, a name is a search, as any other, until Enter: the view does not change during the typing.
+const HIDDEN_VIEWS = [ 'styleguide', 'api' ];
 
 /**
- * The search of the books: what is typed is the query; the name of the styleguide opens it, the search left empty. Its
- * keywords show under it while it is used, as a search field shows its suggestions; one taken adds to the query, the
- * cursor in its quotes, if any, for the name to type.
+ * The search of the books: what is typed is the query; the name of a view for development, then Enter, opens it, the
+ * search left empty. Its keywords show under it while it is used, as a search field shows its suggestions; one taken adds
+ * to the query, the cursor in its quotes, if any, for the name to type.
  */
 class LibrarySearchElement extends Brick {
 	connect( signal ) {
@@ -24,16 +25,23 @@ class LibrarySearchElement extends Brick {
 
 		$input.addEventListener(
 			'input',
-			() => {
-				if ( STYLEGUIDE !== $input.value.trim().toLowerCase() ) {
-					store.setQuery( $input.value );
-					return;
-				}
+			() => store.setQuery( $input.value ),
+			{ signal }
+		);
+		// Enter submits the field alone, without a button: the search follows the typing already.
+		this.querySelector( 'form' ).addEventListener(
+			'submit',
+			( event ) => {
+				const view = $input.value.trim().toLowerCase();
 
-				// The query may be empty already, as when the word comes at once: the field does not follow it then.
-				$input.value = '';
-				store.setQuery( '' );
-				navigation.navigate( urlOf( { view: STYLEGUIDE } ) );
+				event.preventDefault();
+
+				if ( HIDDEN_VIEWS.includes( view ) ) {
+					// The query may be empty already, as when the word comes at once: the field does not follow it then.
+					$input.value = '';
+					store.setQuery( '' );
+					navigation.navigate( urlOf( { view } ) );
+				}
 			},
 			{ signal }
 		);

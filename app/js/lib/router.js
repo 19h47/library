@@ -19,7 +19,8 @@ import { store } from 'library-app/store';
  * @property {string} query The search of the books, empty for another view.
  */
 
-// The views of the navigation, and the styleguide, opened by searching its name: their name is enough.
+// The views of the navigation, and the styleguide and the reference of the API, opened by searching their name: their
+// name is enough.
 const NAMED_VIEWS = [
 	'books',
 	'diary',
@@ -27,6 +28,7 @@ const NAMED_VIEWS = [
 	'achievements',
 	'to-buy',
 	'styleguide',
+	'api',
 ];
 // The pages of a book, a person, a series or a collection, with its ID in the argument of the same name: ?view=book&book=564;
 // the recap of a year, with its year: ?view=recap&recap=2025.

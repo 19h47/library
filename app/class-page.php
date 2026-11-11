@@ -97,11 +97,18 @@ class Page {
 	public const int MAX_PER_PAGE = 100;
 
 	/**
-	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
+	 * View of the components of the app, for development, opened by searching its name then Enter rather than from the navigation.
 	 *
 	 * @var string
 	 */
 	public const string STYLEGUIDE_VIEW = 'styleguide';
+
+	/**
+	 * The reference of the API, for development, opened by searching "api" then Enter.
+	 *
+	 * @var string
+	 */
+	public const string API_VIEW = 'api';
 
 	/**
 	 * Key of localStorage the app keeps its choices in, its theme read before the first paint, of the login too.
@@ -189,7 +196,7 @@ class Page {
 		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12, as the recap its year.
 		$id = absint( $_GET[ $view ] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW, self::RECAP_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW, self::RECAP_VIEW ), true ) && $id ) || in_array( $view, array( self::STYLEGUIDE_VIEW, self::API_VIEW ), true ) ? $view : 'books';
 
 		$this->preload( $view, $id );
 

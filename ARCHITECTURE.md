@@ -48,4 +48,6 @@ Every size is on the scale of the golden ratio: its steps for space, half steps 
 
 The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`. A component carries no margin of its own: its place spaces it.
 
-Searching `styleguide` in the app opens its styleguide, for development: the tokens, then each component with its markup alone, in English.
+Searching `styleguide` then Enter in the app opens its styleguide, for development: the tokens, then each component with its markup alone, in English.
+
+Searching `api` then Enter opens the reference of the API, for development: every route of `library/v1`, then the routes of `wp/v2` the app reads, as the REST API describes itself (`library/v1?context=help`, `OPTIONS` on a route of core), with their arguments, what they give when their schema says it, and a GET request to try. It shows what the code registers: a description or a schema added to a route shows there.
