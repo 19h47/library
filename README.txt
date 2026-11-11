@@ -105,10 +105,10 @@ The books take these parameters, besides those of core:
 The routes of the plugin, under `/wp-json/library/v1`, to users who can edit posts unless said otherwise:
 
 * `POST /books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts. It gives the book back as `wp/v2/books/<id>` does, `_fields` included.
-* `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it.
+* `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it; 404 for an ID no book has.
 * `POST /books/<id>` – edits a book: only the fields sent change, and a `featured_media` of 0 removes the cover. It gives the book back.
 * `GET /books/bnf?isbn=<isbn>` – the book of an ISBN in the catalogue of the BnF, as `GET /books/<id>` gives a book; 404 when the catalogue does not know it, 502 when it does not answer. To users who can publish posts.
-* `GET /books/cover-name` – the file name of a cover photo, from the fields of the book form: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. To users who can upload files.
+* `POST /covers` – uploads the photo of a cover, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
 * `GET /books/reading-stats` – the books, the books read this year against last year, and the year the books to read would all be read at this pace.
 * `GET /books/readings` – the readings by month, latest first: `page` and `per_page` count months.
 * `GET /books/reading-idea` – the idea of the week and its reason: `position=1` gives the next one.

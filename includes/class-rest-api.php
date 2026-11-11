@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, the recap of a year, people and the credits of a book.
+ * REST API: a book added or edited, the photo of its cover, reading stats, readings by month, reading idea, achievements, the recap of a year, people and the credits of a book.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -214,7 +214,8 @@ class Rest_API {
 			),
 		);
 
-		$can_edit_book = fn( WP_REST_Request $request ) => current_user_can( 'edit_post', $request['id'] );
+		// A book that does not exist is not found, before any right is checked, as core does: 404 rather than 403.
+		$can_edit_book = fn( WP_REST_Request $request ) => self::check_book( $request['id'] ) ?? current_user_can( 'edit_post', $request['id'] );
 
 		register_rest_route(
 			'library/v1',
@@ -222,9 +223,9 @@ class Rest_API {
 			array(
 				'args' => array(
 					'id' => array(
-						'description'       => __( 'ID of the book.', 'library' ),
-						'type'              => 'integer',
-						'validate_callback' => fn( $id ) => 'library_book' === get_post_type( (int) $id ),
+						'description' => __( 'ID of the book.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
 					),
 				),
 				array(
@@ -243,18 +244,12 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/cover-name',
+			'covers',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_cover_name' ),
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_cover' ),
 				'permission_callback' => fn() => current_user_can( 'upload_files' ),
-				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'series', 'meta' ) ) ) + array(
-					'photo' => array(
-						'description' => __( 'File name of the photo picked, whose extension the cover keeps.', 'library' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-				),
+				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'series', 'meta' ) ) ),
 			),
 		);
 
@@ -509,6 +504,26 @@ class Rest_API {
 	}
 
 	/**
+	 * Whether `$id` is the ID of a book: none if it is, else an error, 404, as an ID of the right type no book has is not found
+	 * rather than an invalid parameter, which an ID of another type is.
+	 *
+	 * @param int $id ID of the book.
+	 * @return WP_Error|null
+	 */
+	private static function check_book( int $id ): ?WP_Error {
+		return 'library_book' === get_post_type( $id ) ? null : self::no_book();
+	}
+
+	/**
+	 * The error of an ID no book has: not found.
+	 *
+	 * @return WP_Error
+	 */
+	private static function no_book(): WP_Error {
+		return new WP_Error( 'library_no_book', __( 'No book has this ID.', 'library' ), array( 'status' => 404 ) );
+	}
+
+	/**
 	 * Add a book, as the book form does: its post, whose slug is built from its title and ISBN, then its meta, terms
 	 * and cover, as save_book() saves them.
 	 *
@@ -562,7 +577,7 @@ class Rest_API {
 		$book = get_post( $request['id'] );
 
 		if ( ! $book instanceof WP_Post ) {
-			return new WP_Error( 'library_no_book', get_post_type_object( 'library_book' )->labels->not_found, array( 'status' => 404 ) );
+			return self::no_book();
 		}
 
 		$collection = current( Taxonomies::get_collections( $book->ID ) );
@@ -780,17 +795,31 @@ class Rest_API {
 	}
 
 	/**
-	 * The name of the image of a cover, from the fields of its book as its form sends them, before the photo is uploaded:
-	 * its first author and the title to show, from Books::build_cover_name().
+	 * Upload the photo of a cover, named after its book from the fields of its form, its first author and the title to
+	 * show, as Books::build_cover_name() names it, and titled after its book: the route of the media of core uploads it,
+	 * checks it and makes its sizes, and gives it back, as `wp/v2/media` does.
 	 *
 	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_cover_name( WP_REST_Request $request ): WP_REST_Response {
-		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
-		$name    = Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], (array) $request['meta'], $request['photo'] );
+	public function create_cover( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$photo = $request->get_file_params()['file'] ?? null;
 
-		return rest_ensure_response( array( 'name' => $name ) );
+		if ( ! is_array( $photo ) ) {
+			return new WP_Error( 'library_no_photo', __( 'No photo was sent, in the file field.', 'library' ), array( 'status' => 400 ) );
+		}
+
+		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
+		$name    = Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], (array) $request['meta'], $photo['name'] );
+		$media   = new WP_REST_Request( 'POST', '/wp/v2/media' );
+
+		// A photo without name keeps none.
+		$photo['name'] = '' !== $name ? $name : $photo['name'];
+
+		$media->set_file_params( array( 'file' => $photo ) );
+		$media->set_param( 'title', $request['title'] );
+
+		return rest_ensure_response( rest_do_request( $media ) );
 	}
 
 	/**

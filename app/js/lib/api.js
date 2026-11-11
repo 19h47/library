@@ -1021,24 +1021,49 @@ export async function addBook( data ) {
  * @return {Promise<number>} The ID of the image.
  */
 export async function uploadCover( file, { title, people, series, meta } ) {
-	const query = { title, people, series, meta, photo: file.name };
-	/** @type {{name: string}} */
-	const { name } = await apiFetch( {
-		path: addQueryArgs( '/library/v1/books/cover-name', query ),
-	} );
 	const body = new FormData();
 
-	body.append( 'file', file, name );
-	body.append( 'title', title );
+	body.append( 'file', file );
+	appendFields( body, { title, people, series, meta } );
 
 	/** @type {{id: number}} */
 	const image = await apiFetch( {
-		path: '/wp/v2/media',
+		path: '/library/v1/covers',
 		method: 'POST',
 		body,
 	} );
 
 	return image.id;
+}
+
+/**
+ * Appends values to a form data, a list or an object by the names of its items in brackets, as PHP reads a form:
+ * people[0][name]; true is 1, false is empty, and null is left out.
+ *
+ * @param {FormData} body   The form data.
+ * @param {Object}   values The values, by name.
+ * @param {string}   [base] The name they are under, if any.
+ */
+function appendFields( body, values, base = '' ) {
+	Object.entries( values ).forEach( ( [ key, value ] ) => {
+		const name = base ? `${ base }[${ key }]` : key;
+
+		if ( null === value || undefined === value ) {
+			return;
+		}
+
+		if ( 'object' === typeof value ) {
+			appendFields( body, value, name );
+			return;
+		}
+
+		if ( 'boolean' === typeof value ) {
+			body.append( name, value ? '1' : '' );
+			return;
+		}
+
+		body.append( name, String( value ) );
+	} );
 }
 
 /**
