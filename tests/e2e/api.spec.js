@@ -49,7 +49,8 @@ test.describe( 'API reference', () => {
 			.getByRole( 'button', { name: 'Search' } )
 			.click();
 		await expect( page ).toHaveURL( /view=api/ );
-		await expect( search ).toHaveValue( '' );
+		// Hidden with the view of the books, the field leaves the tree of accessibility: found by its ID.
+		await expect( page.locator( '#library-search' ) ).toHaveValue( '' );
 
 		const route = page
 			.locator( '.library-api__route' )
