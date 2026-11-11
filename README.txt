@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.34.0
+Stable tag: 9.35.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,12 @@ The routes of the plugin, under `/wp-json/library/v1`, to users who can edit pos
 * `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
 
 == Changelog ==
+
+= 9.35.0 =
+* Breaking: the ISSN of a magazine is the one of its series, as the catalogue of the BnF gives it to the serial rather than to each issue: `library_issn` is a term meta of `library_series`, in the format of the BnF, such as 1168-9188, edited on the screen of the series, given by the REST API in the `meta` of `wp/v2/series` and in `issn` of `library/v1/series/<id>`, and shown on the page of the series in the app. A book has no ISSN of its own any more. Migrate the data before updating, with your table prefix: `INSERT INTO wp_termmeta ( term_id, meta_key, meta_value ) SELECT tt.term_id, 'library_issn', UPPER( MIN( pm.meta_value ) ) FROM wp_postmeta pm JOIN wp_term_relationships tr ON tr.object_id = pm.post_id JOIN wp_term_taxonomy tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library_series' WHERE pm.meta_key = 'library_issn' AND pm.meta_value REGEXP '^[0-9]{4}-[0-9]{3}[0-9Xx]$' GROUP BY tt.term_id`, then `DELETE FROM wp_postmeta WHERE meta_key = 'library_issn'`.
+* A search for an ISSN finds the issues of its series.
+* Changed: a book without ISBN is slugged by its title and volume number, such as the issue of a magazine: white-dwarf-56.
+* Code only: the screen of a term edits the term meta registered on its taxonomy, `Admin\Term_Fields`.
 
 = 9.34.0 =
 * Reading app: its login is dressed as the app, when the app asks for it: its icon and its name, its theme, its fields, its pills and its controls, in a frame in the middle of the screen, the help of "Remember Me" over the width of the form. "Remember Me" is checked as the form first shows, the app being opened on a phone of one's own. The lost password and the screen that says to check the email are dressed in their turn and lead back to the view of the app the login came from. Any other login stays the one of WordPress, as the screen of the link in the email.
