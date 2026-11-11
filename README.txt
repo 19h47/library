@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.35.0
+Stable tag: 9.36.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -121,6 +121,20 @@ The routes of the plugin name the meta of a book without the prefix of their key
 A field that counts ends in `_count`, such as `read_count` or `book_count`, a field that holds one ID in `_id`, such as `book_id`, and a list of IDs is named after what it lists, such as `books`.
 
 == Changelog ==
+
+= 9.36.0 =
+* Reading app: the reference of the API, for development, opened by searching `api` then Enter or the button of the search: every route of `library/v1`, then the routes of `wp/v2` the app reads, as the REST API describes itself, with their arguments, what they give, and a GET request to try.
+* Reading app: the search is a search landmark, a form submitted by Enter or by its button, a magnifier: submitted, it searches at once, or opens the styleguide or the reference of the API typed. The styleguide no longer opens during the typing.
+* Reading app: its icons are those of Material Symbols, as its own icon: add, the theme, close, back and search. The styleguide lists them.
+* Reading app: the excerpt and the notes keep room for three lines, empty or made smaller by hand.
+* REST API: every route of `library/v1` describes what it gives, as a JSON schema the index gives asked for help.
+* Breaking: REST API: `POST /wp-json/library/v1/covers` uploads the photo of a cover, in its `file` field, named after its book from the fields of its form sent with it, and gives the image back as `wp/v2/media` does, rather than `GET books/cover-name` naming it first. No data to migrate, as for the changes below.
+* Breaking: REST API: what is no book leaves `books/`: `library/v1/stats`, `readings`, `idea` and `achievements` replace `books/reading-stats`, `books/readings`, `books/reading-idea` and `books/achievements`.
+* Breaking: REST API: a count ends in `_count`, one ID in `_id`. The stats give `read_count` and `book_count`, and in `year_to_date` `read_count`, `last_year_read_count`, `projected_read_count` and `to_read_count`; the idea `book_id` and `idea_count`; a reading of `readings` its `book_id`; the pages of a person, a series and a collection `read_count`, a person `page_count`, their series and authors `book_count` and `read_count`, a cycle its `parts`; the recap `day_count`, `reading_count`, `previous_reading_count`, `reread_count` and `added_count`, the `reading_count` of its forms, people, languages and series, and in `calendar` `read_day_count` and `dated_reading_count`.
+* Breaking: REST API: `wp/v2/publishers` gives the `path` of a collection and the ID of its publisher, `publisher_id`, rather than `collection` and `publisher`.
+* Breaking: REST API: the routes of the plugin take and give the meta of a book by their names, without the prefix of their keys: `isbn` for `library_isbn`. `wp/v2/books` keeps their keys, as core does.
+* Changed: REST API: `GET` and `POST /wp-json/library/v1/books/<id>` answer 404 for an ID no book has, before any right is checked, rather than an invalid parameter.
+* Code only: `Markup::render_icon()`, `Meta::get_name()`, `to_names()` and `from_names()`, and `Rest_Schemas`, whose schemas a test checks against what each route gives.
 
 = 9.35.0 =
 * Breaking: the ISSN of a magazine is the one of its series, as the catalogue of the BnF gives it to the serial rather than to each issue: `library_issn` is a term meta of `library_series`, in the format of the BnF, such as 1168-9188, edited on the screen of the series, given by the REST API in the `meta` of `wp/v2/series` and in `issn` of `library/v1/series/<id>`, and shown on the page of the series in the app. A book has no ISSN of its own any more. Migrate the data before updating, with your table prefix: `INSERT INTO wp_termmeta ( term_id, meta_key, meta_value ) SELECT tt.term_id, 'library_issn', UPPER( MIN( pm.meta_value ) ) FROM wp_postmeta pm JOIN wp_term_relationships tr ON tr.object_id = pm.post_id JOIN wp_term_taxonomy tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'library_series' WHERE pm.meta_key = 'library_issn' AND pm.meta_value REGEXP '^[0-9]{4}-[0-9]{3}[0-9Xx]$' GROUP BY tt.term_id`, then `DELETE FROM wp_postmeta WHERE meta_key = 'library_issn'`.
