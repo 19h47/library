@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T16:55:59+00:00\n"
+"POT-Creation-Date: 2026-11-11T17:03:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -489,7 +489,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1172
+#: includes/class-rest-api.php:1179
 msgid "No book to read."
 msgstr ""
 
@@ -1675,61 +1675,61 @@ msgid "Filter books list"
 msgstr ""
 
 #. translators: Search keyword with a form, such as a novel, as named in the library: the keyword form stays in English.
-#: includes/class-query.php:312
+#: includes/class-query.php:313
 msgctxt "search example"
 msgid "form:novel"
 msgstr ""
 
-#: includes/class-query.php:314
+#: includes/class-query.php:315
 msgid "a series, or a cycle with its series, by its exact name"
 msgstr ""
 
-#: includes/class-query.php:315
+#: includes/class-query.php:316
 msgid "an author, with their other names"
 msgstr ""
 
-#: includes/class-query.php:316
+#: includes/class-query.php:317
 msgid "a publisher, with its collections"
 msgstr ""
 
-#: includes/class-query.php:317
+#: includes/class-query.php:318
 msgid "a translator"
 msgstr ""
 
-#: includes/class-query.php:318
+#: includes/class-query.php:319
 msgid "the original language, by its code or the start of its name"
 msgstr ""
 
-#: includes/class-query.php:319
+#: includes/class-query.php:320
 msgid "the form, by its name"
 msgstr ""
 
-#: includes/class-query.php:320
+#: includes/class-query.php:321
 msgid "the ISBN, with or without hyphens"
 msgstr ""
 
-#: includes/class-query.php:321
+#: includes/class-query.php:322
 msgid "read or not, or read in a year or a month, rereads included"
 msgstr ""
 
-#: includes/class-query.php:322
+#: includes/class-query.php:323
 msgid "being read or not, for the first time or again"
 msgstr ""
 
-#: includes/class-query.php:323
+#: includes/class-query.php:324
 msgid "rated 9 or more; a half point with a dot: 8.5"
 msgstr ""
 
-#: includes/class-query.php:335
+#: includes/class-query.php:336
 msgid "Search"
 msgstr ""
 
-#: includes/class-query.php:337
+#: includes/class-query.php:338
 msgid "The search finds the text in the title, subtitle, series, ISBN, ISSN, volume number, collection number, people, publishers, collections, original languages and forms. Keywords narrow it to a field:"
 msgstr ""
 
 #. translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces.
-#: includes/class-query.php:341
+#: includes/class-query.php:342
 #, php-format
 msgid "Keywords add up, with the rest of the search: %1$s. A comma gives a choice, %2$s, a hyphen excludes, %3$s, and quotes keep the spaces of a value, %4$s."
 msgstr ""
@@ -1866,146 +1866,146 @@ msgstr[1] ""
 msgid "To buy, by %1$s: you gave them %2$s/10 on average over %3$s books."
 msgstr ""
 
-#: includes/class-rest-api.php:53
+#: includes/class-rest-api.php:57
 msgid "Credits of the book, to show under its title: authors · publisher, collection · edition year."
 msgstr ""
 
-#: includes/class-rest-api.php:60
+#: includes/class-rest-api.php:64
 msgid "Readings of the book, from the first to the latest, as intervals from their starts to their ends, either empty when unknown, the end of the one in progress “..”: 2026-10-20/2026-11-02."
 msgstr ""
 
-#: includes/class-rest-api.php:72
+#: includes/class-rest-api.php:76
 msgid "Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover."
 msgstr ""
 
-#: includes/class-rest-api.php:91
+#: includes/class-rest-api.php:95
 msgid "Names of the book, as named on it, each with its term ID; the role meta tell the ones with another role than author."
 msgstr ""
 
-#: includes/class-rest-api.php:99
+#: includes/class-rest-api.php:103
 msgid "Original languages of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 
-#: includes/class-rest-api.php:107
+#: includes/class-rest-api.php:111
 msgid "Languages of the text of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 
-#: includes/class-rest-api.php:115
+#: includes/class-rest-api.php:119
 msgid "Series of the book, after its cycles, in plain text, such as “Star Wars, Young Jedi Knights”, or empty."
 msgstr ""
 
-#: includes/class-rest-api.php:122
+#: includes/class-rest-api.php:126
 msgid "Name of the form of the book, such as a novel, or empty."
 msgstr ""
 
-#: includes/class-rest-api.php:226
+#: includes/class-rest-api.php:231
 #: includes/class-rest-schemas.php:298
 #: includes/class-rest-schemas.php:316
 msgid "ID of the book."
 msgstr ""
 
-#: includes/class-rest-api.php:265
+#: includes/class-rest-api.php:270
 msgid "ISBN of the book, with or without hyphens."
 msgstr ""
 
-#: includes/class-rest-api.php:293
+#: includes/class-rest-api.php:298
 msgid "Page of the months."
 msgstr ""
 
-#: includes/class-rest-api.php:299
+#: includes/class-rest-api.php:304
 msgid "Number of months per page."
 msgstr ""
 
-#: includes/class-rest-api.php:318
+#: includes/class-rest-api.php:323
 #: includes/class-rest-schemas.php:318
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
 msgstr ""
 
-#: includes/class-rest-api.php:346
+#: includes/class-rest-api.php:351
 #: includes/class-rest-schemas.php:363
 msgid "Year of the recap."
 msgstr ""
 
-#: includes/class-rest-api.php:363
+#: includes/class-rest-api.php:368
 msgid "Term ID of the series, or of the cycle."
 msgstr ""
 
-#: includes/class-rest-api.php:380
+#: includes/class-rest-api.php:385
 msgid "Term ID of the collection, or of the publisher."
 msgstr ""
 
-#: includes/class-rest-api.php:397
+#: includes/class-rest-api.php:402
 msgid "Term ID of the person, or of one of their other names."
 msgstr ""
 
-#: includes/class-rest-api.php:422
+#: includes/class-rest-api.php:427
 #: includes/class-rest-schemas.php:215
 msgid "Title of the book."
 msgstr ""
 
-#: includes/class-rest-api.php:431
+#: includes/class-rest-api.php:436
 #: includes/class-rest-schemas.php:216
 msgid "Summary of the book in a few words, its excerpt."
 msgstr ""
 
-#: includes/class-rest-api.php:436
+#: includes/class-rest-api.php:441
 #: includes/class-rest-schemas.php:217
 msgid "Notes on the book, its content."
 msgstr ""
 
-#: includes/class-rest-api.php:441
+#: includes/class-rest-api.php:446
 #: includes/class-rest-schemas.php:220
 msgid "People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person."
 msgstr ""
 
-#: includes/class-rest-api.php:461
+#: includes/class-rest-api.php:466
 #: includes/class-rest-schemas.php:231
 msgid "Name of the publisher; a name not found adds a publisher."
 msgstr ""
 
-#: includes/class-rest-api.php:466
+#: includes/class-rest-api.php:471
 #: includes/class-rest-schemas.php:232
 msgid "Collection, under the publisher and sent with it, a sub-collection after its collection, separated with commas, such as “Folio, Science-fiction”; a name not found adds a collection."
 msgstr ""
 
-#: includes/class-rest-api.php:471
+#: includes/class-rest-api.php:476
 #: includes/class-rest-schemas.php:233
 msgid "Series, after its cycles, separated with commas, such as “Star Wars, Young Jedi Knights”; a name not found adds a series, or a cycle."
 msgstr ""
 
-#: includes/class-rest-api.php:476
+#: includes/class-rest-api.php:481
 #: includes/class-rest-schemas.php:234
 msgid "Term IDs of the original languages."
 msgstr ""
 
-#: includes/class-rest-api.php:482
+#: includes/class-rest-api.php:487
 #: includes/class-rest-schemas.php:235
 msgid "Term ID of the form, such as a novel or a comic."
 msgstr ""
 
-#: includes/class-rest-api.php:487
+#: includes/class-rest-api.php:492
 msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr ""
 
-#: includes/class-rest-api.php:492
+#: includes/class-rest-api.php:497
 #: includes/class-rest-schemas.php:236
 msgid "Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them."
 msgstr ""
 
-#: includes/class-rest-api.php:497
+#: includes/class-rest-api.php:502
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 
-#: includes/class-rest-api.php:528
+#: includes/class-rest-api.php:533
 msgid "No book has this ID."
 msgstr ""
 
-#: includes/class-rest-api.php:633
+#: includes/class-rest-api.php:639
 #: app/js/bricks/library-edit.js:512
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
-#: includes/class-rest-api.php:819
+#: includes/class-rest-api.php:825
 msgid "No photo was sent, in the file field."
 msgstr ""
 
