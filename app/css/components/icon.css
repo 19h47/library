@@ -1,0 +1,27 @@
+/**
+ * Icons, from Material Symbols, as the icon of the app: Markup::render_icon() prints them.
+ */
+
+@layer library.components {
+	/* The size of the text, a little larger, as a glyph of the font would be, in its color; beside text, on its middle */
+	.library-icon {
+		flex: none;
+		inline-size: 1.25em;
+		block-size: 1.25em;
+		fill: currentColor;
+		vertical-align: middle;
+	}
+
+	/*
+	 * The control of the theme shows the theme it switches to, as its state says: the moon in light, the sun in dark; none
+	 * until the app has read the theme
+	 */
+	.library-icon:is([data-icon="dark_mode"], [data-icon="light_mode"]) {
+		display: none;
+	}
+
+	[aria-pressed="false"] > .library-icon[data-icon="dark_mode"],
+	[aria-pressed="true"] > .library-icon[data-icon="light_mode"] {
+		display: inline;
+	}
+}

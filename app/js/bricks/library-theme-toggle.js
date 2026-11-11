@@ -1,7 +1,7 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 
-/** The button that switches between the light and dark themes. */
+/** The button that switches between the light and dark themes: pressed in dark, its icons following it. */
 class LibraryThemeToggleElement extends Brick {
 	connect( signal ) {
 		const $button = this.querySelector( 'button' );
@@ -14,8 +14,6 @@ class LibraryThemeToggleElement extends Brick {
 			store.select(
 				( state ) => state.theme,
 				( theme ) => {
-					// U+FE0E forces text presentation (no emoji rendering).
-					$button.textContent = 'dark' === theme ? '☀︎' : '☽︎';
 					$button.setAttribute(
 						'aria-pressed',
 						( 'dark' === theme ).toString()

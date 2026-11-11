@@ -41,6 +41,7 @@
 		min-width: 0;
 	}
 
+	/* Its button, a control as those of the toolbar */
 	.library-search__row > button {
 		flex: none;
 	}

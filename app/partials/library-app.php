@@ -98,7 +98,15 @@ use Library\Meta;
 										autocomplete="off"
 										enterkeyhint="search"
 									>
-									<button class="app-pill" type="submit"><?php echo esc_html_x( 'Search', 'verb', 'library' ); ?></button>
+									<?php // A control, as those of the toolbar. ?>
+									<button
+										class="app-control"
+										type="submit"
+										aria-label="<?php echo esc_attr_x( 'Search', 'verb', 'library' ); ?>"
+										title="<?php echo esc_attr_x( 'Search', 'verb', 'library' ); ?>"
+									>
+										<?php Markup::render_icon( 'search' ); ?>
+									</button>
 								</p>
 								<?php
 								// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
@@ -208,14 +216,14 @@ use Library\Meta;
 										<button class="app-pill" type="button" data-filter="<?php echo esc_attr( $book_filter ); ?>" data-value="<?php echo esc_attr( $value ); ?>" hidden>
 											<span class="sr-only"><?php esc_html_e( 'Remove the filter:', 'library' ); ?></span>
 											<?php echo esc_html( $label ); ?>
-											<span aria-hidden="true">×</span>
+											<?php Markup::render_icon( 'close' ); ?>
 										</button>
 									<?php endforeach; ?>
 								<?php endforeach; ?>
 							</p>
 							<dialog class="library-sheet" aria-labelledby="library-filters-title">
 								<form class="app-toolbar" method="dialog">
-									<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+									<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>"><?php Markup::render_icon( 'close' ); ?></button>
 								</form>
 								<h2 class="library-book__title" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
@@ -320,7 +328,7 @@ use Library\Meta;
 
 				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
-						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
 					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
@@ -347,7 +355,7 @@ use Library\Meta;
 
 				<library-view name="series" <?php echo Page::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
-						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
 					<library-series>
 						<p class="app-status" data-field="status" hidden></p>
@@ -379,7 +387,7 @@ use Library\Meta;
 
 				<library-view name="publisher" <?php echo Page::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
-						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
 					<library-publisher>
 						<p class="app-status" data-field="status" hidden></p>
@@ -414,7 +422,7 @@ use Library\Meta;
 					<library-recap>
 						<section class="library-recap__screen library-recap__opening">
 							<library-back class="library-back">
-								<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+								<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
 							</library-back>
 							<hgroup class="library-recap__heading">
 								<h2 class="library-recap__year" data-field="year" tabindex="-1"></h2>
@@ -526,7 +534,7 @@ use Library\Meta;
 
 				<library-view name="book" <?php echo Page::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-back class="library-back">
-						<button class="app-pill" type="button"><span aria-hidden="true">←</span> <?php esc_html_e( 'Back', 'library' ); ?></button>
+						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
 					</library-back>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
@@ -689,7 +697,7 @@ use Library\Meta;
 					type="button"
 					aria-label="<?php echo esc_attr( $labels->add_new_item ); ?>"
 					title="<?php echo esc_attr( $labels->add_new_item ); ?>"
-				>+</button>
+				><?php Markup::render_icon( 'add' ); ?></button>
 			</library-add-toggle>
 			<library-theme-toggle>
 				<button
@@ -697,7 +705,12 @@ use Library\Meta;
 					type="button"
 					aria-label="<?php esc_attr_e( 'Dark theme', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Light or dark theme', 'library' ); ?>"
-				></button>
+				>
+					<?php
+					Markup::render_icon( 'dark_mode' );
+					Markup::render_icon( 'light_mode' );
+					?>
+				</button>
 			</library-theme-toggle>
 		</div>
 
@@ -709,7 +722,7 @@ use Library\Meta;
 		<library-edit>
 			<dialog class="library-dialog library-edit" aria-labelledby="library-edit-heading">
 				<form class="app-toolbar" method="dialog">
-					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>"><?php Markup::render_icon( 'close' ); ?></button>
 				</form>
 				<h2
 					class="library-book__title"
@@ -969,7 +982,7 @@ use Library\Meta;
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
-				>×</button>
+				><?php Markup::render_icon( 'close' ); ?></button>
 			</li>
 		</template>
 
@@ -984,7 +997,7 @@ use Library\Meta;
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
-				>×</button>
+				><?php Markup::render_icon( 'close' ); ?></button>
 			</li>
 		</template>
 
@@ -1020,7 +1033,7 @@ use Library\Meta;
 					data-action="remove"
 					aria-label="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
 					title="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
-				>×</button>
+				><?php Markup::render_icon( 'close' ); ?></button>
 			</li>
 		</template>
 

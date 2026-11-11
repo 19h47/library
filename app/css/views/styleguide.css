@@ -101,6 +101,16 @@
 		font-size: var(--app-u2);
 	}
 
+	/* An icon, at the size of a sample of the fonts; the icons of the theme, shown whatever its state */
+	.library-styleguide__icon {
+		display: flex;
+		font-size: var(--app-u2);
+	}
+
+	.library-styleguide__icon > .library-icon {
+		display: inline;
+	}
+
 	/* The sizes of the text, one under the other: a sample, then its size and what it sets */
 	.library-styleguide__sizes {
 		list-style: none;
