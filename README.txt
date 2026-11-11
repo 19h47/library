@@ -18,7 +18,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, collection number, ISBN, ISSN, pages, edition date, date first published, excerpt, notes, readings and a rating from 1 to 10 by half points. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes its EAN-13.
+* **Books** – Cover, subtitle, series and volume, collection number, ISBN, pages, edition date, date first published, excerpt, notes, readings and a rating from 1 to 10 by half points. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes its EAN-13.
 * **People** – Every name of a book is a person, the author unless another role is chosen: translator, colorist, inker, letterer, publishing director or adapted author. A magazine or an anthology is a collective work: it counts for none of its people.
 * **Cycles, collections and pseudonyms** – A series belongs to its cycle, a collection to its publisher, a sub-collection to its collection, as the BnF has them, and a pseudonym to the name the person is known by. Filtering by a cycle, a publisher or a person includes what belongs to them.
 * **Readings** – Each reading has a start and an end, either one unknown if need be. A book read again keeps every reading. A book being read is in progress from the day it started.
@@ -93,7 +93,7 @@ Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields
 * `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.library_reading` through `POST /wp-json/library/v1/books/<id>`; `library_read` and `library_in_progress` are worked out from them.
 * `cover`, `names`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
 
-The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and a publisher its `collection` name and the ID of its top `publisher`.
+The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a publisher gives its `collection` name and the ID of its top `publisher`.
 
 The books take these parameters, besides those of core:
 

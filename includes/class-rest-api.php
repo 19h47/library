@@ -926,8 +926,9 @@ class Rest_API {
 	}
 
 	/**
-	 * A series, or a cycle: its name after its cycles, its cycle, its description, its series if it is a cycle, its
-	 * authors, its books in reading order, those of its series with them, how many are read, and the completion they count for.
+	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its series if
+	 * it is a cycle, its authors, its books in reading order, those of its series with them, how many are read, and the
+	 * completion they count for.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -954,6 +955,7 @@ class Rest_API {
 				'id'          => $series->term_id,
 				'name'        => Taxonomies::get_series_path( $series ),
 				'cycle'       => self::build_term_link( $cycle, array( Taxonomies::class, 'get_series_path' ) ),
+				'issn'        => Taxonomies::get_issn( $series->term_id ),
 				'description' => term_description( $series->term_id ),
 				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),

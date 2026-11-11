@@ -40,7 +40,6 @@ import {
  * @typedef {Object} BookMeta
  * @property {string}   subtitle          Its subtitle.
  * @property {string}   isbn              Its ISBN, as typed.
- * @property {string}   issn              Its ISSN, for a magazine.
  * @property {string}   volume_number     Its number in its series.
  * @property {string}   collection_number Its number in its collection.
  * @property {string}   edition_date      The date of its edition: a day, a month or a year.
@@ -328,6 +327,7 @@ import {
  *
  * @typedef {Object} SeriesFields
  * @property {Term|null} cycle   Its cycle, if any.
+ * @property {string}    issn    Its ISSN, for a magazine, or empty.
  * @property {Term[]}    parts   The series of a cycle.
  * @property {Author[]}  authors Its authors, who wrote the most first.
  */
@@ -642,6 +642,7 @@ const PAGES = {
 		from: ( data ) => ( {
 			name: text( data.name ),
 			cycle: toPlainName( data.cycle ),
+			issn: data.issn,
 			parts: data.series.map( toPlainName ),
 			authors: data.authors.map( toPlainName ),
 			description: data.description,

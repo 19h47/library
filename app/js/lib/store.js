@@ -533,7 +533,7 @@ const PAGE_STATES = {
 		rating: null,
 		bookPages: 0,
 	} ),
-	series: () => ( { cycle: null, parts: [], authors: [] } ),
+	series: () => ( { cycle: null, issn: '', parts: [], authors: [] } ),
 	publisher: () => ( {
 		publisher: null,
 		collection: null,

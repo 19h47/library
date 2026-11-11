@@ -30,7 +30,7 @@ class Meta {
 	 *
 	 * @var string[]
 	 */
-	public const array TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_issn', 'library_volume_number', 'library_collection_number' );
+	public const array TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_volume_number', 'library_collection_number' );
 
 	/**
 	 * Date meta keys, stored as Y-m-d.
@@ -71,13 +71,6 @@ class Meta {
 	 * @var string
 	 */
 	private const string ISBN_PATTERN = '^(?:(?=.{17}$)97[89][ \\-](?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9]|[0-9]{13}|(?=.{13}$)(?:[0-9]+[ \\-]){2}[0-9]+[ \\-][0-9Xx]|[0-9]{9}[0-9Xx])$';
-
-	/**
-	 * Pattern of an ISSN, such as 1234-5678.
-	 *
-	 * @var string
-	 */
-	private const string ISSN_PATTERN = '^\\S{4}-\\S{4}$';
 
 	/**
 	 * Limits of a rating, which its schema states and sanitize_rating() keeps: from 1 to 10, by half points.
@@ -149,7 +142,6 @@ class Meta {
 		$labels       = array(
 			'library_subtitle'          => __( 'Subtitle', 'library' ),
 			'library_isbn'              => __( 'ISBN', 'library' ),
-			'library_issn'              => __( 'ISSN', 'library' ),
 			'library_volume_number'     => __( 'Volume Number', 'library' ),
 			'library_collection_number' => __( 'Collection Number', 'library' ),
 			'library_translators'       => __( 'Translators', 'library' ),
@@ -171,7 +163,6 @@ class Meta {
 		$descriptions = array(
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
 			'library_isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
-			'library_issn'              => __( 'Two groups of four characters, such as 0395-2649.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
 			'library_reading'           => __( 'From its start to its end, each one left empty when it is unknown.', 'library' ),
@@ -180,10 +171,7 @@ class Meta {
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 			'library_edition_languages' => __( 'The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book.', 'library' ),
 		);
-		$patterns     = array(
-			'library_isbn' => self::ISBN_PATTERN,
-			'library_issn' => self::ISSN_PATTERN,
-		);
+		$patterns     = array( 'library_isbn' => self::ISBN_PATTERN );
 		$sanitizers   = array( 'library_isbn' => array( self::class, 'sanitize_isbn' ) );
 
 		foreach ( self::TEXT_KEYS as $key ) {

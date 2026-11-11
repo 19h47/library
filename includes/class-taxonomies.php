@@ -36,6 +36,14 @@ class Taxonomies {
 	public const array TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
 
 	/**
+	 * Pattern of an ISSN, as the BnF writes it: four digits, a hyphen, three digits and a check digit, which may be X, such
+	 * as 1168-9188.
+	 *
+	 * @var string
+	 */
+	public const string ISSN_PATTERN = '^[0-9]{4}-[0-9]{3}[0-9X]$';
+
+	/**
 	 * Codes of ISO 639-2 that catalogues give as bibliographic codes, such as fre, by their terminological codes, which ICU knows.
 	 *
 	 * @var array<string,string>
@@ -304,6 +312,32 @@ class Taxonomies {
 		);
 
 		register_taxonomy( 'library_series', 'library_book', $args );
+
+		// The ISSN of a magazine names its series, as the catalogue of the BnF gives it to the serial, not to each of its issues.
+		register_term_meta(
+			'library_series',
+			'library_issn',
+			array(
+				'type'              => 'string',
+				'label'             => __( 'ISSN', 'library' ),
+				'description'       => __( 'For a magazine, as the BnF gives it: four digits, a hyphen, three digits and a check digit or X, such as 1168-9188.', 'library' ),
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array( 'pattern' => self::ISSN_PATTERN ),
+				),
+				'sanitize_callback' => fn( string $issn ) => strtoupper( sanitize_text_field( $issn ) ),
+			)
+		);
+	}
+
+	/**
+	 * The ISSN of a series, the one of a magazine, or empty.
+	 *
+	 * @param int $series_id Term ID of the series.
+	 * @return string
+	 */
+	public static function get_issn( int $series_id ): string {
+		return (string) get_term_meta( $series_id, 'library_issn', true );
 	}
 
 	/**

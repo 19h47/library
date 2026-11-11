@@ -346,6 +346,7 @@ use Library\Meta;
 						<header class="library-person">
 							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
 							<p data-row="cycle" hidden><?php echo esc_html( get_taxonomy( 'library_series' )->labels->parent_item_colon ); ?> <a data-field="cycle" href=""></a></p>
+							<p data-row="issn" hidden><?php echo esc_html( get_registered_meta_keys( 'term', 'library_series' )['library_issn']['label'] ); ?> <span data-field="issn"></span></p>
 							<div class="library-person__description" data-html="description" hidden></div>
 							<p data-field="summary"></p>
 						</header>
@@ -855,7 +856,6 @@ use Library\Meta;
 								'control' => Meta::get_control( 'library_collective', array( 'data-meta' => true ) ),
 							)
 						);
-						Markup::render_component( 'meta-field', array( 'key' => 'library_issn' ) );
 						Markup::render_component(
 							'field',
 							array(

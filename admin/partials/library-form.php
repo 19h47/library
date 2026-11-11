@@ -72,7 +72,7 @@ use Library\Meta;
 	</tr>
 
 	<?php
-	foreach ( array( 'library_collective', 'library_issn', 'library_read' ) as $key ) {
+	foreach ( array( 'library_collective', 'library_read' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 

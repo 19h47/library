@@ -146,8 +146,16 @@ class Query {
 			$meta_values
 		);
 		$term_matches = self::build_term_matches( Taxonomies::TAXONOMIES, $query->get( 's' ) );
+		// The issues of a magazine by its ISSN, which its series holds.
+		$issn_matches = $wpdb->prepare(
+			"SELECT tr.object_id FROM {$wpdb->term_relationships} tr
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+			INNER JOIN {$wpdb->termmeta} tm ON tm.term_id = tt.term_id
+			WHERE tt.taxonomy = 'library_series' AND tm.meta_key = 'library_issn' AND tm.meta_value LIKE %s",
+			$like
+		);
 
-		return " AND ( {$wpdb->posts}.ID IN ( $meta_matches ) OR {$wpdb->posts}.ID IN ( $term_matches ) OR ( 1 = 1 $search ) )";
+		return " AND ( {$wpdb->posts}.ID IN ( $meta_matches ) OR {$wpdb->posts}.ID IN ( $term_matches ) OR {$wpdb->posts}.ID IN ( $issn_matches ) OR ( 1 = 1 $search ) )";
 	}
 
 	/**

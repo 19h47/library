@@ -80,7 +80,7 @@ function renderOptions( terms ) {
  * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
  * publisher, collection and its number, form and edition date, its status when it is added, the one of the list shown
  * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
- * the ones filled in: subtitle, first published, pages, original languages, edition languages, collective work, ISSN,
+ * the ones filled in: subtitle, first published, pages, original languages, edition languages, collective work,
  * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
