@@ -9,7 +9,7 @@ How the plugin is built. What it does is in `README.txt`, how it is tested in `T
 - **Data**: `Posts` registers the book post type and its statuses, `Taxonomies` the five taxonomies, `Meta` the book meta. Every write, from the book form, quick edit or the REST API, goes through the meta registered there.
 - **Books**: `Books::get_books()` reads every book once, as `Book` objects with their meta and terms, and `Cache` keeps them in transients until a book changes. The stats (`Stats`), the recap (`Recap`), the achievements (`Achievements`), the reading idea (`Reading_Idea`) and the REST routes read from it, never from the database again.
 - **Search**: `Query` extends the book search to the meta and the terms, and reads its keywords, such as `series:SAS`.
-- **REST API**: `Rest_Api` adds the fields of the books and the terms to the core REST API, and the routes of the plugin under `library/v1`.
+- **REST API**: `Rest_Api` adds the fields of the books and the terms to the core REST API, and the routes of the plugin under `library/v1`, whose responses `Rest_Schemas` describes, as JSON schemas the index gives asked for help; a test checks each route gives what its schema says.
 - **BnF**: `BnF` finds a book by its ISBN in the catalogue of the BnF, through its SRU API, and gives its values with the names the library already has.
 - **ISBN**: `Isbn` places the hyphens of an ISBN from `includes/isbn-ranges.json`.
 - **Updates**: `Updater` offers the latest GitHub release as an update, and `Readme` turns `README.txt` into the sections of the "View details" modal. It reads the sections Description, Installation, Frequently Asked Questions and Changelog, `= headings =`, paragraphs, lists, `**bold**`, `` `code` `` and links: nothing else.

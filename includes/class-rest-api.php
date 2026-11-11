@@ -401,6 +401,11 @@ class Rest_API {
 				),
 			),
 		);
+
+		// What each route gives, which the index shows asked for help: a route takes its schema as an option of its own.
+		foreach ( Rest_Schemas::get_schemas() as $route => $schema ) {
+			register_rest_route( 'library/v1', $route, array( 'schema' => $schema ) );
+		}
 	}
 
 	/**
