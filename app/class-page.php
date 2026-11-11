@@ -104,6 +104,13 @@ class Page {
 	public const string STYLEGUIDE_VIEW = 'styleguide';
 
 	/**
+	 * Key of localStorage the app keeps its choices in, its theme read before the first paint, of the login too.
+	 *
+	 * @var string
+	 */
+	public const string STORAGE_KEY = 'library-app';
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -395,11 +402,7 @@ JS;
 	 * @return void
 	 */
 	private function register_assets(): void {
-		[ $base_url, $base_version ] = Plugin::get_asset( 'app/css/app-style.css' );
-		wp_register_style( 'library-app-style', $base_url, array(), $base_version );
-
-		[ $style_url, $style_version ] = Plugin::get_asset( 'app/css/library-app.css' );
-		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
+		self::register_base_styles();
 
 		$sheets = array();
 
@@ -449,6 +452,20 @@ JS;
 	}
 
 	/**
+	 * Register the styles the app and its login share: app-style.css, the base shared by 19h47's small apps, then
+	 * library-app.css, the order of the layers of the app and its tokens.
+	 *
+	 * @return void
+	 */
+	public static function register_base_styles(): void {
+		[ $base_url, $base_version ] = Plugin::get_asset( 'app/css/app-style.css' );
+		wp_register_style( 'library-app-style', $base_url, array(), $base_version );
+
+		[ $style_url, $style_version ] = Plugin::get_asset( 'app/css/library-app.css' );
+		wp_register_style( 'library-app', $style_url, array( 'library-app-style' ), $style_version );
+	}
+
+	/**
 	 * What the scripts need from the server: the statuses and forms to list and the URLs. Their strings are translated by WordPress,
 	 * from the JSON files of the languages folder.
 	 *
@@ -474,8 +491,7 @@ JS;
 			'appUrl'           => self::get_url(),
 			// The URL of the app is the scope of its service worker.
 			'serviceWorkerUrl' => add_query_arg( 'service-worker', '1', self::get_url() ),
-			// The key of localStorage the app keeps its choices in, its theme read before the first paint.
-			'storageKey'       => 'library-app',
+			'storageKey'       => self::STORAGE_KEY,
 			'icons'            => array(
 				'light' => $favicon_url,
 				'dark'  => $favicon_dark_url,

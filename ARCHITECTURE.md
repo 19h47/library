@@ -19,6 +19,8 @@ How the plugin is built. What it does is in `README.txt`, how it is tested in `T
 
 The reading app is an admin page, `app/class-page.php`, rendered full screen instead of the admin interface. It reads the REST API, through `wp.apiFetch`.
 
+Its login is the one of WordPress, which leads back to it: `app/class-login.php` then dresses it as the app, with its name, its icon, its theme and `app/css/library-login.css` instead of the styles of the login of WordPress, on the markup of core. Its links lead to the app too, so that the lost password and the screen that says to check the email are dressed in their turn; the screen of the link in the email, which the email gives without the app, stays the one of WordPress, as any other login.
+
 ### Scripts
 
 Its scripts are script modules, without a build:

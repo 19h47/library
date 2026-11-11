@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.33.1
+Stable tag: 9.34.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,10 @@ The routes of the plugin, under `/wp-json/library/v1`, to users who can edit pos
 * `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
 
 == Changelog ==
+
+= 9.34.0 =
+* Reading app: its login is dressed as the app, when the app asks for it: its icon and its name, its theme, its fields, its pills and its controls, in a frame in the middle of the screen, the help of "Remember Me" over the width of the form. "Remember Me" is checked as the form first shows, the app being opened on a phone of one's own. The lost password and the screen that says to check the email are dressed in their turn and lead back to the view of the app the login came from. Any other login stays the one of WordPress, as the screen of the link in the email.
+* Code only: the app and its login share their base styles, `Page::register_base_styles()`, and the key of localStorage, `Page::STORAGE_KEY`.
 
 = 9.33.1 =
 * Changed: reading app: its icon is the book of Material Symbols, like the icons of the other apps of the suite, rather than the one of Dashicons; still grey on dark on the home screen of a phone, following the theme in the browser tab.

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-08T17:35:19+00:00\n"
+"POT-Creation-Date: 2026-11-11T09:59:17+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,10 +24,10 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php:11 admin/class-dashboard.php:81 admin/class-metaboxes.php:224
-#: app/class-page.php:132 app/class-page.php:347 app/class-page.php:348
-#: app/partials/library-app.php:44 app/partials/library-app.php:63
-#: app/partials/library-app.php:181 app/partials/library-app.php:563
-#: app/partials/library-app.php:806
+#: app/class-login.php:206 app/class-page.php:139 app/class-page.php:354
+#: app/class-page.php:355 app/partials/library-app.php:44
+#: app/partials/library-app.php:63 app/partials/library-app.php:181
+#: app/partials/library-app.php:563 app/partials/library-app.php:806
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -56,7 +56,7 @@ msgid "https://www.19h47.fr"
 msgstr "https://www.19h47.fr"
 
 #: admin/class-achievements-page.php:63 admin/class-achievements-page.php:70
-#: admin/partials/library-achievements.php:20 app/class-page.php:319
+#: admin/partials/library-achievements.php:20 app/class-page.php:326
 #: app/partials/library-app.php:294 app/partials/library-app.php:495
 msgid "Achievements"
 msgstr "Succès"
@@ -612,19 +612,25 @@ msgstr "Début de la lecture"
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: app/class-page.php:133
+#. translators: 1: what the page shows, such as a book or a view, 2: name of the app.
+#: app/class-login.php:197 app/js/bricks/library-nav.js:55
+#, php-format
+msgid "%1$s – %2$s"
+msgstr "%1$s – %2$s"
+
+#: app/class-page.php:140
 msgid "App"
 msgstr "Application"
 
-#: app/class-page.php:317
+#: app/class-page.php:324
 msgid "Diary"
 msgstr "Journal"
 
-#: app/class-page.php:318
+#: app/class-page.php:325
 msgid "Idea"
 msgstr "Idée"
 
-#: app/class-page.php:320
+#: app/class-page.php:327
 msgid "To buy"
 msgstr "Envies"
 
@@ -2500,11 +2506,6 @@ msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 #: app/js/bricks/library-filters.js:82
 msgid "Show %s"
 msgstr "Voir %s"
-
-#. translators: 1: what the page shows, such as a book or a view, 2: name of the app.
-#: app/js/bricks/library-nav.js:55
-msgid "%1$s – %2$s"
-msgstr "%1$s – %2$s"
 
 #. translators: %s: average rating of the books of a person, e.g. 7.5.
 #: app/js/bricks/library-person.js:39
