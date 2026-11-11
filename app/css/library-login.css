@@ -1,0 +1,356 @@
+/**
+ * Login of the reading app: the login of WordPress, when it leads to the app, dressed as the app.
+ *
+ * Its markup is the one of core, without the styles of the login of WordPress: these rules give it the look of the
+ * app, after app-style.css and library-app.css, with their tokens. Its parts take the look of the pieces of the app:
+ * the title of a page, the label and the field of a form, a control, a status, a pill for the main action.
+ */
+
+@layer library.views {
+	/* The page holds the login in the middle of the screen, the gutter of the app around it */
+	body {
+		display: flex;
+		flex-direction: column;
+		min-block-size: 100dvh;
+		padding: var(--app-u2);
+	}
+
+	/*
+	 * The rhythm of the login, a step of the scale for each level, from the closest to the farthest: a label and its
+	 * field, a gap apart; the icon and the name, a gap; the parts of the form, its fields, "Remember Me" and its button,
+	 * a step; the groups, its title, what it says, its form and its link, a step and a half, as far as the frame from its
+	 * edge. Each space is the gap of the parent, never a margin of a part.
+	 */
+
+	/* The login, in a frame as an item of the app, as wide as a field needs */
+	#login {
+		inline-size: 100%;
+		max-inline-size: calc(var(--app-max-width) / var(--app-phi) + 2 * var(--app-u2));
+		margin: auto;
+		padding: var(--app-u2);
+		border: 1px solid var(--app-line-soft);
+		border-radius: var(--app-radius);
+		display: grid;
+		gap: var(--app-u2);
+	}
+
+	/*
+	 * The name of the app, as the title of its pages: large text on a phone, x-large beyond. A name of one line, as high
+	 * as its text, rather than as a control: no toolbar stands beside it, and the spaces around it are the ones of the
+	 * rhythm, without the leading of a paragraph, half a line at x-large.
+	 */
+	.wp-login-logo {
+		font-size: var(--app-font-large);
+		line-height: 1;
+		letter-spacing: -0.02em;
+	}
+
+	@media (min-width: 42rem) {
+		.wp-login-logo {
+			font-size: var(--app-font-x-large);
+		}
+	}
+
+	/* The icon of the app above its name, a small step high, on the left edge of the name */
+	.wp-login-logo a {
+		display: grid;
+		justify-items: start;
+		gap: var(--app-gap);
+		text-decoration: none;
+	}
+
+	.library-login-icon {
+		block-size: var(--app-u2);
+		inline-size: auto;
+		fill: currentColor;
+	}
+
+	/* The title of the page, for assistive technologies only, as .sr-only */
+	.screen-reader-text {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	/* The link to the site: the app is not the site */
+	#backtoblog {
+		display: none;
+	}
+
+	/* The buttons that need a script, such as the one that shows the password, until it runs */
+	.no-js .hide-if-no-js {
+		display: none;
+	}
+
+	/* What the login says, such as a wrong password or a logout: a status of the app, in the color of an error or a success */
+	#login .notice {
+		padding: var(--app-u2);
+		border: 1px solid var(--app-line-soft);
+		border-radius: var(--app-radius);
+		background: var(--app-fill);
+		color: var(--app-text-muted);
+	}
+
+	#login .notice-error {
+		color: var(--library-error);
+	}
+
+	#login .notice-success {
+		color: var(--library-success);
+	}
+
+	/* The form, to log in or to ask for a lost password: a step between its fields, then its button */
+	#login form {
+		display: grid;
+		gap: var(--app-u1);
+	}
+
+	/* A field: its label above it */
+	#login form > p:first-child,
+	.user-pass-wrap {
+		display: grid;
+		gap: var(--app-gap-small);
+	}
+
+	/* A label, as the small text of the app, the one of "Remember Me" as the text of a pill */
+	#login form label,
+	#nav,
+	.privacy-policy-page-link {
+		color: var(--app-text-muted);
+		font-family: var(--app-font-ui);
+		font-size: var(--app-font-small);
+		text-transform: uppercase;
+	}
+
+	/* A field of one line, as high as a control, its text centered in it */
+	#login form .input {
+		min-width: 0;
+		width: 100%;
+		block-size: var(--app-control-size);
+		padding-inline: 1em;
+		border: 1px solid var(--app-line-soft);
+		border-radius: var(--app-radius);
+		background-color: transparent;
+		color: inherit;
+		font: inherit;
+
+		&:hover {
+			border-color: var(--app-line);
+		}
+	}
+
+	/*
+	 * The password, then the control that shows it, on a line, as a row of a list of inputs: a row rather than a grid, as
+	 * a password manager may add its own element to it, which would take the place of the control in a grid
+	 */
+	.wp-pwd {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--app-gap);
+	}
+
+	#user_pass {
+		flex: 1 1 0;
+	}
+
+	/* The control that shows the password, as the ones of the toolbar: its icon and its border faded at rest */
+	.wp-hide-pw {
+		width: var(--app-control-size);
+		height: var(--app-control-size);
+		border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
+		border-radius: var(--app-radius);
+		background: var(--app-bg);
+		color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition:
+			color var(--app-transition-1),
+			border-color var(--app-transition-1);
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--app-line);
+			color: var(--app-text);
+		}
+	}
+
+	/*
+	 * The warning of caps lock, which the script of core adds to the row of the password and shows while it is on: under
+	 * them, as the message of a field, in the color of a warning, its icon as high as its text
+	 */
+	.caps-warning {
+		display: none;
+		flex-basis: 100%;
+		color: var(--library-warning);
+		font-size: var(--app-font-small);
+	}
+
+	.caps-icon {
+		display: inline-flex;
+		inline-size: 1em;
+		block-size: 1em;
+		margin-inline-end: var(--app-gap-small);
+		vertical-align: -0.125em;
+	}
+
+	.caps-icon svg {
+		fill: currentColor;
+		stroke: currentColor;
+	}
+
+	/*
+	 * "Remember Me", as a checkbox of the app, in a pill, then its help. Core gives the checkbox before its label rather
+	 * than in it: the label is the pill, its start padded with the room of the checkbox, and the checkbox goes back over
+	 * that room, where the checkbox of a pill stands. A click anywhere on the pill checks it, as on a pill of the app.
+	 */
+	.forgetmenot {
+		--app-pill-padding-block: calc(1em / sqrt(var(--app-phi)));
+		--app-pill-padding-inline: 1em;
+		/* From the start of the pill to its text: its line, its padding, the checkbox and the gap after it */
+		--library-checkbox-room: calc(1px + var(--app-pill-padding-inline) + 1em + var(--app-gap));
+
+		display: flex;
+		align-items: center;
+		gap: var(--app-gap);
+		font-family: var(--app-font-ui);
+		font-size: var(--app-font-small);
+	}
+
+	/* As high as the text of its pill, rather than the size of the browser */
+	#rememberme {
+		margin-inline: calc(1px + var(--app-pill-padding-inline)) calc(-1 * var(--library-checkbox-room));
+		font: inherit;
+		inline-size: 1em;
+		block-size: 1em;
+		accent-color: var(--app-text);
+
+		&:focus-visible {
+			outline: none;
+		}
+	}
+
+	.forgetmenot label {
+		padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
+		padding-inline-start: calc(var(--library-checkbox-room) - 1px);
+		border: 1px solid var(--app-line-soft);
+		border-radius: calc(infinity * 1px);
+		line-height: var(--app-line-height);
+		white-space: nowrap;
+		cursor: pointer;
+		user-select: none;
+
+		&:hover {
+			color: var(--app-text);
+			border-color: var(--app-line);
+		}
+	}
+
+	/* The pill shows the focus of its checkbox */
+	#rememberme:focus-visible + label {
+		outline: var(--app-focus-outline);
+		outline-offset: var(--app-focus-outline-offset);
+	}
+
+	/* The help of "Remember Me", centered on its line as the checkbox, rather than on the baseline of its text */
+	.wp-tooltip {
+		display: inline-flex;
+	}
+
+	/* The help of "Remember Me", and the button that closes it: an icon, muted at rest */
+	:is(.wp-tooltip__toggle, .wp-tooltip__close) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: var(--app-u2);
+		block-size: var(--app-u2);
+		border: 0;
+		border-radius: var(--app-radius);
+		background: none;
+		color: var(--app-text-muted);
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--app-text);
+		}
+	}
+
+	/*
+	 * The help, a popover: a panel of the app, as the picker of a select, its button that closes it at its top-right
+	 * corner; centered on the screen by the browser, without anchor positioning
+	 */
+	.wp-tooltip__bubble {
+		max-inline-size: min(calc(var(--app-max-width) / var(--app-phi)), calc(100vw - 2 * var(--app-u2)));
+		padding: var(--app-u1);
+		border: 1px solid var(--app-line-soft);
+		border-radius: var(--app-radius);
+		background: var(--app-bg);
+		color: var(--app-text);
+		font-family: var(--app-font-ui);
+		font-size: var(--app-font-small);
+		text-transform: none;
+
+		/*
+		 * Focused as it opens, as a dialog, so that its text is read and Escape closes it: not a control, it shows no
+		 * outline, which Safari draws; its button that closes it shows its own
+		 */
+		&:focus-visible {
+			outline: none;
+		}
+	}
+
+	/*
+	 * With anchor positioning, the help belongs to the row of "Remember Me" rather than to its button, at the end of the
+	 * row: as wide as the row, the one of the form, above it, a gap away, or under it where the screen has no room above.
+	 */
+	@supports (anchor-name: --library-remember) {
+		.forgetmenot {
+			anchor-name: --library-remember;
+		}
+
+		.wp-tooltip__bubble {
+			position-anchor: --library-remember;
+			/* The cell above the row, as wide as it, rather than the whole width of the screen above it */
+			position-area: block-start center;
+			position-try-fallbacks: flip-block;
+			justify-self: stretch;
+			inline-size: auto;
+			max-inline-size: none;
+			margin: 0 0 var(--app-gap);
+		}
+	}
+
+	.wp-tooltip__text {
+		display: block;
+		padding-inline-end: var(--app-u2);
+	}
+
+	.wp-tooltip__close {
+		position: absolute;
+		inset-block-start: var(--app-gap-small);
+		inset-inline-end: var(--app-gap-small);
+	}
+
+	/* The button that logs in, as the main action of a form: a pill that stands out */
+	#wp-submit {
+		padding: calc(1em / sqrt(var(--app-phi))) 1em;
+		border: 1px solid var(--app-line);
+		border-radius: calc(infinity * 1px);
+		background: var(--app-fill);
+		color: var(--app-text);
+		font-family: var(--app-font-ui);
+		font-size: var(--app-font-small);
+		line-height: var(--app-line-height);
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+}

@@ -18,6 +18,7 @@ use Library\Admin\Dashboard;
 use Library\Admin\Metaboxes;
 use Library\Admin\Reading_Idea_Widget;
 use Library\Admin\Terms_List;
+use Library\App\Login;
 use Library\App\Page;
 
 /**
@@ -68,6 +69,7 @@ class Plugin {
 		new Reading_Idea_Widget()->hooks();
 		new Achievements_Page()->hooks();
 		new Page()->hooks();
+		new Login()->hooks();
 		new Updater( $plugin_file )->hooks();
 	}
 }
