@@ -12,7 +12,9 @@ permissions:
 
 jobs:
   playwright:
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 rather than ubuntu-latest, Ubuntu 26.04 since October 2026: apt could not resolve its mirrors there,
+    # and Playwright installs the dependencies of its browsers for the systems it knows.
+    runs-on: ubuntu-24.04
     # A step that hangs, such as the install of a browser, fails rather than running for hours.
     timeout-minutes: 20
     steps:

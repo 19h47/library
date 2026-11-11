@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   update-translations:
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 rather than ubuntu-latest, Ubuntu 26.04 since October 2026: apt could not resolve its mirrors there.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
