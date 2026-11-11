@@ -97,11 +97,18 @@ class Page {
 	public const int MAX_PER_PAGE = 100;
 
 	/**
-	 * View of the components of the app, for development, opened by searching its name rather than from the navigation.
+	 * View of the components of the app, for development, opened by searching its name then Enter rather than from the navigation.
 	 *
 	 * @var string
 	 */
 	public const string STYLEGUIDE_VIEW = 'styleguide';
+
+	/**
+	 * The reference of the API, for development, opened by searching "api" then Enter.
+	 *
+	 * @var string
+	 */
+	public const string API_VIEW = 'api';
 
 	/**
 	 * Key of localStorage the app keeps its choices in, its theme read before the first paint, of the login too.
@@ -189,7 +196,7 @@ class Page {
 		// The page of a person or of a book needs its ID, in the argument of the same name: ?view=person&person=12, as the recap its year.
 		$id = absint( $_GET[ $view ] ?? 0 );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW, self::RECAP_VIEW ), true ) && $id ) || self::STYLEGUIDE_VIEW === $view ? $view : 'books';
+		$view = isset( $views[ $view ] ) || ( in_array( $view, array( self::PERSON_VIEW, self::BOOK_VIEW, self::SERIES_VIEW, self::PUBLISHER_VIEW, self::RECAP_VIEW ), true ) && $id ) || in_array( $view, array( self::STYLEGUIDE_VIEW, self::API_VIEW ), true ) ? $view : 'books';
 
 		$this->preload( $view, $id );
 
@@ -219,7 +226,7 @@ class Page {
 				'offset'   => 0,
 			)
 		);
-		$paths    = array( '/library/v1/books/reading-stats', $list( array( 'status' => Status::To_Buy->value ) ) );
+		$paths    = array( '/library/v1/stats', $list( array( 'status' => Status::To_Buy->value ) ) );
 
 		if ( 'books' === $view ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads the search shown, changes nothing.
@@ -234,7 +241,7 @@ class Page {
 						'orderby' => 'started',
 					)
 				);
-				$paths[] = '/library/v1/books/readings?page=1';
+				$paths[] = '/library/v1/readings?page=1';
 			}
 		}
 
@@ -257,8 +264,8 @@ class Page {
 		$data = array_reduce( $paths, 'rest_preload_api_request', array() );
 
 		// The books of the first readings of the diary, as the store asks for them.
-		$months = $data['/library/v1/books/readings?page=1']['body'] ?? array();
-		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book' ), $months ) );
+		$months = $data['/library/v1/readings?page=1']['body'] ?? array();
+		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book_id' ), $months ) );
 
 		if ( $read ) {
 			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $read, $statuses ) );

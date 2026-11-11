@@ -268,7 +268,7 @@ class Taxonomies {
 	 *
 	 * A series of a book, under its cycle, if any, as a collection is under its publisher: "Les Jeunes Chevaliers Jedi"
 	 * under "Star Wars". A book has one series, the narrowest; its volume number is a meta of the book. Its description
-	 * shows on the page of the series in the reading app.
+	 * shows on the page of the series in the reading app, as the ISSN of a magazine, a meta of the series.
 	 *
 	 * @return void
 	 */

@@ -16,16 +16,16 @@ import { urlOf } from 'library-app/router';
  * The fields of the form of a book, by their names.
  *
  * @typedef {Object} EditFields
- * @property {HTMLInputElement}    title        Its title.
- * @property {HTMLTextAreaElement} excerpt      Its summary in a few words.
- * @property {HTMLTextAreaElement} content      Its notes.
- * @property {HTMLInputElement}    publisher    Its publisher.
- * @property {HTMLInputElement}    collection   Its collection.
- * @property {HTMLInputElement}    series       Its series.
- * @property {HTMLSelectElement}   form         Its form.
- * @property {HTMLInputElement}    cover        The photo of its cover.
- * @property {HTMLSelectElement}   status       The status of a book to add.
- * @property {HTMLInputElement}    library_isbn Its ISBN.
+ * @property {HTMLInputElement}    title      Its title.
+ * @property {HTMLTextAreaElement} excerpt    Its summary in a few words.
+ * @property {HTMLTextAreaElement} content    Its notes.
+ * @property {HTMLInputElement}    publisher  Its publisher.
+ * @property {HTMLInputElement}    collection Its collection.
+ * @property {HTMLInputElement}    series     Its series.
+ * @property {HTMLSelectElement}   form       Its form.
+ * @property {HTMLInputElement}    cover      The photo of its cover.
+ * @property {HTMLSelectElement}   status     The status of a book to add.
+ * @property {HTMLInputElement}    isbn       Its ISBN.
  */
 
 /**
@@ -109,7 +109,7 @@ class LibraryEditElement extends Brick {
 			form: $bookForm,
 			cover: $cover,
 			status: $status,
-			library_isbn: $isbn,
+			isbn: $isbn,
 		} = /** @type {HTMLFormControlsCollection & EditFields} */ (
 			$form.elements
 		);
@@ -122,7 +122,7 @@ class LibraryEditElement extends Brick {
 			...$form.querySelectorAll( '[name="languages"]' ),
 		] );
 		const $editionLanguages = /** @type {HTMLInputElement[]} */ ( [
-			...$form.querySelectorAll( '[name="library_edition_languages"]' ),
+			...$form.querySelectorAll( '[name="edition_languages"]' ),
 		] );
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
 		/** @type {( $field: Field ) => string|boolean} */
@@ -275,16 +275,13 @@ class LibraryEditElement extends Brick {
 
 			// The edition languages left as the form gave them, the language of the reader, take the ones of the catalogue.
 			if (
-				book.meta.library_edition_languages.length &&
+				book.meta.edition_languages.length &&
 				$editionLanguages.every(
 					( $checkbox ) =>
 						$checkbox.checked === $checkbox.defaultChecked
 				)
 			) {
-				checkIds(
-					$editionLanguages,
-					book.meta.library_edition_languages
-				);
+				checkIds( $editionLanguages, book.meta.edition_languages );
 			}
 
 			// A collection needs its publisher, which enables it.
@@ -401,8 +398,8 @@ class LibraryEditElement extends Brick {
 								getValue( $field ),
 							] )
 						),
-						library_edition_languages: data
-							.getAll( 'library_edition_languages' )
+						edition_languages: data
+							.getAll( 'edition_languages' )
 							.map( Number ),
 					},
 				};
@@ -465,7 +462,7 @@ class LibraryEditElement extends Brick {
 						checkIds( $languages, book.languages );
 						checkIds(
 							$editionLanguages,
-							book.meta.library_edition_languages
+							book.meta.edition_languages
 						);
 						$bookForm.value = ( book.form || '' ).toString();
 						$meta.forEach( ( $field ) => {

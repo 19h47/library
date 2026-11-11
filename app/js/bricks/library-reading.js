@@ -13,11 +13,11 @@ import { inputList, showBusy, showErrors } from 'library-app/behaviors';
  * The fields of the reading of a book, by their names.
  *
  * @typedef {Object} ReadingFields
- * @property {HTMLInputElement}  library_read        Whether it is read.
- * @property {HTMLInputElement}  library_in_progress Whether it is being read.
- * @property {HTMLInputElement}  library_started     The day its reading in progress started.
- * @property {HTMLSelectElement} library_rating      Its rating.
- * @property {HTMLSelectElement} status              Whether it is in the library, not kept or to buy.
+ * @property {HTMLInputElement}  read        Whether it is read.
+ * @property {HTMLInputElement}  in_progress Whether it is being read.
+ * @property {HTMLInputElement}  started     The day its reading in progress started.
+ * @property {HTMLSelectElement} rating      Its rating.
+ * @property {HTMLSelectElement} status      Whether it is in the library, not kept or to buy.
  */
 
 /**
@@ -28,12 +28,8 @@ import { inputList, showBusy, showErrors } from 'library-app/behaviors';
  */
 function readingsOf( data ) {
 	// The values of date inputs are strings.
-	const starts = /** @type {string[]} */ (
-		data.getAll( 'library_reading_start' )
-	);
-	const ends = /** @type {string[]} */ (
-		data.getAll( 'library_reading_end' )
-	);
+	const starts = /** @type {string[]} */ ( data.getAll( 'reading_start' ) );
+	const ends = /** @type {string[]} */ ( data.getAll( 'reading_end' ) );
 
 	return starts.map( ( start, index ) => ( { start, end: ends[ index ] } ) );
 }
@@ -55,10 +51,10 @@ class LibraryReadingElement extends Brick {
 	connect( signal ) {
 		const $form = this.querySelector( 'form' );
 		const {
-			library_read: $read,
-			library_in_progress: $inProgress,
-			library_started: $started,
-			library_rating: $rating,
+			read: $read,
+			in_progress: $inProgress,
+			started: $started,
+			rating: $rating,
 			status: $status,
 		} = /** @type {HTMLFormControlsCollection & ReadingFields} */ (
 			$form.elements
@@ -122,9 +118,7 @@ class LibraryReadingElement extends Brick {
 				const [ start, end ] = interval.split( '/' );
 				const $row = $start.closest( 'li' );
 				/** @type {HTMLInputElement} */
-				const $end = $row.querySelector(
-					'[name="library_reading_end"]'
-				);
+				const $end = $row.querySelector( '[name="reading_end"]' );
 
 				$start.value = start;
 				$end.value = end;
@@ -226,15 +220,13 @@ class LibraryReadingElement extends Brick {
 			const data = new FormData( $form );
 
 			return (
-				data.has( 'library_read' ) === book.read &&
-				data.has( 'library_in_progress' ) === book.in_progress &&
+				data.has( 'read' ) === book.read &&
+				data.has( 'in_progress' ) === book.in_progress &&
 				( ! book.in_progress ||
-					data.get( 'library_started' ) ===
-						book.started.slice( 0, 10 ) ) &&
+					data.get( 'started' ) === book.started.slice( 0, 10 ) ) &&
 				intervalsOf( readingsOf( data ) ) ===
 					intervalsOf( book.readings ) &&
-				data.get( 'library_rating' ) ===
-					( book.rating || '' ).toString() &&
+				data.get( 'rating' ) === ( book.rating || '' ).toString() &&
 				data.get( 'status' ) === statusOf( book )
 			);
 		};
@@ -258,15 +250,15 @@ class LibraryReadingElement extends Brick {
 			'submit',
 			( event ) => {
 				const data = new FormData( $form );
-				const rating = data.get( 'library_rating' );
+				const rating = data.get( 'rating' );
 
 				event.preventDefault();
 				store.saveReading( {
-					read: data.has( 'library_read' ),
-					inProgress: data.has( 'library_in_progress' ),
+					read: data.has( 'read' ),
+					inProgress: data.has( 'in_progress' ),
 					// The values of date inputs and selects are strings.
 					started: /** @type {string} */ (
-						data.get( 'library_started' ) ?? ''
+						data.get( 'started' ) ?? ''
 					),
 					readings: readingsOf( data ),
 					rating: rating ? Number( rating ) : null,

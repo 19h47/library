@@ -20,7 +20,7 @@ test.describe( 'Navigation', () => {
 					title: `Volume ${ volume }`,
 					series: SERIES,
 					people: [ { name: AUTHOR, role: 'author' } ],
-					meta: { library_volume_number: String( volume ) },
+					meta: { volume_number: String( volume ) },
 				} )
 			);
 		}

@@ -84,7 +84,7 @@ class Test_BnF extends TestCase {
 				'series'    => 'City Hunter',
 				'publisher' => 'Panini Comics',
 				'form'      => $comics,
-				'meta'      => array( 'library_isbn' => '9782845380011' ),
+				'meta'      => array( 'isbn' => '9782845380011' ),
 			) + $this->by( 'Tsukasa Hojo' )
 		);
 
@@ -106,10 +106,10 @@ class Test_BnF extends TestCase {
 		);
 		$this->assertSame( 'Panini Comics', $book['publisher'] );
 		$this->assertSame( 'City Hunter', $book['series'] );
-		$this->assertSame( 'Tome 10', $book['meta']['library_volume_number'] );
+		$this->assertSame( 'Tome 10', $book['meta']['volume_number'] );
 		$this->assertSame( array( $japanese ), $book['languages'] );
 		$this->assertSame( $comics, $book['form'] );
-		$this->assertSame( '226', $book['meta']['library_pages'] );
+		$this->assertSame( '226', $book['meta']['pages'] );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Test_BnF extends TestCase {
 			array(
 				'publisher'  => 'Pocket',
 				'collection' => 'Pocket Science-fiction',
-				'meta'       => array( 'library_isbn' => '978-2-266-06657-0' ),
+				'meta'       => array( 'isbn' => '978-2-266-06657-0' ),
 			)
 		);
 
@@ -136,9 +136,9 @@ class Test_BnF extends TestCase {
 		$this->assertSame( array( 'author', 'author', 'translator' ), array_column( $book['people'], 'role' ) );
 		$this->assertSame( 'Pocket', $book['publisher'] );
 		$this->assertSame( 'Pocket Science-fiction', $book['collection'] );
-		$this->assertSame( '5702', $book['meta']['library_collection_number'] );
+		$this->assertSame( '5702', $book['meta']['collection_number'] );
 		$this->assertSame( 'Le bouclier des étoiles', $book['series'] );
-		$this->assertSame( 'Tome 01', $book['meta']['library_volume_number'] );
+		$this->assertSame( 'Tome 01', $book['meta']['volume_number'] );
 		$this->assertSame( array( $english ), $book['languages'] );
 	}
 
@@ -156,10 +156,10 @@ class Test_BnF extends TestCase {
 		$book = $this->get_bnf_book( '978-2-07-278171-1' )->get_data();
 
 		$this->assertSame( 'Tous, sauf moi', $book['title'] );
-		$this->assertSame( '', $book['meta']['library_subtitle'] );
+		$this->assertSame( '', $book['meta']['subtitle'] );
 		$this->assertSame( $novel, $book['form'] );
 		$this->assertSame( array( $italian ), $book['languages'] );
-		$this->assertSame( array( $french ), $book['meta']['library_edition_languages'] );
+		$this->assertSame( array( $french ), $book['meta']['edition_languages'] );
 		$this->assertSame( 'translator', $book['people'][1]['role'] );
 		$this->assertSame( 'Gallimard', $book['publisher'] );
 		$this->assertSame( 'Du monde entier', $book['collection'] );
@@ -176,7 +176,7 @@ class Test_BnF extends TestCase {
 		$this->add_book(
 			array(
 				'publisher' => '10/18',
-				'meta'      => array( 'library_isbn' => '9782264000019' ),
+				'meta'      => array( 'isbn' => '9782264000019' ),
 			)
 		);
 
@@ -185,7 +185,7 @@ class Test_BnF extends TestCase {
 		$this->assertSame( array(), $book['languages'] );
 		$this->assertSame( '10/18', $book['publisher'] );
 		$this->assertSame( '', $book['collection'] );
-		$this->assertSame( '1999', $book['meta']['library_collection_number'] );
+		$this->assertSame( '1999', $book['meta']['collection_number'] );
 	}
 
 	/**

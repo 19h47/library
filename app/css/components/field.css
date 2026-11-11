@@ -121,8 +121,12 @@
 		color: var(--library-error);
 	}
 
-	/* The excerpt and the notes grow with their text, from their padding: half a step less above and below than on each side */
+	/*
+	 * The excerpt and the notes grow with their text, from their padding: half a step less above and below than on each
+	 * side; empty, or made smaller by hand, they keep room for three lines, their padding one more
+	 */
 	.library-field textarea {
+		min-block-size: 4lh;
 		padding-block: calc(1em / sqrt(var(--app-phi)));
 		field-sizing: content;
 	}

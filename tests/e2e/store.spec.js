@@ -40,7 +40,7 @@ test.describe( 'Store', () => {
 	} ) => {
 		let isOffline = true;
 
-		await page.route( /reading-idea/, ( route ) =>
+		await page.route( /library\/v1\/idea/, ( route ) =>
 			isOffline ? route.abort( 'internetdisconnected' ) : route.continue()
 		);
 		await openApp( page );
@@ -54,7 +54,7 @@ test.describe( 'Store', () => {
 			.poll( () =>
 				page.evaluate(
 					() =>
-						window.store.get().idea.id > 0 &&
+						window.store.get().idea.book_id > 0 &&
 						! window.store.get().idea.error
 				)
 			)
@@ -67,9 +67,7 @@ test.describe( 'Store', () => {
 		await openApp( page, `&view=book&book=${ books[ 0 ].id }` );
 		await waitForIdle( page );
 
-		const rating = page.locator(
-			'library-reading [name="library_rating"]'
-		);
+		const rating = page.locator( 'library-reading [name="rating"]' );
 
 		// Typed, not chosen yet: no change, nothing saved.
 		await rating.evaluate( ( select ) => {

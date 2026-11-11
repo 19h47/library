@@ -115,17 +115,22 @@ const AUTHORS = [
 		name: 'An Author',
 		description:
 			'<p>A description long enough to be clamped at three lines, as on the page of a series, where the page of the author shows it in full, with its paragraphs.</p>\n<p>Its second paragraph.</p>',
-		books: 12,
+		book_count: 12,
 	},
-	{ id: 2, name: 'An Author Without Description', description: '', books: 1 },
+	{
+		id: 2,
+		name: 'An Author Without Description',
+		description: '',
+		book_count: 1,
+	},
 ];
 
 const SERIES = {
 	id: 1,
 	name: 'A Cycle, A Series',
 	description: '<p>The description of a series, on the page of a person.</p>',
-	books: 3,
-	read: 2,
+	book_count: 3,
+	read_count: 2,
 };
 
 const ACHIEVEMENTS = [
@@ -184,13 +189,13 @@ class LibraryStyleguideElement extends Brick {
 			volumes: () => this.#renderVolumes(),
 			terms: () => [
 				...AUTHORS.map( ( author ) =>
-					renderAuthor( author, formatBooks( author.books ) )
+					renderAuthor( author, formatBooks( author.book_count ) )
 				),
 				renderSeries(
 					SERIES,
 					join( [
-						formatBooks( SERIES.books ),
-						`${ SERIES.read } read`,
+						formatBooks( SERIES.book_count ),
+						`${ SERIES.read_count } read`,
 					] )
 				),
 			],
@@ -261,7 +266,7 @@ class LibraryStyleguideElement extends Brick {
 		showError( $invalid, $invalid.dataset.error );
 		showError(
 			this.querySelector(
-				'[data-sample="readings"] li:last-child [name="library_reading_end"]'
+				'[data-sample="readings"] li:last-child [name="reading_end"]'
 			),
 			'A date later than today, as the browser says it.'
 		);
@@ -364,9 +369,9 @@ class LibraryStyleguideElement extends Brick {
 		);
 
 		/** @type {HTMLInputElement} */
-		const $start = $item.querySelector( '[name="library_reading_start"]' );
+		const $start = $item.querySelector( '[name="reading_start"]' );
 		/** @type {HTMLInputElement} */
-		const $end = $item.querySelector( '[name="library_reading_end"]' );
+		const $end = $item.querySelector( '[name="reading_end"]' );
 
 		$start.value = start;
 		$end.value = end;

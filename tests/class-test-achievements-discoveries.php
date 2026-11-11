@@ -21,7 +21,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_a_book_read_the_year_it_came_out_is_hot_off_the_press(): void {
-		$this->add_read_book( 'Fresh', '2024-12-31', array( 'library_published_date' => '2024-03' ) );
+		$this->add_read_book( 'Fresh', '2024-12-31', array( 'published_date' => '2024-03' ) );
 
 		$hot_off_the_press = $this->get_earned()['hot-off-the-press'];
 
@@ -38,7 +38,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_a_book_read_the_year_after_is_not_hot_off_the_press(): void {
-		$this->add_read_book( 'Last year', '2025-01-01', array( 'library_published_date' => '2024-12-31' ) );
+		$this->add_read_book( 'Last year', '2025-01-01', array( 'published_date' => '2024-12-31' ) );
 
 		$this->assertArrayNotHasKey( 'hot-off-the-press', $this->get_earned() );
 	}
@@ -49,7 +49,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_hot_off_the_press_falls_back_on_the_edition_date(): void {
-		$this->add_read_book( 'New edition', '2024-06-01', array( 'library_edition_date' => '2024-02-15' ) );
+		$this->add_read_book( 'New edition', '2024-06-01', array( 'edition_date' => '2024-02-15' ) );
 
 		$this->assertSame( 'New edition', $this->get_earned()['hot-off-the-press'][0]['subject'] );
 	}
@@ -64,8 +64,8 @@ class Test_Achievements_Discoveries extends TestCase {
 			'Reissue',
 			'2024-06-01',
 			array(
-				'library_published_date' => '1950',
-				'library_edition_date'   => '2024-02-15',
+				'published_date' => '1950',
+				'edition_date'   => '2024-02-15',
 			)
 		);
 
@@ -82,8 +82,8 @@ class Test_Achievements_Discoveries extends TestCase {
 			array(
 				'title' => 'Read twice',
 				'meta'  => array(
-					'library_published_date' => '2020',
-					'library_reading'        => array( '/2020-06-01', '/2024-01-01' ),
+					'published_date' => '2020',
+					'reading'        => array( '/2020-06-01', '/2024-01-01' ),
 				),
 			)
 		);
@@ -97,9 +97,9 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_hot_off_the_press_shows_the_latest_book_and_how_many(): void {
-		$this->add_read_book( 'Later', '2024-09-01', array( 'library_published_date' => '2024' ) );
-		$this->add_read_book( 'Earlier', '2023-05-01', array( 'library_published_date' => '2023' ) );
-		$this->add_read_book( 'Not new', '2024-10-01', array( 'library_published_date' => '2001' ) );
+		$this->add_read_book( 'Later', '2024-09-01', array( 'published_date' => '2024' ) );
+		$this->add_read_book( 'Earlier', '2023-05-01', array( 'published_date' => '2023' ) );
+		$this->add_read_book( 'Not new', '2024-10-01', array( 'published_date' => '2001' ) );
 
 		$hot_off_the_press = $this->get_earned()['hot-off-the-press'];
 
@@ -115,7 +115,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_a_book_read_a_century_after_is_a_centenarian(): void {
-		$this->add_read_book( 'Old', '2024-01-01', array( 'library_published_date' => '1924-12-31' ) );
+		$this->add_read_book( 'Old', '2024-01-01', array( 'published_date' => '1924-12-31' ) );
 
 		$centenarian = $this->get_earned()['centenarian'];
 
@@ -132,7 +132,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_ninety_nine_years_are_not_a_century(): void {
-		$this->add_read_book( 'Almost', '2024-12-31', array( 'library_published_date' => '1925' ) );
+		$this->add_read_book( 'Almost', '2024-12-31', array( 'published_date' => '1925' ) );
 		$this->add_read_book( 'Undated', '2024-12-31' );
 
 		$earned = $this->get_earned();
@@ -254,7 +254,7 @@ class Test_Achievements_Discoveries extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read long ago',
-				'meta'  => array( 'library_reading' => array( '/' ) ),
+				'meta'  => array( 'reading' => array( '/' ) ),
 			),
 			'2024-01-01 10:00:00'
 		);
@@ -274,7 +274,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 */
 	public function test_a_book_of_each_decade_of_the_20th_century(): void {
 		$this->add_decades( array( 1900, 1912, 1925, 1938, 1941, 1956, 1963, 1977, 1984, 1999 ) );
-		$this->add_read_book( 'Another of the twenties', '2025-06-01', array( 'library_published_date' => '1929' ) );
+		$this->add_read_book( 'Another of the twenties', '2025-06-01', array( 'published_date' => '1929' ) );
 
 		$decades = $this->get_earned()['decades'];
 
@@ -345,7 +345,7 @@ class Test_Achievements_Discoveries extends TestCase {
 		return $this->add_book(
 			array(
 				'title' => $title,
-				'meta'  => array( 'library_reading' => array( "/$read_date" ) ) + $meta,
+				'meta'  => array( 'reading' => array( "/$read_date" ) ) + $meta,
 			),
 			$added
 		);
@@ -361,7 +361,7 @@ class Test_Achievements_Discoveries extends TestCase {
 		foreach ( array_values( $years ) as $index => $year ) {
 			$read_date = gmdate( 'Y-m-d', strtotime( '2024-01-01 +' . $index . ' days' ) );
 
-			$this->add_read_book( 'Book of ' . $year, $read_date, array( 'library_published_date' => (string) $year ) );
+			$this->add_read_book( 'Book of ' . $year, $read_date, array( 'published_date' => (string) $year ) );
 		}
 	}
 }

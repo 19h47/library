@@ -97,7 +97,7 @@ class Test_Terms_List extends TestCase {
 		$this->add_book(
 			array(
 				'languages' => array( $english ),
-				'meta'      => array( 'library_edition_languages' => array( $french ) ),
+				'meta'      => array( 'edition_languages' => array( $french ) ),
 			)
 		);
 

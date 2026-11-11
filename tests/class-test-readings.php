@@ -53,7 +53,7 @@ class Test_Readings extends TestCase {
 	public function test_a_reading_in_progress_keeps_its_start_once_ended(): void {
 		$book_id = $this->add_book();
 
-		$this->save( $book_id, array( 'library_in_progress' => true ) );
+		$this->save( $book_id, array( 'in_progress' => true ) );
 
 		[ $reading ] = Meta::get_readings( $book_id );
 		[ $start ]   = Meta::split_reading( $reading );
@@ -63,7 +63,7 @@ class Test_Readings extends TestCase {
 		$this->assertTrue( (bool) get_post_meta( $book_id, 'library_in_progress', true ) );
 		$this->assertFalse( (bool) get_post_meta( $book_id, 'library_read', true ) );
 
-		$this->save( $book_id, array( 'library_read' => true ) );
+		$this->save( $book_id, array( 'read' => true ) );
 
 		[ $reading ] = Meta::get_readings( $book_id );
 
@@ -79,9 +79,9 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_a_reading_added_ends_the_one_in_progress(): void {
-		$book_id = $this->add_book( array( 'meta' => array( 'library_reading' => array( '/2019-06-14', '2024-10-20/..' ) ) ) );
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14', '2024-10-20/..' ) ) ) );
 
-		$this->save( $book_id, array( 'library_reading' => array( '/2019-06-14', '/2024-11-02', '2024-10-20/..' ) ) );
+		$this->save( $book_id, array( 'reading' => array( '/2019-06-14', '/2024-11-02', '2024-10-20/..' ) ) );
 
 		$this->assertSame( array( '/2019-06-14', '2024-10-20/2024-11-02' ), Meta::get_readings( $book_id ) );
 	}
@@ -92,13 +92,13 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_a_book_read_again_keeps_its_readings(): void {
-		$book_id = $this->add_book( array( 'meta' => array( 'library_reading' => array( '2024-03-02/2024-03-20', '2026-11-01/..' ) ) ) );
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '2024-03-02/2024-03-20', '2026-11-01/..' ) ) ) );
 
 		$this->assertSame( array( '2024-03-20' ), Meta::get_read_dates( $book_id ) );
 		$this->assertTrue( (bool) get_post_meta( $book_id, 'library_read', true ) );
 		$this->assertTrue( (bool) get_post_meta( $book_id, 'library_in_progress', true ) );
 
-		$this->save( $book_id, array( 'library_read' => false ) );
+		$this->save( $book_id, array( 'read' => false ) );
 
 		$this->assertSame( array( '2026-11-01/..' ), Meta::get_readings( $book_id ) );
 	}
@@ -109,9 +109,9 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_a_day_given_keeps_the_time_saved(): void {
-		$book_id = $this->add_book( array( 'meta' => array( 'library_reading' => array( '2026-11-01T09:15/2026-11-01T21:40' ) ) ) );
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '2026-11-01T09:15/2026-11-01T21:40' ) ) ) );
 
-		$this->save( $book_id, array( 'library_reading' => array( '2026-11-01/2026-11-01' ) ) );
+		$this->save( $book_id, array( 'reading' => array( '2026-11-01/2026-11-01' ) ) );
 
 		$this->assertSame( array( '2026-11-01T09:15/2026-11-01T21:40' ), Meta::get_readings( $book_id ) );
 	}
@@ -128,7 +128,7 @@ class Test_Readings extends TestCase {
 		$this->assertSame( '/', Meta::sanitize_reading( 'anything' ) );
 		$this->assertSame( '2026-11-08T09:15/..', Meta::sanitize_reading( '2026-11-08T09:15/..' ) );
 
-		$book_id = $this->add_book( array( 'meta' => array( 'library_reading' => array( '/2024-03-01', '2026-11-01/..', '/', '2023-01-01/2023-02-01' ) ) ) );
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-03-01', '2026-11-01/..', '/', '2023-01-01/2023-02-01' ) ) ) );
 
 		$this->assertSame( array( '/', '2023-01-01/2023-02-01', '/2024-03-01', '2026-11-01/..' ), Meta::get_readings( $book_id ) );
 		$this->assertSame( array( '', '2023-02-01', '2024-03-01' ), Meta::get_read_dates( $book_id ) );
@@ -140,7 +140,7 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_quick_edit_keeps_the_start_of_the_latest_reading(): void {
-		$book_id = $this->add_book( array( 'meta' => array( 'library_reading' => array( '/2019-06-14', '2024-03-02/2024-03-20' ) ) ) );
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14', '2024-03-02/2024-03-20' ) ) ) );
 
 		$this->assertSame( array( '/2019-06-14', '2024-03-02/2024-03-25' ), Meta::replace_latest_read_date( $book_id, '2024-03-25' ) );
 	}
@@ -151,9 +151,9 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_searches_read_the_readings(): void {
-		$read        = $this->add_book( array( 'meta' => array( 'library_reading' => array( '2024-03-02/2024-03-20' ) ) ) );
-		$started     = $this->add_book( array( 'meta' => array( 'library_reading' => array( '2026-10-01/..' ) ) ) );
-		$started_now = $this->add_book( array( 'meta' => array( 'library_reading' => array( '2026-11-01/..' ) ) ) );
+		$read        = $this->add_book( array( 'meta' => array( 'reading' => array( '2024-03-02/2024-03-20' ) ) ) );
+		$started     = $this->add_book( array( 'meta' => array( 'reading' => array( '2026-10-01/..' ) ) ) );
+		$started_now = $this->add_book( array( 'meta' => array( 'reading' => array( '2026-11-01/..' ) ) ) );
 		$unread      = $this->add_book();
 
 		$this->assertSame( array( $read ), $this->find( array( 'search' => 'read:yes' ) ) );

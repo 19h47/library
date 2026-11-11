@@ -25,19 +25,19 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_readings(): void {
 		$first  = $this->add_read( '2025-03-02' );
-		$again  = $this->add_book( array( 'meta' => array( 'library_reading' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
+		$again  = $this->add_book( array( 'meta' => array( 'reading' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
 		$before = $this->add_read( '2024-12-31' );
 		$this->add_read( '2024-06-01' );
 
 		$recap = Recap::get_recap( 2025 );
 
-		$this->assertSame( 3, $recap['readings'] );
-		$this->assertSame( 2, $recap['previous'] );
-		$this->assertSame( 1, $recap['rereads'] );
+		$this->assertSame( 3, $recap['reading_count'] );
+		$this->assertSame( 2, $recap['previous_reading_count'] );
+		$this->assertSame( 1, $recap['reread_count'] );
 		$this->assertSame( array( $again, $first ), $recap['books'] );
 		$this->assertSame( array( 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 ), $recap['months'] );
 		$this->assertSame( array( 2024, 2025 ), $recap['years'] );
-		$this->assertSame( 365, $recap['days'] );
+		$this->assertSame( 365, $recap['day_count'] );
 		$this->assertNotContains( $before, $recap['books'] );
 	}
 
@@ -48,17 +48,17 @@ class Test_Recap extends TestCase {
 	 * @return void
 	 */
 	public function test_pages_and_records(): void {
-		$long  = $this->add_read( '2025-02-01', array( 'meta' => array( 'library_pages' => 600 ) ) );
+		$long  = $this->add_read( '2025-02-01', array( 'meta' => array( 'pages' => 600 ) ) );
 		$short = $this->add_read(
 			'2025-04-01',
 			array(
 				'meta' => array(
-					'library_pages'          => 40,
-					'library_published_date' => '1932',
+					'pages'          => 40,
+					'published_date' => '1932',
 				),
 			)
 		);
-		$this->add_read( '2025-05-01', array( 'meta' => array( 'library_published_date' => '1990-04' ) ) );
+		$this->add_read( '2025-05-01', array( 'meta' => array( 'published_date' => '1990-04' ) ) );
 
 		$recap = Recap::get_recap( 2025 );
 
@@ -85,10 +85,10 @@ class Test_Recap extends TestCase {
 	 * @return void
 	 */
 	public function test_ratings(): void {
-		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
-		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'library_rating' => 8 ) ) );
-		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'library_rating' => 10 ) ) );
-		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'library_rating' => 5 ) ) );
+		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'rating' => 8 ) ) );
+		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'rating' => 8 ) ) );
+		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'rating' => 10 ) ) );
+		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'rating' => 5 ) ) );
 		$this->add_read( '2025-04-01' );
 
 		$recap = Recap::get_recap( 2025 );
@@ -118,13 +118,13 @@ class Test_Recap extends TestCase {
 		$recap = Recap::get_recap( 2025 );
 
 		$this->assertSame( array( 'Novel', 'Comic' ), array_column( $recap['forms'], 'name' ) );
-		$this->assertSame( array( 2, 1 ), array_column( $recap['forms'], 'readings' ) );
+		$this->assertSame( array( 2, 1 ), array_column( $recap['forms'], 'reading_count' ) );
 		$this->assertSame( array( 'Ann Writer', 'Bob Drawer' ), array_column( $recap['people'], 'name' ) );
 		$this->assertSame(
 			array(
 				array(
-					'code'     => 'it',
-					'readings' => 2,
+					'code'          => 'it',
+					'reading_count' => 2,
 				),
 			),
 			$recap['languages']
@@ -175,7 +175,7 @@ class Test_Recap extends TestCase {
 
 		$this->assertTrue( $series['Started And Finished']['started'] );
 		$this->assertTrue( $series['Started And Finished']['finished'] );
-		$this->assertSame( 2, $series['Started And Finished']['readings'] );
+		$this->assertSame( 2, $series['Started And Finished']['reading_count'] );
 		$this->assertFalse( $series['Finished']['started'] );
 		$this->assertTrue( $series['Finished']['finished'] );
 		$this->assertTrue( $series['Started']['started'] );
@@ -192,7 +192,7 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_a_collective_book_counts_for_no_author(): void {
 		$this->add_read( '2025-01-01', $this->by( 'Ann Writer' ) );
-		$this->add_read( '2025-02-01', $this->by( 'Contributor' ) + array( 'meta' => array( 'library_collective' => true ) ) );
+		$this->add_read( '2025-02-01', $this->by( 'Contributor' ) + array( 'meta' => array( 'collective' => true ) ) );
 
 		$recap = Recap::get_recap( 2025 );
 
@@ -211,7 +211,7 @@ class Test_Recap extends TestCase {
 		$this->add_book( array( 'status' => Status::To_Buy->value ), '2025-05-01 10:00:00' );
 		$this->add_book( array(), '2024-12-31 10:00:00' );
 
-		$this->assertSame( 2, Recap::get_recap( 2025 )['added'] );
+		$this->assertSame( 2, Recap::get_recap( 2025 )['added_count'] );
 	}
 
 	/**
@@ -242,7 +242,7 @@ class Test_Recap extends TestCase {
 			),
 			array_filter( $calendar['levels'] )
 		);
-		$this->assertSame( 6, $calendar['read'] );
+		$this->assertSame( 6, $calendar['read_day_count'] );
 		$this->assertSame( 3, $calendar['streak'] );
 		$this->assertSame(
 			array(
@@ -252,7 +252,7 @@ class Test_Recap extends TestCase {
 			$calendar['best']
 		);
 		$this->assertSame( array( 61, 68 ), $calendar['memorable'] );
-		$this->assertSame( 3, $calendar['dated'] );
+		$this->assertSame( 3, $calendar['dated_reading_count'] );
 	}
 
 	/**
@@ -270,8 +270,8 @@ class Test_Recap extends TestCase {
 		$calendar = Recap::get_recap( $year )['calendar'];
 
 		$this->assertCount( (int) $today->format( 'z' ) + 1, $calendar['levels'] );
-		$this->assertSame( 1, $calendar['read'] );
-		$this->assertSame( 0, $calendar['dated'] );
+		$this->assertSame( 1, $calendar['read_day_count'] );
+		$this->assertSame( 0, $calendar['dated_reading_count'] );
 		$this->assertNull( $calendar['best'] );
 	}
 
@@ -287,9 +287,9 @@ class Test_Recap extends TestCase {
 		return array(
 			'meta' => array_filter(
 				array(
-					'library_reading' => array( $reading ),
-					'library_pages'   => $pages,
-					'library_rating'  => $rating,
+					'reading' => array( $reading ),
+					'pages'   => $pages,
+					'rating'  => $rating,
 				)
 			),
 		);

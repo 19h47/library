@@ -128,7 +128,7 @@ import {
  * @property {string}                  series           Its series, after its cycles.
  * @property {number[]}                languages        The term IDs of its original languages.
  * @property {number}                  form             The term ID of its form, 0 for none.
- * @property {Object<string, unknown>} meta             Its meta, by their keys, library_isbn… and its edition languages.
+ * @property {Object<string, unknown>} meta             Its meta, by their names, isbn… and its edition languages.
  * @property {string}                  [status]         The status of a book to add.
  * @property {number}                  [featured_media] The ID of the image of its cover, 0 for none.
  */
@@ -151,9 +151,10 @@ import {
  */
 
 /**
- * The meta of a book as its form edits them, by their keys: library_isbn… and the term IDs of its edition languages.
+ * The meta of a book as its form edits them, by their names, as the REST API of the plugin names them: isbn… and the
+ * term IDs of its edition languages.
  *
- * @typedef {Object<string, string|boolean> & {library_edition_languages: number[]}} FormMeta
+ * @typedef {Object<string, string|boolean> & {edition_languages: number[]}} FormMeta
  */
 
 /**
@@ -206,8 +207,8 @@ import {
  * The reading stats: all the books, those read, and this year against the last one.
  *
  * @typedef {Object} Stats
- * @property {number}    total        The books.
- * @property {number}    read         The books read.
+ * @property {number}    book_count   The books.
+ * @property {number}    read_count   The books read.
  * @property {number}    percent      The percentage of books read.
  * @property {YearStats} year_to_date This year against the last one.
  */
@@ -216,12 +217,12 @@ import {
  * The readings of the year to date, against the same date last year, and the pace.
  *
  * @typedef {Object} YearStats
- * @property {number}      year        This year.
- * @property {number}      this_year   The books read this year.
- * @property {number}      last_year   The books read by this date last year.
- * @property {number|null} projection  The books read by the end of the year at this pace, none without a pace.
- * @property {number}      to_read     The books to read.
- * @property {number|null} all_read_in The year they would all be read in at this pace, none without a pace.
+ * @property {number}      year                 This year.
+ * @property {number}      read_count           The books read this year.
+ * @property {number}      last_year_read_count The books read by this date last year.
+ * @property {number|null} projected_read_count The books read by the end of the year at this pace, none without a pace.
+ * @property {number}      to_read_count        The books to read.
+ * @property {number|null} all_read_in          The year they would all be read in at this pace, none without a pace.
  */
 
 /**
@@ -244,10 +245,10 @@ import {
  * A reading idea of the week's list, with the ID of its book.
  *
  * @typedef {Object} Idea
- * @property {number} id       The ID of its book.
- * @property {string} reason   Why it is an idea.
- * @property {number} position Its position in the week's list.
- * @property {number} total    The ideas of the week.
+ * @property {number} book_id    The ID of its book.
+ * @property {string} reason     Why it is an idea.
+ * @property {number} position   Its position in the week's list.
+ * @property {number} idea_count The ideas of the week.
  */
 
 /**
@@ -286,7 +287,7 @@ import {
  * @property {number} id          Their term ID.
  * @property {string} name        Their name.
  * @property {string} description Their description, HTML.
- * @property {number} books       How many of its books they wrote.
+ * @property {number} book_count  How many of its books they wrote.
  */
 
 /**
@@ -296,8 +297,8 @@ import {
  * @property {number} id          Its term ID.
  * @property {string} name        Its name, after its cycles.
  * @property {string} description Its description, HTML.
- * @property {number} books       How many of their books it holds.
- * @property {number} read        How many of these are read.
+ * @property {number} book_count  How many of their books it holds.
+ * @property {number} read_count  How many of these are read.
  */
 
 /**
@@ -352,9 +353,9 @@ import {
  * A term of the books read in a year, such as a form or a person, with its readings.
  *
  * @typedef {Object} RecapTerm
- * @property {number} id       Its term ID.
- * @property {string} name     Its name.
- * @property {number} readings Its readings in the year.
+ * @property {number} id            Its term ID.
+ * @property {string} name          Its name.
+ * @property {number} reading_count Its readings in the year.
  */
 
 /**
@@ -368,12 +369,12 @@ import {
  * its start is unknown, the pages of a book read from a known start spread over its days.
  *
  * @typedef {Object} RecapCalendar
- * @property {number[]}                          levels    The level of each day, 0 for none read, then 1 to 4 by its pages.
- * @property {number[]}                          memorable The memorable days, by their index: the biggest one, and those a favourite was finished.
- * @property {number}                            read      The days read.
- * @property {number}                            streak    The most days read in a row.
- * @property {{day: number, pages: number}|null} best      The day the most pages were read, by its index, none without pages.
- * @property {number}                            dated     The readings ended in the year with their start known.
+ * @property {number[]}                          levels              The level of each day, 0 for none read, then 1 to 4 by its pages.
+ * @property {number[]}                          memorable           The memorable days, by their index: the biggest one, and those a favourite was finished.
+ * @property {number}                            read_day_count      The days read.
+ * @property {number}                            streak              The most days read in a row.
+ * @property {{day: number, pages: number}|null} best                The day the most pages were read, by its index, none without pages.
+ * @property {number}                            dated_reading_count The readings ended in the year with their start known.
  */
 
 /**
@@ -381,26 +382,26 @@ import {
  * read, the ratings and the records take each book once.
  *
  * @typedef {Object} Recap
- * @property {number}                                              year         The year.
- * @property {number[]}                                            years        The years with a reading, the earliest first.
- * @property {number}                                              days         Its days gone by: all of them for a year gone.
- * @property {number}                                              readings     Its readings.
- * @property {number}                                              previous     The readings of the year before.
- * @property {number}                                              rereads      Its readings of a book read again in the year.
- * @property {number[]}                                            books        The IDs of the books read, in the order they were read.
- * @property {{total: number, counted: number}}                    pages        The pages read, and the readings of a book with its number of pages.
- * @property {number[]}                                            months       The readings of each month, from January.
- * @property {RecapTerm[]}                                         forms        The forms read, the most read first.
- * @property {RecapTerm[]}                                         people       The people read the most, by the name they are known by.
- * @property {Term[]}                                              discoveries  The people read for the first time, in the order they were read.
- * @property {{code: string, readings: number}[]}                  languages    The original languages, as ISO 639 codes, the most read first.
- * @property {RecapSeries[]}                                       series       The series read, the most read first.
- * @property {number|null}                                         rating       The average rating of the books read, none without one.
- * @property {number[]}                                            best         The IDs of the books read with a rating, the highest first.
- * @property {{longest: number, shortest: number, oldest: number}} records      The IDs of the longest, the shortest and the oldest books read, 0 for none.
- * @property {Achievement[]}                                       achievements The achievements earned in the year.
- * @property {number}                                              added        The books added in the year, but those to buy.
- * @property {RecapCalendar}                                       calendar     Its days of reading.
+ * @property {number}                                              year                   The year.
+ * @property {number[]}                                            years                  The years with a reading, the earliest first.
+ * @property {number}                                              day_count              Its days gone by: all of them for a year gone.
+ * @property {number}                                              reading_count          Its readings.
+ * @property {number}                                              previous_reading_count The readings of the year before.
+ * @property {number}                                              reread_count           Its readings of a book read again in the year.
+ * @property {number[]}                                            books                  The IDs of the books read, in the order they were read.
+ * @property {{total: number, counted: number}}                    pages                  The pages read, and the readings of a book with its number of pages.
+ * @property {number[]}                                            months                 The readings of each month, from January.
+ * @property {RecapTerm[]}                                         forms                  The forms read, the most read first.
+ * @property {RecapTerm[]}                                         people                 The people read the most, by the name they are known by.
+ * @property {Term[]}                                              discoveries            The people read for the first time, in the order they were read.
+ * @property {{code: string, reading_count: number}[]}             languages              The original languages, as ISO 639 codes, the most read first.
+ * @property {RecapSeries[]}                                       series                 The series read, the most read first.
+ * @property {number|null}                                         rating                 The average rating of the books read, none without one.
+ * @property {number[]}                                            best                   The IDs of the books read with a rating, the highest first.
+ * @property {{longest: number, shortest: number, oldest: number}} records                The IDs of the longest, the shortest and the oldest books read, 0 for none.
+ * @property {Achievement[]}                                       achievements           The achievements earned in the year.
+ * @property {number}                                              added_count            The books added in the year, but those to buy.
+ * @property {RecapCalendar}                                       calendar               Its days of reading.
  */
 
 /**
@@ -428,12 +429,12 @@ import {
  * A term of the core REST API, with the fields of the plugin the form of a book reads.
  *
  * @typedef {Object} ApiTerm
- * @property {number} id           Its term ID.
- * @property {string} name         Its name, HTML.
- * @property {number} parent       The term ID of its parent, 0 at the top.
- * @property {string} [path]       A series after its cycles, in plain text.
- * @property {number} [publisher]  The term ID of the publisher of a collection, its own for a publisher.
- * @property {string} [collection] A collection after the collections it is part of, without its publisher, in plain text.
+ * @property {number} id             Its term ID.
+ * @property {string} name           Its name, HTML.
+ * @property {number} parent         The term ID of its parent, 0 at the top.
+ * @property {number} [publisher_id] The term ID of the publisher of a collection, its own for a publisher.
+ * @property {string} [path]         A series after its cycles, or a collection after the collections it is part of,
+ *                                   without its publisher, in plain text.
  */
 
 const parser = new DOMParser();
@@ -631,9 +632,9 @@ const PAGES = {
 			otherNames: data.other_names.map( text ),
 			description: data.description,
 			series: data.series.map( toPlainName ),
-			read: data.read,
+			read: data.read_count,
 			rating: data.rating,
-			bookPages: data.pages,
+			bookPages: data.page_count,
 			completion: data.completion,
 		} ),
 	},
@@ -643,10 +644,10 @@ const PAGES = {
 			name: text( data.name ),
 			cycle: toPlainName( data.cycle ),
 			issn: data.issn,
-			parts: data.series.map( toPlainName ),
+			parts: data.parts.map( toPlainName ),
 			authors: data.authors.map( toPlainName ),
 			description: data.description,
-			read: data.read,
+			read: data.read_count,
 			completion: data.completion,
 		} ),
 	},
@@ -659,7 +660,7 @@ const PAGES = {
 			collections: data.collections.map( toPlainName ),
 			authors: data.authors.map( toPlainName ),
 			description: data.description,
-			read: data.read,
+			read: data.read_count,
 			completion: data.completion,
 		} ),
 	},
@@ -834,13 +835,13 @@ export async function findInBnf( isbn ) {
  * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, and how many months and pages in all.
  */
 export async function getReadings( page ) {
-	/** @type {Paged<{month: string, readings: Array<{date: string, book: number}>}>} */
+	/** @type {Paged<{month: string, readings: Array<{date: string, book_id: number}>}>} */
 	const { items, total, pages } = await fetchPaged( {
-		path: addQueryArgs( '/library/v1/books/readings', { page } ),
+		path: addQueryArgs( '/library/v1/readings', { page } ),
 	} );
 	const months = items.map( ( { month, readings } ) => ( {
 		month,
-		readings: readings.map( ( { date, book } ) => ( { date, id: book } ) ),
+		readings: readings.map( ( { date, book_id: id } ) => ( { date, id } ) ),
 	} ) );
 
 	return { months, total, pages };
@@ -854,7 +855,7 @@ export async function getReadings( page ) {
  */
 export function getIdea( position ) {
 	return apiFetch( {
-		path: addQueryArgs( '/library/v1/books/reading-idea', { position } ),
+		path: addQueryArgs( '/library/v1/idea', { position } ),
 	} );
 }
 
@@ -908,7 +909,7 @@ export async function getRecap( year, { signal } = {} ) {
  * @return {Promise<Achievements>} The achievements.
  */
 export function getAchievements() {
-	return apiFetch( { path: '/library/v1/books/achievements' } );
+	return apiFetch( { path: '/library/v1/achievements' } );
 }
 
 /**
@@ -917,7 +918,7 @@ export function getAchievements() {
  * @return {Promise<Stats>} The stats.
  */
 export function getStats() {
-	return apiFetch( { path: '/library/v1/books/reading-stats' } );
+	return apiFetch( { path: '/library/v1/stats' } );
 }
 
 /**
@@ -936,7 +937,7 @@ export async function getTerms() {
 	const [ people, publishers, series ] = await Promise.all( [
 		fetchAll( 'people', { _fields: 'id,name,parent' } ),
 		fetchAll( 'publishers', {
-			_fields: 'id,name,parent,publisher,collection',
+			_fields: 'id,name,parent,publisher_id,path',
 			orderby: 'id',
 		} ),
 		fetchAll( 'series', { _fields: 'id,parent,path', orderby: 'id' } ),
@@ -952,8 +953,8 @@ export async function getTerms() {
 		people: people.map( toTerm ),
 		publishers: publishers.map( ( term ) => ( {
 			...toTerm( term ),
-			publisher: term.publisher,
-			collection: term.collection,
+			publisher: term.publisher_id,
+			collection: term.path,
 		} ) ),
 		series: series.map( ( { id, path, parent } ) => ( {
 			id,
@@ -1021,22 +1022,306 @@ export async function addBook( data ) {
  * @return {Promise<number>} The ID of the image.
  */
 export async function uploadCover( file, { title, people, series, meta } ) {
-	const query = { title, people, series, meta, photo: file.name };
-	/** @type {{name: string}} */
-	const { name } = await apiFetch( {
-		path: addQueryArgs( '/library/v1/books/cover-name', query ),
-	} );
 	const body = new FormData();
 
-	body.append( 'file', file, name );
-	body.append( 'title', title );
+	body.append( 'file', file );
+	appendFields( body, { title, people, series, meta } );
 
 	/** @type {{id: number}} */
 	const image = await apiFetch( {
-		path: '/wp/v2/media',
+		path: '/library/v1/covers',
 		method: 'POST',
 		body,
 	} );
 
 	return image.id;
+}
+
+/**
+ * Appends values to a form data, a list or an object by the names of its items in brackets, as PHP reads a form:
+ * people[0][name]; true is 1, false is empty, and null is left out.
+ *
+ * @param {FormData} body   The form data.
+ * @param {Object}   values The values, by name.
+ * @param {string}   [base] The name they are under, if any.
+ */
+function appendFields( body, values, base = '' ) {
+	Object.entries( values ).forEach( ( [ key, value ] ) => {
+		const name = base ? `${ base }[${ key }]` : key;
+
+		if ( null === value || undefined === value ) {
+			return;
+		}
+
+		if ( 'object' === typeof value ) {
+			appendFields( body, value, name );
+			return;
+		}
+
+		if ( 'boolean' === typeof value ) {
+			body.append( name, value ? '1' : '' );
+			return;
+		}
+
+		body.append( name, String( value ) );
+	} );
+}
+
+/**
+ * An argument of an endpoint, as the API describes it: its type, whether it is required, and its rules, such as its
+ * default or its values, in plain text.
+ *
+ * @typedef {Object} ApiArg
+ * @property {string}   name        Its name.
+ * @property {string}   type        Its type, such as "integer" or "string[]".
+ * @property {boolean}  required    Whether it is required.
+ * @property {string}   description Its description, or empty.
+ * @property {string[]} rules       Its rules, such as "default: 1".
+ */
+
+/**
+ * A property of what a route gives, as its schema describes it, with the ones it holds, such as the meta of a book.
+ *
+ * @typedef {Object} ApiProperty
+ * @property {string}        name        Its name.
+ * @property {string}        type        Its type.
+ * @property {string}        description Its description, or empty.
+ * @property {boolean}       readonly    Whether it is only read.
+ * @property {ApiProperty[]} properties  The properties it holds.
+ */
+
+/**
+ * An endpoint of a route: its methods and its arguments, those of the path apart.
+ *
+ * @typedef {Object} ApiEndpoint
+ * @property {string[]} methods Its methods, such as GET.
+ * @property {ApiArg[]} args    Its arguments.
+ */
+
+/**
+ * A route of the API, as its reference shows it.
+ *
+ * @typedef {Object} ApiRoute
+ * @property {string}        pattern    Its pattern, as the API registers it: /library/v1/series/(?P<id>\d+).
+ * @property {string}        path       Its path, its arguments in braces: /library/v1/series/{id}.
+ * @property {string[]}      params     The arguments of its path, such as id.
+ * @property {ApiEndpoint[]} endpoints  Its endpoints.
+ * @property {ApiProperty[]} properties What it gives, when its schema says it.
+ */
+
+/**
+ * A request tried from the reference of the API, and its answer.
+ *
+ * @typedef {Object} ApiTry
+ * @property {string} path   The path asked for.
+ * @property {number} status The status of the answer, 0 without one.
+ * @property {string} total  The number of items of a collection, from X-WP-Total, or empty.
+ * @property {string} body   The answer, as indented JSON, or why it failed.
+ */
+
+// The namespace of the plugin, whose routes the reference gives all.
+const NAMESPACE = '/library/v1';
+// The routes of core the app reads, by their base: the reference gives what they take to read and what they give.
+const CORE_ROUTES = [
+	'books',
+	'people',
+	'publishers',
+	'series',
+	'languages',
+	'forms',
+];
+// The arguments of a path: (?P<id>\d+).
+const PATH_PARAM = /\(\?P<(\w+)>[^)]*\)/g;
+// What a request is asked with besides its methods, and what the API answers itself.
+const HIDDEN_METHODS = [ 'OPTIONS', 'HEAD' ];
+
+/**
+ * The type of a value of a schema: its types, a list as the type of its items followed by [].
+ *
+ * @param {Object} schema A schema.
+ * @return {string} The type, or empty.
+ */
+function typeOf( schema ) {
+	const types = [ schema.type ?? [] ].flat();
+
+	return types
+		.map( ( type ) =>
+			'array' === type && schema.items
+				? `${ typeOf( schema.items ) || 'mixed' }[]`
+				: type
+		)
+		.join( ' | ' );
+}
+
+/**
+ * The rules of an argument, in plain text: its default, its values, its limits, its pattern.
+ *
+ * @param {Object} arg An argument, as the API describes it.
+ * @return {string[]} The rules.
+ */
+function rulesOf( arg ) {
+	const value = ( item ) => JSON.stringify( item );
+	const isEmpty =
+		undefined === arg.default ||
+		'' === arg.default ||
+		( Array.isArray( arg.default ) && ! arg.default.length ) ||
+		( arg.default &&
+			'object' === typeof arg.default &&
+			! Object.keys( arg.default ).length );
+	const values = arg.enum ?? arg.items?.enum;
+
+	return [
+		! isEmpty && `default: ${ value( arg.default ) }`,
+		values && `values: ${ values.join( ', ' ) }`,
+		undefined !== arg.minimum && `minimum: ${ arg.minimum }`,
+		undefined !== arg.maximum && `maximum: ${ arg.maximum }`,
+		arg.format && `format: ${ arg.format }`,
+		( arg.pattern ?? arg.items?.pattern ) &&
+			`pattern: ${ arg.pattern ?? arg.items.pattern }`,
+	].filter( Boolean );
+}
+
+/**
+ * The properties of a schema, in its order, each with the ones it holds.
+ *
+ * @param {Object} schema A schema.
+ * @return {ApiProperty[]} The properties.
+ */
+function propertiesOf( schema ) {
+	return Object.entries( schema?.properties ?? {} ).map(
+		( [ name, property ] ) => ( {
+			name,
+			type: typeOf( property ),
+			description: property.description ?? '',
+			readonly: Boolean( property.readonly ),
+			properties: propertiesOf( property.items ?? property ),
+		} )
+	);
+}
+
+/**
+ * A route of the API as its reference shows it: its endpoints with `methods`, the arguments of its path apart.
+ *
+ * @param {string}   pattern The pattern of the route.
+ * @param {Object}   route   The route, as the API describes it.
+ * @param {string[]} methods The methods to show, all if empty.
+ * @return {ApiRoute} The route.
+ */
+function toRoute( pattern, route, methods = [] ) {
+	const params = [ ...pattern.matchAll( PATH_PARAM ) ].map(
+		( [ , name ] ) => name
+	);
+
+	return {
+		pattern,
+		path: pattern.replace( PATH_PARAM, '{$1}' ),
+		params,
+		endpoints: route.endpoints
+			.map( ( endpoint ) => ( {
+				methods: endpoint.methods.filter(
+					( method ) =>
+						! HIDDEN_METHODS.includes( method ) &&
+						( ! methods.length || methods.includes( method ) )
+				),
+				args: Object.entries( endpoint.args )
+					.filter( ( [ name ] ) => ! params.includes( name ) )
+					.map( ( [ name, arg ] ) => ( {
+						name,
+						type: typeOf( arg ),
+						required: Boolean( arg.required ),
+						description: arg.description ?? '',
+						rules: rulesOf( arg ),
+					} ) ),
+			} ) )
+			.filter( ( endpoint ) => endpoint.methods.length ),
+		properties: propertiesOf( route.schema ),
+	};
+}
+
+/**
+ * The reference of the API, as the API describes itself: every route of the plugin, then the routes of core the app reads,
+ * with what they take to read and what they give. The index of the namespace asked for help gives the schemas of the
+ * routes that have one; a route of core asked with OPTIONS gives its own.
+ *
+ * @param {Object}      [options]        Options.
+ * @param {AbortSignal} [options.signal] Cancels it.
+ * @return {Promise<ApiRoute[]>} The routes.
+ */
+export async function getReference( { signal } = {} ) {
+	const [ index, ...core ] = await Promise.all( [
+		apiFetch( {
+			path: addQueryArgs( NAMESPACE, { context: 'help' } ),
+			signal,
+		} ),
+		...CORE_ROUTES.map( ( base ) =>
+			apiFetch( { path: `/wp/v2/${ base }`, method: 'OPTIONS', signal } )
+		),
+	] );
+
+	return [
+		...Object.entries( index.routes )
+			.filter( ( [ pattern ] ) => NAMESPACE !== pattern )
+			.map( ( [ pattern, route ] ) => toRoute( pattern, route ) ),
+		...core.map( ( route, position ) =>
+			toRoute( `/wp/v2/${ CORE_ROUTES[ position ] }`, route, [ 'GET' ] )
+		),
+	];
+}
+
+/**
+ * The path of a request to a route: the arguments of its path in their place, then those of its query given.
+ *
+ * @param {ApiRoute}               route  The route.
+ * @param {Object<string, string>} values The values of its arguments, by name, empty for one not given.
+ * @return {string} The path.
+ */
+export function pathOf( route, values ) {
+	const path = route.pattern.replace( PATH_PARAM, ( match, name ) =>
+		encodeURIComponent( values[ name ] ?? '' )
+	);
+	const query = Object.fromEntries(
+		Object.entries( values ).filter(
+			( [ name, value ] ) => value && ! route.params.includes( name )
+		)
+	);
+
+	return addQueryArgs( path, query );
+}
+
+/**
+ * A GET request tried from the reference of the API: its status, the number of items of a collection, and its answer as
+ * indented JSON, an error of the API among them.
+ *
+ * @param {string} path The path, with its arguments.
+ * @return {Promise<ApiTry>} The answer.
+ */
+export async function tryRoute( path ) {
+	/** @type {Response} */
+	let response;
+
+	try {
+		response = await apiFetch( { path, parse: false } );
+	} catch ( error ) {
+		if ( ! ( error instanceof Response ) ) {
+			return { path, status: 0, total: '', body: errorMessage( error ) };
+		}
+
+		response = error;
+	}
+
+	const body = await response.text();
+	let indented = body;
+
+	try {
+		indented = JSON.stringify( JSON.parse( body ), null, 2 );
+	} catch {
+		// Not JSON: the answer as it came.
+	}
+
+	return {
+		path,
+		status: response.status,
+		total: response.headers.get( 'X-WP-Total' ) ?? '',
+		body: indented,
+	};
 }

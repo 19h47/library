@@ -430,7 +430,10 @@ export function fillAuthors( $section, authors, total ) {
 	fillFolded(
 		$section,
 		authors.map( ( author ) =>
-			renderAuthor( author, total > 1 ? formatBooks( author.books ) : '' )
+			renderAuthor(
+				author,
+				total > 1 ? formatBooks( author.book_count ) : ''
+			)
 		),
 		( folded ) =>
 			sprintf(

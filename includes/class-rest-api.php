@@ -1,6 +1,8 @@
 <?php
 /**
- * REST API: a book added or edited, the name of its cover, reading stats, readings by month, reading idea, achievements, the recap of a year, people and the credits of a book.
+ * REST API: the fields of the books and of the terms of core, and the routes of the plugin: a book added or edited, the
+ * catalogue of the BnF, the photo of a cover, the reading stats, the readings by month, the reading idea, the achievements,
+ * the recap of a year, and the pages of a person, a series and a collection.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -19,7 +21,8 @@ use WP_REST_Server;
 use WP_Term;
 
 /**
- * Registers REST routes for books.
+ * Adds the fields of the books and of the terms to the core REST API, and registers the routes of the plugin with their
+ * schemas.
  *
  * @since      1.0.0
  * @package    Library
@@ -41,7 +44,8 @@ class Rest_API {
 	/**
 	 * Register the fields added to the books of the core REST API: its credits, its readings in order, and what a list of
 	 * books shows of its cover and terms, so that it needs to embed neither the image nor the terms, whole; and to the
-	 * series and the publishers, their names as a book types them.
+	 * series and the publishers, their path as a book types them, after their cycles or their collections, and the ID of
+	 * the publisher of a collection.
 	 *
 	 * @return void
 	 */
@@ -138,8 +142,8 @@ class Rest_API {
 		// collections it is part of, under the ID of its publisher.
 		$term_fields = array(
 			array( 'library_series', 'path', 'string', array( Taxonomies::class, 'get_series_path' ) ),
-			array( 'library_publisher', 'collection', 'string', array( Taxonomies::class, 'get_collection_name' ) ),
-			array( 'library_publisher', 'publisher', 'integer', fn( WP_Term $term ) => current( Taxonomies::get_top_level_terms( array( $term ) ) )->term_id ?? $term->term_id ),
+			array( 'library_publisher', 'path', 'string', array( Taxonomies::class, 'get_collection_name' ) ),
+			array( 'library_publisher', 'publisher_id', 'integer', fn( WP_Term $term ) => current( Taxonomies::get_top_level_terms( array( $term ) ) )->term_id ?? $term->term_id ),
 		);
 
 		foreach ( $term_fields as [ $taxonomy, $name, $type, $callback ] ) {
@@ -197,7 +201,8 @@ class Rest_API {
 	}
 
 	/**
-	 * Register REST routes.
+	 * Register the routes of the plugin, then the schema of each one, from Rest_Schemas, which the index gives asked for
+	 * help.
 	 *
 	 * @since  1.0.0
 	 * @return void
@@ -214,7 +219,8 @@ class Rest_API {
 			),
 		);
 
-		$can_edit_book = fn( WP_REST_Request $request ) => current_user_can( 'edit_post', $request['id'] );
+		// A book that does not exist is not found, before any right is checked, as core does: 404 rather than 403.
+		$can_edit_book = fn( WP_REST_Request $request ) => self::check_book( $request['id'] ) ?? current_user_can( 'edit_post', $request['id'] );
 
 		register_rest_route(
 			'library/v1',
@@ -222,9 +228,9 @@ class Rest_API {
 			array(
 				'args' => array(
 					'id' => array(
-						'description'       => __( 'ID of the book.', 'library' ),
-						'type'              => 'integer',
-						'validate_callback' => fn( $id ) => 'library_book' === get_post_type( (int) $id ),
+						'description' => __( 'ID of the book.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
 					),
 				),
 				array(
@@ -243,18 +249,12 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/cover-name',
+			'covers',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_cover_name' ),
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_cover' ),
 				'permission_callback' => fn() => current_user_can( 'upload_files' ),
-				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'series', 'meta' ) ) ) + array(
-					'photo' => array(
-						'description' => __( 'File name of the photo picked, whose extension the cover keeps.', 'library' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-				),
+				'args'                => array_intersect_key( $this->get_book_args( true ), array_flip( array( 'title', 'people', 'series', 'meta' ) ) ),
 			),
 		);
 
@@ -278,7 +278,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/reading-stats',
+			'stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( Stats::get_reading_stats() + array( 'year_to_date' => Stats::get_reading_year_to_date() ) ),
@@ -288,7 +288,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/readings',
+			'readings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_readings' ),
@@ -313,7 +313,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/reading-idea',
+			'idea',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_reading_idea' ),
@@ -331,7 +331,7 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
-			'books/achievements',
+			'achievements',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( new Achievements()->get_achievements() ),
@@ -406,6 +406,11 @@ class Rest_API {
 				),
 			),
 		);
+
+		// What each route gives, which the index shows asked for help: a route takes its schema as an option of its own.
+		foreach ( Rest_Schemas::get_schemas() as $route => $schema ) {
+			register_rest_route( 'library/v1', $route, array( 'schema' => $schema ) );
+		}
 	}
 
 	/**
@@ -489,7 +494,7 @@ class Rest_API {
 				'default'     => 0,
 			),
 			'meta'           => array(
-				'description' => __( 'Book meta, such as library_isbn, as the book form saves them.', 'library' ),
+				'description' => __( 'Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them.', 'library' ),
 				'type'        => 'object',
 				'default'     => array(),
 			),
@@ -509,6 +514,26 @@ class Rest_API {
 	}
 
 	/**
+	 * Whether `$id` is the ID of a book: none if it is, else an error, 404, as an ID of the right type no book has is not found
+	 * rather than an invalid parameter, which an ID of another type is.
+	 *
+	 * @param int $id ID of the book.
+	 * @return WP_Error|null
+	 */
+	private static function check_book( int $id ): ?WP_Error {
+		return 'library_book' === get_post_type( $id ) ? null : self::no_book();
+	}
+
+	/**
+	 * The error of an ID no book has: not found.
+	 *
+	 * @return WP_Error
+	 */
+	private static function no_book(): WP_Error {
+		return new WP_Error( 'library_no_book', __( 'No book has this ID.', 'library' ), array( 'status' => 404 ) );
+	}
+
+	/**
 	 * Add a book, as the book form does: its post, whose slug is built from its title and ISBN, then its meta, terms
 	 * and cover, as save_book() saves them.
 	 *
@@ -516,7 +541,7 @@ class Rest_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function create_book( WP_REST_Request $request ) {
-		$meta  = (array) $request['meta'];
+		$meta  = Meta::from_names( (array) $request['meta'] );
 		$error = Meta::check_isbn( 0, (string) ( $meta['library_isbn'] ?? '' ) );
 
 		if ( $error ) {
@@ -540,7 +565,7 @@ class Rest_API {
 			return $book_id;
 		}
 
-		$this->save_book( $book_id, $request, $terms, $roles );
+		$this->save_book( $book_id, $request, $meta, $terms, $roles );
 
 		$response = $this->get_book_response( $book_id );
 		$response->set_status( 201 );
@@ -550,7 +575,8 @@ class Rest_API {
 
 	/**
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta, its edition languages among them.
+	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them, its readings
+	 * apart, which their own form edits.
 	 *
 	 * The form edits one publisher and one collection, after the collections it is part of: a book given more gives its first
 	 * collection, or else publisher.
@@ -562,7 +588,7 @@ class Rest_API {
 		$book = get_post( $request['id'] );
 
 		if ( ! $book instanceof WP_Post ) {
-			return new WP_Error( 'library_no_book', get_post_type_object( 'library_book' )->labels->not_found, array( 'status' => 404 ) );
+			return self::no_book();
 		}
 
 		$collection = current( Taxonomies::get_collections( $book->ID ) );
@@ -593,15 +619,15 @@ class Rest_API {
 				'series'     => Taxonomies::get_series_name( $book->ID ),
 				'languages'  => $languages,
 				'form'       => (int) current( $forms ),
-				'meta'       => $meta,
+				'meta'       => Meta::to_names( $meta ),
 			)
 		);
 	}
 
 	/**
 	 * A book to add as the catalogue of the BnF describes it, from its ISBN, as its form takes it: its title, its people
-	 * with their roles, its publisher, collection and series, its original languages, its form and its meta, its edition
-	 * languages among them, with the names of the library.
+	 * with their roles, its publisher, collection and series, its original languages, its form and its meta by their names, its
+	 * edition languages among them, with the names of the library.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -611,6 +637,10 @@ class Rest_API {
 
 		if ( null === $book ) {
 			return new WP_Error( 'library_not_in_bnf', __( 'The catalogue of the BnF has no book of this ISBN.', 'library' ), array( 'status' => 404 ) );
+		}
+
+		if ( is_array( $book ) ) {
+			$book['meta'] = Meta::to_names( $book['meta'] );
 		}
 
 		return rest_ensure_response( $book );
@@ -625,7 +655,7 @@ class Rest_API {
 	 */
 	public function update_book( WP_REST_Request $request ) {
 		$book_id = $request['id'];
-		$meta    = (array) $request['meta'];
+		$meta    = Meta::from_names( (array) $request['meta'] );
 		$error   = Meta::check_isbn( $book_id, (string) ( $meta['library_isbn'] ?? '' ) );
 
 		if ( $error ) {
@@ -659,7 +689,7 @@ class Rest_API {
 			return $updated;
 		}
 
-		$this->save_book( $book_id, $request, $terms, $roles );
+		$this->save_book( $book_id, $request, $meta, $terms, $roles );
 
 		return $this->get_book_response( $book_id );
 	}
@@ -725,13 +755,14 @@ class Rest_API {
 	 *
 	 * @param int                 $book_id Book ID.
 	 * @param WP_REST_Request     $request Request.
+	 * @param array<string,mixed> $meta    Meta sent, by key, from Meta::from_names().
 	 * @param array<string,int[]> $terms   Term IDs by taxonomy, from get_terms().
 	 * @param array<int,string>   $roles   Roles of the names sent, by term ID, from get_roles().
 	 * @return void
 	 */
-	private function save_book( int $book_id, WP_REST_Request $request, array $terms, array $roles ): void {
+	private function save_book( int $book_id, WP_REST_Request $request, array $meta, array $terms, array $roles ): void {
 		if ( $request->has_param( 'meta' ) ) {
-			Meta::save( $book_id, (array) $request['meta'] );
+			Meta::save( $book_id, $meta );
 		}
 
 		foreach ( $terms as $taxonomy => $term_ids ) {
@@ -780,21 +811,36 @@ class Rest_API {
 	}
 
 	/**
-	 * The name of the image of a cover, from the fields of its book as its form sends them, before the photo is uploaded:
-	 * its first author and the title to show, from Books::build_cover_name().
+	 * Upload the photo of a cover, named after its book from the fields of its form, its first author and the title to
+	 * show, as Books::build_cover_name() names it, and titled after its book: the route of the media of core uploads it,
+	 * checks it and makes its sizes, and gives it back, as `wp/v2/media` does.
 	 *
 	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_cover_name( WP_REST_Request $request ): WP_REST_Response {
-		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
-		$name    = Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], (array) $request['meta'], $request['photo'] );
+	public function create_cover( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$photo = $request->get_file_params()['file'] ?? null;
 
-		return rest_ensure_response( array( 'name' => $name ) );
+		if ( ! is_array( $photo ) ) {
+			return new WP_Error( 'library_no_photo', __( 'No photo was sent, in the file field.', 'library' ), array( 'status' => 400 ) );
+		}
+
+		$authors = wp_list_filter( $request['people'], array( 'role' => 'author' ) );
+		$name    = Books::build_cover_name( $request['title'], array_column( $authors, 'name' ), (string) $request['series'], Meta::from_names( (array) $request['meta'] ), $photo['name'] );
+		$media   = new WP_REST_Request( 'POST', '/wp/v2/media' );
+
+		// A photo without name keeps none.
+		$photo['name'] = '' !== $name ? $name : $photo['name'];
+
+		$media->set_file_params( array( 'file' => $photo ) );
+		$media->set_param( 'title', $request['title'] );
+
+		return rest_ensure_response( rest_do_request( $media ) );
 	}
 
 	/**
-	 * The readings by month, latest first: one per read date, so a book read again comes once per reading, kept or not.
+	 * The readings by month, latest first, each with the ID of its book: one per read date, so a book read again comes once
+	 * per reading, kept or not.
 	 *
 	 * A page holds whole months, so a month never goes on in the next one; the totals in the X-WP-Total and
 	 * X-WP-TotalPages headers count months.
@@ -808,8 +854,8 @@ class Rest_API {
 
 		foreach ( Stats::get_readings() as $reading ) {
 			$months[ substr( $reading->read_date, 0, 7 ) ][] = array(
-				'date' => $reading->read_date,
-				'book' => $reading->id,
+				'date'    => $reading->read_date,
+				'book_id' => $reading->id,
 			);
 		}
 
@@ -911,23 +957,23 @@ class Rest_API {
 						'id'          => $term->term_id,
 						'name'        => Taxonomies::get_series_path( $term ),
 						'description' => term_description( $term->term_id ),
-						'books'       => $book_count[ $term->term_id ],
-						'read'        => $read_count[ $term->term_id ] ?? 0,
+						'book_count'  => $book_count[ $term->term_id ],
+						'read_count'  => $read_count[ $term->term_id ] ?? 0,
 					),
 					$series
 				),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => Books::count_read( $books ),
+				'read_count'  => Books::count_read( $books ),
 				'rating'      => Books::get_average_rating( $books ),
-				'pages'       => array_sum( array_column( $books, 'pages' ) ),
+				'page_count'  => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
 			)
 		);
 	}
 
 	/**
-	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its series if
-	 * it is a cycle, its authors, its books in reading order, those of its series with them, how many are read, and the
+	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its parts, the
+	 * series of a cycle, its authors, its books in reading order, those of its series with them, how many are read, and the
 	 * completion they count for.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -957,10 +1003,10 @@ class Rest_API {
 				'cycle'       => self::build_term_link( $cycle, array( Taxonomies::class, 'get_series_path' ) ),
 				'issn'        => Taxonomies::get_issn( $series->term_id ),
 				'description' => term_description( $series->term_id ),
-				'series'      => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
+				'parts'       => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( Books::sort_in_reading_order( $books ), 'id' ),
-				'read'        => Books::count_read( $books ),
+				'read_count'  => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
@@ -1023,7 +1069,7 @@ class Rest_API {
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
-				'read'        => Books::count_read( $books ),
+				'read_count'  => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);
@@ -1087,7 +1133,7 @@ class Rest_API {
 	 * of the books they wrote: those who wrote the most first, then by name.
 	 *
 	 * @param array<int,Book> $books Books, from Books::get_books().
-	 * @return array<int,array{id:int,name:string,description:string,books:int}>
+	 * @return array<int,array{id:int,name:string,description:string,book_count:int}>
 	 */
 	private static function get_authors_of( array $books ): array {
 		$book_count = array_count_values( array_merge( ...array_column( $books, 'author_ids' ) ) );
@@ -1114,7 +1160,7 @@ class Rest_API {
 				'id'          => $author->term_id,
 				'name'        => wp_specialchars_decode( $author->name, ENT_QUOTES ),
 				'description' => term_description( $author->term_id ),
-				'books'       => $book_count[ $author->term_id ],
+				'book_count'  => $book_count[ $author->term_id ],
 			),
 			$authors
 		);

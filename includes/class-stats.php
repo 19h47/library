@@ -126,7 +126,7 @@ class Stats {
 	/**
 	 * Reading stats: books read out of the books in the library.
 	 *
-	 * @return array{read:int,total:int,percent:int}
+	 * @return array{read_count:int,book_count:int,percent:int}
 	 */
 	public static function get_reading_stats(): array {
 		$library = self::get_kept_books();
@@ -135,9 +135,9 @@ class Stats {
 		$percent = $total > 0 ? (int) round( $read / $total * 100 ) : 0;
 
 		return array(
-			'read'    => $read,
-			'total'   => $total,
-			'percent' => $percent,
+			'read_count' => $read,
+			'book_count' => $total,
+			'percent'    => $percent,
 		);
 	}
 
@@ -154,7 +154,7 @@ class Stats {
 	 * Books read this year and by the same date last year, the number expected by the end of the year, and the year
 	 * the books to read would all be read in; both at the pace of this year, a book read again counting once per reading.
 	 *
-	 * @return array{year:int,this_year:int,last_year:int,projection:int|null,to_read:int,all_read_in:int|null}
+	 * @return array{year:int,read_count:int,last_year_read_count:int,projected_read_count:int|null,to_read_count:int,all_read_in:int|null}
 	 */
 	public static function get_reading_year_to_date(): array {
 		$today    = new DateTimeImmutable( 'now', wp_timezone() );
@@ -178,12 +178,12 @@ class Stats {
 		}
 
 		return array(
-			'year'        => (int) $today->format( 'Y' ),
-			'this_year'   => $this_year,
-			'last_year'   => $count( $same_day ),
-			'projection'  => $projection,
-			'to_read'     => $to_read,
-			'all_read_in' => $all_read_in,
+			'year'                 => (int) $today->format( 'Y' ),
+			'read_count'           => $this_year,
+			'last_year_read_count' => $count( $same_day ),
+			'projected_read_count' => $projection,
+			'to_read_count'        => $to_read,
+			'all_read_in'          => $all_read_in,
 		);
 	}
 }

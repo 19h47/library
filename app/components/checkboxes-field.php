@@ -43,14 +43,14 @@ $fieldset       = Markup::set_attributes(
 				<button class="app-pill" type="button" data-value="<?php echo esc_attr( (string) $value ); ?>" hidden>
 					<span class="sr-only"><?php esc_html_e( 'Remove:', 'library' ); ?></span>
 					<?php echo esc_html( $label ); ?>
-					<span aria-hidden="true">×</span>
+					<?php Markup::render_icon( 'close' ); ?>
 				</button>
 			<?php endforeach; ?>
 			<button class="app-pill" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="show-modal" aria-haspopup="dialog"><?php echo esc_html( $args['add'] ); ?></button>
 		</p>
 		<dialog class="library-sheet" id="<?php echo esc_attr( $dialog_id ); ?>" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<p class="app-toolbar">
-				<button class="app-control" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="close" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>">×</button>
+				<button class="app-control" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="close" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>"><?php Markup::render_icon( 'close' ); ?></button>
 			</p>
 			<h2 class="library-book__title" id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $args['label'] ); ?></h2>
 			<div class="library-pills">

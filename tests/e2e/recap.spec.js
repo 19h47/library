@@ -17,17 +17,17 @@ test.describe( 'Recap', () => {
 			title: 'The Recap Long Book',
 			people: [ { name: 'Ann Recap', role: 'author' } ],
 			meta: {
-				library_reading: [ `/${ YEAR }-03-02` ],
-				library_pages: 600,
-				library_rating: 9,
+				reading: [ `/${ YEAR }-03-02` ],
+				pages: 600,
+				rating: 9,
 			},
 		} );
 		await addBook( requestUtils, {
 			title: 'The Recap Short Book',
 			people: [ { name: 'Ann Recap', role: 'author' } ],
 			meta: {
-				library_reading: [ `/${ YEAR }-03-20`, `/${ YEAR }-09-01` ],
-				library_pages: 40,
+				reading: [ `/${ YEAR }-03-20`, `/${ YEAR }-09-01` ],
+				pages: 40,
 			},
 		} );
 	} );

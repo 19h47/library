@@ -90,10 +90,10 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields of core, a book gives:
 
 * `credits` – the line shown under its title.
-* `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.library_reading` through `POST /wp-json/library/v1/books/<id>`; `library_read` and `library_in_progress` are worked out from them.
+* `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.reading` through `POST /wp-json/library/v1/books/<id>`; `read` and `in_progress` are worked out from them.
 * `cover`, `names`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
 
-The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a publisher gives its `collection` name and the ID of its top `publisher`.
+The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a collection its `path` after the collections it is part of, “Folio, Science-fiction”, and the ID of its publisher, `publisher_id`.
 
 The books take these parameters, besides those of core:
 
@@ -105,16 +105,20 @@ The books take these parameters, besides those of core:
 The routes of the plugin, under `/wp-json/library/v1`, to users who can edit posts unless said otherwise:
 
 * `POST /books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts. It gives the book back as `wp/v2/books/<id>` does, `_fields` included.
-* `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it.
+* `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it; 404 for an ID no book has.
 * `POST /books/<id>` – edits a book: only the fields sent change, and a `featured_media` of 0 removes the cover. It gives the book back.
 * `GET /books/bnf?isbn=<isbn>` – the book of an ISBN in the catalogue of the BnF, as `GET /books/<id>` gives a book; 404 when the catalogue does not know it, 502 when it does not answer. To users who can publish posts.
-* `GET /books/cover-name` – the file name of a cover photo, from the fields of the book form: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. To users who can upload files.
-* `GET /books/reading-stats` – the books, the books read this year against last year, and the year the books to read would all be read at this pace.
-* `GET /books/readings` – the readings by month, latest first: `page` and `per_page` count months.
-* `GET /books/reading-idea` – the idea of the week and its reason: `position=1` gives the next one.
-* `GET /books/achievements` – the achievements earned and the closest ones, each with its `target`.
+* `POST /covers` – uploads the photo of a cover, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
+* `GET /stats` – the books, the books read this year against last year, and the year the books to read would all be read at this pace.
+* `GET /readings` – the readings by month, latest first: `page` and `per_page` count months.
+* `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
+* `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
 * `GET /recaps/<year>` – the recap of a year, as the screens of the app show it.
-* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
+* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series, the `parts` of a cycle or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
+
+The routes of the plugin name the meta of a book without the prefix of their keys, `isbn` for `library_isbn`, which the database needs among the meta of every plugin; `wp/v2/books` gives them by their keys, as core does.
+
+A field that counts ends in `_count`, such as `read_count` or `book_count`, a field that holds one ID in `_id`, such as `book_id`, and a list of IDs is named after what it lists, such as `books`.
 
 == Changelog ==
 

@@ -107,7 +107,7 @@ class Dashboard {
 	 * Reading pile widget: books to read, kept or not, the oldest one and the latest reads.
 	 */
 	public function render_pile(): void {
-		$to_read      = Stats::get_reading_year_to_date()['to_read'];
+		$to_read      = Stats::get_reading_year_to_date()['to_read_count'];
 		$oldest       = $this->get_oldest_unread_book();
 		$recent_reads = $this->get_recent_reads();
 

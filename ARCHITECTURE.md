@@ -9,7 +9,7 @@ How the plugin is built. What it does is in `README.txt`, how it is tested in `T
 - **Data**: `Posts` registers the book post type and its statuses, `Taxonomies` the five taxonomies, `Meta` the book meta. Every write, from the book form, quick edit or the REST API, goes through the meta registered there.
 - **Books**: `Books::get_books()` reads every book once, as `Book` objects with their meta and terms, and `Cache` keeps them in transients until a book changes. The stats (`Stats`), the recap (`Recap`), the achievements (`Achievements`), the reading idea (`Reading_Idea`) and the REST routes read from it, never from the database again.
 - **Search**: `Query` extends the book search to the meta and the terms, and reads its keywords, such as `series:SAS`.
-- **REST API**: `Rest_Api` adds the fields of the books and the terms to the core REST API, and the routes of the plugin under `library/v1`.
+- **REST API**: `Rest_Api` adds the fields of the books and the terms to the core REST API, and the routes of the plugin under `library/v1`, whose responses `Rest_Schemas` describes, as JSON schemas the index gives asked for help; a test checks each route gives what its schema says.
 - **BnF**: `BnF` finds a book by its ISBN in the catalogue of the BnF, through its SRU API, and gives its values with the names the library already has.
 - **ISBN**: `Isbn` places the hyphens of an ISBN from `includes/isbn-ranges.json`.
 - **Updates**: `Updater` offers the latest GitHub release as an update, and `Readme` turns `README.txt` into the sections of the "View details" modal. It reads the sections Description, Installation, Frequently Asked Questions and Changelog, `= headings =`, paragraphs, lists, `**bold**`, `` `code` `` and links: nothing else.
@@ -48,4 +48,6 @@ Every size is on the scale of the golden ratio: its steps for space, half steps 
 
 The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`. A component carries no margin of its own: its place spaces it.
 
-Searching `styleguide` in the app opens its styleguide, for development: the tokens, then each component with its markup alone, in English.
+Searching `styleguide` then Enter in the app opens its styleguide, for development: the tokens, then each component with its markup alone, in English.
+
+Searching `api` then Enter opens the reference of the API, for development: every route of `library/v1`, then the routes of `wp/v2` the app reads, as the REST API describes itself (`library/v1?context=help`, `OPTIONS` on a route of core), with their arguments, what they give when their schema says it, and a GET request to try. It shows what the code registers: a description or a schema added to a route shows there.

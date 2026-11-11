@@ -25,6 +25,8 @@ Markup::render_component(
 		'control'     => Meta::get_control(
 			$args['key'],
 			$args['attributes'] + array(
+				// Named as the REST API of the plugin names the meta: isbn for library_isbn.
+				'name'         => Meta::get_name( $args['key'] ),
 				'data-meta'    => true,
 				'autocomplete' => 'off',
 			)

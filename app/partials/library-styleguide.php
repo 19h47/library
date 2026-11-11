@@ -1,6 +1,6 @@
 <?php
 /**
- * The styleguide: the tokens and the components of the app, for development, opened by searching "styleguide".
+ * The styleguide: the tokens and the components of the app, for development, opened by searching "styleguide" then Enter.
  *
  * Each component shows with its own markup alone, in a frame: one that needs its place in the app to look right
  * shows it here. The components of PHP render with Markup::render_component(), as in the app; the [data-sample] lists are
@@ -78,6 +78,17 @@ $sizes = array(
 						<li>
 							<span class="library-styleguide__font" style="--library-token: var(<?php echo esc_attr( $font ); ?>)">Aa 0123</span>
 							<code><?php echo esc_html( $font ); ?></code>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</figure>
+			<figure>
+				<figcaption>Icons, from Material Symbols, outlined, at 24 px: <code>Markup::render_icon( $name )</code>, the size of the text</figcaption>
+				<ul class="library-styleguide__tokens">
+					<?php foreach ( array_keys( Markup::ICONS ) as $icon ) : ?>
+						<li>
+							<span class="library-styleguide__icon"><?php Markup::render_icon( $icon ); ?></span>
+							<code><?php echo esc_html( $icon ); ?></code>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -229,10 +240,10 @@ $sizes = array(
 			<figure>
 				<figcaption><code>.app-control</code>, the controls of the toolbar and of a row: add, the theme in light then in dark, close</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
-					<button class="app-control" type="button" aria-label="Add">+</button>
-					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false">☽&#xFE0E;</button>
-					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="true">☀&#xFE0E;</button>
-					<button class="app-control" type="button" aria-label="Close">×</button>
+					<button class="app-control" type="button" aria-label="Add"><?php Markup::render_icon( 'add' ); ?></button>
+					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false"><?php Markup::render_icon( 'dark_mode' ); ?><?php Markup::render_icon( 'light_mode' ); ?></button>
+					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="true"><?php Markup::render_icon( 'dark_mode' ); ?><?php Markup::render_icon( 'light_mode' ); ?></button>
+					<button class="app-control" type="button" aria-label="Close"><?php Markup::render_icon( 'close' ); ?></button>
 				</div>
 			</figure>
 			<figure>
@@ -251,7 +262,7 @@ $sizes = array(
 				<figcaption><code>.library-back</code>, above the page of a book, of a person or of a series</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-back">
-						<button class="app-pill" type="button"><span aria-hidden="true">←</span> Back</button>
+						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> Back</button>
 					</p>
 				</div>
 			</figure>
@@ -295,8 +306,8 @@ $sizes = array(
 						);
 						?>
 						<p class="library-filters__chosen library-pills">
-							<button class="app-pill" type="button">To read <span aria-hidden="true">×</span></button>
-							<button class="app-pill" type="button">A form <span aria-hidden="true">×</span></button>
+							<button class="app-pill" type="button">To read <?php Markup::render_icon( 'close' ); ?></button>
+							<button class="app-pill" type="button">A form <?php Markup::render_icon( 'close' ); ?></button>
 						</p>
 					</div>
 				</div>
@@ -306,7 +317,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<dialog class="library-sheet" open>
 						<p class="app-toolbar">
-							<button class="app-control" type="button" aria-label="Close">×</button>
+							<button class="app-control" type="button" aria-label="Close"><?php Markup::render_icon( 'close' ); ?></button>
 						</p>
 						<h4 class="library-book__title">Filters</h4>
 						<?php

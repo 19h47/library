@@ -10,13 +10,14 @@
 	}
 
 	/*
-	 * What holds sections, the home, the achievements, the months of the diary, the styleguide: it spaces them, a step and a
-	 * half apart, rather than each its own margin; a section hidden takes no room.
+	 * What holds sections, the home, the achievements, the months of the diary, the styleguide, the reference of the API:
+	 * it spaces them, a step and a half apart, rather than each its own margin; a section hidden takes no room.
 	 */
 	library-home,
 	library-achievements,
 	.library-diary__months,
-	library-styleguide {
+	library-styleguide,
+	library-api {
 		display: grid;
 		gap: var(--app-u3);
 	}

@@ -25,10 +25,10 @@ use DateTimeImmutable;
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
  * @phpstan-import-type Achievement from Achievements
- * @phpstan-type Named array{id:int,name:string,readings:int}
- * @phpstan-type Recap_Series array{id:int,name:string,readings:int,started:bool,finished:bool}
- * @phpstan-type Recap_Calendar array{levels:list<int>,memorable:list<int>,read:int,streak:int,best:array{day:int,pages:int}|null,dated:int}
- * @phpstan-type Recap_Data array{year:int,years:list<int>,days:int,readings:int,previous:int,rereads:int,books:list<int>,pages:array{total:int,counted:int},months:list<int>,forms:list<Named>,people:list<Named>,discoveries:list<array{id:int,name:string}>,languages:list<array{code:string,readings:int}>,series:list<Recap_Series>,rating:float|null,best:list<int>,records:array{longest:int,shortest:int,oldest:int},achievements:list<Achievement>,added:int,calendar:Recap_Calendar}
+ * @phpstan-type Named array{id:int,name:string,reading_count:int}
+ * @phpstan-type Recap_Series array{id:int,name:string,reading_count:int,started:bool,finished:bool}
+ * @phpstan-type Recap_Calendar array{levels:list<int>,memorable:list<int>,read_day_count:int,streak:int,best:array{day:int,pages:int}|null,dated_reading_count:int}
+ * @phpstan-type Recap_Data array{year:int,years:list<int>,day_count:int,reading_count:int,previous_reading_count:int,reread_count:int,books:list<int>,pages:array{total:int,counted:int},months:list<int>,forms:list<Named>,people:list<Named>,discoveries:list<array{id:int,name:string}>,languages:list<array{code:string,reading_count:int}>,series:list<Recap_Series>,rating:float|null,best:list<int>,records:array{longest:int,shortest:int,oldest:int},achievements:list<Achievement>,added_count:int,calendar:Recap_Calendar}
  */
 class Recap {
 
@@ -59,32 +59,32 @@ class Recap {
 		$read     = Stats::get_year_books( $year );
 
 		return array(
-			'year'         => $year,
-			'years'        => array_keys( Stats::count_by_year() ),
-			'days'         => Stats::count_days( $year ),
-			'readings'     => count( $readings ),
-			'previous'     => count( Stats::get_year_readings( $year - 1 ) ),
-			'rereads'      => count( $readings ) - count( $read ),
-			'books'        => array_map( fn( Book $book ) => $book->id, $read ),
-			'pages'        => Stats::count_pages( $readings ),
-			'months'       => array_values( Stats::count_by_month( $readings ) ),
-			'forms'        => self::count_terms( $readings, fn( Book $book ) => array_combine( $book->form_ids, $book->forms ) ),
-			'people'       => array_slice( self::count_terms( $readings, fn( Book $book ) => $book->get_work_authors() ), 0, self::TOP ),
-			'discoveries'  => self::get_discoveries( $books, $year ),
-			'languages'    => array_map(
+			'year'                   => $year,
+			'years'                  => array_keys( Stats::count_by_year() ),
+			'day_count'              => Stats::count_days( $year ),
+			'reading_count'          => count( $readings ),
+			'previous_reading_count' => count( Stats::get_year_readings( $year - 1 ) ),
+			'reread_count'           => count( $readings ) - count( $read ),
+			'books'                  => array_map( fn( Book $book ) => $book->id, $read ),
+			'pages'                  => Stats::count_pages( $readings ),
+			'months'                 => array_values( Stats::count_by_month( $readings ) ),
+			'forms'                  => self::count_terms( $readings, fn( Book $book ) => array_combine( $book->form_ids, $book->forms ) ),
+			'people'                 => array_slice( self::count_terms( $readings, fn( Book $book ) => $book->get_work_authors() ), 0, self::TOP ),
+			'discoveries'            => self::get_discoveries( $books, $year ),
+			'languages'              => array_map(
 				fn( array $language ) => array(
-					'code'     => $language['name'],
-					'readings' => $language['readings'],
+					'code'          => $language['name'],
+					'reading_count' => $language['reading_count'],
 				),
 				self::count_terms( $readings, fn( Book $book ) => array_combine( $book->language_ids, array_keys( $book->languages ) ) )
 			),
-			'series'       => self::get_series( $books, $readings, $year ),
-			'rating'       => Books::get_average_rating( $read ),
-			'best'         => self::get_best( $read ),
-			'records'      => self::get_records( $read ),
-			'achievements' => array_values( array_filter( new Achievements()->get_achievements()['earned'], fn( array $achievement ) => str_starts_with( $achievement['date'], "$year-" ) ) ),
-			'added'        => count( array_filter( $books, fn( Book $book ) => $book->is_at_hand() && str_starts_with( $book->added, "$year-" ) ) ),
-			'calendar'     => self::get_calendar( $books, $read, $year ),
+			'series'                 => self::get_series( $books, $readings, $year ),
+			'rating'                 => Books::get_average_rating( $read ),
+			'best'                   => self::get_best( $read ),
+			'records'                => self::get_records( $read ),
+			'achievements'           => array_values( array_filter( new Achievements()->get_achievements()['earned'], fn( array $achievement ) => str_starts_with( $achievement['date'], "$year-" ) ) ),
+			'added_count'            => count( array_filter( $books, fn( Book $book ) => $book->is_at_hand() && str_starts_with( $book->added, "$year-" ) ) ),
+			'calendar'               => self::get_calendar( $books, $read, $year ),
 		);
 	}
 
@@ -173,15 +173,15 @@ class Recap {
 		sort( $memorable );
 
 		return array(
-			'levels'    => $levels,
-			'memorable' => $memorable,
-			'read'      => count( array_filter( $days ) ),
-			'streak'    => self::get_streak( $days ),
-			'best'      => null !== $best ? array(
+			'levels'              => $levels,
+			'memorable'           => $memorable,
+			'read_day_count'      => count( array_filter( $days ) ),
+			'streak'              => self::get_streak( $days ),
+			'best'                => null !== $best ? array(
 				'day'   => $best,
 				'pages' => (int) round( $pages[ $best ] ),
 			) : null,
-			'dated'     => $dated,
+			'dated_reading_count' => $dated,
 		);
 	}
 
@@ -219,15 +219,15 @@ class Recap {
 		foreach ( $readings as $reading ) {
 			foreach ( $terms( $reading ) as $id => $name ) {
 				$counted[ $id ] ??= array(
-					'id'       => $id,
-					'name'     => $name,
-					'readings' => 0,
+					'id'            => $id,
+					'name'          => $name,
+					'reading_count' => 0,
 				);
-				++$counted[ $id ]['readings'];
+				++$counted[ $id ]['reading_count'];
 			}
 		}
 
-		usort( $counted, fn( array $a, array $b ) => array( $b['readings'], $a['name'] ) <=> array( $a['readings'], $b['name'] ) );
+		usort( $counted, fn( array $a, array $b ) => array( $b['reading_count'], $a['name'] ) <=> array( $a['reading_count'], $b['name'] ) );
 
 		return $counted;
 	}

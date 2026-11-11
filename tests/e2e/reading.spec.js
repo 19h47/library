@@ -56,7 +56,7 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 
 		await page
-			.locator( 'library-reading [name="library_rating"]' )
+			.locator( 'library-reading [name="rating"]' )
 			.selectOption( '7' );
 		await expect(
 			page.getByRole( 'button', { name: 'Undo' } )
@@ -78,7 +78,7 @@ test.describe( 'Reading', () => {
 			)
 			.toBeNull();
 		await expect(
-			page.locator( 'library-reading [name="library_rating"]' )
+			page.locator( 'library-reading [name="rating"]' )
 		).toHaveValue( '' );
 	} );
 
@@ -104,21 +104,19 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 
 		await page
-			.locator( 'library-reading [name="library_rating"]' )
+			.locator( 'library-reading [name="rating"]' )
 			.selectOption( '8' );
-		await page
-			.locator( 'library-reading [name="library_in_progress"]' )
-			.check();
+		await page.locator( 'library-reading [name="in_progress"]' ).check();
 		await page.waitForFunction( () => window.store.get().saving.loading );
 		await waitForIdle( page );
 		await waitForIdle( page );
 
 		expect( posts ).toEqual( [
-			{ meta: { library_rating: 8 } },
+			{ meta: { rating: 8 } },
 			{
 				meta: {
-					library_in_progress: true,
-					library_reading: [ `${ today }/..` ],
+					in_progress: true,
+					reading: [ `${ today }/..` ],
 				},
 			},
 		] );
@@ -127,10 +125,10 @@ test.describe( 'Reading', () => {
 			.poll( async () => ( await getBook( requestUtils, book.id ) ).meta )
 			.toMatchObject( { library_rating: 8, library_in_progress: true } );
 		await expect(
-			page.locator( 'library-reading [name="library_rating"]' )
+			page.locator( 'library-reading [name="rating"]' )
 		).toHaveValue( '8' );
 		await expect(
-			page.locator( 'library-reading [name="library_in_progress"]' )
+			page.locator( 'library-reading [name="in_progress"]' )
 		).toBeChecked();
 	} );
 
@@ -141,7 +139,7 @@ test.describe( 'Reading', () => {
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
 
-		const read = page.locator( 'library-reading [name="library_read"]' );
+		const read = page.locator( 'library-reading [name="read"]' );
 
 		await read.focus();
 		await page.keyboard.press( 'Space' );
@@ -168,16 +166,12 @@ test.describe( 'Reading', () => {
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
 
-		const started = page.locator(
-			'library-reading [name="library_started"]'
-		);
+		const started = page.locator( 'library-reading [name="started"]' );
 		const today = await page.evaluate( () =>
 			new Date().toLocaleDateString( 'sv' )
 		);
 
-		await page
-			.locator( 'library-reading [name="library_in_progress"]' )
-			.check();
+		await page.locator( 'library-reading [name="in_progress"]' ).check();
 		await waitForIdle( page );
 		await expect( started ).toHaveValue( today );
 
@@ -190,7 +184,7 @@ test.describe( 'Reading', () => {
 			)
 			.toEqual( [ '2020-01-01/..' ] );
 
-		await page.locator( 'library-reading [name="library_read"]' ).check();
+		await page.locator( 'library-reading [name="read"]' ).check();
 		await waitForIdle( page );
 		await expect
 			.poll( async () =>
@@ -200,7 +194,7 @@ test.describe( 'Reading', () => {
 			)
 			.toEqual( [ `2020-01-01/${ today }` ] );
 		await expect(
-			page.locator( 'library-reading [name="library_reading_start"]' )
+			page.locator( 'library-reading [name="reading_start"]' )
 		).toHaveValue( '2020-01-01' );
 		await expect( started ).toBeHidden();
 	} );
@@ -214,7 +208,7 @@ test.describe( 'Reading', () => {
 				method: 'POST',
 				path: `/library/v1/books/${ book.id }`,
 				data: {
-					meta: { library_reading: [ '2025-03-10/2025-03-20' ] },
+					meta: { reading: [ '2025-03-10/2025-03-20' ] },
 				},
 			} );
 			await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
@@ -232,9 +226,7 @@ test.describe( 'Reading', () => {
 			page,
 			requestUtils,
 		} ) => {
-			const end = page.locator(
-				'library-reading [name="library_reading_end"]'
-			);
+			const end = page.locator( 'library-reading [name="reading_end"]' );
 
 			// The year 0002, then 0020 and 0202, on the way to 2025, before its start.
 			await typeDates( end, [
@@ -254,7 +246,7 @@ test.describe( 'Reading', () => {
 			await waitForIdle( page );
 
 			expect( posts ).toEqual( [
-				{ meta: { library_reading: [ '2025-03-10/2025-03-15' ] } },
+				{ meta: { reading: [ '2025-03-10/2025-03-15' ] } },
 			] );
 			await expect
 				.poll(
@@ -269,11 +261,9 @@ test.describe( 'Reading', () => {
 			requestUtils,
 		} ) => {
 			const start = page.locator(
-				'library-reading [name="library_reading_start"]'
+				'library-reading [name="reading_start"]'
 			);
-			const end = page.locator(
-				'library-reading [name="library_reading_end"]'
-			);
+			const end = page.locator( 'library-reading [name="reading_end"]' );
 
 			await typeDates( end, [ '2025-03-05' ] );
 			await start.focus();

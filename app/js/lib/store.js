@@ -26,7 +26,7 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
 /**
- * @import { Achievements, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ReadingPeriod, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ReadingPeriod, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -108,7 +108,15 @@ import * as api from 'library-app/api';
  * The parts of the state that change part by part: the resources, the books of the series of the book open, the
  * saving of its reading, the form of a book and the names it suggests.
  *
- * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'} Part
+ * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
+ */
+
+/**
+ * The reference of the API: its routes, and the requests tried from it, by endpoint.
+ *
+ * @typedef {Object} Reference
+ * @property {ApiRoute[]}                                  routes Its routes.
+ * @property {Object<string, ApiTry & {loading: boolean}>} tries  The requests tried, by the key of their endpoint.
  */
 
 /**
@@ -121,12 +129,12 @@ import * as api from 'library-app/api';
  * The reading of a book, as the route of its form takes it.
  *
  * @typedef {Object} BookReading
- * @property {Object}      meta                     Its meta.
- * @property {boolean}     meta.library_read        Whether it is read.
- * @property {boolean}     meta.library_in_progress Whether it is being read.
- * @property {string[]}    meta.library_reading     Its readings, by their days, as intervals: 2026-10-20/2026-11-02.
- * @property {number|null} meta.library_rating      Its rating, none for none.
- * @property {string}      [status]                 Its status, unless another one than in the library, not kept or to buy.
+ * @property {Object}      meta             Its meta.
+ * @property {boolean}     meta.read        Whether it is read.
+ * @property {boolean}     meta.in_progress Whether it is being read.
+ * @property {string[]}    meta.reading     Its readings, by their days, as intervals: 2026-10-20/2026-11-02.
+ * @property {number|null} meta.rating      Its rating, none for none.
+ * @property {string}      [status]         Its status, unless another one than in the library, not kept or to buy.
  */
 
 /**
@@ -171,6 +179,7 @@ import * as api from 'library-app/api';
  * @property {SeriesPage}             series       The series open.
  * @property {PublisherPage}          publisher    The collection open.
  * @property {Recap & Loading}        recap        The recap of the year open.
+ * @property {Reference & Loading}    reference    The reference of the API.
  */
 
 // Kept between visits, under the key of the config. The query, the view and the page open are in the URL only, which the router reads.
@@ -193,6 +202,8 @@ const FILTERS = [ 'read', 'status', 'form', 'sort' ];
 const BOOK_VIEW = 'book';
 // The recap of a year, opened from the diary or, in January, from the home.
 const RECAP_VIEW = 'recap';
+// The reference of the API, for development, opened by searching its name: it loads as it first shows, and never goes stale.
+const API_VIEW = 'api';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 /** @type {string[]} */
 const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
@@ -331,10 +342,10 @@ function intervalsOf( book ) {
  */
 function readingOf( book ) {
 	const meta = {
-		library_read: book.read,
-		library_in_progress: book.in_progress,
-		library_reading: intervalsOf( book ),
-		library_rating: book.rating || null,
+		read: book.read,
+		in_progress: book.in_progress,
+		reading: intervalsOf( book ),
+		rating: book.rating || null,
 	};
 
 	return STATUSES.includes( book.status )
@@ -403,10 +414,10 @@ function pages( items = [] ) {
  */
 function idea() {
 	return {
-		id: 0,
+		book_id: 0,
 		reason: '',
 		position: 0,
-		total: 0,
+		idea_count: 0,
 		loading: false,
 		loaded: false,
 		error: '',
@@ -423,6 +434,15 @@ function achievements() {
 }
 
 /**
+ * The reference of the API, none loaded.
+ *
+ * @return {Reference & Loading} The reference.
+ */
+function reference() {
+	return { routes: [], tries: {}, loading: false, loaded: false, error: '' };
+}
+
+/**
  * The recap of `year`, none loaded.
  *
  * @param {number} [year] The year.
@@ -432,10 +452,10 @@ function recap( year = 0 ) {
 	return {
 		year,
 		years: [],
-		days: 0,
-		readings: 0,
-		previous: 0,
-		rereads: 0,
+		day_count: 0,
+		reading_count: 0,
+		previous_reading_count: 0,
+		reread_count: 0,
 		books: [],
 		pages: { total: 0, counted: 0 },
 		months: [],
@@ -448,14 +468,14 @@ function recap( year = 0 ) {
 		best: [],
 		records: { longest: 0, shortest: 0, oldest: 0 },
 		achievements: [],
-		added: 0,
+		added_count: 0,
 		calendar: {
 			levels: [],
 			memorable: [],
-			read: 0,
+			read_day_count: 0,
 			streak: 0,
 			best: null,
-			dated: 0,
+			dated_reading_count: 0,
 		},
 		loading: false,
 		loaded: false,
@@ -568,6 +588,7 @@ function page( view, id = 0 ) {
  * `search` the books found, `inProgress` the books being read, `diary` the readings by month, `idea` the reading idea, `toBuy` the books to buy, latest added first,
  * `person` the person open, `series` the series open, `publisher` the collection open, `recap` the recap of the year open, `book` the book open, `volumes` the books of its series,
  * `saving` the saving of its reading, `editing` the form of a book, to add or edit, `terms` the names it suggests,
+ * `reference` the reference of the API and the requests tried from it,
  * `notice` what an action done says, such as a reading saved, with the `action` that undoes it if any, once: a new object each time,
  * `view` the view shown, none until the router shows the one of the URL, `query` the search of the books,
  * `moved` how the view shown came, "forward" opened or "back" through the history, for the bricks to place the focus.
@@ -668,6 +689,7 @@ class LibraryStore extends Store {
 				saving: saving(),
 				editing: editing(),
 				terms: terms(),
+				reference: reference(),
 				notice: null,
 				moved: '',
 			} )
@@ -740,18 +762,39 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The search of the books, as typed.
+	 * Tries a GET request from the reference of the API, for the endpoint `key`: its answer replaces the one before.
 	 *
-	 * @param {string} query The search.
+	 * @param {string} key  The key of the endpoint.
+	 * @param {string} path The path, with its arguments.
 	 */
-	setQuery( query ) {
+	async tryRoute( key, path ) {
+		const tried = ( update ) =>
+			this.#update( 'reference', ( current ) => ( {
+				tries: {
+					...current.tries,
+					[ key ]: { ...current.tries[ key ], ...update },
+				},
+			} ) );
+
+		tried( { loading: true } );
+		tried( { ...( await api.tryRoute( path ) ), loading: false } );
+	}
+
+	/**
+	 * The search of the books, as typed: it waits for a pause in the typing, unless it is submitted, `now`.
+	 *
+	 * @param {string}  query         The search.
+	 * @param {Object}  [options]     Options.
+	 * @param {boolean} [options.now] Whether it searches at once.
+	 */
+	setQuery( query, { now = false } = {} ) {
 		this.set( ( state ) => ( { ...state, query } ) );
 		this.#loadHome();
 
 		clearTimeout( this.#timeout );
 		this.#timeout = setTimeout(
 			() => this.#fetchList( 'search' ),
-			SEARCH_DELAY
+			now ? 0 : SEARCH_DELAY
 		);
 	}
 
@@ -805,7 +848,7 @@ class LibraryStore extends Store {
 
 	/** The next idea of the week, back to the first one after the last. */
 	nextIdea() {
-		const { position, total, loading } = this.get().idea;
+		const { position, idea_count: total, loading } = this.get().idea;
 
 		if ( ! loading && total ) {
 			this.#fetchIdea( ( position + 1 ) % total );
@@ -1104,22 +1147,22 @@ class LibraryStore extends Store {
 		const meta = {};
 
 		if ( read !== book.read ) {
-			meta.library_read = read;
+			meta.read = read;
 		}
 
 		if ( inProgress !== book.in_progress ) {
-			meta.library_in_progress = inProgress;
+			meta.in_progress = inProgress;
 		}
 
 		// By their days, as the form gives them, in any order: the server keeps the time of a reading of the day.
 		const saved = intervalsOf( book );
 
 		if ( [ ...intervals ].sort().join() !== [ ...saved ].sort().join() ) {
-			meta.library_reading = intervals;
+			meta.reading = intervals;
 		}
 
 		if ( rating !== ( book.rating || null ) ) {
-			meta.library_rating = rating;
+			meta.rating = rating;
 		}
 
 		if ( ! Object.keys( meta ).length && status === book.status ) {
@@ -1254,6 +1297,10 @@ class LibraryStore extends Store {
 
 		if ( BOOK_VIEW === view ) {
 			this.#loadBook( id );
+		}
+
+		if ( API_VIEW === view ) {
+			this.#loadReference();
 		}
 
 		this.#loadShown();
@@ -1642,18 +1689,18 @@ class LibraryStore extends Store {
 		const isLoaded = await this.#request( 'idea', async () => {
 			const found = await api.getIdea( position );
 
-			await this.#fetchBooks( [ found.id ] );
+			await this.#fetchBooks( [ found.book_id ] );
 
 			return () => ( {
-				id: found.id,
+				book_id: found.book_id,
 				reason: found.reason,
 				position: found.position,
-				total: found.total,
+				idea_count: found.idea_count,
 			} );
 		} );
 
 		if ( ! isLoaded ) {
-			this.#update( 'idea', () => ( { id: 0 } ) );
+			this.#update( 'idea', () => ( { book_id: 0 } ) );
 		}
 	}
 
@@ -1766,6 +1813,19 @@ class LibraryStore extends Store {
 
 			return () => ( { earned, close } );
 		} );
+	}
+
+	/** The reference of the API, unless it is loading or loaded: once it could not, it loads again as it shows. */
+	#loadReference() {
+		const { loading, loaded, error } = this.get().reference;
+
+		if ( ! loading && ( ! loaded || error ) ) {
+			this.#request( 'reference', async () => {
+				const routes = await api.getReference();
+
+				return () => ( { routes } );
+			} );
+		}
 	}
 
 	/** The names the form of a book suggests. */
