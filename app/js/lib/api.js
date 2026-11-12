@@ -1060,11 +1060,12 @@ function appendFields( body, values, base = '' ) {
  * default or its values, in plain text.
  *
  * @typedef {Object} ApiArg
- * @property {string}   name        Its name.
- * @property {string}   type        Its type, such as "integer" or "string[]".
- * @property {boolean}  required    Whether it is required.
- * @property {string}   description Its description, or empty.
- * @property {string[]} rules       Its rules, such as "default: 1".
+ * @property {string}        name        Its name.
+ * @property {string}        type        Its type, such as "integer" or "string[]".
+ * @property {boolean}       required    Whether it is required.
+ * @property {string}        description Its description, or empty.
+ * @property {string[]}      rules       Its rules, such as "default: 1".
+ * @property {ApiProperty[]} properties  The properties it holds, such as those of a person of a book.
  */
 
 /**
@@ -1075,6 +1076,7 @@ function appendFields( body, values, base = '' ) {
  * @property {string}        type        Its type.
  * @property {string}        description Its description, or empty.
  * @property {boolean}       readonly    Whether it is only read.
+ * @property {string[]}      rules       Its rules, such as its values.
  * @property {ApiProperty[]} properties  The properties it holds.
  */
 
@@ -1124,12 +1126,17 @@ const PATH_PARAM = /\(\?P<(\w+)>[^)]*\)/g;
 const HIDDEN_METHODS = [ 'OPTIONS', 'HEAD' ];
 
 /**
- * The type of a value of a schema: its types, a list as the type of its items followed by [].
+ * The type of a value of a schema: its types, a list as the type of its items followed by []; a schema named, such as
+ * the one of a person of a book, by its title: library-book-person[].
  *
  * @param {Object} schema A schema.
  * @return {string} The type, or empty.
  */
 function typeOf( schema ) {
+	if ( schema.title ) {
+		return schema.title;
+	}
+
 	const types = [ schema.type ?? [] ].flat();
 
 	return types
@@ -1182,6 +1189,7 @@ function propertiesOf( schema ) {
 			type: typeOf( property ),
 			description: property.description ?? '',
 			readonly: Boolean( property.readonly ),
+			rules: rulesOf( property ),
 			properties: propertiesOf( property.items ?? property ),
 		} )
 	);
@@ -1219,6 +1227,7 @@ function toRoute( pattern, route, methods = [] ) {
 						required: Boolean( arg.required ),
 						description: arg.description ?? '',
 						rules: rulesOf( arg ),
+						properties: propertiesOf( arg.items ?? arg ),
 					} ) ),
 			} ) )
 			.filter( ( endpoint ) => endpoint.methods.length ),

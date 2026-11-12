@@ -128,6 +128,7 @@ The REST API answers in the language the `Accept-Language` header of the request
 = 9.38.0 =
 * Reading app: the form of a book groups its people by role, a group each, the authors first, shown once it holds a name: a person goes in the role chosen beside the button that adds them, which stays chosen, so as many translators as a book has are added without choosing their role each time.
 * Breaking: REST API: the `names` of a book of `wp/v2/books` give each name with its role, as the people of `library/v1/books/<id>`, which give their term IDs too: one schema, `library-book-person`, a book given sent back as it is. The role meta, `library_translators`, `library_colorists`…, are no longer in the REST API.
+* Reading app: the reference of the API names a schema by its title, such as `library-book-person[]`, and gives the values of a property, such as the roles, and the properties of an argument, such as those of a person of a book.
 * Code only: the component `input-groups`, an `input-list` in groups; `inputList()` takes `into`, the list a new input goes in. A book of the reading app gives its `people`, each with its role, which `getPeople( book, role )` reads, rather than its `authors`, `translators`…
 
 = 9.37.0 =
