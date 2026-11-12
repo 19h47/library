@@ -4,14 +4,14 @@
  * The views and their navigation, the home, the book cards with their cover, the reading idea,
  * the stats and the achievements, the pages of a person, of a series and of a collection, and the page of a book with its reading.
  *
- * The order of its layers, after the one of the base, then its tokens. The pieces several views share are in components,
- * a file each, in the layer library.components; each view is in views, in the layer library.views, after them: what a
- * view sets wins over a component, whatever their specificity.
+ * The order of its layers, in the layer app that the base gives the styles of an app, between its own and its utilities,
+ * then its tokens. The pieces several views share are in components, a file each, in the layer app.components; each view
+ * is in views, in the layer app.views, after them: what a view sets wins over a component, whatever their specificity.
  */
 
-@layer library.base, library.components, library.views;
+@layer app.base, app.components, app.views;
 
-@layer library.base {
+@layer app.base {
 	:root {
 		/* A card with its cover, until it renders */
 		--app-item-size: 10rem;
@@ -34,7 +34,7 @@
 	@media (width < 42rem) {
 		:root {
 			/* A pill, its text, its padding and its lines, a gap above and under it, and the line of the bar */
-			--library-tab-bar-height: calc(var(--app-font-small) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2 * var(--app-gap) + 3px);
+			--library-tab-bar-height: calc(var(--app-text-s) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2 * var(--app-gap) + 3px);
 			--library-notice-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom) + var(--app-u1));
 		}
 	}

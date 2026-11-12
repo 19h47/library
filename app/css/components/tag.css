@@ -2,7 +2,7 @@
  * The tag, an atom: a word in a line and a tint of its color, such as the form of a book, or its status.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A tag, after the line of the state of a book: its form, its original language */
 	.library-tag {
 		padding-inline: calc(1em / var(--app-phi) / var(--app-phi));

@@ -2,7 +2,7 @@
  * The recap of a year: its screens, its walls of covers, its figures, its bars and how they come in.
  */
 
-@layer library.views {
+@layer app.views {
 	/*
 	 * The recap of a year: a screen per subject, in a frame as high as the screen allows under the toolbar, a step from it,
 	 * and above the footer, or the tab bar on a phone, its content in the middle, so that the page, stopping at each one as it scrolls,
@@ -21,7 +21,7 @@
 		/* Where a screen stops: under the toolbar, a step from it */
 		--library-recap-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
 		/* What stays at the bottom of the screen, which a screen ends above: the footer, its line between its paddings */
-		--library-recap-bottom: calc(2 * var(--app-u2) + var(--app-font-small) * var(--app-line-height) + 1px);
+		--library-recap-bottom: calc(2 * var(--app-u2) + var(--app-text-s) * var(--app-line-height) + 1px);
 		/* The padding of a frame at its sides, as the one of a card */
 		--library-recap-padding: var(--app-u1);
 
@@ -80,7 +80,7 @@
 	/* Beyond a phone, the pills of the views are in the header too, under the name of the app, a gap from it */
 	@media (min-width: 42rem) {
 		.library-recap__opening {
-			--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-gap) + var(--app-font-small) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2px + var(--app-u1));
+			--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-gap) + var(--app-text-s) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2px + var(--app-u1));
 		}
 	}
 
@@ -132,23 +132,14 @@
 
 	/* The year, a step above the figures of the other screens */
 	.library-recap__year {
-		font-size: var(--app-font-xxx-large);
+		font-size: var(--app-text-3xl);
 		font-weight: normal;
 		line-height: 1;
 	}
 
-	/* The subject of a screen, as the meta of a card: what its figure counts */
-	.library-recap__title {
-		color: var(--app-text-muted);
-		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
-		font-weight: normal;
-		text-transform: uppercase;
-	}
-
 	/* The figure of a screen, a step under the year: a number, or the last words */
 	.library-recap__figure {
-		font-size: var(--app-font-xx-large);
+		font-size: var(--app-text-2xl);
 		line-height: 1;
 		font-variant-numeric: tabular-nums;
 		text-wrap: balance;
@@ -186,7 +177,7 @@
 
 	/* Its figure, a step under the figures of the screens, what it counts after it */
 	.library-recap__record-figure {
-		font-size: var(--app-font-x-large);
+		font-size: var(--app-text-xl);
 		line-height: 1;
 		font-variant-numeric: tabular-nums;
 	}

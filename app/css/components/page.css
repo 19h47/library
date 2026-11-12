@@ -3,7 +3,7 @@
  * between views.
  */
 
-@layer library.components {
+@layer app.components {
 	/* The title leaves room for the two controls of the toolbar, fixed beside it: on a narrow screen, a word too long breaks with a hyphen */
 	.app-header h1 {
 		margin-inline-end: calc(2 * var(--app-control-size) + var(--app-control-gap));

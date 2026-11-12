@@ -2,7 +2,7 @@
  * The grid of covers: the books of a list as their covers alone, when chosen.
  */
 
-@layer library.components {
+@layer app.components {
 	/*
 	 * The books of a list as a grid of their covers, when chosen: as many columns as fit, half a step wider than the cover
 	 * of a card at least, three on a phone, on a line as on a shelf. A card is its cover alone, its title kept for assistive
@@ -52,6 +52,6 @@
 		padding: var(--app-gap);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--library-radius-small);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 }

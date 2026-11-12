@@ -7,7 +7,7 @@
  * readings by default, its other side from its shape.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A cover: a soft line and small corners, at the size its place gives it */
 	.library-cover {
 		display: block;
@@ -30,7 +30,7 @@
 	.library-cover--frame {
 		inline-size: calc(var(--library-cover-block-size, var(--library-cover-height)) / var(--app-phi));
 		padding: var(--app-gap);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 		text-align: start;
 	}
 

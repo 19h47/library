@@ -625,9 +625,15 @@ export function renderMonths( months, year ) {
 		const $item = document.createElement( 'li' );
 		const date = new Date( year, month );
 		const $shown = [
-			span( formatNumber( readings ), 'app-meta' ),
+			span(
+				formatNumber( readings ),
+				'app-text-s app-text-muted app-font-ui app-uppercase'
+			),
 			span( '', 'library-recap__bar' ),
-			span( monthInitialFormat.format( date ), 'app-meta' ),
+			span(
+				monthInitialFormat.format( date ),
+				'app-text-s app-text-muted app-font-ui app-uppercase'
+			),
 		];
 
 		$shown.forEach( ( $span ) =>
@@ -671,7 +677,10 @@ export function renderShares( shares ) {
 		$bar.setAttribute( 'aria-hidden', 'true' );
 		$item.append(
 			$name,
-			span( formatBooks( share.readings ), 'app-meta' ),
+			span(
+				formatBooks( share.readings ),
+				'app-text-s app-text-muted app-font-ui app-uppercase'
+			),
 			$bar
 		);
 

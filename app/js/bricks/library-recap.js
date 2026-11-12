@@ -730,11 +730,13 @@ class LibraryRecapElement extends Brick {
 					fillCover( $cover, book.cover );
 					$value.dataset.field = field;
 					$value.textContent = figure( book );
-					$unit.className = 'app-meta';
+					$unit.className =
+						'app-text-s app-text-muted app-font-ui app-uppercase';
 					$unit.textContent = unit( book );
 					$figure.className = 'library-recap__record-figure';
 					$figure.append( $value, ' ', $unit );
-					$label.className = 'app-meta';
+					$label.className =
+						'app-text-s app-text-muted app-font-ui app-uppercase';
 					$label.textContent = label;
 					$text.append(
 						$figure,

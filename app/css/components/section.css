@@ -3,7 +3,7 @@
  * count and an action at its end; the cards past the first ones, folded.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A section, its title then what it holds, a step apart */
 	.library-section {
 		display: grid;
@@ -24,7 +24,7 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: var(--app-gap);
-		font-size: var(--app-font-medium);
+		font-size: var(--app-text-m);
 	}
 
 	/*

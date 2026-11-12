@@ -2,7 +2,7 @@
  * The book open: its parts, its cover, its reading, its fields and the volumes of its series.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The book open, a view: its parts a step apart; loading, its status alone */
 	.library-book {
 		display: grid;

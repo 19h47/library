@@ -6,7 +6,7 @@
  * the title of a page, the label and the field of a form, a control, a status, a pill for the main action.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The page holds the login in the middle of the screen, the gutter of the app around it */
 	body {
 		display: flex;
@@ -40,14 +40,14 @@
 	 * rhythm, without the leading of a paragraph, half a line at x-large.
 	 */
 	.wp-login-logo {
-		font-size: var(--app-font-large);
+		font-size: var(--app-text-l);
 		line-height: 1;
 		letter-spacing: -0.02em;
 	}
 
 	@media (min-width: 42rem) {
 		.wp-login-logo {
-			font-size: var(--app-font-x-large);
+			font-size: var(--app-text-xl);
 		}
 	}
 
@@ -124,7 +124,7 @@
 	.privacy-policy-page-link {
 		color: var(--app-text-muted);
 		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 		text-transform: uppercase;
 	}
 
@@ -191,7 +191,7 @@
 		display: none;
 		flex-basis: 100%;
 		color: var(--library-warning);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	.caps-icon {
@@ -222,7 +222,7 @@
 		align-items: center;
 		gap: var(--app-gap);
 		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	/* As high as the text of its pill, rather than the size of the browser */
@@ -296,7 +296,7 @@
 		background: var(--app-bg);
 		color: var(--app-text);
 		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 		text-transform: none;
 
 		/*
@@ -348,7 +348,7 @@
 		background: var(--app-fill);
 		color: var(--app-text);
 		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 		line-height: var(--app-line-height);
 		text-transform: uppercase;
 		cursor: pointer;

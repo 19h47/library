@@ -2,7 +2,7 @@
  * The styleguide, for development: the foundations of the app, its atoms, its molecules, its organisms and its screens.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The title of the styleguide and its introduction, a step apart */
 	.library-styleguide__header {
 		display: grid;
@@ -25,7 +25,7 @@
 	.library-styleguide__use {
 		color: var(--app-text-muted);
 		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	/* A sample: its caption, then its frame, a gap under it */

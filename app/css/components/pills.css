@@ -2,7 +2,7 @@
  * Rows of pills, on as many lines as they need, and strips, which scroll sideways across the viewport.
  */
 
-@layer library.components {
+@layer app.components {
 	/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
 	library-nav,
 	.app-search,

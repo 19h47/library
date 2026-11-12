@@ -2,7 +2,7 @@
  * The form of a book, to add or edit it: what the ISBN typed tells and its details.
  */
 
-@layer library.views {
+@layer app.views {
 	/*
 	 * What the ISBN typed tells, the book that has it already or the search of the catalogue of the BnF: its messages stay in
 	 * the page, to be read once one shows, out of the flow while none does.

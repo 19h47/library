@@ -2,7 +2,7 @@
  * The home: the books being read, the reading idea and the link to the recap of the year gone by.
  */
 
-@layer library.views {
+@layer app.views {
 	/*
 	 * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
 	 * wide as the cover; the book open, its reading is read, rated and dated.
@@ -26,7 +26,7 @@
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		overflow: hidden;
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 		overflow-wrap: anywhere;
 		hyphens: auto;
 	}
@@ -45,7 +45,7 @@
 	}
 
 	.library-recap-link__year {
-		font-size: var(--app-font-xx-large);
+		font-size: var(--app-text-2xl);
 		line-height: 1;
 	}
 }

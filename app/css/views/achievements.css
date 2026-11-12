@@ -2,7 +2,7 @@
  * The achievements: the year of reading, which the home shows too, then each achievement with its progress.
  */
 
-@layer library.views {
+@layer app.views {
 	.library-year {
 		display: grid;
 		gap: var(--app-gap-small);
@@ -14,7 +14,7 @@
 	}
 
 	library-view > .library-year p:first-child {
-		font-size: var(--app-font-large);
+		font-size: var(--app-text-l);
 	}
 
 	.library-year p + p {

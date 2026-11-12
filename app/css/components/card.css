@@ -2,7 +2,7 @@
  * Cards and rows: a book, a person or a series in a list, its cover beside its text; a list loading again.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A list loading again from its start, such as for another search: its books faded until the new ones come */
 	.app-list[aria-busy="true"] {
 		opacity: var(--app-control-opacity);
@@ -59,7 +59,7 @@
 		color: var(--app-text-muted);
 		font-family: var(--app-font-ui);
 		/* Small text, half a step below the title */
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	.library-item__link {

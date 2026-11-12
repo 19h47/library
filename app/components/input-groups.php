@@ -24,7 +24,7 @@ echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	<legend class="sr-only"><?php echo esc_html( $args['legend'] ); ?></legend>
 	<?php foreach ( $args['groups'] as $group => $legend ) : ?>
 		<fieldset class="library-input-list__group" data-group="<?php echo esc_attr( $group ); ?>">
-			<legend class="app-meta"><?php echo esc_html( $legend ); ?></legend>
+			<legend class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $legend ); ?></legend>
 			<ul class="library-input-list__items"></ul>
 		</fieldset>
 	<?php endforeach; ?>
