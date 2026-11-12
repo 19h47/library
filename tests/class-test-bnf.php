@@ -110,6 +110,8 @@ class Test_BnF extends TestCase {
 		$this->assertSame( array( $japanese ), $book['languages'] );
 		$this->assertSame( $comics, $book['form'] );
 		$this->assertSame( '226', $book['meta']['pages'] );
+		// "DL 2007": the legal deposit stands for the date of publication.
+		$this->assertSame( '2007', $book['meta']['edition_date'] );
 	}
 
 	/**
@@ -140,6 +142,7 @@ class Test_BnF extends TestCase {
 		$this->assertSame( 'Le bouclier des étoiles', $book['series'] );
 		$this->assertSame( 'Tome 01', $book['meta']['volume_number'] );
 		$this->assertSame( array( $english ), $book['languages'] );
+		$this->assertSame( '2000', $book['meta']['edition_date'] );
 	}
 
 	/**
@@ -163,6 +166,8 @@ class Test_BnF extends TestCase {
 		$this->assertSame( 'translator', $book['people'][1]['role'] );
 		$this->assertSame( 'Gallimard', $book['publisher'] );
 		$this->assertSame( 'Du monde entier', $book['collection'] );
+		// From the publication statement of RDA, not the one of its printing.
+		$this->assertSame( '2019', $book['meta']['edition_date'] );
 	}
 
 	/**
@@ -186,6 +191,19 @@ class Test_BnF extends TestCase {
 		$this->assertSame( '10/18', $book['publisher'] );
 		$this->assertSame( '', $book['collection'] );
 		$this->assertSame( '1999', $book['meta']['collection_number'] );
+	}
+
+	/**
+	 * A book the catalogue records by its printings, each dated "impr. 2015" for want of a date of publication, has no
+	 * edition date: the printing of the copy of the BnF is not the edition, nor the one in hand.
+	 *
+	 * @return void
+	 */
+	public function test_a_printing_is_no_edition_date(): void {
+		$book = $this->get_bnf_book( '978-2-7560-0912-4' )->get_data();
+
+		$this->assertSame( 'Passé décomposé', $book['title'] );
+		$this->assertSame( '', $book['meta']['edition_date'] );
 	}
 
 	/**

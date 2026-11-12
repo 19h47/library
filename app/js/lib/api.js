@@ -41,8 +41,9 @@ import {
  * @property {string}   isbn              Its ISBN, as typed.
  * @property {string}   volume_number     Its number in its series.
  * @property {string}   collection_number Its number in its collection.
- * @property {string}   edition_date      The date of its edition: a day, a month or a year.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
+ * @property {string}   edition_date      The date its edition, the one of its ISBN, first came out: a day, a month or a year.
+ * @property {string}   printed_date      The date its copy was printed: a day, a month or a year.
  * @property {number}   pages             Its number of pages, 0 for unknown.
  * @property {number}   rating            Its rating out of 10, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.

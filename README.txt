@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.38.0
+Stable tag: 9.39.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -124,6 +124,13 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.39.0 =
+* Breaking: a book has three dates, each a year, a month or a day: the copy in hand printed, `library_printed_date`, "Printed", as its colophon says; the edition of its ISBN, `library_edition_date`, "Edition date", whatever the printing of the copy, as the catalogue of the BnF records it; and the work first published, `library_published_date`, as before. The edition date is no longer a full date only. In the REST API, `printed_date` in the routes of the plugin and `library_printed_date` in `wp/v2/books`. Migrate the data after updating, with your table prefix, for the books that are or were in hand, whose date was the one of their copy: `UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id SET m.meta_key = 'library_printed_date' WHERE m.meta_key = 'library_edition_date' AND p.post_type = 'library_book' AND p.post_status <> 'library-to-buy'`, then, a 1 January standing for a year alone, `UPDATE wp_postmeta SET meta_value = LEFT( meta_value, 4 ) WHERE meta_key IN ( 'library_printed_date', 'library_edition_date' ) AND meta_value LIKE '____-01-01'`.
+* The form of a book gives the printed date among the fields most books have, the edition date among the details; the catalogue of the BnF fills in the edition date, from its publication statement, such as "1989", "DL 2019" or "cop. 2002", but for "impr. 2015", the printing of its own copy. A book shows its three dates.
+* Changed: the dashboard counts the books by the year their copy was printed, and the oldest book to read is the one printed the longest ago; the books list shows and sorts by the printed date. The credits of a book give the year of its edition, else of its printing; the date of a book, for the achievements and the recap, is the one of its work, else of its edition, else of its printing. The reading idea of an anniversary of the edition takes the edition date only.
+* Code only: reading app: the shared base styles, revisions 4c2cbbe, ee476ba and 62d5a50: the layers app-base, app and app-utilities, the styles of the app in app.base, app.components and app.views; a list is `.app-list` and its items `.app-item`; a meta line is its utilities, `app-text-s app-text-muted app-font-ui app-uppercase`, rather than `.app-meta`; the sizes of the text are `--app-text-s` to `--app-text-3xl`. The recap sets the properties of its components, a cover link lays out what it holds, a book being read, `.library-current`, is a component, the action of a title is `.library-title__action`.
+* Code only: `Meta::DATE_KEYS` holds the three dates, all partial; `Meta::sanitize_date()` and the date control are removed; `Books::format_partial_date()`.
 
 = 9.38.0 =
 * Reading app: the form of a book groups its people by role, a group each, the authors first, shown once it holds a name: a person goes in the role chosen beside the button that adds them, which stays chosen, so as many translators as a book has are added without choosing their role each time.

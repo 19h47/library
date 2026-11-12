@@ -100,8 +100,9 @@ class Books {
 			);
 			$rating         = get_post_meta( $post->ID, 'library_rating', true );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
-			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
 			$published_date = (string) get_post_meta( $post->ID, 'library_published_date', true );
+			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
+			$printed_date   = (string) get_post_meta( $post->ID, 'library_printed_date', true );
 			$authors        = Taxonomies::get_top_level_terms( Taxonomies::get_authors( $post->ID ) );
 			$contributors   = Taxonomies::get_top_level_terms( Taxonomies::get_contributors( $post->ID ) );
 			$translators    = Taxonomies::get_top_level_terms( Taxonomies::get_contributors( $post->ID, 'translator' ) );
@@ -126,8 +127,9 @@ class Books {
 				readings:           Meta::get_readings( $post->ID ),
 				rating:             '' !== $rating ? (float) $rating : null,
 				pages:              $pages ? $pages : null,
-				edition_date:       $edition_date,
 				published_date:     $published_date,
+				edition_date:       $edition_date,
+				printed_date:       $printed_date,
 				added:              $post->post_date,
 				authors:            wp_list_pluck( $authors, 'name' ),
 				author_ids:         wp_list_pluck( $authors, 'term_id' ),
@@ -159,13 +161,13 @@ class Books {
 	}
 
 	/**
-	 * Date of a book: when the work first came out, or else its edition date.
+	 * Date of a book: when the work first came out, or else its edition, or else its copy was printed.
 	 *
 	 * @param Book $book Book, from get_books().
 	 * @return string
 	 */
 	public static function get_date( Book $book ): string {
-		return '' !== $book->published_date ? $book->published_date : $book->edition_date;
+		return array_find( array( $book->published_date, $book->edition_date, $book->printed_date ), fn( string $date ) => '' !== $date ) ?? '';
 	}
 
 	/**
@@ -371,7 +373,8 @@ class Books {
 
 	/**
 	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year", a sub-collection
-	 * after its collection: "Gallimard, Folio, Science-fiction no. 271".
+	 * after its collection: "Gallimard, Folio, Science-fiction no. 271". Without its edition date, the year its copy was
+	 * printed stands for it.
 	 *
 	 * A collective work is credited to its publishing directors, as catalogues have it, and to none of its authors:
 	 * "Benoît Mouchart (dir.) · Casterman · 2020", or "Casterman · 2020" without director.
@@ -404,6 +407,8 @@ class Books {
 		}
 
 		$names = implode( ', ', wp_list_pluck( Taxonomies::get_credited_people( $book_id ), 'name' ) );
+		$date  = (string) get_post_meta( $book_id, 'library_edition_date', true );
+		$date  = '' !== $date ? $date : (string) get_post_meta( $book_id, 'library_printed_date', true );
 
 		if ( '' !== $names && Posts::is_collective( $book_id ) ) {
 			$names = self::format_directors( $names );
@@ -412,7 +417,7 @@ class Books {
 		$parts = array(
 			$names,
 			implode( ', ', $publishers ),
-			substr( (string) get_post_meta( $book_id, 'library_edition_date', true ), 0, 4 ),
+			substr( $date, 0, 4 ),
 		);
 
 		return implode( ' · ', array_filter( $parts, fn( string $part ) => '' !== $part ) );
@@ -453,6 +458,23 @@ class Books {
 		$ratings = array_filter( array_column( $books, 'rating' ), 'is_float' );
 
 		return $ratings ? round( array_sum( $ratings ) / count( $ratings ), 1 ) : null;
+	}
+
+	/**
+	 * A date known by its year, its month or its day, as the app formats it: "1972", "April 2014", "April 23, 2014".
+	 *
+	 * @param string $date Date, Y, Y-m or Y-m-d.
+	 * @return string
+	 */
+	public static function format_partial_date( string $date ): string {
+		$formats = array(
+			4  => 'Y',
+			7  => 'F Y',
+			10 => get_option( 'date_format' ),
+		);
+		$day     = substr( $date . '-01-01', 0, 10 );
+
+		return date_i18n( $formats[ strlen( $date ) ] ?? 'Y', strtotime( $day ) );
 	}
 
 	/**

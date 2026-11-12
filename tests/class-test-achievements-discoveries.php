@@ -73,6 +73,35 @@ class Test_Achievements_Discoveries extends TestCase {
 	}
 
 	/**
+	 * Without the date of its edition either, the year its copy was printed tells it.
+	 *
+	 * @return void
+	 */
+	public function test_hot_off_the_press_falls_back_on_the_printed_date(): void {
+		$this->add_read_book( 'New printing', '2024-06-01', array( 'printed_date' => '2024-02' ) );
+
+		$this->assertSame( 'New printing', $this->get_earned()['hot-off-the-press'][0]['subject'] );
+	}
+
+	/**
+	 * The year of the edition wins over the year its copy was printed: a reprint is no new book.
+	 *
+	 * @return void
+	 */
+	public function test_the_edition_wins_over_the_printed_date(): void {
+		$this->add_read_book(
+			'Reprint',
+			'2024-06-01',
+			array(
+				'edition_date' => '1990',
+				'printed_date' => '2024-02',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'hot-off-the-press', $this->get_earned() );
+	}
+
+	/**
 	 * A book read again is dated by its first reading.
 	 *
 	 * @return void

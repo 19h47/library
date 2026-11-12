@@ -680,8 +680,13 @@ class LibraryRecapElement extends Brick {
 	 * @param {Object<number, Book>} books The books, by their IDs.
 	 */
 	#fillRecords( { records }, books ) {
+		// As Books::get_date(): the work, else its edition, else its copy.
 		const year = ( book ) =>
-			( book.published_date || book.edition_date ).slice( 0, 4 );
+			(
+				book.published_date ||
+				book.edition_date ||
+				book.printed_date
+			).slice( 0, 4 );
 		/** @type {{id: number, field: string, label: string, figure: ( book: Book ) => string, unit: ( book: Book ) => string}[]} */
 		const lines = [
 			{

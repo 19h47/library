@@ -86,7 +86,7 @@ class Books_List {
 
 		// The column of the people shows the ones credited, as the credits of a book do.
 		$columns['taxonomy-library_person'] = __( 'Authors', 'library' );
-		$columns['library_edition_date']    = Meta::get_label( 'library_edition_date' );
+		$columns['library_printed_date']    = Meta::get_label( 'library_printed_date' );
 		$columns['library_isbn']            = Meta::get_label( 'library_isbn' );
 		$columns['library_read']            = Meta::get_label( 'library_read' );
 		// The latest one.
@@ -122,11 +122,11 @@ class Books_List {
 				);
 
 				break;
-			case 'library_edition_date':
-				$edition_date = get_post_meta( $post_id, 'library_edition_date', true );
+			case 'library_printed_date':
+				$printed_date = (string) get_post_meta( $post_id, 'library_printed_date', true );
 
-				if ( $edition_date ) {
-					$output .= date_i18n( get_option( 'date_format' ), strtotime( $edition_date ) );
+				if ( '' !== $printed_date ) {
+					$output .= Books::format_partial_date( $printed_date );
 				} else {
 					$output .= '—';
 				}
@@ -317,21 +317,21 @@ class Books_List {
 	}
 
 	/**
-	 * Add the sortable columns; the books list is sorted by edition date by default.
+	 * Add the sortable columns; the books list is sorted by printed date by default, the newest copies first.
 	 *
 	 * @param array<string,string|array<int,string|bool>> $sortable_columns Sortable columns, each a query var or its arguments.
 	 *
 	 * @return array<string,string|array<int,string|bool>>
 	 */
 	public function add_sortable_columns( array $sortable_columns ): array {
-		$sortable_columns['library_edition_date'] = array( 'library_edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
+		$sortable_columns['library_printed_date'] = array( 'library_printed_date', true, '', __( 'Table ordered by printed date.', 'library' ), 'desc' );
 		$sortable_columns['library_rating']       = array( 'library_rating', true, '', __( 'Table ordered by rating.', 'library' ) );
 
 		return $sortable_columns;
 	}
 
 	/**
-	 * Sort the books list by edition date, by default, or by rating; books without them come last.
+	 * Sort the books list by printed date, by default, or by rating; books without them come last.
 	 *
 	 * The post date is the date added. A core meta query cannot keep the books without the meta
 	 * without mixing them in: its OR clauses join every other meta of these books and sort on one of them.
@@ -345,9 +345,9 @@ class Books_List {
 			return $clauses;
 		}
 
-		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_edition_date';
+		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_printed_date';
 		$values  = array(
-			'library_edition_date' => 'library_sort.meta_value',
+			'library_printed_date' => 'library_sort.meta_value',
 			'library_rating'       => 'CAST( library_sort.meta_value AS DECIMAL(3,1) )',
 		);
 
