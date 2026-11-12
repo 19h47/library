@@ -11,7 +11,6 @@ import {
 	bookFields,
 	maxPerPage,
 	perPage,
-	roles,
 	statuses,
 } from 'library-app/app';
 
@@ -53,19 +52,13 @@ import {
  */
 
 /**
- * The names of a book with another role than author, by role, as the app names them.
+ * A name of a book, as named on it, with its role and its term ID, as the API gives it: library-book-person.
  *
- * @typedef {Object} BookRoles
- * @property {Term[]} translators     Its translators.
- * @property {Term[]} colorists       Its colorists.
- * @property {Term[]} inkers          Its inkers.
- * @property {Term[]} letterers       Its letterers.
- * @property {Term[]} directors       The directors of what it adapts, such as a film.
- * @property {Term[]} adapted_authors The authors of what it adapts.
+ * @typedef {Credit & {id: number}} Person
  */
 
 /**
- * A book as the app shows it, besides its meta and the names with another role.
+ * A book as the app shows it, besides its meta.
  *
  * @typedef {Object} BookFields
  * @property {number}     id                Its ID.
@@ -75,7 +68,7 @@ import {
  * @property {string}     credits           Its authors, publisher and year, under its title.
  * @property {string}     status            Its status: in the library, not kept, to buy, or another one, such as a draft.
  * @property {Cover|null} cover             Its cover, none without one.
- * @property {Term[]}     authors           Its names without another role.
+ * @property {Person[]}   people            Its names, each with its role.
  * @property {string}     series            Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
  * @property {number}     series_id         The term ID of its series, 0 without one.
  * @property {string[]}   languages         Its original languages, as their ISO 639 codes.
@@ -102,9 +95,9 @@ import {
 
 /**
  * A book as the app shows it: plain text but its notes, its meta by their names, its readings in order, its cover with
- * its size, its authors and the names with another role, its original languages, those of its text and its form.
+ * its size, its names with their roles, its original languages, those of its text and its form.
  *
- * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookReadings & BookRoles} Book
+ * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookReadings} Book
  */
 
 /**
@@ -417,7 +410,7 @@ import {
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
  * @property {string[]}                readings               Its readings, in order, as intervals: 2026-10-20/2026-11-02.
  * @property {Cover|null}              cover                  Its cover, none without one.
- * @property {Term[]}                  names                  Its names, HTML, each with its term ID.
+ * @property {Person[]}                names                  Its names, HTML, each with its term ID and its role.
  * @property {number[]}                series                 The term IDs of its series.
  * @property {string}                  series_name            Its series after its cycles, HTML.
  * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
@@ -518,7 +511,18 @@ function toPlainName( term ) {
 }
 
 /**
- * A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its authors and the names with another role, its original languages and its form.
+ * The names of a book with a role, such as its authors or its translators, in their order.
+ *
+ * @param {Book}   book The book.
+ * @param {string} role The role: author, translator…
+ * @return {Person[]} Its names with that role.
+ */
+export function getPeople( book, role ) {
+	return book.people.filter( ( person ) => role === person.role );
+}
+
+/**
+ * A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its names with their roles, its original languages and its form.
  *
  * @param {ApiBook} item A book of the API.
  * @return {Book} The book.
@@ -533,12 +537,6 @@ function toBook( item ) {
 			] )
 		)
 	);
-	// As named on the book: another name opens the page of the person too.
-	const names = item.names.map( ( { id, name } ) => ( {
-		id,
-		name: text( name ),
-	} ) );
-	const roleIds = roles.flatMap( ( role ) => meta[ role ] );
 
 	return {
 		...meta,
@@ -552,18 +550,8 @@ function toBook( item ) {
 		status: item.status,
 		// Its size gives the image its place before it loads.
 		cover: item.cover,
-		// Its names without another role, then the others by role, such as its colorists, in place of their IDs.
-		authors: names.filter( ( name ) => ! roleIds.includes( name.id ) ),
-		.../** @type {BookRoles} */ (
-			Object.fromEntries(
-				roles.map( ( role ) => [
-					role,
-					names.filter( ( name ) =>
-						meta[ role ].includes( name.id )
-					),
-				] )
-			)
-		),
+		// As named on the book: another name opens the page of the person too.
+		people: item.names.map( toPlainName ),
 		// After its cycles, as typed, "Star Wars, Young Jedi Knights", and its ID, for its page.
 		series: item.series_name,
 		series_id: item.series[ 0 ] ?? 0,
@@ -1072,11 +1060,12 @@ function appendFields( body, values, base = '' ) {
  * default or its values, in plain text.
  *
  * @typedef {Object} ApiArg
- * @property {string}   name        Its name.
- * @property {string}   type        Its type, such as "integer" or "string[]".
- * @property {boolean}  required    Whether it is required.
- * @property {string}   description Its description, or empty.
- * @property {string[]} rules       Its rules, such as "default: 1".
+ * @property {string}        name        Its name.
+ * @property {string}        type        Its type, such as "integer" or "string[]".
+ * @property {boolean}       required    Whether it is required.
+ * @property {string}        description Its description, or empty.
+ * @property {string[]}      rules       Its rules, such as "default: 1".
+ * @property {ApiProperty[]} properties  The properties it holds, such as those of a person of a book.
  */
 
 /**
@@ -1087,6 +1076,7 @@ function appendFields( body, values, base = '' ) {
  * @property {string}        type        Its type.
  * @property {string}        description Its description, or empty.
  * @property {boolean}       readonly    Whether it is only read.
+ * @property {string[]}      rules       Its rules, such as its values.
  * @property {ApiProperty[]} properties  The properties it holds.
  */
 
@@ -1136,12 +1126,17 @@ const PATH_PARAM = /\(\?P<(\w+)>[^)]*\)/g;
 const HIDDEN_METHODS = [ 'OPTIONS', 'HEAD' ];
 
 /**
- * The type of a value of a schema: its types, a list as the type of its items followed by [].
+ * The type of a value of a schema: its types, a list as the type of its items followed by []; a schema named, such as
+ * the one of a person of a book, by its title: library-book-person[].
  *
  * @param {Object} schema A schema.
  * @return {string} The type, or empty.
  */
 function typeOf( schema ) {
+	if ( schema.title ) {
+		return schema.title;
+	}
+
 	const types = [ schema.type ?? [] ].flat();
 
 	return types
@@ -1194,6 +1189,7 @@ function propertiesOf( schema ) {
 			type: typeOf( property ),
 			description: property.description ?? '',
 			readonly: Boolean( property.readonly ),
+			rules: rulesOf( property ),
 			properties: propertiesOf( property.items ?? property ),
 		} )
 	);
@@ -1231,6 +1227,7 @@ function toRoute( pattern, route, methods = [] ) {
 						required: Boolean( arg.required ),
 						description: arg.description ?? '',
 						rules: rulesOf( arg ),
+						properties: propertiesOf( arg.items ?? arg ),
 					} ) ),
 			} ) )
 			.filter( ( endpoint ) => endpoint.methods.length ),

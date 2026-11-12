@@ -643,8 +643,7 @@ use Library\Meta;
 								<dd data-field="authors"></dd>
 							</div>
 							<?php // The translators are named by the translation line. ?>
-							<?php foreach ( array_diff( Meta::ROLE_KEYS, array( 'library_translators' ) ) as $key ) : ?>
-								<?php $role_field = str_replace( 'library_', '', $key ); ?>
+							<?php foreach ( array_diff_key( Meta::ROLE_KEYS, array( 'translator' => true ) ) as $role_field => $key ) : ?>
 								<div data-row="<?php echo esc_attr( $role_field ); ?>">
 									<dt class="app-meta"><?php echo esc_html( Meta::get_label( $key ) ); ?></dt>
 									<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
@@ -770,13 +769,24 @@ use Library\Meta;
 							),
 						)
 					);
+					// The people by role, the authors first, as the page of a book names them.
+					$role_groups = array( 'author' => __( 'Authors', 'library' ) );
+
+					foreach ( Meta::ROLE_KEYS as $role_group => $key ) {
+						$role_groups[ $role_group ] = Meta::get_label( $key );
+					}
+
 					Markup::render_component(
-						'input-list',
+						'input-groups',
 						array(
-							'legend' => $person_labels->name,
-							'add'    => __( 'Add a person', 'library' ),
-							'action' => 'add-person',
-							'list'   => array( 'data-list' => 'people' ),
+							'id'         => 'library-edit-role',
+							'legend'     => $person_labels->name,
+							'groups'     => $role_groups,
+							'choices'    => Meta::get_role_choices(),
+							'label'      => __( 'Role', 'library' ),
+							'add'        => __( 'Add a person', 'library' ),
+							'action'     => 'add-person',
+							'attributes' => array( 'data-list' => 'people' ),
 						)
 					);
 					Markup::render_component(
@@ -1026,17 +1036,6 @@ use Library\Meta;
 		<template id="library-edit-person">
 			<li class="library-input-list__item">
 				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
-				<?php
-				$role_select = Markup::set_attributes(
-					Markup::get_select( Meta::get_role_choices() ),
-					array(
-						'name'       => 'role',
-						'aria-label' => __( 'Role', 'library' ),
-					)
-				);
-
-				echo $role_select; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
-				?>
 				<button
 					class="app-control"
 					type="button"

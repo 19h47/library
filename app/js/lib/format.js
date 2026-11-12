@@ -3,6 +3,7 @@
  */
 
 import { __, _n, _x, notKept, sprintf, toBuy } from 'library-app/app';
+import { getPeople } from 'library-app/api';
 
 /** @import { Book } from 'library-app/api' */
 
@@ -207,7 +208,7 @@ export function formatLanguage( code ) {
  * @return {string} Who translated it, or empty.
  */
 export function formatTranslation( book ) {
-	const translators = book.translators.map(
+	const translators = getPeople( book, 'translator' ).map(
 		( translator ) => translator.name
 	);
 

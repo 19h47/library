@@ -16,6 +16,7 @@ import {
 	monthNameFormat,
 } from 'library-app/format';
 import { urlOf } from 'library-app/router';
+import { getPeople } from 'library-app/api';
 
 /**
  * @import { Achievement, Author, Book, CloseAchievement, Cover, PersonSeries, Target, Term } from 'library-app/api'
@@ -321,7 +322,7 @@ export function renderRow( book ) {
 	fill( $item, {
 		title: book.title,
 		authors: listFormat.format(
-			book.authors.map( ( author ) => author.name )
+			getPeople( book, 'author' ).map( ( author ) => author.name )
 		),
 		status: formatStatus( book ),
 	} );

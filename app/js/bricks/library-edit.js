@@ -131,8 +131,17 @@ class LibraryEditElement extends Brick {
 				? /** @type {HTMLInputElement} */ ( $field ).checked
 				: $field.value;
 		const $people = this.querySelector( '[data-list="people"]' );
+		/** @type {HTMLSelectElement} */
+		const $role = this.querySelector( '#library-edit-role' );
 		/** @type {HTMLButtonElement} */
 		const $addPerson = this.querySelector( '[data-action="add-person"]' );
+		const $groups = /** @type {HTMLElement[]} */ ( [
+			...$people.querySelectorAll( '[data-group]' ),
+		] );
+		// The list of the names of a role.
+		/** @type {( role: string ) => Element} */
+		const listOf = ( role ) =>
+			$people.querySelector( `[data-group="${ role }"] > ul` );
 		/** @type {HTMLImageElement} */
 		const $preview = this.querySelector( '.library-image-field__preview' );
 		/** @type {HTMLButtonElement} */
@@ -162,6 +171,7 @@ class LibraryEditElement extends Brick {
 			$add: $addPerson,
 			id: 'library-edit-person',
 			signal,
+			into: () => listOf( $role.value ),
 		} );
 		const clearErrors = showErrors( $form, signal );
 
@@ -212,22 +222,20 @@ class LibraryEditElement extends Brick {
 		};
 
 		/**
-		 * The rows of the names, each with its role, one empty row for none.
+		 * The rows of the names, each in the group of its role, one empty row of an author for none.
 		 *
 		 * @param {Credit[]} people The names.
 		 */
 		const showPeople = ( people ) => {
-			$people.replaceChildren();
-			people.forEach( ( { name, role } ) => {
-				const $row = addPerson( name ).closest( 'li' );
+			$groups.forEach( ( $group ) =>
+				$group.querySelector( 'ul' ).replaceChildren()
+			);
+			people.forEach( ( { name, role } ) =>
+				addPerson( name, listOf( role ) )
+			);
 
-				/** @type {HTMLSelectElement} */ (
-					$row.querySelector( '[name="role"]' )
-				).value = role;
-			} );
-
-			if ( ! $people.children.length ) {
-				addPerson();
+			if ( ! people.length ) {
+				addPerson( '', listOf( 'author' ) );
 			}
 		};
 
@@ -365,18 +373,21 @@ class LibraryEditElement extends Brick {
 			'submit',
 			( event ) => {
 				const data = new FormData( $form );
-				// One role for each name, in the same row. The values of text fields and selects are strings.
-				const roles = /** @type {string[]} */ ( data.getAll( 'role' ) );
 				const cover = $cover.files[ 0 ] ?? null;
 				const book = {
 					title: /** @type {string} */ ( data.get( 'title' ) ),
 					excerpt: $excerpt.value,
 					content: $content.value,
-					people: /** @type {string[]} */ ( data.getAll( 'person' ) )
-						.map( ( name, index ) => ( {
-							name: name.trim(),
-							role: roles[ index ],
-						} ) )
+					// Each name with the role of its group.
+					people: $groups
+						.flatMap( ( $group ) =>
+							/** @type {HTMLInputElement[]} */ ( [
+								...$group.querySelectorAll( '[name="person"]' ),
+							] ).map( ( $name ) => ( {
+								name: $name.value.trim(),
+								role: $group.dataset.group,
+							} ) )
+						)
 						.filter( ( person ) => person.name ),
 					publisher: /** @type {string} */ (
 						data.get( 'publisher' )

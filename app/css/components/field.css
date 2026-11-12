@@ -32,8 +32,26 @@
 	}
 
 	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
-	:is(.library-field, .library-input-list) > legend {
+	:is(.library-field, .library-input-list, .library-input-list__group) > legend {
 		margin-bottom: var(--app-gap-small);
+	}
+
+	/*
+	 * A group of a list, such as the people of a role: its legend, then its rows, as a list of its own. It shows once it
+	 * holds a row, the one added in it, and hides with the last one removed.
+	 */
+	.library-input-list__group {
+		min-inline-size: 0;
+		border: 0;
+	}
+
+	.library-input-list__group:not(:has(li)) {
+		display: none;
+	}
+
+	/* A list in groups: its groups a field apart, as the fields of a form */
+	.library-input-list--groups {
+		gap: var(--app-u1);
 	}
 
 	.library-input-list__items {
@@ -50,10 +68,6 @@
 		gap: var(--app-gap);
 	}
 
-	/* A row with a role, such as a person: its name on a line of its own, as long as a name may be, its role under it beside its button */
-	.library-input-list__item:has(select) > input {
-		grid-column: 1 / -1;
-	}
 
 	/* A row without input, such as a reading whose date is unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
 	.library-input-list__text {

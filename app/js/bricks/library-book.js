@@ -10,6 +10,7 @@ import {
 } from 'library-app/format';
 import { fill, fillCover, fillHtml, linkPeople } from 'library-app/render';
 import { focusTitle, showBusy } from 'library-app/behaviors';
+import { getPeople } from 'library-app/api';
 
 /** @import { Book } from 'library-app/api' */
 
@@ -79,6 +80,8 @@ class LibraryBookElement extends Brick {
 	 * @param {Book} book The book.
 	 */
 	#render( book ) {
+		const authors = getPeople( book, 'author' );
+
 		fillCover( this.querySelector( '[data-field="cover"]' ), book.cover );
 		fill( this, {
 			credits: book.credits,
@@ -86,7 +89,7 @@ class LibraryBookElement extends Brick {
 			translation: formatTranslation( book ),
 			excerpt: book.excerpt,
 			authors: listFormat.format(
-				book.authors.map( ( author ) => author.name )
+				authors.map( ( author ) => author.name )
 			),
 			isbn: book.isbn,
 			pages: book.pages ? formatNumber( book.pages ) : '',
@@ -98,10 +101,7 @@ class LibraryBookElement extends Brick {
 				: '',
 			reading_time: formatReadingTime( book ),
 		} );
-		linkPeople(
-			this.querySelector( '[data-field="authors"]' ),
-			book.authors
-		);
+		linkPeople( this.querySelector( '[data-field="authors"]' ), authors );
 		// The other names of the book, by role, such as its colorists; the translators, in the translation line, have no field.
 		fill(
 			this,
@@ -109,7 +109,7 @@ class LibraryBookElement extends Brick {
 				roles.map( ( role ) => [
 					role,
 					listFormat.format(
-						book[ role ].map( ( name ) => name.name )
+						getPeople( book, role ).map( ( person ) => person.name )
 					),
 				] )
 			)
@@ -118,7 +118,7 @@ class LibraryBookElement extends Brick {
 			const $field = this.querySelector( `[data-field="${ role }"]` );
 
 			if ( $field ) {
-				linkPeople( $field, book[ role ] );
+				linkPeople( $field, getPeople( book, role ) );
 			}
 		} );
 		fillHtml( this.querySelector( '[data-html="content"]' ), book.content );

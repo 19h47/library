@@ -91,7 +91,8 @@ Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields
 
 * `credits` – the line shown under its title.
 * `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.reading` through `POST /wp-json/library/v1/books/<id>`; `read` and `in_progress` are worked out from them.
-* `cover`, `names`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
+* `names` – its people as named on it, each with its term ID and its role, the schema `library-book-person`, as `POST /wp-json/library/v1/books/<id>` takes and gives them: `{ "id": 12, "name": "Andy Chambers", "role": "author" }`; `people` gives their term IDs only, as core does for a taxonomy.
+* `cover`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
 
 The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a collection its `path` after the collections it is part of, “Folio, Science-fiction”, and the ID of its publisher, `publisher_id`.
 
@@ -123,6 +124,12 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.38.0 =
+* Reading app: the form of a book groups its people by role, a group each, the authors first, shown once it holds a name: a person goes in the role chosen beside the button that adds them, which stays chosen, so as many translators as a book has are added without choosing their role each time.
+* Breaking: REST API: the `names` of a book of `wp/v2/books` give each name with its role, as the people of `library/v1/books/<id>`, which give their term IDs too: one schema, `library-book-person`, a book given sent back as it is. The role meta, `library_translators`, `library_colorists`…, are no longer in the REST API.
+* Reading app: the reference of the API names a schema by its title, such as `library-book-person[]`, and gives the values of a property, such as the roles, and the properties of an argument, such as those of a person of a book.
+* Code only: the component `input-groups`, an `input-list` in groups; `inputList()` takes `into`, the list a new input goes in. A book of the reading app gives its `people`, each with its role, which `getPeople( book, role )` reads, rather than its `authors`, `translators`…
 
 = 9.37.0 =
 * REST API: a request that reads is answered in the language its `Accept-Language` header prefers, among English and French, as `Content-Language` says: its descriptions, its schemas, its messages and what the plugin writes. Without the header or one of these languages, and for a request that writes, in the language of the site; `_locale=user`, which the app sends, first.

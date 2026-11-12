@@ -181,6 +181,33 @@ class Rest_Schemas {
 	}
 
 	/**
+	 * A person of a book, as named on it, with their role: what a book of `wp/v2/books` gives in its names, and what the
+	 * route of the book form gives and takes in its people. Their term ID is given, never needed: a name sent is found by
+	 * its name, so that a book given can be sent back as it is.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_book_person(): array {
+		return array(
+			'title'                => 'library-book-person',
+			'type'                 => 'object',
+			'properties'           => array(
+				'id'   => self::property( 'integer', __( 'Term ID, given, never needed: a name not found adds a person.', 'library' ) ),
+				'name' => self::property( 'string', __( 'Name, as named on the book, or another name of the person.', 'library' ), array( 'required' => true ) ),
+				'role' => self::property(
+					'string',
+					__( 'Role, such as author, translator or colorist.', 'library' ),
+					array(
+						'enum'     => array_keys( Meta::get_role_choices() ),
+						'required' => true,
+					)
+				),
+			),
+			'additionalProperties' => false,
+		);
+	}
+
+	/**
 	 * A book, as `wp/v2/books` gives it: the routes that add or edit a book give it back.
 	 *
 	 * @return array<string,mixed>
@@ -218,15 +245,7 @@ class Rest_Schemas {
 				'people'     => self::property(
 					'array',
 					__( 'People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person.', 'library' ),
-					array(
-						'items' => array(
-							'type'       => 'object',
-							'properties' => array(
-								'name' => array( 'type' => 'string' ),
-								'role' => array( 'type' => 'string' ),
-							),
-						),
-					)
+					array( 'items' => self::get_book_person() )
 				),
 				'publisher'  => self::property( 'string', __( 'Name of the publisher; a name not found adds a publisher.', 'library' ) ),
 				'collection' => self::property( 'string', __( 'Collection, under the publisher and sent with it, a sub-collection after its collection, separated with commas, such as “Folio, Science-fiction”; a name not found adds a collection.', 'library' ) ),
