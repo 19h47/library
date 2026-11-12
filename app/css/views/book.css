@@ -20,8 +20,8 @@
 	 * giving its shape only; a cover wider than the page keeps its shape inside it.
 	 */
 	.library-book__cover {
-		width: auto;
-		height: calc(100dvh / var(--app-phi) / var(--app-phi));
+		--library-cover-block-size: calc(100dvh / var(--app-phi) / var(--app-phi));
+
 		max-width: 100%;
 		object-fit: contain;
 	}
@@ -35,14 +35,10 @@
 		color: var(--app-text-muted);
 	}
 
-	.library-book__content {
-		overflow-wrap: anywhere;
-	}
-
 	/* The reading of the book open, its series and its fields: a line above each */
 	.library-reading,
 	.library-book__series,
-	.library-book__fields {
+	.library-book > .library-fields {
 		padding-top: var(--app-u1);
 		border-top: 1px solid var(--app-line-soft);
 	}
@@ -77,15 +73,6 @@
 		.library-reading__arrow {
 			display: revert;
 		}
-	}
-
-	.library-book__fields {
-		display: grid;
-		gap: var(--app-gap);
-	}
-
-	.library-book__fields dd {
-		overflow-wrap: anywhere;
 	}
 
 	/* The volumes of the series of the book open: a container, as the latest readings, its covers going out to the edges of the viewport */

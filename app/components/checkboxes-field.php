@@ -49,10 +49,8 @@ $fieldset       = Markup::set_attributes(
 			<button class="app-pill" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="show-modal" aria-haspopup="dialog"><?php echo esc_html( $args['add'] ); ?></button>
 		</p>
 		<dialog class="library-sheet" id="<?php echo esc_attr( $dialog_id ); ?>" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
-			<p class="app-toolbar">
-				<button class="app-control" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="close" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>"><?php Markup::render_icon( 'close' ); ?></button>
-			</p>
-			<h2 class="library-book__title" id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $args['label'] ); ?></h2>
+			<?php Markup::render_component( 'dialog-close', array( 'dialog' => $dialog_id ) ); ?>
+			<h2 class="library-heading" id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $args['label'] ); ?></h2>
 			<div class="library-pills">
 				<?php
 				foreach ( $args['choices'] as $value => $label ) {

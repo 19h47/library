@@ -90,12 +90,12 @@ test.describe( 'Transitions', () => {
 			)
 		).toEqual( [
 			{
-				before: [ 'library-item__cover' ],
-				after: [ 'library-book__cover' ],
+				before: [ 'library-cover' ],
+				after: [ 'library-cover library-book__cover' ],
 			},
 			{
-				before: [ 'library-book__cover' ],
-				after: [ 'library-item__cover' ],
+				before: [ 'library-cover library-book__cover' ],
+				after: [ 'library-cover' ],
 			},
 		] );
 	} );

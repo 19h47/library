@@ -12,7 +12,7 @@
  */
 
 ?>
-<library-api>
+<library-api class="library-sections">
 	<header class="library-api__header">
 		<h2 class="library-title"><?php esc_html_e( 'API', 'library' ); ?></h2>
 		<p class="library-api__intro">

@@ -87,7 +87,7 @@ test.describe( 'Covers', () => {
 			card.evaluate( ( item ) => ( {
 				card: item.getBoundingClientRect().height,
 				cover: item
-					.querySelector( '.library-item__cover' )
+					.querySelector( '.library-cover' )
 					.getBoundingClientRect().height,
 			} ) );
 

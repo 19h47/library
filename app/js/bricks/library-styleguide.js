@@ -13,6 +13,7 @@ import {
 	fill,
 	fillCover,
 	fillFolded,
+	fillHtml,
 	renderAchievement,
 	renderAuthor,
 	renderBook,
@@ -166,6 +167,23 @@ const CLOSE_ACHIEVEMENTS = [
 	},
 ];
 
+// The headers of the page of a person and of a series: their fields, and their description, HTML.
+const HEADERS = {
+	person: {
+		name: 'A Person',
+		otherNames: 'Other names: A Pseudonym, A Birth Name',
+		description:
+			'<p>Their description, as written in the admin.</p>\n<p>A second paragraph, with <em>a word in italics</em>.</p>',
+		summary: '12 books, 8 read, rated 7.5/10 on average',
+	},
+	series: {
+		name: 'A Series',
+		cycle: 'A Cycle',
+		description: '',
+		summary: '6 books · 4 read',
+	},
+};
+
 /** The styleguide: the samples of the components the app renders, filled with the functions it renders them with. */
 class LibraryStyleguideElement extends Brick {
 	connect() {
@@ -181,11 +199,7 @@ class LibraryStyleguideElement extends Brick {
 			current: () =>
 				[ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
 			rows: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderRow ),
-			month: () => [ this.#renderMonth() ],
-			covers: () =>
-				[ BOOKS[ 0 ], BOOKS[ 1 ], { ...BOOKS[ 5 ], cover: null } ].map(
-					( book ) => renderCover( book )
-				),
+			month: () => [ this.#renderDiaryRecap(), this.#renderMonth() ],
 			volumes: () => this.#renderVolumes(),
 			terms: () => [
 				...AUTHORS.map( ( author ) =>
@@ -243,17 +257,34 @@ class LibraryStyleguideElement extends Brick {
 			Array.from( { length: 5 }, ( _, index ) =>
 				renderAuthor(
 					AUTHORS[ index % AUTHORS.length ],
-					formatBooks( AUTHORS[ index % AUTHORS.length ].books )
+					formatBooks( AUTHORS[ index % AUTHORS.length ].book_count )
 				)
 			),
 			( folded ) => `${ folded } other authors`
 		);
 
-		// The cover of the book open and the one of its form, drawn as the others; the form can remove it.
-		fillCover( this.querySelector( '.library-book__cover' ), COVER );
+		// The covers of the atoms and of the book open, and the one of the form, drawn as the others; the form can remove it.
+		this.querySelectorAll( '[data-sample-cover]' ).forEach( ( $cover ) =>
+			fillCover( /** @type {HTMLImageElement} */ ( $cover ), COVER )
+		);
 		fillCover(
 			this.querySelector( '.library-image-field__preview' ),
 			COVER
+		);
+
+		// The headers of the page of a person and of a series, filled as their pages fill them.
+		Object.entries( HEADERS ).forEach(
+			( [ name, { description, ...fields } ] ) => {
+				const $header = this.querySelector(
+					`[data-sample-header="${ name }"]`
+				);
+
+				fill( $header, fields );
+				fillHtml(
+					$header.querySelector( '[data-html="description"]' ),
+					description
+				);
+			}
 		);
 		/** @type {HTMLButtonElement} */ (
 			this.querySelector( '.library-image-field [data-action]' )
@@ -308,6 +339,19 @@ class LibraryStyleguideElement extends Brick {
 			.setAttribute( 'aria-current', 'page' );
 
 		return $covers;
+	}
+
+	/**
+	 * The link of the diary to the recap of a year gone by, from its template.
+	 *
+	 * @return {HTMLElement} The link, in its paragraph.
+	 */
+	#renderDiaryRecap() {
+		const $recap = clone( 'library-diary-recap' );
+
+		fill( $recap, { recap: 'Recap of 2025' } );
+
+		return $recap;
 	}
 
 	/**

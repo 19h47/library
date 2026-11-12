@@ -129,7 +129,7 @@ use Library\Meta;
 						</library-search>
 					</div>
 
-					<library-home>
+					<library-home class="library-sections">
 						<?php // In January only, the recap of the year just gone by. ?>
 						<library-recap-link hidden>
 							<a class="app-item library-recap-link" href="">
@@ -221,11 +221,9 @@ use Library\Meta;
 									<?php endforeach; ?>
 								<?php endforeach; ?>
 							</p>
-							<dialog class="library-sheet" aria-labelledby="library-filters-title">
-								<form class="app-toolbar" method="dialog">
-									<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>"><?php Markup::render_icon( 'close' ); ?></button>
-								</form>
-								<h2 class="library-book__title" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
+							<dialog class="library-sheet" id="library-filters-dialog" aria-labelledby="library-filters-title">
+								<?php Markup::render_component( 'dialog-close', array( 'dialog' => 'library-filters-dialog' ) ); ?>
+								<h2 class="library-heading" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
 									<library-filter data-filter="<?php echo esc_attr( $book_filter ); ?>">
 										<?php
@@ -240,9 +238,9 @@ use Library\Meta;
 										?>
 									</library-filter>
 								<?php endforeach; ?>
-								<form method="dialog">
-									<button class="app-pill app-pill--primary" type="submit" data-field="show"></button>
-								</form>
+								<p>
+									<button class="app-pill app-pill--primary" type="button" commandfor="library-filters-dialog" command="close" data-field="show"></button>
+								</p>
 							</dialog>
 						</library-filters>
 						<library-filter data-filter="sort">
@@ -272,7 +270,7 @@ use Library\Meta;
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
 					<library-diary>
 						<p class="app-status" data-field="status" hidden></p>
-						<div class="library-diary__months"></div>
+						<div class="library-sections library-diary__months"></div>
 						<div class="library-list__more"></div>
 					</library-diary>
 				</library-view>
@@ -296,7 +294,7 @@ use Library\Meta;
 						<p data-field="projection"></p>
 						<p data-field="toRead"></p>
 					</library-year>
-					<library-achievements>
+					<library-achievements class="library-sections">
 						<p class="app-status" data-field="status" hidden></p>
 						<section class="library-section" data-row="close">
 							<h2 class="library-title">
@@ -327,18 +325,11 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
-					</library-back>
+					<?php Markup::render_component( 'back' ); ?>
 					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
-						<header class="library-person">
-							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
-							<p data-field="otherNames"></p>
-							<div class="library-person__description" data-html="description" hidden></div>
-							<p data-field="summary"></p>
-						</header>
-						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
+						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
+						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
 						<?php // The first series, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="series" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
@@ -354,19 +345,28 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="series" <?php echo Page::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
-					</library-back>
+					<?php Markup::render_component( 'back' ); ?>
 					<library-series>
 						<p class="app-status" data-field="status" hidden></p>
-						<header class="library-person">
-							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
-							<p data-row="cycle" hidden><?php echo esc_html( get_taxonomy( 'library_series' )->labels->parent_item_colon ); ?> <a data-field="cycle" href=""></a></p>
-							<p data-row="issn" hidden><?php echo esc_html( get_registered_meta_keys( 'term', 'library_series' )['library_issn']['label'] ); ?> <span data-field="issn"></span></p>
-							<div class="library-person__description" data-html="description" hidden></div>
-							<p data-field="summary"></p>
-						</header>
-						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
+						<?php
+						Markup::render_component(
+							'term-header',
+							array(
+								'lines' => array(
+									array(
+										'field' => 'cycle',
+										'label' => get_taxonomy( 'library_series' )->labels->parent_item_colon,
+										'link'  => true,
+									),
+									array(
+										'field' => 'issn',
+										'label' => get_registered_meta_keys( 'term', 'library_series' )['library_issn']['label'],
+									),
+								),
+							)
+						);
+						?>
+						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<ul class="library-pills" data-list="parts"></ul>
@@ -386,19 +386,29 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="publisher" <?php echo Page::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
-					</library-back>
+					<?php Markup::render_component( 'back' ); ?>
 					<library-publisher>
 						<p class="app-status" data-field="status" hidden></p>
-						<header class="library-person">
-							<h2 class="library-person__name" data-field="name" tabindex="-1"></h2>
-							<p data-row="publisher" hidden><?php esc_html_e( 'Publisher:', 'library' ); ?> <a data-field="publisher" href=""></a></p>
-							<p data-row="collection" hidden><?php esc_html_e( 'Collection:', 'library' ); ?> <a data-field="collection" href=""></a></p>
-							<div class="library-person__description" data-html="description" hidden></div>
-							<p data-field="summary"></p>
-						</header>
-						<ul class="app-list__items library-person__completion" data-list="completion" hidden></ul>
+						<?php
+						Markup::render_component(
+							'term-header',
+							array(
+								'lines' => array(
+									array(
+										'field' => 'publisher',
+										'label' => __( 'Publisher:', 'library' ),
+										'link'  => true,
+									),
+									array(
+										'field' => 'collection',
+										'label' => __( 'Collection:', 'library' ),
+										'link'  => true,
+									),
+								),
+							)
+						);
+						?>
+						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="collections" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
 							<ul class="library-pills" data-list="collections"></ul>
@@ -421,9 +431,7 @@ use Library\Meta;
 				<library-view name="recap" data-immersive <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-recap>
 						<section class="library-recap__screen library-recap__opening">
-							<library-back class="library-back">
-								<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
-							</library-back>
+							<?php Markup::render_component( 'back' ); ?>
 							<hgroup class="library-recap__heading">
 								<h2 class="library-recap__year" data-field="year" tabindex="-1"></h2>
 								<p><?php esc_html_e( 'A year of reading', 'library' ); ?></p>
@@ -533,19 +541,17 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="book" <?php echo Page::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<button class="app-pill" type="button"><?php Markup::render_icon( 'arrow_back' ); ?> <?php esc_html_e( 'Back', 'library' ); ?></button>
-					</library-back>
+					<?php Markup::render_component( 'back' ); ?>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
-						<img class="library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
+						<img class="library-cover library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
 						<p class="app-meta library-book__meta" data-field="credits"></p>
-						<h2 class="library-book__title" data-field="title" tabindex="-1"></h2>
+						<h2 class="library-heading" data-field="title" tabindex="-1"></h2>
 						<p class="library-book__excerpt" data-field="excerpt"></p>
-						<div class="library-book__content" data-html="content" hidden></div>
+						<div class="library-prose" data-html="content" hidden></div>
 						<p class="library-book__translation" data-field="translation"></p>
 						<library-reading>
-							<form class="library-reading">
+							<form class="library-form library-reading">
 								<div class="library-pills">
 									<?php
 									Markup::render_component(
@@ -631,7 +637,7 @@ use Library\Meta;
 							</h3>
 							<ul class="library-strip"></ul>
 						</library-volumes>
-						<dl class="library-book__fields">
+						<dl class="library-fields">
 							<div data-row="authors">
 								<dt class="app-meta"><?php echo esc_html( $person_labels->name ); ?></dt>
 								<dd data-field="authors"></dd>
@@ -720,17 +726,15 @@ use Library\Meta;
 		</library-notice>
 
 		<library-edit>
-			<dialog class="library-dialog library-edit" aria-labelledby="library-edit-heading">
-				<form class="app-toolbar" method="dialog">
-					<button class="app-control" type="submit" aria-label="<?php esc_attr_e( 'Close', 'library' ); ?>" title="<?php esc_attr_e( 'Close', 'library' ); ?>"><?php Markup::render_icon( 'close' ); ?></button>
-				</form>
+			<dialog class="library-dialog library-edit" id="library-edit-dialog" aria-labelledby="library-edit-heading">
+				<?php Markup::render_component( 'dialog-close', array( 'dialog' => 'library-edit-dialog' ) ); ?>
 				<h2
-					class="library-book__title"
+					class="library-heading"
 					id="library-edit-heading"
 					data-add="<?php echo esc_attr( $labels->add_new_item ); ?>"
 					data-edit="<?php echo esc_attr( $labels->edit_item ); ?>"
 				></h2>
-				<form class="library-edit__form">
+				<form class="library-form library-edit__form">
 					<?php
 					// The fields a book has most, in the order a book in hand gives them: its ISBN first, which tells a book added already.
 					Markup::render_component(
@@ -930,7 +934,7 @@ use Library\Meta;
 
 		<template id="library-item">
 			<li class="app-item library-item">
-				<img class="library-item__cover" data-field="cover" alt="" loading="lazy" hidden>
+				<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
 				<div class="library-item__body">
 					<p class="app-item__meta" data-field="credits"></p>
 					<h3 class="library-item__title">
@@ -939,9 +943,9 @@ use Library\Meta;
 					<p class="library-item__excerpt" data-field="excerpt" hidden></p>
 					<p class="app-item__meta">
 						<span data-field="state"></span>
-						<span class="library-item__tag" data-field="form" hidden></span>
-						<span class="library-item__tag" data-field="original" hidden></span>
-						<span class="library-item__tag library-item__status" data-field="status" hidden></span>
+						<span class="library-tag" data-field="form" hidden></span>
+						<span class="library-tag" data-field="original" hidden></span>
+						<span class="library-tag library-tag--status" data-field="status" hidden></span>
 					</p>
 				</div>
 			</li>
@@ -949,7 +953,7 @@ use Library\Meta;
 
 		<template id="library-row">
 			<li class="app-item library-row">
-				<img class="library-row__cover" data-field="cover" alt="" loading="lazy" hidden>
+				<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
 				<div class="library-row__body">
 					<h4 class="library-row__title">
 						<a class="library-item__link">
@@ -958,7 +962,7 @@ use Library\Meta;
 					</h4>
 					<p class="app-item__meta">
 						<span data-field="authors"></span>
-						<span class="library-item__tag library-item__status" data-field="status" hidden></span>
+						<span class="library-tag library-tag--status" data-field="status" hidden></span>
 					</p>
 				</div>
 			</li>
@@ -966,13 +970,13 @@ use Library\Meta;
 
 		<template id="library-current">
 			<li class="library-current">
-				<a class="library-cover__link">
-					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover__frame" data-row="frame">
+				<a class="library-cover-link">
+					<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
+					<span class="library-cover library-cover--frame" data-row="frame">
 						<span class="library-cover__title" data-field="frame"></span>
 					</span>
 					<span class="library-current__title" data-field="title"></span>
-					<span class="app-meta library-item__tag library-item__status" data-field="status" hidden></span>
+					<span class="app-meta library-tag library-tag--status" data-field="status" hidden></span>
 				</a>
 			</li>
 		</template>
@@ -1008,10 +1012,10 @@ use Library\Meta;
 		</template>
 
 		<template id="library-cover">
-			<li class="library-cover">
-				<a class="library-cover__link">
-					<img class="library-cover__image" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover__frame" data-row="title">
+			<li>
+				<a class="library-cover-link">
+					<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
+					<span class="library-cover library-cover--frame" data-row="title">
 						<span class="library-cover__title" data-field="title"></span>
 					</span>
 					<span class="sr-only" data-field="state" hidden></span>

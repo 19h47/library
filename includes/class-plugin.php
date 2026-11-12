@@ -62,6 +62,7 @@ class Plugin {
 		new Meta()->hooks();
 		new Query()->hooks();
 		new Rest_API()->hooks();
+		new Rest_Locale()->hooks();
 		new Assets()->hooks();
 		new Metaboxes()->hooks();
 		new Books_List()->hooks();

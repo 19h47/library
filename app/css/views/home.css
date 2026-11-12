@@ -8,24 +8,15 @@
 	 * wide as the cover; the book open, its reading is read, rated and dated.
 	 */
 	.library-current {
-		--library-current-height: calc(var(--library-cover-height) * var(--app-phi));
+		--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi));
 
 		width: min-content;
 
-		& .library-cover__link {
+		& .library-cover-link {
 			display: grid;
 			justify-items: start;
 			gap: var(--app-gap-small);
 			text-align: start;
-		}
-
-		& .library-cover__image {
-			height: var(--library-current-height);
-		}
-
-		& .library-cover__frame {
-			width: calc(var(--library-current-height) / var(--app-phi));
-			height: var(--library-current-height);
 		}
 	}
 

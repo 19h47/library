@@ -26,6 +26,8 @@
 	 * height, where it shows, and the cards of the list that were on screen came back as their padding.
 	 */
 	.app-list__items[data-covers] > .library-item {
+		--library-cover-inline-size: 100%;
+
 		content-visibility: visible;
 		display: block;
 		padding: 0;
@@ -33,22 +35,18 @@
 		background: none;
 	}
 
-	.app-list__items[data-covers] .library-item__cover {
-		width: 100%;
-	}
-
 	.app-list__items[data-covers] .library-item__body > :not(.library-item__title) {
 		display: none;
 	}
 
-	.app-list__items[data-covers] > .library-item:has(> .library-item__cover:not([hidden])) .library-item__title {
+	.app-list__items[data-covers] > .library-item:has(> .library-cover:not([hidden])) .library-item__title {
 		position: absolute;
 		inset: 0;
 		overflow: hidden;
 		opacity: 0;
 	}
 
-	.app-list__items[data-covers] .library-item__cover[hidden] + .library-item__body {
+	.app-list__items[data-covers] > .library-item > .library-cover[hidden] + .library-item__body {
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
 		padding: var(--app-gap);

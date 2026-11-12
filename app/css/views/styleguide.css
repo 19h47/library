@@ -1,9 +1,8 @@
 /**
- * The styleguide, for development: the tokens of the app and its components.
+ * The styleguide, for development: the foundations of the app, its atoms, its molecules, its organisms and its screens.
  */
 
 @layer library.views {
-	/* The styleguide: its introduction, then the tokens and the components, each in a frame */
 	/* The title of the styleguide and its introduction, a step apart */
 	.library-styleguide__header {
 		display: grid;
@@ -40,8 +39,7 @@
 		overflow-wrap: anywhere;
 	}
 
-	/* A frame around a component, to see its box */
-	/* A frame spaces the components it holds, one under the other, rather than their margins */
+	/* A frame around a component, to see its box: it spaces the components it holds, one under the other, rather than their margins */
 	.library-styleguide__frame {
 		display: grid;
 		gap: var(--app-u1);
@@ -94,6 +92,15 @@
 		width: var(--library-token);
 		height: var(--app-u3);
 		background: var(--app-text);
+	}
+
+	/* A corner, on a square a step and a half wide */
+	.library-styleguide__radius {
+		flex: none;
+		width: var(--app-u3);
+		height: var(--app-u3);
+		border: 1px solid var(--app-line);
+		border-radius: var(--library-token);
 	}
 
 	.library-styleguide__font {

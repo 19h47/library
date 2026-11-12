@@ -1,0 +1,12 @@
+/**
+ * A status, the message of a view, such as no book found: an error of the server, at the end of a form, in the color of
+ * an error, in a line and a tint of it, as a tag.
+ */
+
+@layer library.components {
+	.app-status[role="alert"] {
+		border-color: color-mix(in oklab, currentColor 40%, transparent);
+		background: color-mix(in oklab, currentColor 10%, transparent);
+		color: var(--library-error);
+	}
+}

@@ -1,5 +1,6 @@
 /**
- * Sections and their titles, what holds them, the large text and the text written in the admin.
+ * Sections, a molecule, their title then what they hold, a step apart; what holds them; the title of a section, with its
+ * count and an action at its end; the cards past the first ones, folded.
  */
 
 @layer library.components {
@@ -10,14 +11,10 @@
 	}
 
 	/*
-	 * What holds sections, the home, the achievements, the months of the diary, the styleguide, the reference of the API:
-	 * it spaces them, a step and a half apart, rather than each its own margin; a section hidden takes no room.
+	 * What holds sections, such as the home, the achievements, the months of the diary, the styleguide, the reference of
+	 * the API: it spaces them, a step and a half apart, rather than each its own margin; a section hidden takes no room.
 	 */
-	library-home,
-	library-achievements,
-	.library-diary__months,
-	library-styleguide,
-	library-api {
+	.library-sections {
 		display: grid;
 		gap: var(--app-u3);
 	}
@@ -64,22 +61,6 @@
 	/* Pushed to the end of its row, such as a link at the end of a title, to the view it sums up */
 	.library-push-end {
 		margin-inline-start: auto;
-	}
-
-	/* The large text: the title of a book open, the name of a person or of a series, tightened as the title of the page */
-	.library-book__title,
-	.library-person__name {
-		font-size: var(--app-font-large);
-		line-height: var(--app-line-height);
-		letter-spacing: -0.02em;
-		overflow-wrap: anywhere;
-	}
-
-	/* Text written in the admin, the notes of a book or the description of a person or of a series: its paragraphs a step apart */
-	.library-book__content,
-	.library-person__description {
-		display: grid;
-		gap: var(--app-u1);
 	}
 
 	/* The cards of a section past the first ones, folded under a pill, which the section spaces as its other parts */
