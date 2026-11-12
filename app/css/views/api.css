@@ -2,7 +2,7 @@
  * The reference of the API, for development: its routes, folded, each with its endpoints, what it gives and a request to try.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The title of the reference and its introduction, a step apart, as the styleguide */
 	.library-api__header {
 		display: grid;
@@ -42,13 +42,7 @@
 		cursor: pointer;
 	}
 
-	/* The methods, small text of the interface, then the path, which breaks anywhere rather than widening the page */
-	.library-api__methods {
-		color: var(--app-text-muted);
-		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
-	}
-
+	/* The path, after its methods, breaks anywhere rather than widening the page */
 	.library-api__path,
 	.library-api__item code {
 		font-family: var(--app-font-mono);
@@ -94,15 +88,9 @@
 		gap: var(--app-gap-small);
 	}
 
-	.library-api__meta.library-api__flag {
+	/* Whether an argument is required or a property read only, in the one color of the app */
+	.library-api__flag {
 		color: var(--library-status);
-	}
-
-	/* Small text of the interface, in the case the API gives it, its names and values being so */
-	.library-api__meta {
-		color: var(--app-text-muted);
-		font-family: var(--app-font-ui);
-		font-size: var(--app-font-small);
 	}
 
 	/* The answer of a request: small monospace text in a frame, which scrolls rather than widening the page */
@@ -113,7 +101,7 @@
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius);
 		font-family: var(--app-font-mono);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	.library-api__answer[aria-busy="true"] pre {

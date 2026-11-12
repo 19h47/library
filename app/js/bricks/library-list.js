@@ -20,7 +20,7 @@ class LibraryListElement extends Brick {
 		const list = /** @type {List} */ (
 			this.getAttribute( 'list' ) ?? 'search'
 		);
-		const $items = this.querySelector( '.app-list__items' );
+		const $items = this.querySelector( '.app-list' );
 		const observe = observeEnd(
 			this.querySelector( '.library-list__more' ),
 			signal,

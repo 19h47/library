@@ -13,6 +13,8 @@ class LibraryIdeaElement extends Brick {
 		const $book = this.querySelector( '[data-field="book"]' );
 		/** @type {HTMLButtonElement} */
 		const $next = this.querySelector( '[data-action="next-idea"]' );
+		/** @type {HTMLElement} */
+		const $nextRow = this.querySelector( '[data-row="next"]' );
 		const render = this.hasAttribute( 'compact' )
 			? renderRow
 			: ( book ) => renderBook( book, formatState( book ) );
@@ -28,7 +30,7 @@ class LibraryIdeaElement extends Brick {
 
 					this.hidden = ! idea.loaded;
 					$next.disabled = idea.loading;
-					$next.hidden = idea.idea_count < 2;
+					$nextRow.hidden = idea.idea_count < 2;
 					fill( this, {
 						status: idea.error,
 						reason: book ? idea.reason : '',

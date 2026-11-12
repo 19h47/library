@@ -7,7 +7,7 @@
  * readings by default, its other side from its shape.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A cover: a soft line and small corners, at the size its place gives it */
 	.library-cover {
 		display: block;
@@ -26,11 +26,16 @@
 		object-fit: cover;
 	}
 
-	/* A book without cover: its title from its start, in a frame of the height of a cover, a golden rectangle */
+	/*
+	 * A book without cover: its title from its start, in a frame of the shape of a cover, a golden rectangle, at the width
+	 * its place gives it or from its height; the frame keeps its shape, its title clipped rather than making it higher.
+	 */
 	.library-cover--frame {
-		inline-size: calc(var(--library-cover-block-size, var(--library-cover-height)) / var(--app-phi));
+		inline-size: var(--library-cover-inline-size, calc(var(--library-cover-block-size, var(--library-cover-height)) / var(--app-phi)));
+		aspect-ratio: 1 / var(--app-phi);
+		overflow: hidden;
 		padding: var(--app-gap);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 		text-align: start;
 	}
 
@@ -49,12 +54,16 @@
 	}
 
 	/*
-	 * The link a cover is, alone in a row of covers or with its title under it: it holds its reading state, out of sight,
-	 * which stays in the row, which scrolls, rather than widening the page
+	 * The link a cover is, alone in a row of covers or with its title and its status under it, a small gap apart, as a
+	 * book being read: it holds its reading state, out of sight, which stays in the row, which scrolls, rather than
+	 * widening the page
 	 */
 	.library-cover-link {
 		position: relative;
-		display: block;
+		display: grid;
+		justify-items: start;
+		gap: var(--app-gap-small);
+		text-align: start;
 		text-decoration: none;
 	}
 

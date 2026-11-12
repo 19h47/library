@@ -24,12 +24,12 @@ $radii  = array( '--app-radius', '--library-radius-small' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
 // The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
 $sizes = array(
-	array( 'var(--app-font-small)', 'var(--app-font-ui)', 'Pills, meta lines, labels, the excerpt of a card: half a step below the text' ),
-	array( 'var(--app-font-medium)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections: --app-u1' ),
-	array( 'var(--app-font-large)', 'var(--app-font-mono)', 'The year, .library-heading, the title of the page on a phone: half a step above' ),
-	array( 'var(--app-font-x-large)', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
-	array( 'var(--app-font-xx-large)', 'var(--app-font-mono)', 'The figure of a screen of the recap, the year of its link on the home: a step above --app-u3' ),
-	array( 'var(--app-font-xxx-large)', 'var(--app-font-mono)', 'The year of the recap: two steps above --app-u3' ),
+	array( 'var(--app-text-s)', 'var(--app-font-ui)', 'Pills, meta lines, labels, the excerpt of a card: half a step below the text' ),
+	array( 'var(--app-text-m)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections: --app-u1' ),
+	array( 'var(--app-text-l)', 'var(--app-font-mono)', 'The year, .library-heading, the title of the page on a phone: half a step above' ),
+	array( 'var(--app-text-xl)', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
+	array( 'var(--app-text-2xl)', 'var(--app-font-mono)', 'The figure of a screen of the recap, the year of its link on the home: a step above --app-u3' ),
+	array( 'var(--app-text-3xl)', 'var(--app-font-mono)', 'The year of the recap: two steps above --app-u3' ),
 );
 ?>
 <library-styleguide class="library-sections" lang="en">
@@ -75,7 +75,7 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Sizes of the text, at this width, on lines of <code>--app-line-height</code> (φ)</figcaption>
+				<figcaption>Sizes of the text, at this width, on lines of <code>--app-line-height</code> (φ): each one a utility of its name too, <code>.app-text-s</code> for <code>--app-text-s</code></figcaption>
 				<ul class="library-styleguide__sizes">
 					<?php foreach ( $sizes as list( $size, $family, $use ) ) : ?>
 						<li>
@@ -97,11 +97,11 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Styles of text: the text, <code>.library-heading</code>, the heading of a page or a dialog, <code>.app-meta</code>, a meta line, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</figcaption>
+				<figcaption>Styles of text: the text, <code>.library-heading</code>, the heading of a page or a dialog, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</figcaption>
 				<div class="library-styleguide__frame">
 					<p>The text of the app, in its font of code.</p>
 					<p class="library-heading">The heading of a page</p>
-					<p class="app-meta">A meta line · 2026</p>
+					<p class="app-text-s app-text-muted app-font-ui app-uppercase">A meta line · 2026</p>
 					<div class="library-prose">
 						<p>Text written in the admin, such as the notes of a book.</p>
 						<p>A second paragraph, with <em>a word in italics</em>.</p>
@@ -147,10 +147,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-link</code>, a button in words, as a link: in the text, or as a meta, <code>.app-meta</code></figcaption>
+				<figcaption><code>.library-link</code>, a button in words, as a link, its text the one around it: in the text, or in a meta line</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="library-link" type="button">Undo</button>
-					<button class="app-meta library-link" type="button">Another idea</button>
+					<span class="app-text-s app-text-muted app-font-ui app-uppercase"><button class="library-link" type="button">Another idea</button></span>
 				</div>
 			</figure>
 			<figure>
@@ -196,14 +196,14 @@ $sizes = array(
 		<h3 class="library-title">Molecules</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-title</code>, the title of a section: its <code>__heading</code> on balanced lines, its count, an <code>.app-meta</code>, and its action at the end of the last line, <code>.library-push-end</code></figcaption>
+				<figcaption><code>.library-title</code>, the title of a section: its <code>__heading</code> on balanced lines, its count, a meta line, and its action at the end of the last line, <code>__action</code></figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-title">
 						<h4 class="library-title__heading">
 							A section title long enough to go on two lines
-							<span class="app-meta">12 books</span>
+							<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal">12 books</span>
 						</h4>
-						<a class="app-meta library-push-end" href="#top">A link</a>
+						<a class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" href="#top">A link</a>
 					</div>
 				</div>
 			</figure>
@@ -275,15 +275,15 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-fields</code>, the name of each field, an <code>.app-meta</code>, above its value</figcaption>
+				<figcaption><code>.library-fields</code>, the name of each field, a meta line, above its value</figcaption>
 				<div class="library-styleguide__frame">
 					<dl class="library-fields">
 						<div>
-							<dt class="app-meta">ISBN</dt>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">ISBN</dt>
 							<dd>978-2-07-036024-6</dd>
 						</div>
 						<div>
-							<dt class="app-meta">Pages</dt>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">Pages</dt>
 							<dd>320</dd>
 						</div>
 					</dl>
@@ -387,19 +387,19 @@ $sizes = array(
 			<figure>
 				<figcaption><code>.library-item</code>, the card of a book, an <code>.app-item</code>: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="books"></ul>
+					<ul class="app-list" data-sample="books"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-list__items[data-covers]</code>, the cards as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</figcaption>
+				<figcaption><code>.app-list[data-covers]</code>, the cards as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-covers data-sample="grid"></ul>
+					<ul class="app-list" data-covers data-sample="grid"></ul>
 				</div>
 			</figure>
 			<figure>
 				<figcaption><code>.library-row</code>, a book in a row, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="rows"></ul>
+					<ul class="app-list" data-sample="rows"></ul>
 				</div>
 			</figure>
 			<figure>
@@ -411,19 +411,19 @@ $sizes = array(
 			<figure>
 				<figcaption><code>.library-term</code>, the card of an author of a series or of a series of a person: its name, its description, clamped, and its line; with a description, without</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="terms"></ul>
+					<ul class="app-list" data-sample="terms"></ul>
 				</div>
 			</figure>
 			<figure>
 				<figcaption><code>.library-achievement</code>, earned, its subject a link when it leads to its books</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="achievements"></ul>
+					<ul class="app-list" data-sample="achievements"></ul>
 				</div>
 			</figure>
 			<figure>
 				<figcaption><code>.library-achievement</code>, close to it, with its progress</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="close"></ul>
+					<ul class="app-list" data-sample="close"></ul>
 				</div>
 			</figure>
 			<figure>
@@ -431,10 +431,10 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<section class="library-section" data-folded="authors">
 						<h4 class="library-title">Authors</h4>
-						<ul class="app-list__items" data-list="shown"></ul>
+						<ul class="app-list" data-list="shown"></ul>
 						<details class="library-section__more" data-row="more" hidden>
 							<summary class="app-pill" data-field="more"></summary>
-							<ul class="app-list__items" data-list="more"></ul>
+							<ul class="app-list" data-list="more"></ul>
 						</details>
 					</section>
 				</div>
@@ -490,7 +490,7 @@ $sizes = array(
 					</div>
 					<h4 class="library-title library-books__title">
 						Books
-						<span class="app-meta">15 books</span>
+						<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal">15 books</span>
 					</h4>
 					<div class="app-controls library-books__controls">
 						<button class="app-pill" type="button">Filters · 2</button>
@@ -615,7 +615,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<div class="library-book">
 						<img class="library-cover library-book__cover" data-sample-cover alt="" loading="lazy" hidden>
-						<p class="app-meta library-book__meta">An Author · A Publisher, A Collection · 2024</p>
+						<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta">An Author · A Publisher, A Collection · 2024</p>
 						<h4 class="library-heading">The title of a book</h4>
 						<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
 						<div class="library-prose">
@@ -655,7 +655,7 @@ $sizes = array(
 						</div>
 						<dl class="library-fields">
 							<div>
-								<dt class="app-meta">ISBN</dt>
+								<dt class="app-text-s app-text-muted app-font-ui app-uppercase">ISBN</dt>
 								<dd>978-2-07-036024-6</dd>
 							</div>
 						</dl>
@@ -689,7 +689,7 @@ $sizes = array(
 						<span>Filled in from the catalogue of the BnF: check what it gives.</span>
 					</p>
 					<details class="library-edit__details">
-						<summary class="app-meta">More details</summary>
+						<summary class="app-text-s app-text-muted app-font-ui app-uppercase">More details</summary>
 						<?php
 						Markup::render_component(
 							'field',
@@ -706,10 +706,10 @@ $sizes = array(
 				<figcaption><code>.library-recap__screen</code>, a screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, its lines</figcaption>
 				<div class="library-styleguide__frame">
 					<section class="library-recap__screen">
-						<h3 class="library-recap__title">Books read</h3>
+						<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal">Books read</h3>
 						<p class="library-recap__figure">82</p>
 						<p>19 more than in 2024</p>
-						<p class="app-meta">Including 2 read again</p>
+						<p class="app-text-s app-text-muted app-font-ui app-uppercase">Including 2 read again</p>
 					</section>
 				</div>
 			</figure>

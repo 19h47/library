@@ -13,7 +13,7 @@
 
 use Library\Markup;
 ?>
-<library-covers-toggle class="library-push-end">
+<library-covers-toggle class="library-title__action">
 	<?php
 	Markup::render_component(
 		'pill-checkbox',

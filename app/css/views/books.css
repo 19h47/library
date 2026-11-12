@@ -2,7 +2,7 @@
  * The books: their controls, the filters and the order, the title of the list under the home and the search.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The filters and the order of the books, under their title: they head the list, as a title does */
 	library-view > .library-books__controls {
 		margin-bottom: var(--app-u1);

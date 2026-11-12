@@ -37,7 +37,7 @@ test.describe( 'Grid', () => {
 
 		const books = page.locator( 'library-view[name="books"]' );
 		const toggle = books.getByRole( 'checkbox', { name: 'Covers' } );
-		const list = books.locator( 'library-list .app-list__items' );
+		const list = books.locator( 'library-list .app-list' );
 
 		await expect( toggle ).not.toBeChecked();
 		await toggle.check();

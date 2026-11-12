@@ -37,7 +37,7 @@ $fieldset       = Markup::set_attributes(
 ?>
 <library-choices>
 	<?php echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
-		<legend class="app-meta"><?php echo esc_html( $args['label'] ); ?></legend>
+		<legend class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $args['label'] ); ?></legend>
 		<p class="library-pills">
 			<?php foreach ( $args['choices'] as $value => $label ) : ?>
 				<button class="app-pill" type="button" data-value="<?php echo esc_attr( (string) $value ); ?>" hidden>

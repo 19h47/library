@@ -2,7 +2,7 @@
  * Forms: their fields, the lists of inputs, such as the people of a book or its read dates, and their errors.
  */
 
-@layer library.components {
+@layer app.components {
 	/*
 	 * A form, a step between its parts: the one of the reading of a book, with its pills, its read dates when it is read and
 	 * the button that saves them; the one that adds or edits a book, a field per line.
@@ -121,7 +121,7 @@
 	/* The message of a field in error, under it, as its description */
 	.library-error {
 		color: var(--library-error);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	/* In a row of a list of inputs, such as a read date, it takes a line of its own */
@@ -149,7 +149,7 @@
 
 	:is(.library-field, .library-input-list) > small {
 		color: var(--app-text-muted);
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
 	.library-image-field {

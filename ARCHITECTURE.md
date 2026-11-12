@@ -36,17 +36,18 @@ The store holds the state the bricks read with `select()` and change through its
 
 ### Styles
 
-`app/css/app-style.css` is a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header, in the cascade layer `app-base`. The styles of the app come in the layers after it:
+`app/css/app-style.css` is a copy of the [base shared by the author's small apps](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498), with its revision in its header, in the cascade layer `app-base`, its utilities in the layer `app-utilities`, last. The styles of the app come in the layer `app` between them:
 
-- `app/css/library-app.css` declares the order of the layers, `library.base`, `library.components` and `library.views`, and holds the tokens;
+- `app/css/library-app.css` declares the order of its layers, `app.base`, `app.components` and `app.views`, and holds the tokens;
 - `app/css/components`, a sheet per component;
-- `app/css/views`, a sheet per view: what a view sets wins over a component, whatever their specificity.
+- `app/css/views`, a sheet per view: what a view sets wins over a component, whatever their specificity;
+- the utilities of the base, one property each (`.app-text-s`, `.app-text-muted`, `.app-font-ui`, `.app-uppercase`…), win over both: an element whose component sets the same property does not take one.
 
 Every size is on the scale of the golden ratio: its steps for space, half steps for text.
 
 The components are built as those of a design file, each level made of the ones before it:
 
-- atoms: the styles of text (`.library-heading`, `.library-prose`, `.app-meta`), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `.library-cover`, `.app-status`;
+- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `.library-cover`, `.app-status`;
 - molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-fields`, `.library-notice`, `field`, `image-field`;
 - organisms: the cards (`.library-item`, `.library-row`, `.library-current`, `.library-term`, `.library-achievement`), `.library-section`, `term-header`, `.library-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`;
 - screens: the views, in `app/css/views`.

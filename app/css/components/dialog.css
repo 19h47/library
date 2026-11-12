@@ -2,7 +2,7 @@
  * Dialogs over the page: the filters of the books, the choices of a field and the form of a book.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A sheet, the filters or the choices of a field: on a phone, from the bottom of the screen; beyond, a dialog in the middle, as the one of a book */
 	.library-sheet {
 		width: 100%;

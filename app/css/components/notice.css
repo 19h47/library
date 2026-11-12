@@ -2,7 +2,7 @@
  * The notice: what an action done says, at the bottom of the screen.
  */
 
-@layer library.components {
+@layer app.components {
 	/* What an action done says, at the bottom of the screen, over the page; empty, it has no box */
 	.library-notice {
 		position: fixed;

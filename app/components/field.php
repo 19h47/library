@@ -38,7 +38,7 @@ $control        = Markup::set_attributes(
 );
 ?>
 <p class="library-field">
-	<label class="app-meta" for="<?php echo esc_attr( $args['id'] ); ?>">
+	<label class="app-text-s app-text-muted app-font-ui app-uppercase" for="<?php echo esc_attr( $args['id'] ); ?>">
 		<?php
 		/* translators: %s: label of a field that must be filled in, e.g. Title. */
 		echo esc_html( $args['required'] ? sprintf( _x( '%s (required)', 'one field', 'library' ), $args['label'] ) : $args['label'] );

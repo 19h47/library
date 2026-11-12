@@ -2,7 +2,7 @@
  * The page of a person, of a series or of a collection: its header, its completion and its sections.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The header of the page: its name, the lines that place it, its description and its reading */
 	.library-term-header {
 		display: grid;

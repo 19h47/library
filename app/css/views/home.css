@@ -1,36 +1,8 @@
 /**
- * The home: the books being read, the reading idea and the link to the recap of the year gone by.
+ * The home: the reading idea and the link to the recap of the year gone by; its books being read are cards, .library-current.
  */
 
-@layer library.views {
-	/*
-	 * A book being read: its cover a step larger than the ones of the latest readings, its title and status under it, as
-	 * wide as the cover; the book open, its reading is read, rated and dated.
-	 */
-	.library-current {
-		--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi));
-
-		width: min-content;
-
-		& .library-cover-link {
-			display: grid;
-			justify-items: start;
-			gap: var(--app-gap-small);
-			text-align: start;
-		}
-	}
-
-	/* Two lines of the title, small: a longer one ends in an ellipsis. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
-	.library-current__title {
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		overflow: hidden;
-		font-size: var(--app-font-small);
-		overflow-wrap: anywhere;
-		hyphens: auto;
-	}
-
+@layer app.views {
 	/* The reading idea: its title, its reason, its book and the action for another one, a step apart */
 	library-idea {
 		display: grid;
@@ -45,7 +17,7 @@
 	}
 
 	.library-recap-link__year {
-		font-size: var(--app-font-xx-large);
+		font-size: var(--app-text-2xl);
 		line-height: 1;
 	}
 }
