@@ -49,17 +49,14 @@
 		text-wrap: balance;
 	}
 
-	.library-title > .library-push-end {
-		flex: none;
-	}
-
 	/* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
 	:is(library-view, library-volumes) > .library-title {
 		margin-bottom: var(--app-u1);
 	}
 
-	/* Pushed to the end of its row, such as a link at the end of a title, to the view it sums up */
-	.library-push-end {
+	/* The action of a title, at the end of its row, such as a link to the view it sums up, whole */
+	.library-title__action {
+		flex: none;
 		margin-inline-start: auto;
 	}
 

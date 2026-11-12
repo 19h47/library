@@ -147,10 +147,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-link</code>, a button in words, as a link: in the text, or as a meta, <code>.app-meta</code></figcaption>
+				<figcaption><code>.library-link</code>, a button in words, as a link, its text the one around it: in the text, or in a meta, <code>.app-meta</code></figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="library-link" type="button">Undo</button>
-					<button class="app-meta library-link" type="button">Another idea</button>
+					<span class="app-meta"><button class="library-link" type="button">Another idea</button></span>
 				</div>
 			</figure>
 			<figure>
@@ -196,14 +196,14 @@ $sizes = array(
 		<h3 class="library-title">Molecules</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-title</code>, the title of a section: its <code>__heading</code> on balanced lines, its count, an <code>.app-meta</code>, and its action at the end of the last line, <code>.library-push-end</code></figcaption>
+				<figcaption><code>.library-title</code>, the title of a section: its <code>__heading</code> on balanced lines, its count, an <code>.app-meta</code>, and its action at the end of the last line, <code>__action</code></figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-title">
 						<h4 class="library-title__heading">
 							A section title long enough to go on two lines
 							<span class="app-meta">12 books</span>
 						</h4>
-						<a class="app-meta library-push-end" href="#top">A link</a>
+						<a class="app-meta library-title__action" href="#top">A link</a>
 					</div>
 				</div>
 			</figure>

@@ -150,7 +150,7 @@ use Library\Meta;
 						<library-latest class="library-section" hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Latest readings', 'library' ); ?></h3>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+								<a class="app-meta library-title__action" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
 							</div>
 							<ul class="library-strip"></ul>
 						</library-latest>
@@ -158,7 +158,7 @@ use Library\Meta;
 						<library-idea class="library-section" compact hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
-								<button class="app-meta library-link library-push-end" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+								<span class="app-meta library-title__action" data-row="next"><button class="library-link" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button></span>
 							</div>
 							<p class="app-status" data-field="status" hidden></p>
 							<p class="library-idea__reason" data-field="reason"></p>
@@ -167,7 +167,7 @@ use Library\Meta;
 						<library-close class="library-section" hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Close to it', 'library' ); ?></h3>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+								<a class="app-meta library-title__action" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
 							</div>
 							<ul class="app-list__items"></ul>
 						</library-close>
@@ -281,7 +281,7 @@ use Library\Meta;
 						<p class="app-status" data-field="status" hidden></p>
 						<p class="library-idea__reason" data-field="reason"></p>
 						<ul class="app-list__items" data-field="book"></ul>
-						<p class="library-idea__actions">
+						<p class="library-idea__actions" data-row="next">
 							<button class="app-pill" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
 						</p>
 					</library-idea>
