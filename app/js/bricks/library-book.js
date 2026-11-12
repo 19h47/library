@@ -93,6 +93,9 @@ class LibraryBookElement extends Brick {
 			),
 			isbn: book.isbn,
 			pages: book.pages ? formatNumber( book.pages ) : '',
+			printed_date: book.printed_date
+				? formatDate( book.printed_date )
+				: '',
 			edition_date: book.edition_date
 				? formatDate( book.edition_date )
 				: '',

@@ -48,7 +48,7 @@ use Library\Meta;
 	</tr>
 
 	<?php
-	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_edition_date', 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
+	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_printed_date', 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>

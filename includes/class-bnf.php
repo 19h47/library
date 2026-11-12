@@ -126,6 +126,7 @@ class BnF {
 				// The numbers of the volumes of the library: "Tome 05".
 				'library_volume_number'     => $volume ? sprintf( 'Tome %02d', $volume ) : '',
 				'library_collection_number' => $collection['number'],
+				'library_edition_date'      => self::get_edition_date( $record ),
 				'library_pages'             => self::get_pages( $record ),
 				'library_edition_languages' => self::find_edition_languages( $record ),
 			),
@@ -263,6 +264,27 @@ class BnF {
 		$subtitle = self::get_first( $record, '200', 'e' );
 
 		return preg_match( self::FORM_WORDS, self::normalize( $subtitle ) ) ? '' : $subtitle;
+	}
+
+	/**
+	 * The year of the edition of a record, from its publication statement: 1989 for "1989", 2019 for "DL 2019", the
+	 * legal deposit, or for "cop. 2002"; empty for "impr. 2015", the printing of the copy of the BnF, which the catalogue
+	 * gives for want of a date of publication, and for none. RDA records give it in 214, with the second indicator 0, the
+	 * publication, where 3 is the printing; older records in 210.
+	 *
+	 * @param array<int|string,list<Field>> $record Record.
+	 * @return string
+	 */
+	private static function get_edition_date( array $record ): string {
+		$publications = array_filter( $record['214'] ?? array(), fn( array $field ) => '0' === $field['ind2'] );
+		$statement    = array_find( array( ...$publications, ...( $record['210'] ?? array() ) ), fn( array $field ) => isset( $field['subfields']['d'][0] ) );
+		$date         = $statement['subfields']['d'][0] ?? '';
+
+		if ( str_contains( $date, 'impr.' ) || ! preg_match( '/\b\d{4}\b/', $date, $matches ) ) {
+			return '';
+		}
+
+		return $matches[0];
 	}
 
 	/**

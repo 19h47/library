@@ -40,11 +40,12 @@ class Meta {
 	public const array TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_volume_number', 'library_collection_number' );
 
 	/**
-	 * Date meta keys, stored as Y-m-d.
+	 * Date meta keys, often known by their year only: Y, Y-m or Y-m-d. The work, the edition of its ISBN, then the copy
+	 * in hand, a printing of that edition, as the catalogue of the BnF records the first two, and its colophon the last.
 	 *
 	 * @var string[]
 	 */
-	private const array DATE_KEYS = array( 'library_edition_date' );
+	private const array DATE_KEYS = array( 'library_published_date', 'library_edition_date', 'library_printed_date' );
 
 	/**
 	 * Format of the start or the end of a reading with its time, which sorts after the day alone: 2026-11-01T21:40. A
@@ -127,7 +128,7 @@ class Meta {
 	 *
 	 * @var string[]
 	 */
-	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_published_date', 'library_pages', 'library_rating', 'library_collective', 'library_reading', 'library_read', 'library_in_progress' );
+	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_pages', 'library_rating', 'library_collective', 'library_reading', 'library_read', 'library_in_progress' );
 
 	/**
 	 * Register hooks.
@@ -153,6 +154,7 @@ class Meta {
 			'library_collection_number' => __( 'Collection Number', 'library' ),
 			'library_translators'       => __( 'Translators', 'library' ),
 			'library_edition_date'      => __( 'Edition date', 'library' ),
+			'library_printed_date'      => __( 'Printed', 'library' ),
 			'library_reading'           => __( 'Readings', 'library' ),
 			'library_published_date'    => __( 'First published', 'library' ),
 			'library_pages'             => __( 'Pages', 'library' ),
@@ -172,6 +174,8 @@ class Meta {
 			'library_isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
+			'library_edition_date'      => __( 'When this edition, the one of its ISBN, first came out, whatever the printing of the copy: a year, a year and month, or a date, such as 1972.', 'library' ),
+			'library_printed_date'      => __( 'When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23.', 'library' ),
 			'library_reading'           => __( 'From its start to its end, each one left empty when it is unknown.', 'library' ),
 			'library_in_progress'       => __( 'Being read, for the first time or again, since the day it started: a reading added ends it.', 'library' ),
 			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
@@ -203,14 +207,12 @@ class Meta {
 				array(
 					'type'              => 'string',
 					'label'             => $labels[ $key ],
+					'description'       => $descriptions[ $key ],
 					'single'            => true,
 					'show_in_rest'      => array(
-						'schema' => array(
-							'pattern' => '^\d{4}-\d{2}-\d{2}$',
-							'format'  => 'date',
-						),
+						'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
 					),
-					'sanitize_callback' => array( self::class, 'sanitize_date' ),
+					'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
 				)
 			);
 		}
@@ -228,22 +230,6 @@ class Meta {
 				'single'            => false,
 				'sanitize_callback' => array( self::class, 'sanitize_reading' ),
 				'auth_callback'     => '__return_false',
-			)
-		);
-
-		// Often known by its year only.
-		register_post_meta(
-			'library_book',
-			'library_published_date',
-			array(
-				'type'              => 'string',
-				'label'             => $labels['library_published_date'],
-				'description'       => $descriptions['library_published_date'],
-				'single'            => true,
-				'show_in_rest'      => array(
-					'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
-				),
-				'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
 			)
 		);
 
@@ -505,7 +491,7 @@ class Meta {
 
 	/**
 	 * The control of a book meta, as its registration says: a select of its choices for the rating, a checkbox for a
-	 * boolean, a number with its minimum, maximum and step, a date, or a text with its pattern, anchored in the schema
+	 * boolean, a number with its minimum, maximum and step, or a text with its pattern, anchored in the schema
 	 * and anchored already by HTML.
 	 *
 	 * A rating is chosen rather than typed: a number field reads 7,5 as 75 in Chrome.
@@ -529,7 +515,6 @@ class Meta {
 		$type   = match ( true ) {
 			'boolean' === $meta['type'] => 'checkbox',
 			in_array( $meta['type'], array( 'integer', 'number' ), true ) => 'number',
-			'date' === ( $schema['format'] ?? '' ) => 'date',
 			default => 'text',
 		};
 
@@ -915,18 +900,6 @@ class Meta {
 		$message = sprintf( __( 'The last digit of the ISBN %s, its check digit, does not match the others: check them.', 'library' ), $isbn );
 
 		return new WP_Error( 'library_isbn_check_digit', $message, array( 'status' => 400 ) );
-	}
-
-	/**
-	 * Keep a valid Y-m-d date, anything else becomes empty.
-	 *
-	 * @param mixed $value Raw value.
-	 * @return string
-	 */
-	public static function sanitize_date( $value ): string {
-		$value = (string) $value;
-
-		return self::is_date( $value, 'Y-m-d' ) ? $value : '';
 	}
 
 	/**

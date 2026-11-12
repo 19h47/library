@@ -657,14 +657,13 @@ use Library\Meta;
 								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( 'library_pages' ) ); ?></dt>
 								<dd data-field="pages"></dd>
 							</div>
-							<div data-row="edition_date">
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( 'library_edition_date' ) ); ?></dt>
-								<dd data-field="edition_date"></dd>
-							</div>
-							<div data-row="published_date">
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( 'library_published_date' ) ); ?></dt>
-								<dd data-field="published_date"></dd>
-							</div>
+							<?php // The copy in hand, its edition, then the work. ?>
+							<?php foreach ( array( 'printed_date', 'edition_date', 'published_date' ) as $date_name ) : ?>
+								<div data-row="<?php echo esc_attr( $date_name ); ?>">
+									<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( "library_$date_name" ) ); ?></dt>
+									<dd data-field="<?php echo esc_attr( $date_name ); ?>"></dd>
+								</div>
+							<?php endforeach; ?>
 							<?php // How long the latest reading took, from its start to its end. ?>
 							<div data-row="reading_time">
 								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php esc_html_e( 'Read in', 'library' ); ?></dt>
@@ -838,7 +837,7 @@ use Library\Meta;
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
-					Markup::render_component( 'meta-field', array( 'key' => 'library_edition_date' ) );
+					Markup::render_component( 'meta-field', array( 'key' => 'library_printed_date' ) );
 					Markup::render_component(
 						'field',
 						array(
@@ -853,12 +852,12 @@ use Library\Meta;
 					<details class="library-edit__details">
 						<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
+						foreach ( array( 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
 							Markup::render_component(
 								'meta-field',
 								array(
 									'key'        => $key,
-									// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
+									// A number of pages is typed with the digits only; a date takes hyphens, which a numeric keyboard may not have.
 									'attributes' => 'library_pages' === $key ? array( 'inputmode' => 'numeric' ) : array(),
 								)
 							);
