@@ -4,7 +4,7 @@
 
 @layer library.components {
 	/* A list loading again from its start, such as for another search: its books faded until the new ones come */
-	.app-list__items[aria-busy="true"] {
+	.app-list[aria-busy="true"] {
 		opacity: var(--app-control-opacity);
 		transition: opacity var(--app-transition-1);
 	}

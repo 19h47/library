@@ -387,19 +387,19 @@ $sizes = array(
 			<figure>
 				<figcaption><code>.library-item</code>, the card of a book, an <code>.app-item</code>: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="books"></ul>
+					<ul class="app-list" data-sample="books"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-list__items[data-covers]</code>, the cards as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</figcaption>
+				<figcaption><code>.app-list[data-covers]</code>, the cards as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-covers data-sample="grid"></ul>
+					<ul class="app-list" data-covers data-sample="grid"></ul>
 				</div>
 			</figure>
 			<figure>
 				<figcaption><code>.library-row</code>, a book in a row, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="rows"></ul>
+					<ul class="app-list" data-sample="rows"></ul>
 				</div>
 			</figure>
 			<figure>
@@ -411,19 +411,19 @@ $sizes = array(
 			<figure>
 				<figcaption><code>.library-term</code>, the card of an author of a series or of a series of a person: its name, its description, clamped, and its line; with a description, without</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="terms"></ul>
+					<ul class="app-list" data-sample="terms"></ul>
 				</div>
 			</figure>
 			<figure>
 				<figcaption><code>.library-achievement</code>, earned, its subject a link when it leads to its books</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="achievements"></ul>
+					<ul class="app-list" data-sample="achievements"></ul>
 				</div>
 			</figure>
 			<figure>
 				<figcaption><code>.library-achievement</code>, close to it, with its progress</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="app-list__items" data-sample="close"></ul>
+					<ul class="app-list" data-sample="close"></ul>
 				</div>
 			</figure>
 			<figure>
@@ -431,10 +431,10 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<section class="library-section" data-folded="authors">
 						<h4 class="library-title">Authors</h4>
-						<ul class="app-list__items" data-list="shown"></ul>
+						<ul class="app-list" data-list="shown"></ul>
 						<details class="library-section__more" data-row="more" hidden>
 							<summary class="app-pill" data-field="more"></summary>
-							<ul class="app-list__items" data-list="more"></ul>
+							<ul class="app-list" data-list="more"></ul>
 						</details>
 					</section>
 				</div>

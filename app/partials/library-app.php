@@ -162,14 +162,14 @@ use Library\Meta;
 							</div>
 							<p class="app-status" data-field="status" hidden></p>
 							<p class="library-idea__reason" data-field="reason"></p>
-							<ul class="app-list__items" data-field="book"></ul>
+							<ul class="app-list" data-field="book"></ul>
 						</library-idea>
 						<library-close class="library-section" hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Close to it', 'library' ); ?></h3>
 								<a class="app-meta library-title__action" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
 							</div>
-							<ul class="app-list__items"></ul>
+							<ul class="app-list"></ul>
 						</library-close>
 					</library-home>
 					<div class="library-title library-books__title">
@@ -280,7 +280,7 @@ use Library\Meta;
 						<h2 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h2>
 						<p class="app-status" data-field="status" hidden></p>
 						<p class="library-idea__reason" data-field="reason"></p>
-						<ul class="app-list__items" data-field="book"></ul>
+						<ul class="app-list" data-field="book"></ul>
 						<p class="library-idea__actions" data-row="next">
 							<button class="app-pill" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
 						</p>
@@ -301,14 +301,14 @@ use Library\Meta;
 								<?php esc_html_e( 'Close to it', 'library' ); ?>
 								<span class="app-meta" data-field="closeCount"></span>
 							</h2>
-							<ul class="app-list__items" data-list="close"></ul>
+							<ul class="app-list" data-list="close"></ul>
 						</section>
 						<section class="library-section" data-row="earned">
 							<h2 class="library-title">
 								<?php esc_html_e( 'Achievements', 'library' ); ?>
 								<span class="app-meta" data-field="earnedCount"></span>
 							</h2>
-							<ul class="app-list__items" data-list="earned"></ul>
+							<ul class="app-list" data-list="earned"></ul>
 						</section>
 					</library-achievements>
 				</library-view>
@@ -329,17 +329,17 @@ use Library\Meta;
 					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
-						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
+						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
 						<?php // The first series, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="series" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="app-list__items" data-list="shown"></ul>
+							<ul class="app-list" data-list="shown"></ul>
 							<details class="library-section__more" data-row="more" hidden>
 								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list__items" data-list="more"></ul>
+								<ul class="app-list" data-list="more"></ul>
 							</details>
 						</section>
-						<ul class="app-list__items" data-list="books"></ul>
+						<ul class="app-list" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-person>
 				</library-view>
@@ -366,7 +366,7 @@ use Library\Meta;
 							)
 						);
 						?>
-						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
+						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<ul class="library-pills" data-list="parts"></ul>
@@ -374,13 +374,13 @@ use Library\Meta;
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="shown"></ul>
+							<ul class="app-list" data-list="shown"></ul>
 							<details class="library-section__more" data-row="more" hidden>
 								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list__items" data-list="more"></ul>
+								<ul class="app-list" data-list="more"></ul>
 							</details>
 						</section>
-						<ul class="app-list__items" data-list="books"></ul>
+						<ul class="app-list" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-series>
 				</library-view>
@@ -408,7 +408,7 @@ use Library\Meta;
 							)
 						);
 						?>
-						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
+						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="collections" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
 							<ul class="library-pills" data-list="collections"></ul>
@@ -416,13 +416,13 @@ use Library\Meta;
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="shown"></ul>
+							<ul class="app-list" data-list="shown"></ul>
 							<details class="library-section__more" data-row="more" hidden>
 								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list__items" data-list="more"></ul>
+								<ul class="app-list" data-list="more"></ul>
 							</details>
 						</section>
-						<ul class="app-list__items" data-list="books"></ul>
+						<ul class="app-list" data-list="books"></ul>
 						<div class="library-list__more"></div>
 					</library-publisher>
 				</library-view>
@@ -1058,7 +1058,7 @@ use Library\Meta;
 					<span data-field="month"></span>
 					<span class="app-meta" data-field="count"></span>
 				</h2>
-				<ul class="app-list__items"></ul>
+				<ul class="app-list"></ul>
 			</section>
 		</template>
 

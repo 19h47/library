@@ -70,7 +70,7 @@
 		border-color: var(--app-line);
 	}
 
-	.library-section__more > .app-list__items {
+	.library-section__more > .app-list {
 		margin-top: var(--app-gap);
 	}
 }

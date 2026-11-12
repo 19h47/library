@@ -1,10 +1,11 @@
 /**
- * App style: the base shared by 19h47's small apps (Tumblr, Messenger, SMS, Tweets, Typewriter, Library, Letterhead, Overlay).
+ * App style: the base shared by 19h47's small apps (Tumblr, Messenger, SMS, Tweets, Typewriter, Library, Letterhead, Overlay,
+ * DMGR1, Pocket Science-fiction).
  *
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 4156900.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 4c2cbbe.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -456,9 +457,9 @@
     color: var(--app-text-muted);
   }
 
-  /* List of items */
+  /* A list, its items .app-item */
 
-  .app-list__items {
+  .app-list {
     list-style: none;
     display: grid;
     gap: var(--app-gap);
