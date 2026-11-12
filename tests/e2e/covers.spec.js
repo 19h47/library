@@ -111,7 +111,7 @@ test.describe( 'Covers', () => {
 
 		const form = page.locator( 'library-edit' );
 
-		await form.locator( 'input[type="file"]' ).setInputFiles( PHOTO );
+		await form.getByLabel( 'Choose a cover' ).setInputFiles( PHOTO );
 
 		const preview = form.locator( '.library-image-field__preview' );
 
