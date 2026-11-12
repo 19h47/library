@@ -28,7 +28,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series, an author rated well, an anniversary, a short book… and now and then a book to buy.
 * **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, and an ISBN fills the form from the catalogue of the BnF. Without network, it shows what it loaded.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, an ISBN typed or scanned from its barcode fills the form from the catalogue of the BnF. Without network, it shows what it loaded.
 * **REST API** – Books and their taxonomies in the core REST API, and routes for the book form, the BnF, the stats, the readings, the reading idea, the achievements, the recap and the pages of the app: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -76,6 +76,10 @@ In **Books > People**, add the pseudonym, or any other name of the person, as a 
 In the catalogue of the Bibliothèque nationale de France, through its [SRU API](https://api.bnf.fr/fr/api-sru-catalogue-general): the books published in France, an older one by its ISBN-10 too. Only the ISBN is sent, by the site, not by the phone, and the answer is kept a day.
 
 The form fills its empty fields only: the title, the people and their roles, the publisher, the collection and its number, the series and the volume, the subtitle, the pages, the languages and the form. It keeps the names the library has: a person whatever their accents or the order of their name, “Tsukasa Hojo” for “Hōjō, Tsukasa”; a publisher by the publisher part of the ISBN; a collection or a series of the same name. Check it before saving: the catalogue writes its titles in sentence case, and counts the pages its own way.
+
+= Can the app scan the barcode of a book? =
+
+Yes, where the browser reads barcodes: **Scan the barcode**, under the ISBN of the form, takes a photo of the barcode on the back of the book, and its ISBN is typed as if by hand. In a bookshop, the form of a book to add tells at once whether the library has it already. Chrome on Android reads them. Safari, on iPhone too, reads them behind a feature flag: turn on **Shape Detection API** in **Settings > Apps > Safari > Advanced > Feature Flags**. Elsewhere, the pill does not show: type the ISBN, which Live Text of the iPhone reads from the camera too.
 
 = Can I import books from a WordPress export? =
 

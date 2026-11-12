@@ -748,6 +748,12 @@ use Library\Meta;
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
 					?>
+					<p class="library-edit__scan" hidden>
+						<label class="app-pill" for="library-edit-scan">
+							<input class="sr-only" id="library-edit-scan" type="file" accept="image/*" capture="environment">
+							<?php esc_html_e( 'Scan the barcode', 'library' ); ?>
+						</label>
+					</p>
 					<p class="library-edit__duplicate" role="status">
 						<span data-row="duplicate" hidden>
 							<?php esc_html_e( 'Already added:', 'library' ); ?>
@@ -755,6 +761,7 @@ use Library\Meta;
 							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
 						</span>
 						<span data-field="catalog" hidden></span>
+						<span data-field="scan" hidden></span>
 					</p>
 					<?php
 					Markup::render_component(

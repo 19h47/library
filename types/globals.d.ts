@@ -1,8 +1,8 @@
 /**
  * What the pages of the plugin give their scripts: the packages of WordPress as wp, and the data of the reading app,
  * which get_config() of the app prints; the quick edit of WordPress; and what the browsers have that TypeScript does not
- * type yet: the Navigation API, which the router of the app goes through, moveBefore() and the focusVisible option of
- * focus().
+ * type yet: the Navigation API, which the router of the app goes through, moveBefore(), the focusVisible option of
+ * focus() and the Barcode Detection API, which reads the ISBN of a book in the photo of its barcode.
  */
 
 import type apiFetch from '@wordpress/api-fetch';
@@ -113,6 +113,22 @@ declare global {
 	}
 
 	var navigation: Navigation;
+
+	interface DetectedBarcode {
+		readonly rawValue: string;
+		readonly format: string;
+	}
+
+	/** Reads the barcodes of an image; not in every browser, Safari behind its Shape Detection API flag. */
+	class BarcodeDetector {
+		constructor( options?: { formats?: string[] } );
+		static getSupportedFormats(): Promise< string[] >;
+		detect( image: ImageBitmapSource ): Promise< DetectedBarcode[] >;
+	}
+
+	interface Window {
+		BarcodeDetector?: typeof BarcodeDetector;
+	}
 }
 
 export {};

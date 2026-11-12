@@ -85,7 +85,8 @@ function renderOptions( terms ) {
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
  * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
- * in the fields left empty, the names as the library gives them.
+ * in the fields left empty, the names as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
+ * barcode of a book types its ISBN.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
@@ -159,6 +160,8 @@ class LibraryEditElement extends Brick {
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
 		/** @type {HTMLButtonElement} */
 		const $buy = this.querySelector( '[data-action="buy"]' );
+		/** @type {HTMLInputElement} */
+		const $scan = this.querySelector( '#library-edit-scan' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -327,9 +330,52 @@ class LibraryEditElement extends Brick {
 		$isbn.addEventListener(
 			'change',
 			() => {
+				fill( this, { scan: '' } );
+
 				if ( ! store.get().editing.id ) {
 					store.checkIsbn( $isbn.value );
 				}
+			},
+			{ signal }
+		);
+
+		// The barcode of a book is an EAN-13: the pill that scans it shows where the browser reads them.
+		window.BarcodeDetector?.getSupportedFormats().then( ( formats ) => {
+			$scan.closest( 'p' ).hidden = ! formats.includes( 'ean_13' );
+		} );
+
+		// The barcode read types the ISBN, as if typed; a photo without one says so.
+		$scan.addEventListener(
+			'change',
+			async () => {
+				const photo = $scan.files[ 0 ];
+
+				if ( ! photo ) {
+					return;
+				}
+
+				const detector = new BarcodeDetector( {
+					formats: [ 'ean_13' ],
+				} );
+				const [ barcode ] = await createImageBitmap( photo )
+					.then( ( bitmap ) => detector.detect( bitmap ) )
+					.catch( () => [] );
+
+				// The same photo can be taken again.
+				$scan.value = '';
+
+				if ( ! barcode ) {
+					fill( this, {
+						scan: __(
+							'No barcode found in the photo: take it again, closer.',
+							'library'
+						),
+					} );
+					return;
+				}
+
+				$isbn.value = barcode.rawValue;
+				$isbn.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			},
 			{ signal }
 		);
@@ -451,6 +497,7 @@ class LibraryEditElement extends Brick {
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
 					clearErrors();
+					fill( this, { scan: '' } );
 					this.#removed = false;
 					$heading.textContent = id
 						? $heading.dataset.edit
