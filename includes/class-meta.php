@@ -333,6 +333,7 @@ class Meta {
 			)
 		);
 
+		// The REST API gives each name of a book with its role, in its names, rather than these term IDs.
 		foreach ( self::ROLE_KEYS as $key ) {
 			register_post_meta(
 				'library_book',
@@ -341,7 +342,7 @@ class Meta {
 					'type'              => 'integer',
 					'label'             => $labels[ $key ],
 					'single'            => false,
-					'show_in_rest'      => true,
+					'show_in_rest'      => false,
 					'sanitize_callback' => 'absint',
 				)
 			);

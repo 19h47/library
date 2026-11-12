@@ -558,23 +558,7 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>input-list</code>, a list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the people of a book, with their roles</figcaption>
-				<div class="library-styleguide__frame">
-					<?php
-					Markup::render_component(
-						'input-list',
-						array(
-							'legend' => 'People',
-							'add'    => 'Add a person',
-							'action' => 'add-person',
-							'list'   => array( 'data-sample' => 'people' ),
-						)
-					);
-					?>
-				</div>
-			</figure>
-			<figure>
-				<figcaption><code>input-list</code>, the readings of a book, from their starts to their ends, with a description: the first one of unknown dates, the last one in error</figcaption>
+				<figcaption><code>input-list</code>, a list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the readings of a book, from their starts to their ends, with a description; the first one of unknown dates, the last one in error</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -587,6 +571,34 @@ $sizes = array(
 							'action'      => 'add',
 							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
 							'list'        => array( 'data-sample' => 'readings' ),
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption><code>input-groups</code>, an <code>input-list</code> in groups, each a fieldset shown once it holds a row, then a <code>pill-select</code> of the group a row goes in beside the pill that adds it: the people of a book by role, its colorists none</figcaption>
+				<div class="library-styleguide__frame">
+					<?php
+					Markup::render_component(
+						'input-groups',
+						array(
+							'id'         => 'library-styleguide-role',
+							'legend'     => 'People',
+							'groups'     => array(
+								'author'     => 'Authors',
+								'translator' => 'Translators',
+								'colorist'   => 'Colorists',
+							),
+							'choices'    => array(
+								'author'     => 'Author',
+								'translator' => 'Translator',
+								'colorist'   => 'Colorist',
+							),
+							'label'      => 'Role',
+							'add'        => 'Add a person',
+							'action'     => 'add-person',
+							'attributes' => array( 'data-sample' => 'people' ),
 						)
 					);
 					?>

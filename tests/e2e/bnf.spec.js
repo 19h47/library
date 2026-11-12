@@ -57,15 +57,17 @@ test.describe( 'BnF', () => {
 		).toBeVisible();
 		// What was typed stays.
 		await expect( title ).toHaveValue( 'Typed before' );
-		await expect( form.locator( '[name="person"]' ).nth( 0 ) ).toHaveValue(
-			'Margaret Weis'
-		);
-		await expect( form.locator( '[name="person"]' ).nth( 1 ) ).toHaveValue(
-			'Simone Hilling'
-		);
-		await expect( form.locator( '[name="role"]' ).nth( 1 ) ).toHaveValue(
-			'translator'
-		);
+		// Each name in the group of its role.
+		await expect(
+			form
+				.getByRole( 'group', { name: 'Authors' } )
+				.locator( '[name="person"]' )
+		).toHaveValue( 'Margaret Weis' );
+		await expect(
+			form
+				.getByRole( 'group', { name: 'Translators' } )
+				.locator( '[name="person"]' )
+		).toHaveValue( 'Simone Hilling' );
 		await expect( form.locator( '[name="publisher"]' ) ).toHaveValue(
 			'Pocket'
 		);

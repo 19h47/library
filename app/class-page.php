@@ -491,8 +491,8 @@ JS;
 			'inLibrary'        => Status::In_Library->value,
 			'notKept'          => Status::Not_Kept->value,
 			'toBuy'            => Status::To_Buy->value,
-			// The meta of the names with another role than author, as the app names them, without their prefix: colorists.
-			'roles'            => array_values( str_replace( 'library_', '', Meta::ROLE_KEYS ) ),
+			// The roles other than author, as the people of a book name them: translator, colorist and the others.
+			'roles'            => array_keys( Meta::ROLE_KEYS ),
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),
 			// The router builds the URLs of the views from it.
 			'appUrl'           => self::get_url(),

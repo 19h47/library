@@ -104,8 +104,7 @@ const BOOKS = [
 			form: '',
 			languages: [],
 			edition_languages: [],
-			authors: [ { id: 1, name: 'An Author' } ],
-			translators: [],
+			people: [ { id: 1, name: 'An Author', role: 'author' } ],
 			...book,
 		} )
 );
@@ -235,10 +234,6 @@ class LibraryStyleguideElement extends Brick {
 						`library-styleguide-close-${ index }`
 					)
 				),
-			people: () =>
-				[ 'A Person', '' ].map( ( name ) =>
-					this.#renderInput( 'library-edit-person', name )
-				),
 			readings: () =>
 				[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
 					( interval ) => this.#renderReading( interval )
@@ -261,6 +256,17 @@ class LibraryStyleguideElement extends Brick {
 				)
 			),
 			( folded ) => `${ folded } other authors`
+		);
+
+		// The people of a book, each in the group of its role.
+		[
+			[ 'author', 'A Person' ],
+			[ 'translator', 'A Translator' ],
+			[ 'translator', '' ],
+		].forEach( ( [ role, name ] ) =>
+			this.querySelector(
+				`[data-sample="people"] [data-group="${ role }"] > ul`
+			).append( this.#renderInput( 'library-edit-person', name ) )
 		);
 
 		// The covers of the atoms and of the book open, and the one of the form, drawn as the others; the form can remove it.

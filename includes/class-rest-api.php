@@ -84,17 +84,11 @@ class Rest_API {
 				),
 			),
 			'names'                  => array(
-				'get_callback' => fn( array $book ) => array_map(
-					fn( WP_Term $term ) => array(
-						'id'   => $term->term_id,
-						'name' => $term->name,
-					),
-					Taxonomies::get_book_terms( $book['id'], 'library_person' )
-				),
+				'get_callback' => fn( array $book ) => self::get_names( $book['id'] ),
 				'schema'       => array(
-					'description' => __( 'Names of the book, as named on it, each with its term ID; the role meta tell the ones with another role than author.', 'library' ),
+					'description' => __( 'Names of the book, as named on it, each with its term ID and its role, as the route of the book form takes them; people gives their term IDs only.', 'library' ),
 					'type'        => 'array',
-					'items'       => array( 'type' => 'object' ),
+					'items'       => Rest_Schemas::get_book_person(),
 				),
 			),
 			'language_codes'         => array(
@@ -445,21 +439,7 @@ class Rest_API {
 			'people'         => array(
 				'description' => __( 'People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person.', 'library' ),
 				'type'        => 'array',
-				'items'       => array(
-					'type'                 => 'object',
-					'properties'           => array(
-						'name' => array(
-							'type'     => 'string',
-							'required' => true,
-						),
-						'role' => array(
-							'type'     => 'string',
-							'enum'     => array_keys( Meta::get_role_choices() ),
-							'required' => true,
-						),
-					),
-					'additionalProperties' => false,
-				),
+				'items'       => Rest_Schemas::get_book_person(),
 				'default'     => array(),
 			),
 			'publisher'      => array(
@@ -594,10 +574,8 @@ class Rest_API {
 		$collection = current( Taxonomies::get_collections( $book->ID ) );
 		$publishers = $collection ? array( $collection ) : Taxonomies::get_book_terms( $book->ID, 'library_publisher' );
 		$publisher  = current( Taxonomies::get_top_level_terms( $publishers ) );
-		$people     = wp_get_post_terms( $book->ID, 'library_person' );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
-		$roles      = Meta::get_roles( $book->ID );
 		// The readings are the reading of the book, which its own form edits.
 		$meta = array_diff_key( Meta::get_values( $book->ID ), array( 'library_reading' => true ) );
 
@@ -607,13 +585,7 @@ class Rest_API {
 				'title'      => $book->post_title,
 				'excerpt'    => $book->post_excerpt,
 				'content'    => $book->post_content,
-				'people'     => array_map(
-					fn( WP_Term $term ) => array(
-						'name' => $term->name,
-						'role' => $roles[ $term->term_id ] ?? 'author',
-					),
-					is_array( $people ) ? $people : array()
-				),
+				'people'     => self::get_names( $book->ID ),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
 				'series'     => Taxonomies::get_series_name( $book->ID ),
@@ -1126,6 +1098,25 @@ class Rest_API {
 		}
 
 		return $order;
+	}
+
+	/**
+	 * The names of a book, as named on it, each with its term ID and its role: author, unless a role meta names it.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return array<int,array{id:int,name:string,role:string}>
+	 */
+	private static function get_names( int $book_id ): array {
+		$roles = Meta::get_roles( $book_id );
+
+		return array_map(
+			fn( WP_Term $term ) => array(
+				'id'   => $term->term_id,
+				'name' => $term->name,
+				'role' => $roles[ $term->term_id ] ?? 'author',
+			),
+			Taxonomies::get_book_terms( $book_id, 'library_person' )
+		);
 	}
 
 	/**
