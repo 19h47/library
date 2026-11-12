@@ -120,6 +120,8 @@ The routes of the plugin name the meta of a book without the prefix of their key
 
 A field that counts ends in `_count`, such as `read_count` or `book_count`, a field that holds one ID in `_id`, such as `book_id`, and a list of IDs is named after what it lists, such as `books`.
 
+The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
+
 == Changelog ==
 
 = 9.36.0 =
