@@ -1,5 +1,6 @@
 /**
- * Cards and rows: a book, a person or a series in a list, its cover beside its text; a list loading again.
+ * Cards and rows: a book, a person or a series in a list, its cover beside its text; a book being read, its cover above
+ * its text; a list loading again.
  */
 
 @layer app.components {
@@ -125,5 +126,26 @@
 		-webkit-line-clamp: 2;
 		overflow: hidden;
 		overflow-wrap: anywhere;
+	}
+
+	/*
+	 * A book being read, as the home shows it: its cover a step larger than the ones of the latest readings, its title and
+	 * status under it, as wide as the cover; the book open, its reading is read, rated and dated.
+	 */
+	.library-current {
+		--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi));
+
+		width: min-content;
+	}
+
+	/* Two lines of the title, small: a longer one ends in an ellipsis. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
+	.library-current__title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+		font-size: var(--app-text-s);
+		overflow-wrap: anywhere;
+		hyphens: auto;
 	}
 }

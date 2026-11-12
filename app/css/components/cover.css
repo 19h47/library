@@ -54,12 +54,16 @@
 	}
 
 	/*
-	 * The link a cover is, alone in a row of covers or with its title under it: it holds its reading state, out of sight,
-	 * which stays in the row, which scrolls, rather than widening the page
+	 * The link a cover is, alone in a row of covers or with its title and its status under it, a small gap apart, as a
+	 * book being read: it holds its reading state, out of sight, which stays in the row, which scrolls, rather than
+	 * widening the page
 	 */
 	.library-cover-link {
 		position: relative;
-		display: block;
+		display: grid;
+		justify-items: start;
+		gap: var(--app-gap-small);
+		text-align: start;
 		text-decoration: none;
 	}
 
