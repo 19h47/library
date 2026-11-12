@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.36.0
+Stable tag: 9.37.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -123,6 +123,12 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.37.0 =
+* REST API: a request that reads is answered in the language its `Accept-Language` header prefers, among English and French, as `Content-Language` says: its descriptions, its schemas, its messages and what the plugin writes. Without the header or one of these languages, and for a request that writes, in the language of the site; `_locale=user`, which the app sends, first.
+* Fixed: reading app: a date of a reading typed at the keyboard no longer empties at the next key in Chrome, and is saved once left, rather than on the way, such as an end with its former year.
+* Fixed: reading app: the styleguide counts the books of the folded authors again.
+* Code only: reading app: the components are built as those of a design file, each level made of the ones before it, atoms of their own rather than the classes of a view, such as `.library-heading` and `.library-cover`, sized by its place; the PHP components `back`, `term-header` and `dialog-close`, every dialog closed by a command; the styleguide ordered so, from the foundations to the atoms, the molecules, the organisms and the screens.
 
 = 9.36.0 =
 * Reading app: the reference of the API, for development, opened by searching `api` then Enter or the button of the search: every route of `library/v1`, then the routes of `wp/v2` the app reads, as the REST API describes itself, with their arguments, what they give, and a GET request to try.
