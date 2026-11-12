@@ -9,13 +9,19 @@
 		transition: opacity var(--app-transition-1);
 	}
 
-	/* A book card: the cover beside, when the book has one; the link of the title covers the card to open the book. */
+	/*
+	 * A book card: the cover beside, when the book has one, as wide as the cover of a card; the link of the title covers
+	 * the card to open the book.
+	 */
 	.library-item {
+		--library-cover-inline-size: var(--library-cover-width);
+		--library-cover-block-size: auto;
+
 		position: relative;
 		align-items: start;
 	}
 
-	.library-item:has(> .library-item__cover:not([hidden])) {
+	.library-item:has(> .library-cover:not([hidden])) {
 		grid-template-columns: auto 1fr;
 		column-gap: var(--app-u1);
 	}
@@ -27,11 +33,6 @@
 	.library-item:has(:focus-visible) {
 		outline: var(--app-focus-outline);
 		outline-offset: var(--app-focus-outline-offset);
-	}
-
-	.library-item__cover {
-		width: var(--library-cover-width);
-		height: auto;
 	}
 
 	.library-item__body {
@@ -75,8 +76,14 @@
 		outline: none;
 	}
 
-	/* The row of a book, the idea of the week on the home: its cover, when it has one, its title and authors; the link of the title covers the row to open the book */
+	/*
+	 * The row of a book, the idea of the week on the home: its cover, when it has one, as wide as the one of a card, its
+	 * title and authors; the link of the title covers the row to open the book
+	 */
 	.library-row {
+		--library-cover-inline-size: var(--library-cover-width);
+		--library-cover-block-size: auto;
+
 		position: relative;
 		display: flex;
 		align-items: center;
@@ -92,10 +99,8 @@
 		outline-offset: var(--app-focus-outline-offset);
 	}
 
-	.library-row__cover {
+	.library-row > .library-cover {
 		flex: none;
-		width: var(--library-cover-width);
-		height: auto;
 	}
 
 	.library-row__body {

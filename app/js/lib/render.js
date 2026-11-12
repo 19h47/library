@@ -91,7 +91,7 @@ function link( route, text ) {
 function linkBook( $item, book ) {
 	$item.dataset.id = book.id.toString();
 	/** @type {HTMLAnchorElement} */ (
-		$item.querySelector( '.library-item__link, .library-cover__link' )
+		$item.querySelector( '.library-item__link, .library-cover-link' )
 	).href = urlOf( { view: 'book', id: book.id } );
 }
 

@@ -4,11 +4,10 @@
 
 @layer library.components {
 	/*
-	 * The forms of a book, a step between their parts: the one of its reading, with its pills, its read dates when it is read
-	 * and the button that saves them; the one that adds or edits it, a field per line.
+	 * A form, a step between its parts: the one of the reading of a book, with its pills, its read dates when it is read and
+	 * the button that saves them; the one that adds or edits a book, a field per line.
 	 */
-	.library-reading,
-	.library-edit__form {
+	.library-form {
 		display: grid;
 		gap: var(--app-u1);
 	}
@@ -114,11 +113,6 @@
 	/* In a row of a list of inputs, such as a read date, it takes a line of its own */
 	.library-input-list__item > .library-error {
 		grid-column: 1 / -1;
-	}
-
-	/* An error of the server, at the end of a form: in the color of an error, on its tint */
-	.app-status[role="alert"] {
-		color: var(--library-error);
 	}
 
 	/*

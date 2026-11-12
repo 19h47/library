@@ -225,14 +225,15 @@
 		mask-image: linear-gradient(to bottom, black 50%, transparent);
 	}
 
-	/* The books rated, larger tiles, which open them: three a row on a phone, wider beyond */
+	/* The books rated, larger tiles, which open them: three a row on a phone, wider beyond; a cover as wide as its column */
 	.library-recap__wall {
 		--library-recap-tile: min(calc(var(--app-u3) * var(--app-phi) * var(--app-phi)), (100% - 2 * var(--app-gap-small)) / 3);
+		--library-cover-inline-size: 100%;
+		--library-cover-block-size: auto;
 	}
 
 	/* A tile as wide as its column */
-	:is(.library-recap__mosaic, .library-recap__marquee) img,
-	.library-recap__wall :is(.library-cover__image, .library-cover__frame) {
+	:is(.library-recap__mosaic, .library-recap__marquee) img {
 		display: block;
 		inline-size: 100%;
 		block-size: auto;
@@ -248,7 +249,8 @@
 		object-fit: cover;
 	}
 
-	.library-recap__wall .library-cover__frame {
+	.library-recap__wall .library-cover--frame {
+		inline-size: 100%;
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
 	}

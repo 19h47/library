@@ -44,10 +44,19 @@ The store holds the state the bricks read with `select()` and change through its
 
 Every size is on the scale of the golden ratio: its steps for space, half steps for text.
 
+The components are built as those of a design file, each level made of the ones before it:
+
+- atoms: the styles of text (`.library-heading`, `.library-prose`, `.app-meta`), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `.library-cover`, `.app-status`;
+- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-fields`, `.library-notice`, `field`, `image-field`;
+- organisms: the cards (`.library-item`, `.library-row`, `.library-current`, `.library-term`, `.library-achievement`), `.library-section`, `term-header`, `.library-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`;
+- screens: the views, in `app/css/views`.
+
+A component knows none of the places it shows in: a place that needs it otherwise sets its properties, as a card sets the width of its cover, `--library-cover-inline-size`, rather than the cover listing the cards. A class of a view names a part of that view; a style used in several places is a component of its own.
+
 ### Markup
 
 The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`. A component carries no margin of its own: its place spaces it.
 
-Searching `styleguide` then Enter in the app opens its styleguide, for development: the tokens, then each component with its markup alone, in English.
+Searching `styleguide` then Enter in the app opens its styleguide, for development, in English: the foundations, then the atoms, the molecules, the organisms and the screens, each component in a frame with the markup the app renders, the PHP components and the templates of the app filled as the bricks fill them, its caption saying what it is made of, its variants and its properties.
 
 Searching `api` then Enter opens the reference of the API, for development: every route of `library/v1`, then the routes of `wp/v2` the app reads, as the REST API describes itself (`library/v1?context=help`, `OPTIONS` on a route of core), with their arguments, what they give when their schema says it, and a GET request to try. It shows what the code registers: a description or a schema added to a route shows there.

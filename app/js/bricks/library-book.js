@@ -22,7 +22,7 @@ import { focusTitle, showBusy } from 'library-app/behaviors';
 class LibraryBookElement extends Brick {
 	connect( signal ) {
 		/** @type {HTMLElement} */
-		const $title = this.querySelector( '.library-book__title' );
+		const $title = this.querySelector( '.library-heading' );
 		const $edit = this.querySelector( '[data-action="edit"]' );
 		let shown = 0;
 		// The book drawn, drawn again only once changed: gone back to, its page keeps its links, and the focus one had.
