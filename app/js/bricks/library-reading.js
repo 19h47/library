@@ -89,16 +89,32 @@ class LibraryReadingElement extends Brick {
 			$form.requestSubmit();
 		};
 
-		// A start never after its end, an end never before its start, and neither later than today.
-		const limit = ( /** @type {Element} */ $row ) => {
+		/**
+		 * A start never after its end, an end never before its start, and neither later than today. The field typed in
+		 * keeps its bounds: Chrome starts the typing of a date field again as its bounds are set, which empties it at the
+		 * next key, such as the year 0002 of 2025; a bound is set only when it changes.
+		 *
+		 * @param {Element}               $row     The row of a reading.
+		 * @param {HTMLInputElement|null} [$field] The field typed in, if any.
+		 */
+		const limit = ( $row, $field = null ) => {
 			const [ $start, $end ] = /** @type {HTMLInputElement[]} */ ( [
 				...$row.querySelectorAll( 'input[type="date"]' ),
 			] );
+			const bound = (
+				/** @type {HTMLInputElement} */ $input,
+				/** @type {'min'|'max'} */ name,
+				/** @type {string} */ value
+			) => {
+				if ( $input !== $field && $input[ name ] !== value ) {
+					$input[ name ] = value;
+				}
+			};
 
 			if ( $start && $end ) {
-				$start.max = $end.value || today();
-				$end.min = $start.value;
-				$end.max = today();
+				bound( $start, 'max', $end.value || today() );
+				bound( $end, 'min', $start.value );
+				bound( $end, 'max', today() );
 			}
 		};
 
@@ -181,10 +197,11 @@ class LibraryReadingElement extends Brick {
 		);
 		$list.addEventListener(
 			'input',
-			( event ) =>
-				limit(
-					/** @type {Element} */ ( event.target ).closest( 'li' )
-				),
+			( event ) => {
+				const $field = /** @type {HTMLInputElement} */ ( event.target );
+
+				limit( $field.closest( 'li' ), $field );
+			},
 			{ signal }
 		);
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
@@ -193,7 +210,12 @@ class LibraryReadingElement extends Brick {
 			( event ) => {
 				const $field = /** @type {HTMLInputElement} */ ( event.target );
 
-				if ( 'date' === $field.type && $field.matches( ':focus' ) ) {
+				// Still typed in: Chrome moves the focus into the next part of the date, out of :focus but not of
+				// :focus-within, as it changes at the end of a part, such as its month.
+				if (
+					'date' === $field.type &&
+					$field.matches( ':focus-within' )
+				) {
 					$typed = $field;
 					return;
 				}

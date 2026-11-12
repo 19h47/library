@@ -1,7 +1,7 @@
 /**
  * The reading of a book in the reading app: each change saved at once, with Undo, a change made while the one before
- * saves, the focus kept; a reading in progress, from the day it started, which Read ends; a date typed, saved once left,
- * its error shown then, without taking the focus, and gone as soon as it is valid.
+ * saves, the focus kept; a reading in progress, from the day it started, which Read ends; a date typed, at the keyboard
+ * too, saved once left, its error shown then, without taking the focus, and gone as soon as it is valid.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -254,6 +254,46 @@ test.describe( 'Reading', () => {
 						( await getBook( requestUtils, book.id ) ).readings
 				)
 				.toEqual( [ '2025-03-10/2025-03-15' ] );
+		} );
+
+		test( 'typed at the keyboard keeps each key, and is saved once left', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			const end = page.locator( 'library-reading [name="reading_end"]' );
+			const values = [];
+
+			// Its month, its day, then its year, part after part as Chrome takes them: the same date in either order of
+			// the month and the day. Chrome moves the focus into the next part at the end of one, and starts typing a
+			// field again as its bounds are set.
+			await end.focus();
+
+			for ( const key of '04042025' ) {
+				await page.keyboard.type( key );
+				values.push( await end.inputValue() );
+			}
+
+			// A month or a day begun with 0 has no date yet; its year goes through the years on the way.
+			expect( values.slice( 4 ) ).toEqual( [
+				'0002-04-04',
+				'0020-04-04',
+				'0202-04-04',
+				'2025-04-04',
+			] );
+			expect( posts ).toEqual( [] );
+
+			await end.blur();
+			await waitForIdle( page );
+
+			expect( posts ).toEqual( [
+				{ meta: { reading: [ '2025-03-10/2025-04-04' ] } },
+			] );
+			await expect
+				.poll(
+					async () =>
+						( await getBook( requestUtils, book.id ) ).readings
+				)
+				.toEqual( [ '2025-03-10/2025-04-04' ] );
 		} );
 
 		test( 'before its start shows its error once left, the focus going on, until the start goes before it', async ( {
