@@ -240,17 +240,14 @@
 		object-fit: cover;
 	}
 
-	.library-recap__wall .library-cover--frame {
-		inline-size: 100%;
-		aspect-ratio: 1 / var(--app-phi);
-		overflow: hidden;
-	}
-
 	/*
 	 * The last screen, over the covers of the year in columns going by behind it, the wall of the first screen in motion:
 	 * a backdrop, faint so that its words read as well, fading at its top and its bottom; drawn only while on the screen.
 	 */
 	.library-recap__closing {
+		/* The links to the other years over it, on the background of the page, to read as well */
+		--app-pill-background: var(--app-bg);
+
 		position: relative;
 		isolation: isolate;
 	}
@@ -281,11 +278,6 @@
 		list-style: none;
 		align-self: start;
 		opacity: calc(1 / var(--app-phi) / var(--app-phi) / var(--app-phi));
-	}
-
-	/* The links to the other years over it, on the background of the page, to read as well */
-	.library-recap__closing .app-pill {
-		background: var(--app-bg);
 	}
 
 	/* The space under each cover rather than a gap, for half the column to be one copy of its covers to the pixel */

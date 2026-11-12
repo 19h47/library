@@ -5,7 +5,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision ee476ba.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 62d5a50.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * half steps (√φ) between them for text; a padding in em follows its text.
@@ -267,6 +267,11 @@
     padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
     border-radius: calc(infinity * 1px);
     border: 1px solid var(--app-line-soft);
+    /*
+     * Transparent, a button as a link: over something other than the page, such as an image, the place that holds it
+     * gives it one, --app-pill-background
+     */
+    background: var(--app-pill-background, transparent);
     /* A button does not inherit it: the lines of every pill on the scale */
     line-height: var(--app-line-height);
     white-space: nowrap;
@@ -306,10 +311,6 @@
     user-select: none;
   }
 
-  button.app-pill {
-    background: transparent;
-  }
-
   /* A link needs no underline in a pill, which shows it acts */
   a.app-pill {
     text-decoration: none;
@@ -317,7 +318,7 @@
 
   /*
    * The pill of the current page, in a navigation, or of the main action of a form, such as the one that saves it,
-   * stands out: the main action weighs as much as the current page, over the transparent background of a button pill.
+   * stands out: the main action weighs as much as the current page, its fill over the background of the pill.
    */
   :is(.app-pill[aria-current="page"], .app-pill--primary) {
     color: var(--app-text);

@@ -26,9 +26,14 @@
 		object-fit: cover;
 	}
 
-	/* A book without cover: its title from its start, in a frame of the height of a cover, a golden rectangle */
+	/*
+	 * A book without cover: its title from its start, in a frame of the shape of a cover, a golden rectangle, at the width
+	 * its place gives it or from its height; the frame keeps its shape, its title clipped rather than making it higher.
+	 */
 	.library-cover--frame {
-		inline-size: calc(var(--library-cover-block-size, var(--library-cover-height)) / var(--app-phi));
+		inline-size: var(--library-cover-inline-size, calc(var(--library-cover-block-size, var(--library-cover-height)) / var(--app-phi)));
+		aspect-ratio: 1 / var(--app-phi);
+		overflow: hidden;
 		padding: var(--app-gap);
 		font-size: var(--app-text-s);
 		text-align: start;
