@@ -274,6 +274,21 @@ class Books {
 	}
 
 	/**
+	 * Main title of a book to show, its full title but its subtitle: "Series, vol. 3: Title", which the page of a book shows
+	 * above its subtitle. Its title is made as the one of the post shows, its typography made, before its series and its
+	 * volume join it: see build_full_title().
+	 *
+	 * @param int $book_id Book ID.
+	 * @return string
+	 */
+	public static function get_main_title( int $book_id ): string {
+		$meta  = array( 'library_volume_number' => get_post_meta( $book_id, 'library_volume_number', true ) );
+		$title = trim( convert_chars( wptexturize( get_post_field( 'post_title', $book_id ) ) ) );
+
+		return self::build_full_title( $title, Taxonomies::get_series_name( $book_id ), $meta );
+	}
+
+	/**
 	 * Title of a book to show, with its series, volume and subtitle: "Series, vol. 3: Title: Subtitle".
 	 *
 	 * A volume whose title is its series, as a volume of a manga, shows it once: "City Hunter, vol. 3", "Talli, fille de

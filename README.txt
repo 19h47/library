@@ -90,6 +90,7 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields of core, a book gives:
 
 * `credits` – the line shown under its title.
+* `main_title` – its title but its subtitle, with its series and its volume, which its page shows above its subtitle, `meta.library_subtitle`; `title` gives them all.
 * `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.reading` through `POST /wp-json/library/v1/books/<id>`; `read` and `in_progress` are worked out from them.
 * `names` – its people as named on it, each with its term ID and its role, the schema `library-book-person`, as `POST /wp-json/library/v1/books/<id>` takes and gives them: `{ "id": 12, "name": "Andy Chambers", "role": "author" }`; `people` gives their term IDs only, as core does for a taxonomy.
 * `cover`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.

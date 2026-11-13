@@ -42,10 +42,10 @@ class Rest_API {
 	}
 
 	/**
-	 * Register the fields added to the books of the core REST API: its credits, its readings in order, and what a list of
-	 * books, or the page of a book, shows of its cover and terms, so that it needs to embed neither the image nor the
-	 * terms, whole; and to the series and the publishers, their path as a book types them, after their cycles or their
-	 * collections, and the ID of the publisher of a collection.
+	 * Register the fields added to the books of the core REST API: its credits, its main title, its readings in order, and
+	 * what a list of books, or the page of a book, shows of its cover and terms, so that it needs to embed neither the
+	 * image nor the terms, whole; and to the series and the publishers, their path as a book types them, after their
+	 * cycles or their collections, and the ID of the publisher of a collection.
 	 *
 	 * @return void
 	 */
@@ -55,6 +55,13 @@ class Rest_API {
 				'get_callback' => fn( array $book ) => Books::get_credits( $book['id'] ),
 				'schema'       => array(
 					'description' => __( 'Credits of the book, to show under its title: authors · publisher, collection · edition year.', 'library' ),
+					'type'        => 'string',
+				),
+			),
+			'main_title'             => array(
+				'get_callback' => fn( array $book ) => Books::get_main_title( $book['id'] ),
+				'schema'       => array(
+					'description' => __( 'Main title of the book, its title but its subtitle, with its series and its volume, to show above its subtitle, meta.library_subtitle: “Earthsea, vol. 3: The Farthest Shore”.', 'library' ),
 					'type'        => 'string',
 				),
 			),

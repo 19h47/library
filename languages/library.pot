@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-13T08:10:24+00:00\n"
+"POT-Creation-Date: 2026-11-13T08:19:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -25,8 +25,8 @@ msgstr ""
 #: app/partials/library-app.php:45
 #: app/partials/library-app.php:64
 #: app/partials/library-app.php:197
-#: app/partials/library-app.php:590
-#: app/partials/library-app.php:854
+#: app/partials/library-app.php:594
+#: app/partials/library-app.php:858
 msgid "Library"
 msgstr ""
 
@@ -66,14 +66,14 @@ msgstr ""
 #: admin/class-books-list.php:88
 #: app/partials/library-app.php:376
 #: app/partials/library-app.php:418
-#: app/partials/library-app.php:650
-#: app/partials/library-app.php:781
+#: app/partials/library-app.php:654
+#: app/partials/library-app.php:785
 msgid "Authors"
 msgstr ""
 
 #: admin/class-books-list.php:93
 #: admin/partials/library-reading.php:27
-#: app/partials/library-app.php:1006
+#: app/partials/library-app.php:1010
 msgid "Read date"
 msgstr ""
 
@@ -84,7 +84,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:151
-#: app/partials/library-app.php:1021
+#: app/partials/library-app.php:1025
 msgid "Unknown date"
 msgstr ""
 
@@ -225,7 +225,7 @@ msgstr ""
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-dashboard.php:369
-#: includes/class-books.php:488
+#: includes/class-books.php:503
 #: app/js/lib/format.js:186
 #, php-format,js-format
 msgid "%s/10"
@@ -264,7 +264,7 @@ msgstr[1] ""
 #. translators: 1: number of books, 2: number of books read.
 #. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
 #: admin/class-dashboard.php:432
-#: includes/class-books.php:318
+#: includes/class-books.php:333
 #, php-format
 msgid "%1$s, %2$s"
 msgstr ""
@@ -462,9 +462,9 @@ msgstr ""
 #. translators: 1: series, 2: title.
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41
-#: includes/class-books.php:304
-#: includes/class-books.php:309
-#: includes/class-books.php:327
+#: includes/class-books.php:319
+#: includes/class-books.php:324
+#: includes/class-books.php:342
 #: app/js/lib/render.js:647
 #, php-format,js-format
 msgid "%1$s: %2$s"
@@ -491,7 +491,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1207
+#: includes/class-rest-api.php:1214
 msgid "No book to read."
 msgstr ""
 
@@ -585,12 +585,12 @@ msgid "View all books"
 msgstr ""
 
 #: admin/partials/library-form.php:93
-#: app/partials/library-app.php:604
+#: app/partials/library-app.php:608
 msgid "Started"
 msgstr ""
 
 #: admin/partials/library-form.php:115
-#: app/partials/library-app.php:626
+#: app/partials/library-app.php:630
 msgid "Add a reading"
 msgstr ""
 
@@ -608,15 +608,15 @@ msgid "The role of each name of the book: a colorist, for instance, is not one o
 msgstr ""
 
 #: admin/partials/library-reading.php:25
-#: app/partials/library-app.php:1004
+#: app/partials/library-app.php:1008
 msgid "Start of the reading"
 msgstr ""
 
 #: admin/partials/library-reading.php:28
-#: app/partials/library-app.php:1011
-#: app/partials/library-app.php:1012
-#: app/partials/library-app.php:1026
-#: app/partials/library-app.php:1027
+#: app/partials/library-app.php:1015
+#: app/partials/library-app.php:1016
+#: app/partials/library-app.php:1030
+#: app/partials/library-app.php:1031
 msgid "Remove this reading"
 msgstr ""
 
@@ -780,7 +780,7 @@ msgid "Latest added"
 msgstr ""
 
 #: app/partials/library-app.php:255
-#: app/partials/library-app.php:772
+#: app/partials/library-app.php:776
 msgid "Title"
 msgstr ""
 
@@ -849,104 +849,104 @@ msgstr ""
 msgid "Other years"
 msgstr ""
 
-#: app/partials/library-app.php:629
+#: app/partials/library-app.php:633
 msgid "Add a reading with an unknown date"
 msgstr ""
 
-#: app/partials/library-app.php:649
+#: app/partials/library-app.php:653
 msgctxt "fields of a book"
 msgid "Work"
 msgstr ""
 
-#: app/partials/library-app.php:656
+#: app/partials/library-app.php:660
 msgctxt "fields of a book"
 msgid "Edition"
 msgstr ""
 
-#: app/partials/library-app.php:663
+#: app/partials/library-app.php:667
 msgctxt "fields of a book"
 msgid "Copy"
 msgstr ""
 
-#: app/partials/library-app.php:665
+#: app/partials/library-app.php:669
 msgid "Added"
 msgstr ""
 
-#: app/partials/library-app.php:700
+#: app/partials/library-app.php:704
 msgid "Dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:701
+#: app/partials/library-app.php:705
 msgid "Top"
 msgstr ""
 
-#: app/partials/library-app.php:719
+#: app/partials/library-app.php:723
 msgid "Dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:720
+#: app/partials/library-app.php:724
 msgid "Light or dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:752
+#: app/partials/library-app.php:756
 msgid "Choose a cover"
 msgstr ""
 
-#: app/partials/library-app.php:753
+#: app/partials/library-app.php:757
 msgid "Remove the cover"
 msgstr ""
 
-#: app/partials/library-app.php:761
+#: app/partials/library-app.php:765
 msgid "Already added:"
 msgstr ""
 
-#: app/partials/library-app.php:763
+#: app/partials/library-app.php:767
 msgid "I bought it"
 msgstr ""
 
-#: app/partials/library-app.php:794
+#: app/partials/library-app.php:798
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:795
+#: app/partials/library-app.php:799
 msgid "Add a person"
 msgstr ""
 
-#: app/partials/library-app.php:830
+#: app/partials/library-app.php:834
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:862
+#: app/partials/library-app.php:866
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:881
-#: app/partials/library-app.php:892
+#: app/partials/library-app.php:885
+#: app/partials/library-app.php:896
 msgid "Add a language"
 msgstr ""
 
-#: app/partials/library-app.php:916
+#: app/partials/library-app.php:920
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:928
+#: app/partials/library-app.php:932
 msgid "Notes"
 msgstr ""
 
-#: app/partials/library-app.php:940
+#: app/partials/library-app.php:944
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:940
+#: app/partials/library-app.php:944
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:944
+#: app/partials/library-app.php:948
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:1051
-#: app/partials/library-app.php:1052
+#: app/partials/library-app.php:1055
+#: app/partials/library-app.php:1056
 msgid "Remove this person"
 msgstr ""
 
@@ -1424,28 +1424,28 @@ msgid "The catalogue of the BnF does not answer: try again later."
 msgstr ""
 
 #. translators: %s: volume number.
-#: includes/class-books.php:314
+#: includes/class-books.php:329
 #, php-format
 msgid "vol. %s"
 msgstr ""
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-books.php:314
-#: includes/class-books.php:406
-#: app/js/bricks/library-book.js:138
+#: includes/class-books.php:329
+#: includes/class-books.php:421
+#: app/js/bricks/library-book.js:139
 #, php-format,js-format
 msgid "no. %s"
 msgstr ""
 
 #. translators: %s: names of the publishing directors of a collective work.
-#: includes/class-books.php:371
+#: includes/class-books.php:386
 #, php-format
 msgid "%s (dir.)"
 msgstr ""
 
 #. translators: %s: number of books.
-#: includes/class-books.php:434
+#: includes/class-books.php:449
 #: app/js/lib/format.js:55
 #, php-format,js-format
 msgid "%s book"
@@ -1895,145 +1895,149 @@ msgid "Credits of the book, to show under its title: authors · publisher, colle
 msgstr ""
 
 #: includes/class-rest-api.php:64
+msgid "Main title of the book, its title but its subtitle, with its series and its volume, to show above its subtitle, meta.library_subtitle: “Earthsea, vol. 3: The Farthest Shore”."
+msgstr ""
+
+#: includes/class-rest-api.php:71
 msgid "Readings of the book, from the first to the latest, as intervals from their starts to their ends, either empty when unknown, the end of the one in progress “..”: 2026-10-20/2026-11-02."
 msgstr ""
 
-#: includes/class-rest-api.php:76
+#: includes/class-rest-api.php:83
 msgid "Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover."
 msgstr ""
 
-#: includes/class-rest-api.php:89
+#: includes/class-rest-api.php:96
 msgid "Names of the book, as named on it, each with its term ID and its role, as the route of the book form takes them; people gives their term IDs only."
 msgstr ""
 
-#: includes/class-rest-api.php:97
+#: includes/class-rest-api.php:104
 msgid "Original languages of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 
-#: includes/class-rest-api.php:105
+#: includes/class-rest-api.php:112
 msgid "Languages of the text of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 
-#: includes/class-rest-api.php:113
+#: includes/class-rest-api.php:120
 msgid "Series of the book, after its cycles, in plain text, such as “Star Wars, Young Jedi Knights”, or empty."
 msgstr ""
 
-#: includes/class-rest-api.php:120
+#: includes/class-rest-api.php:127
 msgid "Name of the form of the book, such as a novel, or empty."
 msgstr ""
 
-#: includes/class-rest-api.php:127
+#: includes/class-rest-api.php:134
 msgid "Publishers of the book, each followed by the collections it is in under it, from the widest, each once, with its term ID: a book of Folio’s Science-fiction gives Gallimard, Folio, then Science-fiction."
 msgstr ""
 
-#: includes/class-rest-api.php:262
+#: includes/class-rest-api.php:269
 #: includes/class-rest-schemas.php:335
 #: includes/class-rest-schemas.php:353
 msgid "ID of the book."
 msgstr ""
 
-#: includes/class-rest-api.php:301
+#: includes/class-rest-api.php:308
 msgid "ISBN of the book, with or without hyphens."
 msgstr ""
 
-#: includes/class-rest-api.php:329
+#: includes/class-rest-api.php:336
 msgid "Page of the months."
 msgstr ""
 
-#: includes/class-rest-api.php:335
+#: includes/class-rest-api.php:342
 msgid "Number of months per page."
 msgstr ""
 
-#: includes/class-rest-api.php:354
+#: includes/class-rest-api.php:361
 #: includes/class-rest-schemas.php:355
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
 msgstr ""
 
-#: includes/class-rest-api.php:382
+#: includes/class-rest-api.php:389
 #: includes/class-rest-schemas.php:400
 msgid "Year of the recap."
 msgstr ""
 
-#: includes/class-rest-api.php:399
+#: includes/class-rest-api.php:406
 msgid "Term ID of the series, or of the cycle."
 msgstr ""
 
-#: includes/class-rest-api.php:416
+#: includes/class-rest-api.php:423
 msgid "Term ID of the collection, or of the publisher."
 msgstr ""
 
-#: includes/class-rest-api.php:433
+#: includes/class-rest-api.php:440
 msgid "Term ID of the person, or of one of their other names."
 msgstr ""
 
-#: includes/class-rest-api.php:458
+#: includes/class-rest-api.php:465
 #: includes/class-rest-schemas.php:260
 msgid "Title of the book."
 msgstr ""
 
-#: includes/class-rest-api.php:467
+#: includes/class-rest-api.php:474
 #: includes/class-rest-schemas.php:261
 msgid "Summary of the book in a few words, its excerpt."
 msgstr ""
 
-#: includes/class-rest-api.php:472
+#: includes/class-rest-api.php:479
 #: includes/class-rest-schemas.php:262
 msgid "Notes on the book, its content."
 msgstr ""
 
-#: includes/class-rest-api.php:477
+#: includes/class-rest-api.php:484
 #: includes/class-rest-schemas.php:265
 msgid "People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person."
 msgstr ""
 
-#: includes/class-rest-api.php:483
+#: includes/class-rest-api.php:490
 #: includes/class-rest-schemas.php:268
 msgid "Name of the publisher; a name not found adds a publisher."
 msgstr ""
 
-#: includes/class-rest-api.php:488
+#: includes/class-rest-api.php:495
 #: includes/class-rest-schemas.php:269
 msgid "Collection, under the publisher and sent with it, a sub-collection after its collection, separated with commas, such as “Folio, Science-fiction”; a name not found adds a collection."
 msgstr ""
 
-#: includes/class-rest-api.php:493
+#: includes/class-rest-api.php:500
 #: includes/class-rest-schemas.php:270
 msgid "Series, after its cycles, separated with commas, such as “Star Wars, Young Jedi Knights”; a name not found adds a series, or a cycle."
 msgstr ""
 
-#: includes/class-rest-api.php:498
+#: includes/class-rest-api.php:505
 #: includes/class-rest-schemas.php:271
 msgid "Term IDs of the original languages."
 msgstr ""
 
-#: includes/class-rest-api.php:504
+#: includes/class-rest-api.php:511
 #: includes/class-rest-schemas.php:272
 msgid "Term ID of the form, such as a novel or a comic."
 msgstr ""
 
-#: includes/class-rest-api.php:509
+#: includes/class-rest-api.php:516
 msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr ""
 
-#: includes/class-rest-api.php:514
+#: includes/class-rest-api.php:521
 #: includes/class-rest-schemas.php:273
 msgid "Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them."
 msgstr ""
 
-#: includes/class-rest-api.php:519
+#: includes/class-rest-api.php:526
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 
-#: includes/class-rest-api.php:550
+#: includes/class-rest-api.php:557
 msgid "No book has this ID."
 msgstr ""
 
-#: includes/class-rest-api.php:648
+#: includes/class-rest-api.php:655
 #: app/js/bricks/library-edit.js:523
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
-#: includes/class-rest-api.php:834
+#: includes/class-rest-api.php:841
 msgid "No photo was sent, in the file field."
 msgstr ""
 
@@ -3036,7 +3040,7 @@ msgstr ""
 msgid "The oldest"
 msgstr ""
 
-#: app/js/lib/api.js:504
+#: app/js/lib/api.js:506
 msgid "The books could not be loaded."
 msgstr ""
 

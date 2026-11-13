@@ -63,7 +63,8 @@ import {
  *
  * @typedef {Object} BookFields
  * @property {number}     id                Its ID.
- * @property {string}     title             Its title.
+ * @property {string}     title             Its title, with its series, its volume and its subtitle.
+ * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
  * @property {string}     excerpt           Its summary in a few words.
  * @property {string}     content           Its notes, HTML as the API renders them.
  * @property {string}     credits           Its authors, publisher and year, under its title.
@@ -406,6 +407,7 @@ import {
  * @typedef {Object} ApiBook
  * @property {number}                  id                     Its ID.
  * @property {{rendered: string}}      title                  Its title, HTML.
+ * @property {string}                  main_title             Its title but its subtitle, HTML.
  * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
  * @property {{rendered: string}}      content                Its notes, HTML.
  * @property {string}                  credits                Its credits, HTML.
@@ -548,6 +550,7 @@ function toBook( item ) {
 		...toReadings( item.readings ),
 		id: item.id,
 		title: text( item.title.rendered ),
+		main_title: text( item.main_title ),
 		excerpt: text( item.excerpt.rendered ),
 		// HTML as the API renders it: its paragraphs and links.
 		content: item.content.rendered,

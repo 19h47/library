@@ -33,11 +33,13 @@
 
 	/*
 	 * Its colours: its cover again, blurred, across the viewport on a phone, the golden ratio of the page beyond, fading in
-	 * above it, out under it and to its sides. A blur draws out of its box without widening the page, as a shadow does; a
-	 * light one in the light theme, where a cover is brighter than its background.
+	 * above it, out under it and to its sides. A blur draws out of its box without widening the page, as a shadow does.
+	 * Its mask makes it light as well, lighter in the light theme, where a cover is brighter than its background: the
+	 * alpha of a color, which light-dark() takes, where an opacity, a number, it does not.
 	 */
 	.library-book__backdrop {
 		--library-backdrop-size: min(100vw, 100cqi * var(--app-phi));
+		--library-backdrop-alpha: light-dark(rgb(0 0 0 / 35%), rgb(0 0 0 / 50%));
 
 		position: absolute;
 		z-index: -1;
@@ -48,9 +50,8 @@
 		block-size: 100%;
 		object-fit: cover;
 		filter: blur(var(--app-u3)) saturate(1.5);
-		opacity: light-dark(0.35, 0.5);
 		mask-image:
-			linear-gradient(transparent, black 20%, transparent),
+			linear-gradient(transparent, var(--library-backdrop-alpha) 20%, transparent),
 			linear-gradient(to right, transparent, black 20%, black 80%, transparent);
 		mask-composite: intersect;
 		pointer-events: none;
@@ -76,6 +77,16 @@
 	.library-book__title {
 		font-size: var(--app-text-xl);
 		line-height: calc(var(--app-line-height) / sqrt(var(--app-phi)));
+	}
+
+	/* Its subtitle, on a line of its own, half a step above the text, as light as it */
+	.library-book__subtitle {
+		display: block;
+		margin-block-start: var(--app-gap);
+		font-size: var(--app-text-l);
+		font-weight: normal;
+		line-height: var(--app-line-height);
+		letter-spacing: normal;
 	}
 
 	.library-book__meta {

@@ -544,11 +544,15 @@ use Library\Meta;
 					<?php Markup::render_component( 'back' ); ?>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
-						<?php // As the title page of the book: its cover, over its colours, its title, its credits, its translation, then its excerpt. ?>
+						<?php // As the title page of the book: its cover, over its colours, its title and its subtitle, its credits, its translation, then its excerpt. ?>
 						<header class="library-book__header">
 							<img class="library-book__backdrop" alt="" hidden>
 							<img class="library-cover library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
-							<h2 class="library-heading library-book__title" data-field="title" tabindex="-1"></h2>
+							<?php // Its subtitle on a line of its own, smaller, as on its cover. ?>
+							<h2 class="library-heading library-book__title" tabindex="-1">
+								<span data-field="main_title"></span>
+								<span class="library-book__subtitle" data-field="subtitle"></span>
+							</h2>
 							<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta" data-field="credits"></p>
 							<p class="library-book__translation" data-field="translation"></p>
 							<p class="library-book__excerpt" data-field="excerpt"></p>
