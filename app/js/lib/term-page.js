@@ -54,7 +54,7 @@ export class TermPage extends Brick {
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const observe = observeEnd(
-			this.querySelector( '.library-list__more' ),
+			this.querySelector( '[data-part="more"]' ),
 			signal,
 			() => store.loadMorePageBooks( key )
 		);

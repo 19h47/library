@@ -18,8 +18,10 @@
 		--library-cover-width: calc(var(--app-u3) * var(--app-phi));
 		/* A cover in the row of the latest readings */
 		--library-cover-height: calc(var(--app-u3) * var(--app-phi) * var(--app-phi));
-		/* The corners of a cover, half a step and a step under the ones of a card */
-		--library-radius-small: calc(var(--app-radius) / var(--app-phi) / sqrt(var(--app-phi)));
+		/* A cover that stands out of the page, such as the one of the book open: a line under it, then its shadow */
+		--library-cover-shadow:
+			0 1px 2px rgb(0 0 0 / 0.1),
+			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-u0)) rgb(0 0 0 / 0.4);
 		/* Room for the focus outline in a box that scrolls */
 		--library-focus-room: calc(var(--app-focus-outline-offset) * 2);
 		/* A tinted grey, the one color of the app: a book not in the library, not kept or to buy; 4.5:1 on its tag in both themes */

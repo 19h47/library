@@ -81,7 +81,7 @@
 		 * in a language than in another, the room left between them; the current one only a pill, each with the room of one
 		 * all the same, so that none moves as the current one changes.
 		 */
-		library-nav .library-nav {
+		library-nav .library-views-nav {
 			justify-content: space-between;
 			gap: 0;
 			margin-inline: 0;
@@ -94,7 +94,7 @@
 		 * No stop of a strip: the row no longer scrolls, the page would take its tabs, fixed at the bottom of the screen, for
 		 * stops of its own, always the height of the screen above the bar further, and rest the recap between two screens.
 		 */
-		library-nav .library-nav li {
+		library-nav .library-views-nav li {
 			flex: 0 1 auto;
 			min-width: min-content;
 			scroll-snap-align: none;

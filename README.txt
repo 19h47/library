@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.40.0
+Stable tag: 9.41.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -126,6 +126,13 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.41.0 =
+* Changed: reading app: the covers of a recap take the width of their column and the height of their book, a soft line and small corners, as the covers of the app, rather than images cut to two thirds; the cover beside a record too.
+* Changed: reading app: a textarea of the form of a book is made higher by hand only, as wide as the form.
+* Fixed: reading app: in the grid of covers, a card no longer cuts the corners of its cover with its own; a book without a cover shows its title in the frame of its cover, as the rows of covers do.
+* Code only: reading app: its components, one way. Each is markup alone, a component per content, `app/components/<name>.php`, its root the class of its name, `.library-book-card`, `.library-book-row`, `.library-term-card`, `.library-achievement-card`, `.library-book-header`, `.library-book-fields`, `.library-views-nav`, `.library-search`, its arguments the same words everywhere; the brick that gives it a behavior stays around it in the app. New components: `book-cover`, the image of a book or its title in a frame, wherever a cover shows, filled by `fillBookCover()`; `isbn-status`, what the ISBN typed tells; the cards, the page of a book, the views nav, the search and the link to the recap, which the styleguide renders as the app does. The scripts reach elements by a `data-*` attribute or their semantics, never a class of style. The filters open by a command of their dialog.
+* Code only: reading app: its design system written down, `DESIGN-SYSTEM.md`, and checked: ESLint fails on a script that reaches an element by a class, `pnpm lint:css` on a length off the scale, a color written as it is, or a margin or a width a component gives itself, and `tests/e2e/styles.spec.js` on a change of the computed styles of the styleguide, on a phone and a wide screen, in both themes. The shared base styles, revision 53f8830: corners are `--app-radius-xs` to `--app-radius-m`, rather than `--app-radius` and `--library-radius-small`.
 
 = 9.40.0 =
 * Reading app: the page of a book reads as its title page: its cover, its title, its subtitle on a line of its own, smaller, as on its cover, its credits and its translation, then its excerpt. Its readings are summed up in a line, how many times it is read, the end of the latest reading and how long it took, "Read 2 times · March 21, 2025 · in 12 days", which opens them to change them; the row "Read in" is gone.

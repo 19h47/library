@@ -1,20 +1,26 @@
 /**
- * The cover of a book, an atom: its image, or the frame that stands for it with its title, wherever it shows; then the
- * link a cover is, a molecule.
+ * The cover of a book, the component book-cover, an atom: its image, or the frame that stands for it with its title,
+ * wherever it shows; then the link a cover is, a molecule.
  *
  * A cover knows none of the places it shows in: the one that holds it sets its size, as the properties of a component,
  * --library-cover-inline-size, its width, or --library-cover-block-size, its height, the height of the row of the latest
- * readings by default, its other side from its shape.
+ * readings by default, its other side from its shape; and --library-cover-frame: none where it names the book already.
  */
 
 @layer app.components {
-	/* A cover: a soft line and small corners, at the size its place gives it */
-	.library-cover {
+	/* A cover lays out as the one it shows, its image or its frame, as if it were in its place itself */
+	.library-book-cover {
+		display: contents;
+	}
+
+	/* Its image or its frame: a soft line and small corners, at the size its place gives it, which a row does not shrink */
+	:is(.library-book-cover__image, .library-book-cover__frame) {
+		flex: none;
 		display: block;
 		inline-size: var(--library-cover-inline-size, auto);
 		block-size: var(--library-cover-block-size, var(--library-cover-height));
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 	}
 
 	/*
@@ -30,7 +36,8 @@
 	 * A book without cover: its title from its start, in a frame of the shape of a cover, a golden rectangle, at the width
 	 * its place gives it or from its height; the frame keeps its shape, its title clipped rather than making it higher.
 	 */
-	.library-cover--frame {
+	.library-book-cover__frame {
+		display: var(--library-cover-frame, block);
 		inline-size: var(--library-cover-inline-size, calc(var(--library-cover-block-size, var(--library-cover-height)) / var(--app-phi)));
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
@@ -40,11 +47,22 @@
 	}
 
 	/*
+	 * A large cover, the one of the page of a book, as high as its place makes it: standing out of the page, and a cover
+	 * wider than the page keeping its shape inside it. A definite height: a cover of sizes="auto" takes no size from its
+	 * image, which the browser lays out as if it were 300 by 150, its width and height giving its shape only.
+	 */
+	.library-book-cover--large > .library-book-cover__image {
+		max-inline-size: 100%;
+		object-fit: contain;
+		box-shadow: var(--library-cover-shadow);
+	}
+
+	/*
 	 * Four lines of the title fill the frame: a longer one ends in an ellipsis, its words broken with hyphens. Its height is
 	 * the one of its lines, as Safari still draws the lines after the ellipsis in a higher box. Unprefixed line-clamp is
 	 * in no stable browser yet: the prefixed one needs its box.
 	 */
-	.library-cover__title {
+	.library-book-cover__title {
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 4;
@@ -68,7 +86,7 @@
 	}
 
 	/* The book open among the covers of its series: its line as firm as the text */
-	.library-cover-link[aria-current="page"] .library-cover {
+	.library-cover-link[aria-current="page"] :is(.library-book-cover__image, .library-book-cover__frame) {
 		border-color: var(--app-text);
 	}
 }

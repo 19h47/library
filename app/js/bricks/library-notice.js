@@ -18,7 +18,7 @@ class LibraryNoticeElement extends Brick {
 	connect( signal ) {
 		const $text = this.querySelector( '[data-field="text"]' );
 		/** @type {HTMLButtonElement} */
-		const $action = this.querySelector( '.library-link' );
+		const $action = this.querySelector( '[data-action="notice"]' );
 		/** @type {Notice|null} */
 		let notice = null;
 		// Whether the pointer or the focus is on it: a notice that comes then waits for them to leave.

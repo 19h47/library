@@ -3,13 +3,15 @@
  * and the tiles, the months and the shares of a recap.
  */
 
-import { __, _n, sprintf } from 'library-app/app';
+import { __, _n, roles, sprintf } from 'library-app/app';
 import {
 	formatBooks,
 	formatDate,
+	formatLanguage,
 	formatNumber,
 	formatOriginal,
 	formatStatus,
+	formatTranslation,
 	join,
 	listFormat,
 	monthInitialFormat,
@@ -92,7 +94,7 @@ function link( route, text ) {
 function linkBook( $item, book ) {
 	$item.dataset.id = book.id.toString();
 	/** @type {HTMLAnchorElement} */ (
-		$item.querySelector( '.library-item__link, .library-cover-link' )
+		$item.querySelector( '[data-part="link"]' )
 	).href = urlOf( { view: 'book', id: book.id } );
 }
 
@@ -232,6 +234,18 @@ export function fillCover( $image, cover ) {
 }
 
 /**
+ * Fills the cover of a book, the component book-cover: its image, or without one its title in its frame, which a place
+ * that has the title already hides.
+ *
+ * @param {HTMLElement}                 $cover The cover.
+ * @param {Pick<Book, 'cover'|'title'>} book   The book.
+ */
+export function fillBookCover( $cover, book ) {
+	fillCover( $cover.querySelector( '[data-field="cover"]' ), book.cover );
+	fill( $cover, { cover_title: book.cover ? '' : book.title } );
+}
+
+/**
  * A clone of the element of the template `id` of the page, which holds the translated labels.
  *
  * @param {string} id The ID of the template.
@@ -254,7 +268,7 @@ export function clone( id ) {
  * @param {string}      state The line under its title.
  */
 export function fillBook( $item, book, state ) {
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
 		credits: book.credits,
 		title: book.title,
@@ -264,6 +278,84 @@ export function fillBook( $item, book, state ) {
 		original: formatOriginal( book ),
 		status: formatStatus( book ),
 	} );
+}
+
+/**
+ * Fills the page of a book: its title page, its cover, its title and subtitle, its credits, its translation and its
+ * excerpt, its notes, and its fields, those of its work, of its edition and of its copy, its people and its publisher
+ * linked to their pages. The brick of the page and the styleguide fill it alike.
+ *
+ * @param {HTMLElement} $root The page, or the part of it the styleguide shows.
+ * @param {Book}        book  The book.
+ */
+export function fillBookPage( $root, book ) {
+	const authors = getPeople( book, 'author' );
+	const $publishers = $root.querySelector( '[data-field="publishers"]' );
+	const date = ( /** @type {string} */ value ) =>
+		value ? formatDate( value ) : '';
+	const languages = ( /** @type {string[]} */ codes ) =>
+		listFormat.format( codes.map( formatLanguage ) );
+
+	fillBookCover( $root.querySelector( '[data-part="cover"]' ), book );
+	fill( $root, {
+		credits: book.credits,
+		main_title: book.main_title,
+		subtitle: book.subtitle,
+		translation: formatTranslation( book ),
+		excerpt: book.excerpt,
+		authors: listFormat.format( authors.map( ( author ) => author.name ) ),
+		published_date: date( book.published_date ),
+		languages: languages( book.languages ),
+		form: book.form,
+		publishers: book.publishers
+			.map( ( publisher ) => publisher.name )
+			.join( ', ' ),
+		edition_date: date( book.edition_date ),
+		isbn: book.isbn,
+		pages: book.pages ? formatNumber( book.pages ) : '',
+		edition_languages: languages( book.edition_languages ),
+		printed_date: date( book.printed_date ),
+		added_date: date( book.added_date ),
+	} );
+	linkPeople( $root.querySelector( '[data-field="authors"]' ), authors );
+	// Its publisher, then its collections, each to its page, as in its credits, its number after its collection.
+	$publishers.replaceChildren(
+		...book.publishers.flatMap( ( publisher, index ) => [
+			...( index ? [ ', ' ] : [] ),
+			pageLink( 'publisher', publisher.id, publisher.name ),
+		] )
+	);
+
+	if ( book.collection_number ) {
+		$publishers.append(
+			' ',
+			sprintf(
+				/* translators: %s: number of the book in its collection. */
+				__( 'no. %s', 'library' ),
+				book.collection_number
+			)
+		);
+	}
+	// The other names of the book, by role, such as its colorists; the translators, in the translation line, have no field.
+	fill(
+		$root,
+		Object.fromEntries(
+			roles.map( ( role ) => [
+				role,
+				listFormat.format(
+					getPeople( book, role ).map( ( person ) => person.name )
+				),
+			] )
+		)
+	);
+	roles.forEach( ( role ) => {
+		const $field = $root.querySelector( `[data-field="${ role }"]` );
+
+		if ( $field ) {
+			linkPeople( $field, getPeople( book, role ) );
+		}
+	} );
+	fillHtml( $root.querySelector( '[data-html="content"]' ), book.content );
 }
 
 /**
@@ -281,8 +373,8 @@ export function renderCover( book, state = '' ) {
 
 	linkBook( $item, book );
 	$image.alt = book.title;
-	fillCover( $image, book.cover );
-	fill( $item, { title: book.cover ? '' : book.title, state } );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
+	fill( $item, { state } );
 
 	return $item;
 }
@@ -298,9 +390,8 @@ export function renderCurrent( book ) {
 	const $item = clone( 'library-current' );
 
 	linkBook( $item, book );
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
-		frame: book.cover ? '' : book.title,
 		title: book.cover ? book.title : '',
 		status: formatStatus( book ),
 	} );
@@ -315,10 +406,10 @@ export function renderCurrent( book ) {
  * @return {HTMLElement} The row.
  */
 export function renderRow( book ) {
-	const $item = clone( 'library-row' );
+	const $item = clone( 'library-book-row' );
 
 	linkBook( $item, book );
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
 		title: book.title,
 		authors: listFormat.format(
@@ -338,7 +429,7 @@ export function renderRow( book ) {
  * @return {HTMLElement} The card.
  */
 export function renderBook( book, state ) {
-	const $item = clone( 'library-item' );
+	const $item = clone( 'library-book-card' );
 
 	linkBook( $item, book );
 	fillBook( $item, book, state );
@@ -355,10 +446,10 @@ export function renderBook( book, state ) {
  * @return {HTMLElement} The card.
  */
 function renderTerm( $link, description, line ) {
-	const $item = clone( 'library-term' );
+	const $item = clone( 'library-term-card' );
 
 	fill( $item, { line } );
-	$item.querySelector( '.library-term__name' ).append( $link );
+	$item.querySelector( '[data-part="name"]' ).append( $link );
 	fillHtml( $item.querySelector( '[data-html="description"]' ), description );
 
 	return $item;
@@ -452,7 +543,7 @@ export function fillAuthors( $section, authors, total ) {
  * @return {HTMLElement} Its element.
  */
 export function renderAchievement( achievement ) {
-	const $item = clone( 'library-achievement' );
+	const $item = clone( 'library-achievement-card' );
 
 	fill( $item, {
 		title: achievement.title,
@@ -505,7 +596,7 @@ export function renderAchievementPill( achievement ) {
  * @return {HTMLElement} Its element.
  */
 export function renderCloseAchievement( achievement, id ) {
-	const $item = clone( 'library-achievement-close' );
+	const $item = clone( 'library-achievement-card-close' );
 	const $name = $item.querySelector( '[data-field="name"]' );
 	const $progress = $item.querySelector( 'progress' );
 	const hasSubject = '' !== achievement.subject;
@@ -595,19 +686,16 @@ function setShares( $items, values ) {
 }
 
 /**
- * A cover of the wall of the books read of a recap, which opens nothing: their cards are a tap away, in the diary.
+ * A cover of a recap, which opens nothing, an image of its book only: on the wall of the books read, their cards a tap
+ * away in the diary, in the columns going by behind its last screen, and beside a record, which names its book.
  *
  * @param {Book} book The book.
  * @return {HTMLElement} The tile.
  */
 export function renderTile( book ) {
-	const $item = document.createElement( 'li' );
-	const $image = document.createElement( 'img' );
+	const $item = clone( 'library-tile' );
 
-	$image.alt = '';
-	$image.loading = 'lazy';
-	fillCover( $image, book.cover );
-	$item.append( $image );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 
 	return $item;
 }

@@ -21,17 +21,17 @@
 		color: var(--app-text-muted);
 	}
 
-	.library-achievement {
+	.library-achievement-card {
 		overflow-wrap: anywhere;
 	}
 
-	.library-achievement__progress {
+	.library-achievement-card__progress {
 		display: flex;
 		align-items: center;
 		gap: var(--app-space-s);
 	}
 
-	.library-achievement__progress progress {
+	.library-achievement-card__progress progress {
 		flex: 1;
 		height: var(--app-u0);
 		accent-color: var(--app-text);

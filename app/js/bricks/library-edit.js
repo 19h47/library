@@ -98,7 +98,7 @@ class LibraryEditElement extends Brick {
 		/** @type {HTMLElement} */
 		const $heading = this.querySelector( '#library-edit-heading' );
 		/** @type {HTMLFormElement} */
-		const $form = this.querySelector( '.library-edit__form' );
+		const $form = this.querySelector( '[data-part="form"]' );
 		const {
 			title: $title,
 			excerpt: $excerpt,
@@ -143,13 +143,15 @@ class LibraryEditElement extends Brick {
 		const listOf = ( role ) =>
 			$people.querySelector( `[data-group="${ role }"] > ul` );
 		/** @type {HTMLImageElement} */
-		const $preview = this.querySelector( '.library-image-field__preview' );
+		const $preview = this.querySelector(
+			'[data-part="preview"] [data-field="cover"]'
+		);
 		/** @type {HTMLButtonElement} */
 		const $removeCover = this.querySelector(
 			'[data-action="remove-cover"]'
 		);
 		/** @type {HTMLDetailsElement} */
-		const $details = this.querySelector( '.library-edit__details' );
+		const $details = this.querySelector( '[data-part="details"]' );
 		const $summary = $details.querySelector( 'summary' );
 		/** @type {HTMLAnchorElement} */
 		const $admin = this.querySelector( '[data-link="admin"]' );

@@ -24,22 +24,22 @@ const errorMessages = new WeakMap();
 let errorCount = 0;
 
 /**
- * Draws again the elements `selector` of `$root` whose book changed, such as a book saved, its data-id: `redraw` draws
- * one, from the element and its book, such as a card filled again in place. Returns the unsubscribe function.
+ * Draws again the elements of the books of `$root` whose book changed, such as a book saved, each by its data-id, such
+ * as the item of a card: `redraw` draws one, from the element and its book, such as a card filled again in place.
+ * Returns the unsubscribe function.
  *
- * @param {Element}                                    $root    The element of the books.
- * @param {string}                                     selector The elements of the books, such as their cards.
- * @param {( $item: HTMLElement, book: Book ) => void} redraw   Draws an element again, from its book.
+ * @param {Element}                                    $root  The element of the books.
+ * @param {( $item: HTMLElement, book: Book ) => void} redraw Draws an element again, from its book.
  * @return {() => void} The unsubscribe function.
  */
-export function followBooks( $root, selector, redraw ) {
+export function followBooks( $root, redraw ) {
 	let previous = store.get().books;
 
 	return store.select(
 		( state ) => state.books,
 		( books ) => {
 			$root
-				.querySelectorAll( selector )
+				.querySelectorAll( '[data-id]' )
 				.forEach( ( /** @type {HTMLElement} */ $item ) => {
 					const book = books[ $item.dataset.id ];
 
@@ -129,7 +129,7 @@ export function renderKeyed( $list, keys, render ) {
  * @return {() => void} The unsubscribe function.
  */
 export function followCards( $root, line ) {
-	return followBooks( $root, '.library-item', ( $item, book ) =>
+	return followBooks( $root, ( $item, book ) =>
 		fillBook( $item, book, line( book, $item ) )
 	);
 }

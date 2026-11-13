@@ -76,7 +76,7 @@
 		min-block-size: var(--app-control-size);
 		padding-inline: 1em;
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		color: var(--app-text-muted);
 	}
 
@@ -89,7 +89,7 @@
 		min-width: 0;
 		padding-inline-start: var(--library-field-padding-inline);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background-color: transparent;
 		color: inherit;
 		font: inherit;
@@ -131,12 +131,14 @@
 
 	/*
 	 * The excerpt and the notes grow with their text, from their padding: half a step less above and below than on each
-	 * side; empty, or made smaller by hand, they keep room for three lines, their padding one more
+	 * side; empty, or made smaller by hand, they keep room for three lines, their padding one more; made higher by hand
+	 * only, as wide as their place
 	 */
 	.library-field textarea {
 		min-block-size: 4lh;
 		padding-block: calc(1em / sqrt(var(--app-phi)));
 		field-sizing: content;
+		resize: block;
 	}
 
 	/* A field of the form of a book, to add or edit: its label above it */

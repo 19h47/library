@@ -13,7 +13,7 @@
 		padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-m));
 		border: 0;
 		border-top: 1px solid var(--app-line);
-		border-radius: var(--app-radius) var(--app-radius) 0 0;
+		border-radius: var(--app-radius-m) var(--app-radius-m) 0 0;
 		background: var(--app-bg);
 		color: var(--app-text);
 
@@ -34,11 +34,11 @@
 
 	@media (min-width: 42rem) {
 		.library-sheet {
-			width: min(100% - 2 * var(--app-space-l), var(--app-max-width));
+			width: min(100% - 2 * var(--app-space-l), var(--app-max-width)); /* Exception, a layer over the page: as wide as the column of the app, within the screen */
 			margin: auto;
 			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
-			border-radius: var(--app-radius);
+			border-radius: var(--app-radius-m);
 		}
 	}
 
@@ -67,13 +67,13 @@
 
 	@media (min-width: 42rem) {
 		.library-dialog {
-			width: min(100% - 2 * var(--app-space-l), var(--app-max-width));
+			width: min(100% - 2 * var(--app-space-l), var(--app-max-width)); /* Exception, a layer over the page: as wide as the column of the app, within the screen */
 			height: auto;
 			max-height: calc(100% - 2 * var(--app-space-l));
 			margin: auto;
 			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
-			border-radius: var(--app-radius);
+			border-radius: var(--app-radius-m);
 		}
 	}
 }

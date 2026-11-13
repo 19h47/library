@@ -5,12 +5,14 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 9ea6527.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 53f8830.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
- * --app-space-xs to --app-space-xl, half steps (√φ) between them for text, --app-text-s to --app-text-3xl; a padding in em
- * follows its text.
- * A component carries no margin of its own: the place that holds it spaces it, with a gap or a margin.
+ * --app-space-xs to --app-space-xl, half steps (√φ) between them for text, --app-text-s to --app-text-3xl, a step and a
+ * half between corners, --app-radius-xs to --app-radius-m; a padding in em follows its text.
+ * A component carries neither a margin nor a width of its own: the place that holds it spaces it, with a gap or a
+ * margin, and sizes it, a column, the page or a frame; but an atom of a size of its own, such as an icon or a control,
+ * and a layer fixed to the screen, such as a notice or a sheet.
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
  * Custom properties and classes are prefixed "app-".
  * Three layers, in this order: app-base, the rules of this file; app, the styles of the app, which come after them whatever
@@ -57,7 +59,13 @@
 
     --app-max-width: calc(100 / var(--app-phi) * 1ch);
     --app-line-height: var(--app-phi);
-    --app-radius: var(--app-u0);
+    /*
+     * Corners, named as the sizes of the text: m, a card, a field or a pill, at --app-u0; s, a cover, and xs, a tag, each
+     * a step and a half under the one before
+     */
+    --app-radius-xs: calc(var(--app-radius-s) / var(--app-phi) / sqrt(var(--app-phi)));
+    --app-radius-s: calc(var(--app-radius-m) / var(--app-phi) / sqrt(var(--app-phi)));
+    --app-radius-m: var(--app-u0);
     /*
      * Space, between things and around them, the steps of the scale named as the sizes of the text: m at --app-u1, s and l
      * a step below and above it, xs and xl two
@@ -237,7 +245,7 @@
   .app-field {
     block-size: var(--app-control-size);
     padding: 0 1em;
-    border-radius: var(--app-radius);
+    border-radius: var(--app-radius-m);
     border: 1px solid var(--app-line-soft);
     background: transparent;
     color: inherit;
@@ -417,7 +425,7 @@
         margin-block: var(--app-space-s);
         padding: var(--app-space-xs);
         border: 1px solid var(--app-line-soft);
-        border-radius: var(--app-radius);
+        border-radius: var(--app-radius-m);
         background: var(--app-bg);
         color: var(--app-text-muted);
         /* An option reads as it is written */
@@ -426,7 +434,7 @@
 
       .app-pill option {
         padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
-        border-radius: calc(var(--app-radius) - var(--app-space-xs));
+        border-radius: calc(var(--app-radius-m) - var(--app-space-xs));
       }
 
       .app-pill option:is(:hover, :focus-visible, :checked) {
@@ -452,7 +460,7 @@
     display: block;
     padding: var(--app-space-l);
     border: 1px solid var(--app-line-soft);
-    border-radius: var(--app-radius);
+    border-radius: var(--app-radius-m);
     background: var(--app-fill);
     color: var(--app-text-muted);
   }
@@ -474,7 +482,7 @@
     /* On a phone, a step below: the width goes to the text */
     padding: var(--app-space-m);
     border: 1px solid var(--app-line-soft);
-    border-radius: var(--app-radius);
+    border-radius: var(--app-radius-m);
     overflow: hidden;
   }
 
@@ -540,7 +548,7 @@
     width: var(--app-control-size);
     height: var(--app-control-size);
     border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
-    border-radius: var(--app-radius);
+    border-radius: var(--app-radius-m);
     background: var(--app-bg);
     color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
     cursor: pointer;

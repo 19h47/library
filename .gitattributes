@@ -17,6 +17,8 @@ pnpm-workspace.yaml export-ignore
 phpcs.xml export-ignore
 phpunit.xml.dist export-ignore
 ARCHITECTURE.md export-ignore
+DESIGN-SYSTEM.md export-ignore
+.claude export-ignore
 RELEASING.md export-ignore
 tests export-ignore
 types export-ignore

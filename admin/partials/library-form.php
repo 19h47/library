@@ -103,7 +103,7 @@ use Library\Meta;
 			<?php echo esc_html( Meta::get_label( 'library_reading' ) ); ?>
 		</th>
 		<td>
-			<fieldset class="library-readings" aria-describedby="library-reading-description">
+			<fieldset data-part="readings" aria-describedby="library-reading-description">
 				<legend class="screen-reader-text"><?php echo esc_html( Meta::get_label( 'library_reading' ) ); ?></legend>
 				<ul>
 					<?php foreach ( $values['library_reading'] as $reading ) : ?>

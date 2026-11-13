@@ -44,16 +44,18 @@ test.describe( 'Grid', () => {
 		await expect( toggle ).toBeChecked();
 		await expect( list ).toHaveAttribute( 'data-covers' );
 
-		// A book without a cover shows its title; the title of a book with one is the name of its link only.
+		// A book without a cover shows its title in the frame of its cover; the title of a card is the name of its link only.
 		await expect(
-			list.getByText( 'The Grid Without Cover' )
+			list
+				.locator( '[data-field="cover_title"]' )
+				.filter( { hasText: 'The Grid Without Cover' } )
 		).toBeVisible();
 		await expect(
 			list.getByRole( 'link', { name: 'The Grid With Cover' } )
 		).toHaveCSS( 'opacity', '1' );
 		await expect(
 			list
-				.locator( '.library-item__title' )
+				.locator( '.library-book-card__title' )
 				.filter( { hasText: 'The Grid With Cover' } )
 		).toHaveCSS( 'opacity', '0' );
 
@@ -65,7 +67,7 @@ test.describe( 'Grid', () => {
 
 		// A tap on the cover opens the book: the link of the card covers it.
 		await list
-			.locator( '.library-item' )
+			.locator( '.library-book-card' )
 			.filter( { hasText: 'The Grid With Cover' } )
 			.click();
 		await expect( page.locator( 'library-book h2' ) ).toHaveText(

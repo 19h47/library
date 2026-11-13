@@ -26,7 +26,7 @@
 	/* A route: a frame, its methods and path as its summary, which opens it */
 	.library-api__route {
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 	}
 
 	.library-api__route:has(> summary:hover) {
@@ -93,13 +93,13 @@
 		color: var(--library-status);
 	}
 
-	/* The answer of a request: small monospace text in a frame, which scrolls rather than widening the page */
+	/* The answer of a request: small monospace text in a frame, which scrolls rather than widening the page, as high as 1/φ of the screen */
 	.library-api__answer pre {
 		overflow: auto;
-		max-block-size: 60vh;
+		max-block-size: calc(100dvh / var(--app-phi));
 		padding: var(--app-space-m);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		font-family: var(--app-font-mono);
 		font-size: var(--app-text-s);
 	}

@@ -23,35 +23,30 @@
 
 	/*
 	 * A cover is laid out off screen too, as cheap as it is: Safari leaves a card whose display changes skipped, of no
-	 * height, where it shows, and the cards of the list that were on screen came back as their padding.
+	 * height, where it shows, and the cards of the list that were on screen came back as their padding. The card takes the
+	 * corners of its cover, which it would cut with its own, and its outline when focused follows them; a book without a
+	 * cover shows its title in the frame of its cover.
 	 */
-	.app-list[data-covers] > .library-item {
+	.app-list[data-covers] > li > .library-book-card {
 		--library-cover-inline-size: 100%;
+		--library-cover-frame: block;
 
 		content-visibility: visible;
 		display: block;
 		padding: 0;
 		border: 0;
+		border-radius: var(--app-radius-s);
 		background: none;
 	}
 
-	.app-list[data-covers] .library-item__body > :not(.library-item__title) {
+	.app-list[data-covers] .library-book-card__body > :not(.library-book-card__title) {
 		display: none;
 	}
 
-	.app-list[data-covers] > .library-item:has(> .library-cover:not([hidden])) .library-item__title {
+	.app-list[data-covers] .library-book-card__title {
 		position: absolute;
 		inset: 0;
 		overflow: hidden;
 		opacity: 0;
-	}
-
-	.app-list[data-covers] > .library-item > .library-cover[hidden] + .library-item__body {
-		aspect-ratio: 1 / var(--app-phi);
-		overflow: hidden;
-		padding: var(--app-space-s);
-		border: 1px solid var(--app-line-soft);
-		border-radius: var(--library-radius-small);
-		font-size: var(--app-text-s);
 	}
 }

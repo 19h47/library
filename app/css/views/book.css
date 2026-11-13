@@ -17,7 +17,7 @@
 	/*
 	 * The title page of the book open: its cover, its heading, then its excerpt, centered, a step apart
 	 */
-	.library-book__header {
+	.library-book-header {
 		display: grid;
 		justify-items: center;
 		gap: var(--app-space-l);
@@ -26,34 +26,28 @@
 	}
 
 	/*
-	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it, standing out of the page.
-	 * A definite height: a cover of sizes="auto" takes no size from its image, which the browser lays out as if it were 300
-	 * by 150, its width and height giving its shape only; a cover wider than the page keeps its shape inside it.
+	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it; without its image, it
+	 * takes no room: the title of the page names the book
 	 */
-	.library-book__cover {
+	.library-book-header {
 		--library-cover-block-size: calc(100dvh / var(--app-phi) / var(--app-phi));
-
-		max-width: 100%;
-		object-fit: contain;
-		box-shadow:
-			0 0.125rem 0.25rem rgb(0 0 0 / 0.1),
-			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-u0)) rgb(0 0 0 / 0.4);
+		--library-cover-frame: none;
 	}
 
 	/* Its heading: its title, its credits and its translation, closer to one another than to the cover and the excerpt */
-	.library-book__heading {
+	.library-book-header__heading {
 		display: grid;
 		gap: var(--app-space-s);
 	}
 
 	/* Its title, the one of the page, its lines half a step closer, as large as they are */
-	.library-book__title {
+	.library-book-header__title {
 		font-size: var(--app-text-xl);
 		line-height: calc(var(--app-line-height) / sqrt(var(--app-phi)));
 	}
 
 	/* Its subtitle, on a line of its own, half a step above the text, as light as it */
-	.library-book__subtitle {
+	.library-book-header__subtitle {
 		display: block;
 		margin-block-start: var(--app-space-s);
 		font-size: var(--app-text-l);
@@ -62,7 +56,7 @@
 		letter-spacing: normal;
 	}
 
-	.library-book__meta {
+	.library-book-header__credits {
 		overflow-wrap: anywhere;
 	}
 
@@ -71,25 +65,31 @@
 		text-transform: uppercase;
 	}
 
-	.library-book__translation,
-	.library-book__excerpt {
+	.library-book-header__translation,
+	.library-book-header__excerpt {
 		color: var(--app-text-muted);
 	}
 
-	.library-book__excerpt {
+	.library-book-header__excerpt {
 		text-wrap: pretty;
 	}
 
 	/* The reading of the book open, its series and each group of its fields: a line above each */
 	.library-reading,
 	.library-book__series,
-	.library-book__group {
+	.library-book-fields__group {
 		padding-top: var(--app-space-m);
 		border-top: 1px solid var(--app-line-soft);
 	}
 
+	/* The fields of the book open, their groups a step apart, as the parts of the book */
+	.library-book-fields {
+		display: grid;
+		gap: var(--app-space-m);
+	}
+
 	/* A group of fields, its title then its fields, a step apart; none of them known, it takes no room */
-	.library-book__group {
+	.library-book-fields__group {
 		display: grid;
 		gap: var(--app-space-m);
 

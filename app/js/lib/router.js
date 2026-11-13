@@ -176,7 +176,7 @@ export function back() {
 function coverOf( route, id, $from = null ) {
 	if ( 'book' === route.view && id === route.id ) {
 		return document.querySelector(
-			`library-view[name="book"]:not([hidden]) .library-book__cover:not([hidden])`
+			`library-view[name="book"]:not([hidden]) library-book > header ${ COVER }`
 		);
 	}
 
@@ -200,7 +200,7 @@ function coverOf( route, id, $from = null ) {
  */
 function nameCover( $cover, isNamed ) {
 	/** @type {HTMLElement|null} */
-	const $item = $cover.closest( '.app-item' );
+	const $item = $cover.closest( '[data-part="card"]' );
 
 	$cover.style.viewTransitionName = isNamed ? COVER_TRANSITION : '';
 
