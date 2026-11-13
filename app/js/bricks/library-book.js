@@ -29,7 +29,7 @@ import { getPeople } from 'library-app/api';
 class LibraryBookElement extends Brick {
 	connect( signal ) {
 		/** @type {HTMLElement} */
-		const $title = this.querySelector( '.library-heading' );
+		const $title = this.querySelector( '[data-part="title"]' );
 		const $edit = this.querySelector( '[data-action="edit"]' );
 		let shown = 0;
 		// The book drawn, drawn again only once changed: gone back to, its page keeps its links, and the focus one had.

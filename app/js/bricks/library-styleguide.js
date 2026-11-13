@@ -273,10 +273,7 @@ class LibraryStyleguideElement extends Brick {
 		this.querySelectorAll( '[data-sample-cover]' ).forEach( ( $cover ) =>
 			fillCover( /** @type {HTMLImageElement} */ ( $cover ), COVER )
 		);
-		fillCover(
-			this.querySelector( '.library-image-field__preview' ),
-			COVER
-		);
+		fillCover( this.querySelector( '[data-part="preview"]' ), COVER );
 
 		// The headers of the page of a person and of a series, filled as their pages fill them.
 		Object.entries( HEADERS ).forEach(
@@ -293,7 +290,7 @@ class LibraryStyleguideElement extends Brick {
 			}
 		);
 		/** @type {HTMLButtonElement} */ (
-			this.querySelector( '.library-image-field [data-action]' )
+			this.querySelector( '[data-action="remove-cover"]' )
 		).hidden = false;
 
 		// The fields in error show as the forms show theirs.
@@ -309,11 +306,11 @@ class LibraryStyleguideElement extends Brick {
 		);
 
 		// The size each sample of text takes, at this width.
-		this.querySelectorAll( '.library-styleguide__sizes li' ).forEach(
+		this.querySelectorAll( '[data-list="sizes"] li' ).forEach(
 			( $item ) => {
 				const size = parseFloat(
 					getComputedStyle(
-						$item.querySelector( '.library-styleguide__size' )
+						$item.querySelector( '[data-part="size"]' )
 					).fontSize
 				);
 

@@ -20,9 +20,9 @@ class LibraryListElement extends Brick {
 		const list = /** @type {List} */ (
 			this.getAttribute( 'list' ) ?? 'search'
 		);
-		const $items = this.querySelector( '.app-list' );
+		const $items = this.querySelector( 'ul' );
 		const observe = observeEnd(
-			this.querySelector( '.library-list__more' ),
+			this.querySelector( '[data-part="more"]' ),
 			signal,
 			() => store.loadMoreBooks( list )
 		);

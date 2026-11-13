@@ -200,7 +200,7 @@ function coverOf( route, id, $from = null ) {
  */
 function nameCover( $cover, isNamed ) {
 	/** @type {HTMLElement|null} */
-	const $item = $cover.closest( '.app-item' );
+	const $item = $cover.closest( '[data-part="card"]' );
 
 	$cover.style.viewTransitionName = isNamed ? COVER_TRANSITION : '';
 

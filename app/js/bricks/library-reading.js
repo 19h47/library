@@ -61,11 +61,11 @@ class LibraryReadingElement extends Brick {
 			$form.elements
 		);
 		/** @type {HTMLElement} */
-		const $startedField = this.querySelector( '.library-reading__started' );
+		const $startedField = this.querySelector( '[data-part="started"]' );
 		/** @type {HTMLDetailsElement} */
-		const $details = this.querySelector( '.library-reading__details' );
+		const $details = this.querySelector( '[data-part="readings"]' );
 		/** @type {HTMLFieldSetElement} */
-		const $readings = this.querySelector( '.library-reading__readings' );
+		const $readings = this.querySelector( '[data-list="readings"]' );
 		const $list = $readings.querySelector( 'ul' );
 		/** @type {HTMLButtonElement} */
 		const $add = $readings.querySelector( '[data-action="add"]' );

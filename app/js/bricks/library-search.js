@@ -16,7 +16,7 @@ class LibrarySearchElement extends Brick {
 	connect( signal ) {
 		const $input = this.querySelector( 'input' );
 		/** @type {HTMLElement} */
-		const $keywords = this.querySelector( '.library-search__keywords' );
+		const $keywords = this.querySelector( '[data-list="keywords"]' );
 		const hide = () => {
 			$keywords.hidden = true;
 		};

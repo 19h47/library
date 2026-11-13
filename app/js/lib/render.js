@@ -92,7 +92,7 @@ function link( route, text ) {
 function linkBook( $item, book ) {
 	$item.dataset.id = book.id.toString();
 	/** @type {HTMLAnchorElement} */ (
-		$item.querySelector( '.library-item__link, .library-cover-link' )
+		$item.querySelector( '[data-part="link"]' )
 	).href = urlOf( { view: 'book', id: book.id } );
 }
 
@@ -358,7 +358,7 @@ function renderTerm( $link, description, line ) {
 	const $item = clone( 'library-term' );
 
 	fill( $item, { line } );
-	$item.querySelector( '.library-term__name' ).append( $link );
+	$item.querySelector( '[data-part="name"]' ).append( $link );
 	fillHtml( $item.querySelector( '[data-html="description"]' ), description );
 
 	return $item;

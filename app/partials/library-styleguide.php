@@ -76,10 +76,10 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>Sizes of the text, at this width, on lines of <code>--app-line-height</code> (φ): each one a utility of its name too, <code>.app-text-s</code> for <code>--app-text-s</code></figcaption>
-				<ul class="library-styleguide__sizes">
+				<ul class="library-styleguide__sizes" data-list="sizes">
 					<?php foreach ( $sizes as list( $size, $family, $use ) ) : ?>
 						<li>
-							<span class="library-styleguide__size" style="--library-token: <?php echo esc_attr( $size ); ?>; --library-family: <?php echo esc_attr( $family ); ?>">Reading 2026</span>
+							<span class="library-styleguide__size" data-part="size" style="--library-token: <?php echo esc_attr( $size ); ?>; --library-family: <?php echo esc_attr( $family ); ?>">Reading 2026</span>
 							<span class="library-styleguide__use"><code><?php echo esc_html( $size ); ?></code> · <span data-size></span> · <?php echo esc_html( $use ); ?></span>
 						</li>
 					<?php endforeach; ?>

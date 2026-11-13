@@ -22,5 +22,5 @@ $books      = Markup::set_attributes( '<library-list>', $attributes );
 <?php echo $state; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
 <?php echo $books; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
 	<ul class="app-list"></ul>
-	<div class="library-list__more"></div>
+	<div class="library-list__more" data-part="more"></div>
 </library-list>

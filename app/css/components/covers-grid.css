@@ -25,7 +25,7 @@
 	 * A cover is laid out off screen too, as cheap as it is: Safari leaves a card whose display changes skipped, of no
 	 * height, where it shows, and the cards of the list that were on screen came back as their padding.
 	 */
-	.app-list[data-covers] > .library-item {
+	.app-list[data-covers] > li > .library-item {
 		--library-cover-inline-size: 100%;
 
 		content-visibility: visible;
@@ -39,14 +39,14 @@
 		display: none;
 	}
 
-	.app-list[data-covers] > .library-item:has(> .library-cover:not([hidden])) .library-item__title {
+	.app-list[data-covers] > li > .library-item:has(> .library-cover:not([hidden])) .library-item__title {
 		position: absolute;
 		inset: 0;
 		overflow: hidden;
 		opacity: 0;
 	}
 
-	.app-list[data-covers] > .library-item > .library-cover[hidden] + .library-item__body {
+	.app-list[data-covers] > li > .library-item > .library-cover[hidden] + .library-item__body {
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
 		padding: var(--app-space-s);

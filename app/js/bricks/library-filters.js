@@ -19,7 +19,7 @@ class LibraryFiltersElement extends Brick {
 		const $open = this.querySelector( '[data-action="open-filters"]' );
 		const $dialog = this.querySelector( 'dialog' );
 		/** @type {HTMLElement} */
-		const $chosen = this.querySelector( '.library-filters__chosen' );
+		const $chosen = this.querySelector( '[data-list="chosen"]' );
 		const $pills = /** @type {HTMLElement[]} */ ( [
 			...$chosen.querySelectorAll( '[data-filter]' ),
 		] );
