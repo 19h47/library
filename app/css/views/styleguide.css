@@ -13,50 +13,11 @@
 		color: var(--app-text-muted);
 	}
 
-	/* The view of the styleguide, a container as wide as the column of the app, which the parts of the styleguide measure against */
-	library-view[name="styleguide"] {
-		container-type: inline-size;
-	}
-
-	/*
-	 * The styleguide, across the screen but its gutters, its title, its contents and its levels on one edge: on a phone,
-	 * the column of the app
-	 */
-	library-styleguide {
-		margin-inline: calc(50cqi - 50vw + var(--app-space-l));
-	}
-
-	/* What it says, and where a link of its contents leads, under the controls of the toolbar */
-	.library-styleguide__intro {
-		max-inline-size: 100cqi;
-	}
-
-	library-styleguide [id] {
-		scroll-margin-block-start: calc(var(--app-toolbar-top) + var(--app-control-size));
-	}
-
-	/* Its contents: each level, then the components it shows, a link each, as many on a line as fit */
-	.library-styleguide__contents {
-		list-style: none;
-		display: grid;
-		gap: var(--app-space-s);
-	}
-
-	.library-styleguide__contents > li {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: var(--app-space-xs) var(--app-space-s);
-	}
-
-	/*
-	 * The samples of a level, in columns at least as wide as the column of the app, as many as the screen holds, one on a
-	 * phone, each sample under the one before in its column, whatever its height: a column is the place of the components
-	 * it shows, which fill it as they fill their place in the app; a component wider than it goes past its frame
-	 */
+	/* A frame keeps the width of the page: a component wider than it goes past its border, rather than widening the others */
 	.library-styleguide__samples {
-		columns: 100cqi;
-		column-gap: var(--app-space-l);
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--app-space-l);
 	}
 
 	/* The caption of a sample and what a size of the text sets: small text, as the interface without its capitals */
@@ -73,12 +34,10 @@
 		gap: var(--app-space-xs);
 	}
 
-	/* A sample: its caption, then its frame, a gap under it, whole in its column, a step and a half above the next one */
+	/* A sample: its caption, then its frame, a gap under it */
 	.library-styleguide__samples > figure {
 		display: grid;
 		gap: var(--app-space-s);
-		break-inside: avoid;
-		margin-block-end: var(--app-space-l);
 	}
 
 	/* The name of a sample, its heading, as the text, then what it is, the caption */
@@ -102,7 +61,7 @@
 		border-radius: var(--app-radius-m);
 	}
 
-	/* A strip in a frame goes to the edges of its frame, not of the screen, which a column of the styleguide is not as wide as */
+	/* A strip in a frame goes to the edges of its frame, not of the screen */
 	.library-styleguide__frame .library-strip {
 		--library-bleed: 0px;
 	}
