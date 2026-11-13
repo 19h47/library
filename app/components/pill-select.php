@@ -13,10 +13,9 @@
 
 use Library\Markup;
 
-$args   = wp_parse_args( $args, array( 'attributes' => array() ) );
-$select = Markup::set_attributes( Markup::get_select( $args['options'] ), $args['attributes'] + array( 'id' => $args['id'] ) );
+$args = wp_parse_args( $args, array( 'attributes' => array() ) );
 ?>
 <label class="app-pill" for="<?php echo esc_attr( $args['id'] ); ?>">
 	<span class="sr-only"><?php echo esc_html( $args['label'] ); ?></span>
-	<?php echo $select; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+	<?php Markup::render_tag( Markup::get_select( $args['options'] ), $args['attributes'] + array( 'id' => $args['id'] ) ); ?>
 </label>

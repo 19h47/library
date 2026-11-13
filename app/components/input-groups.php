@@ -2,8 +2,9 @@
 /**
  * A list of inputs in groups, in a fieldset, such as the people of a book by role: each group a fieldset of its own, a
  * field apart, its legend above its rows, shown once it holds one; then the pills that add an input, the group it goes
- * in, chosen, and the button. The legend of the whole is read only: the ones of its groups show what they hold. Its rows
- * are clones of a template, which inputList() adds, in the group chosen, and removes.
+ * in, chosen among its options, and the button. Its label is read only: the legends of its groups show what they hold.
+ * Its rows are clones of a template, which inputsList() adds, in the group chosen, and removes. Its attributes are the
+ * ones of its fieldset.
  *
  * @link       https://github.com/19h47/library
  * @since      9.38.0
@@ -11,21 +12,20 @@
  * @package    Library
  * @subpackage Library/app/components
  *
- * @var array{id: string, legend: string, groups: array<string, string>, choices: array<string, string>, label: string, add: string, action: string, attributes?: array<string, string|bool|null>} $args
+ * @var array{id: string, label: string, groups: array<string, string>, options: array<string, string>, options_label: string, add: string, action: string, attributes?: array<string, string|bool|null>} $args
  */
 
 use Library\Markup;
 
-$args     = wp_parse_args( $args, array( 'attributes' => array() ) );
-$fieldset = Markup::set_attributes( '<fieldset>', $args['attributes'] + array( 'class' => 'library-input-list library-input-list--groups' ) );
+$args = wp_parse_args( $args, array( 'attributes' => array() ) );
 
-echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+Markup::render_tag( '<fieldset>', $args['attributes'] + array( 'class' => 'library-inputs-list library-inputs-list--groups' ) );
 ?>
-	<legend class="sr-only"><?php echo esc_html( $args['legend'] ); ?></legend>
+	<legend class="sr-only"><?php echo esc_html( $args['label'] ); ?></legend>
 	<?php foreach ( $args['groups'] as $group => $legend ) : ?>
-		<fieldset class="library-input-list__group" data-group="<?php echo esc_attr( $group ); ?>">
-			<legend class="app-meta"><?php echo esc_html( $legend ); ?></legend>
-			<ul class="library-input-list__items"></ul>
+		<fieldset class="library-inputs-list__group" data-group="<?php echo esc_attr( $group ); ?>">
+			<legend class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $legend ); ?></legend>
+			<ul class="library-inputs-list__items"></ul>
 		</fieldset>
 	<?php endforeach; ?>
 	<p class="library-pills">
@@ -34,8 +34,8 @@ echo $fieldset; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			'pill-select',
 			array(
 				'id'      => $args['id'],
-				'label'   => $args['label'],
-				'options' => $args['choices'],
+				'label'   => $args['options_label'],
+				'options' => $args['options'],
 			)
 		);
 		?>

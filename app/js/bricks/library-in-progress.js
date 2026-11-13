@@ -27,7 +27,7 @@ class LibraryInProgressElement extends Brick {
 			),
 			// A book being read that changed, such as its cover, is drawn again in its place. A book finished leaves as the
 			// books being read load again: its cover stays until then, its focus with it.
-			followBooks( $list, '.library-current', ( $item, book ) => {
+			followBooks( $list, ( $item, book ) => {
 				if ( book?.in_progress ) {
 					$item.replaceWith( renderCurrent( book ) );
 				}

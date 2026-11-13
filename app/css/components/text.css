@@ -1,15 +1,15 @@
 /**
  * Styles of text, atoms, as the text styles of a design file: the heading of a page or a dialog, and the text written in
- * the admin. The sizes are tokens of the base: --app-font-small to --app-font-xxx-large.
+ * the admin. The sizes are tokens of the base: --app-text-s to --app-text-3xl.
  */
 
-@layer library.components {
+@layer app.components {
 	/*
 	 * The heading of a page or of a dialog, large: the title of a book, the name of a person, of a series or of a
 	 * collection, the filters, the form of a book; tightened as the title of the page, a long word broken anywhere
 	 */
 	.library-heading {
-		font-size: var(--app-font-large);
+		font-size: var(--app-text-l);
 		line-height: var(--app-line-height);
 		letter-spacing: -0.02em;
 		overflow-wrap: anywhere;
@@ -18,7 +18,7 @@
 	/* Text written in the admin, the notes of a book or the description of a person or of a series: its paragraphs a step apart */
 	.library-prose {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 		overflow-wrap: anywhere;
 	}
 }

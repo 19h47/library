@@ -2,10 +2,10 @@
  * The books: their controls, the filters and the order, the title of the list under the home and the search.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The filters and the order of the books, under their title: they head the list, as a title does */
 	library-view > .library-books__controls {
-		margin-bottom: var(--app-u1);
+		margin-bottom: var(--app-space-m);
 	}
 
 	/* The button of the filters and their choices made take their place among the controls: the choices on a line of their own, after the order */
@@ -20,20 +20,20 @@
 
 	/* The title of the books, with their number: under the home when it shows */
 	library-home:not([hidden]) + .library-books__title {
-		margin-top: var(--app-u3);
+		margin-top: var(--app-space-xl);
 	}
 
 	/* The field of the search, then its keywords a gap under it: the room of their focus, out of their row, comes off it */
 	.app-search,
-	.library-search__form {
+	.library-search {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	/* The field, then its button, on one line: the field takes the room left */
 	.library-search__row {
 		display: flex;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	.library-search__row > input {

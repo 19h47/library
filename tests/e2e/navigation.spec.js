@@ -87,7 +87,7 @@ test.describe( 'Navigation', () => {
 			window.isSameDocument = true;
 		} );
 
-		const card = page.locator( 'library-list .library-item__link' ).first();
+		const card = page.locator( 'library-list .library-card-link' ).first();
 
 		await expect( card ).toHaveAttribute( 'href', /view=book&book=\d+/ );
 		await card.click();

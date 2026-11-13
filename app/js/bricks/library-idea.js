@@ -13,14 +13,18 @@ class LibraryIdeaElement extends Brick {
 		const $book = this.querySelector( '[data-field="book"]' );
 		/** @type {HTMLButtonElement} */
 		const $next = this.querySelector( '[data-action="next-idea"]' );
-		const render = this.hasAttribute( 'compact' )
+		/** @type {HTMLElement} */
+		const $nextRow = this.querySelector( '[data-row="next"]' );
+		const isCompact = this.hasAttribute( 'compact' );
+		const render = isCompact
 			? renderRow
 			: ( book ) => renderBook( book, formatState( book ) );
 
 		$next.addEventListener( 'click', () => store.nextIdea(), { signal } );
 
 		return [
-			followCards( $book, formatState ),
+			// A card follows its book; a row, compact, is drawn again with the idea only.
+			...( isCompact ? [] : [ followCards( $book, formatState ) ] ),
 			store.select(
 				( state ) => state.idea,
 				( idea ) => {
@@ -28,7 +32,7 @@ class LibraryIdeaElement extends Brick {
 
 					this.hidden = ! idea.loaded;
 					$next.disabled = idea.loading;
-					$next.hidden = idea.idea_count < 2;
+					$nextRow.hidden = idea.idea_count < 2;
 					fill( this, {
 						status: idea.error,
 						reason: book ? idea.reason : '',

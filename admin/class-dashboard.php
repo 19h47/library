@@ -115,7 +115,7 @@ class Dashboard {
 	}
 
 	/**
-	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and edition years.
+	 * Collection widget, on the books kept: authors, publishers, collections, languages, translations and printing years.
 	 */
 	public function render_collection(): void {
 		$books       = Stats::get_kept_books();
@@ -154,7 +154,7 @@ class Dashboard {
 			'languages'  => count( $languages ),
 			'translated' => count( array_filter( $books, fn( Book $book ) => $book->is_translated() ) ),
 		);
-		$charts      = array( $this->get_edition_chart() );
+		$charts      = array( $this->get_printed_chart() );
 
 		$this->render_partial( 'collection', compact( 'counts', 'rankings', 'charts' ) );
 	}
@@ -176,7 +176,7 @@ class Dashboard {
 	/**
 	 * Count values by their start, e.g. "2024-05" (length 7) or "2024" (length 4) for a date; empty values are left out.
 	 *
-	 * @param string[] $values Values, e.g. the edition dates of the books.
+	 * @param string[] $values Values, e.g. the printed dates of the books.
 	 * @param int      $length Number of characters to group by.
 	 * @return array<string,int> Values keyed by their start, in ascending order.
 	 */
@@ -289,12 +289,12 @@ class Dashboard {
 	}
 
 	/**
-	 * Books by edition year, by decade when there are too many years to show.
+	 * Books by the year their copy was printed, by decade when there are too many years to show.
 	 *
 	 * @return Chart
 	 */
-	private function get_edition_chart(): array {
-		$books_by_year = self::count_by_start( array_column( Stats::get_kept_books(), 'edition_date' ), 4 );
+	private function get_printed_chart(): array {
+		$books_by_year = self::count_by_start( array_column( Stats::get_kept_books(), 'printed_date' ), 4 );
 
 		if ( count( $books_by_year ) <= 40 ) {
 			$items = array();
@@ -303,7 +303,7 @@ class Dashboard {
 				$items[] = self::build_chart_item( (string) $year, (string) $year, $books, Books::format_books( $books ) );
 			}
 
-			return self::build_books_chart( __( 'Edition year distribution', 'library' ), __( 'Edition year', 'library' ), $items );
+			return self::build_books_chart( __( 'Printing year distribution', 'library' ), __( 'Printing year', 'library' ), $items );
 		}
 
 		$books_by_decade = array();
@@ -320,7 +320,7 @@ class Dashboard {
 			$items[] = self::build_chart_item( (string) $decade, sprintf( '%d–%d', $decade, $decade + 9 ), $books, Books::format_books( $books ) );
 		}
 
-		return self::build_books_chart( __( 'Edition year distribution (by decade)', 'library' ), __( 'Edition years', 'library' ), $items );
+		return self::build_books_chart( __( 'Printing year distribution (by decade)', 'library' ), __( 'Printing years', 'library' ), $items );
 	}
 
 	/**
@@ -385,14 +385,14 @@ class Dashboard {
 	}
 
 	/**
-	 * The unread book at hand with the oldest edition date.
+	 * The unread book at hand printed the longest ago.
 	 *
 	 * @return Book|null
 	 */
 	private function get_oldest_unread_book(): ?Book {
-		$dated = array_filter( Stats::get_books_on_the_pile(), fn( Book $book ) => '' !== $book->edition_date );
+		$dated = array_filter( Stats::get_books_on_the_pile(), fn( Book $book ) => '' !== $book->printed_date );
 
-		usort( $dated, fn( Book $a, Book $b ) => $a->edition_date <=> $b->edition_date );
+		usort( $dated, fn( Book $a, Book $b ) => $a->printed_date <=> $b->printed_date );
 
 		return $dated[0] ?? null;
 	}

@@ -2,7 +2,7 @@
  * Rows of pills, on as many lines as they need, and strips, which scroll sideways across the viewport.
  */
 
-@layer library.components {
+@layer app.components {
 	/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
 	library-nav,
 	.app-search,
@@ -25,9 +25,9 @@
 
 		list-style: none;
 		display: flex;
-		gap: var(--app-gap);
-		margin-block: calc(-1 * var(--library-focus-room));
-		margin-inline: calc(-1 * var(--library-bleed));
+		gap: var(--app-space-s);
+		margin-block: calc(-1 * var(--library-focus-room)); /* Exception, a strip: room for the focus of its items, which it scrolls */
+		margin-inline: calc(-1 * var(--library-bleed)); /* Exception, a strip: out to the edges of the screen, as its place sets it */
 		padding-block: var(--library-focus-room);
 		padding-inline: var(--library-bleed);
 		overflow-x: auto;
@@ -50,7 +50,7 @@
 		list-style: none;
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	/* A pill longer than the line, such as the name of a long series on a phone, goes on as many lines as it needs too */

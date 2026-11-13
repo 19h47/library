@@ -28,23 +28,24 @@ $args = wp_parse_args(
 );
 
 $description_id = "{$args['id']}-description";
-$control        = Markup::set_attributes(
-	$args['control'],
-	$args['attributes'] + array(
-		'id'               => $args['id'],
-		'required'         => $args['required'] ? true : null,
-		'aria-describedby' => '' !== $args['description'] ? $description_id : null,
-	)
-);
 ?>
 <p class="library-field">
-	<label class="app-meta" for="<?php echo esc_attr( $args['id'] ); ?>">
+	<label class="app-text-s app-text-muted app-font-ui app-uppercase" for="<?php echo esc_attr( $args['id'] ); ?>">
 		<?php
 		/* translators: %s: label of a field that must be filled in, e.g. Title. */
 		echo esc_html( $args['required'] ? sprintf( _x( '%s (required)', 'one field', 'library' ), $args['label'] ) : $args['label'] );
 		?>
 	</label>
-	<?php echo $control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+	<?php
+	Markup::render_tag(
+		$args['control'],
+		$args['attributes'] + array(
+			'id'               => $args['id'],
+			'required'         => $args['required'] ? true : null,
+			'aria-describedby' => '' !== $args['description'] ? $description_id : null,
+		)
+	);
+	?>
 	<?php if ( '' !== $args['description'] ) : ?>
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>
 	<?php endif; ?>

@@ -9,7 +9,7 @@ import {
 	join,
 	listFormat,
 } from 'library-app/format';
-import { fill, fillFolded, renderSeries } from 'library-app/render';
+import { fill, fillCardsGroup, renderSeries } from 'library-app/render';
 import { TermPage } from 'library-app/term-page';
 
 /**
@@ -78,7 +78,7 @@ class LibraryPersonElement extends TermPage {
 			store.select(
 				( state ) => state.person.series,
 				( series ) =>
-					fillFolded(
+					fillCardsGroup(
 						$series,
 						series.map( ( item ) =>
 							renderSeries(

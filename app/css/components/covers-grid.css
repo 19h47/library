@@ -2,56 +2,51 @@
  * The grid of covers: the books of a list as their covers alone, when chosen.
  */
 
-@layer library.components {
+@layer app.components {
 	/*
 	 * The books of a list as a grid of their covers, when chosen: as many columns as fit, half a step wider than the cover
 	 * of a card at least, three on a phone, on a line as on a shelf. A card is its cover alone, its title kept for assistive
 	 * technologies and its link covering it; a book without a cover shows its title in a frame of the shape of a cover, cut
 	 * when it is too long for it.
 	 */
-	.app-list__items[data-covers] {
+	.app-list[data-covers] {
 		grid-template-columns: repeat(auto-fill, minmax(calc(var(--library-cover-width) * sqrt(var(--app-phi))), 1fr));
 		align-items: end;
 	}
 
 	/* Where the browser lays out grid lanes, the covers of each column follow one another, as in a wall of bricks: masonry */
 	@supports (display: grid-lanes) {
-		.app-list__items[data-covers] {
+		.app-list[data-covers] {
 			display: grid-lanes;
 		}
 	}
 
 	/*
 	 * A cover is laid out off screen too, as cheap as it is: Safari leaves a card whose display changes skipped, of no
-	 * height, where it shows, and the cards of the list that were on screen came back as their padding.
+	 * height, where it shows, and the cards of the list that were on screen came back as their padding. The card takes the
+	 * corners of its cover, which it would cut with its own, and its outline when focused follows them; a book without a
+	 * cover shows its title in the frame of its cover.
 	 */
-	.app-list__items[data-covers] > .library-item {
+	.app-list[data-covers] > li > .library-book-card {
 		--library-cover-inline-size: 100%;
+		--library-cover-frame: block;
 
 		content-visibility: visible;
 		display: block;
 		padding: 0;
 		border: 0;
+		border-radius: var(--app-radius-s);
 		background: none;
 	}
 
-	.app-list__items[data-covers] .library-item__body > :not(.library-item__title) {
+	.app-list[data-covers] .library-book-card__body > :not(.library-book-card__title) {
 		display: none;
 	}
 
-	.app-list__items[data-covers] > .library-item:has(> .library-cover:not([hidden])) .library-item__title {
+	.app-list[data-covers] .library-book-card__title {
 		position: absolute;
 		inset: 0;
 		overflow: hidden;
 		opacity: 0;
-	}
-
-	.app-list__items[data-covers] > .library-item > .library-cover[hidden] + .library-item__body {
-		aspect-ratio: 1 / var(--app-phi);
-		overflow: hidden;
-		padding: var(--app-gap);
-		border: 1px solid var(--app-line-soft);
-		border-radius: var(--library-radius-small);
-		font-size: var(--app-font-small);
 	}
 }

@@ -11,8 +11,10 @@ import {
 import {
 	clone,
 	fill,
+	fillBookPage,
+	fillBookCover,
 	fillCover,
-	fillFolded,
+	fillCardsGroup,
 	fillHtml,
 	renderAchievement,
 	renderAuthor,
@@ -108,6 +110,34 @@ const BOOKS = [
 			...book,
 		} )
 );
+
+// The book open, as its page shows it: its title page, its notes and the fields of its work, of its edition and of its copy.
+const BOOK_PAGE = /** @type {Book} */ ( {
+	...BOOKS[ 0 ],
+	main_title: 'The title of a book',
+	subtitle: 'Its subtitle',
+	excerpt: 'Its excerpt, as written on its back cover.',
+	content:
+		'<p>Its notes, written in its form.</p>\n<p>A second paragraph.</p>',
+	people: [
+		{ id: 1, name: 'An Author', role: 'author' },
+		{ id: 2, name: 'A Translator', role: 'translator' },
+	],
+	languages: [ 'it' ],
+	edition_languages: [ 'fr' ],
+	form: 'A form',
+	publishers: [
+		{ id: 1, name: 'A Publisher' },
+		{ id: 2, name: 'A Collection' },
+	],
+	collection_number: '42',
+	published_date: '1949',
+	edition_date: '1972-11',
+	isbn: '978-2-07-036024-6',
+	pages: 320,
+	printed_date: '2014-04-23',
+	added_date: '2024-05-12T10:00:00',
+} );
 
 const AUTHORS = [
 	{
@@ -234,10 +264,6 @@ class LibraryStyleguideElement extends Brick {
 						`library-styleguide-close-${ index }`
 					)
 				),
-			readings: () =>
-				[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
-					( interval ) => this.#renderReading( interval )
-				),
 		};
 
 		Object.entries( samples ).forEach( ( [ name, render ] ) =>
@@ -245,11 +271,41 @@ class LibraryStyleguideElement extends Brick {
 				...render()
 			)
 		);
+		// The readings of a book, in the list of their field.
+		this.querySelector( '[data-sample="readings"] ul' ).replaceChildren(
+			...[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
+				( interval ) => this.#renderReading( interval )
+			)
+		);
 
-		// Five authors, the ones past the first folded, as the page of a series folds them.
-		fillFolded(
-			this.querySelector( '[data-folded="authors"]' ),
-			Array.from( { length: 5 }, ( _, index ) =>
+		// The book open, the link to the recap, the status of an ISBN and the keywords of a search, filled as their bricks
+		// fill them.
+		fillBookPage( this.querySelector( '[data-sample="book"]' ), BOOK_PAGE );
+		fill( this.querySelector( '[data-sample="recap-link"]' ), {
+			year: '2025',
+		} );
+		fill( this.querySelector( '[data-sample="isbn-status-duplicate"]' ), {
+			duplicate: 'A title',
+		} );
+		/** @type {HTMLElement} */ (
+			this.querySelector(
+				'[data-sample="isbn-status-duplicate"] [data-action="buy"]'
+			)
+		).hidden = false;
+		fill( this.querySelector( '[data-sample="isbn-status-catalog"]' ), {
+			catalog:
+				'Filled in from the catalogue of the BnF: check what it gives.',
+		} );
+		/** @type {HTMLElement} */ (
+			this.querySelector(
+				'[data-sample="keywords"] [data-list="keywords"]'
+			)
+		).hidden = false;
+
+		// Six authors, the ones past the first folded, as the page of a series folds them.
+		fillCardsGroup(
+			this.querySelector( '[data-sample="cards-group"]' ),
+			Array.from( { length: 6 }, ( _, index ) =>
 				renderAuthor(
 					AUTHORS[ index % AUTHORS.length ],
 					formatBooks( AUTHORS[ index % AUTHORS.length ].book_count )
@@ -271,10 +327,17 @@ class LibraryStyleguideElement extends Brick {
 
 		// The covers of the atoms and of the book open, and the one of the form, drawn as the others; the form can remove it.
 		this.querySelectorAll( '[data-sample-cover]' ).forEach( ( $cover ) =>
-			fillCover( /** @type {HTMLImageElement} */ ( $cover ), COVER )
+			fillBookCover( /** @type {HTMLElement} */ ( $cover ), {
+				cover: COVER,
+				title: '',
+			} )
 		);
+		fillBookCover( this.querySelector( '[data-sample-frame]' ), {
+			cover: null,
+			title: 'A book without its cover, and a title long enough to be cut',
+		} );
 		fillCover(
-			this.querySelector( '.library-image-field__preview' ),
+			this.querySelector( '[data-part="preview"] [data-field="cover"]' ),
 			COVER
 		);
 
@@ -293,7 +356,7 @@ class LibraryStyleguideElement extends Brick {
 			}
 		);
 		/** @type {HTMLButtonElement} */ (
-			this.querySelector( '.library-image-field [data-action]' )
+			this.querySelector( '[data-action="remove-cover"]' )
 		).hidden = false;
 
 		// The fields in error show as the forms show theirs.
@@ -309,11 +372,11 @@ class LibraryStyleguideElement extends Brick {
 		);
 
 		// The size each sample of text takes, at this width.
-		this.querySelectorAll( '.library-styleguide__sizes li' ).forEach(
+		this.querySelectorAll( '[data-list="sizes"] li' ).forEach(
 			( $item ) => {
 				const size = parseFloat(
 					getComputedStyle(
-						$item.querySelector( '.library-styleguide__size' )
+						$item.querySelector( '[data-part="size"]' )
 					).fontSize
 				);
 

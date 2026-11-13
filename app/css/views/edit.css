@@ -1,30 +1,13 @@
 /**
- * The form of a book, to add or edit it: what the ISBN typed tells and its details.
+ * The form of a book, to add or edit it: its details.
  */
 
-@layer library.views {
+@layer app.views {
 	/*
-	 * What the ISBN typed tells, the book that has it already or the search of the catalogue of the BnF, or the photo of a
-	 * barcode without one: its messages stay in
-	 * the page, to be read once one shows, out of the flow while none does.
+	 * The details, a field or a pill per line, such as a collective work, a step apart, as a disclosure spaces them; a pill
+	 * as wide as its text, rather than the line
 	 */
-	.library-edit__duplicate:not(:has(> :not([hidden]))) {
-		position: absolute;
-	}
-
-	.library-edit__duplicate [data-action="buy"] {
-		margin-inline-start: var(--app-gap);
-	}
-
-	.library-edit__details summary {
-		cursor: pointer;
-	}
-
-	/*
-	 * The details, a field or a pill per line, such as a collective work, a step apart; the pills of a row, such as the
-	 * languages, keep the gap of their row
-	 */
-	.library-edit__details > :is(.library-field, .app-pill, library-choices) {
-		margin-top: var(--app-u1);
+	.library-edit__details > .app-pill {
+		justify-self: start;
 	}
 }

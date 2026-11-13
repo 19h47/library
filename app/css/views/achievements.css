@@ -2,38 +2,38 @@
  * The achievements: the year of reading, which the home shows too, then each achievement with its progress.
  */
 
-@layer library.views {
+@layer app.views {
 	.library-year {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	/* The year opens the achievements, its first line large: they space it from what follows; on the home, it is one line among the sections */
 	library-view > .library-year {
-		margin-bottom: var(--app-u3);
+		margin-bottom: var(--app-space-xl);
 	}
 
 	library-view > .library-year p:first-child {
-		font-size: var(--app-font-large);
+		font-size: var(--app-text-l);
 	}
 
 	.library-year p + p {
 		color: var(--app-text-muted);
 	}
 
-	.library-achievement {
+	.library-achievement-card {
 		overflow-wrap: anywhere;
 	}
 
-	.library-achievement__progress {
+	.library-achievement-card__progress {
 		display: flex;
 		align-items: center;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
-	.library-achievement__progress progress {
+	.library-achievement-card__progress progress {
 		flex: 1;
-		height: var(--app-gap);
+		height: var(--app-u0);
 		accent-color: var(--app-text);
 	}
 }

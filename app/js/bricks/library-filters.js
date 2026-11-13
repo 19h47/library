@@ -10,16 +10,16 @@ import {
 import { fill } from 'library-app/render';
 
 /**
- * The filters of the books: a button that says how many are chosen opens their fields in a dialog, each choice applied
- * at once, the books found counted on the button that closes it; the choices made show as pills, which remove them.
+ * The filters of the books: a button that says how many are chosen opens their fields in a dialog, a command of the
+ * dialog, each choice applied at once, the books found counted on the button that closes it; the choices made show as
+ * pills, which remove them.
  */
 class LibraryFiltersElement extends Brick {
 	connect( signal ) {
 		/** @type {HTMLButtonElement} */
-		const $open = this.querySelector( '[data-action="open-filters"]' );
-		const $dialog = this.querySelector( 'dialog' );
+		const $open = this.querySelector( '[data-part="open"]' );
 		/** @type {HTMLElement} */
-		const $chosen = this.querySelector( '.library-filters__chosen' );
+		const $chosen = this.querySelector( '[data-list="chosen"]' );
 		const $pills = /** @type {HTMLElement[]} */ ( [
 			...$chosen.querySelectorAll( '[data-filter]' ),
 		] );
@@ -28,9 +28,6 @@ class LibraryFiltersElement extends Brick {
 		];
 		const label = $open.textContent.trim();
 
-		$open.addEventListener( 'click', () => $dialog.showModal(), {
-			signal,
-		} );
 		$chosen.addEventListener(
 			'click',
 			( event ) => {

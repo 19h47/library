@@ -1,12 +1,12 @@
 /**
- * The page of a person, of a series or of a collection: its header, its completion and its sections.
+ * The page of a person, of a series or of a collection: its header, its completion, its sections and its books.
  */
 
-@layer library.views {
+@layer app.views {
 	/* The header of the page: its name, the lines that place it, its description and its reading */
 	.library-term-header {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	.library-term-header > p {
@@ -15,14 +15,15 @@
 
 	/* Its description, spaced from the lines around it */
 	.library-term-header > .library-prose {
-		margin-block: var(--app-gap);
+		margin-block: var(--app-space-s);
 	}
 
 	/*
-	 * The page spaces its header, then its completion, then its sections before its books: the series of a cycle, the
-	 * collections of a publisher, the authors, the series of a person
+	 * The page, a step apart between its parts: its status, its header, its completion, its sections, the series of a
+	 * cycle, the collections of a publisher, the authors, the series of a person, then its books
 	 */
-	:is(library-person, library-series, library-publisher) > :is(.library-term-header, .library-term-completion, .library-section) {
-		margin-bottom: var(--app-u2);
+	:is(library-person, library-series, library-publisher) {
+		display: grid;
+		gap: var(--app-space-l);
 	}
 }

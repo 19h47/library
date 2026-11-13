@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.38.0
+Stable tag: 9.43.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -94,9 +94,11 @@ Yes. The post type rewrite slug is `books` by default: use the `library_post_typ
 Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields of core, a book gives:
 
 * `credits` – the line shown under its title.
+* `main_title` – its title but its subtitle, with its series and its volume, which its page shows above its subtitle, `meta.library_subtitle`; `title` gives them all.
 * `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.reading` through `POST /wp-json/library/v1/books/<id>`; `read` and `in_progress` are worked out from them.
 * `names` – its people as named on it, each with its term ID and its role, the schema `library-book-person`, as `POST /wp-json/library/v1/books/<id>` takes and gives them: `{ "id": 12, "name": "Andy Chambers", "role": "author" }`; `people` gives their term IDs only, as core does for a taxonomy.
 * `cover`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
+* `publisher_names` – its publishers, each followed by the collections it is in under it, from the widest, each with its term ID, the schema `library-book-publisher`: `{ "id": 7, "name": "Gallimard" }, { "id": 31, "name": "Folio" }`.
 
 The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a collection its `path` after the collections it is part of, “Folio, Science-fiction”, and the ID of its publisher, `publisher_id`.
 
@@ -128,6 +130,34 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.43.0 =
+* Reading app: the books of the page of a person, a series or a collection come under their title, as on the home, with their number and the choice between their cards and a grid of their covers.
+* Changed: reading app: the cards of the page of a person, a series or a collection, its authors or its series, sit side by side, two in the column of the app, one on a phone; four show before the others fold under a pill, rather than three.
+* Code only: reading app: the component `cards-group`, the first cards then the others folded, its cards each at least `--library-cards-group-min` wide, filled by `fillCardsGroup()`, rather than `fillFolded()`; the section and its title around it are the page's. The details of the app share `.library-disclosure`, their summary then their contents a gap apart, `--library-disclosure-gap`, rather than a margin of each. `input-list` is `inputs-list`, `.library-inputs-list`, and `inputList()` is `inputsList()`. The page of a term spaces its parts with a gap.
+
+= 9.42.0 =
+* Changed: reading app: the arrow between the start and the end of a reading is an icon, drawn as the others whatever the system, rather than the character →.
+
+= 9.41.0 =
+* Changed: reading app: the covers of a recap take the width of their column and the height of their book, a soft line and small corners, as the covers of the app, rather than images cut to two thirds; the cover beside a record too.
+* Changed: reading app: a textarea of the form of a book is made higher by hand only, as wide as the form.
+* Fixed: reading app: in the grid of covers, a card no longer cuts the corners of its cover with its own; a book without a cover shows its title in the frame of its cover, as the rows of covers do.
+* Code only: reading app: its components, one way. Each is markup alone, a component per content, `app/components/<name>.php`, its root the class of its name, `.library-book-card`, `.library-book-row`, `.library-term-card`, `.library-achievement-card`, `.library-book-header`, `.library-book-fields`, `.library-views-nav`, `.library-search`, its arguments the same words everywhere; the brick that gives it a behavior stays around it in the app. New components: `book-cover`, the image of a book or its title in a frame, wherever a cover shows, filled by `fillBookCover()`; `isbn-status`, what the ISBN typed tells; the cards, the page of a book, the views nav, the search and the link to the recap, which the styleguide renders as the app does. The scripts reach elements by a `data-*` attribute or their semantics, never a class of style. The filters open by a command of their dialog.
+* Code only: reading app: its design system written down, `DESIGN-SYSTEM.md`, and checked: ESLint fails on a script that reaches an element by a class, `pnpm lint:css` on a length off the scale, a color written as it is, or a margin or a width a component gives itself, and `tests/e2e/styles.spec.js` on a change of the computed styles of the styleguide, on a phone and a wide screen, in both themes. The shared base styles, revision 53f8830: corners are `--app-radius-xs` to `--app-radius-m`, rather than `--app-radius` and `--library-radius-small`.
+
+= 9.40.0 =
+* Reading app: the page of a book reads as its title page: its cover, its title, its subtitle on a line of its own, smaller, as on its cover, its credits and its translation, then its excerpt. Its readings are summed up in a line, how many times it is read, the end of the latest reading and how long it took, "Read 2 times · March 21, 2025 · in 12 days", which opens them to change them; the row "Read in" is gone.
+* Reading app: the fields of a book in three groups, each name beside its value: its work, with its people by role, its first publication, its original languages and its form; its edition, with its publisher and its collections, each linked to its page, its number in its collection, its edition date, its ISBN, its pages and the languages of its text; its copy, with its printed date and the day it was added.
+* REST API: a book of `wp/v2/books` gives `main_title`, its title but its subtitle, with its series and its volume, and `publisher_names`, its publishers, each followed by the collections it is in under it, from the widest, each a `library-book-publisher` with its term ID; `publishers` stays the term IDs of core.
+* Code only: reading app: the shared base styles, revision 9ea6527: space is `--app-space-xs` to `--app-space-xl`, `--app-space-m` at `--app-u1`, rather than `--app-gap-small`, `--app-gap` and a step of the scale; the steps `--app-u0` to `--app-u3` stay the scale of sizes. The fields side by side are `.library-fields--aside`; the styleguide shows the five spaces.
+
+= 9.39.0 =
+* Breaking: a book has three dates, each a year, a month or a day: the copy in hand printed, `library_printed_date`, "Printed", as its colophon says; the edition of its ISBN, `library_edition_date`, "Edition date", whatever the printing of the copy, as the catalogue of the BnF records it; and the work first published, `library_published_date`, as before. The edition date is no longer a full date only. In the REST API, `printed_date` in the routes of the plugin and `library_printed_date` in `wp/v2/books`. Migrate the data after updating, with your table prefix, for the books that are or were in hand, whose date was the one of their copy: `UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id SET m.meta_key = 'library_printed_date' WHERE m.meta_key = 'library_edition_date' AND p.post_type = 'library_book' AND p.post_status <> 'library-to-buy'`, then, a 1 January standing for a year alone, `UPDATE wp_postmeta SET meta_value = LEFT( meta_value, 4 ) WHERE meta_key IN ( 'library_printed_date', 'library_edition_date' ) AND meta_value LIKE '____-01-01'`.
+* The form of a book gives the printed date among the fields most books have, the edition date among the details; the catalogue of the BnF fills in the edition date, from its publication statement, such as "1989", "DL 2019" or "cop. 2002", but for "impr. 2015", the printing of its own copy. A book shows its three dates.
+* Changed: the dashboard counts the books by the year their copy was printed, and the oldest book to read is the one printed the longest ago; the books list shows and sorts by the printed date. The credits of a book give the year of its edition, else of its printing; the date of a book, for the achievements and the recap, is the one of its work, else of its edition, else of its printing. The reading idea of an anniversary of the edition takes the edition date only.
+* Code only: reading app: the shared base styles, revisions 4c2cbbe, ee476ba and 62d5a50: the layers app-base, app and app-utilities, the styles of the app in app.base, app.components and app.views; a list is `.app-list` and its items `.app-item`; a meta line is its utilities, `app-text-s app-text-muted app-font-ui app-uppercase`, rather than `.app-meta`; the sizes of the text are `--app-text-s` to `--app-text-3xl`. The recap sets the properties of its components, a cover link lays out what it holds, a book being read, `.library-current`, is a component, the action of a title is `.library-title__action`.
+* Code only: `Meta::DATE_KEYS` holds the three dates, all partial; `Meta::sanitize_date()` and the date control are removed; `Books::format_partial_date()`.
 
 = 9.38.0 =
 * Reading app: the form of a book groups its people by role, a group each, the authors first, shown once it holds a name: a person goes in the role chosen beside the button that adds them, which stays chosen, so as many translators as a book has are added without choosing their role each time.

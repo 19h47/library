@@ -24,9 +24,9 @@ import { urlOf } from 'library-app/router';
  */
 class LibraryDiaryElement extends Brick {
 	connect( signal ) {
-		const $months = this.querySelector( '.library-diary__months' );
+		const $months = this.querySelector( '[data-list="months"]' );
 		const observe = observeEnd(
-			this.querySelector( '.library-list__more' ),
+			this.querySelector( '[data-part="more"]' ),
 			signal,
 			() => store.loadMoreDiary()
 		);
@@ -47,7 +47,7 @@ class LibraryDiaryElement extends Brick {
 				( state ) => state.diary.items,
 				( months ) => {
 					const $cards = /** @type {HTMLElement[]} */ ( [
-						...$months.querySelectorAll( '.library-item' ),
+						...$months.querySelectorAll( '[data-id]' ),
 					] );
 					const $focused = $cards.find( ( $item ) =>
 						$item.contains( this.ownerDocument.activeElement )
@@ -75,7 +75,7 @@ class LibraryDiaryElement extends Brick {
 	#refocus( $focused, index ) {
 		const { id, date } = $focused.dataset;
 		const $cards = /** @type {HTMLElement[]} */ (
-			Array.from( this.querySelectorAll( '.library-item' ) )
+			Array.from( this.querySelectorAll( '[data-id]' ) )
 		);
 		const $card =
 			$cards.find(
@@ -84,7 +84,7 @@ class LibraryDiaryElement extends Brick {
 			) ?? $cards[ Math.min( index, $cards.length - 1 ) ];
 
 		/** @type {HTMLElement} */ (
-			$card?.querySelector( '.library-item__link' )
+			$card?.querySelector( '[data-part="link"]' )
 		)?.focus();
 	}
 

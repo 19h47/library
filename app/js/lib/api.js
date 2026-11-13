@@ -41,8 +41,9 @@ import {
  * @property {string}   isbn              Its ISBN, as typed.
  * @property {string}   volume_number     Its number in its series.
  * @property {string}   collection_number Its number in its collection.
- * @property {string}   edition_date      The date of its edition: a day, a month or a year.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
+ * @property {string}   edition_date      The date its edition, the one of its ISBN, first came out: a day, a month or a year.
+ * @property {string}   printed_date      The date its copy was printed: a day, a month or a year.
  * @property {number}   pages             Its number of pages, 0 for unknown.
  * @property {number}   rating            Its rating out of 10, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
@@ -62,7 +63,8 @@ import {
  *
  * @typedef {Object} BookFields
  * @property {number}     id                Its ID.
- * @property {string}     title             Its title.
+ * @property {string}     title             Its title, with its series, its volume and its subtitle.
+ * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
  * @property {string}     excerpt           Its summary in a few words.
  * @property {string}     content           Its notes, HTML as the API renders them.
  * @property {string}     credits           Its authors, publisher and year, under its title.
@@ -74,6 +76,8 @@ import {
  * @property {string[]}   languages         Its original languages, as their ISO 639 codes.
  * @property {string[]}   edition_languages The languages of its text, as their ISO 639 codes.
  * @property {string}     form              The name of its form, such as a novel, or empty.
+ * @property {Term[]}     publishers        Its publishers, each followed by the collections it is in under it, from the widest.
+ * @property {string}     added_date        The date it was added to the library.
  */
 
 /**
@@ -403,6 +407,7 @@ import {
  * @typedef {Object} ApiBook
  * @property {number}                  id                     Its ID.
  * @property {{rendered: string}}      title                  Its title, HTML.
+ * @property {string}                  main_title             Its title but its subtitle, HTML.
  * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
  * @property {{rendered: string}}      content                Its notes, HTML.
  * @property {string}                  credits                Its credits, HTML.
@@ -416,6 +421,8 @@ import {
  * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
  * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
  * @property {string}                  form_name              The name of its form, HTML.
+ * @property {Term[]}                  publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID: library-book-publisher.
+ * @property {string}                  date                   The date it was added, its post date.
  */
 
 /**
@@ -522,7 +529,7 @@ export function getPeople( book, role ) {
 }
 
 /**
- * A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its names with their roles, its original languages and its form.
+ * A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its names with their roles, its original languages, its form and its publishers.
  *
  * @param {ApiBook} item A book of the API.
  * @return {Book} The book.
@@ -543,6 +550,7 @@ function toBook( item ) {
 		...toReadings( item.readings ),
 		id: item.id,
 		title: text( item.title.rendered ),
+		main_title: text( item.main_title ),
 		excerpt: text( item.excerpt.rendered ),
 		// HTML as the API renders it: its paragraphs and links.
 		content: item.content.rendered,
@@ -560,6 +568,9 @@ function toBook( item ) {
 		edition_languages: item.edition_language_codes,
 		// Its name, for the tag of its card.
 		form: text( item.form_name ),
+		// From the widest, each to its page.
+		publishers: item.publisher_names.map( toPlainName ),
+		added_date: item.date,
 	};
 }
 

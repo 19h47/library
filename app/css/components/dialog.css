@@ -2,24 +2,24 @@
  * Dialogs over the page: the filters of the books, the choices of a field and the form of a book.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A sheet, the filters or the choices of a field: on a phone, from the bottom of the screen; beyond, a dialog in the middle, as the one of a book */
 	.library-sheet {
 		width: 100%;
 		max-width: none;
-		max-height: calc(100dvh - var(--app-u3));
+		max-height: calc(100dvh - var(--app-space-xl));
 		margin: auto 0 0;
-		padding: var(--app-u2);
-		padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
+		padding: var(--app-space-l);
+		padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-m));
 		border: 0;
 		border-top: 1px solid var(--app-line);
-		border-radius: var(--app-radius) var(--app-radius) 0 0;
+		border-radius: var(--app-radius-m) var(--app-radius-m) 0 0;
 		background: var(--app-bg);
 		color: var(--app-text);
 
 		&[open] {
 			display: grid;
-			gap: var(--app-u1);
+			gap: var(--app-space-m);
 		}
 
 		&::backdrop {
@@ -34,11 +34,11 @@
 
 	@media (min-width: 42rem) {
 		.library-sheet {
-			width: min(100% - 2 * var(--app-u2), var(--app-max-width));
+			width: min(100% - 2 * var(--app-space-l), var(--app-max-width)); /* Exception, a layer over the page: as wide as the column of the app, within the screen */
 			margin: auto;
-			padding: var(--app-u3);
+			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
-			border-radius: var(--app-radius);
+			border-radius: var(--app-radius-m);
 		}
 	}
 
@@ -48,8 +48,8 @@
 		max-width: none;
 		height: 100%;
 		max-height: none;
-		padding: var(--app-u2);
-		padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
+		padding: var(--app-space-l);
+		padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-m));
 		border: 0;
 		background: var(--app-bg);
 		color: var(--app-text);
@@ -57,7 +57,7 @@
 
 	.library-dialog[open] {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 		align-content: start;
 	}
 
@@ -67,13 +67,13 @@
 
 	@media (min-width: 42rem) {
 		.library-dialog {
-			width: min(100% - 2 * var(--app-u2), var(--app-max-width));
+			width: min(100% - 2 * var(--app-space-l), var(--app-max-width)); /* Exception, a layer over the page: as wide as the column of the app, within the screen */
 			height: auto;
-			max-height: calc(100% - 2 * var(--app-u2));
+			max-height: calc(100% - 2 * var(--app-space-l));
 			margin: auto;
-			padding: var(--app-u3);
+			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
-			border-radius: var(--app-radius);
+			border-radius: var(--app-radius-m);
 		}
 	}
 }

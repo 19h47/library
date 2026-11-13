@@ -53,8 +53,9 @@ final readonly class Book {
 	 * @param string[]             $readings          Readings, from their starts to their ends, in order: see Meta::get_readings().
 	 * @param float|null           $rating            Rating out of 10, null without.
 	 * @param int|null             $pages             Number of pages, null without.
-	 * @param string               $edition_date      Edition date, Y-m-d, or empty.
 	 * @param string               $published_date    Date it first came out, Y, Y-m or Y-m-d, or empty.
+	 * @param string               $edition_date      Date its edition first came out, Y, Y-m or Y-m-d, or empty.
+	 * @param string               $printed_date      Date its copy was printed, Y, Y-m or Y-m-d, or empty.
 	 * @param string               $added             Date added, the date of the post.
 	 * @param string[]             $authors           Names of its authors, by the name they are known by.
 	 * @param int[]                $author_ids        Term IDs of its authors.
@@ -84,8 +85,9 @@ final readonly class Book {
 		public array $readings,
 		public ?float $rating,
 		public ?int $pages,
-		public string $edition_date,
 		public string $published_date,
+		public string $edition_date,
+		public string $printed_date,
 		public string $added,
 		public array $authors,
 		public array $author_ids,

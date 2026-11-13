@@ -5,7 +5,7 @@
 ( () => {
 	'use strict';
 
-	const fieldset = document.querySelector( '.library-readings' );
+	const fieldset = document.querySelector( '[data-part="readings"]' );
 
 	if ( ! fieldset ) {
 		return;

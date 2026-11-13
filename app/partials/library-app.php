@@ -64,19 +64,15 @@ use Library\Meta;
 						<h1><a href="<?php echo esc_url( $views['books']['url'] ); ?>"><?php esc_html_e( 'Library', 'library' ); ?></a></h1>
 					</library-app-name>
 					<library-nav>
-						<nav>
-							<ul class="library-strip library-nav">
-								<?php foreach ( $views as $name => $item ) : ?>
-									<li>
-										<a
-											class="app-pill"
-											href="<?php echo esc_url( $item['url'] ); ?>"
-											<?php echo $name === $view ? 'aria-current="page"' : ''; ?>
-										><?php echo esc_html( $item['label'] ); ?></a>
-									</li>
-								<?php endforeach; ?>
-							</ul>
-						</nav>
+						<?php
+						Markup::render_component(
+							'views-nav',
+							array(
+								'views'   => $views,
+								'current' => $view,
+							)
+						);
+						?>
 					</library-nav>
 				</header>
 
@@ -86,61 +82,19 @@ use Library\Meta;
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
 					<div class="app-controls">
 						<library-search class="app-search">
-							<?php // A search landmark: the search follows the typing; submitted, it searches at once, or opens the styleguide or the reference of the API typed. ?>
-							<form class="library-search__form" role="search">
-								<label class="sr-only" for="library-search"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
-								<?php // The field, then its button, which the keyboard of a phone does not always show: Enter or the button submits. ?>
-								<p class="library-search__row">
-									<input
-										id="library-search"
-										type="search"
-										placeholder="<?php esc_attr_e( 'Title, author, series, ISBN…', 'library' ); ?>"
-										autocomplete="off"
-										enterkeyhint="search"
-									>
-									<?php // A control, as those of the toolbar. ?>
-									<button
-										class="app-control"
-										type="submit"
-										aria-label="<?php echo esc_attr_x( 'Search', 'verb', 'library' ); ?>"
-										title="<?php echo esc_attr_x( 'Search', 'verb', 'library' ); ?>"
-									>
-										<?php Markup::render_icon( 'search' ); ?>
-									</button>
-								</p>
-								<?php
-								// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
-								$search_keywords = array(
-									'series:""'    => get_taxonomy( 'library_series' )->labels->singular_name,
-									'author:""'    => Meta::get_role_choices()['author'],
-									'publisher:""' => $publisher_labels->singular_name,
-									/* translators: %s: current year. */
-									'read:' . wp_date( 'Y' ) => sprintf( __( 'Read in %s', 'library' ), wp_date( 'Y' ) ),
-									'rating:9'     => __( 'Rated 9 or more', 'library' ),
-								);
-								?>
-								<p class="library-strip library-search__keywords" hidden>
-									<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
-									<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
-										<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
-									<?php endforeach; ?>
-								</p>
-							</form>
+							<?php Markup::render_component( 'search', array( 'id' => 'library-search' ) ); ?>
 						</library-search>
 					</div>
 
 					<library-home class="library-sections">
 						<?php // In January only, the recap of the year just gone by. ?>
 						<library-recap-link hidden>
-							<a class="app-item library-recap-link" href="">
-								<span class="library-recap-link__year" data-field="year"></span>
-								<span><?php esc_html_e( 'The recap of the year', 'library' ); ?></span>
-							</a>
+							<?php Markup::render_component( 'recap-link' ); ?>
 						</library-recap-link>
 						<library-in-progress class="library-section" hidden>
 							<h3 class="library-title">
 								<?php echo esc_html( Meta::get_label( 'library_in_progress' ) ); ?>
-								<span class="app-meta" data-field="count"></span>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="count"></span>
 							</h3>
 							<ul class="library-strip"></ul>
 						</library-in-progress>
@@ -150,7 +104,7 @@ use Library\Meta;
 						<library-latest class="library-section" hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Latest readings', 'library' ); ?></h3>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
+								<a class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" href="<?php echo esc_url( $views['diary']['url'] ); ?>"><?php echo esc_html( $views['diary']['label'] ); ?></a>
 							</div>
 							<ul class="library-strip"></ul>
 						</library-latest>
@@ -158,26 +112,28 @@ use Library\Meta;
 						<library-idea class="library-section" compact hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
-								<button class="app-meta library-link library-push-end" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" data-row="next"><button class="library-link" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button></span>
 							</div>
 							<p class="app-status" data-field="status" hidden></p>
 							<p class="library-idea__reason" data-field="reason"></p>
-							<ul class="app-list__items" data-field="book"></ul>
+							<ul class="app-list" data-field="book"></ul>
 						</library-idea>
 						<library-close class="library-section" hidden>
 							<div class="library-title">
 								<h3 class="library-title__heading"><?php esc_html_e( 'Close to it', 'library' ); ?></h3>
-								<a class="app-meta library-push-end" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
+								<a class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" href="<?php echo esc_url( $views['achievements']['url'] ); ?>"><?php echo esc_html( $views['achievements']['label'] ); ?></a>
 							</div>
-							<ul class="app-list__items"></ul>
+							<ul class="app-list"></ul>
 						</library-close>
 					</library-home>
 					<div class="library-title library-books__title">
 						<h3 class="library-title__heading">
 							<?php echo esc_html( $labels->name ); ?>
-							<library-count class="app-meta" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						</h3>
-						<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-books' ) ); ?>
+						<library-covers-toggle class="library-title__action">
+							<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-books' ) ); ?>
+						</library-covers-toggle>
 					</div>
 					<div class="app-controls library-books__controls">
 						<?php
@@ -207,10 +163,10 @@ use Library\Meta;
 						}
 						?>
 						<library-filters>
-							<button class="app-pill" type="button" data-action="open-filters" aria-haspopup="dialog">
+							<button class="app-pill" type="button" commandfor="library-filters-dialog" command="show-modal" aria-haspopup="dialog" data-part="open">
 								<span data-field="label"><?php esc_html_e( 'Filters', 'library' ); ?></span>
 							</button>
-							<p class="library-filters__chosen library-pills" hidden>
+							<p class="library-filters__chosen library-pills" data-list="chosen" hidden>
 								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
 									<?php foreach ( array_filter( $filter_args['options'], 'strlen', ARRAY_FILTER_USE_KEY ) as $value => $label ) : ?>
 										<button class="app-pill" type="button" data-filter="<?php echo esc_attr( $book_filter ); ?>" data-value="<?php echo esc_attr( $value ); ?>" hidden>
@@ -264,14 +220,19 @@ use Library\Meta;
 						</library-filter>
 					</div>
 
-					<?php Markup::render_component( 'book-list' ); ?>
+					<?php // The books found, as cards or as a grid of their covers, the next ones loading as the end of the list comes, and what it says while it loads or finds none. ?>
+					<library-status class="app-status" hidden></library-status>
+					<library-list>
+						<ul class="app-list"></ul>
+						<div class="library-list__more" data-part="more"></div>
+					</library-list>
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
 					<library-diary>
 						<p class="app-status" data-field="status" hidden></p>
-						<div class="library-sections library-diary__months"></div>
-						<div class="library-list__more"></div>
+						<div class="library-sections library-diary__months" data-list="months"></div>
+						<div class="library-list__more" data-part="more"></div>
 					</library-diary>
 				</library-view>
 
@@ -280,8 +241,8 @@ use Library\Meta;
 						<h2 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h2>
 						<p class="app-status" data-field="status" hidden></p>
 						<p class="library-idea__reason" data-field="reason"></p>
-						<ul class="app-list__items" data-field="book"></ul>
-						<p class="library-idea__actions">
+						<ul class="app-list" data-field="book"></ul>
+						<p class="library-idea__actions" data-row="next">
 							<button class="app-pill" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
 						</p>
 					</library-idea>
@@ -299,16 +260,16 @@ use Library\Meta;
 						<section class="library-section" data-row="close">
 							<h2 class="library-title">
 								<?php esc_html_e( 'Close to it', 'library' ); ?>
-								<span class="app-meta" data-field="closeCount"></span>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="closeCount"></span>
 							</h2>
-							<ul class="app-list__items" data-list="close"></ul>
+							<ul class="app-list" data-list="close"></ul>
 						</section>
 						<section class="library-section" data-row="earned">
 							<h2 class="library-title">
 								<?php esc_html_e( 'Achievements', 'library' ); ?>
-								<span class="app-meta" data-field="earnedCount"></span>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="earnedCount"></span>
 							</h2>
-							<ul class="app-list__items" data-list="earned"></ul>
+							<ul class="app-list" data-list="earned"></ul>
 						</section>
 					</library-achievements>
 				</library-view>
@@ -317,35 +278,53 @@ use Library\Meta;
 					<div class="library-title">
 						<h2 class="library-title__heading">
 							<?php echo esc_html( $views['to-buy']['label'] ); ?>
-							<library-count class="app-meta" list="toBuy"></library-count>
+							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="toBuy"></library-count>
 						</h2>
-						<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-to-buy' ) ); ?>
+						<library-covers-toggle class="library-title__action">
+							<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-to-buy' ) ); ?>
+						</library-covers-toggle>
 					</div>
-					<?php Markup::render_component( 'book-list', array( 'list' => 'toBuy' ) ); ?>
+					<library-status class="app-status" list="toBuy" hidden></library-status>
+					<library-list list="toBuy">
+						<ul class="app-list"></ul>
+						<div class="library-list__more" data-part="more"></div>
+					</library-list>
 				</library-view>
 
 				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
-						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
+						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
 						<?php // The first series, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="series" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="app-list__items" data-list="shown"></ul>
-							<details class="library-section__more" data-row="more" hidden>
-								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list__items" data-list="more"></ul>
-							</details>
+							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list__items" data-list="books"></ul>
-						<div class="library-list__more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="person"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-person' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-person>
 				</library-view>
 
 				<library-view name="series" <?php echo Page::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-series>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php
@@ -366,7 +345,7 @@ use Library\Meta;
 							)
 						);
 						?>
-						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
+						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<ul class="library-pills" data-list="parts"></ul>
@@ -374,19 +353,29 @@ use Library\Meta;
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="shown"></ul>
-							<details class="library-section__more" data-row="more" hidden>
-								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list__items" data-list="more"></ul>
-							</details>
+							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list__items" data-list="books"></ul>
-						<div class="library-list__more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="series"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-series' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-series>
 				</library-view>
 
 				<library-view name="publisher" <?php echo Page::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-publisher>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php
@@ -408,7 +397,7 @@ use Library\Meta;
 							)
 						);
 						?>
-						<ul class="app-list__items library-term-completion" data-list="completion" hidden></ul>
+						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
 						<section class="library-section" data-row="collections" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
 							<ul class="library-pills" data-list="collections"></ul>
@@ -416,14 +405,22 @@ use Library\Meta;
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list__items" data-list="shown"></ul>
-							<details class="library-section__more" data-row="more" hidden>
-								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list__items" data-list="more"></ul>
-							</details>
+							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list__items" data-list="books"></ul>
-						<div class="library-list__more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="publisher"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-publisher' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-publisher>
 				</library-view>
 
@@ -431,7 +428,9 @@ use Library\Meta;
 				<library-view name="recap" data-immersive <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-recap>
 						<section class="library-recap__screen library-recap__opening">
-							<?php Markup::render_component( 'back' ); ?>
+							<library-back class="library-back">
+								<?php Markup::render_component( 'back' ); ?>
+							</library-back>
 							<hgroup class="library-recap__heading">
 								<h2 class="library-recap__year" data-field="year" tabindex="-1"></h2>
 								<p><?php esc_html_e( 'A year of reading', 'library' ); ?></p>
@@ -441,22 +440,22 @@ use Library\Meta;
 						</section>
 
 						<section class="library-recap__screen" data-screen="readings" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Books read', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Books read', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="readings"></p>
 							<p data-field="previous"></p>
-							<p class="app-meta" data-field="rereads"></p>
+							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="rereads"></p>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pages" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Pages read', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Pages read', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="pages"></p>
 							<p data-field="perDay"></p>
 							<p data-field="perBook"></p>
-							<p class="app-meta" data-field="counted"></p>
+							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="counted"></p>
 						</section>
 
 						<section class="library-recap__screen" data-screen="months" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Month by month', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Month by month', 'library' ); ?></h3>
 							<ol class="library-recap__months" data-list="months"></ol>
 							<p data-field="bestMonth"></p>
 						</section>
@@ -466,64 +465,64 @@ use Library\Meta;
 							<div class="library-recap__calendar" aria-hidden="true">
 								<ol data-list="calendar"></ol>
 							</div>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Day by day', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Day by day', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="daysRead"></p>
 							<p data-field="daysReadLabel"></p>
 							<p data-field="streak"></p>
 							<p data-field="bestDay"></p>
-							<p class="app-meta" data-field="dated"></p>
+							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="dated"></p>
 						</section>
 
 						<section class="library-recap__screen" data-screen="forms" hidden>
-							<h3 class="library-recap__title"><?php echo esc_html( $form_labels->name ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( $form_labels->name ); ?></h3>
 							<ul class="library-recap__shares" data-list="forms"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="people" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Read the most', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Read the most', 'library' ); ?></h3>
 							<ol class="library-recap__ranking" data-list="people"></ol>
 						</section>
 
 						<section class="library-recap__screen" data-screen="discoveries" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="discoveries"></p>
 							<p data-field="discovered"></p>
 							<ul class="library-pills library-recap__cloud library-recap__cut" data-row="discoveries" data-list="discoveries"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>
-							<h3 class="library-recap__title"><?php echo esc_html( $language_labels->name_for_book ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( $language_labels->name_for_book ); ?></h3>
 							<p class="library-recap__figure" data-field="languages"></p>
 							<ul class="library-recap__shares" data-list="languages"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="series" hidden>
-							<h3 class="library-recap__title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<p class="library-recap__figure" data-field="series"></p>
 							<p data-field="seriesState"></p>
 							<ol class="library-recap__ranking" data-list="series"></ol>
 						</section>
 
 						<section class="library-recap__screen" data-screen="rating" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Favourites', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Favourites', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="rating"></p>
 							<p><?php esc_html_e( 'Average rating', 'library' ); ?></p>
 							<ul class="library-recap__wall library-recap__cut" data-list="best"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="records" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Records', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Records', 'library' ); ?></h3>
 							<ul class="library-recap__records" data-list="records"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="achievements" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="achievements"></p>
 							<ul class="library-pills library-recap__cloud library-recap__cut" data-list="achievements"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pile" hidden>
-							<h3 class="library-recap__title"><?php esc_html_e( 'The pile', 'library' ); ?></h3>
+							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'The pile', 'library' ); ?></h3>
 							<p class="library-recap__figure" data-field="added"></p>
 							<p data-field="addedBooks"></p>
 							<p data-field="pile"></p>
@@ -541,15 +540,13 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="book" <?php echo Page::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
-						<img class="library-cover library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
-						<p class="app-meta library-book__meta" data-field="credits"></p>
-						<h2 class="library-heading" data-field="title" tabindex="-1"></h2>
-						<p class="library-book__excerpt" data-field="excerpt"></p>
+						<?php Markup::render_component( 'book-header' ); ?>
 						<div class="library-prose" data-html="content" hidden></div>
-						<p class="library-book__translation" data-field="translation"></p>
 						<library-reading>
 							<form class="library-form library-reading">
 								<div class="library-pills">
@@ -591,7 +588,7 @@ use Library\Meta;
 									?>
 								</div>
 								<?php // The day the reading in progress started, while there is one. ?>
-								<div class="library-reading__started" hidden>
+								<div class="library-reading__started" data-part="started" hidden>
 									<?php
 									Markup::render_component(
 										'field',
@@ -608,69 +605,39 @@ use Library\Meta;
 									);
 									?>
 								</div>
-								<?php
-								Markup::render_component(
-									'input-list',
-									array(
-										'id'          => 'library-reading-readings',
-										'class'       => 'library-reading__readings',
-										'legend'      => Meta::get_label( 'library_reading' ),
-										'description' => Meta::get_description( 'library_reading' ),
-										'add'         => __( 'Add a reading', 'library' ),
-										'action'      => 'add',
-										// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
-										'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
-										'attributes'  => array(
-											'hidden'   => true,
-											'disabled' => true,
-										),
-									)
-								);
-								?>
+								<?php // The readings ended, folded under the line that sums them up, which opens them to change them. ?>
+								<details class="library-disclosure library-reading__details" data-part="readings" hidden>
+									<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="readings"></summary>
+									<?php
+									Markup::render_component(
+										'inputs-list',
+										array(
+											'id'          => 'library-reading-readings',
+											'label'       => Meta::get_label( 'library_reading' ),
+											'description' => Meta::get_description( 'library_reading' ),
+											'add'         => __( 'Add a reading', 'library' ),
+											'action'      => 'add',
+											// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
+											'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
+											'attributes'  => array(
+												'data-list' => 'readings',
+												'disabled' => true,
+											),
+										)
+									);
+									?>
+								</details>
 								<p class="app-status" data-field="error" role="alert" hidden></p>
 							</form>
 						</library-reading>
 						<library-volumes class="library-book__series" hidden>
 							<h3 class="library-title">
 								<a data-field="name" href=""></a>
-								<span class="app-meta" data-field="count"></span>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="count"></span>
 							</h3>
 							<ul class="library-strip"></ul>
 						</library-volumes>
-						<dl class="library-fields">
-							<div data-row="authors">
-								<dt class="app-meta"><?php echo esc_html( $person_labels->name ); ?></dt>
-								<dd data-field="authors"></dd>
-							</div>
-							<?php // The translators are named by the translation line. ?>
-							<?php foreach ( array_diff_key( Meta::ROLE_KEYS, array( 'translator' => true ) ) as $role_field => $key ) : ?>
-								<div data-row="<?php echo esc_attr( $role_field ); ?>">
-									<dt class="app-meta"><?php echo esc_html( Meta::get_label( $key ) ); ?></dt>
-									<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
-								</div>
-							<?php endforeach; ?>
-							<div data-row="isbn">
-								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_isbn' ) ); ?></dt>
-								<dd data-field="isbn"></dd>
-							</div>
-							<div data-row="pages">
-								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_pages' ) ); ?></dt>
-								<dd data-field="pages"></dd>
-							</div>
-							<div data-row="edition_date">
-								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_edition_date' ) ); ?></dt>
-								<dd data-field="edition_date"></dd>
-							</div>
-							<div data-row="published_date">
-								<dt class="app-meta"><?php echo esc_html( Meta::get_label( 'library_published_date' ) ); ?></dt>
-								<dd data-field="published_date"></dd>
-							</div>
-							<?php // How long the latest reading took, from its start to its end. ?>
-							<div data-row="reading_time">
-								<dt class="app-meta"><?php esc_html_e( 'Read in', 'library' ); ?></dt>
-								<dd data-field="reading_time"></dd>
-							</div>
-						</dl>
+						<?php Markup::render_component( 'book-fields' ); ?>
 						<p>
 							<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
 						</p>
@@ -721,7 +688,7 @@ use Library\Meta;
 
 		<library-notice class="library-notice app-pill" tabindex="-1">
 			<span role="status" data-field="text"></span>
-			<button class="library-link" type="button" hidden></button>
+			<button class="library-link" type="button" data-action="notice" hidden></button>
 		</library-notice>
 
 		<library-edit>
@@ -733,7 +700,7 @@ use Library\Meta;
 					data-add="<?php echo esc_attr( $labels->add_new_item ); ?>"
 					data-edit="<?php echo esc_attr( $labels->edit_item ); ?>"
 				></h2>
-				<form class="library-form library-edit__form">
+				<form class="library-form library-edit__form" data-part="form">
 					<?php
 					// The fields a book has most, in the order a book in hand gives them: its ISBN first, which tells a book added already.
 					Markup::render_component(
@@ -743,27 +710,21 @@ use Library\Meta;
 							'name'   => 'cover',
 							'label'  => __( 'Choose a cover', 'library' ),
 							'remove' => __( 'Remove the cover', 'library' ),
+							'action' => 'remove-cover',
 						)
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
 					?>
-					<p class="library-edit__scan" hidden>
+					<?php // Where the browser reads EAN-13 barcodes, which its script tells: a photo of the barcode of the book types its ISBN. ?>
+					<p data-part="scan" hidden>
 						<label class="app-pill" for="library-edit-scan">
 							<input class="sr-only" id="library-edit-scan" type="file" accept="image/*" capture="environment">
 							<?php esc_html_e( 'Scan the barcode', 'library' ); ?>
 						</label>
 					</p>
-					<p class="library-edit__duplicate" role="status">
-						<span data-row="duplicate" hidden>
-							<?php esc_html_e( 'Already added:', 'library' ); ?>
-							<a data-field="duplicate" href=""></a>
-							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
-						</span>
-						<span data-field="catalog" hidden></span>
-						<span data-field="scan" hidden></span>
-					</p>
 					<?php
+					Markup::render_component( 'isbn-status' );
 					Markup::render_component(
 						'field',
 						array(
@@ -786,14 +747,14 @@ use Library\Meta;
 					Markup::render_component(
 						'input-groups',
 						array(
-							'id'         => 'library-edit-role',
-							'legend'     => $person_labels->name,
-							'groups'     => $role_groups,
-							'choices'    => Meta::get_role_choices(),
-							'label'      => __( 'Role', 'library' ),
-							'add'        => __( 'Add a person', 'library' ),
-							'action'     => 'add-person',
-							'attributes' => array( 'data-list' => 'people' ),
+							'id'            => 'library-edit-role',
+							'label'         => $person_labels->name,
+							'groups'        => $role_groups,
+							'options'       => Meta::get_role_choices(),
+							'options_label' => __( 'Role', 'library' ),
+							'add'           => __( 'Add a person', 'library' ),
+							'action'        => 'add-person',
+							'attributes'    => array( 'data-list' => 'people' ),
 						)
 					);
 					Markup::render_component(
@@ -845,7 +806,7 @@ use Library\Meta;
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
-					Markup::render_component( 'meta-field', array( 'key' => 'library_edition_date' ) );
+					Markup::render_component( 'meta-field', array( 'key' => 'library_printed_date' ) );
 					Markup::render_component(
 						'field',
 						array(
@@ -857,43 +818,53 @@ use Library\Meta;
 					);
 					?>
 					<?php // The fields few books have, closed: its summary counts the ones filled in. ?>
-					<details class="library-edit__details">
-						<summary class="app-meta" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
+					<details class="library-disclosure library-edit__details" data-part="details">
+						<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'library_subtitle', 'library_published_date', 'library_pages' ) as $key ) {
+						foreach ( array( 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
 							Markup::render_component(
 								'meta-field',
 								array(
 									'key'        => $key,
-									// A number of pages is typed with the digits only; a date first published takes hyphens, which a numeric keyboard may not have.
+									// A number of pages is typed with the digits only; a date takes hyphens, which a numeric keyboard may not have.
 									'attributes' => 'library_pages' === $key ? array( 'inputmode' => 'numeric' ) : array(),
 								)
 							);
 						}
 
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'      => 'library-edit-languages',
-								'label'   => $language_labels->name_for_book,
-								'name'    => 'languages',
-								'add'     => __( 'Add a language', 'library' ),
-								'choices' => $language_choices,
-							)
-						);
-						// A book added is in the language of the reader, unless the catalogue says otherwise.
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'          => 'library-edit-edition-languages',
-								'label'       => Meta::get_label( 'library_edition_languages' ),
-								'name'        => Meta::get_name( 'library_edition_languages' ),
-								'add'         => __( 'Add a language', 'library' ),
-								'choices'     => $language_choices,
-								'checked'     => array( $own_language_id ),
-								'description' => Meta::get_description( 'library_edition_languages' ),
-							)
-						);
+						?>
+						<library-choices>
+							<?php
+							Markup::render_component(
+								'checkboxes-field',
+								array(
+									'id'      => 'library-edit-languages',
+									'label'   => $language_labels->name_for_book,
+									'name'    => 'languages',
+									'add'     => __( 'Add a language', 'library' ),
+									'options' => $language_choices,
+								)
+							);
+							?>
+						</library-choices>
+						<?php // A book added is in the language of the reader, unless the catalogue says otherwise. ?>
+						<library-choices>
+							<?php
+							Markup::render_component(
+								'checkboxes-field',
+								array(
+									'id'          => 'library-edit-edition-languages',
+									'label'       => Meta::get_label( 'library_edition_languages' ),
+									'name'        => Meta::get_name( 'library_edition_languages' ),
+									'add'         => __( 'Add a language', 'library' ),
+									'options'     => $language_choices,
+									'checked'     => array( $own_language_id ),
+									'description' => Meta::get_description( 'library_edition_languages' ),
+								)
+							);
+							?>
+						</library-choices>
+						<?php
 						Markup::render_component(
 							'pill-checkbox',
 							array(
@@ -939,7 +910,7 @@ use Library\Meta;
 						<button class="app-pill app-pill--primary" type="submit" data-saving="<?php esc_attr_e( 'Saving…', 'library' ); ?>"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
-				<p class="app-meta" hidden>
+				<p class="app-text-s app-text-muted app-font-ui app-uppercase" hidden>
 					<a data-link="admin" href=""><?php esc_html_e( 'Edit in the dashboard', 'library' ); ?></a>
 				</p>
 				<datalist id="library-edit-people"></datalist>
@@ -949,59 +920,28 @@ use Library\Meta;
 			</dialog>
 		</library-edit>
 
-		<template id="library-item">
-			<li class="app-item library-item">
-				<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-				<div class="library-item__body">
-					<p class="app-item__meta" data-field="credits"></p>
-					<h3 class="library-item__title">
-						<a class="library-item__link" data-field="title"></a>
-					</h3>
-					<p class="library-item__excerpt" data-field="excerpt" hidden></p>
-					<p class="app-item__meta">
-						<span data-field="state"></span>
-						<span class="library-tag" data-field="form" hidden></span>
-						<span class="library-tag" data-field="original" hidden></span>
-						<span class="library-tag library-tag--status" data-field="status" hidden></span>
-					</p>
-				</div>
-			</li>
+		<template id="library-book-card">
+			<li><?php Markup::render_component( 'book-card' ); ?></li>
 		</template>
 
-		<template id="library-row">
-			<li class="app-item library-row">
-				<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-				<div class="library-row__body">
-					<h4 class="library-row__title">
-						<a class="library-item__link">
-							<span class="library-row__name" data-field="title"></span>
-						</a>
-					</h4>
-					<p class="app-item__meta">
-						<span data-field="authors"></span>
-						<span class="library-tag library-tag--status" data-field="status" hidden></span>
-					</p>
-				</div>
-			</li>
+		<template id="library-book-row">
+			<li><?php Markup::render_component( 'book-row' ); ?></li>
 		</template>
 
 		<template id="library-current">
 			<li class="library-current">
-				<a class="library-cover-link">
-					<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover library-cover--frame" data-row="frame">
-						<span class="library-cover__title" data-field="frame"></span>
-					</span>
+				<a class="library-cover-link" data-part="link">
+					<?php Markup::render_component( 'book-cover' ); ?>
 					<span class="library-current__title" data-field="title"></span>
-					<span class="app-meta library-tag library-tag--status" data-field="status" hidden></span>
+					<span class="app-text-s app-font-ui app-uppercase library-tag library-tag--status" data-field="status" hidden></span>
 				</a>
 			</li>
 		</template>
 
 		<template id="library-reading-ended">
-			<li class="library-input-list__item library-reading__item">
+			<li class="library-inputs-list__item library-reading__item">
 				<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
-				<span class="library-reading__arrow" aria-hidden="true">→</span>
+				<span class="library-reading__arrow"><?php Markup::render_icon( 'arrow_forward' ); ?></span>
 				<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
 				<button
 					class="app-control"
@@ -1014,10 +954,10 @@ use Library\Meta;
 		</template>
 
 		<template id="library-reading-unknown">
-			<li class="library-input-list__item">
+			<li class="library-inputs-list__item">
 				<input type="hidden" name="reading_start" value="">
 				<input type="hidden" name="reading_end" value="">
-				<span class="library-input-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
+				<span class="library-inputs-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
 				<button
 					class="app-control"
 					type="button"
@@ -1028,20 +968,21 @@ use Library\Meta;
 			</li>
 		</template>
 
+		<template id="library-tile">
+			<li><?php Markup::render_component( 'book-cover', array( 'attributes' => array( 'aria-hidden' => 'true' ) ) ); ?></li>
+		</template>
+
 		<template id="library-cover">
 			<li>
-				<a class="library-cover-link">
-					<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover library-cover--frame" data-row="title">
-						<span class="library-cover__title" data-field="title"></span>
-					</span>
+				<a class="library-cover-link" data-part="link">
+					<?php Markup::render_component( 'book-cover' ); ?>
 					<span class="sr-only" data-field="state" hidden></span>
 				</a>
 			</li>
 		</template>
 
 		<template id="library-edit-person">
-			<li class="library-input-list__item">
+			<li class="library-inputs-list__item">
 				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
 				<button
 					class="app-control"
@@ -1063,37 +1004,22 @@ use Library\Meta;
 			<section class="library-section">
 				<h2 class="library-title">
 					<span data-field="month"></span>
-					<span class="app-meta" data-field="count"></span>
+					<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="count"></span>
 				</h2>
-				<ul class="app-list__items"></ul>
+				<ul class="app-list"></ul>
 			</section>
 		</template>
 
-		<template id="library-term">
-			<li class="app-item library-term">
-				<h4 class="library-term__name"></h4>
-				<div class="library-term__description" data-html="description" hidden></div>
-				<p class="app-item__meta" data-field="line"></p>
-			</li>
+		<template id="library-term-card">
+			<li><?php Markup::render_component( 'term-card' ); ?></li>
 		</template>
 
-		<template id="library-achievement">
-			<li class="app-item library-achievement">
-				<p data-field="title"></p>
-				<p data-field="subject"></p>
-				<p class="app-item__meta" data-field="meta"></p>
-			</li>
+		<template id="library-achievement-card">
+			<li><?php Markup::render_component( 'achievement-card' ); ?></li>
 		</template>
 
-		<template id="library-achievement-close">
-			<li class="app-item library-achievement">
-				<p data-field="name"></p>
-				<p class="app-item__meta" data-field="meta"></p>
-				<p class="library-achievement__progress">
-					<progress></progress>
-					<span class="app-item__meta" data-field="count" aria-hidden="true"></span>
-				</p>
-			</li>
+		<template id="library-achievement-card-close">
+			<li><?php Markup::render_component( 'achievement-card', array( 'close' => true ) ); ?></li>
 		</template>
 
 	</body>

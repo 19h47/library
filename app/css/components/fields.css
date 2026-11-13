@@ -1,14 +1,31 @@
 /**
- * A list of fields, a molecule: the name of each, a meta, above its value, such as the ISBN and the pages of a book.
+ * A list of fields, a molecule: the name of each, a meta, above its value, or beside it, such as the ISBN and the pages
+ * of a book.
  */
 
-@layer library.components {
+@layer app.components {
 	.library-fields {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	.library-fields dd {
 		overflow-wrap: anywhere;
+	}
+
+	/*
+	 * Fields side by side: the name of each beside its value, on its baseline, the names in the smaller part of the golden
+	 * ratio, the same in each list, which line up one under another
+	 */
+	.library-fields--aside {
+		grid-template-columns: calc(100% / (1 + var(--app-phi))) minmax(0, 1fr);
+		column-gap: var(--app-space-m);
+	}
+
+	.library-fields--aside > * {
+		display: grid;
+		grid-column: 1 / -1;
+		grid-template-columns: subgrid;
+		align-items: baseline;
 	}
 }

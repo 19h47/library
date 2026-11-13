@@ -2,11 +2,11 @@
  * Icons, from Material Symbols, as the icon of the app: Markup::render_icon() prints them.
  */
 
-@layer library.components {
+@layer app.components {
 	/* The size of the text, a little larger, as a glyph of the font would be, in its color; beside text, on its middle */
 	.library-icon {
 		flex: none;
-		inline-size: 1.25em;
+		inline-size: 1.25em; /* Exception, an atom of a size of its own: 24 px at the size of the text of the interface */
 		block-size: 1.25em;
 		fill: currentColor;
 		vertical-align: middle;

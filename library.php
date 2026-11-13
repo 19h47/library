@@ -11,7 +11,7 @@
  * Plugin Name:       Library
  * Plugin URI:        https://www.github.com/19h47/library
  * Description:       Catalogue your books and log your readings, from the admin or from an app on your phone.
- * Version:           9.38.0
+ * Version:           9.43.0
  * Requires at least: 7.1
  * Requires PHP:      8.4
  * Author:            Jérémy Levron

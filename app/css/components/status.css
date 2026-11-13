@@ -3,7 +3,7 @@
  * an error, in a line and a tint of it, as a tag.
  */
 
-@layer library.components {
+@layer app.components {
 	.app-status[role="alert"] {
 		border-color: color-mix(in oklab, currentColor 40%, transparent);
 		background: color-mix(in oklab, currentColor 10%, transparent);

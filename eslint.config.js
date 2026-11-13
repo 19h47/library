@@ -59,6 +59,23 @@ export default [
 			],
 		},
 	},
+	{
+		// A script reaches an element by a data attribute or by what it is, never by a class of its styles.
+		files: [ 'app/js/**', 'admin/js/**' ],
+		rules: {
+			'no-restricted-syntax': [
+				'error',
+				...[
+					'Literal[value',
+					'TemplateLiteral > TemplateElement[value.raw',
+				].map( ( node ) => ( {
+					selector: `CallExpression[callee.property.name=/^(querySelector|querySelectorAll|closest|matches)$/] > ${ node }=/(^|[\\s>+~,(])\\.[A-Za-z_-]/]`,
+					message:
+						'Reach an element by a data attribute, such as data-part, or by what it is, never by a class of its styles.',
+				} ) ),
+			],
+		},
+	},
 	...wordpress.configs[ 'test-playwright' ].map( ( config ) => ( {
 		...config,
 		files: [ 'tests/e2e/**' ],

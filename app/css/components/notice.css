@@ -2,20 +2,20 @@
  * The notice: what an action done says, at the bottom of the screen.
  */
 
-@layer library.components {
+@layer app.components {
 	/* What an action done says, at the bottom of the screen, over the page; empty, it has no box */
 	.library-notice {
 		position: fixed;
 		/* Above the bar of the views, on a phone */
-		inset-block-end: var(--library-notice-bottom, var(--app-u2));
+		inset-block-end: var(--library-notice-bottom, var(--app-space-l));
 		inset-inline-start: 50%;
 		translate: -50%;
 		display: flex;
 		align-items: baseline;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 		/* A long one on several lines, within the screen, its corners as round as the ends of a pill of one line; its action whole */
 		width: max-content;
-		max-width: calc(100vw - 2 * var(--app-u2));
+		max-width: calc(100vw - 2 * var(--app-space-l)); /* Exception, a layer fixed to the screen: within it, its gutters left */
 		border-radius: calc(var(--app-line-height) * 1em / 2 + var(--app-pill-padding-block));
 		white-space: normal;
 		background: var(--app-bg);

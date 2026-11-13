@@ -1,10 +1,11 @@
 /**
- * Cards and rows: a book, a person or a series in a list, its cover beside its text; a list loading again.
+ * Cards and rows: a book, a person or a series in a list, its cover beside its text; a book being read, its cover above
+ * its text; a list loading again.
  */
 
-@layer library.components {
+@layer app.components {
 	/* A list loading again from its start, such as for another search: its books faded until the new ones come */
-	.app-list__items[aria-busy="true"] {
+	.app-list[aria-busy="true"] {
 		opacity: var(--app-control-opacity);
 		transition: opacity var(--app-transition-1);
 	}
@@ -13,45 +14,46 @@
 	 * A book card: the cover beside, when the book has one, as wide as the cover of a card; the link of the title covers
 	 * the card to open the book.
 	 */
-	.library-item {
+	.library-book-card {
 		--library-cover-inline-size: var(--library-cover-width);
 		--library-cover-block-size: auto;
+		--library-cover-frame: none;
 
 		position: relative;
 		align-items: start;
 	}
 
-	.library-item:has(> .library-cover:not([hidden])) {
+	.library-book-card:has(> .library-book-cover > .library-book-cover__image:not([hidden])) {
 		grid-template-columns: auto 1fr;
-		column-gap: var(--app-u1);
+		column-gap: var(--app-space-m);
 	}
 
-	.library-item:hover {
+	.library-book-card:hover {
 		border-color: var(--app-line);
 	}
 
-	.library-item:has(:focus-visible) {
+	.library-book-card:has(:focus-visible) {
 		outline: var(--app-focus-outline);
 		outline-offset: var(--app-focus-outline-offset);
 	}
 
-	.library-item__body {
+	.library-book-card__body {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 		min-width: 0;
 	}
 
 	/* The card of a person or a series is the one of a book: its name as its title, its description as its excerpt */
-	.library-item__title,
-	.library-term__name {
+	.library-book-card__title,
+	.library-term-card__name {
 		font-size: inherit;
 		font-weight: normal;
 		overflow-wrap: anywhere;
 	}
 
 	/* Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box */
-	.library-item__excerpt,
-	.library-term__description {
+	.library-book-card__excerpt,
+	.library-term-card__description {
 		display: -webkit-box;
 		overflow: hidden;
 		-webkit-box-orient: vertical;
@@ -59,20 +61,20 @@
 		color: var(--app-text-muted);
 		font-family: var(--app-font-ui);
 		/* Small text, half a step below the title */
-		font-size: var(--app-font-small);
+		font-size: var(--app-text-s);
 	}
 
-	.library-item__link {
+	.library-card-link {
 		text-align: start;
 	}
 
-	.library-item__link::after {
+	.library-card-link::after {
 		content: "";
 		position: absolute;
 		inset: 0;
 	}
 
-	.library-item__link:focus-visible {
+	.library-card-link:focus-visible {
 		outline: none;
 	}
 
@@ -80,37 +82,34 @@
 	 * The row of a book, the idea of the week on the home: its cover, when it has one, as wide as the one of a card, its
 	 * title and authors; the link of the title covers the row to open the book
 	 */
-	.library-row {
+	.library-book-row {
 		--library-cover-inline-size: var(--library-cover-width);
 		--library-cover-block-size: auto;
+		--library-cover-frame: none;
 
 		position: relative;
 		display: flex;
 		align-items: center;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
-	.library-row:hover {
+	.library-book-row:hover {
 		border-color: var(--app-line);
 	}
 
-	.library-row:has(.library-item__link:focus-visible) {
+	.library-book-row:has(.library-card-link:focus-visible) {
 		outline: var(--app-focus-outline);
 		outline-offset: var(--app-focus-outline-offset);
 	}
 
-	.library-row > .library-cover {
-		flex: none;
-	}
-
-	.library-row__body {
+	.library-book-row__body {
 		flex: 1;
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 		min-width: 0;
 	}
 
-	.library-row__title {
+	.library-book-row__title {
 		font-size: inherit;
 		font-weight: normal;
 	}
@@ -119,11 +118,32 @@
 	 * Two lines of the title, in the link that holds it: a longer one ends in an ellipsis. Unprefixed line-clamp is in
 	 * no stable browser yet: the prefixed one needs its box.
 	 */
-	.library-row__name {
+	.library-book-row__name {
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		overflow: hidden;
 		overflow-wrap: anywhere;
+	}
+
+	/*
+	 * A book being read, as the home shows it: its cover a step larger than the ones of the latest readings, its title and
+	 * status under it, as wide as the cover; the book open, its reading is read, rated and dated.
+	 */
+	.library-current {
+		--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi));
+
+		width: min-content;
+	}
+
+	/* Two lines of the title, small: a longer one ends in an ellipsis. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
+	.library-current__title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+		font-size: var(--app-text-s);
+		overflow-wrap: anywhere;
+		hyphens: auto;
 	}
 }

@@ -3,7 +3,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
 import { join } from 'library-app/format';
-import { inputList, showErrors, showSaving } from 'library-app/behaviors';
+import { inputsList, showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
@@ -78,9 +78,9 @@ function renderOptions( terms ) {
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
  * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
- * publisher, collection and its number, form and edition date, its status when it is added, the one of the list shown
+ * publisher, collection and its number, form and printed date, its status when it is added, the one of the list shown
  * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
- * the ones filled in: subtitle, first published, pages, original languages, edition languages, collective work,
+ * the ones filled in: subtitle, first published, edition date, pages, original languages, edition languages, collective work,
  * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
@@ -99,7 +99,7 @@ class LibraryEditElement extends Brick {
 		/** @type {HTMLElement} */
 		const $heading = this.querySelector( '#library-edit-heading' );
 		/** @type {HTMLFormElement} */
-		const $form = this.querySelector( '.library-edit__form' );
+		const $form = this.querySelector( '[data-part="form"]' );
 		const {
 			title: $title,
 			excerpt: $excerpt,
@@ -144,13 +144,15 @@ class LibraryEditElement extends Brick {
 		const listOf = ( role ) =>
 			$people.querySelector( `[data-group="${ role }"] > ul` );
 		/** @type {HTMLImageElement} */
-		const $preview = this.querySelector( '.library-image-field__preview' );
+		const $preview = this.querySelector(
+			'[data-part="preview"] [data-field="cover"]'
+		);
 		/** @type {HTMLButtonElement} */
 		const $removeCover = this.querySelector(
 			'[data-action="remove-cover"]'
 		);
 		/** @type {HTMLDetailsElement} */
-		const $details = this.querySelector( '.library-edit__details' );
+		const $details = this.querySelector( '[data-part="details"]' );
 		const $summary = $details.querySelector( 'summary' );
 		/** @type {HTMLAnchorElement} */
 		const $admin = this.querySelector( '[data-link="admin"]' );
@@ -160,8 +162,10 @@ class LibraryEditElement extends Brick {
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
 		/** @type {HTMLButtonElement} */
 		const $buy = this.querySelector( '[data-action="buy"]' );
+		/** @type {HTMLElement} */
+		const $scanRow = this.querySelector( '[data-part="scan"]' );
 		/** @type {HTMLInputElement} */
-		const $scan = this.querySelector( '#library-edit-scan' );
+		const $scan = $scanRow.querySelector( 'input' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -169,7 +173,7 @@ class LibraryEditElement extends Brick {
 			series: this.querySelector( '#library-edit-series-paths' ),
 		};
 
-		const addPerson = inputList( {
+		const addPerson = inputsList( {
 			$list: $people,
 			$add: $addPerson,
 			id: 'library-edit-person',
@@ -341,7 +345,7 @@ class LibraryEditElement extends Brick {
 
 		// The barcode of a book is an EAN-13: the pill that scans it shows where the browser reads them.
 		window.BarcodeDetector?.getSupportedFormats().then( ( formats ) => {
-			$scan.closest( 'p' ).hidden = ! formats.includes( 'ean_13' );
+			$scanRow.hidden = ! formats.includes( 'ean_13' );
 		} );
 
 		// The barcode read types the ISBN, as if typed; a photo without one says so.

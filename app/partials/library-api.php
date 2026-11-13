@@ -30,15 +30,15 @@
 	<div class="library-api__routes" data-list="routes"></div>
 
 	<template id="library-api-route">
-		<details class="library-api__route">
+		<details class="library-disclosure library-api__route">
 			<summary>
-				<span class="library-api__methods" data-field="methods"></span>
+				<span class="app-text-s app-text-muted app-font-ui" data-field="methods"></span>
 				<code class="library-api__path" data-field="path"></code>
 			</summary>
 			<div class="library-api__body">
 				<div class="library-api__endpoints" data-list="endpoints"></div>
 				<section class="library-api__part" data-row="properties" hidden>
-					<h4 class="app-meta"><?php esc_html_e( 'Response', 'library' ); ?></h4>
+					<h4 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Response', 'library' ); ?></h4>
 					<ul class="library-api__list" data-list="properties"></ul>
 				</section>
 			</div>
@@ -48,14 +48,14 @@
 	<template id="library-api-endpoint">
 		<section class="library-api__part">
 			<?php // Its methods, when its route has several endpoints: the summary of the route says them otherwise. ?>
-			<h4 class="app-meta" data-field="methods" hidden></h4>
+			<h4 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="methods" hidden></h4>
 			<ul class="library-api__list" data-list="args"></ul>
-			<p class="library-api__meta" data-row="none" hidden><?php esc_html_e( 'No argument.', 'library' ); ?></p>
+			<p class="app-text-s app-text-muted app-font-ui" data-row="none" hidden><?php esc_html_e( 'No argument.', 'library' ); ?></p>
 			<form class="library-api__try" data-row="try" hidden>
 				<div class="library-api__fields" data-list="fields"></div>
 				<p><button class="app-pill" type="submit"><?php esc_html_e( 'Try', 'library' ); ?></button></p>
 				<div class="library-api__answer" data-row="answer" hidden>
-					<p class="library-api__meta" role="status" data-field="summary"></p>
+					<p class="app-text-s app-text-muted app-font-ui" role="status" data-field="summary"></p>
 					<?php // Scrolled sideways with the keyboard too. ?>
 					<pre tabindex="0" data-field="body"></pre>
 				</div>
@@ -67,11 +67,11 @@
 		<li class="library-api__item">
 			<p>
 				<code data-field="name"></code>
-				<span class="library-api__meta" data-field="type"></span>
-				<span class="library-api__meta library-api__flag" data-field="flag"></span>
+				<span class="app-text-s app-text-muted app-font-ui" data-field="type"></span>
+				<span class="app-text-s app-font-ui library-api__flag" data-field="flag"></span>
 			</p>
-			<p class="library-api__meta" data-field="description"></p>
-			<p class="library-api__meta" data-field="rules"></p>
+			<p class="app-text-s app-text-muted app-font-ui" data-field="description"></p>
+			<p class="app-text-s app-text-muted app-font-ui" data-field="rules"></p>
 			<ul class="library-api__list" data-list="items" hidden></ul>
 		</li>
 	</template>
@@ -79,7 +79,7 @@
 	<template id="library-api-field">
 		<p class="library-field">
 			<?php // The name of an argument as the API takes it, in its case. ?>
-			<label class="library-api__meta"></label>
+			<label class="app-text-s app-text-muted app-font-ui"></label>
 			<input type="text" autocomplete="off" spellcheck="false">
 		</p>
 	</template>

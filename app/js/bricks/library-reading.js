@@ -1,9 +1,9 @@
 import { statusOf, store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { today } from 'library-app/format';
+import { formatReadings, today } from 'library-app/format';
 import { toDays, toInterval } from 'library-app/api';
 import { fill } from 'library-app/render';
-import { inputList, showBusy, showErrors } from 'library-app/behaviors';
+import { inputsList, showBusy, showErrors } from 'library-app/behaviors';
 
 /**
  * @import { ReadingPeriod } from 'library-app/api'
@@ -42,7 +42,8 @@ const intervalsOf = ( /** @type {ReadingPeriod[]} */ readings ) =>
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
- * from their starts to their ends, its rating and whether it is in the library, not kept or to buy. A reading added ends
+ * from their starts to their ends, folded under the line that sums them up, its rating and whether it is in the library,
+ * not kept or to buy. A reading added ends
  * the one in progress, from its start, as the server does. Each change is saved at once, a date typed once left, a field
  * in error showing it without taking the focus, and the notice that says so offers Undo; a change made while the one
  * before saves waits for it, the form showing what was chosen until then rather than what the book was.
@@ -60,9 +61,11 @@ class LibraryReadingElement extends Brick {
 			$form.elements
 		);
 		/** @type {HTMLElement} */
-		const $startedField = this.querySelector( '.library-reading__started' );
+		const $startedField = this.querySelector( '[data-part="started"]' );
+		/** @type {HTMLDetailsElement} */
+		const $details = this.querySelector( '[data-part="readings"]' );
 		/** @type {HTMLFieldSetElement} */
-		const $readings = this.querySelector( '.library-reading__readings' );
+		const $readings = this.querySelector( '[data-list="readings"]' );
 		const $list = $readings.querySelector( 'ul' );
 		/** @type {HTMLButtonElement} */
 		const $add = $readings.querySelector( '[data-action="add"]' );
@@ -120,7 +123,7 @@ class LibraryReadingElement extends Brick {
 
 		// A reading ends today, unless changed, from the start of the one in progress, which it ends; a reading whose dates
 		// are unknown has no date input.
-		const addReading = inputList( {
+		const addReading = inputsList( {
 			$list,
 			$add,
 			id: ( interval ) =>
@@ -158,7 +161,7 @@ class LibraryReadingElement extends Brick {
 		// Unread, the book has no readings ended: they are left out of the form.
 		const showReadings = () => {
 			$readings.disabled = ! $read.checked;
-			$readings.hidden = ! $read.checked;
+			$details.hidden = ! $read.checked;
 		};
 
 		// Its row has no input to focus: its button does. A book may have been read several times at dates unknown.
@@ -186,7 +189,7 @@ class LibraryReadingElement extends Brick {
 			)
 		);
 
-		// A reading removed, after inputList() removed its row.
+		// A reading removed, after inputsList() removed its row.
 		$list.addEventListener(
 			'click',
 			( event ) =>
@@ -294,8 +297,14 @@ class LibraryReadingElement extends Brick {
 			store.select(
 				( state ) => state.books[ state.book ] ?? null,
 				( book ) => {
+					if ( ! book ) {
+						return;
+					}
+
+					fill( this, { readings: formatReadings( book ) } );
+
 					// A change waiting to be saved, or a date being typed, keeps what was chosen, which it sends.
-					if ( ! book || isPending || $typed || isShown( book ) ) {
+					if ( isPending || $typed || isShown( book ) ) {
 						return;
 					}
 

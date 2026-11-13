@@ -14,7 +14,7 @@ import { routeOf, urlOf } from 'library-app/router';
  */
 class LibraryNavElement extends Brick {
 	connect() {
-		const $row = this.querySelector( '.library-nav' );
+		const $row = this.querySelector( '[data-list="views"]' );
 		const $links = [ ...this.querySelectorAll( 'a' ) ];
 		const $books = $links.find(
 			( $link ) => 'books' === routeOf( $link.href ).view

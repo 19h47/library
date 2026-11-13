@@ -291,27 +291,64 @@ export function formatStatus( book ) {
 }
 
 /**
+ * That a book is read, how many times from two readings: "Read", "Read 2 times".
+ *
+ * @param {Book} book The book, read.
+ * @return {string} How many times it is read.
+ */
+function formatReadCount( book ) {
+	const readings = book.readings.length;
+
+	return readings > 1
+		? sprintf(
+				/* translators: %s: number of readings of a book, an unknown date included, 2 or more. */
+				_n( 'Read %s time', 'Read %s times', readings, 'library' ),
+				formatNumber( readings )
+		  )
+		: __( 'Read', 'library' );
+}
+
+/**
  * Whether a book is being read, read, how many times from two readings, or to read unless it is to buy, and its rating.
  *
  * @param {Book} book The book.
  * @return {string} Its state.
  */
 export function formatState( book ) {
-	const readings = book.readings.length;
 	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
-	const read =
-		readings > 1
-			? sprintf(
-					/* translators: %s: number of readings of a book, an unknown date included, 2 or more. */
-					_n( 'Read %s time', 'Read %s times', readings, 'library' ),
-					formatNumber( readings )
-			  )
-			: __( 'Read', 'library' );
-	const state = book.read ? read : toRead;
+	const state = book.read ? formatReadCount( book ) : toRead;
 
 	return join( [
 		book.in_progress ? __( 'In progress', 'library' ) : state,
 		formatRating( book.rating ),
+	] );
+}
+
+/**
+ * The readings of a book, in a line: how many times it is read, the day its latest reading ended and how long it took,
+ * when they are known: "Read 2 times · April 4, 2025 · in 12 days"; empty unread.
+ *
+ * @param {Book} book The book.
+ * @return {string} Its readings, or empty.
+ */
+export function formatReadings( book ) {
+	const reading = book.readings.at( -1 );
+
+	if ( ! reading ) {
+		return '';
+	}
+
+	const time = formatReadingTime( book );
+
+	return join( [
+		formatReadCount( book ),
+		reading.end && formatDate( reading.end ),
+		time &&
+			sprintf(
+				/* translators: %s: how long a reading took, e.g. 12 days. */
+				__( 'in %s', 'library' ),
+				time
+			),
 	] );
 }
 

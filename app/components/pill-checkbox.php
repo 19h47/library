@@ -13,16 +13,15 @@
 
 use Library\Markup;
 
-$args     = wp_parse_args(
+$args = wp_parse_args(
 	$args,
 	array(
 		'control'    => '<input type="checkbox">',
 		'attributes' => array(),
 	)
 );
-$checkbox = Markup::set_attributes( $args['control'], $args['attributes'] + array( 'id' => $args['id'] ) );
 ?>
 <label class="app-pill" for="<?php echo esc_attr( $args['id'] ); ?>">
-	<?php echo $checkbox; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?>
+	<?php Markup::render_tag( $args['control'], $args['attributes'] + array( 'id' => $args['id'] ) ); ?>
 	<?php echo esc_html( $args['label'] ); ?>
 </label>
