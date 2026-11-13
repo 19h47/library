@@ -99,7 +99,8 @@ function readStyles( page, properties ) {
 					: pathOf( $element, $styleguide );
 				const styles = window.getComputedStyle( $element );
 
-				// Its numbers to two decimals, as a browser may compute them otherwise past them, such as a color mixed.
+				// Its numbers to two decimals, as a browser may compute them otherwise past them, such as a color mixed; the font
+				// of the system by the name the stylesheet gives it, which Chrome on macOS writes "system-ui", and on Linux as it is.
 				return [
 					key,
 					names
@@ -111,7 +112,8 @@ function readStyles( page, properties ) {
 							(
 								Math.round( Number( number ) * 100 ) / 100
 							).toString()
-						),
+						)
+						.replaceAll( '"system-ui"', 'BlinkMacSystemFont' ),
 				];
 			} );
 	}, properties );
