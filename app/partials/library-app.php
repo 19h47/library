@@ -935,6 +935,10 @@ use Library\Meta;
 			</li>
 		</template>
 
+		<template id="library-tile">
+			<li><?php Markup::render_component( 'book-cover', array( 'attributes' => array( 'aria-hidden' => 'true' ) ) ); ?></li>
+		</template>
+
 		<template id="library-cover">
 			<li>
 				<a class="library-cover-link" data-part="link">

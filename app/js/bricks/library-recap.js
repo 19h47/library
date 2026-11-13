@@ -12,7 +12,6 @@ import {
 } from 'library-app/format';
 import {
 	fill,
-	fillCover,
 	fillPills,
 	pageLink,
 	renderAchievementPill,
@@ -469,7 +468,7 @@ class LibraryRecapElement extends Brick {
 					const $tile = renderTile( book );
 
 					/** @type {HTMLImageElement} */ (
-						$tile.firstElementChild
+						$tile.querySelector( '[data-field="cover"]' )
 					).loading = 'eager';
 
 					return $tile;
@@ -721,18 +720,14 @@ class LibraryRecapElement extends Brick {
 				.filter( ( { id } ) => books[ id ] )
 				.map( ( { id, field, label, figure, unit } ) => {
 					const book = books[ id ];
-					const $item = document.createElement( 'li' );
-					const $cover = document.createElement( 'img' );
+					// The title names the book: its cover is an image of it only.
+					const $item = renderTile( book );
 					const $text = document.createElement( 'div' );
 					const $figure = document.createElement( 'p' );
 					const $label = document.createElement( 'p' );
 					const $value = document.createElement( 'span' );
 					const $unit = document.createElement( 'span' );
 
-					// The title names the book: its cover is an image of it only.
-					$cover.alt = '';
-					$cover.loading = 'lazy';
-					fillCover( $cover, book.cover );
 					$value.dataset.field = field;
 					$value.textContent = figure( book );
 					$unit.className =
@@ -749,7 +744,7 @@ class LibraryRecapElement extends Brick {
 						pageLink( 'book', id, book.title )
 					);
 					$item.className = 'library-recap__record';
-					$item.append( $cover, $text );
+					$item.append( $text );
 
 					return $item;
 				} )

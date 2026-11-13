@@ -686,19 +686,16 @@ function setShares( $items, values ) {
 }
 
 /**
- * A cover of the wall of the books read of a recap, which opens nothing: their cards are a tap away, in the diary.
+ * A cover of a recap, which opens nothing, an image of its book only: on the wall of the books read, their cards a tap
+ * away in the diary, in the columns going by behind its last screen, and beside a record, which names its book.
  *
  * @param {Book} book The book.
  * @return {HTMLElement} The tile.
  */
 export function renderTile( book ) {
-	const $item = document.createElement( 'li' );
-	const $image = document.createElement( 'img' );
+	const $item = clone( 'library-tile' );
 
-	$image.alt = '';
-	$image.loading = 'lazy';
-	fillCover( $image, book.cover );
-	$item.append( $image );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 
 	return $item;
 }

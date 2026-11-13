@@ -154,18 +154,14 @@
 
 	/* Its cover, a tile as the wall of the first screen shows it, larger; beside it, its figure, what it is and the book */
 	.library-recap__record {
+		--library-cover-inline-size: 100%;
+		--library-cover-block-size: auto;
+		--library-cover-frame: none;
+
 		display: grid;
 		grid-template-columns: calc(var(--app-u3) * var(--app-phi)) minmax(0, 1fr);
 		align-items: center;
 		gap: var(--app-space-m);
-
-		& img {
-			inline-size: 100%;
-			block-size: auto;
-			aspect-ratio: 2 / 3;
-			object-fit: cover;
-			border-radius: var(--app-radius-s);
-		}
 
 		& > div {
 			display: grid;
@@ -183,10 +179,13 @@
 	}
 
 	/*
-	 * A wall of covers, as wide as the frame: its columns at least as wide as a tile, a cover as high as its book, on a line
-	 * as on a shelf
+	 * A wall of covers, as wide as the frame: its columns at least as wide as a tile, a cover as wide as its column and as
+	 * high as its book, on a line as on a shelf
 	 */
 	:is(.library-recap__mosaic, .library-recap__wall) {
+		--library-cover-inline-size: 100%;
+		--library-cover-block-size: auto;
+
 		list-style: none;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(var(--library-recap-tile), 1fr));
@@ -219,25 +218,6 @@
 	/* The books rated, larger tiles, which open them: three a row on a phone, wider beyond; a cover as wide as its column */
 	.library-recap__wall {
 		--library-recap-tile: min(calc(var(--app-u3) * var(--app-phi) * var(--app-phi)), (100% - 2 * var(--app-space-xs)) / 3);
-		--library-cover-inline-size: 100%;
-		--library-cover-block-size: auto;
-	}
-
-	/* A tile as wide as its column */
-	:is(.library-recap__mosaic, .library-recap__marquee) img {
-		display: block;
-		inline-size: 100%;
-		block-size: auto;
-		border-radius: var(--app-radius-s);
-	}
-
-	/*
-	 * The columns going by, a shape of their own, as the image has none of its sizes="auto" in Safari; a cover of the walls,
-	 * the one of its book, from the width and the height of its image; a book without one, the frame of a cover, a golden rectangle
-	 */
-	.library-recap__marquee img {
-		aspect-ratio: 2 / 3;
-		object-fit: cover;
 	}
 
 	/*
@@ -257,6 +237,9 @@
 	 * goes past its sides, out of sight
 	 */
 	.library-recap__marquee {
+		--library-cover-inline-size: 100%;
+		--library-cover-block-size: auto;
+
 		position: absolute;
 		inset: 0;
 		z-index: -1;
