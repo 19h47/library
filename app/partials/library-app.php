@@ -715,6 +715,15 @@ use Library\Meta;
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
+					?>
+					<?php // Where the browser reads EAN-13 barcodes, which its script tells: a photo of the barcode of the book types its ISBN. ?>
+					<p data-part="scan" hidden>
+						<label class="app-pill" for="library-edit-scan">
+							<input class="sr-only" id="library-edit-scan" type="file" accept="image/*" capture="environment">
+							<?php esc_html_e( 'Scan the barcode', 'library' ); ?>
+						</label>
+					</p>
+					<?php
 					Markup::render_component( 'isbn-status' );
 					Markup::render_component(
 						'field',

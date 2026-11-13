@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-13T17:38:27+00:00\n"
+"POT-Creation-Date: 2026-11-13T17:49:53+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,7 +27,7 @@ msgstr ""
 #: app/class-login.php:206 app/class-page.php:146 app/class-page.php:361
 #: app/class-page.php:362 app/partials/library-app.php:45
 #: app/partials/library-app.php:64 app/partials/library-app.php:153
-#: app/partials/library-app.php:583 app/partials/library-app.php:805
+#: app/partials/library-app.php:583 app/partials/library-app.php:814
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -67,12 +67,12 @@ msgstr "Miniature"
 
 #: admin/class-books-list.php:88 app/components/book-fields.php:23
 #: app/partials/library-app.php:355 app/partials/library-app.php:407
-#: app/partials/library-app.php:732
+#: app/partials/library-app.php:741
 msgid "Authors"
 msgstr "Auteurs/autrices"
 
 #: admin/class-books-list.php:93 admin/partials/library-reading.php:27
-#: app/partials/library-app.php:936
+#: app/partials/library-app.php:945
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -82,7 +82,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-books-list.php:151 app/partials/library-app.php:951
+#: admin/class-books-list.php:151 app/partials/library-app.php:960
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -603,13 +603,13 @@ msgstr ""
 "est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
 "autrice : enregistrez le livre pour lui choisir un autre rôle."
 
-#: admin/partials/library-reading.php:25 app/partials/library-app.php:934
+#: admin/partials/library-reading.php:25 app/partials/library-app.php:943
 msgid "Start of the reading"
 msgstr "Début de la lecture"
 
-#: admin/partials/library-reading.php:28 app/partials/library-app.php:941
-#: app/partials/library-app.php:942 app/partials/library-app.php:956
-#: app/partials/library-app.php:957
+#: admin/partials/library-reading.php:28 app/partials/library-app.php:950
+#: app/partials/library-app.php:951 app/partials/library-app.php:965
+#: app/partials/library-app.php:966
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
@@ -801,7 +801,7 @@ msgstr "Ordre"
 msgid "Latest added"
 msgstr "Ajout récent"
 
-#: app/partials/library-app.php:211 app/partials/library-app.php:723
+#: app/partials/library-app.php:211 app/partials/library-app.php:732
 msgid "Title"
 msgstr "Titre"
 
@@ -897,47 +897,51 @@ msgstr "Choisir une couverture"
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:745
+#: app/partials/library-app.php:723
+msgid "Scan the barcode"
+msgstr "Scanner le code-barres"
+
+#: app/partials/library-app.php:754
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:746
+#: app/partials/library-app.php:755
 msgid "Add a person"
 msgstr "Ajouter une personne"
 
-#: app/partials/library-app.php:781
+#: app/partials/library-app.php:790
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:813
+#: app/partials/library-app.php:822
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:835 app/partials/library-app.php:850
+#: app/partials/library-app.php:844 app/partials/library-app.php:859
 msgid "Add a language"
 msgstr "Ajouter une langue"
 
-#: app/partials/library-app.php:877
+#: app/partials/library-app.php:886
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:889
+#: app/partials/library-app.php:898
 msgid "Notes"
 msgstr "Notes de lecture"
 
-#: app/partials/library-app.php:901
+#: app/partials/library-app.php:910
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: app/partials/library-app.php:901
+#: app/partials/library-app.php:910
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:905
+#: app/partials/library-app.php:914
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:982 app/partials/library-app.php:983
+#: app/partials/library-app.php:991 app/partials/library-app.php:992
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -1407,7 +1411,7 @@ msgstr "Retour aux sources"
 msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
-#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:529
+#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:578
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr "Le catalogue de la BnF ne répond pas : réessayez plus tard."
 
@@ -2128,7 +2132,7 @@ msgstr ""
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:655 app/js/bricks/library-edit.js:525
+#: includes/class-rest-api.php:655 app/js/bricks/library-edit.js:574
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
@@ -2972,11 +2976,15 @@ msgstr "Aucune lecture pour l’instant."
 msgid "Read again"
 msgstr "Relu"
 
-#: app/js/bricks/library-edit.js:517
+#: app/js/bricks/library-edit.js:373
+msgid "No barcode found in the photo: take it again, closer."
+msgstr "Aucun code-barres sur la photo : reprenez-la, de plus près."
+
+#: app/js/bricks/library-edit.js:566
 msgid "Searching the catalogue of the BnF…"
 msgstr "Recherche dans le catalogue de la BnF…"
 
-#: app/js/bricks/library-edit.js:521
+#: app/js/bricks/library-edit.js:570
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 

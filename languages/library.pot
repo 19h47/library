@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-13T17:43:04+00:00\n"
+"POT-Creation-Date: 2026-11-13T17:49:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -26,7 +26,7 @@ msgstr ""
 #: app/partials/library-app.php:64
 #: app/partials/library-app.php:153
 #: app/partials/library-app.php:583
-#: app/partials/library-app.php:805
+#: app/partials/library-app.php:814
 msgid "Library"
 msgstr ""
 
@@ -67,13 +67,13 @@ msgstr ""
 #: app/components/book-fields.php:23
 #: app/partials/library-app.php:355
 #: app/partials/library-app.php:407
-#: app/partials/library-app.php:732
+#: app/partials/library-app.php:741
 msgid "Authors"
 msgstr ""
 
 #: admin/class-books-list.php:93
 #: admin/partials/library-reading.php:27
-#: app/partials/library-app.php:936
+#: app/partials/library-app.php:945
 msgid "Read date"
 msgstr ""
 
@@ -84,7 +84,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:151
-#: app/partials/library-app.php:951
+#: app/partials/library-app.php:960
 msgid "Unknown date"
 msgstr ""
 
@@ -608,15 +608,15 @@ msgid "The role of each name of the book: a colorist, for instance, is not one o
 msgstr ""
 
 #: admin/partials/library-reading.php:25
-#: app/partials/library-app.php:934
+#: app/partials/library-app.php:943
 msgid "Start of the reading"
 msgstr ""
 
 #: admin/partials/library-reading.php:28
-#: app/partials/library-app.php:941
-#: app/partials/library-app.php:942
-#: app/partials/library-app.php:956
-#: app/partials/library-app.php:957
+#: app/partials/library-app.php:950
+#: app/partials/library-app.php:951
+#: app/partials/library-app.php:965
+#: app/partials/library-app.php:966
 msgid "Remove this reading"
 msgstr ""
 
@@ -807,7 +807,7 @@ msgid "Latest added"
 msgstr ""
 
 #: app/partials/library-app.php:211
-#: app/partials/library-app.php:723
+#: app/partials/library-app.php:732
 msgid "Title"
 msgstr ""
 
@@ -904,49 +904,53 @@ msgstr ""
 msgid "Remove the cover"
 msgstr ""
 
-#: app/partials/library-app.php:745
+#: app/partials/library-app.php:723
+msgid "Scan the barcode"
+msgstr ""
+
+#: app/partials/library-app.php:754
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:746
+#: app/partials/library-app.php:755
 msgid "Add a person"
 msgstr ""
 
-#: app/partials/library-app.php:781
+#: app/partials/library-app.php:790
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:813
+#: app/partials/library-app.php:822
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:835
-#: app/partials/library-app.php:850
+#: app/partials/library-app.php:844
+#: app/partials/library-app.php:859
 msgid "Add a language"
 msgstr ""
 
-#: app/partials/library-app.php:877
+#: app/partials/library-app.php:886
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:889
+#: app/partials/library-app.php:898
 msgid "Notes"
 msgstr ""
 
-#: app/partials/library-app.php:901
+#: app/partials/library-app.php:910
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:901
+#: app/partials/library-app.php:910
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:905
+#: app/partials/library-app.php:914
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:982
-#: app/partials/library-app.php:983
+#: app/partials/library-app.php:991
+#: app/partials/library-app.php:992
 msgid "Remove this person"
 msgstr ""
 
@@ -1419,7 +1423,7 @@ msgid "Volume 1 read after a later volume"
 msgstr ""
 
 #: includes/class-bnf.php:174
-#: app/js/bricks/library-edit.js:529
+#: app/js/bricks/library-edit.js:578
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr ""
 
@@ -2033,7 +2037,7 @@ msgid "No book has this ID."
 msgstr ""
 
 #: includes/class-rest-api.php:655
-#: app/js/bricks/library-edit.js:525
+#: app/js/bricks/library-edit.js:574
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
@@ -2838,11 +2842,15 @@ msgstr ""
 msgid "Read again"
 msgstr ""
 
-#: app/js/bricks/library-edit.js:517
+#: app/js/bricks/library-edit.js:373
+msgid "No barcode found in the photo: take it again, closer."
+msgstr ""
+
+#: app/js/bricks/library-edit.js:566
 msgid "Searching the catalogue of the BnF…"
 msgstr ""
 
-#: app/js/bricks/library-edit.js:521
+#: app/js/bricks/library-edit.js:570
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr ""
 

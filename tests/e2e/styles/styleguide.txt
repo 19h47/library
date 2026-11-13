@@ -1542,12 +1542,14 @@ phone light | isbn-status > div:1>div:0>p:0>span:0 | #6fe76e2496
 phone light | isbn-status > div:1>div:0>p:0>span:0>a:0 | #fb4bc4d02a
 phone light | isbn-status > div:1>div:0>p:0>span:0>button:1 | #48f5a9ae7a
 phone light | isbn-status > div:1>div:0>p:0>span:1 | #f2f867892d
+phone light | isbn-status > div:1>div:0>p:0>span:2 | #f2f867892d
 phone light | isbn-status > div:1>div:1 | #7a5b8be307
 phone light | isbn-status > div:1>div:1>p:0 | #7a5b8be307
 phone light | isbn-status > div:1>div:1>p:0>span:0 | #f2f867892d
 phone light | isbn-status > div:1>div:1>p:0>span:0>a:0 | #fb4bc4d02a
 phone light | isbn-status > div:1>div:1>p:0>span:0>button:1 | #92c737bdda
 phone light | isbn-status > div:1>div:1>p:0>span:1 | #6fe76e2496
+phone light | isbn-status > div:1>div:1>p:0>span:2 | #f2f867892d
 phone light | .library-edit__details >  | #21099a2d4f
 phone light | .library-edit__details > figcaption:0 | #3b31681e54
 phone light | .library-edit__details > figcaption:0>h4:0 | #ee4e620dd5
@@ -3019,12 +3021,14 @@ phone dark | isbn-status > div:1>div:0>p:0>span:0 | #46925c465d
 phone dark | isbn-status > div:1>div:0>p:0>span:0>a:0 | #ef68e6bf57
 phone dark | isbn-status > div:1>div:0>p:0>span:0>button:1 | #d6b64116f3
 phone dark | isbn-status > div:1>div:0>p:0>span:1 | #c52bca0c2c
+phone dark | isbn-status > div:1>div:0>p:0>span:2 | #c52bca0c2c
 phone dark | isbn-status > div:1>div:1 | #9270eec119
 phone dark | isbn-status > div:1>div:1>p:0 | #9270eec119
 phone dark | isbn-status > div:1>div:1>p:0>span:0 | #c52bca0c2c
 phone dark | isbn-status > div:1>div:1>p:0>span:0>a:0 | #ef68e6bf57
 phone dark | isbn-status > div:1>div:1>p:0>span:0>button:1 | #bbedf557bd
 phone dark | isbn-status > div:1>div:1>p:0>span:1 | #46925c465d
+phone dark | isbn-status > div:1>div:1>p:0>span:2 | #c52bca0c2c
 phone dark | .library-edit__details >  | #2d88a2661e
 phone dark | .library-edit__details > figcaption:0 | #7a7a09ffad
 phone dark | .library-edit__details > figcaption:0>h4:0 | #39ad583df4
@@ -4496,12 +4500,14 @@ wide light | isbn-status > div:1>div:0>p:0>span:0 | #6fe76e2496
 wide light | isbn-status > div:1>div:0>p:0>span:0>a:0 | #fb4bc4d02a
 wide light | isbn-status > div:1>div:0>p:0>span:0>button:1 | #48f5a9ae7a
 wide light | isbn-status > div:1>div:0>p:0>span:1 | #f2f867892d
+wide light | isbn-status > div:1>div:0>p:0>span:2 | #f2f867892d
 wide light | isbn-status > div:1>div:1 | #7a5b8be307
 wide light | isbn-status > div:1>div:1>p:0 | #7a5b8be307
 wide light | isbn-status > div:1>div:1>p:0>span:0 | #f2f867892d
 wide light | isbn-status > div:1>div:1>p:0>span:0>a:0 | #fb4bc4d02a
 wide light | isbn-status > div:1>div:1>p:0>span:0>button:1 | #92c737bdda
 wide light | isbn-status > div:1>div:1>p:0>span:1 | #6fe76e2496
+wide light | isbn-status > div:1>div:1>p:0>span:2 | #f2f867892d
 wide light | .library-edit__details >  | #21099a2d4f
 wide light | .library-edit__details > figcaption:0 | #3b31681e54
 wide light | .library-edit__details > figcaption:0>h4:0 | #ee4e620dd5
