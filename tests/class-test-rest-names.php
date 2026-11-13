@@ -8,6 +8,7 @@
 
 namespace Library\Tests;
 
+use Library\Rest_Schemas;
 use WP_REST_Request;
 
 /**
@@ -90,7 +91,8 @@ class Test_Rest_Names extends TestCase {
 	}
 
 	/**
-	 * A book gives its publisher, then each collection it is in under it, from the widest, each once with its term ID.
+	 * A book gives its publisher, then each collection it is in under it, from the widest, each once with its term ID, each
+	 * a library-book-publisher.
 	 *
 	 * @return void
 	 */
@@ -112,5 +114,10 @@ class Test_Rest_Names extends TestCase {
 			array_map( fn( string $name ) => get_term_by( 'name', $name, 'library_publisher' )->term_id, array( 'Gallimard', 'Folio', 'Science-fiction' ) ),
 			wp_list_pluck( $names, 'id' )
 		);
+
+		// The schema of the books names each item, as the reference of the API shows it.
+		$schema = Rest_Schemas::get_book();
+
+		$this->assertSame( 'library-book-publisher', $schema['properties']['publisher_names']['items']['title'] );
 	}
 }

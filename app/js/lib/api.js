@@ -419,7 +419,7 @@ import {
  * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
  * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
  * @property {string}                  form_name              The name of its form, HTML.
- * @property {Term[]}                  publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID.
+ * @property {Term[]}                  publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID: library-book-publisher.
  * @property {string}                  date                   The date it was added, its post date.
  */
 

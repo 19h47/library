@@ -208,6 +208,24 @@ class Rest_Schemas {
 	}
 
 	/**
+	 * A publisher of a book, or a collection it is in, with its term ID: what a book of `wp/v2/books` gives in its
+	 * publisher names, from the publisher down.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_book_publisher(): array {
+		return array(
+			'title'                => 'library-book-publisher',
+			'type'                 => 'object',
+			'properties'           => array(
+				'id'   => self::property( 'integer', __( 'Term ID, of a publisher or of a collection: its page in the app.', 'library' ) ),
+				'name' => self::property( 'string', __( 'Name, HTML, as saved.', 'library' ) ),
+			),
+			'additionalProperties' => false,
+		);
+	}
+
+	/**
 	 * A book, as `wp/v2/books` gives it: the routes that add or edit a book give it back.
 	 *
 	 * @return array<string,mixed>

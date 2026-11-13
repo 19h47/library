@@ -126,13 +126,7 @@ class Rest_API {
 				'schema'       => array(
 					'description' => __( 'Publishers of the book, each followed by the collections it is in under it, from the widest, each once, with its term ID: a book of Folio’s Science-fiction gives Gallimard, Folio, then Science-fiction.', 'library' ),
 					'type'        => 'array',
-					'items'       => array(
-						'type'       => 'object',
-						'properties' => array(
-							'id'   => array( 'type' => 'integer' ),
-							'name' => array( 'type' => 'string' ),
-						),
-					),
+					'items'       => Rest_Schemas::get_book_publisher(),
 				),
 			),
 		);
