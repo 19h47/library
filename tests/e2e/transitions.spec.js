@@ -65,7 +65,7 @@ test.describe( 'Transitions', () => {
 		await waitForIdle( page );
 
 		await page
-			.locator( 'library-view[name="books"] .library-item' )
+			.locator( 'library-view[name="books"] .library-book-card' )
 			.filter( { hasText: 'The Transition Test' } )
 			.getByRole( 'link' )
 			.click();

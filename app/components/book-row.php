@@ -13,15 +13,17 @@
  * @var array{level?: int} $args
  */
 
+use Library\Markup;
+
 $args    = wp_parse_args( $args, array( 'level' => 4 ) );
-$heading = 'h' . (int) $args['level'];
+$heading = Markup::get_heading( $args['level'] );
 ?>
-<article class="app-item library-row" data-part="card">
+<article class="app-item library-book-row" data-part="card">
 	<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-	<div class="library-row__body">
-		<<?php echo esc_html( $heading ); ?> class="library-row__title">
-			<a class="library-item__link" data-part="link">
-				<span class="library-row__name" data-field="title"></span>
+	<div class="library-book-row__body">
+		<<?php echo esc_html( $heading ); ?> class="library-book-row__title">
+			<a class="library-card-link" data-part="link">
+				<span class="library-book-row__name" data-field="title"></span>
 			</a>
 		</<?php echo esc_html( $heading ); ?>>
 		<p class="app-item__meta">

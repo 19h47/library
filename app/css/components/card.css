@@ -14,7 +14,7 @@
 	 * A book card: the cover beside, when the book has one, as wide as the cover of a card; the link of the title covers
 	 * the card to open the book.
 	 */
-	.library-item {
+	.library-book-card {
 		--library-cover-inline-size: var(--library-cover-width);
 		--library-cover-block-size: auto;
 
@@ -22,37 +22,37 @@
 		align-items: start;
 	}
 
-	.library-item:has(> .library-cover:not([hidden])) {
+	.library-book-card:has(> .library-cover:not([hidden])) {
 		grid-template-columns: auto 1fr;
 		column-gap: var(--app-space-m);
 	}
 
-	.library-item:hover {
+	.library-book-card:hover {
 		border-color: var(--app-line);
 	}
 
-	.library-item:has(:focus-visible) {
+	.library-book-card:has(:focus-visible) {
 		outline: var(--app-focus-outline);
 		outline-offset: var(--app-focus-outline-offset);
 	}
 
-	.library-item__body {
+	.library-book-card__body {
 		display: grid;
 		gap: var(--app-space-xs);
 		min-width: 0;
 	}
 
 	/* The card of a person or a series is the one of a book: its name as its title, its description as its excerpt */
-	.library-item__title,
-	.library-term__name {
+	.library-book-card__title,
+	.library-term-card__name {
 		font-size: inherit;
 		font-weight: normal;
 		overflow-wrap: anywhere;
 	}
 
 	/* Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box */
-	.library-item__excerpt,
-	.library-term__description {
+	.library-book-card__excerpt,
+	.library-term-card__description {
 		display: -webkit-box;
 		overflow: hidden;
 		-webkit-box-orient: vertical;
@@ -63,17 +63,17 @@
 		font-size: var(--app-text-s);
 	}
 
-	.library-item__link {
+	.library-card-link {
 		text-align: start;
 	}
 
-	.library-item__link::after {
+	.library-card-link::after {
 		content: "";
 		position: absolute;
 		inset: 0;
 	}
 
-	.library-item__link:focus-visible {
+	.library-card-link:focus-visible {
 		outline: none;
 	}
 
@@ -81,7 +81,7 @@
 	 * The row of a book, the idea of the week on the home: its cover, when it has one, as wide as the one of a card, its
 	 * title and authors; the link of the title covers the row to open the book
 	 */
-	.library-row {
+	.library-book-row {
 		--library-cover-inline-size: var(--library-cover-width);
 		--library-cover-block-size: auto;
 
@@ -91,27 +91,27 @@
 		gap: var(--app-space-m);
 	}
 
-	.library-row:hover {
+	.library-book-row:hover {
 		border-color: var(--app-line);
 	}
 
-	.library-row:has(.library-item__link:focus-visible) {
+	.library-book-row:has(.library-card-link:focus-visible) {
 		outline: var(--app-focus-outline);
 		outline-offset: var(--app-focus-outline-offset);
 	}
 
-	.library-row > .library-cover {
+	.library-book-row > .library-cover {
 		flex: none;
 	}
 
-	.library-row__body {
+	.library-book-row__body {
 		flex: 1;
 		display: grid;
 		gap: var(--app-space-xs);
 		min-width: 0;
 	}
 
-	.library-row__title {
+	.library-book-row__title {
 		font-size: inherit;
 		font-weight: normal;
 	}
@@ -120,7 +120,7 @@
 	 * Two lines of the title, in the link that holds it: a longer one ends in an ellipsis. Unprefixed line-clamp is in
 	 * no stable browser yet: the prefixed one needs its box.
 	 */
-	.library-row__name {
+	.library-book-row__name {
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;

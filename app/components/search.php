@@ -26,7 +26,7 @@ $keywords = array(
 	'rating:9'               => __( 'Rated 9 or more', 'library' ),
 );
 ?>
-<form class="library-search__form" role="search">
+<form class="library-search" role="search">
 	<label class="sr-only" for="<?php echo esc_attr( $args['id'] ); ?>"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
 	<p class="library-search__row">
 		<input

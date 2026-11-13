@@ -131,7 +131,9 @@ use Library\Meta;
 							<?php echo esc_html( $labels->name ); ?>
 							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						</h3>
-						<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-books' ) ); ?>
+						<library-covers-toggle class="library-title__action">
+							<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-books' ) ); ?>
+						</library-covers-toggle>
 					</div>
 					<div class="app-controls library-books__controls">
 						<?php
@@ -161,7 +163,7 @@ use Library\Meta;
 						}
 						?>
 						<library-filters>
-							<button class="app-pill" type="button" data-action="open-filters" aria-haspopup="dialog">
+							<button class="app-pill" type="button" commandfor="library-filters-dialog" command="show-modal" aria-haspopup="dialog" data-part="open">
 								<span data-field="label"><?php esc_html_e( 'Filters', 'library' ); ?></span>
 							</button>
 							<p class="library-filters__chosen library-pills" data-list="chosen" hidden>
@@ -218,7 +220,12 @@ use Library\Meta;
 						</library-filter>
 					</div>
 
-					<?php Markup::render_component( 'book-list' ); ?>
+					<?php // The books found, as cards or as a grid of their covers, the next ones loading as the end of the list comes, and what it says while it loads or finds none. ?>
+					<library-status class="app-status" hidden></library-status>
+					<library-list>
+						<ul class="app-list"></ul>
+						<div class="library-list__more" data-part="more"></div>
+					</library-list>
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
@@ -273,13 +280,21 @@ use Library\Meta;
 							<?php echo esc_html( $views['to-buy']['label'] ); ?>
 							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="toBuy"></library-count>
 						</h2>
-						<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-to-buy' ) ); ?>
+						<library-covers-toggle class="library-title__action">
+							<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-to-buy' ) ); ?>
+						</library-covers-toggle>
 					</div>
-					<?php Markup::render_component( 'book-list', array( 'list' => 'toBuy' ) ); ?>
+					<library-status class="app-status" list="toBuy" hidden></library-status>
+					<library-list list="toBuy">
+						<ul class="app-list"></ul>
+						<div class="library-list__more" data-part="more"></div>
+					</library-list>
 				</library-view>
 
 				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-person>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
@@ -299,7 +314,9 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="series" <?php echo Page::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-series>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php
@@ -340,7 +357,9 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="publisher" <?php echo Page::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-publisher>
 						<p class="app-status" data-field="status" hidden></p>
 						<?php
@@ -385,7 +404,9 @@ use Library\Meta;
 				<library-view name="recap" data-immersive <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
 					<library-recap>
 						<section class="library-recap__screen library-recap__opening">
-							<?php Markup::render_component( 'back' ); ?>
+							<library-back class="library-back">
+								<?php Markup::render_component( 'back' ); ?>
+							</library-back>
 							<hgroup class="library-recap__heading">
 								<h2 class="library-recap__year" data-field="year" tabindex="-1"></h2>
 								<p><?php esc_html_e( 'A year of reading', 'library' ); ?></p>
@@ -495,7 +516,9 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="book" <?php echo Page::BOOK_VIEW === $view ? '' : 'hidden'; ?>>
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
 						<?php Markup::render_component( 'book-header' ); ?>
@@ -566,8 +589,7 @@ use Library\Meta;
 										'input-list',
 										array(
 											'id'          => 'library-reading-readings',
-											'class'       => 'library-reading__readings',
-											'legend'      => Meta::get_label( 'library_reading' ),
+											'label'       => Meta::get_label( 'library_reading' ),
 											'description' => Meta::get_description( 'library_reading' ),
 											'add'         => __( 'Add a reading', 'library' ),
 											'action'      => 'add',
@@ -664,6 +686,7 @@ use Library\Meta;
 							'name'   => 'cover',
 							'label'  => __( 'Choose a cover', 'library' ),
 							'remove' => __( 'Remove the cover', 'library' ),
+							'action' => 'remove-cover',
 						)
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
@@ -700,14 +723,14 @@ use Library\Meta;
 					Markup::render_component(
 						'input-groups',
 						array(
-							'id'         => 'library-edit-role',
-							'legend'     => $person_labels->name,
-							'groups'     => $role_groups,
-							'choices'    => Meta::get_role_choices(),
-							'label'      => __( 'Role', 'library' ),
-							'add'        => __( 'Add a person', 'library' ),
-							'action'     => 'add-person',
-							'attributes' => array( 'data-list' => 'people' ),
+							'id'            => 'library-edit-role',
+							'label'         => $person_labels->name,
+							'groups'        => $role_groups,
+							'options'       => Meta::get_role_choices(),
+							'options_label' => __( 'Role', 'library' ),
+							'add'           => __( 'Add a person', 'library' ),
+							'action'        => 'add-person',
+							'attributes'    => array( 'data-list' => 'people' ),
 						)
 					);
 					Markup::render_component(
@@ -785,29 +808,39 @@ use Library\Meta;
 							);
 						}
 
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'      => 'library-edit-languages',
-								'label'   => $language_labels->name_for_book,
-								'name'    => 'languages',
-								'add'     => __( 'Add a language', 'library' ),
-								'choices' => $language_choices,
-							)
-						);
-						// A book added is in the language of the reader, unless the catalogue says otherwise.
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'          => 'library-edit-edition-languages',
-								'label'       => Meta::get_label( 'library_edition_languages' ),
-								'name'        => Meta::get_name( 'library_edition_languages' ),
-								'add'         => __( 'Add a language', 'library' ),
-								'choices'     => $language_choices,
-								'checked'     => array( $own_language_id ),
-								'description' => Meta::get_description( 'library_edition_languages' ),
-							)
-						);
+						?>
+						<library-choices>
+							<?php
+							Markup::render_component(
+								'checkboxes-field',
+								array(
+									'id'      => 'library-edit-languages',
+									'label'   => $language_labels->name_for_book,
+									'name'    => 'languages',
+									'add'     => __( 'Add a language', 'library' ),
+									'options' => $language_choices,
+								)
+							);
+							?>
+						</library-choices>
+						<?php // A book added is in the language of the reader, unless the catalogue says otherwise. ?>
+						<library-choices>
+							<?php
+							Markup::render_component(
+								'checkboxes-field',
+								array(
+									'id'          => 'library-edit-edition-languages',
+									'label'       => Meta::get_label( 'library_edition_languages' ),
+									'name'        => Meta::get_name( 'library_edition_languages' ),
+									'add'         => __( 'Add a language', 'library' ),
+									'options'     => $language_choices,
+									'checked'     => array( $own_language_id ),
+									'description' => Meta::get_description( 'library_edition_languages' ),
+								)
+							);
+							?>
+						</library-choices>
+						<?php
 						Markup::render_component(
 							'pill-checkbox',
 							array(
@@ -863,11 +896,11 @@ use Library\Meta;
 			</dialog>
 		</library-edit>
 
-		<template id="library-item">
+		<template id="library-book-card">
 			<li><?php Markup::render_component( 'book-card' ); ?></li>
 		</template>
 
-		<template id="library-row">
+		<template id="library-book-row">
 			<li><?php Markup::render_component( 'book-row' ); ?></li>
 		</template>
 
@@ -955,15 +988,15 @@ use Library\Meta;
 			</section>
 		</template>
 
-		<template id="library-term">
+		<template id="library-term-card">
 			<li><?php Markup::render_component( 'term-card' ); ?></li>
 		</template>
 
-		<template id="library-achievement">
+		<template id="library-achievement-card">
 			<li><?php Markup::render_component( 'achievement-card' ); ?></li>
 		</template>
 
-		<template id="library-achievement-close">
+		<template id="library-achievement-card-close">
 			<li><?php Markup::render_component( 'achievement-card', array( 'close' => true ) ); ?></li>
 		</template>
 

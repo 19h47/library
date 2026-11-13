@@ -86,6 +86,29 @@ class Markup {
 	}
 
 	/**
+	 * Print a tag with its attributes, as set_attributes() sets them: the opening tag of an element a component holds,
+	 * such as a fieldset whose attributes its arguments give, or a whole element, such as a control.
+	 *
+	 * @param string                          $markup     Markup of the tag, or of the element.
+	 * @param array<string, string|bool|null> $attributes Attributes of its first tag.
+	 * @return void
+	 */
+	public static function render_tag( string $markup, array $attributes ): void {
+		echo self::set_attributes( $markup, $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes.
+	}
+
+	/**
+	 * Name of the tag of a heading of a level, from 1 to 6, such as h3: a component that has a heading takes its level
+	 * from the place that holds it.
+	 *
+	 * @param int $level Level of the heading.
+	 * @return string
+	 */
+	public static function get_heading( int $level ): string {
+		return 'h' . min( 6, max( 1, $level ) );
+	}
+
+	/**
 	 * Markup of a select with its options, the one of its value selected.
 	 *
 	 * @param array<string|int, string> $options Labels of the options, by value.

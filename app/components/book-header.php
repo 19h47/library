@@ -12,8 +12,10 @@
  * @var array{level?: int} $args
  */
 
+use Library\Markup;
+
 $args    = wp_parse_args( $args, array( 'level' => 2 ) );
-$heading = 'h' . (int) $args['level'];
+$heading = Markup::get_heading( $args['level'] );
 ?>
 <header class="library-book__header">
 	<img class="library-cover library-book__cover" data-part="cover" data-field="cover" alt="" loading="lazy" hidden>

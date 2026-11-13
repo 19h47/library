@@ -15,11 +15,11 @@
 
 $args = wp_parse_args( $args, array( 'close' => false ) );
 ?>
-<article class="app-item library-achievement" data-part="card">
+<article class="app-item library-achievement-card" data-part="card">
 	<?php if ( $args['close'] ) : ?>
 		<p data-field="name"></p>
 		<p class="app-item__meta" data-field="meta"></p>
-		<p class="library-achievement__progress">
+		<p class="library-achievement-card__progress">
 			<progress></progress>
 			<span class="app-item__meta" data-field="count" aria-hidden="true"></span>
 		</p>

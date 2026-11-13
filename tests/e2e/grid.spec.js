@@ -53,7 +53,7 @@ test.describe( 'Grid', () => {
 		).toHaveCSS( 'opacity', '1' );
 		await expect(
 			list
-				.locator( '.library-item__title' )
+				.locator( '.library-book-card__title' )
 				.filter( { hasText: 'The Grid With Cover' } )
 		).toHaveCSS( 'opacity', '0' );
 
@@ -65,7 +65,7 @@ test.describe( 'Grid', () => {
 
 		// A tap on the cover opens the book: the link of the card covers it.
 		await list
-			.locator( '.library-item' )
+			.locator( '.library-book-card' )
 			.filter( { hasText: 'The Grid With Cover' } )
 			.click();
 		await expect( page.locator( 'library-book h2' ) ).toHaveText(

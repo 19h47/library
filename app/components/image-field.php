@@ -1,7 +1,7 @@
 <?php
 /**
  * A field of an image, such as the cover of a book: the image shown, the pill that picks a photo, and the one that
- * removes it, shown when there is one.
+ * removes it, by its action, shown when there is one.
  *
  * @link       https://github.com/19h47/library
  * @since      6.10.0
@@ -9,7 +9,7 @@
  * @package    Library
  * @subpackage Library/app/components
  *
- * @var array{id: string, name: string, label: string, remove: string} $args
+ * @var array{id: string, name: string, label: string, remove: string, action: string} $args
  */
 
 ?>
@@ -19,5 +19,5 @@
 		<input class="sr-only" id="<?php echo esc_attr( $args['id'] ); ?>" type="file" name="<?php echo esc_attr( $args['name'] ); ?>" accept="image/*">
 		<?php echo esc_html( $args['label'] ); ?>
 	</label>
-	<button class="app-pill" type="button" data-action="<?php echo esc_attr( "remove-{$args['name']}" ); ?>" hidden><?php echo esc_html( $args['remove'] ); ?></button>
+	<button class="app-pill" type="button" data-action="<?php echo esc_attr( $args['action'] ); ?>" hidden><?php echo esc_html( $args['remove'] ); ?></button>
 </div>

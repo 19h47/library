@@ -12,19 +12,35 @@
  * @package    Library
  * @subpackage Library/app/components
  *
- * @var array{lines?: list<array{field: string, label?: string, link?: bool}>} $args
+ * @var array{lines?: list<array{field: string, label?: string, link?: bool}>, level?: int} $args
  */
 
-$args = wp_parse_args( $args, array( 'lines' => array() ) );
+use Library\Markup;
+
+$args    = wp_parse_args(
+	$args,
+	array(
+		'lines' => array(),
+		'level' => 2,
+	)
+);
+$heading = Markup::get_heading( $args['level'] );
 ?>
 <header class="library-term-header">
-	<h2 class="library-heading" data-field="name" tabindex="-1"></h2>
+	<<?php echo esc_html( $heading ); ?> class="library-heading" data-field="name" tabindex="-1"></<?php echo esc_html( $heading ); ?>>
 	<?php foreach ( $args['lines'] as $line ) : ?>
 		<?php if ( isset( $line['label'] ) ) : ?>
-			<?php $line_tag = empty( $line['link'] ) ? 'span' : 'a'; ?>
 			<p data-row="<?php echo esc_attr( $line['field'] ); ?>" hidden>
 				<?php echo esc_html( $line['label'] ); ?>
-				<<?php echo esc_html( $line_tag ); ?> data-field="<?php echo esc_attr( $line['field'] ); ?>"<?php echo 'a' === $line_tag ? ' href=""' : ''; ?>></<?php echo esc_html( $line_tag ); ?>>
+				<?php
+				Markup::render_tag(
+					empty( $line['link'] ) ? '<span></span>' : '<a></a>',
+					array(
+						'data-field' => $line['field'],
+						'href'       => empty( $line['link'] ) ? null : '',
+					)
+				);
+				?>
 			</p>
 		<?php else : ?>
 			<p data-field="<?php echo esc_attr( $line['field'] ); ?>"></p>

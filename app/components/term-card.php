@@ -13,11 +13,13 @@
  * @var array{level?: int} $args
  */
 
+use Library\Markup;
+
 $args    = wp_parse_args( $args, array( 'level' => 4 ) );
-$heading = 'h' . (int) $args['level'];
+$heading = Markup::get_heading( $args['level'] );
 ?>
-<article class="app-item library-term" data-part="card">
-	<<?php echo esc_html( $heading ); ?> class="library-term__name" data-part="name"></<?php echo esc_html( $heading ); ?>>
-	<div class="library-term__description" data-html="description" hidden></div>
+<article class="app-item library-term-card" data-part="card">
+	<<?php echo esc_html( $heading ); ?> class="library-term-card__name" data-part="name"></<?php echo esc_html( $heading ); ?>>
+	<div class="library-term-card__description" data-html="description" hidden></div>
 	<p class="app-item__meta" data-field="line"></p>
 </article>

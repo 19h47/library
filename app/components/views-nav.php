@@ -15,7 +15,7 @@
 $args = wp_parse_args( $args, array( 'current' => '' ) );
 ?>
 <nav>
-	<ul class="library-strip library-nav" data-list="views">
+	<ul class="library-strip library-views-nav" data-list="views">
 		<?php foreach ( $args['views'] as $name => $item ) : ?>
 			<li>
 				<a

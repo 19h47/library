@@ -263,15 +263,17 @@ class LibraryStyleguideElement extends Brick {
 						`library-styleguide-close-${ index }`
 					)
 				),
-			readings: () =>
-				[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
-					( interval ) => this.#renderReading( interval )
-				),
 		};
 
 		Object.entries( samples ).forEach( ( [ name, render ] ) =>
 			this.querySelector( `[data-sample="${ name }"]` ).replaceChildren(
 				...render()
+			)
+		);
+		// The readings of a book, in the list of their field.
+		this.querySelector( '[data-sample="readings"] ul' ).replaceChildren(
+			...[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
+				( interval ) => this.#renderReading( interval )
 			)
 		);
 

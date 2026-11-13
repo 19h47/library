@@ -216,7 +216,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.app-search</code></h4>
+					<h4 class="library-styleguide__name"><code>search</code></h4>
 					<p>The field of a search, as high as a control</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -288,7 +288,9 @@ $sizes = array(
 					<p>A pill with its arrow, above the page of a book, of a person, of a series or of a collection, and the recap</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<?php Markup::render_component( 'back' ); ?>
+					<library-back class="library-back">
+						<?php Markup::render_component( 'back' ); ?>
+					</library-back>
 				</div>
 			</figure>
 			<figure>
@@ -460,6 +462,7 @@ $sizes = array(
 							'name'   => 'cover',
 							'label'  => 'Choose a cover',
 							'remove' => 'Remove the cover',
+							'action' => 'remove-cover',
 						)
 					);
 					?>
@@ -473,7 +476,7 @@ $sizes = array(
 		<div class="library-styleguide__samples">
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-item</code></h4>
+					<h4 class="library-styleguide__name"><code>book-card</code></h4>
 					<p>The card of a book, the component <code>book-card</code>, an <code>article</code> and an <code>.app-item</code>, its heading level <code>level</code>, 3 by default: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -491,7 +494,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-row</code></h4>
+					<h4 class="library-styleguide__name"><code>book-row</code></h4>
 					<p>A book in a row, the component <code>book-row</code>, its heading level <code>level</code>, 4 by default, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -509,7 +512,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-term</code></h4>
+					<h4 class="library-styleguide__name"><code>term-card</code></h4>
 					<p>The card of an author of a series or of a series of a person, the component <code>term-card</code>, its heading level <code>level</code>, 4 by default: its name, its description, clamped, and its line; with a description, without</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -518,7 +521,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-achievement</code></h4>
+					<h4 class="library-styleguide__name"><code>achievement-card</code></h4>
 					<p>The component <code>achievement-card</code>, earned, its subject a link when it leads to its books</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -527,7 +530,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-achievement</code>, close</h4>
+					<h4 class="library-styleguide__name"><code>achievement-card</code>, close</h4>
 					<p>The component <code>achievement-card</code> with <code>close</code>, close to be earned, with its progress</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -579,7 +582,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-nav</code></h4>
+					<h4 class="library-styleguide__name"><code>views-nav</code></h4>
 					<p>The views, a <code>.library-strip</code> of pills under the title, or on a phone the tabs in a bar at the bottom of the screen</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
@@ -680,25 +683,27 @@ $sizes = array(
 					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<?php
-					Markup::render_component(
-						'checkboxes-field',
-						array(
-							'id'          => 'library-styleguide-choices',
-							'label'       => 'Choices',
-							'name'        => 'choices',
-							'add'         => 'Add a choice',
-							'choices'     => array(
-								'en' => 'English',
-								'fr' => 'French',
-								'de' => 'German',
-								'ja' => 'Japanese',
-							),
-							'checked'     => array( 'en', 'fr' ),
-							'description' => 'Its description, under its choices.',
-						)
-					);
-					?>
+					<library-choices>
+						<?php
+						Markup::render_component(
+							'checkboxes-field',
+							array(
+								'id'          => 'library-styleguide-choices',
+								'label'       => 'Choices',
+								'name'        => 'choices',
+								'add'         => 'Add a choice',
+								'options'     => array(
+									'en' => 'English',
+									'fr' => 'French',
+									'de' => 'German',
+									'ja' => 'Japanese',
+								),
+								'checked'     => array( 'en', 'fr' ),
+								'description' => 'Its description, under its choices.',
+							)
+						);
+						?>
+					</library-choices>
 				</div>
 			</figure>
 			<figure>
@@ -712,12 +717,12 @@ $sizes = array(
 						'input-list',
 						array(
 							'id'          => 'library-styleguide-readings',
-							'legend'      => 'Readings',
+							'label'       => 'Readings',
 							'description' => 'From its start to its end, each one left empty when it is unknown.',
 							'add'         => 'Add a reading',
 							'action'      => 'add',
 							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
-							'list'        => array( 'data-sample' => 'readings' ),
+							'attributes'  => array( 'data-sample' => 'readings' ),
 						)
 					);
 					?>
@@ -733,22 +738,22 @@ $sizes = array(
 					Markup::render_component(
 						'input-groups',
 						array(
-							'id'         => 'library-styleguide-role',
-							'legend'     => 'People',
-							'groups'     => array(
+							'id'            => 'library-styleguide-role',
+							'label'         => 'People',
+							'groups'        => array(
 								'author'     => 'Authors',
 								'translator' => 'Translators',
 								'colorist'   => 'Colorists',
 							),
-							'choices'    => array(
+							'options'       => array(
 								'author'     => 'Author',
 								'translator' => 'Translator',
 								'colorist'   => 'Colorist',
 							),
-							'label'      => 'Role',
-							'add'        => 'Add a person',
-							'action'     => 'add-person',
-							'attributes' => array( 'data-sample' => 'people' ),
+							'options_label' => 'Role',
+							'add'           => 'Add a person',
+							'action'        => 'add-person',
+							'attributes'    => array( 'data-sample' => 'people' ),
 						)
 					);
 					?>
@@ -899,7 +904,7 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-recap-link</code></h4>
+					<h4 class="library-styleguide__name"><code>recap-link</code></h4>
 					<p>The recap of the year gone by on the home, in January, an <code>.app-item</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame">

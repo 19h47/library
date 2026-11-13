@@ -395,7 +395,7 @@ export function renderCurrent( book ) {
  * @return {HTMLElement} The row.
  */
 export function renderRow( book ) {
-	const $item = clone( 'library-row' );
+	const $item = clone( 'library-book-row' );
 
 	linkBook( $item, book );
 	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
@@ -418,7 +418,7 @@ export function renderRow( book ) {
  * @return {HTMLElement} The card.
  */
 export function renderBook( book, state ) {
-	const $item = clone( 'library-item' );
+	const $item = clone( 'library-book-card' );
 
 	linkBook( $item, book );
 	fillBook( $item, book, state );
@@ -435,7 +435,7 @@ export function renderBook( book, state ) {
  * @return {HTMLElement} The card.
  */
 function renderTerm( $link, description, line ) {
-	const $item = clone( 'library-term' );
+	const $item = clone( 'library-term-card' );
 
 	fill( $item, { line } );
 	$item.querySelector( '[data-part="name"]' ).append( $link );
@@ -532,7 +532,7 @@ export function fillAuthors( $section, authors, total ) {
  * @return {HTMLElement} Its element.
  */
 export function renderAchievement( achievement ) {
-	const $item = clone( 'library-achievement' );
+	const $item = clone( 'library-achievement-card' );
 
 	fill( $item, {
 		title: achievement.title,
@@ -585,7 +585,7 @@ export function renderAchievementPill( achievement ) {
  * @return {HTMLElement} Its element.
  */
 export function renderCloseAchievement( achievement, id ) {
-	const $item = clone( 'library-achievement-close' );
+	const $item = clone( 'library-achievement-card-close' );
 	const $name = $item.querySelector( '[data-field="name"]' );
 	const $progress = $item.querySelector( 'progress' );
 	const hasSubject = '' !== achievement.subject;

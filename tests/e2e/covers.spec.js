@@ -79,7 +79,7 @@ test.describe( 'Covers', () => {
 		const books = page.locator( 'library-view[name="books"]' );
 		const toggle = books.getByRole( 'checkbox', { name: 'Covers' } );
 		const card = books
-			.locator( 'library-list .library-item' )
+			.locator( 'library-list .library-book-card' )
 			.filter( { hasText: 'The Cover Test' } );
 
 		// The height of the card and of its cover: a card Safari leaves undrawn is as high as its padding, or of none.

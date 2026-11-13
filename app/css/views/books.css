@@ -25,7 +25,7 @@
 
 	/* The field of the search, then its keywords a gap under it: the room of their focus, out of their row, comes off it */
 	.app-search,
-	.library-search__form {
+	.library-search {
 		display: grid;
 		gap: var(--app-space-s);
 	}

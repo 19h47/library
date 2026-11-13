@@ -48,15 +48,15 @@ Every size is on the scale of the golden ratio: its steps, `--app-u0` to `--app-
 The components are built as those of a design file, each level made of the ones before it:
 
 - atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `.library-cover`, `.app-status`;
-- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.app-search`), `recap-link`;
-- organisms: the cards, components of their own, `book-card` (`.library-item`), `book-row` (`.library-row`), `term-card` (`.library-term`) and `achievement-card` (`.library-achievement`), and `.library-current`; `.library-section`, `term-header`, `views-nav` (`.library-nav`), `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
+- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`;
+- organisms: the cards, components of their own, `book-card`, `book-row`, `term-card` and `achievement-card`, each its root the class of its name, `.library-book-card`, and `.library-current`; `.library-section`, `term-header`, `views-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
 - screens: the views, in `app/css/views`.
 
 A component knows none of the places it shows in: a place that needs it otherwise sets its properties, as a card sets the width of its cover, `--library-cover-inline-size`, rather than the cover listing the cards. A class of a view names a part of that view; a style used in several places is a component of its own.
 
 ### Markup
 
-The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`: a template of an item of a list holds a component, `<li>` then a card. A component carries neither a margin nor a width of its own: its place spaces it and sizes it. The scripts reach the markup by data attributes, `data-field`, `data-list`, `data-action`, `data-part`…, or by what an element is, never by a class of its styles; ESLint fails on a script that does.
+The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`: a component is markup alone, the brick that gives it a behavior around it in the app, and a template of an item of a list holds one, `<li>` then a card. A component carries neither a margin nor a width of its own: its place spaces it and sizes it. The scripts reach the markup by data attributes, `data-field`, `data-list`, `data-action`, `data-part`…, or by what an element is, never by a class of its styles; ESLint fails on a script that does.
 
 Searching `styleguide` then Enter in the app opens its styleguide, for development, in English: the foundations, then the atoms, the molecules, the organisms and the screens, each component under its name, in a frame with the markup the app renders, the PHP components and the templates of the app filled as the bricks fill them, its caption saying what it is made of, its variants and its properties.
 

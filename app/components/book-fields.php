@@ -13,10 +13,11 @@
  * @var array{level?: int} $args
  */
 
+use Library\Markup;
 use Library\Meta;
 
 $args    = wp_parse_args( $args, array( 'level' => 3 ) );
-$heading = 'h' . (int) $args['level'];
+$heading = Markup::get_heading( $args['level'] );
 $groups  = array(
 	_x( 'Work', 'fields of a book', 'library' )    => array(
 		'authors'        => __( 'Authors', 'library' ),
