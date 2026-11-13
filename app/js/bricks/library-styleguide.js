@@ -320,7 +320,50 @@ class LibraryStyleguideElement extends Brick {
 			}
 		);
 
+		this.#renderContents();
+
 		return [];
+	}
+
+	/**
+	 * The contents, from the headings: each level, as a meta line, then the name of each of its samples, as its heading
+	 * writes it, its code in the font of code: a link to each.
+	 */
+	#renderContents() {
+		const link = ( /** @type {Element} */ $heading ) => {
+			const $link = document.createElement( 'a' );
+
+			$link.href = `#${ $heading.id }`;
+			$link.append(
+				...[ ...$heading.childNodes ].map( ( $node ) =>
+					$node.cloneNode( true )
+				)
+			);
+
+			return $link;
+		};
+
+		this.querySelector( '[data-list="contents"]' ).replaceChildren(
+			...[ ...this.querySelectorAll( 'section > h3[id]' ) ].map(
+				( $level ) => {
+					const $item = document.createElement( 'li' );
+					const $name = link( $level );
+
+					$name.className =
+						'app-text-s app-text-muted app-font-ui app-uppercase';
+					$item.append(
+						$name,
+						...[
+							...$level.parentElement.querySelectorAll(
+								'h4[id]'
+							),
+						].map( link )
+					);
+
+					return $item;
+				}
+			)
+		);
 	}
 
 	/**

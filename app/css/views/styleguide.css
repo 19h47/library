@@ -13,23 +13,50 @@
 		color: var(--app-text-muted);
 	}
 
-	/* The styleguide, a container as wide as the column of the app, which its samples take the width of */
-	library-styleguide {
+	/* The view of the styleguide, a container as wide as the column of the app, which the parts of the styleguide measure against */
+	library-view[name="styleguide"] {
 		container-type: inline-size;
 	}
 
 	/*
-	 * The samples of a level, across the screen but its gutters, in columns as wide as the column of the app, as many as
-	 * the screen holds, one on a phone: a column is the place of the components it shows, which fill it as their place in
-	 * the app; a component wider than it goes past its frame, rather than widening the others
+	 * The styleguide, across the screen but its gutters, its title, its contents and its levels on one edge: on a phone,
+	 * the column of the app
+	 */
+	library-styleguide {
+		margin-inline: calc(50cqi - 50vw + var(--app-space-l));
+	}
+
+	/* What it says, and where a link of its contents leads, under the controls of the toolbar */
+	.library-styleguide__intro {
+		max-inline-size: 100cqi;
+	}
+
+	library-styleguide [id] {
+		scroll-margin-block-start: calc(var(--app-toolbar-top) + var(--app-control-size));
+	}
+
+	/* Its contents: each level, then the components it shows, a link each, as many on a line as fit */
+	.library-styleguide__contents {
+		list-style: none;
+		display: grid;
+		gap: var(--app-space-s);
+	}
+
+	.library-styleguide__contents > li {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--app-space-xs) var(--app-space-s);
+	}
+
+	/*
+	 * The samples of a level, in columns at least as wide as the column of the app, as many as the screen holds, one on a
+	 * phone, each sample under the one before in its column, whatever its height: a column is the place of the components
+	 * it shows, which fill it as they fill their place in the app; a component wider than it goes past its frame
 	 */
 	.library-styleguide__samples {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, min(100%, 100cqi));
-		justify-content: center;
-		align-items: start;
-		gap: var(--app-space-l);
-		margin-inline: calc(50cqi - 50vw + var(--app-space-l));
+		columns: 100cqi;
+		column-gap: var(--app-space-l);
 	}
 
 	/* The caption of a sample and what a size of the text sets: small text, as the interface without its capitals */
@@ -40,10 +67,25 @@
 		font-size: var(--app-text-s);
 	}
 
-	/* A sample: its caption, then its frame, a gap under it */
+	/* A caption: the name of its sample, then what it is, closer to each other than to the frame */
+	.library-styleguide__samples figcaption {
+		display: grid;
+		gap: var(--app-space-xs);
+	}
+
+	/* A sample: its caption, then its frame, a gap under it, whole in its column, a step and a half above the next one */
 	.library-styleguide__samples > figure {
 		display: grid;
 		gap: var(--app-space-s);
+		break-inside: avoid;
+		margin-block-end: var(--app-space-l);
+	}
+
+	/* The name of a sample, its heading, as the text, then what it is, the caption */
+	.library-styleguide__name {
+		color: var(--app-text);
+		font-family: var(--app-font-mono);
+		font-size: var(--app-text-m);
 	}
 
 	.library-styleguide__samples code {

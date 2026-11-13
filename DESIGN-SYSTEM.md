@@ -176,7 +176,7 @@ Its listeners take `signal`, which aborts as the brick leaves the page; it retur
 
 1. Its markup in its component, its styles in its sheet, with tokens only: `pnpm lint:css`.
 2. Its scripts reach it by data attributes: `pnpm lint:js`, `pnpm check:js`.
-3. In the styleguide, at its level, in a frame, with its variants: its caption says what it is, its component, what it is made of, its variants and the properties its place sets. A column of the styleguide is as wide as the column of the app: a component that does not fill it, or goes past it, breaks a rule above.
+3. In the styleguide, at its level, in a frame, with its variants: its caption says what it is, its component, what it is made of, its variants and the properties its place sets. A column of the styleguide is at least as wide as the column of the app: a component that does not fill it, or goes past it, breaks a rule above. Its heading, the name of the sample, gives it its place in the contents.
 4. Accessible: a name for each control, its focus seen (`--app-focus-outline`), a control as large as `--app-control-size`, its heading level from its place, its colors among the tokens, a motion only under `prefers-reduced-motion: no-preference`.
 5. Its strings in French too, with the spaces of French typography, no-break before `:`, `;`, `?`, `!` and `%`, inside « », between a number and its unit: `sh bin/update-translations.sh`.
 6. A behavior, a test in `tests/e2e`; a route or a rule of PHP, a test in `tests`. See `TESTING.md`.

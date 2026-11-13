@@ -35,14 +35,21 @@ $sizes = array(
 <library-styleguide class="library-sections" lang="en">
 	<header class="library-styleguide__header">
 		<h2 class="library-title">Styleguide</h2>
-		<p class="library-styleguide__intro">The app as a design file, from its tokens to its screens: the foundations, then the atoms, made of them, the molecules, made of atoms, the organisms, made of molecules, and the screens. Each component is in a frame, with the markup the app renders, and looks the same here as in the app; its caption says what it is made of, its variants and the properties its place sets. A column is as wide as the column of the app: a component fills it, as it fills its place in the app. How to add one, with its tokens, its names and its rules, is in DESIGN-SYSTEM.md, at the root of the plugin.</p>
+		<p class="library-styleguide__intro">The app as a design file, from its tokens to its screens: the foundations, then the atoms, made of them, the molecules, made of atoms, the organisms, made of molecules, and the screens. Each component is in a frame, with the markup the app renders, and looks the same here as in the app; its caption says what it is made of, its variants and the properties its place sets. A column is at least as wide as the column of the app: a component fills it, as it fills its place in the app. How to add one, with its tokens, its names and its rules, is in DESIGN-SYSTEM.md, at the root of the plugin.</p>
 	</header>
 
+	<nav aria-label="Contents">
+		<?php // Each level, then the components it shows, from their headings: see library-styleguide. ?>
+		<ul class="library-styleguide__contents" data-list="contents"></ul>
+	</nav>
+
 	<section class="library-section">
-		<h3 class="library-title">Foundations</h3>
+		<h3 class="library-title" id="styleguide-foundations">Foundations</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption>Colors</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-colors">Colors</h4>
+				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $colors as $color ) : ?>
 						<li>
@@ -53,7 +60,10 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Space, the steps of the scale by the golden ratio, between components and around them: <code>--app-space-m</code> at <code>--app-u1</code>, the size of the text</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-space">Space</h4>
+					<p>The steps of the scale by the golden ratio, between components and around them: <code>--app-space-m</code> at <code>--app-u1</code>, the size of the text</p>
+				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $spaces as $space ) : ?>
 						<li>
@@ -64,7 +74,10 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Corners, a step and a half apart: a tag, a cover, then a card, a field or a pill</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-corners">Corners</h4>
+					<p>A step and a half apart: a tag, a cover, then a card, a field or a pill</p>
+				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $radii as $radius ) : ?>
 						<li>
@@ -75,7 +88,10 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Sizes of the text, at this width, on lines of <code>--app-line-height</code> (φ): each one a utility of its name too, <code>.app-text-s</code> for <code>--app-text-s</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-sizes-of-the-text">Sizes of the text</h4>
+					<p>At this width, on lines of <code>--app-line-height</code> (φ): each one a utility of its name too, <code>.app-text-s</code> for <code>--app-text-s</code></p>
+				</figcaption>
 				<ul class="library-styleguide__sizes" data-list="sizes">
 					<?php foreach ( $sizes as list( $size, $family, $use ) ) : ?>
 						<li>
@@ -86,7 +102,9 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Fonts</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-fonts">Fonts</h4>
+				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $fonts as $font ) : ?>
 						<li>
@@ -97,7 +115,10 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Styles of text: the text, <code>.library-heading</code>, the heading of a page or a dialog, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-styles-of-text">Styles of text</h4>
+					<p>The text, <code>.library-heading</code>, the heading of a page or a dialog, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<p>The text of the app, in its font of code.</p>
 					<p class="library-heading">The heading of a page</p>
@@ -109,7 +130,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption>Icons, from Material Symbols, outlined, at 24 px: <code>Markup::render_icon( $name )</code>, the size of the text, in its color</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-icons">Icons</h4>
+					<p>From Material Symbols, outlined, at 24 px: <code>Markup::render_icon( $name )</code>, the size of the text, in its color</p>
+				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( array_keys( Markup::ICONS ) as $icon ) : ?>
 						<li>
@@ -123,10 +147,13 @@ $sizes = array(
 	</section>
 
 	<section class="library-section">
-		<h3 class="library-title">Atoms</h3>
+		<h3 class="library-title" id="styleguide-atoms">Atoms</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.app-pill</code>, an action or a link in words: a link, the current one, a button, disabled, a count, small, and the main action of a form, <code>.app-pill--primary</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-app-pill"><code>.app-pill</code></h4>
+					<p>An action or a link in words: a link, the current one, a button, disabled, a count, small, and the main action of a form, <code>.app-pill--primary</code></p>
+				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<a class="app-pill" href="#top">A link</a>
 					<a class="app-pill" href="#top" aria-current="page">The current one</a>
@@ -138,7 +165,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-control</code>, an action as an icon, its name for assistive technologies: add, the theme in light then in dark, close</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-app-control"><code>.app-control</code></h4>
+					<p>An action as an icon, its name for assistive technologies: add, the theme in light then in dark, close</p>
+				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="app-control" type="button" aria-label="Add"><?php Markup::render_icon( 'add' ); ?></button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false"><?php Markup::render_icon( 'dark_mode' ); ?><?php Markup::render_icon( 'light_mode' ); ?></button>
@@ -147,14 +177,20 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-link</code>, a button in words, as a link, its text the one around it: in the text, or in a meta line</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-link"><code>.library-link</code></h4>
+					<p>A button in words, as a link, its text the one around it: in the text, or in a meta line</p>
+				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="library-link" type="button">Undo</button>
 					<span class="app-text-s app-text-muted app-font-ui app-uppercase"><button class="library-link" type="button">Another idea</button></span>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-tag</code>, a word in a tint of its color: the form of a book, its original language, and its status, <code>.library-tag--status</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-tag"><code>.library-tag</code></h4>
+					<p>A word in a tint of its color: the form of a book, its original language, and its status, <code>.library-tag--status</code></p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="app-item__meta">
 						<span class="library-tag">A form</span>
@@ -164,7 +200,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-cover</code>, the image of a book, or <code>.library-cover--frame</code>, its title in a frame of the shape of a cover; its place sets its height, <code>--library-cover-block-size</code>, the row of the latest readings by default, or its width, <code>--library-cover-inline-size</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-cover"><code>.library-cover</code></h4>
+					<p>The image of a book, or <code>.library-cover--frame</code>, its title in a frame of the shape of a cover; its place sets its height, <code>--library-cover-block-size</code>, the row of the latest readings by default, or its width, <code>--library-cover-inline-size</code></p>
+				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<img class="library-cover" data-sample-cover alt="" loading="lazy" hidden>
 					<span class="library-cover library-cover--frame">
@@ -175,14 +214,20 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-status</code>, the message of a view, such as no book found, or the app offline; <code>[role="alert"]</code>, an error of the server at the end of a form</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-app-status"><code>.app-status</code></h4>
+					<p>The message of a view, such as no book found, or the app offline; <code>[role="alert"]</code>, an error of the server at the end of a form</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="app-status">A message, such as no book found.</p>
 					<p class="app-status" role="alert">The book could not be saved.</p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-search</code>, the field of a search, as high as a control</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-app-search"><code>.app-search</code></h4>
+					<p>The field of a search, as high as a control</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-search">
 						<input id="library-styleguide-search" type="search" placeholder="Title, author, series, ISBN…" aria-label="A search">
@@ -193,10 +238,13 @@ $sizes = array(
 	</section>
 
 	<section class="library-section">
-		<h3 class="library-title">Molecules</h3>
+		<h3 class="library-title" id="styleguide-molecules">Molecules</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-title</code>, the title of a section: its <code>__heading</code> on balanced lines, its count, a meta line, and its action at the end of the last line, <code>__action</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-title"><code>.library-title</code></h4>
+					<p>The title of a section: its <code>__heading</code> on balanced lines, its count, a meta line, and its action at the end of the last line, <code>__action</code></p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-title">
 						<h4 class="library-title__heading">
@@ -208,7 +256,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>pill-checkbox</code> and <code>pill-select</code>, a pill with its control: a checkbox, checked or not, and a select</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-pill-checkbox"><code>pill-checkbox</code></h4>
+					<p>And <code>pill-select</code>, a pill with its control: a checkbox, checked or not, and a select</p>
+				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<?php
 					Markup::render_component(
@@ -241,13 +292,19 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>back</code>, a pill with its arrow, above the page of a book, of a person, of a series or of a collection, and the recap</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-back"><code>back</code></h4>
+					<p>A pill with its arrow, above the page of a book, of a person, of a series or of a collection, and the recap</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php Markup::render_component( 'back' ); ?>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-pills</code>, a row of pills on as many lines as it needs, such as the series of a cycle or the filters chosen, which remove them</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-pills"><code>.library-pills</code></h4>
+					<p>A row of pills on as many lines as it needs, such as the series of a cycle or the filters chosen, which remove them</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-pills">
 						<li><a class="app-pill" href="#top">A Series</a></li>
@@ -257,7 +314,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-strip</code>, a row of pills or covers that scrolls sideways across the viewport, the counterpart of <code>.library-pills</code>: its first one starts where the content does</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-strip"><code>.library-strip</code></h4>
+					<p>A row of pills or covers that scrolls sideways across the viewport, the counterpart of <code>.library-pills</code>: its first one starts where the content does</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-strip">
 						<button class="app-pill" type="button">Series</button>
@@ -269,13 +329,19 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-cover-link</code>, a cover that opens its book, its state for assistive technologies only: read, being read, to read, and the book open, <code>[aria-current="page"]</code>, its line as firm as the text</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-cover-link"><code>.library-cover-link</code></h4>
+					<p>A cover that opens its book, its state for assistive technologies only: read, being read, to read, and the book open, <code>[aria-current="page"]</code>, its line as firm as the text</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="volumes"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-fields</code>, the name of each field, a meta line, above its value</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-fields"><code>.library-fields</code></h4>
+					<p>The name of each field, a meta line, above its value</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<dl class="library-fields">
 						<div>
@@ -290,7 +356,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-fields--aside</code>, the name of each field beside its value, the names in the smaller part of the golden ratio, as the fields of a book</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-fields-aside"><code>.library-fields--aside</code></h4>
+					<p>The name of each field beside its value, the names in the smaller part of the golden ratio, as the fields of a book</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<dl class="library-fields library-fields--aside">
 						<div>
@@ -305,13 +374,19 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-notice</code>, what an action done says, a pill with its text and its action, a <code>.library-link</code>: at the bottom of the screen in the app</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-notice"><code>.library-notice</code></h4>
+					<p>What an action done says, a pill with its text and its action, a <code>.library-link</code>: at the bottom of the screen in the app</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-notice app-pill"><span>Reading saved.</span> <button class="library-link" type="button">Undo</button></p>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>field</code>, a field of a form, its label above its control: a text with a description, a select, a textarea growing with its text, disabled</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-field"><code>field</code></h4>
+					<p>A field of a form, its label above its control: a text with a description, a select, a textarea growing with its text, disabled</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -351,7 +426,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>field</code>, its states: required, in error with <code>.library-error</code> under it; pointed at and focused, live</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-field-states"><code>field</code>, its states</h4>
+					<p>Required, in error with <code>.library-error</code> under it; pointed at and focused, live</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -378,7 +456,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>image-field</code>, a <code>.library-cover</code> and the pills that pick it and remove it</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-image-field"><code>image-field</code></h4>
+					<p>A <code>.library-cover</code> and the pills that pick it and remove it</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -397,52 +478,76 @@ $sizes = array(
 	</section>
 
 	<section class="library-section">
-		<h3 class="library-title">Organisms</h3>
+		<h3 class="library-title" id="styleguide-organisms">Organisms</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-item</code>, the card of a book, the component <code>book-card</code>, an <code>article</code> and an <code>.app-item</code>, its heading level <code>level</code>, 3 by default: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-item"><code>.library-item</code></h4>
+					<p>The card of a book, the component <code>book-card</code>, an <code>article</code> and an <code>.app-item</code>, its heading level <code>level</code>, 3 by default: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="books"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-list[data-covers]</code>, the cards as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-app-list-data-covers"><code>.app-list[data-covers]</code></h4>
+					<p>The cards as a grid of their covers, as the Covers checkbox shows them: with a cover, without, with a long title</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-covers data-sample="grid"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-row</code>, a book in a row, the component <code>book-row</code>, its heading level <code>level</code>, 4 by default, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-row"><code>.library-row</code></h4>
+					<p>A book in a row, the component <code>book-row</code>, its heading level <code>level</code>, 4 by default, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="rows"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-current</code>, a book being read, as the home shows it: a <code>.library-cover-link</code> a step higher, its title and its status under it; with a cover, not kept without, with a long title</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-current"><code>.library-current</code></h4>
+					<p>A book being read, as the home shows it: a <code>.library-cover-link</code> a step higher, its title and its status under it; with a cover, not kept without, with a long title</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="current"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-term</code>, the card of an author of a series or of a series of a person, the component <code>term-card</code>, its heading level <code>level</code>, 4 by default: its name, its description, clamped, and its line; with a description, without</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-term"><code>.library-term</code></h4>
+					<p>The card of an author of a series or of a series of a person, the component <code>term-card</code>, its heading level <code>level</code>, 4 by default: its name, its description, clamped, and its line; with a description, without</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="terms"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-achievement</code>, the component <code>achievement-card</code>, earned, its subject a link when it leads to its books</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-achievement"><code>.library-achievement</code></h4>
+					<p>The component <code>achievement-card</code>, earned, its subject a link when it leads to its books</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="achievements"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-achievement</code>, the component <code>achievement-card</code> with <code>close</code>, close to it, with its progress</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-achievement-close"><code>.library-achievement</code>, close</h4>
+					<p>The component <code>achievement-card</code> with <code>close</code>, close to be earned, with its progress</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="close"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-section</code>, a <code>.library-title</code> then its cards; past four, <code>.library-section__more</code> folds the others under a pill, as the authors of a series</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-section"><code>.library-section</code></h4>
+					<p>A <code>.library-title</code> then its cards; past four, <code>.library-section__more</code> folds the others under a pill, as the authors of a series</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<section class="library-section" data-folded="authors">
 						<h4 class="library-title">Authors</h4>
@@ -455,7 +560,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>term-header</code>, the header of the page of a person, of a series or of a collection: a <code>.library-heading</code>, the lines that place it, a <code>.library-prose</code> and its reading; a person, then a series of a cycle</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-term-header"><code>term-header</code></h4>
+					<p>The header of the page of a person, of a series or of a collection: a <code>.library-heading</code>, the lines that place it, a <code>.library-prose</code> and its reading; a person, then a series of a cycle</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<div data-sample-header="person">
 						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
@@ -479,7 +587,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-nav</code>, the views, a <code>.library-strip</code> of pills under the title, or on a phone the tabs in a bar at the bottom of the screen</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-nav"><code>.library-nav</code></h4>
+					<p>The views, a <code>.library-strip</code> of pills under the title, or on a phone the tabs in a bar at the bottom of the screen</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-strip library-nav">
 						<li><a class="app-pill" href="#top" aria-current="page">Books</a></li>
@@ -491,7 +602,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.app-controls</code>, the controls of a list: the search, its keywords, a <code>.library-strip</code>, under it while it is used; under the title of the books, the button of the filters, the order and the filters chosen, <code>.library-pills</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-app-controls"><code>.app-controls</code></h4>
+					<p>The controls of a list: the search, its keywords, a <code>.library-strip</code>, under it while it is used; under the title of the books, the button of the filters, the order and the filters chosen, <code>.library-pills</code></p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
 						<div class="app-search">
@@ -527,7 +641,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-sheet</code>, a dialog over the page, the filters or the choices of a field: <code>dialog-close</code> at its corner, a <code>.library-heading</code>, its fields and its main action; a sheet from the bottom of the screen on a phone, a dialog beyond, drawn here in its place</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-sheet"><code>.library-sheet</code></h4>
+					<p>A dialog over the page, the filters or the choices of a field: <code>dialog-close</code> at its corner, a <code>.library-heading</code>, its fields and its main action; a sheet from the bottom of the screen on a phone, a dialog beyond, drawn here in its place</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<dialog class="library-sheet" id="library-styleguide-sheet" aria-labelledby="library-styleguide-sheet-title" open>
 						<?php Markup::render_component( 'dialog-close', array( 'dialog' => 'library-styleguide-sheet' ) ); ?>
@@ -549,7 +666,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>checkboxes-field</code>, the choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-checkboxes-field"><code>checkboxes-field</code></h4>
+					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -573,7 +693,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>input-list</code>, a list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the readings of a book, from their starts to their ends, with a description; the first one of unknown dates, the last one in error</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-input-list"><code>input-list</code></h4>
+					<p>A list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the readings of a book, from their starts to their ends, with a description; the first one of unknown dates, the last one in error</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -592,7 +715,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>input-groups</code>, an <code>input-list</code> in groups, each a fieldset shown once it holds a row, then a <code>pill-select</code> of the group a row goes in beside the pill that adds it: the people of a book by role, its colorists none</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-input-groups"><code>input-groups</code></h4>
+					<p>An <code>input-list</code> in groups, each a fieldset shown once it holds a row, then a <code>pill-select</code> of the group a row goes in beside the pill that adds it: the people of a book by role, its colorists none</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
@@ -623,10 +749,13 @@ $sizes = array(
 	</section>
 
 	<section class="library-section">
-		<h3 class="library-title">Screens</h3>
+		<h3 class="library-title" id="styleguide-screens">Screens</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-book</code>, the book open: its title page, a <code>.library-book__header</code>, a <code>.library-cover</code> as high as the screen allows, its <code>.library-book__heading</code>, a <code>.library-heading</code> with its subtitle, a <code>.library-book__subtitle</code>, its meta and its translation, then its excerpt; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, a <code>.library-book__group</code> each for its work, its edition and its copy, <code>.library-fields--aside</code>, and its action</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-book"><code>.library-book</code></h4>
+					<p>The book open: its title page, a <code>.library-book__header</code>, a <code>.library-cover</code> as high as the screen allows, its <code>.library-book__heading</code>, a <code>.library-heading</code> with its subtitle, a <code>.library-book__subtitle</code>, its meta and its translation, then its excerpt; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, a <code>.library-book__group</code> each for its work, its edition and its copy, <code>.library-fields--aside</code>, and its action</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-book">
 						<header class="library-book__header">
@@ -695,7 +824,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-year</code>, the year of reading, its first line large on the achievements</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-year"><code>.library-year</code></h4>
+					<p>The year of reading, its first line large on the achievements</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-year">
 						<p>103 read in 2026, 75 by this date last year</p>
@@ -705,11 +837,17 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>#library-month</code>, a month of the diary, a <code>.library-section</code> of cards; <code>#library-diary-recap</code>, the recap of a year gone by, before its latest month</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-month"><code>#library-month</code></h4>
+					<p>A month of the diary, a <code>.library-section</code> of cards; <code>#library-diary-recap</code>, the recap of a year gone by, before its latest month</p>
+				</figcaption>
 				<div class="library-styleguide__frame" data-sample="month"></div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-edit__duplicate</code>, under the ISBN of a book to add: the book that has it already, a book to buy bought from there; else what the catalogue of the BnF answered. <code>.library-edit__details</code>, the fields few books have, folded</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-edit-duplicate"><code>.library-edit__duplicate</code></h4>
+					<p>Under the ISBN of a book to add: the book that has it already, a book to buy bought from there; else what the catalogue of the BnF answered. <code>.library-edit__details</code>, the fields few books have, folded</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-edit__duplicate">
 						<span>Already added: <a href="#top">A title</a> <button class="app-pill" type="button" data-action="buy">I bought it</button></span>
@@ -732,7 +870,10 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-recap__screen</code>, a screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, its lines</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-recap-screen"><code>.library-recap__screen</code></h4>
+					<p>A screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, its lines</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<section class="library-recap__screen">
 						<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal">Books read</h3>
@@ -743,25 +884,37 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-recap__mosaic</code>, the covers of the books read, under the year on the first screen</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-recap-mosaic"><code>.library-recap__mosaic</code></h4>
+					<p>The covers of the books read, under the year on the first screen</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-recap__mosaic" data-sample="mosaic"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-recap__months</code>, the readings of each month, which assistive technologies read as the name of the month and its books</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-recap-months"><code>.library-recap__months</code></h4>
+					<p>The readings of each month, which assistive technologies read as the name of the month and its books</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ol class="library-recap__months" data-sample="months"></ol>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-recap__shares</code>, the forms or the languages, and <code>.library-recap__ranking</code>, the people or the series, a link each: a bar as long as the share of the first one</figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-recap-shares"><code>.library-recap__shares</code></h4>
+					<p>The forms or the languages, and <code>.library-recap__ranking</code>, the people or the series, a link each: a bar as long as the share of the first one</p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-recap__shares" data-sample="shares"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-recap-link</code>, the recap of the year gone by on the home, in January, an <code>.app-item</code></figcaption>
+				<figcaption>
+					<h4 class="library-styleguide__name" id="styleguide-library-recap-link"><code>.library-recap-link</code></h4>
+					<p>The recap of the year gone by on the home, in January, an <code>.app-item</code></p>
+				</figcaption>
 				<div class="library-styleguide__frame">
 					<a class="app-item library-recap-link" href="">
 						<span class="library-recap-link__year">2025</span>
