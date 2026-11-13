@@ -64,19 +64,15 @@ use Library\Meta;
 						<h1><a href="<?php echo esc_url( $views['books']['url'] ); ?>"><?php esc_html_e( 'Library', 'library' ); ?></a></h1>
 					</library-app-name>
 					<library-nav>
-						<nav>
-							<ul class="library-strip library-nav" data-list="views">
-								<?php foreach ( $views as $name => $item ) : ?>
-									<li>
-										<a
-											class="app-pill"
-											href="<?php echo esc_url( $item['url'] ); ?>"
-											<?php echo $name === $view ? 'aria-current="page"' : ''; ?>
-										><?php echo esc_html( $item['label'] ); ?></a>
-									</li>
-								<?php endforeach; ?>
-							</ul>
-						</nav>
+						<?php
+						Markup::render_component(
+							'views-nav',
+							array(
+								'views'   => $views,
+								'current' => $view,
+							)
+						);
+						?>
 					</library-nav>
 				</header>
 
@@ -86,56 +82,14 @@ use Library\Meta;
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
 					<div class="app-controls">
 						<library-search class="app-search">
-							<?php // A search landmark: the search follows the typing; submitted, it searches at once, or opens the styleguide or the reference of the API typed. ?>
-							<form class="library-search__form" role="search">
-								<label class="sr-only" for="library-search"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
-								<?php // The field, then its button, which the keyboard of a phone does not always show: Enter or the button submits. ?>
-								<p class="library-search__row">
-									<input
-										id="library-search"
-										type="search"
-										placeholder="<?php esc_attr_e( 'Title, author, series, ISBN…', 'library' ); ?>"
-										autocomplete="off"
-										enterkeyhint="search"
-									>
-									<?php // A control, as those of the toolbar. ?>
-									<button
-										class="app-control"
-										type="submit"
-										aria-label="<?php echo esc_attr_x( 'Search', 'verb', 'library' ); ?>"
-										title="<?php echo esc_attr_x( 'Search', 'verb', 'library' ); ?>"
-									>
-										<?php Markup::render_icon( 'search' ); ?>
-									</button>
-								</p>
-								<?php
-								// Search keywords, as the help of the books list explains them; a name between quotes, which keep its spaces.
-								$search_keywords = array(
-									'series:""'    => get_taxonomy( 'library_series' )->labels->singular_name,
-									'author:""'    => Meta::get_role_choices()['author'],
-									'publisher:""' => $publisher_labels->singular_name,
-									/* translators: %s: current year. */
-									'read:' . wp_date( 'Y' ) => sprintf( __( 'Read in %s', 'library' ), wp_date( 'Y' ) ),
-									'rating:9'     => __( 'Rated 9 or more', 'library' ),
-								);
-								?>
-								<p class="library-strip library-search__keywords" data-list="keywords" hidden>
-									<span class="sr-only"><?php esc_html_e( 'Narrow the search to:', 'library' ); ?></span>
-									<?php foreach ( $search_keywords as $search_keyword => $label ) : ?>
-										<button class="app-pill" type="button" data-keyword="<?php echo esc_attr( $search_keyword ); ?>"><?php echo esc_html( $label ); ?></button>
-									<?php endforeach; ?>
-								</p>
-							</form>
+							<?php Markup::render_component( 'search', array( 'id' => 'library-search' ) ); ?>
 						</library-search>
 					</div>
 
 					<library-home class="library-sections">
 						<?php // In January only, the recap of the year just gone by. ?>
 						<library-recap-link hidden>
-							<a class="app-item library-recap-link" href="">
-								<span class="library-recap-link__year" data-field="year"></span>
-								<span><?php esc_html_e( 'The recap of the year', 'library' ); ?></span>
-							</a>
+							<?php Markup::render_component( 'recap-link' ); ?>
 						</library-recap-link>
 						<library-in-progress class="library-section" hidden>
 							<h3 class="library-title">
@@ -544,20 +498,7 @@ use Library\Meta;
 					<?php Markup::render_component( 'back' ); ?>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
-						<?php // As the title page of the book: its cover, its title and its subtitle, its credits and its translation, then its excerpt. ?>
-						<header class="library-book__header">
-							<img class="library-cover library-book__cover" data-part="cover" data-field="cover" alt="" loading="lazy" hidden>
-							<div class="library-book__heading">
-								<?php // Its subtitle on a line of its own, smaller, as on its cover. ?>
-								<h2 class="library-heading library-book__title" data-part="title" tabindex="-1">
-									<span data-field="main_title"></span>
-									<span class="library-book__subtitle" data-field="subtitle"></span>
-								</h2>
-								<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta" data-field="credits"></p>
-								<p class="library-book__translation" data-field="translation"></p>
-							</div>
-							<p class="library-book__excerpt" data-field="excerpt"></p>
-						</header>
+						<?php Markup::render_component( 'book-header' ); ?>
 						<div class="library-prose" data-html="content" hidden></div>
 						<library-reading>
 							<form class="library-form library-reading">
@@ -650,43 +591,7 @@ use Library\Meta;
 							</h3>
 							<ul class="library-strip"></ul>
 						</library-volumes>
-						<?php
-						// The fields of the work, of the edition of its ISBN, then of the copy in hand, as the three dates of a
-						// book; the translators are named by the translation line, the date of the reading by its line.
-						$book_groups = array(
-							_x( 'Work', 'fields of a book', 'library' )    => array(
-								'authors'        => __( 'Authors', 'library' ),
-								...array_map( array( Meta::class, 'get_label' ), array_diff_key( Meta::ROLE_KEYS, array( 'translator' => true ) ) ),
-								'published_date' => Meta::get_label( 'library_published_date' ),
-								'languages'      => $language_labels->name_for_book,
-								'form'           => $form_labels->singular_name,
-							),
-							_x( 'Edition', 'fields of a book', 'library' ) => array(
-								'publishers'        => $publisher_labels->singular_name,
-								'edition_date'      => Meta::get_label( 'library_edition_date' ),
-								'isbn'              => Meta::get_label( 'library_isbn' ),
-								'pages'             => Meta::get_label( 'library_pages' ),
-								'edition_languages' => Meta::get_label( 'library_edition_languages' ),
-							),
-							_x( 'Copy', 'fields of a book', 'library' )    => array(
-								'printed_date' => Meta::get_label( 'library_printed_date' ),
-								'added_date'   => __( 'Added', 'library' ),
-							),
-						);
-						?>
-						<?php foreach ( $book_groups as $book_group => $book_fields ) : ?>
-							<section class="library-book__group">
-								<h3 class="library-title"><?php echo esc_html( $book_group ); ?></h3>
-								<dl class="library-fields library-fields--aside">
-									<?php foreach ( $book_fields as $field_name => $field_label ) : ?>
-										<div data-row="<?php echo esc_attr( $field_name ); ?>">
-											<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $field_label ); ?></dt>
-											<dd data-field="<?php echo esc_attr( $field_name ); ?>"></dd>
-										</div>
-									<?php endforeach; ?>
-								</dl>
-							</section>
-						<?php endforeach; ?>
+						<?php Markup::render_component( 'book-fields' ); ?>
 						<p>
 							<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
 						</p>

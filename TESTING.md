@@ -67,9 +67,19 @@ WP_BASE_URL=http://library-tests.local WP_USERNAME=admin WP_PASSWORD=password pn
 
 They run on a phone in Chrome, and the covers in the engine of Safari too, which lays them out its own way: `--project=safari` runs these alone. `pnpm test:e2e -- reading` runs one file of `tests/e2e`, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
 
+## The styles of the components
+
+`tests/e2e/styles.spec.js` reads the computed styles of each element of the styleguide, filled with its own samples, on a phone and on a wide screen, in both themes, and compares them with `tests/e2e/styles/styleguide.txt`: a change of the stylesheets that changes no component passes, one that does fails, saying which elements changed, and how. What changes on purpose is written again, and the diff of the file shows it in the pull request:
+
+```sh
+UPDATE_STYLES=1 pnpm test:e2e styles
+```
+
+The file holds each set of styles once, under a hash of it, then each element with the hash of its styles: a token changed changes a line of the styles. Only what the styles set is compared, its numbers to two decimals, not what the layout makes of it, such as a width, which depends on the fonts of the system.
+
 ## The scripts and the stylesheets
 
-ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; it fails as well on a script that reaches an element by a class of its styles, rather than by a data attribute or by what it is (see `DESIGN-SYSTEM.md`). TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts`. `bin/check-css-scale.mjs` fails on a length of the stylesheets of the app off the scale:
+ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; it fails as well on a script that reaches an element by a class of its styles, rather than by a data attribute or by what it is (see `DESIGN-SYSTEM.md`). TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts`. `bin/check-css.mjs` fails on a stylesheet of the app off the rules of `DESIGN-SYSTEM.md`: a length off the scale, a color written as it is rather than a token, a margin or a width a component gives itself:
 
 ```sh
 pnpm lint:js

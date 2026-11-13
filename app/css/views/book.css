@@ -35,9 +35,7 @@
 
 		max-width: 100%;
 		object-fit: contain;
-		box-shadow:
-			0 1px 2px rgb(0 0 0 / 0.1),
-			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-u0)) rgb(0 0 0 / 0.4);
+		box-shadow: var(--library-cover-shadow);
 	}
 
 	/* Its heading: its title, its credits and its translation, closer to one another than to the cover and the excerpt */

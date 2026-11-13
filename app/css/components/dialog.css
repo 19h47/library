@@ -34,7 +34,7 @@
 
 	@media (min-width: 42rem) {
 		.library-sheet {
-			width: min(100% - 2 * var(--app-space-l), var(--app-max-width));
+			width: min(100% - 2 * var(--app-space-l), var(--app-max-width)); /* Exception, a layer over the page: as wide as the column of the app, within the screen */
 			margin: auto;
 			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
@@ -67,7 +67,7 @@
 
 	@media (min-width: 42rem) {
 		.library-dialog {
-			width: min(100% - 2 * var(--app-space-l), var(--app-max-width));
+			width: min(100% - 2 * var(--app-space-l), var(--app-max-width)); /* Exception, a layer over the page: as wide as the column of the app, within the screen */
 			height: auto;
 			max-height: calc(100% - 2 * var(--app-space-l));
 			margin: auto;

@@ -48,8 +48,8 @@ Every size is on the scale of the golden ratio: its steps, `--app-u0` to `--app-
 The components are built as those of a design file, each level made of the ones before it:
 
 - atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `.library-cover`, `.app-status`;
-- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-fields`, `.library-notice`, `field`, `image-field`;
-- organisms: the cards, components of their own, `book-card` (`.library-item`), `book-row` (`.library-row`), `term-card` (`.library-term`) and `achievement-card` (`.library-achievement`), and `.library-current`; `.library-section`, `term-header`, `.library-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`;
+- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.app-search`), `recap-link`;
+- organisms: the cards, components of their own, `book-card` (`.library-item`), `book-row` (`.library-row`), `term-card` (`.library-term`) and `achievement-card` (`.library-achievement`), and `.library-current`; `.library-section`, `term-header`, `views-nav` (`.library-nav`), `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
 - screens: the views, in `app/css/views`.
 
 A component knows none of the places it shows in: a place that needs it otherwise sets its properties, as a card sets the width of its cover, `--library-cover-inline-size`, rather than the cover listing the cards. A class of a view names a part of that view; a style used in several places is a component of its own.

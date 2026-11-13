@@ -3,13 +3,15 @@
  * and the tiles, the months and the shares of a recap.
  */
 
-import { __, _n, sprintf } from 'library-app/app';
+import { __, _n, roles, sprintf } from 'library-app/app';
 import {
 	formatBooks,
 	formatDate,
+	formatLanguage,
 	formatNumber,
 	formatOriginal,
 	formatStatus,
+	formatTranslation,
 	join,
 	listFormat,
 	monthInitialFormat,
@@ -264,6 +266,84 @@ export function fillBook( $item, book, state ) {
 		original: formatOriginal( book ),
 		status: formatStatus( book ),
 	} );
+}
+
+/**
+ * Fills the page of a book: its title page, its cover, its title and subtitle, its credits, its translation and its
+ * excerpt, its notes, and its fields, those of its work, of its edition and of its copy, its people and its publisher
+ * linked to their pages. The brick of the page and the styleguide fill it alike.
+ *
+ * @param {HTMLElement} $root The page, or the part of it the styleguide shows.
+ * @param {Book}        book  The book.
+ */
+export function fillBookPage( $root, book ) {
+	const authors = getPeople( book, 'author' );
+	const $publishers = $root.querySelector( '[data-field="publishers"]' );
+	const date = ( /** @type {string} */ value ) =>
+		value ? formatDate( value ) : '';
+	const languages = ( /** @type {string[]} */ codes ) =>
+		listFormat.format( codes.map( formatLanguage ) );
+
+	fillCover( $root.querySelector( '[data-field="cover"]' ), book.cover );
+	fill( $root, {
+		credits: book.credits,
+		main_title: book.main_title,
+		subtitle: book.subtitle,
+		translation: formatTranslation( book ),
+		excerpt: book.excerpt,
+		authors: listFormat.format( authors.map( ( author ) => author.name ) ),
+		published_date: date( book.published_date ),
+		languages: languages( book.languages ),
+		form: book.form,
+		publishers: book.publishers
+			.map( ( publisher ) => publisher.name )
+			.join( ', ' ),
+		edition_date: date( book.edition_date ),
+		isbn: book.isbn,
+		pages: book.pages ? formatNumber( book.pages ) : '',
+		edition_languages: languages( book.edition_languages ),
+		printed_date: date( book.printed_date ),
+		added_date: date( book.added_date ),
+	} );
+	linkPeople( $root.querySelector( '[data-field="authors"]' ), authors );
+	// Its publisher, then its collections, each to its page, as in its credits, its number after its collection.
+	$publishers.replaceChildren(
+		...book.publishers.flatMap( ( publisher, index ) => [
+			...( index ? [ ', ' ] : [] ),
+			pageLink( 'publisher', publisher.id, publisher.name ),
+		] )
+	);
+
+	if ( book.collection_number ) {
+		$publishers.append(
+			' ',
+			sprintf(
+				/* translators: %s: number of the book in its collection. */
+				__( 'no. %s', 'library' ),
+				book.collection_number
+			)
+		);
+	}
+	// The other names of the book, by role, such as its colorists; the translators, in the translation line, have no field.
+	fill(
+		$root,
+		Object.fromEntries(
+			roles.map( ( role ) => [
+				role,
+				listFormat.format(
+					getPeople( book, role ).map( ( person ) => person.name )
+				),
+			] )
+		)
+	);
+	roles.forEach( ( role ) => {
+		const $field = $root.querySelector( `[data-field="${ role }"]` );
+
+		if ( $field ) {
+			linkPeople( $field, getPeople( book, role ) );
+		}
+	} );
+	fillHtml( $root.querySelector( '[data-html="content"]' ), book.content );
 }
 
 /**

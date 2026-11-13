@@ -11,7 +11,7 @@
 		"wp-env": "wp-env",
 		"test:e2e": "playwright test",
 		"lint:js": "eslint .",
-		"lint:css": "node bin/check-css-scale.mjs",
+		"lint:css": "node bin/check-css.mjs",
 		"check:js": "tsc --project jsconfig.json"
 	},
 	"devDependencies": {

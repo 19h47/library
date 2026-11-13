@@ -25,7 +25,7 @@ The rules, the tokens, the names and the starting points are in `DESIGN-SYSTEM.m
 
 9. A frame in the styleguide, at its level, with its variants and a caption: what it is, its component, what it is made of, its variants, the properties its place sets.
 10. Translations: translate the new strings in `languages/library-fr_FR.po`, with the spaces of French typography, then `sh bin/update-translations.sh`.
-11. A behavior gets a test in `tests/e2e`.
+11. A behavior gets a test in `tests/e2e`. Write the styles of the styleguide again, `UPDATE_STYLES=1 pnpm test:e2e styles`, and read the diff of `tests/e2e/styles/styleguide.txt`: only the components meant to change.
 12. Checks, all of them: `pnpm lint:js`, `pnpm lint:css`, `pnpm check:js`, `vendor/bin/phpcs`, `composer analyse`; the tests as `TESTING.md` says.
 13. Look at it: the styleguide and the view it lives in, on a phone width and on a wide screen, in both themes.
 14. Add it to its level in `ARCHITECTURE.md`.

@@ -11,6 +11,7 @@ import {
 import {
 	clone,
 	fill,
+	fillBookPage,
 	fillCover,
 	fillFolded,
 	fillHtml,
@@ -108,6 +109,34 @@ const BOOKS = [
 			...book,
 		} )
 );
+
+// The book open, as its page shows it: its title page, its notes and the fields of its work, of its edition and of its copy.
+const BOOK_PAGE = /** @type {Book} */ ( {
+	...BOOKS[ 0 ],
+	main_title: 'The title of a book',
+	subtitle: 'Its subtitle',
+	excerpt: 'Its excerpt, as written on its back cover.',
+	content:
+		'<p>Its notes, written in its form.</p>\n<p>A second paragraph.</p>',
+	people: [
+		{ id: 1, name: 'An Author', role: 'author' },
+		{ id: 2, name: 'A Translator', role: 'translator' },
+	],
+	languages: [ 'it' ],
+	edition_languages: [ 'fr' ],
+	form: 'A form',
+	publishers: [
+		{ id: 1, name: 'A Publisher' },
+		{ id: 2, name: 'A Collection' },
+	],
+	collection_number: '42',
+	published_date: '1949',
+	edition_date: '1972-11',
+	isbn: '978-2-07-036024-6',
+	pages: 320,
+	printed_date: '2014-04-23',
+	added_date: '2024-05-12T10:00:00',
+} );
 
 const AUTHORS = [
 	{
@@ -245,6 +274,17 @@ class LibraryStyleguideElement extends Brick {
 				...render()
 			)
 		);
+
+		// The book open, the link to the recap and the keywords of a search, filled as their bricks fill them.
+		fillBookPage( this.querySelector( '[data-sample="book"]' ), BOOK_PAGE );
+		fill( this.querySelector( '[data-sample="recap-link"]' ), {
+			year: '2025',
+		} );
+		/** @type {HTMLElement} */ (
+			this.querySelector(
+				'[data-sample="keywords"] [data-list="keywords"]'
+			)
+		).hidden = false;
 
 		// Five authors, the ones past the first folded, as the page of a series folds them.
 		fillFolded(

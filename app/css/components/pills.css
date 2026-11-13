@@ -26,8 +26,8 @@
 		list-style: none;
 		display: flex;
 		gap: var(--app-space-s);
-		margin-block: calc(-1 * var(--library-focus-room));
-		margin-inline: calc(-1 * var(--library-bleed));
+		margin-block: calc(-1 * var(--library-focus-room)); /* Exception, a strip: room for the focus of its items, which it scrolls */
+		margin-inline: calc(-1 * var(--library-bleed)); /* Exception, a strip: out to the edges of the screen, as its place sets it */
 		padding-block: var(--library-focus-room);
 		padding-inline: var(--library-bleed);
 		overflow-x: auto;

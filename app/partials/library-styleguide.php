@@ -221,7 +221,7 @@ $sizes = array(
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-search">
-						<input id="library-styleguide-search" type="search" placeholder="Title, author, series, ISBN…" aria-label="A search">
+						<?php Markup::render_component( 'search', array( 'id' => 'library-styleguide-search' ) ); ?>
 					</div>
 				</div>
 			</figure>
@@ -583,13 +583,36 @@ $sizes = array(
 					<p>The views, a <code>.library-strip</code> of pills under the title, or on a phone the tabs in a bar at the bottom of the screen</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="library-strip library-nav">
-						<li><a class="app-pill" href="#top" aria-current="page">Books</a></li>
-						<li><a class="app-pill" href="#top">Diary</a></li>
-						<li><a class="app-pill" href="#top">Idea</a></li>
-						<li><a class="app-pill" href="#top">Achievements</a></li>
-						<li><a class="app-pill" href="#top">To buy</a></li>
-					</ul>
+					<?php
+					Markup::render_component(
+						'views-nav',
+						array(
+							'views'   => array(
+								'books'        => array(
+									'label' => 'Books',
+									'url'   => '#top',
+								),
+								'diary'        => array(
+									'label' => 'Diary',
+									'url'   => '#top',
+								),
+								'idea'         => array(
+									'label' => 'Idea',
+									'url'   => '#top',
+								),
+								'achievements' => array(
+									'label' => 'Achievements',
+									'url'   => '#top',
+								),
+								'to-buy'       => array(
+									'label' => 'To buy',
+									'url'   => '#top',
+								),
+							),
+							'current' => 'books',
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
@@ -599,13 +622,8 @@ $sizes = array(
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
-						<div class="app-search">
-							<input id="library-styleguide-search-keywords" type="search" placeholder="Title, author, series, ISBN…" aria-label="Another search">
-							<p class="library-strip library-search__keywords">
-								<button class="app-pill" type="button">Series</button>
-								<button class="app-pill" type="button">Author</button>
-								<button class="app-pill" type="button">Publisher</button>
-							</p>
+						<div class="app-search" data-sample="keywords">
+							<?php Markup::render_component( 'search', array( 'id' => 'library-styleguide-search-keywords' ) ); ?>
 						</div>
 					</div>
 					<h4 class="library-title library-books__title">
@@ -745,26 +763,12 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>.library-book</code></h4>
-					<p>The book open: its title page, a <code>.library-book__header</code>, a <code>.library-cover</code> as high as the screen allows, its <code>.library-book__heading</code>, a <code>.library-heading</code> with its subtitle, a <code>.library-book__subtitle</code>, its meta and its translation, then its excerpt; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, a <code>.library-book__group</code> each for its work, its edition and its copy, <code>.library-fields--aside</code>, and its action</p>
+					<p>The book open, filled by <code>fillBookPage()</code>: its title page, the component <code>book-header</code>; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, the component <code>book-fields</code>, a <code>.library-book__group</code> each for its work, its edition and its copy; its action</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<div class="library-book">
-						<header class="library-book__header">
-							<img class="library-cover library-book__cover" data-sample-cover alt="" loading="lazy" hidden>
-							<div class="library-book__heading">
-								<h4 class="library-heading library-book__title">
-									<span>The title of a book</span>
-									<span class="library-book__subtitle">Its subtitle</span>
-								</h4>
-								<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta">An Author · A Publisher, A Collection · 2024</p>
-								<p class="library-book__translation">Translated from Italian by A Translator</p>
-							</div>
-							<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
-						</header>
-						<div class="library-prose">
-							<p>Its notes, written in its form.</p>
-							<p>A second paragraph.</p>
-						</div>
+					<div class="library-book" data-sample="book">
+						<?php Markup::render_component( 'book-header', array( 'level' => 4 ) ); ?>
+						<div class="library-prose" data-html="content" hidden></div>
 						<div class="library-form library-reading">
 							<div class="library-pills">
 								<?php
@@ -799,15 +803,7 @@ $sizes = array(
 								<p>Its readings, from their starts to their ends.</p>
 							</details>
 						</div>
-						<section class="library-book__group">
-							<h5 class="library-title">Edition</h5>
-							<dl class="library-fields library-fields--aside">
-								<div data-row="isbn">
-									<dt class="app-text-s app-text-muted app-font-ui app-uppercase">ISBN</dt>
-									<dd>978-2-07-036024-6</dd>
-								</div>
-							</dl>
-						</section>
+						<?php Markup::render_component( 'book-fields', array( 'level' => 5 ) ); ?>
 						<p>
 							<button class="app-pill" type="button">Edit book</button>
 						</p>
@@ -907,10 +903,9 @@ $sizes = array(
 					<p>The recap of the year gone by on the home, in January, an <code>.app-item</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<a class="app-item library-recap-link" href="">
-						<span class="library-recap-link__year">2025</span>
-						<span>The recap of the year</span>
-					</a>
+					<div data-sample="recap-link">
+						<?php Markup::render_component( 'recap-link' ); ?>
+					</div>
 				</div>
 			</figure>
 		</div>
