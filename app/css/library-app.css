@@ -34,8 +34,8 @@
 	@media (width < 42rem) {
 		:root {
 			/* A pill, its text, its padding and its lines, a gap above and under it, and the line of the bar */
-			--library-tab-bar-height: calc(var(--app-text-s) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2 * var(--app-gap) + 3px);
-			--library-notice-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom) + var(--app-u1));
+			--library-tab-bar-height: calc(var(--app-text-s) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2 * var(--app-space-s) + 3px);
+			--library-notice-bottom: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom) + var(--app-space-m));
 		}
 	}
 }

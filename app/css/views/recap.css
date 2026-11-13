@@ -19,11 +19,11 @@
 
 	library-recap {
 		/* Where a screen stops: under the toolbar, a step from it */
-		--library-recap-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
+		--library-recap-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-m));
 		/* What stays at the bottom of the screen, which a screen ends above: the footer, its line between its paddings */
-		--library-recap-bottom: calc(2 * var(--app-u2) + var(--app-text-s) * var(--app-line-height) + 1px);
+		--library-recap-bottom: calc(2 * var(--app-space-l) + var(--app-text-s) * var(--app-line-height) + 1px);
 		/* The padding of a frame at its sides, as the one of a card */
-		--library-recap-padding: var(--app-u1);
+		--library-recap-padding: var(--app-space-m);
 
 		display: grid;
 		/* A screen at a time: the one before goes out of sight as the next one stops */
@@ -32,7 +32,7 @@
 
 	@media (min-width: 42rem) {
 		library-recap {
-			--library-recap-padding: var(--app-u2);
+			--library-recap-padding: var(--app-space-l);
 		}
 	}
 
@@ -47,17 +47,17 @@
 		/* Where its frame starts on the screen, the page stopped at it */
 		--library-recap-screen-top: var(--library-recap-top);
 		/* From there to above what stays at the bottom of the screen, a step from it */
-		--library-recap-screen-size: calc(100dvh - var(--library-recap-screen-top) - var(--library-recap-bottom) - var(--app-u1));
+		--library-recap-screen-size: calc(100dvh - var(--library-recap-screen-top) - var(--library-recap-bottom) - var(--app-space-m));
 
 		display: grid;
 		align-content: center;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 		/*
 		 * From there to the tab bar, a step above it: its content made to fit, as the wall of the first screen and the
 		 * strips; higher only where it cannot, on a screen too short for it or with a larger text, the page then scrolling it.
 		 */
 		min-block-size: var(--library-recap-screen-size);
-		padding: var(--app-u2) var(--library-recap-padding);
+		padding: var(--app-space-l) var(--library-recap-padding);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius);
 		scroll-margin-block-start: var(--library-recap-top);
@@ -70,7 +70,7 @@
 	 * toolbar: the page stops at the header rather than at it.
 	 */
 	.library-recap__opening {
-		--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-u1));
+		--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-m));
 
 		display: flex;
 		flex-direction: column;
@@ -80,7 +80,7 @@
 	/* Beyond a phone, the pills of the views are in the header too, under the name of the app, a gap from it */
 	@media (min-width: 42rem) {
 		.library-recap__opening {
-			--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-gap) + var(--app-text-s) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2px + var(--app-u1));
+			--library-recap-screen-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-s) + var(--app-text-s) * (var(--app-line-height) + 2 / sqrt(var(--app-phi))) + 2px + var(--app-space-m));
 		}
 	}
 
@@ -115,7 +115,7 @@
 
 	/* The names of a cloud, small pills, close together */
 	.library-recap__cloud {
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	@keyframes library-recap-cut {
@@ -127,7 +127,7 @@
 
 	.library-recap__heading {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	/* The year, a step above the figures of the other screens */
@@ -149,7 +149,7 @@
 	.library-recap__records {
 		list-style: none;
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	/* Its cover, a tile as the wall of the first screen shows it, larger; beside it, its figure, what it is and the book */
@@ -157,7 +157,7 @@
 		display: grid;
 		grid-template-columns: calc(var(--app-u3) * var(--app-phi)) minmax(0, 1fr);
 		align-items: center;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 
 		& img {
 			inline-size: 100%;
@@ -169,7 +169,7 @@
 
 		& > div {
 			display: grid;
-			gap: var(--app-gap-small);
+			gap: var(--app-space-xs);
 			/* Beside its cover, or alone in its line without one */
 			grid-column: 2;
 		}
@@ -192,7 +192,7 @@
 		grid-template-columns: repeat(auto-fill, minmax(var(--library-recap-tile), 1fr));
 		align-content: start;
 		align-items: end;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	/* Where the browser lays out grid lanes, the covers of each column follow one another, as the grid of covers of a list: masonry */
@@ -218,7 +218,7 @@
 
 	/* The books rated, larger tiles, which open them: three a row on a phone, wider beyond; a cover as wide as its column */
 	.library-recap__wall {
-		--library-recap-tile: min(calc(var(--app-u3) * var(--app-phi) * var(--app-phi)), (100% - 2 * var(--app-gap-small)) / 3);
+		--library-recap-tile: min(calc(var(--app-u3) * var(--app-phi) * var(--app-phi)), (100% - 2 * var(--app-space-xs)) / 3);
 		--library-cover-inline-size: 100%;
 		--library-cover-block-size: auto;
 	}
@@ -265,7 +265,7 @@
 		grid-auto-flow: column;
 		grid-auto-columns: calc(var(--app-u3) * sqrt(var(--app-phi)));
 		justify-content: center;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 		overflow: clip;
 		border-radius: inherit;
 		mask-image: linear-gradient(transparent, black 25%, black 75%, transparent);
@@ -282,7 +282,7 @@
 
 	/* The space under each cover rather than a gap, for half the column to be one copy of its covers to the pixel */
 	.library-recap__marquee li {
-		padding-block-end: var(--app-gap-small);
+		padding-block-end: var(--app-space-xs);
 	}
 
 	/*
@@ -329,7 +329,7 @@
 	 * closest to its height: two on a phone, more as the frame widens.
 	 */
 	.library-recap__calendar ol {
-		--library-recap-gap: calc(var(--app-gap-small) / 2);
+		--library-recap-gap: calc(var(--app-space-xs) / 2);
 
 		list-style: none;
 		display: grid;
@@ -417,7 +417,7 @@
 		display: grid;
 		grid-template-columns: repeat(12, 1fr);
 		align-items: end;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 		text-align: center;
 		font-variant-numeric: tabular-nums;
 	}
@@ -425,7 +425,7 @@
 	.library-recap__months li {
 		display: grid;
 		justify-items: center;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	.library-recap__bar {
@@ -444,20 +444,20 @@
 	:is(.library-recap__shares, .library-recap__ranking) {
 		list-style: none;
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	:is(.library-recap__shares, .library-recap__ranking) li {
 		display: grid;
 		grid-template-columns: 1fr auto;
 		align-items: baseline;
-		gap: var(--app-gap-small) var(--app-gap);
+		gap: var(--app-space-xs) var(--app-space-s);
 	}
 
 	:is(.library-recap__shares, .library-recap__ranking) .library-recap__bar {
 		grid-column: 1 / -1;
 		inline-size: calc(var(--library-share) * 100%);
-		block-size: var(--app-gap-small);
+		block-size: calc(var(--app-u0) / var(--app-phi));
 	}
 
 	.library-recap__name {

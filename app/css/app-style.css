@@ -5,10 +5,11 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 62d5a50.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 9ea6527.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
- * half steps (√φ) between them for text; a padding in em follows its text.
+ * --app-space-xs to --app-space-xl, half steps (√φ) between them for text, --app-text-s to --app-text-3xl; a padding in em
+ * follows its text.
  * A component carries no margin of its own: the place that holds it spaces it, with a gap or a margin.
  * <html data-theme="light|dark"> holds the theme chosen over the system one.
  * Custom properties and classes are prefixed "app-".
@@ -57,16 +58,23 @@
     --app-max-width: calc(100 / var(--app-phi) * 1ch);
     --app-line-height: var(--app-phi);
     --app-radius: var(--app-u0);
-    --app-gap: var(--app-u0);
-    --app-gap-small: calc(var(--app-u0) / var(--app-phi));
+    /*
+     * Space, between things and around them, the steps of the scale named as the sizes of the text: m at --app-u1, s and l
+     * a step below and above it, xs and xl two
+     */
+    --app-space-xs: calc(var(--app-u0) / var(--app-phi));
+    --app-space-s: var(--app-u0);
+    --app-space-m: var(--app-u1);
+    --app-space-l: var(--app-u2);
+    --app-space-xl: var(--app-u3);
     /* Size of an item off screen, until it renders: set it to the app's usual item */
     --app-item-size: 12rem;
 
     /* A control, a field of one line or the square of an icon, such as the fixed ones at the top-right corner: a step high */
     --app-control-size: var(--app-u3);
     /* The top of the content and of the toolbar beside it, on a line: a step on a phone, a step and a half beyond */
-    --app-toolbar-top: var(--app-u2);
-    --app-control-gap: calc(var(--app-u0) / var(--app-phi));
+    --app-toolbar-top: var(--app-space-l);
+    --app-control-gap: var(--app-space-xs);
     /* 1/φ ≈ 0.618: icons at rest keep a 3:1 contrast in both themes */
     --app-control-opacity: calc(1 / var(--app-phi));
     --app-control-rest: calc(var(--app-control-opacity) * 100%);
@@ -149,7 +157,7 @@
     min-height: 100dvh;
     max-width: var(--app-max-width);
     margin-inline: auto;
-    padding-inline: var(--app-u2);
+    padding-inline: var(--app-space-l);
     display: flex;
     flex-direction: column;
   }
@@ -161,7 +169,7 @@
 
   @media (min-width: 42rem) {
     :root {
-      --app-toolbar-top: var(--app-u3);
+      --app-toolbar-top: var(--app-space-xl);
     }
   }
 
@@ -170,20 +178,20 @@
    * The header is as far from what follows as the toolbar is from what goes under it, a small step.
    */
   .app-content > .app-header {
-    margin-bottom: var(--app-u1);
+    margin-bottom: var(--app-space-m);
   }
 
   .app-content > .app-controls {
-    margin-bottom: var(--app-u3);
+    margin-bottom: var(--app-space-xl);
   }
 
   .app-content > .app-status {
-    margin-bottom: var(--app-gap);
+    margin-bottom: var(--app-space-s);
   }
 
   .app-header {
     display: grid;
-    gap: var(--app-gap);
+    gap: var(--app-space-s);
   }
 
   /* The title of the page: large text on a phone, x-large beyond; its line is as high as the toolbar */
@@ -209,7 +217,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--app-gap);
+    gap: var(--app-space-s);
   }
 
   /* The search has a line of its own among the controls; its field looks the same anywhere */
@@ -263,7 +271,7 @@
 
     display: inline-flex;
     align-items: center;
-    gap: var(--app-gap);
+    gap: var(--app-space-s);
     padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
     border-radius: calc(infinity * 1px);
     border: 1px solid var(--app-line-soft);
@@ -388,7 +396,7 @@
       .app-pill select > button {
         display: flex;
         align-items: baseline;
-        gap: var(--app-gap);
+        gap: var(--app-space-s);
       }
 
       .app-pill select::picker-icon {
@@ -406,8 +414,8 @@
           most-block-size flip-block, flip-inline, flip-block flip-inline,
           --app-picker-held, --app-picker-held flip-block, --app-picker-held flip-inline, --app-picker-held flip-block flip-inline;
         overflow-y: auto;
-        margin-block: var(--app-gap);
-        padding: var(--app-gap-small);
+        margin-block: var(--app-space-s);
+        padding: var(--app-space-xs);
         border: 1px solid var(--app-line-soft);
         border-radius: var(--app-radius);
         background: var(--app-bg);
@@ -418,7 +426,7 @@
 
       .app-pill option {
         padding: var(--app-pill-padding-block) var(--app-pill-padding-inline);
-        border-radius: calc(var(--app-radius) - var(--app-gap-small));
+        border-radius: calc(var(--app-radius) - var(--app-space-xs));
       }
 
       .app-pill option:is(:hover, :focus-visible, :checked) {
@@ -442,7 +450,7 @@
 
   .app-status {
     display: block;
-    padding: var(--app-u2);
+    padding: var(--app-space-l);
     border: 1px solid var(--app-line-soft);
     border-radius: var(--app-radius);
     background: var(--app-fill);
@@ -454,7 +462,7 @@
   .app-list {
     list-style: none;
     display: grid;
-    gap: var(--app-gap);
+    gap: var(--app-space-s);
   }
 
   .app-item {
@@ -462,9 +470,9 @@
     content-visibility: auto;
     contain-intrinsic-size: auto var(--app-item-size);
     display: grid;
-    gap: var(--app-gap-small);
+    gap: var(--app-space-xs);
     /* On a phone, a step below: the width goes to the text */
-    padding: var(--app-u1);
+    padding: var(--app-space-m);
     border: 1px solid var(--app-line-soft);
     border-radius: var(--app-radius);
     overflow: hidden;
@@ -472,14 +480,14 @@
 
   @media (min-width: 42rem) {
     .app-item {
-      padding: var(--app-u2);
+      padding: var(--app-space-l);
     }
   }
 
   .app-item__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--app-gap-small) var(--app-gap);
+    gap: var(--app-space-xs) var(--app-space-s);
     align-items: baseline;
     overflow-wrap: anywhere;
   }
@@ -494,18 +502,18 @@
   .app-footer {
     position: sticky;
     bottom: 0;
-    padding-block: var(--app-u2);
+    padding-block: var(--app-space-l);
     border-top: 1px solid var(--app-line-soft);
     background: var(--app-bg);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--app-u2);
+    gap: var(--app-space-l);
   }
 
   .app-footer__right {
     display: flex;
-    gap: var(--app-gap);
+    gap: var(--app-space-s);
     align-items: center;
     white-space: nowrap;
   }
@@ -522,7 +530,7 @@
   .app-toolbar {
     position: fixed;
     top: var(--app-toolbar-top);
-    right: var(--app-u2);
+    right: var(--app-space-l);
     z-index: 1;
     display: flex;
     gap: var(--app-control-gap);

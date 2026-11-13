@@ -7,7 +7,7 @@
 	/* A section, its title then what it holds, a step apart */
 	.library-section {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	/*
@@ -16,14 +16,14 @@
 	 */
 	.library-sections {
 		display: grid;
-		gap: var(--app-u3);
+		gap: var(--app-space-xl);
 	}
 
 	.library-title {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 		font-size: var(--app-text-m);
 	}
 
@@ -51,7 +51,7 @@
 
 	/* A title heads what follows it: the view or the brick that holds them spaces them, as a section does with its gap */
 	:is(library-view, library-volumes) > .library-title {
-		margin-bottom: var(--app-u1);
+		margin-bottom: var(--app-space-m);
 	}
 
 	/* The action of a title, at the end of its row, such as a link to the view it sums up, whole */
@@ -71,6 +71,6 @@
 	}
 
 	.library-section__more > .app-list {
-		margin-top: var(--app-gap);
+		margin-top: var(--app-space-s);
 	}
 }

@@ -7,15 +7,15 @@
 	.library-notice {
 		position: fixed;
 		/* Above the bar of the views, on a phone */
-		inset-block-end: var(--library-notice-bottom, var(--app-u2));
+		inset-block-end: var(--library-notice-bottom, var(--app-space-l));
 		inset-inline-start: 50%;
 		translate: -50%;
 		display: flex;
 		align-items: baseline;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 		/* A long one on several lines, within the screen, its corners as round as the ends of a pill of one line; its action whole */
 		width: max-content;
-		max-width: calc(100vw - 2 * var(--app-u2));
+		max-width: calc(100vw - 2 * var(--app-space-l));
 		border-radius: calc(var(--app-line-height) * 1em / 2 + var(--app-pill-padding-block));
 		white-space: normal;
 		background: var(--app-bg);

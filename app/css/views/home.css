@@ -6,13 +6,13 @@
 	/* The reading idea: its title, its reason, its book and the action for another one, a step apart */
 	library-idea {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	/* The link of the home to the recap of the year gone by, in January: its year as large as the figures of the recap */
 	.library-recap-link {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 		text-decoration: none;
 	}
 

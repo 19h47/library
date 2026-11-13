@@ -9,7 +9,7 @@
 	 */
 	.library-form {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	/*
@@ -21,7 +21,7 @@
 	.library-input-list {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 		min-inline-size: 0;
 		border: 0;
 	}
@@ -33,7 +33,7 @@
 
 	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
 	:is(.library-field, .library-input-list, .library-input-list__group) > legend {
-		margin-bottom: var(--app-gap-small);
+		margin-bottom: var(--app-space-xs);
 	}
 
 	/*
@@ -51,13 +51,13 @@
 
 	/* A list in groups: its groups a field apart, as the fields of a form */
 	.library-input-list--groups {
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	.library-input-list__items {
 		list-style: none;
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	/* A row: its input, then the button that removes it */
@@ -65,7 +65,7 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
 		align-items: center;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 
@@ -142,7 +142,7 @@
 	/* A field of the form of a book, to add or edit: its label above it */
 	.library-field {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 		min-inline-size: 0;
 		border: 0;
 	}
@@ -156,6 +156,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: end;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 }

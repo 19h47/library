@@ -6,7 +6,7 @@
 	/* The book open, a view: its parts a step apart; loading, its status alone */
 	.library-book {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 		align-content: start;
 
 		&[aria-busy="true"] > :not(.app-status) {
@@ -20,7 +20,7 @@
 	.library-book__header {
 		display: grid;
 		justify-items: center;
-		gap: var(--app-u2);
+		gap: var(--app-space-l);
 		text-align: center;
 		text-wrap: balance;
 	}
@@ -37,13 +37,13 @@
 		object-fit: contain;
 		box-shadow:
 			0 0.125rem 0.25rem rgb(0 0 0 / 0.1),
-			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-gap)) rgb(0 0 0 / 0.4);
+			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-u0)) rgb(0 0 0 / 0.4);
 	}
 
 	/* Its heading: its title, its credits and its translation, closer to one another than to the cover and the excerpt */
 	.library-book__heading {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	/* Its title, the one of the page, its lines half a step closer, as large as they are */
@@ -55,7 +55,7 @@
 	/* Its subtitle, on a line of its own, half a step above the text, as light as it */
 	.library-book__subtitle {
 		display: block;
-		margin-block-start: var(--app-gap);
+		margin-block-start: var(--app-space-s);
 		font-size: var(--app-text-l);
 		font-weight: normal;
 		line-height: var(--app-line-height);
@@ -84,14 +84,14 @@
 	.library-reading,
 	.library-book__series,
 	.library-book__group {
-		padding-top: var(--app-u1);
+		padding-top: var(--app-space-m);
 		border-top: 1px solid var(--app-line-soft);
 	}
 
 	/* A group of fields, its title then its fields, a step apart; none of them known, it takes no room */
 	.library-book__group {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 
 		&:not(:has([data-row]:not([hidden]))) {
 			display: none;
@@ -104,7 +104,7 @@
 	}
 
 	.library-reading__details[open] > summary {
-		margin-block-end: var(--app-u1);
+		margin-block-end: var(--app-space-m);
 	}
 
 	/*
@@ -112,7 +112,7 @@
 	 * it beside them; on one line beyond a phone, an arrow between them, where two dates fit side by side
 	 */
 	.library-reading__item {
-		gap: var(--app-gap-small) var(--app-gap);
+		gap: var(--app-space-xs) var(--app-space-s);
 
 		& > [data-action="remove"] {
 			grid-column: 2;

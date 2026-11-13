@@ -12,7 +12,7 @@
 	}
 
 	.library-edit__duplicate [data-action="buy"] {
-		margin-inline-start: var(--app-gap);
+		margin-inline-start: var(--app-space-s);
 	}
 
 	.library-edit__details summary {
@@ -24,6 +24,6 @@
 	 * languages, keep the gap of their row
 	 */
 	.library-edit__details > :is(.library-field, .app-pill, library-choices) {
-		margin-top: var(--app-u1);
+		margin-top: var(--app-space-m);
 	}
 }

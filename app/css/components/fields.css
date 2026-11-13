@@ -6,7 +6,7 @@
 @layer app.components {
 	.library-fields {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	.library-fields dd {
@@ -19,7 +19,7 @@
 	 */
 	.library-fields--aside {
 		grid-template-columns: calc(100% / (1 + var(--app-phi))) minmax(0, 1fr);
-		column-gap: var(--app-u1);
+		column-gap: var(--app-space-m);
 	}
 
 	.library-fields--aside > * {

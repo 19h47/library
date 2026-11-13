@@ -49,7 +49,7 @@
 	.app-list[data-covers] > .library-item > .library-cover[hidden] + .library-item__body {
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
-		padding: var(--app-gap);
+		padding: var(--app-space-s);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--library-radius-small);
 		font-size: var(--app-text-s);
