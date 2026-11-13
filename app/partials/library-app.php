@@ -908,7 +908,7 @@ use Library\Meta;
 		<template id="library-reading-ended">
 			<li class="library-input-list__item library-reading__item">
 				<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
-				<span class="library-reading__arrow" aria-hidden="true">→</span>
+				<span class="library-reading__arrow"><?php Markup::render_icon( 'arrow_forward' ); ?></span>
 				<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
 				<button
 					class="app-control"
