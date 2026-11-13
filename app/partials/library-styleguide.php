@@ -837,16 +837,24 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-edit__duplicate</code></h4>
-					<p>Under the ISBN of a book to add: the book that has it already, a book to buy bought from there; else what the catalogue of the BnF answered. <code>.library-edit__details</code>, the fields few books have, folded</p>
+					<h4 class="library-styleguide__name"><code>isbn-status</code></h4>
+					<p>Under the ISBN of a book to add, a status: the book that has it already, a book to buy bought from there; else what the catalogue of the BnF answered</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<p class="library-edit__duplicate">
-						<span>Already added: <a href="#top">A title</a> <button class="app-pill" type="button" data-action="buy">I bought it</button></span>
-					</p>
-					<p class="library-edit__duplicate">
-						<span>Filled in from the catalogue of the BnF: check what it gives.</span>
-					</p>
+					<div data-sample="isbn-status-duplicate">
+						<?php Markup::render_component( 'isbn-status' ); ?>
+					</div>
+					<div data-sample="isbn-status-catalog">
+						<?php Markup::render_component( 'isbn-status' ); ?>
+					</div>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>.library-edit__details</code></h4>
+					<p>The fields few books have, in the form of a book, folded</p>
+				</figcaption>
+				<div class="library-styleguide__frame">
 					<details class="library-edit__details">
 						<summary class="app-text-s app-text-muted app-font-ui app-uppercase">More details</summary>
 						<?php

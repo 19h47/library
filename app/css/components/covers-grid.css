@@ -23,7 +23,8 @@
 
 	/*
 	 * A cover is laid out off screen too, as cheap as it is: Safari leaves a card whose display changes skipped, of no
-	 * height, where it shows, and the cards of the list that were on screen came back as their padding.
+	 * height, where it shows, and the cards of the list that were on screen came back as their padding. The card takes the
+	 * corners of its cover, which it would cut with its own, and its outline when focused follows them.
 	 */
 	.app-list[data-covers] > li > .library-book-card {
 		--library-cover-inline-size: 100%;
@@ -32,6 +33,7 @@
 		display: block;
 		padding: 0;
 		border: 0;
+		border-radius: var(--app-radius-s);
 		background: none;
 	}
 

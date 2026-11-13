@@ -691,16 +691,7 @@ use Library\Meta;
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
-					?>
-					<p class="library-edit__duplicate" role="status">
-						<span data-row="duplicate" hidden>
-							<?php esc_html_e( 'Already added:', 'library' ); ?>
-							<a data-field="duplicate" href=""></a>
-							<button class="app-pill" type="button" data-action="buy" hidden><?php esc_html_e( 'I bought it', 'library' ); ?></button>
-						</span>
-						<span data-field="catalog" hidden></span>
-					</p>
-					<?php
+					Markup::render_component( 'isbn-status' );
 					Markup::render_component(
 						'field',
 						array(

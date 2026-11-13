@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-13T11:38:23+00:00\n"
+"POT-Creation-Date: 2026-11-13T13:27:06+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,7 +27,7 @@ msgstr ""
 #: app/class-login.php:206 app/class-page.php:146 app/class-page.php:361
 #: app/class-page.php:362 app/partials/library-app.php:45
 #: app/partials/library-app.php:64 app/partials/library-app.php:153
-#: app/partials/library-app.php:559 app/partials/library-app.php:790
+#: app/partials/library-app.php:559 app/partials/library-app.php:781
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -67,12 +67,12 @@ msgstr "Miniature"
 
 #: admin/class-books-list.php:88 app/components/book-fields.php:23
 #: app/partials/library-app.php:347 app/partials/library-app.php:391
-#: app/partials/library-app.php:717
+#: app/partials/library-app.php:708
 msgid "Authors"
 msgstr "Auteurs/autrices"
 
 #: admin/class-books-list.php:93 admin/partials/library-reading.php:27
-#: app/partials/library-app.php:924
+#: app/partials/library-app.php:915
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -82,7 +82,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-books-list.php:151 app/partials/library-app.php:939
+#: admin/class-books-list.php:151 app/partials/library-app.php:930
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -603,13 +603,13 @@ msgstr ""
 "est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
 "autrice : enregistrez le livre pour lui choisir un autre rôle."
 
-#: admin/partials/library-reading.php:25 app/partials/library-app.php:922
+#: admin/partials/library-reading.php:25 app/partials/library-app.php:913
 msgid "Start of the reading"
 msgstr "Début de la lecture"
 
-#: admin/partials/library-reading.php:28 app/partials/library-app.php:929
-#: app/partials/library-app.php:930 app/partials/library-app.php:944
-#: app/partials/library-app.php:945
+#: admin/partials/library-reading.php:28 app/partials/library-app.php:920
+#: app/partials/library-app.php:921 app/partials/library-app.php:935
+#: app/partials/library-app.php:936
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
@@ -680,6 +680,14 @@ msgstr "Fermer"
 msgctxt "one field"
 msgid "%s (required)"
 msgstr "%s (obligatoire)"
+
+#: app/components/isbn-status.php:17
+msgid "Already added:"
+msgstr "Déjà ajouté :"
+
+#: app/components/isbn-status.php:19
+msgid "I bought it"
+msgstr "Je l’ai acheté"
 
 #: app/components/recap-link.php:16
 msgid "The recap of the year"
@@ -793,7 +801,7 @@ msgstr "Ordre"
 msgid "Latest added"
 msgstr "Ajout récent"
 
-#: app/partials/library-app.php:211 app/partials/library-app.php:708
+#: app/partials/library-app.php:211 app/partials/library-app.php:699
 msgid "Title"
 msgstr "Titre"
 
@@ -889,55 +897,47 @@ msgstr "Choisir une couverture"
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:697
-msgid "Already added:"
-msgstr "Déjà ajouté :"
-
-#: app/partials/library-app.php:699
-msgid "I bought it"
-msgstr "Je l’ai acheté"
-
-#: app/partials/library-app.php:730
+#: app/partials/library-app.php:721
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:731
+#: app/partials/library-app.php:722
 msgid "Add a person"
 msgstr "Ajouter une personne"
 
-#: app/partials/library-app.php:766
+#: app/partials/library-app.php:757
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:798
+#: app/partials/library-app.php:789
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:820 app/partials/library-app.php:835
+#: app/partials/library-app.php:811 app/partials/library-app.php:826
 msgid "Add a language"
 msgstr "Ajouter une langue"
 
-#: app/partials/library-app.php:862
+#: app/partials/library-app.php:853
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:874
+#: app/partials/library-app.php:865
 msgid "Notes"
 msgstr "Notes de lecture"
 
-#: app/partials/library-app.php:886
+#: app/partials/library-app.php:877
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: app/partials/library-app.php:886
+#: app/partials/library-app.php:877
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:890
+#: app/partials/library-app.php:881
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:969 app/partials/library-app.php:970
+#: app/partials/library-app.php:960 app/partials/library-app.php:961
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 

@@ -48,7 +48,7 @@ Every size is on the scale of the golden ratio: its steps, `--app-u0` to `--app-
 The components are built as those of a design file, each level made of the ones before it:
 
 - atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `.library-cover`, `.app-status`;
-- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`;
+- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`, `isbn-status`;
 - organisms: the cards, components of their own, `book-card`, `book-row`, `term-card` and `achievement-card`, each its root the class of its name, `.library-book-card`, and `.library-current`; `.library-section`, `term-header`, `views-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `input-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
 - screens: the views, in `app/css/views`.
 

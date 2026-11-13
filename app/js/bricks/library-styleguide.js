@@ -277,10 +277,23 @@ class LibraryStyleguideElement extends Brick {
 			)
 		);
 
-		// The book open, the link to the recap and the keywords of a search, filled as their bricks fill them.
+		// The book open, the link to the recap, the status of an ISBN and the keywords of a search, filled as their bricks
+		// fill them.
 		fillBookPage( this.querySelector( '[data-sample="book"]' ), BOOK_PAGE );
 		fill( this.querySelector( '[data-sample="recap-link"]' ), {
 			year: '2025',
+		} );
+		fill( this.querySelector( '[data-sample="isbn-status-duplicate"]' ), {
+			duplicate: 'A title',
+		} );
+		/** @type {HTMLElement} */ (
+			this.querySelector(
+				'[data-sample="isbn-status-duplicate"] [data-action="buy"]'
+			)
+		).hidden = false;
+		fill( this.querySelector( '[data-sample="isbn-status-catalog"]' ), {
+			catalog:
+				'Filled in from the catalogue of the BnF: check what it gives.',
 		} );
 		/** @type {HTMLElement} */ (
 			this.querySelector(

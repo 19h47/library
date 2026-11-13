@@ -1,0 +1,15 @@
+/**
+ * What the ISBN typed tells: the book that has it already, or the search of the catalogue of the BnF.
+ */
+
+@layer app.components {
+	/* Its messages stay in the page, to be read once one shows, out of the flow while none does */
+	.library-isbn-status:not(:has(> :not([hidden]))) {
+		position: absolute;
+	}
+
+	/* The button that buys the book to buy, after its title */
+	.library-isbn-status__duplicate > .app-pill {
+		margin-inline-start: var(--app-space-s);
+	}
+}
