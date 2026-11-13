@@ -20,7 +20,7 @@
 		gap: var(--app-space-l);
 	}
 
-	/* The caption of a sample and what a size of the text sets: small text, as the interface without its capitals */
+	/* The caption of a sample and the token of a size of the text with its value: small text, as the interface without its capitals */
 	.library-styleguide__samples figcaption,
 	.library-styleguide__use {
 		color: var(--app-text-muted);

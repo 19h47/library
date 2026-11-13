@@ -22,16 +22,15 @@ $colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--
 $spaces = array( '--app-space-xs', '--app-space-s', '--app-space-m', '--app-space-l', '--app-space-xl' );
 $radii  = array( '--app-radius-xs', '--app-radius-s', '--app-radius-m' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
-// The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
+// The sizes of the text, as the styles write them, from the smallest, and their family.
 $sizes = array(
-	array( 'var(--app-text-s)', 'var(--app-font-ui)', 'Pills, meta lines, labels, the excerpt of a card: half a step below the text' ),
-	array( 'var(--app-text-m)', 'var(--app-font-mono)', 'Text, the titles of the cards and of the sections: --app-u1' ),
-	array( 'var(--app-text-l)', 'var(--app-font-mono)', 'The year, .library-heading, the title of the page on a phone: half a step above' ),
-	array( 'var(--app-text-xl)', 'var(--app-font-mono)', 'The title of the page from 42rem: half a step above --app-u2' ),
-	array( 'var(--app-text-2xl)', 'var(--app-font-mono)', 'The figure of a screen of the recap, the year of its link on the home: a step above --app-u3' ),
-	array( 'var(--app-text-3xl)', 'var(--app-font-mono)', 'The year of the recap: two steps above --app-u3' ),
-);
-?>
+	array( 'var(--app-text-s)', 'var(--app-font-ui)' ),
+	array( 'var(--app-text-m)', 'var(--app-font-mono)' ),
+	array( 'var(--app-text-l)', 'var(--app-font-mono)' ),
+	array( 'var(--app-text-xl)', 'var(--app-font-mono)' ),
+	array( 'var(--app-text-2xl)', 'var(--app-font-mono)' ),
+	array( 'var(--app-text-3xl)', 'var(--app-font-mono)' ),
+);?>
 <library-styleguide class="library-sections" lang="en">
 	<header class="library-styleguide__header">
 		<h2 class="library-title">Styleguide</h2>
@@ -57,7 +56,6 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name">Space</h4>
-					<p>The steps of the scale by the golden ratio, between components and around them: <code>--app-space-m</code> at <code>--app-u1</code>, the size of the text</p>
 				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $spaces as $space ) : ?>
@@ -71,7 +69,6 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name">Corners</h4>
-					<p>A step and a half apart: a tag, a cover, then a card, a field or a pill</p>
 				</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $radii as $radius ) : ?>
@@ -85,13 +82,12 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name">Sizes of the text</h4>
-					<p>At this width, on lines of <code>--app-line-height</code> (φ): each one a utility of its name too, <code>.app-text-s</code> for <code>--app-text-s</code></p>
 				</figcaption>
 				<ul class="library-styleguide__sizes" data-list="sizes">
-					<?php foreach ( $sizes as list( $size, $family, $use ) ) : ?>
+					<?php foreach ( $sizes as list( $size, $family ) ) : ?>
 						<li>
 							<span class="library-styleguide__size" data-part="size" style="--library-token: <?php echo esc_attr( $size ); ?>; --library-family: <?php echo esc_attr( $family ); ?>">Reading 2026</span>
-							<span class="library-styleguide__use"><code><?php echo esc_html( $size ); ?></code> · <span data-size></span> · <?php echo esc_html( $use ); ?></span>
+							<span class="library-styleguide__use"><code><?php echo esc_html( $size ); ?></code> · <span data-size></span></span>
 						</li>
 					<?php endforeach; ?>
 				</ul>
