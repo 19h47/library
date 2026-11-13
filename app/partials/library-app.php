@@ -304,8 +304,20 @@ use Library\Meta;
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list" data-list="books"></ul>
-						<div class="library-list__more" data-part="more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="person"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-person' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-person>
 				</library-view>
 
@@ -343,8 +355,20 @@ use Library\Meta;
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
 							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list" data-list="books"></ul>
-						<div class="library-list__more" data-part="more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="series"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-series' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-series>
 				</library-view>
 
@@ -383,8 +407,20 @@ use Library\Meta;
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
 							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list" data-list="books"></ul>
-						<div class="library-list__more" data-part="more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="publisher"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-publisher' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-publisher>
 				</library-view>
 

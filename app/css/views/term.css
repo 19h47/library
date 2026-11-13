@@ -1,5 +1,5 @@
 /**
- * The page of a person, of a series or of a collection: its header, its completion and its sections.
+ * The page of a person, of a series or of a collection: its header, its completion, its sections and its books.
  */
 
 @layer app.views {
@@ -19,10 +19,11 @@
 	}
 
 	/*
-	 * The page spaces its header, then its completion, then its sections before its books: the series of a cycle, the
-	 * collections of a publisher, the authors, the series of a person
+	 * The page, a step apart between its parts: its status, its header, its completion, its sections, the series of a
+	 * cycle, the collections of a publisher, the authors, the series of a person, then its books
 	 */
-	:is(library-person, library-series, library-publisher) > :is(.library-term-header, .library-term-completion, .library-section) {
-		margin-bottom: var(--app-space-l);
+	:is(library-person, library-series, library-publisher) {
+		display: grid;
+		gap: var(--app-space-l);
 	}
 }

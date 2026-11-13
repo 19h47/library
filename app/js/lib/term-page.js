@@ -26,7 +26,7 @@ import {
 
 /**
  * The page of a term: its name, its description, how many of its books are read and the completion they count for, then
- * its books, loading as the end of the list comes. Opened, its name takes the focus once it is loaded. A page adds what
+ * its books, loading as the end of the list comes, as cards or a grid of their covers, as chosen. Opened, its name takes the focus once it is loaded. A page adds what
  * is its own: `summary()` what its summary says after its books and those read, `fillPage()` the rest of its state,
  * `subscriptions()` what else it follows, and `line()` the line of a book.
  */
@@ -94,6 +94,12 @@ export class TermPage extends Brick {
 					if ( name && 'forward' === store.get().moved ) {
 						focusTitle( $name );
 					}
+				}
+			),
+			store.select(
+				( state ) => state.covers,
+				( covers ) => {
+					$items.toggleAttribute( 'data-covers', covers );
 				}
 			),
 			store.select(
