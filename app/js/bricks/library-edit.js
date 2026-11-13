@@ -3,7 +3,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill, fillCover } from 'library-app/render';
 import { join } from 'library-app/format';
-import { inputList, showErrors, showSaving } from 'library-app/behaviors';
+import { inputsList, showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
@@ -168,7 +168,7 @@ class LibraryEditElement extends Brick {
 			series: this.querySelector( '#library-edit-series-paths' ),
 		};
 
-		const addPerson = inputList( {
+		const addPerson = inputsList( {
 			$list: $people,
 			$add: $addPerson,
 			id: 'library-edit-person',

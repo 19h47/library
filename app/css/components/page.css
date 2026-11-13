@@ -35,8 +35,6 @@
 	library-recap-link,
 	library-in-progress,
 	library-volumes,
-	library-series,
-	library-publisher,
 	library-offline,
 	library-filter,
 	library-latest,
@@ -51,7 +49,7 @@
 	}
 
 	/* A status heads what it is about: the view or the brick that holds it spaces it from what follows */
-	:is(library-view, library-diary, library-person, library-series, library-publisher) > .app-status {
+	:is(library-view, library-diary) > .app-status {
 		margin-bottom: var(--app-space-s);
 	}
 

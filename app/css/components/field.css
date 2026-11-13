@@ -18,7 +18,7 @@
 	 * The list as wide as its box, never as its inputs: a fraction of a grid sized by its content takes the width of an
 	 * input, which would push the button that removes it out of a phone.
 	 */
-	.library-input-list {
+	.library-inputs-list {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--app-space-s);
@@ -32,7 +32,7 @@
 	}
 
 	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
-	:is(.library-field, .library-input-list, .library-input-list__group) > legend {
+	:is(.library-field, .library-inputs-list, .library-inputs-list__group) > legend {
 		margin-bottom: var(--app-space-xs);
 	}
 
@@ -40,28 +40,28 @@
 	 * A group of a list, such as the people of a role: its legend, then its rows, as a list of its own. It shows once it
 	 * holds a row, the one added in it, and hides with the last one removed.
 	 */
-	.library-input-list__group {
+	.library-inputs-list__group {
 		min-inline-size: 0;
 		border: 0;
 	}
 
-	.library-input-list__group:not(:has(li)) {
+	.library-inputs-list__group:not(:has(li)) {
 		display: none;
 	}
 
 	/* A list in groups: its groups a field apart, as the fields of a form */
-	.library-input-list--groups {
+	.library-inputs-list--groups {
 		gap: var(--app-space-m);
 	}
 
-	.library-input-list__items {
+	.library-inputs-list__items {
 		list-style: none;
 		display: grid;
 		gap: var(--app-space-s);
 	}
 
 	/* A row: its input, then the button that removes it */
-	.library-input-list__item {
+	.library-inputs-list__item {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
 		align-items: center;
@@ -70,7 +70,7 @@
 
 
 	/* A row without input, such as a reading whose date is unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
-	.library-input-list__text {
+	.library-inputs-list__text {
 		display: flex;
 		align-items: center;
 		min-block-size: var(--app-control-size);
@@ -81,7 +81,7 @@
 	}
 
 	/* A field of a form, such as a read date or the title of a book; a checkbox is the one of its pill */
-	:is(.library-field, .library-input-list__item) :is(input:not([type="checkbox"]), select, textarea) {
+	:is(.library-field, .library-inputs-list__item) :is(input:not([type="checkbox"]), select, textarea) {
 		/* As a pill or the search, in em of its text */
 		--library-field-padding-inline: 1em;
 		--app-select-padding-inline: var(--library-field-padding-inline);
@@ -125,7 +125,7 @@
 	}
 
 	/* In a row of a list of inputs, such as a read date, it takes a line of its own */
-	.library-input-list__item > .library-error {
+	.library-inputs-list__item > .library-error {
 		grid-column: 1 / -1;
 	}
 
@@ -149,7 +149,7 @@
 		border: 0;
 	}
 
-	:is(.library-field, .library-input-list) > small {
+	:is(.library-field, .library-inputs-list) > small {
 		color: var(--app-text-muted);
 		font-size: var(--app-text-s);
 	}

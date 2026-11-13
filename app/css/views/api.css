@@ -23,8 +23,13 @@
 		opacity: var(--app-control-opacity);
 	}
 
-	/* A route: a frame, its methods and path as its summary, which opens it */
+	/*
+	 * A route: a frame, its methods and path as its summary, which opens it; its body right under its summary, the padding
+	 * of the summary spacing them rather than the gap of a disclosure
+	 */
 	.library-api__route {
+		--library-disclosure-gap: 0;
+
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius-m);
 	}
@@ -39,7 +44,6 @@
 		align-items: baseline;
 		gap: var(--app-space-s);
 		padding: var(--app-space-m);
-		cursor: pointer;
 	}
 
 	/* The path, after its methods, breaks anywhere rather than widening the page */

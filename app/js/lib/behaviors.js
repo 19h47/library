@@ -198,7 +198,7 @@ export function observeEnd( $more, signal, callback ) {
  * @param {() => Element}                                       [options.into]  The list a new input goes in, `$list` unless given.
  * @return {( text?: string, $into?: Element ) => HTMLInputElement} The function that adds an input, with a value, in a list.
  */
-export function inputList( {
+export function inputsList( {
 	$list,
 	$add,
 	id,

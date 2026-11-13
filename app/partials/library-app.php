@@ -302,14 +302,22 @@ use Library\Meta;
 						<?php // The first series, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="series" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="app-list" data-list="shown"></ul>
-							<details class="library-section__more" data-row="more" hidden>
-								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list" data-list="more"></ul>
-							</details>
+							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list" data-list="books"></ul>
-						<div class="library-list__more" data-part="more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="person"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-person' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-person>
 				</library-view>
 
@@ -345,14 +353,22 @@ use Library\Meta;
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list" data-list="shown"></ul>
-							<details class="library-section__more" data-row="more" hidden>
-								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list" data-list="more"></ul>
-							</details>
+							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list" data-list="books"></ul>
-						<div class="library-list__more" data-part="more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="series"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-series' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-series>
 				</library-view>
 
@@ -389,14 +405,22 @@ use Library\Meta;
 						<?php // The first authors, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="authors" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<ul class="app-list" data-list="shown"></ul>
-							<details class="library-section__more" data-row="more" hidden>
-								<summary class="app-pill" data-field="more"></summary>
-								<ul class="app-list" data-list="more"></ul>
-							</details>
+							<?php Markup::render_component( 'cards-group' ); ?>
 						</section>
-						<ul class="app-list" data-list="books"></ul>
-						<div class="library-list__more" data-part="more"></div>
+						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+						<section class="library-section">
+							<div class="library-title">
+								<h3 class="library-title__heading">
+									<?php echo esc_html( $labels->name ); ?>
+									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="publisher"></library-count>
+								</h3>
+								<library-covers-toggle class="library-title__action">
+									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-publisher' ) ); ?>
+								</library-covers-toggle>
+							</div>
+							<ul class="app-list" data-list="books"></ul>
+							<div class="library-list__more" data-part="more"></div>
+						</section>
 					</library-publisher>
 				</library-view>
 
@@ -582,11 +606,11 @@ use Library\Meta;
 									?>
 								</div>
 								<?php // The readings ended, folded under the line that sums them up, which opens them to change them. ?>
-								<details class="library-reading__details" data-part="readings" hidden>
+								<details class="library-disclosure library-reading__details" data-part="readings" hidden>
 									<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="readings"></summary>
 									<?php
 									Markup::render_component(
-										'input-list',
+										'inputs-list',
 										array(
 											'id'          => 'library-reading-readings',
 											'label'       => Meta::get_label( 'library_reading' ),
@@ -785,7 +809,7 @@ use Library\Meta;
 					);
 					?>
 					<?php // The fields few books have, closed: its summary counts the ones filled in. ?>
-					<details class="library-edit__details" data-part="details">
+					<details class="library-disclosure library-edit__details" data-part="details">
 						<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
 						foreach ( array( 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
@@ -906,7 +930,7 @@ use Library\Meta;
 		</template>
 
 		<template id="library-reading-ended">
-			<li class="library-input-list__item library-reading__item">
+			<li class="library-inputs-list__item library-reading__item">
 				<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
 				<span class="library-reading__arrow"><?php Markup::render_icon( 'arrow_forward' ); ?></span>
 				<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
@@ -921,10 +945,10 @@ use Library\Meta;
 		</template>
 
 		<template id="library-reading-unknown">
-			<li class="library-input-list__item">
+			<li class="library-inputs-list__item">
 				<input type="hidden" name="reading_start" value="">
 				<input type="hidden" name="reading_end" value="">
-				<span class="library-input-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
+				<span class="library-inputs-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
 				<button
 					class="app-control"
 					type="button"
@@ -949,7 +973,7 @@ use Library\Meta;
 		</template>
 
 		<template id="library-edit-person">
-			<li class="library-input-list__item">
+			<li class="library-inputs-list__item">
 				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
 				<button
 					class="app-control"

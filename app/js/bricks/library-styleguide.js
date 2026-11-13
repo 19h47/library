@@ -14,7 +14,7 @@ import {
 	fillBookPage,
 	fillBookCover,
 	fillCover,
-	fillFolded,
+	fillCardsGroup,
 	fillHtml,
 	renderAchievement,
 	renderAuthor,
@@ -302,10 +302,10 @@ class LibraryStyleguideElement extends Brick {
 			)
 		).hidden = false;
 
-		// Five authors, the ones past the first folded, as the page of a series folds them.
-		fillFolded(
-			this.querySelector( '[data-folded="authors"]' ),
-			Array.from( { length: 5 }, ( _, index ) =>
+		// Six authors, the ones past the first folded, as the page of a series folds them.
+		fillCardsGroup(
+			this.querySelector( '[data-sample="cards-group"]' ),
+			Array.from( { length: 6 }, ( _, index ) =>
 				renderAuthor(
 					AUTHORS[ index % AUTHORS.length ],
 					formatBooks( AUTHORS[ index % AUTHORS.length ].book_count )

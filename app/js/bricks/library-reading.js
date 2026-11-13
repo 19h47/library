@@ -3,7 +3,7 @@ import { Brick } from 'library-app/brick';
 import { formatReadings, today } from 'library-app/format';
 import { toDays, toInterval } from 'library-app/api';
 import { fill } from 'library-app/render';
-import { inputList, showBusy, showErrors } from 'library-app/behaviors';
+import { inputsList, showBusy, showErrors } from 'library-app/behaviors';
 
 /**
  * @import { ReadingPeriod } from 'library-app/api'
@@ -123,7 +123,7 @@ class LibraryReadingElement extends Brick {
 
 		// A reading ends today, unless changed, from the start of the one in progress, which it ends; a reading whose dates
 		// are unknown has no date input.
-		const addReading = inputList( {
+		const addReading = inputsList( {
 			$list,
 			$add,
 			id: ( interval ) =>
@@ -189,7 +189,7 @@ class LibraryReadingElement extends Brick {
 			)
 		);
 
-		// A reading removed, after inputList() removed its row.
+		// A reading removed, after inputsList() removed its row.
 		$list.addEventListener(
 			'click',
 			( event ) =>

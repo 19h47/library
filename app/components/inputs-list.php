@@ -1,7 +1,7 @@
 <?php
 /**
  * A list of inputs in a fieldset, its label above it and the button that adds an input under it, such as the readings
- * of a book: its rows are clones of a template, which inputList() adds and removes. Its description, under its rows,
+ * of a book: its rows are clones of a template, which inputsList() adds and removes. Its description, under its rows,
  * describes it; other buttons may follow the one that adds, each named by its action, such as a reading whose date is
  * unknown. Its attributes are the ones of its fieldset.
  *
@@ -30,13 +30,13 @@ Markup::render_tag(
 	'<fieldset>',
 	$args['attributes'] + array(
 		'id'               => $args['id'],
-		'class'            => 'library-input-list',
+		'class'            => 'library-inputs-list',
 		'aria-describedby' => '' !== $args['description'] ? $description_id : null,
 	)
 );
 ?>
 	<legend class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $args['label'] ); ?></legend>
-	<ul class="library-input-list__items"></ul>
+	<ul class="library-inputs-list__items"></ul>
 	<?php if ( '' !== $args['description'] ) : ?>
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>
 	<?php endif; ?>
