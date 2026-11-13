@@ -626,18 +626,19 @@ $sizes = array(
 		<h3 class="library-title">Screens</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-book</code>, the book open: its title page, a <code>.library-book__header</code>, a <code>.library-cover</code> as high as the screen allows over its colours, a <code>.library-heading</code> with its subtitle, a <code>.library-book__subtitle</code>, its meta, its translation and its excerpt; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, a <code>.library-book__group</code> each for its work, its edition and its copy, <code>.library-fields--aside</code>, and its action</figcaption>
+				<figcaption><code>.library-book</code>, the book open: its title page, a <code>.library-book__header</code>, a <code>.library-cover</code> as high as the screen allows, its <code>.library-book__heading</code>, a <code>.library-heading</code> with its subtitle, a <code>.library-book__subtitle</code>, its meta and its translation, then its excerpt; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, a <code>.library-book__group</code> each for its work, its edition and its copy, <code>.library-fields--aside</code>, and its action</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-book">
 						<header class="library-book__header">
-							<img class="library-book__backdrop" data-sample-cover alt="" hidden>
 							<img class="library-cover library-book__cover" data-sample-cover alt="" loading="lazy" hidden>
-							<h4 class="library-heading library-book__title">
-								<span>The title of a book</span>
-								<span class="library-book__subtitle">Its subtitle</span>
-							</h4>
-							<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta">An Author · A Publisher, A Collection · 2024</p>
-							<p class="library-book__translation">Translated from Italian by A Translator</p>
+							<div class="library-book__heading">
+								<h4 class="library-heading library-book__title">
+									<span>The title of a book</span>
+									<span class="library-book__subtitle">Its subtitle</span>
+								</h4>
+								<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta">An Author · A Publisher, A Collection · 2024</p>
+								<p class="library-book__translation">Translated from Italian by A Translator</p>
+							</div>
 							<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
 						</header>
 						<div class="library-prose">

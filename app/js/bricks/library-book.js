@@ -21,8 +21,7 @@ import { getPeople } from 'library-app/api';
 /** @import { Book } from 'library-app/api' */
 
 /**
- * The page of a book: its cover over its colours, its title above its subtitle, its credits and its translation as on its
- * title page, its notes, its reading, its series and its fields, those of its work, of its edition and of its copy; a
+ * The page of a book: its cover, its title above its subtitle, its credits and its translation as on its title page, its notes, its reading, its series and its fields, those of its work, of its edition and of its copy; a
  * book not loaded yet, such as one of an achievement, says it is loading, the page open already. Another book opened
  * from it, such as a volume of its series, takes the focus to its title, as the view does when it opens. Its button Edit
  * book opens the form of the book over it.
@@ -88,8 +87,6 @@ class LibraryBookElement extends Brick {
 	 */
 	#render( book ) {
 		const authors = getPeople( book, 'author' );
-		/** @type {HTMLImageElement} */
-		const $backdrop = this.querySelector( '.library-book__backdrop' );
 		const $publishers = this.querySelector( '[data-field="publishers"]' );
 		const date = ( /** @type {string} */ value ) =>
 			value ? formatDate( value ) : '';
@@ -97,9 +94,6 @@ class LibraryBookElement extends Brick {
 			listFormat.format( codes.map( formatLanguage ) );
 
 		fillCover( this.querySelector( '[data-field="cover"]' ), book.cover );
-		// Its colours, blurred: its smallest image is enough.
-		$backdrop.hidden = ! book.cover;
-		$backdrop.src = book.cover?.url ?? '';
 		fill( this, {
 			credits: book.credits,
 			main_title: book.main_title,

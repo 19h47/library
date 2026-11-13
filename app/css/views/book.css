@@ -1,6 +1,5 @@
 /**
- * The book open: its parts, its title page, its cover over its colours, its reading, its fields by what they tell of, and
- * the volumes of its series.
+ * The book open: its parts, its title page, its reading, its fields by what they tell of, and the volumes of its series.
  */
 
 @layer app.views {
@@ -16,61 +15,35 @@
 	}
 
 	/*
-	 * The title page of the book open: its cover, then its title and what goes with it, centered, a gap apart, over its
-	 * colours. A container, which its colours go out of, to the edges of the viewport on a phone.
+	 * The title page of the book open: its cover, its heading, then its excerpt, centered, a step apart
 	 */
 	.library-book__header {
-		container-type: inline-size;
-		position: relative;
-		isolation: isolate;
 		display: grid;
 		justify-items: center;
-		gap: var(--app-gap);
-		padding-block-start: var(--app-u2);
+		gap: var(--app-u2);
 		text-align: center;
 		text-wrap: balance;
 	}
 
 	/*
-	 * Its colours: its cover again, blurred, across the viewport on a phone, the golden ratio of the page beyond, fading in
-	 * above it, out under it and to its sides. A blur draws out of its box without widening the page, as a shadow does.
-	 * Its mask makes it light as well, lighter in the light theme, where a cover is brighter than its background: the
-	 * alpha of a color, which light-dark() takes, where an opacity, a number, it does not.
-	 */
-	.library-book__backdrop {
-		--library-backdrop-size: min(100vw, 100cqi * var(--app-phi));
-		--library-backdrop-alpha: light-dark(rgb(0 0 0 / 35%), rgb(0 0 0 / 50%));
-
-		position: absolute;
-		z-index: -1;
-		inset-block-start: 0;
-		inset-inline-start: calc(50cqi - var(--library-backdrop-size) / 2);
-		inline-size: var(--library-backdrop-size);
-		max-inline-size: none;
-		block-size: 100%;
-		object-fit: cover;
-		filter: blur(var(--app-u3)) saturate(1.5);
-		mask-image:
-			linear-gradient(transparent, var(--library-backdrop-alpha) 20%, transparent),
-			linear-gradient(to right, transparent, black 20%, black 80%, transparent);
-		mask-composite: intersect;
-		pointer-events: none;
-	}
-
-	/*
-	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it, standing out of its
-	 * colours. A definite height: a cover of sizes="auto" takes no size from its image, which the browser lays out as if it
-	 * were 300 by 150, its width and height giving its shape only; a cover wider than the page keeps its shape inside it.
+	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it, standing out of the page.
+	 * A definite height: a cover of sizes="auto" takes no size from its image, which the browser lays out as if it were 300
+	 * by 150, its width and height giving its shape only; a cover wider than the page keeps its shape inside it.
 	 */
 	.library-book__cover {
 		--library-cover-block-size: calc(100dvh / var(--app-phi) / var(--app-phi));
 
 		max-width: 100%;
-		margin-block-end: var(--app-u1);
 		object-fit: contain;
 		box-shadow:
 			0 0.125rem 0.25rem rgb(0 0 0 / 0.1),
 			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-gap)) rgb(0 0 0 / 0.4);
+	}
+
+	/* Its heading: its title, its credits and its translation, closer to one another than to the cover and the excerpt */
+	.library-book__heading {
+		display: grid;
+		gap: var(--app-gap);
 	}
 
 	/* Its title, the one of the page, its lines half a step closer, as large as they are */
@@ -104,7 +77,6 @@
 	}
 
 	.library-book__excerpt {
-		margin-block-start: var(--app-gap);
 		text-wrap: pretty;
 	}
 
