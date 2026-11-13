@@ -6,7 +6,7 @@
 	/* The header of the page: its name, the lines that place it, its description and its reading */
 	.library-term-header {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	.library-term-header > p {
@@ -15,7 +15,7 @@
 
 	/* Its description, spaced from the lines around it */
 	.library-term-header > .library-prose {
-		margin-block: var(--app-gap);
+		margin-block: var(--app-space-s);
 	}
 
 	/*
@@ -23,6 +23,6 @@
 	 * collections of a publisher, the authors, the series of a person
 	 */
 	:is(library-person, library-series, library-publisher) > :is(.library-term-header, .library-term-completion, .library-section) {
-		margin-bottom: var(--app-u2);
+		margin-bottom: var(--app-space-l);
 	}
 }

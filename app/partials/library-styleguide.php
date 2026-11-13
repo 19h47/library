@@ -19,7 +19,7 @@
 use Library\Markup;
 
 $colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status', '--library-error', '--library-success', '--library-warning' );
-$steps  = array( '--app-u0', '--app-u1', '--app-u2', '--app-u3' );
+$spaces = array( '--app-space-xs', '--app-space-s', '--app-space-m', '--app-space-l', '--app-space-xl' );
 $radii  = array( '--app-radius', '--library-radius-small' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
 // The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
@@ -53,12 +53,12 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Scale, by the golden ratio: the space between components</figcaption>
+				<figcaption>Space, the steps of the scale by the golden ratio, between components and around them: <code>--app-space-m</code> at <code>--app-u1</code>, the size of the text</figcaption>
 				<ul class="library-styleguide__tokens">
-					<?php foreach ( $steps as $step ) : ?>
+					<?php foreach ( $spaces as $space ) : ?>
 						<li>
-							<span class="library-styleguide__step" style="--library-token: var(<?php echo esc_attr( $step ); ?>)"></span>
-							<code><?php echo esc_html( $step ); ?></code>
+							<span class="library-styleguide__step" style="--library-token: var(<?php echo esc_attr( $space ); ?>)"></span>
+							<code><?php echo esc_html( $space ); ?></code>
 						</li>
 					<?php endforeach; ?>
 				</ul>

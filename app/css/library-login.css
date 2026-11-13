@@ -12,7 +12,7 @@
 		display: flex;
 		flex-direction: column;
 		min-block-size: 100dvh;
-		padding: var(--app-u2);
+		padding: var(--app-space-l);
 	}
 
 	/*
@@ -25,13 +25,13 @@
 	/* The login, in a frame as an item of the app, as wide as a field needs */
 	#login {
 		inline-size: 100%;
-		max-inline-size: calc(var(--app-max-width) / var(--app-phi) + 2 * var(--app-u2));
+		max-inline-size: calc(var(--app-max-width) / var(--app-phi) + 2 * var(--app-space-l));
 		margin: auto;
-		padding: var(--app-u2);
+		padding: var(--app-space-l);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius);
 		display: grid;
-		gap: var(--app-u2);
+		gap: var(--app-space-l);
 	}
 
 	/*
@@ -55,7 +55,7 @@
 	.wp-login-logo a {
 		display: grid;
 		justify-items: start;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 		text-decoration: none;
 	}
 
@@ -90,7 +90,7 @@
 
 	/* What the login says, such as a wrong password or a logout: a status of the app, in the color of an error or a success */
 	#login .notice {
-		padding: var(--app-u2);
+		padding: var(--app-space-l);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius);
 		background: var(--app-fill);
@@ -108,14 +108,14 @@
 	/* The form, to log in or to ask for a lost password: a step between its fields, then its button */
 	#login form {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	/* A field: its label above it */
 	#login form > p:first-child,
 	.user-pass-wrap {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	/* A label, as the small text of the app, the one of "Remember Me" as the text of a pill */
@@ -153,7 +153,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	#user_pass {
@@ -198,7 +198,7 @@
 		display: inline-flex;
 		inline-size: 1em;
 		block-size: 1em;
-		margin-inline-end: var(--app-gap-small);
+		margin-inline-end: var(--app-space-xs);
 		vertical-align: -0.125em;
 	}
 
@@ -216,11 +216,11 @@
 		--app-pill-padding-block: calc(1em / sqrt(var(--app-phi)));
 		--app-pill-padding-inline: 1em;
 		/* From the start of the pill to its text: its line, its padding, the checkbox and the gap after it */
-		--library-checkbox-room: calc(1px + var(--app-pill-padding-inline) + 1em + var(--app-gap));
+		--library-checkbox-room: calc(1px + var(--app-pill-padding-inline) + 1em + var(--app-space-s));
 
 		display: flex;
 		align-items: center;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 		font-family: var(--app-font-ui);
 		font-size: var(--app-text-s);
 	}
@@ -289,8 +289,8 @@
 	 * corner; centered on the screen by the browser, without anchor positioning
 	 */
 	.wp-tooltip__bubble {
-		max-inline-size: min(calc(var(--app-max-width) / var(--app-phi)), calc(100vw - 2 * var(--app-u2)));
-		padding: var(--app-u1);
+		max-inline-size: min(calc(var(--app-max-width) / var(--app-phi)), calc(100vw - 2 * var(--app-space-l)));
+		padding: var(--app-space-m);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius);
 		background: var(--app-bg);
@@ -325,19 +325,19 @@
 			justify-self: stretch;
 			inline-size: auto;
 			max-inline-size: none;
-			margin: 0 0 var(--app-gap);
+			margin: 0 0 var(--app-space-s);
 		}
 	}
 
 	.wp-tooltip__text {
 		display: block;
-		padding-inline-end: var(--app-u2);
+		padding-inline-end: var(--app-space-l);
 	}
 
 	.wp-tooltip__close {
 		position: absolute;
-		inset-block-start: var(--app-gap-small);
-		inset-inline-end: var(--app-gap-small);
+		inset-block-start: var(--app-space-xs);
+		inset-inline-end: var(--app-space-xs);
 	}
 
 	/* The button that logs in, as the main action of a form: a pill that stands out */

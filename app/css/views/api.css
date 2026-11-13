@@ -6,7 +6,7 @@
 	/* The title of the reference and its introduction, a step apart, as the styleguide */
 	.library-api__header {
 		display: grid;
-		gap: var(--app-u1);
+		gap: var(--app-space-m);
 	}
 
 	.library-api__intro {
@@ -16,7 +16,7 @@
 	/* The routes, one under the other, a gap apart; loading again, faded as a list */
 	.library-api__routes {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	.library-api__routes[aria-busy="true"] {
@@ -37,8 +37,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: var(--app-gap);
-		padding: var(--app-u1);
+		gap: var(--app-space-s);
+		padding: var(--app-space-m);
 		cursor: pointer;
 	}
 
@@ -52,13 +52,13 @@
 	/* Open: its endpoints, then what it gives, a step apart, inside the padding of its summary */
 	.library-api__body {
 		display: grid;
-		gap: var(--app-u2);
-		padding: 0 var(--app-u1) var(--app-u1);
+		gap: var(--app-space-l);
+		padding: 0 var(--app-space-m) var(--app-space-m);
 	}
 
 	.library-api__endpoints {
 		display: grid;
-		gap: var(--app-u2);
+		gap: var(--app-space-l);
 	}
 
 	/* A part, an endpoint or what a route gives: its title, its items, the request to try, a gap apart */
@@ -67,25 +67,25 @@
 	.library-api__fields,
 	.library-api__answer {
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	/* The items of a part, a gap apart; the properties a property holds, under it, a line along them */
 	.library-api__list {
 		list-style: none;
 		display: grid;
-		gap: var(--app-gap);
+		gap: var(--app-space-s);
 	}
 
 	.library-api__list .library-api__list {
-		padding-inline-start: var(--app-u1);
+		padding-inline-start: var(--app-space-m);
 		border-inline-start: 1px solid var(--app-line-soft);
 	}
 
 	/* An item: its name and type, then its description and rules, closer */
 	.library-api__item {
 		display: grid;
-		gap: var(--app-gap-small);
+		gap: var(--app-space-xs);
 	}
 
 	/* Whether an argument is required or a property read only, in the one color of the app */
@@ -97,7 +97,7 @@
 	.library-api__answer pre {
 		overflow: auto;
 		max-block-size: 60vh;
-		padding: var(--app-u1);
+		padding: var(--app-space-m);
 		border: 1px solid var(--app-line-soft);
 		border-radius: var(--app-radius);
 		font-family: var(--app-font-mono);
