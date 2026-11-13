@@ -384,7 +384,7 @@ class Books_List {
 		$label = sprintf( __( '%s%% read', 'library' ), number_format_i18n( $stats['percent'] ) );
 
 		$views['library-read-percentage'] = sprintf(
-			'<span class="js-library-read-percentage" data-loading-text="%1$s">%2$s</span>',
+			'<span data-part="read-percentage" data-loading-text="%1$s">%2$s</span>',
 			esc_attr__( 'Loading percent read...', 'library' ),
 			esc_html( $label )
 		);

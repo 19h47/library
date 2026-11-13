@@ -17,7 +17,8 @@ const root = fileURLToPath( new URL( '..', import.meta.url ) );
 const folder = join( root, 'app/css' );
 // The file of the tokens of the app: its custom properties are the scale, in rem as its base.
 const tokens = join( folder, 'library-app.css' );
-const LENGTH = /(?<![\w.#-])(\d*\.?\d+)(px|rem|ch|vw|vh|dvh|svh|lvh|vmin|vmax)\b/g;
+const LENGTH =
+	/(?<![\w.#-])(\d*\.?\d+)(px|rem|ch|vw|vh|dvh|svh|lvh|vmin|vmax)\b/g;
 const QUERY = /^\s*@(media|container)\b/;
 const TOKEN = /^\s*--[\w-]+\s*:/;
 
@@ -89,6 +90,6 @@ const errors = sheetsOf( folder ).flatMap( ( file ) => {
 } );
 
 if ( errors.length ) {
-	console.error( errors.join( '\n' ) );
+	process.stderr.write( `${ errors.join( '\n' ) }\n` );
 	process.exitCode = 1;
 }

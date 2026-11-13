@@ -11,7 +11,7 @@
 	const { apiFetch } = window.wp;
 	const { __ } = window.wp.i18n;
 	const { speak } = window.wp.a11y;
-	const percentSelector = '.js-library-read-percentage';
+	const percentSelector = '[data-part="read-percentage"]';
 	/** @type {HTMLElement} */
 	const readPercentageEl = document.querySelector( percentSelector );
 
