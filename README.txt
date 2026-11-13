@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.39.0
+Stable tag: 9.40.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -126,6 +126,12 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.40.0 =
+* Reading app: the page of a book reads as its title page: its cover, its title, its subtitle on a line of its own, smaller, as on its cover, its credits and its translation, then its excerpt. Its readings are summed up in a line, how many times it is read, the end of the latest reading and how long it took, "Read 2 times · March 21, 2025 · in 12 days", which opens them to change them; the row "Read in" is gone.
+* Reading app: the fields of a book in three groups, each name beside its value: its work, with its people by role, its first publication, its original languages and its form; its edition, with its publisher and its collections, each linked to its page, its number in its collection, its edition date, its ISBN, its pages and the languages of its text; its copy, with its printed date and the day it was added.
+* REST API: a book of `wp/v2/books` gives `main_title`, its title but its subtitle, with its series and its volume, and `publisher_names`, its publishers, each followed by the collections it is in under it, from the widest, each a `library-book-publisher` with its term ID; `publishers` stays the term IDs of core.
+* Code only: reading app: the shared base styles, revision 9ea6527: space is `--app-space-xs` to `--app-space-xl`, `--app-space-m` at `--app-u1`, rather than `--app-gap-small`, `--app-gap` and a step of the scale; the steps `--app-u0` to `--app-u3` stay the scale of sizes. The fields side by side are `.library-fields--aside`; the styleguide shows the five spaces.
 
 = 9.39.0 =
 * Breaking: a book has three dates, each a year, a month or a day: the copy in hand printed, `library_printed_date`, "Printed", as its colophon says; the edition of its ISBN, `library_edition_date`, "Edition date", whatever the printing of the copy, as the catalogue of the BnF records it; and the work first published, `library_published_date`, as before. The edition date is no longer a full date only. In the REST API, `printed_date` in the routes of the plugin and `library_printed_date` in `wp/v2/books`. Migrate the data after updating, with your table prefix, for the books that are or were in hand, whose date was the one of their copy: `UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id SET m.meta_key = 'library_printed_date' WHERE m.meta_key = 'library_edition_date' AND p.post_type = 'library_book' AND p.post_status <> 'library-to-buy'`, then, a 1 January standing for a year alone, `UPDATE wp_postmeta SET meta_value = LEFT( meta_value, 4 ) WHERE meta_key IN ( 'library_printed_date', 'library_edition_date' ) AND meta_value LIKE '____-01-01'`.
