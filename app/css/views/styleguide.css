@@ -13,11 +13,23 @@
 		color: var(--app-text-muted);
 	}
 
-	/* A frame keeps the width of the page: a component wider than it goes past its border, rather than widening the others */
+	/* The styleguide, a container as wide as the column of the app, which its samples take the width of */
+	library-styleguide {
+		container-type: inline-size;
+	}
+
+	/*
+	 * The samples of a level, across the screen but its gutters, in columns as wide as the column of the app, as many as
+	 * the screen holds, one on a phone: a column is the place of the components it shows, which fill it as their place in
+	 * the app; a component wider than it goes past its frame, rather than widening the others
+	 */
 	.library-styleguide__samples {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr);
+		grid-template-columns: repeat(auto-fill, min(100%, 100cqi));
+		justify-content: center;
+		align-items: start;
 		gap: var(--app-space-l);
+		margin-inline: calc(50cqi - 50vw + var(--app-space-l));
 	}
 
 	/* The caption of a sample and what a size of the text sets: small text, as the interface without its capitals */
@@ -45,7 +57,12 @@
 		gap: var(--app-space-m);
 		padding: var(--app-space-m);
 		border: 1px dashed var(--app-line);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
+	}
+
+	/* A strip in a frame goes to the edges of its frame, not of the screen, which a column of the styleguide is not as wide as */
+	.library-styleguide__frame .library-strip {
+		--library-bleed: 0px;
 	}
 
 	/* What the app places over the page, the notice and a sheet, drawn in its frame; a sheet opened by its field stays over the page */
@@ -83,7 +100,7 @@
 		width: var(--app-u3);
 		height: var(--app-u3);
 		border: 1px solid var(--app-line);
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 		background: var(--library-token);
 	}
 

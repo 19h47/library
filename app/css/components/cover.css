@@ -14,7 +14,7 @@
 		inline-size: var(--library-cover-inline-size, auto);
 		block-size: var(--library-cover-block-size, var(--library-cover-height));
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 	}
 
 	/*

@@ -51,7 +51,7 @@
 		overflow: hidden;
 		padding: var(--app-space-s);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 		font-size: var(--app-text-s);
 	}
 }

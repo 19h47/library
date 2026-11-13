@@ -176,7 +176,7 @@ export function back() {
 function coverOf( route, id, $from = null ) {
 	if ( 'book' === route.view && id === route.id ) {
 		return document.querySelector(
-			`library-view[name="book"]:not([hidden]) .library-book__cover:not([hidden])`
+			`library-view[name="book"]:not([hidden]) [data-part="cover"]:not([hidden])`
 		);
 	}
 

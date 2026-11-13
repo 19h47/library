@@ -1,7 +1,7 @@
 {
 	"name": "library",
 	"private": true,
-	"description": "Tools of the plugin: the tests of the reading app in a browser, and the checks of its scripts. The plugin itself needs no build.",
+	"description": "Tools of the plugin: the tests of the reading app in a browser, and the checks of its scripts and of its stylesheets. The plugin itself needs no build.",
 	"type": "module",
 	"packageManager": "pnpm@12.8.1",
 	"engines": {
@@ -11,6 +11,7 @@
 		"wp-env": "wp-env",
 		"test:e2e": "playwright test",
 		"lint:js": "eslint .",
+		"lint:css": "node bin/check-css-scale.mjs",
 		"check:js": "tsc --project jsconfig.json"
 	},
 	"devDependencies": {

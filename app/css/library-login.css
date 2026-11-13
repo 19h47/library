@@ -29,7 +29,7 @@
 		margin: auto;
 		padding: var(--app-space-l);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		display: grid;
 		gap: var(--app-space-l);
 	}
@@ -92,7 +92,7 @@
 	#login .notice {
 		padding: var(--app-space-l);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background: var(--app-fill);
 		color: var(--app-text-muted);
 	}
@@ -135,7 +135,7 @@
 		block-size: var(--app-control-size);
 		padding-inline: 1em;
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background-color: transparent;
 		color: inherit;
 		font: inherit;
@@ -165,7 +165,7 @@
 		width: var(--app-control-size);
 		height: var(--app-control-size);
 		border: 1px solid color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background: var(--app-bg);
 		color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
 		cursor: pointer;
@@ -273,7 +273,7 @@
 		inline-size: var(--app-u2);
 		block-size: var(--app-u2);
 		border: 0;
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background: none;
 		color: var(--app-text-muted);
 		cursor: pointer;
@@ -292,7 +292,7 @@
 		max-inline-size: min(calc(var(--app-max-width) / var(--app-phi)), calc(100vw - 2 * var(--app-space-l)));
 		padding: var(--app-space-m);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background: var(--app-bg);
 		color: var(--app-text);
 		font-family: var(--app-font-ui);

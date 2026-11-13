@@ -115,7 +115,7 @@ class Books_List {
 				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
 
 				$output .= sprintf(
-					'<input type="checkbox" class="js-library-checkbox" data-post-id="%1$d" aria-label="%2$s"%3$s>',
+					'<input type="checkbox" data-part="read" data-post-id="%1$d" aria-label="%2$s"%3$s>',
 					$post_id,
 					esc_attr( $label ),
 					checked( Posts::is_read( $post_id ), true, false )

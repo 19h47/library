@@ -20,7 +20,7 @@ use Library\Markup;
 
 $colors = array( '--app-bg', '--app-text', '--app-text-muted', '--app-line', '--app-line-soft', '--app-fill', '--library-status', '--library-error', '--library-success', '--library-warning' );
 $spaces = array( '--app-space-xs', '--app-space-s', '--app-space-m', '--app-space-l', '--app-space-xl' );
-$radii  = array( '--app-radius', '--library-radius-small' );
+$radii  = array( '--app-radius-xs', '--app-radius-s', '--app-radius-m' );
 $fonts  = array( '--app-font-mono', '--app-font-ui' );
 // The sizes of the text, as the styles write them, from the smallest: their family, and what they set.
 $sizes = array(
@@ -35,7 +35,7 @@ $sizes = array(
 <library-styleguide class="library-sections" lang="en">
 	<header class="library-styleguide__header">
 		<h2 class="library-title">Styleguide</h2>
-		<p class="library-styleguide__intro">The app as a design file, from its tokens to its screens: the foundations, then the atoms, made of them, the molecules, made of atoms, the organisms, made of molecules, and the screens. Each component is in a frame, with the markup the app renders, and looks the same here as in the app; its caption says what it is made of, its variants and the properties its place sets.</p>
+		<p class="library-styleguide__intro">The app as a design file, from its tokens to its screens: the foundations, then the atoms, made of them, the molecules, made of atoms, the organisms, made of molecules, and the screens. Each component is in a frame, with the markup the app renders, and looks the same here as in the app; its caption says what it is made of, its variants and the properties its place sets. A column is as wide as the column of the app: a component fills it, as it fills its place in the app. How to add one, with its tokens, its names and its rules, is in DESIGN-SYSTEM.md, at the root of the plugin.</p>
 	</header>
 
 	<section class="library-section">
@@ -64,7 +64,7 @@ $sizes = array(
 				</ul>
 			</figure>
 			<figure>
-				<figcaption>Corners: a card or a field, then a cover or a tag</figcaption>
+				<figcaption>Corners, a step and a half apart: a tag, a cover, then a card, a field or a pill</figcaption>
 				<ul class="library-styleguide__tokens">
 					<?php foreach ( $radii as $radius ) : ?>
 						<li>
@@ -400,7 +400,7 @@ $sizes = array(
 		<h3 class="library-title">Organisms</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-item</code>, the card of a book, an <code>.app-item</code>: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</figcaption>
+				<figcaption><code>.library-item</code>, the card of a book, the component <code>book-card</code>, an <code>article</code> and an <code>.app-item</code>, its heading level <code>level</code>, 3 by default: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="books"></ul>
 				</div>
@@ -412,7 +412,7 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-row</code>, a book in a row, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</figcaption>
+				<figcaption><code>.library-row</code>, a book in a row, the component <code>book-row</code>, its heading level <code>level</code>, 4 by default, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="rows"></ul>
 				</div>
@@ -424,19 +424,19 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-term</code>, the card of an author of a series or of a series of a person: its name, its description, clamped, and its line; with a description, without</figcaption>
+				<figcaption><code>.library-term</code>, the card of an author of a series or of a series of a person, the component <code>term-card</code>, its heading level <code>level</code>, 4 by default: its name, its description, clamped, and its line; with a description, without</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="terms"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-achievement</code>, earned, its subject a link when it leads to its books</figcaption>
+				<figcaption><code>.library-achievement</code>, the component <code>achievement-card</code>, earned, its subject a link when it leads to its books</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="achievements"></ul>
 				</div>
 			</figure>
 			<figure>
-				<figcaption><code>.library-achievement</code>, close to it, with its progress</figcaption>
+				<figcaption><code>.library-achievement</code>, the component <code>achievement-card</code> with <code>close</code>, close to it, with its progress</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="close"></ul>
 				</div>

@@ -13,7 +13,7 @@
 		padding-top: calc(var(--app-toolbar-top) + var(--app-control-size) + var(--app-space-m));
 		border: 0;
 		border-top: 1px solid var(--app-line);
-		border-radius: var(--app-radius) var(--app-radius) 0 0;
+		border-radius: var(--app-radius-m) var(--app-radius-m) 0 0;
 		background: var(--app-bg);
 		color: var(--app-text);
 
@@ -38,7 +38,7 @@
 			margin: auto;
 			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
-			border-radius: var(--app-radius);
+			border-radius: var(--app-radius-m);
 		}
 	}
 
@@ -73,7 +73,7 @@
 			margin: auto;
 			padding: var(--app-space-xl);
 			border: 1px solid var(--app-line);
-			border-radius: var(--app-radius);
+			border-radius: var(--app-radius-m);
 		}
 	}
 }

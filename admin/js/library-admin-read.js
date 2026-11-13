@@ -19,7 +19,7 @@
 		return;
 	}
 
-	const checkboxes = document.querySelectorAll( '.js-library-checkbox' );
+	const checkboxes = document.querySelectorAll( '[data-part="read"]' );
 
 	// The read date of the book and the percentage as the server renders them, from the list again: the date in the
 	// format of the site, the readings counted. Quick edit reads the inline data, so it follows the dates kept too.

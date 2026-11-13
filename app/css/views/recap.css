@@ -59,7 +59,7 @@
 		min-block-size: var(--library-recap-screen-size);
 		padding: var(--app-space-l) var(--library-recap-padding);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		scroll-margin-block-start: var(--library-recap-top);
 		scroll-snap-align: start;
 	}
@@ -164,7 +164,7 @@
 			block-size: auto;
 			aspect-ratio: 2 / 3;
 			object-fit: cover;
-			border-radius: var(--library-radius-small);
+			border-radius: var(--app-radius-s);
 		}
 
 		& > div {
@@ -228,7 +228,7 @@
 		display: block;
 		inline-size: 100%;
 		block-size: auto;
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 	}
 
 	/*
@@ -374,7 +374,7 @@
 	/* A day, a square as dark as its level, from the lines to the muted text: a day without reading, their fill */
 	.library-recap__calendar li {
 		aspect-ratio: 1;
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 		background: var(--app-fill);
 	}
 
@@ -430,7 +430,7 @@
 
 	.library-recap__bar {
 		display: block;
-		border-radius: var(--library-radius-small);
+		border-radius: var(--app-radius-s);
 		background: var(--app-text);
 	}
 

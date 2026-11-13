@@ -546,7 +546,7 @@ use Library\Meta;
 						<p class="app-status" data-field="status" role="status" hidden></p>
 						<?php // As the title page of the book: its cover, its title and its subtitle, its credits and its translation, then its excerpt. ?>
 						<header class="library-book__header">
-							<img class="library-cover library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
+							<img class="library-cover library-book__cover" data-part="cover" data-field="cover" alt="" loading="lazy" hidden>
 							<div class="library-book__heading">
 								<?php // Its subtitle on a line of its own, smaller, as on its cover. ?>
 								<h2 class="library-heading library-book__title" data-part="title" tabindex="-1">

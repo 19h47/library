@@ -76,7 +76,7 @@
 		min-block-size: var(--app-control-size);
 		padding-inline: 1em;
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		color: var(--app-text-muted);
 	}
 
@@ -89,7 +89,7 @@
 		min-width: 0;
 		padding-inline-start: var(--library-field-padding-inline);
 		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius);
+		border-radius: var(--app-radius-m);
 		background-color: transparent;
 		color: inherit;
 		font: inherit;

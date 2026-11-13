@@ -67,13 +67,14 @@ WP_BASE_URL=http://library-tests.local WP_USERNAME=admin WP_PASSWORD=password pn
 
 They run on a phone in Chrome, and the covers in the engine of Safari too, which lays them out its own way: `--project=safari` runs these alone. `pnpm test:e2e -- reading` runs one file of `tests/e2e`, and `--ui` shows the tests as they run. A pull request runs them on `wp-env`, and keeps the report and the traces of a test that failed.
 
-## The scripts
+## The scripts and the stylesheets
 
-ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts`:
+ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; it fails as well on a script that reaches an element by a class of its styles, rather than by a data attribute or by what it is (see `DESIGN-SYSTEM.md`). TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts`. `bin/check-css-scale.mjs` fails on a length of the stylesheets of the app off the scale:
 
 ```sh
 pnpm lint:js
+pnpm lint:css
 pnpm check:js
 ```
 
-A pull request runs both.
+A pull request runs the three.
