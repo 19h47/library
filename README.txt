@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.42.0
+Stable tag: 9.43.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -126,6 +126,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.43.0 =
+* Reading app: the books of the page of a person, a series or a collection come under their title, as on the home, with their number and the choice between their cards and a grid of their covers.
+* Changed: reading app: the cards of the page of a person, a series or a collection, its authors or its series, sit side by side, two in the column of the app, one on a phone; four show before the others fold under a pill, rather than three.
+* Code only: reading app: the component `cards-group`, the first cards then the others folded, its cards each at least `--library-cards-group-min` wide, filled by `fillCardsGroup()`, rather than `fillFolded()`; the section and its title around it are the page's. The details of the app share `.library-disclosure`, their summary then their contents a gap apart, `--library-disclosure-gap`, rather than a margin of each. `input-list` is `inputs-list`, `.library-inputs-list`, and `inputList()` is `inputsList()`. The page of a term spaces its parts with a gap.
 
 = 9.42.0 =
 * Changed: reading app: the arrow between the start and the end of a reading is an icon, drawn as the others whatever the system, rather than the character →.
