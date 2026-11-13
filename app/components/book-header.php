@@ -18,7 +18,15 @@ $args    = wp_parse_args( $args, array( 'level' => 2 ) );
 $heading = Markup::get_heading( $args['level'] );
 ?>
 <header class="library-book-header">
-	<img class="library-cover library-book-header__cover" data-part="cover" data-field="cover" alt="" loading="lazy" hidden>
+	<?php
+	Markup::render_component(
+		'book-cover',
+		array(
+			'large'      => true,
+			'attributes' => array( 'aria-hidden' => 'true' ),
+		)
+	);
+	?>
 	<div class="library-book-header__heading">
 		<<?php echo esc_html( $heading ); ?> class="library-heading library-book-header__title" data-part="title" tabindex="-1">
 			<span data-field="main_title"></span>

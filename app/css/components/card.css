@@ -17,12 +17,13 @@
 	.library-book-card {
 		--library-cover-inline-size: var(--library-cover-width);
 		--library-cover-block-size: auto;
+		--library-cover-frame: none;
 
 		position: relative;
 		align-items: start;
 	}
 
-	.library-book-card:has(> .library-cover:not([hidden])) {
+	.library-book-card:has(> .library-book-cover > .library-book-cover__image:not([hidden])) {
 		grid-template-columns: auto 1fr;
 		column-gap: var(--app-space-m);
 	}
@@ -84,6 +85,7 @@
 	.library-book-row {
 		--library-cover-inline-size: var(--library-cover-width);
 		--library-cover-block-size: auto;
+		--library-cover-frame: none;
 
 		position: relative;
 		display: flex;
@@ -98,10 +100,6 @@
 	.library-book-row:has(.library-card-link:focus-visible) {
 		outline: var(--app-focus-outline);
 		outline-offset: var(--app-focus-outline-offset);
-	}
-
-	.library-book-row > .library-cover {
-		flex: none;
 	}
 
 	.library-book-row__body {

@@ -143,7 +143,9 @@ class LibraryEditElement extends Brick {
 		const listOf = ( role ) =>
 			$people.querySelector( `[data-group="${ role }"] > ul` );
 		/** @type {HTMLImageElement} */
-		const $preview = this.querySelector( '[data-part="preview"]' );
+		const $preview = this.querySelector(
+			'[data-part="preview"] [data-field="cover"]'
+		);
 		/** @type {HTMLButtonElement} */
 		const $removeCover = this.querySelector(
 			'[data-action="remove-cover"]'

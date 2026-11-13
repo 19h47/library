@@ -44,9 +44,11 @@ test.describe( 'Grid', () => {
 		await expect( toggle ).toBeChecked();
 		await expect( list ).toHaveAttribute( 'data-covers' );
 
-		// A book without a cover shows its title; the title of a book with one is the name of its link only.
+		// A book without a cover shows its title in the frame of its cover; the title of a card is the name of its link only.
 		await expect(
-			list.getByText( 'The Grid Without Cover' )
+			list
+				.locator( '[data-field="cover_title"]' )
+				.filter( { hasText: 'The Grid Without Cover' } )
 		).toBeVisible();
 		await expect(
 			list.getByRole( 'link', { name: 'The Grid With Cover' } )

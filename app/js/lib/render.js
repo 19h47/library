@@ -234,6 +234,18 @@ export function fillCover( $image, cover ) {
 }
 
 /**
+ * Fills the cover of a book, the component book-cover: its image, or without one its title in its frame, which a place
+ * that has the title already hides.
+ *
+ * @param {HTMLElement}                 $cover The cover.
+ * @param {Pick<Book, 'cover'|'title'>} book   The book.
+ */
+export function fillBookCover( $cover, book ) {
+	fillCover( $cover.querySelector( '[data-field="cover"]' ), book.cover );
+	fill( $cover, { cover_title: book.cover ? '' : book.title } );
+}
+
+/**
  * A clone of the element of the template `id` of the page, which holds the translated labels.
  *
  * @param {string} id The ID of the template.
@@ -256,7 +268,7 @@ export function clone( id ) {
  * @param {string}      state The line under its title.
  */
 export function fillBook( $item, book, state ) {
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
 		credits: book.credits,
 		title: book.title,
@@ -284,7 +296,7 @@ export function fillBookPage( $root, book ) {
 	const languages = ( /** @type {string[]} */ codes ) =>
 		listFormat.format( codes.map( formatLanguage ) );
 
-	fillCover( $root.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $root.querySelector( '[data-part="cover"]' ), book );
 	fill( $root, {
 		credits: book.credits,
 		main_title: book.main_title,
@@ -361,8 +373,8 @@ export function renderCover( book, state = '' ) {
 
 	linkBook( $item, book );
 	$image.alt = book.title;
-	fillCover( $image, book.cover );
-	fill( $item, { title: book.cover ? '' : book.title, state } );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
+	fill( $item, { state } );
 
 	return $item;
 }
@@ -378,9 +390,8 @@ export function renderCurrent( book ) {
 	const $item = clone( 'library-current' );
 
 	linkBook( $item, book );
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
-		frame: book.cover ? '' : book.title,
 		title: book.cover ? book.title : '',
 		status: formatStatus( book ),
 	} );
@@ -398,7 +409,7 @@ export function renderRow( book ) {
 	const $item = clone( 'library-book-row' );
 
 	linkBook( $item, book );
-	fillCover( $item.querySelector( '[data-field="cover"]' ), book.cover );
+	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
 		title: book.title,
 		authors: listFormat.format(

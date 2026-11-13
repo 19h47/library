@@ -898,10 +898,7 @@ use Library\Meta;
 		<template id="library-current">
 			<li class="library-current">
 				<a class="library-cover-link" data-part="link">
-					<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover library-cover--frame" data-row="frame">
-						<span class="library-cover__title" data-field="frame"></span>
-					</span>
+					<?php Markup::render_component( 'book-cover' ); ?>
 					<span class="library-current__title" data-field="title"></span>
 					<span class="app-text-s app-font-ui app-uppercase library-tag library-tag--status" data-field="status" hidden></span>
 				</a>
@@ -941,10 +938,7 @@ use Library\Meta;
 		<template id="library-cover">
 			<li>
 				<a class="library-cover-link" data-part="link">
-					<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
-					<span class="library-cover library-cover--frame" data-row="title">
-						<span class="library-cover__title" data-field="title"></span>
-					</span>
+					<?php Markup::render_component( 'book-cover' ); ?>
 					<span class="sr-only" data-field="state" hidden></span>
 				</a>
 			</li>

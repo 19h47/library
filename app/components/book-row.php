@@ -19,7 +19,7 @@ $args    = wp_parse_args( $args, array( 'level' => 4 ) );
 $heading = Markup::get_heading( $args['level'] );
 ?>
 <article class="app-item library-book-row" data-part="card">
-	<img class="library-cover" data-field="cover" alt="" loading="lazy" hidden>
+	<?php Markup::render_component( 'book-cover', array( 'attributes' => array( 'aria-hidden' => 'true' ) ) ); ?>
 	<div class="library-book-row__body">
 		<<?php echo esc_html( $heading ); ?> class="library-book-row__title">
 			<a class="library-card-link" data-part="link">

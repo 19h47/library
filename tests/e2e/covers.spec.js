@@ -55,7 +55,9 @@ test.describe( 'Covers', () => {
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
 
-		const cover = page.locator( 'library-book [data-part="cover"]' );
+		const cover = page.locator(
+			'library-book > header [data-field="cover"]'
+		);
 
 		await expect( cover ).toHaveAttribute( 'sizes', 'auto' );
 		// Once the source it takes is loaded, which gives its shape.
@@ -87,7 +89,7 @@ test.describe( 'Covers', () => {
 			card.evaluate( ( item ) => ( {
 				card: item.getBoundingClientRect().height,
 				cover: item
-					.querySelector( '.library-cover' )
+					.querySelector( '[data-part="cover"] > img' )
 					.getBoundingClientRect().height,
 			} ) );
 
@@ -113,7 +115,7 @@ test.describe( 'Covers', () => {
 
 		await form.locator( 'input[type="file"]' ).setInputFiles( PHOTO );
 
-		const preview = form.locator( '.library-image-field__preview' );
+		const preview = form.locator( '[data-part="preview"] > img' );
 
 		await expect( preview ).toBeVisible();
 		await expect

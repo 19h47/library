@@ -192,16 +192,32 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-cover</code></h4>
-					<p>The image of a book, or <code>.library-cover--frame</code>, its title in a frame of the shape of a cover; its place sets its height, <code>--library-cover-block-size</code>, the row of the latest readings by default, or its width, <code>--library-cover-inline-size</code></p>
+					<h4 class="library-styleguide__name"><code>book-cover</code></h4>
+					<p>The cover of a book, its image, or without one its title in a frame of the shape of a cover; its place sets its height, <code>--library-cover-block-size</code>, the row of the latest readings by default, or its width, <code>--library-cover-inline-size</code>, and hides the frame where the title shows already, <code>--library-cover-frame: none</code>; <code>large</code>, the one of the page of a book, standing out of the page</p>
 				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
-					<img class="library-cover" data-sample-cover alt="" loading="lazy" hidden>
-					<span class="library-cover library-cover--frame">
-						<span class="library-cover__title">A book without its cover, and a title long enough to be cut</span>
-					</span>
-					<img class="library-cover" style="--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi))" data-sample-cover alt="" loading="lazy" hidden>
-					<img class="library-cover" style="--library-cover-inline-size: var(--library-cover-width); --library-cover-block-size: auto" data-sample-cover alt="" loading="lazy" hidden>
+					<?php
+					Markup::render_component( 'book-cover', array( 'attributes' => array( 'data-sample-cover' => true ) ) );
+					Markup::render_component( 'book-cover', array( 'attributes' => array( 'data-sample-frame' => true ) ) );
+					Markup::render_component(
+						'book-cover',
+						array(
+							'attributes' => array(
+								'style'             => '--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi))',
+								'data-sample-cover' => true,
+							),
+						)
+					);
+					Markup::render_component(
+						'book-cover',
+						array(
+							'attributes' => array(
+								'style'             => '--library-cover-inline-size: var(--library-cover-width); --library-cover-block-size: auto',
+								'data-sample-cover' => true,
+							),
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
@@ -451,7 +467,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>image-field</code></h4>
-					<p>A <code>.library-cover</code> and the pills that pick it and remove it</p>
+					<p>A <code>book-cover</code> and the pills that pick it and remove it</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -477,7 +493,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>book-card</code></h4>
-					<p>The card of a book, the component <code>book-card</code>, an <code>article</code> and an <code>.app-item</code>, its heading level <code>level</code>, 3 by default: a <code>.library-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</p>
+					<p>The card of a book, the component <code>book-card</code>, an <code>article</code> and an <code>.app-item</code>, its heading level <code>level</code>, 3 by default: a <code>book-cover</code> as wide as <code>--library-cover-width</code>, its meta, its title, its excerpt and its tags; with a cover, without, with an excerpt and a form, not kept in its original language, to buy, long, bare</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="books"></ul>
@@ -495,7 +511,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>book-row</code></h4>
-					<p>A book in a row, the component <code>book-row</code>, its heading level <code>level</code>, 4 by default, as the reading idea on the home: a <code>.library-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</p>
+					<p>A book in a row, the component <code>book-row</code>, its heading level <code>level</code>, 4 by default, as the reading idea on the home: a <code>book-cover</code>, its title on two lines, its authors and its status; with a cover, not kept without, with a long title</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="app-list" data-sample="rows"></ul>

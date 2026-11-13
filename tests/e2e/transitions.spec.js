@@ -31,13 +31,16 @@ test.describe( 'Transitions', () => {
 	test( 'the cover of a book goes from its card to its page, and back', async ( {
 		page,
 	} ) => {
-		// Each view transition, with the covers named for it before and after the views change, and once it ended.
+		// Each view transition, with the covers named for it before and after the views change, and once it ended: the one of
+		// a card, an article, or the one of the page of a book, in its header.
 		await page.addInitScript( () => {
 			const start = document.startViewTransition.bind( document );
 			const named = () =>
 				[ ...document.querySelectorAll( 'img' ) ]
 					.filter( ( img ) => img.style.viewTransitionName )
-					.map( ( img ) => img.className );
+					.map(
+						( img ) => img.closest( 'article, header' )?.localName
+					);
 
 			window.transitions = [];
 			document.startViewTransition = ( update ) => {
@@ -90,12 +93,12 @@ test.describe( 'Transitions', () => {
 			)
 		).toEqual( [
 			{
-				before: [ 'library-cover' ],
-				after: [ 'library-cover library-book-header__cover' ],
+				before: [ 'article' ],
+				after: [ 'header' ],
 			},
 			{
-				before: [ 'library-cover library-book-header__cover' ],
-				after: [ 'library-cover' ],
+				before: [ 'header' ],
+				after: [ 'article' ],
 			},
 		] );
 	} );

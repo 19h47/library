@@ -12,6 +12,7 @@ import {
 	clone,
 	fill,
 	fillBookPage,
+	fillBookCover,
 	fillCover,
 	fillFolded,
 	fillHtml,
@@ -326,9 +327,19 @@ class LibraryStyleguideElement extends Brick {
 
 		// The covers of the atoms and of the book open, and the one of the form, drawn as the others; the form can remove it.
 		this.querySelectorAll( '[data-sample-cover]' ).forEach( ( $cover ) =>
-			fillCover( /** @type {HTMLImageElement} */ ( $cover ), COVER )
+			fillBookCover( /** @type {HTMLElement} */ ( $cover ), {
+				cover: COVER,
+				title: '',
+			} )
 		);
-		fillCover( this.querySelector( '[data-part="preview"]' ), COVER );
+		fillBookCover( this.querySelector( '[data-sample-frame]' ), {
+			cover: null,
+			title: 'A book without its cover, and a title long enough to be cut',
+		} );
+		fillCover(
+			this.querySelector( '[data-part="preview"] [data-field="cover"]' ),
+			COVER
+		);
 
 		// The headers of the page of a person and of a series, filled as their pages fill them.
 		Object.entries( HEADERS ).forEach(
