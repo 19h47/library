@@ -430,6 +430,9 @@ phone light | Icons > ul:1>li:4>code:1 | #7a5b8be307
 phone light | Icons > ul:1>li:5 | #d6d2da044b
 phone light | Icons > ul:1>li:5>span:0 | #fa7f5d1647
 phone light | Icons > ul:1>li:5>code:1 | #7a5b8be307
+phone light | Icons > ul:1>li:6 | #d6d2da044b
+phone light | Icons > ul:1>li:6>span:0 | #fa7f5d1647
+phone light | Icons > ul:1>li:6>code:1 | #7a5b8be307
 phone light | section:2 | #d4fbba5493
 phone light | section:2>h3:0 | #9055b3e2bd
 phone light | section:2>div:1 | #3ac54a8541
@@ -1898,6 +1901,9 @@ phone dark | Icons > ul:1>li:4>code:1 | #9270eec119
 phone dark | Icons > ul:1>li:5 | #c6c25725eb
 phone dark | Icons > ul:1>li:5>span:0 | #3c4d70376e
 phone dark | Icons > ul:1>li:5>code:1 | #9270eec119
+phone dark | Icons > ul:1>li:6 | #c6c25725eb
+phone dark | Icons > ul:1>li:6>span:0 | #3c4d70376e
+phone dark | Icons > ul:1>li:6>code:1 | #9270eec119
 phone dark | section:2 | #fc4a2a016d
 phone dark | section:2>h3:0 | #114fac91a4
 phone dark | section:2>div:1 | #1212f12581
@@ -3366,6 +3372,9 @@ wide light | Icons > ul:1>li:4>code:1 | #7a5b8be307
 wide light | Icons > ul:1>li:5 | #d6d2da044b
 wide light | Icons > ul:1>li:5>span:0 | #fa7f5d1647
 wide light | Icons > ul:1>li:5>code:1 | #7a5b8be307
+wide light | Icons > ul:1>li:6 | #d6d2da044b
+wide light | Icons > ul:1>li:6>span:0 | #fa7f5d1647
+wide light | Icons > ul:1>li:6>code:1 | #7a5b8be307
 wide light | section:2 | #d4fbba5493
 wide light | section:2>h3:0 | #9055b3e2bd
 wide light | section:2>div:1 | #3ac54a8541
