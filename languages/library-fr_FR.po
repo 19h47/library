@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-13T13:27:06+00:00\n"
+"POT-Creation-Date: 2026-11-13T14:03:54+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -72,7 +72,7 @@ msgid "Authors"
 msgstr "Auteurs/autrices"
 
 #: admin/class-books-list.php:93 admin/partials/library-reading.php:27
-#: app/partials/library-app.php:915
+#: app/partials/library-app.php:912
 msgid "Read date"
 msgstr "Date de lecture"
 
@@ -82,7 +82,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-books-list.php:151 app/partials/library-app.php:930
+#: admin/class-books-list.php:151 app/partials/library-app.php:927
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -410,7 +410,7 @@ msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:609
+#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:620
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -453,7 +453,7 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:319
 #: includes/class-books.php:324 includes/class-books.php:342
-#: app/js/lib/render.js:727
+#: app/js/lib/render.js:735
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -603,13 +603,13 @@ msgstr ""
 "est pas l’autrice ou l’auteur. Un nom tout juste ajouté en est auteur/"
 "autrice : enregistrez le livre pour lui choisir un autre rôle."
 
-#: admin/partials/library-reading.php:25 app/partials/library-app.php:913
+#: admin/partials/library-reading.php:25 app/partials/library-app.php:910
 msgid "Start of the reading"
 msgstr "Début de la lecture"
 
-#: admin/partials/library-reading.php:28 app/partials/library-app.php:920
-#: app/partials/library-app.php:921 app/partials/library-app.php:935
-#: app/partials/library-app.php:936
+#: admin/partials/library-reading.php:28 app/partials/library-app.php:917
+#: app/partials/library-app.php:918 app/partials/library-app.php:932
+#: app/partials/library-app.php:933
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
@@ -762,7 +762,7 @@ msgid "Latest readings"
 msgstr "Dernières lectures"
 
 #: app/partials/library-app.php:132 app/js/bricks/library-api.js:273
-#: app/js/bricks/library-book.js:38 app/js/bricks/library-recap.js:335
+#: app/js/bricks/library-book.js:38 app/js/bricks/library-recap.js:334
 #: app/js/lib/format.js:110
 msgid "Loading…"
 msgstr "Chargement…"
@@ -937,7 +937,7 @@ msgstr "Enregistrer"
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:960 app/partials/library-app.php:961
+#: app/partials/library-app.php:958 app/partials/library-app.php:959
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -1407,7 +1407,7 @@ msgstr "Retour aux sources"
 msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
-#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:527
+#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:529
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr "Le catalogue de la BnF ne répond pas : réessayez plus tard."
 
@@ -1420,7 +1420,7 @@ msgstr "t. %s"
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
 #: includes/class-books.php:329 includes/class-books.php:421
-#: app/js/lib/render.js:322
+#: app/js/lib/render.js:334
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
@@ -2128,7 +2128,7 @@ msgstr ""
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:655 app/js/bricks/library-edit.js:523
+#: includes/class-rest-api.php:655 app/js/bricks/library-edit.js:525
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
@@ -2972,11 +2972,11 @@ msgstr "Aucune lecture pour l’instant."
 msgid "Read again"
 msgstr "Relu"
 
-#: app/js/bricks/library-edit.js:515
+#: app/js/bricks/library-edit.js:517
 msgid "Searching the catalogue of the BnF…"
 msgstr "Recherche dans le catalogue de la BnF…"
 
-#: app/js/bricks/library-edit.js:519
+#: app/js/bricks/library-edit.js:521
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 
@@ -3010,145 +3010,145 @@ msgid "First published in %s"
 msgstr "Paru en %s"
 
 #. translators: %s: number of readings of a book read again in the year.
-#: app/js/bricks/library-recap.js:104
+#: app/js/bricks/library-recap.js:103
 msgid "Including %s read again"
 msgid_plural "Including %s read again"
 msgstr[0] "Dont %s relu"
 msgstr[1] "Dont %s relus"
 
-#: app/js/bricks/library-recap.js:117
+#: app/js/bricks/library-recap.js:116
 msgid "person read for the first time"
 msgid_plural "people read for the first time"
 msgstr[0] "personne lue pour la première fois"
 msgstr[1] "personnes lues pour la première fois"
 
 #. translators: %s: number of series first read in the year.
-#: app/js/bricks/library-recap.js:129
+#: app/js/bricks/library-recap.js:128
 msgid "%s started"
 msgid_plural "%s started"
 msgstr[0] "%s commencée"
 msgstr[1] "%s commencées"
 
 #. translators: %s: number of series read in full, the last book in the year.
-#: app/js/bricks/library-recap.js:140
+#: app/js/bricks/library-recap.js:139
 msgid "%s finished"
 msgid_plural "%s finished"
 msgstr[0] "%s terminée"
 msgstr[1] "%s terminées"
 
-#: app/js/bricks/library-recap.js:152
+#: app/js/bricks/library-recap.js:151
 msgid "book added"
 msgid_plural "books added"
 msgstr[0] "livre ajouté"
 msgstr[1] "livres ajoutés"
 
 #. translators: %s: year of the recap.
-#: app/js/bricks/library-recap.js:162
+#: app/js/bricks/library-recap.js:161
 msgid "That was %s"
 msgstr "C’était %s"
 
-#: app/js/bricks/library-recap.js:340
+#: app/js/bricks/library-recap.js:339
 msgid "No readings that year."
 msgstr "Aucune lecture cette année-là."
 
 #. translators: %d: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:362
+#: app/js/bricks/library-recap.js:361
 msgid "As many as in %d"
 msgstr "Autant qu’en %d"
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:368
+#: app/js/bricks/library-recap.js:367
 msgid "%1$s more than in %2$d"
 msgid_plural "%1$s more than in %2$d"
 msgstr[0] "%1$s de plus qu’en %2$d"
 msgstr[1] "%1$s de plus qu’en %2$d"
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:381
+#: app/js/bricks/library-recap.js:380
 msgid "%1$s fewer than in %2$d"
 msgid_plural "%1$s fewer than in %2$d"
 msgstr[0] "%1$s de moins qu’en %2$d"
 msgstr[1] "%1$s de moins qu’en %2$d"
 
 #. translators: %s: number of pages read a day, on average.
-#: app/js/bricks/library-recap.js:410
+#: app/js/bricks/library-recap.js:409
 msgid "About %s a day"
 msgstr "Environ %s par jour"
 
 #. translators: %s: number of pages of a book read, on average.
-#: app/js/bricks/library-recap.js:417
+#: app/js/bricks/library-recap.js:416
 msgid "%s a book on average"
 msgstr "%s par livre en moyenne"
 
 #. translators: 1: number of books read with their number of pages, 2: number of books read.
-#: app/js/bricks/library-recap.js:425
+#: app/js/bricks/library-recap.js:424
 msgid "Pages filled in for %1$s book out of %2$s."
 msgid_plural "Pages filled in for %1$s books out of %2$s."
 msgstr[0] "Pages renseignées pour %1$s livre sur %2$s."
 msgstr[1] "Pages renseignées pour %1$s livres sur %2$s."
 
 #. translators: 1: name of a month, 2: number of books read in it.
-#: app/js/bricks/library-recap.js:498
+#: app/js/bricks/library-recap.js:497
 msgid "The month read the most: %1$s, %2$s"
 msgstr "Le mois le plus lu : %1$s, %2$s"
 
-#: app/js/bricks/library-recap.js:521
+#: app/js/bricks/library-recap.js:520
 msgid "day of reading"
 msgid_plural "days of reading"
 msgstr[0] "jour de lecture"
 msgstr[1] "jours de lecture"
 
 #. translators: %s: number of days read in a row, the most of the year.
-#: app/js/bricks/library-recap.js:531
+#: app/js/bricks/library-recap.js:530
 msgid "Up to %s day in a row"
 msgid_plural "Up to %s days in a row"
 msgstr[0] "Jusqu’à %s jour d’affilée"
 msgstr[1] "Jusqu’à %s jours d’affilée"
 
 #. translators: 1: number of pages read in a day, the most of the year, 2: the day, such as 12 March.
-#: app/js/bricks/library-recap.js:543
+#: app/js/bricks/library-recap.js:542
 msgid "The biggest day: %1$s page, on %2$s"
 msgid_plural "The biggest day: %1$s pages, on %2$s"
 msgstr[0] "La plus grosse journée : %1$s page, le %2$s"
 msgstr[1] "La plus grosse journée : %1$s pages, le %2$s"
 
 #. translators: 1: number of readings of the year with their start date, 2: number of readings of the year.
-#: app/js/bricks/library-recap.js:557
+#: app/js/bricks/library-recap.js:556
 msgid "Start date known for %1$s reading out of %2$s."
 msgid_plural "Start date known for %1$s readings out of %2$s."
 msgstr[0] "Date de début connue pour %1$s lecture sur %2$s."
 msgstr[1] "Date de début connue pour %1$s lectures sur %2$s."
 
-#: app/js/bricks/library-recap.js:618
+#: app/js/bricks/library-recap.js:617
 msgid "The pile held steady."
 msgstr "La pile n’a pas bougé."
 
 #. translators: %s: number of books, those added beyond those read.
-#: app/js/bricks/library-recap.js:626
+#: app/js/bricks/library-recap.js:625
 msgid "The pile grew by %s."
 msgstr "La pile a grandi de %s."
 
 #. translators: %s: number of books, those read beyond those added.
-#: app/js/bricks/library-recap.js:633
+#: app/js/bricks/library-recap.js:632
 msgid "The pile went down by %s."
 msgstr "La pile a baissé de %s."
 
-#: app/js/bricks/library-recap.js:695
+#: app/js/bricks/library-recap.js:694
 msgid "The longest"
 msgstr "Le plus long"
 
 #. translators: what the figure of a record counts, after it: 1 947 pages.
-#: app/js/bricks/library-recap.js:699 app/js/bricks/library-recap.js:708
+#: app/js/bricks/library-recap.js:698 app/js/bricks/library-recap.js:707
 msgid "page"
 msgid_plural "pages"
 msgstr[0] "page"
 msgstr[1] "pages"
 
-#: app/js/bricks/library-recap.js:704
+#: app/js/bricks/library-recap.js:703
 msgid "The shortest"
 msgstr "Le plus court"
 
-#: app/js/bricks/library-recap.js:713
+#: app/js/bricks/library-recap.js:712
 msgid "The oldest"
 msgstr "Le plus ancien"
 
@@ -3207,7 +3207,7 @@ msgid "in %s"
 msgstr "en %s"
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:522
+#: app/js/lib/render.js:533
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
