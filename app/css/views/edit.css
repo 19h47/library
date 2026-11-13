@@ -3,15 +3,11 @@
  */
 
 @layer app.views {
-	.library-edit__details summary {
-		cursor: pointer;
-	}
-
 	/*
-	 * The details, a field or a pill per line, such as a collective work, a step apart; the pills of a row, such as the
-	 * languages, keep the gap of their row
+	 * The details, a field or a pill per line, such as a collective work, a step apart, as a disclosure spaces them; a pill
+	 * as wide as its text, rather than the line
 	 */
-	.library-edit__details > :is(.library-field, .app-pill, library-choices) {
-		margin-top: var(--app-space-m);
+	.library-edit__details > .app-pill {
+		justify-self: start;
 	}
 }

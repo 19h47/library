@@ -555,18 +555,11 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-section</code></h4>
-					<p>A <code>.library-title</code> then its cards; past four, <code>.library-section__more</code> folds the others under a pill, as the authors of a series</p>
+					<h4 class="library-styleguide__name"><code>cards-group</code></h4>
+					<p>A group of cards, the component <code>cards-group</code>: its cards side by side, as many as fit, each at least <code>--library-cards-group-min</code> wide, a third of the page by default, two in the column of the app; past five, a <code>.library-disclosure</code> folds the others under a pill, as the authors of a series, which a section of the page and its title hold</p>
 				</figcaption>
-				<div class="library-styleguide__frame">
-					<section class="library-section" data-folded="authors">
-						<h4 class="library-title">Authors</h4>
-						<ul class="app-list" data-list="shown"></ul>
-						<details class="library-section__more" data-row="more" hidden>
-							<summary class="app-pill" data-field="more"></summary>
-							<ul class="app-list" data-list="more"></ul>
-						</details>
-					</section>
+				<div class="library-styleguide__frame" data-sample="cards-group">
+					<?php Markup::render_component( 'cards-group' ); ?>
 				</div>
 			</figure>
 			<figure>
@@ -724,13 +717,13 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>input-list</code></h4>
+					<h4 class="library-styleguide__name"><code>inputs-list</code></h4>
 					<p>A list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the readings of a book, from their starts to their ends, with a description; the first one of unknown dates, the last one in error</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
 					Markup::render_component(
-						'input-list',
+						'inputs-list',
 						array(
 							'id'          => 'library-styleguide-readings',
 							'label'       => 'Readings',
@@ -747,7 +740,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>input-groups</code></h4>
-					<p>An <code>input-list</code> in groups, each a fieldset shown once it holds a row, then a <code>pill-select</code> of the group a row goes in beside the pill that adds it: the people of a book by role, its colorists none</p>
+					<p>An <code>inputs-list</code> in groups, each a fieldset shown once it holds a row, then a <code>pill-select</code> of the group a row goes in beside the pill that adds it: the people of a book by role, its colorists none</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -819,7 +812,7 @@ $sizes = array(
 								);
 								?>
 							</div>
-							<details class="library-reading__details">
+							<details class="library-disclosure library-reading__details">
 								<summary class="app-text-s app-text-muted app-font-ui app-uppercase">Read 2 times · April 4, 2025 · in 12 days</summary>
 								<p>Its readings, from their starts to their ends.</p>
 							</details>
@@ -871,7 +864,7 @@ $sizes = array(
 					<p>The fields few books have, in the form of a book, folded</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<details class="library-edit__details">
+					<details class="library-disclosure library-edit__details">
 						<summary class="app-text-s app-text-muted app-font-ui app-uppercase">More details</summary>
 						<?php
 						Markup::render_component(

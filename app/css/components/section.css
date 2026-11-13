@@ -1,6 +1,6 @@
 /**
  * Sections, a molecule, their title then what they hold, a step apart; what holds them; the title of a section, with its
- * count and an action at its end; the cards past the first ones, folded.
+ * count and an action at its end.
  */
 
 @layer app.components {
@@ -58,19 +58,5 @@
 	.library-title__action {
 		flex: none;
 		margin-inline-start: auto;
-	}
-
-	/* The cards of a section past the first ones, folded under a pill, which the section spaces as its other parts */
-	.library-section__more > summary {
-		cursor: pointer;
-	}
-
-	.library-section__more > summary:hover {
-		color: var(--app-text);
-		border-color: var(--app-line);
-	}
-
-	.library-section__more > .app-list {
-		margin-top: var(--app-space-s);
 	}
 }

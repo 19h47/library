@@ -485,18 +485,18 @@ export function renderSeries( series, line ) {
 	);
 }
 
-// The cards of a section shown before the others fold: four show all, five fold two.
-const SHOWN_CARDS = 3;
+// The cards of a cards-group shown before the others fold, two rows of two: five show all, six fold two.
+const SHOWN_CARDS = 4;
 
 /**
- * Fills `$section` with `$cards`: the first ones in its [data-list="shown"], the others folded in its [data-list="more"],
- * closed, under a pill that `more( count )` names; the section hides without cards.
+ * Fills the cards-group of `$section` with `$cards`: the first ones in its [data-list="shown"], the others folded in its
+ * [data-list="more"], closed, under a pill that `more( count )` names; the section, which holds it, hides without cards.
  *
- * @param {HTMLElement}                 $section The section.
+ * @param {HTMLElement}                 $section The section that holds the cards-group.
  * @param {HTMLElement[]}               $cards   The cards.
  * @param {( count: number ) => string} more     The name of the pill, from the number of cards folded.
  */
-export function fillFolded( $section, $cards, more ) {
+export function fillCardsGroup( $section, $cards, more ) {
 	const $more = $section.querySelector( '[data-list="more"]' );
 	const shown = $cards.length > SHOWN_CARDS + 1 ? SHOWN_CARDS : $cards.length;
 	const folded = $cards.length - shown;
@@ -519,7 +519,7 @@ export function fillFolded( $section, $cards, more ) {
  * @param {number}      total    The books of the series or the collection.
  */
 export function fillAuthors( $section, authors, total ) {
-	fillFolded(
+	fillCardsGroup(
 		$section,
 		authors.map( ( author ) =>
 			renderAuthor(

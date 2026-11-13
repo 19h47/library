@@ -98,15 +98,6 @@
 		}
 	}
 
-	/* The line that sums up the readings, which opens them, then them a step under it */
-	.library-reading__details > summary {
-		cursor: pointer;
-	}
-
-	.library-reading__details[open] > summary {
-		margin-block-end: var(--app-space-m);
-	}
-
 	/*
 	 * A reading ended: its start above its end, closer to each other than to the readings around, the button that removes
 	 * it beside them; on one line beyond a phone, an arrow between them, where two dates fit side by side

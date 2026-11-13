@@ -1,0 +1,34 @@
+/**
+ * A group of cards, the component cards-group: its cards side by side, those past the first ones folded under a pill,
+ * the cards, the pill and the cards folded as far apart as one another.
+ *
+ * Properties its place sets:
+ * - --library-cards-group-min: the least width of a card, a third of the page by default, so one on a phone and two in
+ *   the column of the app, never three; wider for cards that need it.
+ */
+
+@layer app.components {
+	.library-cards-group {
+		display: grid;
+		gap: var(--app-space-s);
+	}
+
+	/* Its cards, the first ones then the others folded, side by side as many as fit, as wide as one another */
+	.library-cards-group__list {
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--library-cards-group-min, calc(var(--app-max-width) / 3))), 1fr));
+	}
+
+	/* Open, its pill then the others, as far apart as its cards; the pill as wide as its text */
+	.library-cards-group__more {
+		--library-disclosure-gap: var(--app-space-s);
+	}
+
+	.library-cards-group__more > summary {
+		justify-self: start;
+	}
+
+	.library-cards-group__more > summary:hover {
+		color: var(--app-text);
+		border-color: var(--app-line);
+	}
+}

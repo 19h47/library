@@ -1,0 +1,20 @@
+/**
+ * A disclosure, a details: its summary, which opens it, then its contents, a gap apart, as are its contents with one
+ * another, rather than a margin of each. Its place gives it a class of its own for what it holds.
+ *
+ * Properties its place sets:
+ * - --library-disclosure-gap: the gap between its summary and its contents, and between its contents, a step by default.
+ */
+
+@layer app.components {
+	.library-disclosure > summary {
+		cursor: pointer;
+	}
+
+	/* Open: its summary and the box of its contents, then what that box holds, each a grid with the same gap */
+	.library-disclosure[open],
+	.library-disclosure[open]::details-content {
+		display: grid;
+		gap: var(--library-disclosure-gap, var(--app-space-m));
+	}
+}

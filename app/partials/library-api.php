@@ -30,7 +30,7 @@
 	<div class="library-api__routes" data-list="routes"></div>
 
 	<template id="library-api-route">
-		<details class="library-api__route">
+		<details class="library-disclosure library-api__route">
 			<summary>
 				<span class="app-text-s app-text-muted app-font-ui" data-field="methods"></span>
 				<code class="library-api__path" data-field="path"></code>
