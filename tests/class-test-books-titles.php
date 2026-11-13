@@ -8,6 +8,7 @@
 namespace Library\Tests;
 
 use Library\Books;
+use WP_REST_Request;
 
 /**
  * "Series, vol. 3: Title: Subtitle", a volume whose title is its series named after its series only.
@@ -47,5 +48,31 @@ class Test_Books_Titles extends TestCase {
 
 		$this->assertSame( 'Talli, fille de la lune, vol. 1', Books::build_full_title( 'Talli, fille de la lune', 'Talli, fille de la lune', $meta ) );
 		$this->assertSame( 'Lune, Talli, fille de la lune, vol. 1', Books::build_full_title( 'Talli, fille de la lune', 'Lune, Talli, fille de la lune', $meta ) );
+	}
+
+	/**
+	 * The main title of a book is its full title but its subtitle, with its series and its volume, as the API gives it.
+	 *
+	 * @return void
+	 */
+	public function test_the_main_title_leaves_the_subtitle_out(): void {
+		$book_id = $this->add_book(
+			array(
+				'title'  => 'The Farthest Shore',
+				'series' => 'Earthsea',
+				'meta'   => array(
+					'volume_number' => 'Tome 03',
+					'subtitle'      => 'A Novel',
+				),
+			)
+		);
+		$request = new WP_REST_Request( 'GET', '/wp/v2/books/' . $book_id );
+
+		$request->set_query_params( array( '_fields' => 'title,main_title' ) );
+
+		$data = rest_do_request( $request )->get_data();
+
+		$this->assertSame( 'Earthsea, vol. 3: The Farthest Shore: A Novel', $data['title']['rendered'] );
+		$this->assertSame( 'Earthsea, vol. 3: The Farthest Shore', $data['main_title'] );
 	}
 }
