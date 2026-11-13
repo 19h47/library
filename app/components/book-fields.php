@@ -39,16 +39,18 @@ $groups  = array(
 	),
 );
 ?>
-<?php foreach ( $groups as $group => $fields ) : ?>
-	<section class="library-book__group">
-		<<?php echo esc_html( $heading ); ?> class="library-title"><?php echo esc_html( $group ); ?></<?php echo esc_html( $heading ); ?>>
-		<dl class="library-fields library-fields--aside">
-			<?php foreach ( $fields as $name => $label ) : ?>
-				<div data-row="<?php echo esc_attr( $name ); ?>">
-					<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $label ); ?></dt>
-					<dd data-field="<?php echo esc_attr( $name ); ?>"></dd>
-				</div>
-			<?php endforeach; ?>
-		</dl>
-	</section>
-<?php endforeach; ?>
+<div class="library-book-fields">
+	<?php foreach ( $groups as $group => $fields ) : ?>
+		<section class="library-book-fields__group">
+			<<?php echo esc_html( $heading ); ?> class="library-title"><?php echo esc_html( $group ); ?></<?php echo esc_html( $heading ); ?>>
+			<dl class="library-fields library-fields--aside">
+				<?php foreach ( $fields as $name => $label ) : ?>
+					<div data-row="<?php echo esc_attr( $name ); ?>">
+						<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $label ); ?></dt>
+						<dd data-field="<?php echo esc_attr( $name ); ?>"></dd>
+					</div>
+				<?php endforeach; ?>
+			</dl>
+		</section>
+	<?php endforeach; ?>
+</div>

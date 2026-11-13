@@ -55,7 +55,7 @@ test.describe( 'Covers', () => {
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
 
-		const cover = page.locator( 'library-book .library-book__cover' );
+		const cover = page.locator( 'library-book [data-part="cover"]' );
 
 		await expect( cover ).toHaveAttribute( 'sizes', 'auto' );
 		// Once the source it takes is loaded, which gives its shape.

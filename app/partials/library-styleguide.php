@@ -768,7 +768,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>.library-book</code></h4>
-					<p>The book open, filled by <code>fillBookPage()</code>: its title page, the component <code>book-header</code>; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, the component <code>book-fields</code>, a <code>.library-book__group</code> each for its work, its edition and its copy; its action</p>
+					<p>The book open, filled by <code>fillBookPage()</code>: its title page, the component <code>book-header</code>; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, the component <code>book-fields</code>, a group each for its work, its edition and its copy; its action</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-book" data-sample="book">

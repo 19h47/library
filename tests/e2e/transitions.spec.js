@@ -91,10 +91,10 @@ test.describe( 'Transitions', () => {
 		).toEqual( [
 			{
 				before: [ 'library-cover' ],
-				after: [ 'library-cover library-book__cover' ],
+				after: [ 'library-cover library-book-header__cover' ],
 			},
 			{
-				before: [ 'library-cover library-book__cover' ],
+				before: [ 'library-cover library-book-header__cover' ],
 				after: [ 'library-cover' ],
 			},
 		] );
