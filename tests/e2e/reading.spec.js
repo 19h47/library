@@ -1,7 +1,8 @@
 /**
  * The reading of a book in the reading app: each change saved at once, with Undo, a change made while the one before
- * saves, the focus kept; a reading in progress, from the day it started, which Read ends; a date typed, at the keyboard
- * too, saved once left, its error shown then, without taking the focus, and gone as soon as it is valid.
+ * saves, the focus kept; a reading in progress, from the day it started, which Read ends; the readings summed up in a
+ * line; a date typed, at the keyboard too, saved once left, its error shown then, without taking the focus, and gone as
+ * soon as it is valid.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -159,6 +160,37 @@ test.describe( 'Reading', () => {
 		await expect( read ).toBeFocused();
 	} );
 
+	test( 'the readings are summed up in a line, which opens them', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await requestUtils.rest( {
+			method: 'POST',
+			path: `/library/v1/books/${ book.id }`,
+			data: {
+				meta: {
+					reading: [ '/', '2025-03-10/2025-03-21' ],
+				},
+			},
+		} );
+		await openApp( page, `&view=book&book=${ book.id }` );
+		await waitForIdle( page );
+
+		const summary = page.locator( 'library-reading summary' );
+
+		await expect( summary ).toHaveText(
+			'Read 2 times · March 21, 2025 · in 12 days'
+		);
+		await expect(
+			page.locator( 'library-reading [name="reading_end"]' ).last()
+		).toBeHidden();
+
+		await summary.click();
+		await expect(
+			page.locator( 'library-reading [name="reading_end"]' ).last()
+		).toHaveValue( '2025-03-21' );
+	} );
+
 	test( 'a reading in progress, from the day it started, ends with Read', async ( {
 		page,
 		requestUtils,
@@ -220,6 +252,8 @@ test.describe( 'Reading', () => {
 			} );
 			await openApp( page, `&view=book&book=${ book.id }` );
 			await waitForIdle( page );
+			// The readings, folded under the line that sums them up.
+			await page.locator( 'library-reading summary' ).click();
 		} );
 
 		test( 'is saved once left, without an error on the way', async ( {

@@ -93,6 +93,7 @@ Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields
 * `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.reading` through `POST /wp-json/library/v1/books/<id>`; `read` and `in_progress` are worked out from them.
 * `names` – its people as named on it, each with its term ID and its role, the schema `library-book-person`, as `POST /wp-json/library/v1/books/<id>` takes and gives them: `{ "id": 12, "name": "Andy Chambers", "role": "author" }`; `people` gives their term IDs only, as core does for a taxonomy.
 * `cover`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
+* `publisher_names` – its publishers, each followed by the collections it is in under it, from the widest, each with its term ID: `{ "id": 7, "name": "Gallimard" }, { "id": 31, "name": "Folio" }`.
 
 The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a collection its `path` after the collections it is part of, “Folio, Science-fiction”, and the ID of its publisher, `publisher_id`.
 

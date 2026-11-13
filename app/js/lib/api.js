@@ -75,6 +75,8 @@ import {
  * @property {string[]}   languages         Its original languages, as their ISO 639 codes.
  * @property {string[]}   edition_languages The languages of its text, as their ISO 639 codes.
  * @property {string}     form              The name of its form, such as a novel, or empty.
+ * @property {Term[]}     publishers        Its publishers, each followed by the collections it is in under it, from the widest.
+ * @property {string}     added_date        The date it was added to the library.
  */
 
 /**
@@ -417,6 +419,8 @@ import {
  * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
  * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
  * @property {string}                  form_name              The name of its form, HTML.
+ * @property {Term[]}                  publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID.
+ * @property {string}                  date                   The date it was added, its post date.
  */
 
 /**
@@ -523,7 +527,7 @@ export function getPeople( book, role ) {
 }
 
 /**
- * A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its names with their roles, its original languages and its form.
+ * A book of the API as the app shows it: plain text but its notes, its meta by their names, its read dates in order, its cover with its size, its names with their roles, its original languages, its form and its publishers.
  *
  * @param {ApiBook} item A book of the API.
  * @return {Book} The book.
@@ -561,6 +565,9 @@ function toBook( item ) {
 		edition_languages: item.edition_language_codes,
 		// Its name, for the tag of its card.
 		form: text( item.form_name ),
+		// From the widest, each to its page.
+		publishers: item.publisher_names.map( toPlainName ),
+		added_date: item.date,
 	};
 }
 

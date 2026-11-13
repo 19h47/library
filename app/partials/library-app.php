@@ -544,12 +544,16 @@ use Library\Meta;
 					<?php Markup::render_component( 'back' ); ?>
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
-						<img class="library-cover library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
-						<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta" data-field="credits"></p>
-						<h2 class="library-heading" data-field="title" tabindex="-1"></h2>
-						<p class="library-book__excerpt" data-field="excerpt"></p>
+						<?php // As the title page of the book: its cover, over its colours, its title, its credits, its translation, then its excerpt. ?>
+						<header class="library-book__header">
+							<img class="library-book__backdrop" alt="" hidden>
+							<img class="library-cover library-book__cover" data-field="cover" alt="" loading="lazy" hidden>
+							<h2 class="library-heading library-book__title" data-field="title" tabindex="-1"></h2>
+							<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta" data-field="credits"></p>
+							<p class="library-book__translation" data-field="translation"></p>
+							<p class="library-book__excerpt" data-field="excerpt"></p>
+						</header>
 						<div class="library-prose" data-html="content" hidden></div>
-						<p class="library-book__translation" data-field="translation"></p>
 						<library-reading>
 							<form class="library-form library-reading">
 								<div class="library-pills">
@@ -608,25 +612,26 @@ use Library\Meta;
 									);
 									?>
 								</div>
-								<?php
-								Markup::render_component(
-									'input-list',
-									array(
-										'id'          => 'library-reading-readings',
-										'class'       => 'library-reading__readings',
-										'legend'      => Meta::get_label( 'library_reading' ),
-										'description' => Meta::get_description( 'library_reading' ),
-										'add'         => __( 'Add a reading', 'library' ),
-										'action'      => 'add',
-										// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
-										'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
-										'attributes'  => array(
-											'hidden'   => true,
-											'disabled' => true,
-										),
-									)
-								);
-								?>
+								<?php // The readings ended, folded under the line that sums them up, which opens them to change them. ?>
+								<details class="library-reading__details" hidden>
+									<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="readings"></summary>
+									<?php
+									Markup::render_component(
+										'input-list',
+										array(
+											'id'          => 'library-reading-readings',
+											'class'       => 'library-reading__readings',
+											'legend'      => Meta::get_label( 'library_reading' ),
+											'description' => Meta::get_description( 'library_reading' ),
+											'add'         => __( 'Add a reading', 'library' ),
+											'action'      => 'add',
+											// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
+											'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
+											'attributes'  => array( 'disabled' => true ),
+										)
+									);
+									?>
+								</details>
 								<p class="app-status" data-field="error" role="alert" hidden></p>
 							</form>
 						</library-reading>
@@ -637,39 +642,43 @@ use Library\Meta;
 							</h3>
 							<ul class="library-strip"></ul>
 						</library-volumes>
-						<dl class="library-fields">
-							<div data-row="authors">
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $person_labels->name ); ?></dt>
-								<dd data-field="authors"></dd>
-							</div>
-							<?php // The translators are named by the translation line. ?>
-							<?php foreach ( array_diff_key( Meta::ROLE_KEYS, array( 'translator' => true ) ) as $role_field => $key ) : ?>
-								<div data-row="<?php echo esc_attr( $role_field ); ?>">
-									<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( $key ) ); ?></dt>
-									<dd data-field="<?php echo esc_attr( $role_field ); ?>"></dd>
-								</div>
-							<?php endforeach; ?>
-							<div data-row="isbn">
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( 'library_isbn' ) ); ?></dt>
-								<dd data-field="isbn"></dd>
-							</div>
-							<div data-row="pages">
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( 'library_pages' ) ); ?></dt>
-								<dd data-field="pages"></dd>
-							</div>
-							<?php // The copy in hand, its edition, then the work. ?>
-							<?php foreach ( array( 'printed_date', 'edition_date', 'published_date' ) as $date_name ) : ?>
-								<div data-row="<?php echo esc_attr( $date_name ); ?>">
-									<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( Meta::get_label( "library_$date_name" ) ); ?></dt>
-									<dd data-field="<?php echo esc_attr( $date_name ); ?>"></dd>
-								</div>
-							<?php endforeach; ?>
-							<?php // How long the latest reading took, from its start to its end. ?>
-							<div data-row="reading_time">
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php esc_html_e( 'Read in', 'library' ); ?></dt>
-								<dd data-field="reading_time"></dd>
-							</div>
-						</dl>
+						<?php
+						// The fields of the work, of the edition of its ISBN, then of the copy in hand, as the three dates of a
+						// book; the translators are named by the translation line, the date of the reading by its line.
+						$book_groups = array(
+							_x( 'Work', 'fields of a book', 'library' )    => array(
+								'authors'        => __( 'Authors', 'library' ),
+								...array_map( array( Meta::class, 'get_label' ), array_diff_key( Meta::ROLE_KEYS, array( 'translator' => true ) ) ),
+								'published_date' => Meta::get_label( 'library_published_date' ),
+								'languages'      => $language_labels->name_for_book,
+								'form'           => $form_labels->singular_name,
+							),
+							_x( 'Edition', 'fields of a book', 'library' ) => array(
+								'publishers'        => $publisher_labels->singular_name,
+								'edition_date'      => Meta::get_label( 'library_edition_date' ),
+								'isbn'              => Meta::get_label( 'library_isbn' ),
+								'pages'             => Meta::get_label( 'library_pages' ),
+								'edition_languages' => Meta::get_label( 'library_edition_languages' ),
+							),
+							_x( 'Copy', 'fields of a book', 'library' )    => array(
+								'printed_date' => Meta::get_label( 'library_printed_date' ),
+								'added_date'   => __( 'Added', 'library' ),
+							),
+						);
+						?>
+						<?php foreach ( $book_groups as $book_group => $book_fields ) : ?>
+							<section class="library-book__group">
+								<h3 class="library-title"><?php echo esc_html( $book_group ); ?></h3>
+								<dl class="library-fields library-fields--aside">
+									<?php foreach ( $book_fields as $field_name => $field_label ) : ?>
+										<div data-row="<?php echo esc_attr( $field_name ); ?>">
+											<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $field_label ); ?></dt>
+											<dd data-field="<?php echo esc_attr( $field_name ); ?>"></dd>
+										</div>
+									<?php endforeach; ?>
+								</dl>
+							</section>
+						<?php endforeach; ?>
 						<p>
 							<button class="app-pill" type="button" data-action="edit"><?php echo esc_html( $labels->edit_item ); ?></button>
 						</p>

@@ -43,9 +43,9 @@ class Rest_API {
 
 	/**
 	 * Register the fields added to the books of the core REST API: its credits, its readings in order, and what a list of
-	 * books shows of its cover and terms, so that it needs to embed neither the image nor the terms, whole; and to the
-	 * series and the publishers, their path as a book types them, after their cycles or their collections, and the ID of
-	 * the publisher of a collection.
+	 * books, or the page of a book, shows of its cover and terms, so that it needs to embed neither the image nor the
+	 * terms, whole; and to the series and the publishers, their path as a book types them, after their cycles or their
+	 * collections, and the ID of the publisher of a collection.
 	 *
 	 * @return void
 	 */
@@ -121,6 +121,20 @@ class Rest_API {
 					'type'        => 'string',
 				),
 			),
+			'publisher_names'        => array(
+				'get_callback' => fn( array $book ) => self::get_publisher_names( $book['id'] ),
+				'schema'       => array(
+					'description' => __( 'Publishers of the book, each followed by the collections it is in under it, from the widest, each once, with its term ID: a book of Folio’s Science-fiction gives Gallimard, Folio, then Science-fiction.', 'library' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'   => array( 'type' => 'integer' ),
+							'name' => array( 'type' => 'string' ),
+						),
+					),
+				),
+			),
 		);
 
 		foreach ( $fields as $name => $field ) {
@@ -179,6 +193,35 @@ class Rest_API {
 			'width'  => (int) $image[1],
 			'height' => (int) $image[2],
 			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
+		);
+	}
+
+	/**
+	 * Publishers of a book, each followed by the collections it is in under it, from the widest, each once, with its term
+	 * ID, as its page in the app takes it: the terms of the book and the ones they are under.
+	 *
+	 * @param int $book_id Book ID.
+	 * @return array<int,array{id:int,name:string}>
+	 */
+	private static function get_publisher_names( int $book_id ): array {
+		$terms = array();
+
+		foreach ( Taxonomies::get_book_terms( $book_id, 'library_publisher' ) as $term ) {
+			foreach ( array( ...array_reverse( get_ancestors( $term->term_id, 'library_publisher', 'taxonomy' ) ), $term->term_id ) as $term_id ) {
+				$terms[ $term_id ] ??= get_term( $term_id, 'library_publisher' );
+			}
+		}
+
+		$terms = array_filter( $terms, fn( $term ) => $term instanceof WP_Term );
+
+		return array_values(
+			array_map(
+				fn( WP_Term $term ) => array(
+					'id'   => $term->term_id,
+					'name' => $term->name,
+				),
+				$terms
+			)
 		);
 	}
 

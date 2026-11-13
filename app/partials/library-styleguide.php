@@ -290,6 +290,21 @@ $sizes = array(
 				</div>
 			</figure>
 			<figure>
+				<figcaption><code>.library-fields--aside</code>, the name of each field beside its value, the names in the smaller part of the golden ratio, as the fields of a book</figcaption>
+				<div class="library-styleguide__frame">
+					<dl class="library-fields library-fields--aside">
+						<div>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">ISBN</dt>
+							<dd>978-2-07-036024-6</dd>
+						</div>
+						<div>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">Printed</dt>
+							<dd>April 23, 2014</dd>
+						</div>
+					</dl>
+				</div>
+			</figure>
+			<figure>
 				<figcaption><code>.library-notice</code>, what an action done says, a pill with its text and its action, a <code>.library-link</code>: at the bottom of the screen in the app</figcaption>
 				<div class="library-styleguide__frame">
 					<p class="library-notice app-pill"><span>Reading saved.</span> <button class="library-link" type="button">Undo</button></p>
@@ -611,18 +626,21 @@ $sizes = array(
 		<h3 class="library-title">Screens</h3>
 		<div class="library-styleguide__samples">
 			<figure>
-				<figcaption><code>.library-book</code>, the book open: a <code>.library-cover</code> as high as the screen allows, its meta, a <code>.library-heading</code>, its excerpt, its notes, a <code>.library-prose</code>, its translation, its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its <code>.library-fields</code> and its action</figcaption>
+				<figcaption><code>.library-book</code>, the book open: its title page, a <code>.library-book__header</code>, a <code>.library-cover</code> as high as the screen allows over its colours, a <code>.library-heading</code>, its meta, its translation and its excerpt; its notes, a <code>.library-prose</code>; its reading, <code>pill-checkbox</code> and <code>pill-select</code>, its readings folded under the line that sums them up; its fields, a <code>.library-book__group</code> each for its work, its edition and its copy, <code>.library-fields--aside</code>, and its action</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="library-book">
-						<img class="library-cover library-book__cover" data-sample-cover alt="" loading="lazy" hidden>
-						<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta">An Author · A Publisher, A Collection · 2024</p>
-						<h4 class="library-heading">The title of a book</h4>
-						<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
+						<header class="library-book__header">
+							<img class="library-book__backdrop" data-sample-cover alt="" hidden>
+							<img class="library-cover library-book__cover" data-sample-cover alt="" loading="lazy" hidden>
+							<h4 class="library-heading library-book__title">The title of a book</h4>
+							<p class="app-text-s app-text-muted app-font-ui app-uppercase library-book__meta">An Author · A Publisher, A Collection · 2024</p>
+							<p class="library-book__translation">Translated from Italian by A Translator</p>
+							<p class="library-book__excerpt">Its excerpt, as written on its back cover.</p>
+						</header>
 						<div class="library-prose">
 							<p>Its notes, written in its form.</p>
 							<p>A second paragraph.</p>
 						</div>
-						<p class="library-book__translation">Translated from Italian by A Translator</p>
 						<div class="library-form library-reading">
 							<div class="library-pills">
 								<?php
@@ -652,13 +670,20 @@ $sizes = array(
 								);
 								?>
 							</div>
+							<details class="library-reading__details">
+								<summary class="app-text-s app-text-muted app-font-ui app-uppercase">Read 2 times · April 4, 2025 · in 12 days</summary>
+								<p>Its readings, from their starts to their ends.</p>
+							</details>
 						</div>
-						<dl class="library-fields">
-							<div>
-								<dt class="app-text-s app-text-muted app-font-ui app-uppercase">ISBN</dt>
-								<dd>978-2-07-036024-6</dd>
-							</div>
-						</dl>
+						<section class="library-book__group">
+							<h5 class="library-title">Edition</h5>
+							<dl class="library-fields library-fields--aside">
+								<div data-row="isbn">
+									<dt class="app-text-s app-text-muted app-font-ui app-uppercase">ISBN</dt>
+									<dd>978-2-07-036024-6</dd>
+								</div>
+							</dl>
+						</section>
 						<p>
 							<button class="app-pill" type="button">Edit book</button>
 						</p>

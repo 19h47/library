@@ -88,4 +88,29 @@ class Test_Rest_Names extends TestCase {
 		$this->assertSame( 200, rest_do_request( $request )->get_status() );
 		$this->assertEqualsCanonicalizing( array( $author->term_id, $translator->term_id ), wp_get_post_terms( $book_id, 'library_person', array( 'fields' => 'ids' ) ) );
 	}
+
+	/**
+	 * A book gives its publisher, then each collection it is in under it, from the widest, each once with its term ID.
+	 *
+	 * @return void
+	 */
+	public function test_publisher_names_go_from_the_publisher_down(): void {
+		$book_id = $this->add_book(
+			array(
+				'publisher'  => 'Gallimard',
+				'collection' => 'Folio, Science-fiction',
+			)
+		);
+		$request = new WP_REST_Request( 'GET', '/wp/v2/books/' . $book_id );
+
+		$request->set_query_params( array( '_fields' => 'publisher_names' ) );
+
+		$names = rest_do_request( $request )->get_data()['publisher_names'];
+
+		$this->assertSame( array( 'Gallimard', 'Folio', 'Science-fiction' ), wp_list_pluck( $names, 'name' ) );
+		$this->assertSame(
+			array_map( fn( string $name ) => get_term_by( 'name', $name, 'library_publisher' )->term_id, array( 'Gallimard', 'Folio', 'Science-fiction' ) ),
+			wp_list_pluck( $names, 'id' )
+		);
+	}
 }

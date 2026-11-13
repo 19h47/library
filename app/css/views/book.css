@@ -1,5 +1,6 @@
 /**
- * The book open: its parts, its cover, its reading, its fields and the volumes of its series.
+ * The book open: its parts, its title page, its cover over its colours, its reading, its fields by what they tell of, and
+ * the volumes of its series.
  */
 
 @layer app.views {
@@ -15,19 +16,75 @@
 	}
 
 	/*
-	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it. A definite height: a cover
-	 * of sizes="auto" takes no size from its image, which the browser lays out as if it were 300 by 150, its width and height
-	 * giving its shape only; a cover wider than the page keeps its shape inside it.
+	 * The title page of the book open: its cover, then its title and what goes with it, centered, a gap apart, over its
+	 * colours. A container, which its colours go out of, to the edges of the viewport on a phone.
+	 */
+	.library-book__header {
+		container-type: inline-size;
+		position: relative;
+		isolation: isolate;
+		display: grid;
+		justify-items: center;
+		gap: var(--app-gap);
+		padding-block-start: var(--app-u2);
+		text-align: center;
+		text-wrap: balance;
+	}
+
+	/*
+	 * Its colours: its cover again, blurred, across the viewport on a phone, the golden ratio of the page beyond, fading in
+	 * above it, out under it and to its sides. A blur draws out of its box without widening the page, as a shadow does; a
+	 * light one in the light theme, where a cover is brighter than its background.
+	 */
+	.library-book__backdrop {
+		--library-backdrop-size: min(100vw, 100cqi * var(--app-phi));
+
+		position: absolute;
+		z-index: -1;
+		inset-block-start: 0;
+		inset-inline-start: calc(50cqi - var(--library-backdrop-size) / 2);
+		inline-size: var(--library-backdrop-size);
+		max-inline-size: none;
+		block-size: 100%;
+		object-fit: cover;
+		filter: blur(var(--app-u3)) saturate(1.5);
+		opacity: light-dark(0.35, 0.5);
+		mask-image:
+			linear-gradient(transparent, black 20%, transparent),
+			linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+		mask-composite: intersect;
+		pointer-events: none;
+	}
+
+	/*
+	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it, standing out of its
+	 * colours. A definite height: a cover of sizes="auto" takes no size from its image, which the browser lays out as if it
+	 * were 300 by 150, its width and height giving its shape only; a cover wider than the page keeps its shape inside it.
 	 */
 	.library-book__cover {
 		--library-cover-block-size: calc(100dvh / var(--app-phi) / var(--app-phi));
 
 		max-width: 100%;
+		margin-block-end: var(--app-u1);
 		object-fit: contain;
+		box-shadow:
+			0 0.125rem 0.25rem rgb(0 0 0 / 0.1),
+			0 var(--app-u1) var(--app-u2) calc(-1 * var(--app-gap)) rgb(0 0 0 / 0.4);
+	}
+
+	/* Its title, the one of the page, its lines half a step closer, as large as they are */
+	.library-book__title {
+		font-size: var(--app-text-xl);
+		line-height: calc(var(--app-line-height) / sqrt(var(--app-phi)));
 	}
 
 	.library-book__meta {
 		overflow-wrap: anywhere;
+	}
+
+	/* The languages of a book, named as in a sentence, "japonais" in French, start a field with a capital */
+	.library-book [data-field$="languages"]::first-letter {
+		text-transform: uppercase;
 	}
 
 	.library-book__translation,
@@ -35,12 +92,36 @@
 		color: var(--app-text-muted);
 	}
 
-	/* The reading of the book open, its series and its fields: a line above each */
+	.library-book__excerpt {
+		margin-block-start: var(--app-gap);
+		text-wrap: pretty;
+	}
+
+	/* The reading of the book open, its series and each group of its fields: a line above each */
 	.library-reading,
 	.library-book__series,
-	.library-book > .library-fields {
+	.library-book__group {
 		padding-top: var(--app-u1);
 		border-top: 1px solid var(--app-line-soft);
+	}
+
+	/* A group of fields, its title then its fields, a step apart; none of them known, it takes no room */
+	.library-book__group {
+		display: grid;
+		gap: var(--app-u1);
+
+		&:not(:has([data-row]:not([hidden]))) {
+			display: none;
+		}
+	}
+
+	/* The line that sums up the readings, which opens them, then them a step under it */
+	.library-reading__details > summary {
+		cursor: pointer;
+	}
+
+	.library-reading__details[open] > summary {
+		margin-block-end: var(--app-u1);
 	}
 
 	/*
