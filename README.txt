@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.45.0
+Stable tag: 9.46.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -130,6 +130,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.46.0 =
+* Each reading has its own rating, the one it ended with: in the reading app under its dates, in the admin on its row. The rating of a book is the one of its latest reading rated; the recap of a year, the average rating of each year on the dashboard and the diary show the rating each book had then. A reading in progress has none yet.
+* Breaking: a row of `library_reading` is JSON, its start, its end and the rating it ended with, an unknown start or end `null`, the end of a reading in progress `..`: `{"start":"2026-10-20","end":"2026-11-02","rating":8}`, rather than an interval; the REST API gives and takes the readings as such objects. `library_rating` is no longer stored: the rating of a book is worked out from its readings. Migrate the data before updating, with your table prefix: `CREATE TEMPORARY TABLE library_latest AS SELECT post_id, CAST( SUBSTRING_INDEX( MAX( CONCAT( SUBSTRING_INDEX( meta_value, '/', -1 ), '|', SUBSTRING_INDEX( meta_value, '/', 1 ), '|', LPAD( meta_id, 20, '0' ) ) ), '|', -1 ) AS UNSIGNED ) AS meta_id FROM wp_postmeta WHERE meta_key = 'library_reading' AND meta_value NOT LIKE '%/..' GROUP BY post_id`, then `UPDATE wp_postmeta AS m LEFT JOIN library_latest AS l ON l.meta_id = m.meta_id LEFT JOIN ( SELECT post_id, MAX( meta_value ) AS rating FROM wp_postmeta WHERE meta_key = 'library_rating' AND meta_value <> '' GROUP BY post_id ) AS r ON r.post_id = m.post_id AND l.meta_id IS NOT NULL SET m.meta_value = JSON_OBJECT( 'start', NULLIF( SUBSTRING_INDEX( m.meta_value, '/', 1 ), '' ), 'end', NULLIF( SUBSTRING_INDEX( m.meta_value, '/', -1 ), '' ), 'rating', IF( r.rating IS NULL, NULL, CAST( r.rating AS DECIMAL(3,1) ) ) ) WHERE m.meta_key = 'library_reading'`, then `DELETE FROM wp_postmeta WHERE meta_key = 'library_rating'` and `UPDATE wp_options SET option_value = option_value + 1 WHERE option_name = 'library_cache_generation'`.
+* Changed: reading app: the rating is no longer a pill of the reading of a book, and the Information box of the admin has no field Rating of its own: each reading ended has its rating.
 
 = 9.45.0 =
 * Changed: reading app: the message of a photo without a barcode shows under the pill **Scan the barcode**, rather than among what the ISBN tells.
