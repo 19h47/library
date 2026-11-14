@@ -768,7 +768,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>inputs-list</code></h4>
-					<p>A list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the readings of a book, from their starts to their ends, with a description; the first one of unknown dates, the last one in error</p>
+					<p>A list of inputs, a row each with the <code>.app-control</code> that removes it, then the pills that add one: the readings of a book, from their starts to their ends, each with the rating it ended with, under its dates on a phone, with a description; the first one of unknown dates, the second one rated, the last one in error</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -853,14 +853,6 @@ $sizes = array(
 								Markup::render_component(
 									'pill-select',
 									array(
-										'id'      => 'library-styleguide-rating',
-										'label'   => 'Rating',
-										'options' => array( '8' => '8/10' ),
-									)
-								);
-								Markup::render_component(
-									'pill-select',
-									array(
 										'id'      => 'library-styleguide-status',
 										'label'   => 'Library',
 										'options' => array( 'publish' => 'In the library' ),
@@ -870,7 +862,7 @@ $sizes = array(
 							</div>
 							<details class="library-disclosure library-reading__details">
 								<summary class="app-text-s app-text-muted app-font-ui app-uppercase">Read 2 times · April 4, 2025 · in 12 days</summary>
-								<p>Its readings, from their starts to their ends.</p>
+								<p>Its readings, from their starts to their ends, each with the rating it ended with.</p>
 							</details>
 						</div>
 						<?php Markup::render_component( 'book-fields', array( 'level' => 5 ) ); ?>

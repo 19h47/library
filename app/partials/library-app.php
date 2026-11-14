@@ -24,7 +24,6 @@
  * @var array<int,string>                             $form_choices     Forms the filter of the books and the form of a book offer, by term ID.
  * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
  * @var int                                           $own_language_id  Term ID of the language of the reader, 0 when the library has none.
- * @var array<string,string>                          $rating_choices Ratings a form offers, by value, with their label, none first.
  * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the books offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
@@ -570,15 +569,6 @@ use Library\Meta;
 									Markup::render_component(
 										'pill-select',
 										array(
-											'id'         => 'library-reading-rating',
-											'label'      => Meta::get_label( 'library_rating' ),
-											'options'    => $rating_choices,
-											'attributes' => array( 'name' => Meta::get_name( 'library_rating' ) ),
-										)
-									);
-									Markup::render_component(
-										'pill-select',
-										array(
 											'id'         => 'library-reading-status',
 											'label'      => __( 'Library', 'library' ),
 											'options'    => $status_choices,
@@ -928,9 +918,21 @@ use Library\Meta;
 			</li>
 		</template>
 
+		<?php
+		// The rating a reading ended with, on its row.
+		$reading_rating = Meta::get_control(
+			'library_rating',
+			array(
+				'name'       => 'reading_rating',
+				'class'      => 'library-input',
+				'aria-label' => Meta::get_label( 'library_rating' ),
+			)
+		);
+		?>
 		<template id="library-reading-ended">
 			<li class="library-inputs-list__item">
 				<?php Markup::render_component( 'reading-period' ); ?>
+				<?php echo $reading_rating; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes it. ?>
 				<button
 					class="app-control"
 					type="button"
@@ -946,6 +948,7 @@ use Library\Meta;
 				<input type="hidden" name="reading_start" value="">
 				<input type="hidden" name="reading_end" value="">
 				<span class="library-inputs-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
+				<?php echo $reading_rating; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes it. ?>
 				<button
 					class="app-control"
 					type="button"

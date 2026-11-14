@@ -14,6 +14,7 @@ namespace Library\Admin;
 use Library\Books;
 use Library\Meta;
 use Library\Posts;
+use Library\Query;
 use Library\Stats;
 use Library\Status;
 use Library\Taxonomies;
@@ -348,7 +349,7 @@ class Books_List {
 		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_printed_date';
 		$values  = array(
 			'library_printed_date' => 'library_sort.meta_value',
-			'library_rating'       => 'CAST( library_sort.meta_value AS DECIMAL(3,1) )',
+			'library_rating'       => 'library_sort.meta_value',
 		);
 
 		if ( ! isset( $values[ $orderby ] ) ) {
@@ -362,7 +363,11 @@ class Books_List {
 		// One row per book, even with the meta saved twice. The values and the titles are sorted on their first 191 characters,
 		// more than a date, a rating or a title needs: MySQL 5.7 writes on disk a temporary table with a TEXT column.
 		// The ID comes last, for the books of the same date and title to keep their place from one page to the next.
-		$clauses['join']   .= $wpdb->prepare( " LEFT JOIN ( SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID", $orderby );
+		// The rating of a book is the one of its latest reading rated, no meta of its own.
+		$sort               = 'library_rating' === $orderby
+			? 'SELECT post_id, rating AS meta_value FROM ( ' . Query::get_ratings_sql() . ' ) AS library_ratings'
+			: $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $orderby );
+		$clauses['join']   .= " LEFT JOIN ( $sort ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID";
 		$clauses['orderby'] = "library_sort.meta_value IS NULL, {$values[ $orderby ]} $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
 
 		return $clauses;

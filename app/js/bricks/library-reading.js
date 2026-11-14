@@ -1,13 +1,13 @@
 import { statusOf, store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { toDays, toInterval } from 'library-app/api';
+import { toDays } from 'library-app/api';
 import { fill } from 'library-app/dom';
 import { showBusy, showErrors } from 'library-app/behaviors';
 import { today } from 'library-app/format';
 import { formatReadings } from 'library-app/book-lines';
 
 /**
- * @import { ReadingPeriod } from 'library-app/api'
+ * @import { EndedReading } from 'library-app/api'
  */
 
 /**
@@ -17,34 +17,44 @@ import { formatReadings } from 'library-app/book-lines';
  * @property {HTMLInputElement}  read        Whether it is read.
  * @property {HTMLInputElement}  in_progress Whether it is being read.
  * @property {HTMLInputElement}  started     The day its reading in progress started.
- * @property {HTMLSelectElement} rating      Its rating.
  * @property {HTMLSelectElement} status      Whether it is in the library, not kept or to buy.
  */
 
 /**
- * The readings ended the form gives, a start and an end per row, by their days, either empty when it is unknown.
+ * The readings ended the form gives, a start, an end and a rating per row, by their days, either empty when it is unknown.
  *
  * @param {FormData} data The values of the form.
- * @return {ReadingPeriod[]} The readings.
+ * @return {EndedReading[]} The readings.
  */
 function readingsOf( data ) {
-	// The values of date inputs are strings.
+	// The values of date inputs and selects are strings.
 	const starts = /** @type {string[]} */ ( data.getAll( 'reading_start' ) );
 	const ends = /** @type {string[]} */ ( data.getAll( 'reading_end' ) );
+	const ratings = /** @type {string[]} */ ( data.getAll( 'reading_rating' ) );
 
-	return starts.map( ( start, index ) => ( { start, end: ends[ index ] } ) );
+	return starts.map( ( start, index ) => ( {
+		start,
+		end: ends[ index ],
+		rating: ratings[ index ] ? Number( ratings[ index ] ) : null,
+	} ) );
 }
 
-// Readings by their days, as intervals in order, to compare: a reading of the day keeps its times once saved.
-const intervalsOf = ( /** @type {ReadingPeriod[]} */ readings ) =>
+// Readings by their days, in any order, to compare: a reading of the day keeps its times once saved.
+const sortedOf = ( /** @type {EndedReading[]} */ readings ) =>
 	JSON.stringify(
-		readings.map( ( reading ) => toInterval( toDays( reading ) ) ).sort()
+		readings
+			.map( ( reading ) => JSON.stringify( toDays( reading ) ) )
+			.sort()
 	);
+
+// The period of a reading, by its days, as its row takes it: 2026-10-20/2026-11-02, a side empty when unknown.
+const periodOf = ( /** @type {EndedReading} */ { start, end } ) =>
+	`${ start.slice( 0, 10 ) }/${ end.slice( 0, 10 ) }`;
 
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
- * from their starts to their ends, folded under the line that sums them up, its rating and whether it is in the library,
- * not kept or to buy. A reading added ends
+ * from their starts to their ends, each with the rating it ended with, folded under the line that sums them up, and
+ * whether it is in the library, not kept or to buy. A reading added ends
  * the one in progress, from its start, as the server does. Each change is saved at once, a date typed once left, a field
  * in error showing it without taking the focus, and the notice that says so offers Undo; a change made while the one
  * before saves waits for it, the form showing what was chosen until then rather than what the book was.
@@ -56,7 +66,6 @@ class LibraryReadingElement extends Brick {
 			read: $read,
 			in_progress: $inProgress,
 			started: $started,
-			rating: $rating,
 			status: $status,
 		} = /** @type {HTMLFormControlsCollection & ReadingFields} */ (
 			$form.elements
@@ -173,9 +182,7 @@ class LibraryReadingElement extends Brick {
 				data.has( 'in_progress' ) === book.in_progress &&
 				( ! book.in_progress ||
 					data.get( 'started' ) === book.started.slice( 0, 10 ) ) &&
-				intervalsOf( readingsOf( data ) ) ===
-					intervalsOf( book.readings ) &&
-				data.get( 'rating' ) === ( book.rating || '' ).toString() &&
+				sortedOf( readingsOf( data ) ) === sortedOf( book.readings ) &&
 				data.get( 'status' ) === statusOf( book )
 			);
 		};
@@ -199,7 +206,6 @@ class LibraryReadingElement extends Brick {
 			'submit',
 			( event ) => {
 				const data = new FormData( $form );
-				const rating = data.get( 'rating' );
 
 				event.preventDefault();
 				store.saveReading( {
@@ -210,7 +216,6 @@ class LibraryReadingElement extends Brick {
 						data.get( 'started' ) ?? ''
 					),
 					readings: readingsOf( data ),
-					rating: rating ? Number( rating ) : null,
 					status: /** @type {string} */ ( data.get( 'status' ) ),
 				} );
 			},
@@ -238,11 +243,17 @@ class LibraryReadingElement extends Brick {
 					// By its day, as a date field takes it: a reading started today keeps its time once saved.
 					$started.value = book.started.slice( 0, 10 );
 					showStarted();
-					$readings.value = book.readings.map( ( reading ) =>
-						toInterval( toDays( reading ) )
-					);
+					$readings.value = book.readings.map( periodOf );
+					// Each row with the rating its reading ended with, in their order.
+					$readings
+						.querySelectorAll( '[name="reading_rating"]' )
+						.forEach( ( $rating, index ) => {
+							/** @type {HTMLSelectElement} */ ( $rating ).value =
+								(
+									book.readings[ index ].rating ?? ''
+								).toString();
+						} );
 					showReadings();
-					$rating.value = ( book.rating || '' ).toString();
 					$status.value = statusOf( book );
 				}
 			),

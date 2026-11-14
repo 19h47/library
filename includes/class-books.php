@@ -98,7 +98,7 @@ class Books {
 					'library_subtitle'      => get_post_meta( $post->ID, 'library_subtitle', true ),
 				)
 			);
-			$rating         = get_post_meta( $post->ID, 'library_rating', true );
+			$readings       = Meta::get_readings( $post->ID );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$published_date = (string) get_post_meta( $post->ID, 'library_published_date', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
@@ -124,8 +124,8 @@ class Books {
 				series_ids:         $series_ids,
 				volume:             $volume,
 				collective:         Posts::is_collective( $post->ID ),
-				readings:           Meta::get_readings( $post->ID ),
-				rating:             '' !== $rating ? (float) $rating : null,
+				readings:           $readings,
+				rating:             Meta::get_rating( $readings ),
 				pages:              $pages ? $pages : null,
 				published_date:     $published_date,
 				edition_date:       $edition_date,
@@ -200,8 +200,8 @@ class Books {
 		$readings = array();
 
 		foreach ( $books as $book ) {
-			foreach ( $book->read_dates as $read_date ) {
-				$readings[] = $book->with( read_date: $read_date );
+			foreach ( Meta::get_ended( $book->readings ) as $reading ) {
+				$readings[] = $book->with( read_date: $reading->end, rating: $reading->rating );
 			}
 		}
 

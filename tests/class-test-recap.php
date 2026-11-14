@@ -98,6 +98,21 @@ class Test_Recap extends TestCase {
 	}
 
 	/**
+	 * A book read again takes, in the recap of each year, the rating its reading of that year ended with: the rating it had
+	 * then, not the one it has now.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_again_has_the_rating_of_each_year(): void {
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-05-01#6', '/2025-05-01#9' ) ) ) );
+
+		$this->assertSame( 6.0, Recap::get_recap( 2024 )['rating'] );
+		$this->assertSame( 9.0, Recap::get_recap( 2025 )['rating'] );
+		$this->assertSame( array( $book_id ), Recap::get_recap( 2024 )['best'] );
+		$this->assertSame( 9.0, get_post_meta( $book_id, 'library_rating', true ) );
+	}
+
+	/**
 	 * The forms, the people and the original languages count their readings, the most read first, then by name.
 	 *
 	 * @return void

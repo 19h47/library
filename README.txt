@@ -18,7 +18,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, collection number, ISBN, pages, edition date, date first published, excerpt, notes, readings and a rating from 1 to 10 by half points. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes its EAN-13.
+* **Books** – Cover, subtitle, series and volume, collection number, ISBN, pages, edition date, date first published, excerpt, notes and readings, each with the rating it ended with, from 1 to 10 by half points: the rating of the book is the one of its latest reading rated, and the recap of a year shows the rating of each book then. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes its EAN-13.
 * **People** – Every name of a book is a person, the author unless another role is chosen: translator, colorist, inker, letterer, publishing director or adapted author. A magazine or an anthology is a collective work: it counts for none of its people.
 * **Cycles, collections and pseudonyms** – A series belongs to its cycle, a collection to its publisher, a sub-collection to its collection, as the BnF has them, and a pseudonym to the name the person is known by. Filtering by a cycle, a publisher or a person includes what belongs to them.
 * **Readings** – Each reading has a start and an end, either one unknown if need be. A book read again keeps every reading. A book being read is in progress from the day it started.

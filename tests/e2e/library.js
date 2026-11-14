@@ -14,17 +14,67 @@ const STATUSES = 'publish,library-not-kept,library-to-buy,draft';
 const MOST_BOOKS = 100;
 
 /**
+ * A reading as the API takes it, from its interval, as the tests write it: its start and its end, either empty when
+ * unknown, its end “..” while it is read, and its rating after a hash: '/2024-03-14', '2024-10-20/..', '/' for a reading
+ * of unknown dates, '2024-03-02/2024-03-20#8'.
+ *
+ * @param {string} interval The interval.
+ * @return {{start: string|null, end: string|null, rating: number|null}} The reading.
+ */
+export function reading( interval ) {
+	const [ period, rating ] = interval.split( '#' );
+	const [ start, end = '' ] = period.split( '/' );
+
+	return {
+		start: start || null,
+		end: end || null,
+		rating: rating ? Number( rating ) : null,
+	};
+}
+
+/**
+ * Readings as the API takes them, from their intervals: see reading().
+ *
+ * @param {string[]} intervals The intervals.
+ * @return {Array<Object>} The readings.
+ */
+export function readings( intervals ) {
+	return intervals.map( reading );
+}
+
+/**
+ * Readings as the API gives them, as intervals, as the tests write them: see reading(). A start or an end of the day keeps
+ * its time.
+ *
+ * @param {Array<{start: string|null, end: string|null, rating: number|null}>} items The readings.
+ * @return {string[]} Their intervals.
+ */
+export function intervalsOf( items ) {
+	return items.map(
+		( { start, end, rating } ) =>
+			`${ start ?? '' }/${ end ?? '' }${
+				null !== rating ? `#${ rating }` : ''
+			}`
+	);
+}
+
+/**
  * Adds a book through the route of the book form, as the app adds one, and returns it as the route gives it back.
  *
  * @param {Object} requestUtils The request utils of WordPress.
- * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, status…
+ * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, status…; its
+ *                              readings as intervals, see reading().
  * @return {Promise<Object>} The book.
  */
 export function addBook( requestUtils, book ) {
+	const meta = book.meta?.reading
+		? { ...book.meta, reading: readings( book.meta.reading ) }
+		: book.meta;
+
 	return requestUtils.rest( {
 		method: 'POST',
 		path: '/library/v1/books',
-		data: book,
+		data: meta ? { ...book, meta } : book,
 	} );
 }
 

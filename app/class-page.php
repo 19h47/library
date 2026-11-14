@@ -187,7 +187,6 @@ class Page {
 		$language_choices   = Taxonomies::get_term_choices( 'library_language' );
 		$own_language       = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 		$own_language_id    = $own_language instanceof WP_Term ? $own_language->term_id : 0;
-		$rating_choices     = Meta::get_rating_choices();
 		$status_choices     = Status::get_choices();
 		$views              = $this->get_views( $labels->name );
 

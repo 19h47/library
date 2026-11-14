@@ -15,7 +15,7 @@ namespace Library;
  * A book, with its meta and its terms, read once from its post by Books::get_books(): see it for what each field holds.
  *
  * A book of a list of readings, which the achievements and the reading ideas go through, stands for one of its readings,
- * its read date; with() gives such a copy, as a book cannot change.
+ * its read date and its rating; with() gives such a copy, as a book cannot change.
  *
  * @since      9.25.0
  * @package    Library
@@ -50,8 +50,8 @@ final readonly class Book {
 	 * @param int[]                $series_ids        Term IDs of its series and of the cycles it is part of, the widest last.
 	 * @param int|null             $volume            Volume number, null without.
 	 * @param bool                 $collective        Whether it is a collective work.
-	 * @param string[]             $readings          Readings, from their starts to their ends, in order: see Meta::get_readings().
-	 * @param float|null           $rating            Rating out of 10, null without.
+	 * @param Reading[]            $readings          Readings, from the first to the latest: see Meta::get_readings().
+	 * @param float|null           $rating            Rating out of 10, the one of its latest reading rated, or of the reading it stands for in a list of readings; null without.
 	 * @param int|null             $pages             Number of pages, null without.
 	 * @param string               $published_date    Date it first came out, Y, Y-m or Y-m-d, or empty.
 	 * @param string               $edition_date      Date its edition first came out, Y, Y-m or Y-m-d, or empty.
@@ -104,7 +104,7 @@ final readonly class Book {
 		public array $form_ids,
 		public string $read_date = '',
 	) {
-		$this->read_dates = array_map( fn( string $reading ) => Meta::split_reading( $reading )[1], Meta::get_ended( $readings ) );
+		$this->read_dates = array_map( fn( Reading $reading ) => $reading->end, Meta::get_ended( $readings ) );
 		$this->read       = (bool) $this->read_dates;
 	}
 

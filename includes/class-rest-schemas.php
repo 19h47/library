@@ -208,6 +208,36 @@ class Rest_Schemas {
 	}
 
 	/**
+	 * A reading of a book: what a book of `wp/v2/books` gives in its readings, and what the route of a book takes in the
+	 * reading of its meta. Its start and its end, each null when unknown, its end “..” while it is read, and the rating it
+	 * ended with, null without, none while it is read.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_reading(): array {
+		$date = array( 'pattern' => Meta::READING_DATE_PATTERN );
+
+		return array(
+			'title'                => 'library-reading',
+			'type'                 => 'object',
+			'properties'           => array(
+				'start'  => self::property( array( 'string', 'null' ), __( 'Start, its day or with its time, such as 2026-11-08T09:15; null when unknown.', 'library' ), $date ),
+				'end'    => self::property( array( 'string', 'null' ), __( 'End, its day or with its time; null when unknown, “..” while it is read.', 'library' ), array( 'pattern' => '^(\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2})?|\\.\\.)$' ) ),
+				'rating' => self::property(
+					array( 'number', 'null' ),
+					__( 'Rating it ended with, out of 10, by half points; null without, and while it is read.', 'library' ),
+					array(
+						'minimum'    => Meta::RATING_LIMITS['minimum'],
+						'maximum'    => Meta::RATING_LIMITS['maximum'],
+						'multipleOf' => Meta::RATING_LIMITS['multipleOf'],
+					)
+				),
+			),
+			'additionalProperties' => false,
+		);
+	}
+
+	/**
 	 * A publisher of a book, or a collection it is in, with its term ID: what a book of `wp/v2/books` gives in its
 	 * publisher names, from the publisher down.
 	 *

@@ -45,7 +45,7 @@ import {
  * @property {string}   edition_date      The date its edition, the one of its ISBN, first came out: a day, a month or a year.
  * @property {string}   printed_date      The date its copy was printed: a day, a month or a year.
  * @property {number}   pages             Its number of pages, 0 for unknown.
- * @property {number}   rating            Its rating out of 10, 0 for none.
+ * @property {number}   rating            Its rating out of 10, the one of its latest reading rated, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
  * @property {boolean}  read              Whether it is read.
  * @property {boolean}  in_progress       Whether it is being read.
@@ -81,20 +81,31 @@ import {
  */
 
 /**
- * A reading ended, from its start to its end, either empty when it is unknown: their days, or their times when the reading
- * started or ended the day it was saved.
+ * A reading as the API gives it and takes it: its start and its end, null when unknown, its end “..” while it is read,
+ * and the rating it ended with, null without.
  *
- * @typedef {Object} ReadingPeriod
- * @property {string} start Its start, or empty.
- * @property {string} end   Its end, or empty.
+ * @typedef {Object} ApiReading
+ * @property {string|null} start  Its start, or null.
+ * @property {string|null} end    Its end, “..” while it is read, or null.
+ * @property {number|null} rating The rating it ended with, or null.
+ */
+
+/**
+ * A reading ended, from its start to its end, either empty when it is unknown: their days, or their times when the reading
+ * started or ended the day it was saved; and the rating it ended with.
+ *
+ * @typedef {Object} EndedReading
+ * @property {string}      start  Its start, or empty.
+ * @property {string}      end    Its end, or empty.
+ * @property {number|null} rating The rating it ended with, none without.
  */
 
 /**
  * The readings of a book: the ones ended, from the first to the latest, and the start of the one in progress.
  *
  * @typedef {Object} BookReadings
- * @property {ReadingPeriod[]} readings Its readings ended, from the first to the latest, the ones of an unknown end first.
- * @property {string}          started  The start of its reading in progress, empty without one or when it is unknown.
+ * @property {EndedReading[]} readings Its readings ended, from the first to the latest, the ones of an unknown end first.
+ * @property {string}         started  The start of its reading in progress, empty without one or when it is unknown.
  */
 
 /**
@@ -413,7 +424,7 @@ import {
  * @property {string}                  credits                Its credits, HTML.
  * @property {string}                  status                 Its status.
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
- * @property {string[]}                readings               Its readings, in order, as intervals: 2026-10-20/2026-11-02.
+ * @property {ApiReading[]}            readings               Its readings, in order, the one in progress last.
  * @property {Cover|null}              cover                  Its cover, none without one.
  * @property {Person[]}                names                  Its names, HTML, each with its term ID and its role.
  * @property {number[]}                series                 The term IDs of its series.
@@ -456,18 +467,18 @@ export function text( html ) {
 export const IN_PROGRESS = '..';
 
 /**
- * Readings as the API gives them, in order, intervals from their starts to their ends, as the app reads them: the ones
- * ended, and the start of the one in progress.
+ * Readings as the API gives them, in order, as the app reads them: the ones ended, an unknown start or end empty, and the
+ * start of the one in progress.
  *
- * @param {string[]} intervals Readings, from the first to the latest, the one in progress last.
+ * @param {ApiReading[]} items Readings, from the first to the latest, the one in progress last.
  * @return {BookReadings} The readings ended and the start of the one in progress.
  */
-export function toReadings( intervals ) {
-	const all = intervals.map( ( interval ) => {
-		const [ start, end = '' ] = interval.split( '/' );
-
-		return { start, end };
-	} );
+export function toReadings( items ) {
+	const all = items.map( ( { start, end, rating } ) => ( {
+		start: start ?? '',
+		end: end ?? '',
+		rating,
+	} ) );
 
 	return {
 		readings: all.filter( ( { end } ) => IN_PROGRESS !== end ),
@@ -476,24 +487,34 @@ export function toReadings( intervals ) {
 }
 
 /**
- * A reading as the API takes it, an interval from its start to its end.
+ * A reading as the API takes it: an unknown start or end null.
  *
- * @param {ReadingPeriod} reading The reading.
- * @return {string} The interval: 2026-10-20/2026-11-02.
+ * @param {EndedReading} reading The reading.
+ * @return {ApiReading} The reading of the API.
  */
-export function toInterval( { start, end } ) {
-	return `${ start }/${ end }`;
+export function toApiReading( { start, end, rating } ) {
+	return { start: start || null, end: end || null, rating };
+}
+
+/**
+ * The reading in progress as the API takes it, since its start, empty when unknown.
+ *
+ * @param {string} started Its start.
+ * @return {ApiReading} The reading of the API.
+ */
+export function toApiReadingInProgress( started ) {
+	return { start: started || null, end: IN_PROGRESS, rating: null };
 }
 
 /**
  * A reading by its days, as the forms give it and send it: the server keeps the time of a start or an end of today, and
  * of one saved with its time given by its day.
  *
- * @param {ReadingPeriod} reading A reading, its start and end with their times or not.
- * @return {ReadingPeriod} Its days.
+ * @param {EndedReading} reading A reading, its start and end with their times or not.
+ * @return {EndedReading} Its days.
  */
-export function toDays( { start, end } ) {
-	return { start: start.slice( 0, 10 ), end: end.slice( 0, 10 ) };
+export function toDays( { start, end, rating } ) {
+	return { start: start.slice( 0, 10 ), end: end.slice( 0, 10 ), rating };
 }
 
 /**

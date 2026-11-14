@@ -56,19 +56,11 @@ class Meta {
 	public const string READING_TIME_FORMAT = 'Y-m-d\TH:i';
 
 	/**
-	 * The end of a reading in progress, which has none yet, as an interval of ISO 8601-2 left open: 2026-11-08/..
+	 * Pattern of the start or the end of a reading, its day alone or with its time: 2026-11-02, 2026-11-08T09:15.
 	 *
 	 * @var string
 	 */
-	public const string IN_PROGRESS = '..';
-
-	/**
-	 * Pattern of a reading, an interval of ISO 8601 from its start to its end, either unknown, empty, its end open while
-	 * it is in progress: 2026-10-20/2026-11-02, /2026-11-02, /, 2026-11-08T09:15/..
-	 *
-	 * @var string
-	 */
-	public const string READING_PATTERN = '^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?/(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?|\.\.)?$';
+	public const string READING_DATE_PATTERN = '^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$';
 
 	/**
 	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
@@ -85,7 +77,7 @@ class Meta {
 	 *
 	 * @var array{minimum:int,maximum:int,multipleOf:float}
 	 */
-	private const array RATING_LIMITS = array(
+	public const array RATING_LIMITS = array(
 		'minimum'    => 1,
 		'maximum'    => 10,
 		'multipleOf' => 0.5,
@@ -123,8 +115,8 @@ class Meta {
 	public const array QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
 
 	/**
-	 * All book meta keys, its readings among them, and whether it is read and being read, which are no meta of their own
-	 * but its readings: see get_reading_state() and save().
+	 * All book meta keys, its readings among them, and whether it is read and being read and its rating, which are no meta
+	 * of their own but its readings: see get_reading_state() and save().
 	 *
 	 * @var string[]
 	 */
@@ -176,7 +168,7 @@ class Meta {
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
 			'library_edition_date'      => __( 'When this edition, the one of its ISBN, first came out, whatever the printing of the copy: a year, a year and month, or a date, such as 1972.', 'library' ),
 			'library_printed_date'      => __( 'When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23.', 'library' ),
-			'library_reading'           => __( 'From its start to its end, each one left empty when it is unknown.', 'library' ),
+			'library_reading'           => __( 'From its start to its end, each one left empty when it is unknown, and the rating it ended with.', 'library' ),
 			'library_in_progress'       => __( 'Being read, for the first time or again, since the day it started: a reading added ends it.', 'library' ),
 			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
@@ -247,6 +239,7 @@ class Meta {
 			)
 		);
 
+		// Read from the readings, never stored: the rating of the latest reading rated, which save() writes on that reading.
 		register_post_meta(
 			'library_book',
 			'library_rating',
@@ -259,6 +252,7 @@ class Meta {
 					'schema' => self::RATING_LIMITS,
 				),
 				'sanitize_callback' => array( self::class, 'sanitize_rating' ),
+				'auth_callback'     => '__return_false',
 			)
 		);
 
@@ -532,9 +526,9 @@ class Meta {
 	}
 
 	/**
-	 * Whether a book is read and whether it is being read, from its readings: read once it has a reading ended, of a known
-	 * date or not, being read while it has one in progress. Its readings are its one record: library_read and
-	 * library_in_progress are never stored.
+	 * Whether a book is read, whether it is being read and its rating, from its readings: read once it has a reading ended,
+	 * of a known date or not, being read while it has one in progress, rated as its latest reading rated. Its readings are
+	 * its one record: library_read, library_in_progress and library_rating are never stored.
 	 *
 	 * @param mixed  $value     Value, null to read the meta stored.
 	 * @param int    $object_id Post ID.
@@ -543,25 +537,32 @@ class Meta {
 	 * @return mixed
 	 */
 	public function get_reading_state( $value, int $object_id, string $meta_key, bool $single ) {
-		if ( ! in_array( $meta_key, array( 'library_read', 'library_in_progress' ), true ) || 'library_book' !== get_post_type( $object_id ) ) {
+		if ( ! in_array( $meta_key, array( 'library_read', 'library_in_progress', 'library_rating' ), true ) || 'library_book' !== get_post_type( $object_id ) ) {
 			return $value;
 		}
 
 		$readings = self::get_readings( $object_id );
-		$state    = 'library_read' === $meta_key ? (bool) self::get_ended( $readings ) : null !== self::get_in_progress( $readings );
+
+		if ( 'library_rating' === $meta_key ) {
+			$rating = self::get_rating( $readings );
+
+			return $single ? $rating ?? '' : ( null !== $rating ? array( $rating ) : array() );
+		}
+
+		$state = 'library_read' === $meta_key ? (bool) self::get_ended( $readings ) : null !== self::get_in_progress( $readings );
 
 		return $single ? $state : array( $state );
 	}
 
 	/**
-	 * Readings of a book, from the first to the latest, as intervals: the ones ended, by their end, the unknown ones first,
-	 * then the one in progress.
+	 * Readings of a book, from the first to the latest: the ones ended, by their end, the unknown ones first, then the one
+	 * in progress.
 	 *
 	 * @param int $post_id Post ID.
-	 * @return string[]
+	 * @return Reading[]
 	 */
 	public static function get_readings( int $post_id ): array {
-		return self::sort_readings( get_post_meta( $post_id, 'library_reading', false ) );
+		return self::sort_readings( array_map( fn( $row ) => Reading::from( $row ), get_post_meta( $post_id, 'library_reading', false ) ) );
 	}
 
 	/**
@@ -571,7 +572,7 @@ class Meta {
 	 * @return string[]
 	 */
 	public static function get_read_dates( int $post_id ): array {
-		return array_map( fn( string $reading ) => self::split_reading( $reading )[1], self::get_ended( self::get_readings( $post_id ) ) );
+		return array_map( fn( Reading $reading ) => $reading->end, self::get_ended( self::get_readings( $post_id ) ) );
 	}
 
 	/**
@@ -606,35 +607,36 @@ class Meta {
 	}
 
 	/**
-	 * The start and the end of a reading, either empty when unknown, its end IN_PROGRESS while it is read.
+	 * The rating of a book, the one of its latest reading rated, null without: a reading read again without rating leaves
+	 * the one before.
 	 *
-	 * @param string $reading A reading, as an interval: 2026-10-20/2026-11-02.
-	 * @return array{0:string,1:string}
+	 * @param Reading[] $readings Readings, from the first to the latest.
+	 * @return float|null
 	 */
-	public static function split_reading( string $reading ): array {
-		$parts = explode( '/', $reading, 2 );
+	public static function get_rating( array $readings ): ?float {
+		$rated = array_filter( self::get_ended( $readings ), fn( Reading $reading ) => null !== $reading->rating );
 
-		return array( $parts[0], $parts[1] ?? '' );
+		return $rated ? end( $rated )->rating : null;
 	}
 
 	/**
 	 * The readings ended, the one in progress left out.
 	 *
-	 * @param string[] $readings Readings.
-	 * @return string[]
+	 * @param Reading[] $readings Readings.
+	 * @return Reading[]
 	 */
 	public static function get_ended( array $readings ): array {
-		return array_values( array_filter( $readings, fn( string $reading ) => self::IN_PROGRESS !== self::split_reading( $reading )[1] ) );
+		return array_values( array_filter( $readings, fn( Reading $reading ) => $reading->is_ended() ) );
 	}
 
 	/**
 	 * The reading in progress, null without.
 	 *
-	 * @param string[] $readings Readings.
-	 * @return string|null
+	 * @param Reading[] $readings Readings.
+	 * @return Reading|null
 	 */
-	private static function get_in_progress( array $readings ): ?string {
-		return array_find( $readings, fn( string $reading ) => self::IN_PROGRESS === self::split_reading( $reading )[1] );
+	private static function get_in_progress( array $readings ): ?Reading {
+		return array_find( $readings, fn( Reading $reading ) => ! $reading->is_ended() );
 	}
 
 	/**
@@ -642,41 +644,64 @@ class Meta {
 	 * reading of its own, first, and one of a known end once, as one saved twice by an old import; then the one in progress,
 	 * the latest started alone.
 	 *
-	 * @param string[] $readings Readings.
-	 * @return string[]
+	 * @param Reading[] $readings Readings.
+	 * @return Reading[]
 	 */
 	private static function sort_readings( array $readings ): array {
 		$ended       = self::get_ended( $readings );
-		$unknown     = array_filter( $ended, fn( string $reading ) => '' === self::split_reading( $reading )[1] );
-		$ended       = array( ...$unknown, ...array_unique( array_diff( $ended, $unknown ) ) );
-		$in_progress = array_diff( $readings, self::get_ended( $readings ) );
+		$unknown     = array_filter( $ended, fn( Reading $reading ) => '' === $reading->end );
+		$known       = array_diff_key( $ended, $unknown );
+		$known       = array_intersect_key( $known, array_unique( array_map( fn( Reading $reading ) => $reading->to_json(), $known ) ) );
+		$ended       = array( ...array_values( $unknown ), ...array_values( $known ) );
+		$in_progress = array_values( array_filter( $readings, fn( Reading $reading ) => ! $reading->is_ended() ) );
 
-		usort( $ended, fn( string $a, string $b ) => array_reverse( self::split_reading( $a ) ) <=> array_reverse( self::split_reading( $b ) ) );
+		usort( $ended, fn( Reading $a, Reading $b ) => array( $a->end, $a->start ) <=> array( $b->end, $b->start ) );
+		usort( $in_progress, fn( Reading $a, Reading $b ) => $a->start <=> $b->start );
 
-		return $in_progress ? array( ...$ended, max( $in_progress ) ) : $ended;
+		return $in_progress ? array( ...$ended, end( $in_progress ) ) : $ended;
 	}
 
 	/**
 	 * Readings of a book with the end of its latest one ended replaced by the given date, empty when it is unknown, its start
-	 * kept: quick edit edits the read date of the latest reading. A book without reading ended gets one only when a date is
-	 * given, which ends the one in progress.
+	 * and its rating kept: quick edit edits the read date of the latest reading. A book without reading ended gets one only
+	 * when a date is given, which ends the one in progress.
 	 *
 	 * @param int    $post_id   Post ID.
 	 * @param string $read_date Date of the latest reading, Y-m-d, or empty.
-	 * @return string[]
+	 * @return Reading[]
 	 */
 	public static function replace_latest_read_date( int $post_id, string $read_date ): array {
 		$readings    = self::get_readings( $post_id );
 		$ended       = self::get_ended( $readings );
-		$in_progress = array_diff( $readings, $ended );
+		$in_progress = array_values( array_filter( $readings, fn( Reading $reading ) => ! $reading->is_ended() ) );
 
 		if ( ! $ended ) {
-			return array( ...( '' !== $read_date ? array( "/$read_date" ) : array() ), ...$in_progress );
+			return array( ...( '' !== $read_date ? array( new Reading( end: $read_date ) ) : array() ), ...$in_progress );
 		}
 
-		[ $start ] = self::split_reading( (string) array_pop( $ended ) );
+		$latest = array_pop( $ended );
 
-		return array( ...$ended, "$start/$read_date", ...$in_progress );
+		return array( ...$ended, $latest->with( end: $read_date ), ...$in_progress );
+	}
+
+	/**
+	 * Readings with the rating of the latest one ended replaced, none for an empty one: the rating of a book is the one of
+	 * its latest reading. A book without reading ended has none to rate.
+	 *
+	 * @param Reading[]    $readings Readings, from the first to the latest.
+	 * @param float|string $rating   Rating, sanitized, empty for none.
+	 * @return Reading[]
+	 */
+	private static function rate_latest( array $readings, float|string $rating ): array {
+		$latest = array_key_last( array_filter( $readings, fn( Reading $reading ) => $reading->is_ended() ) );
+
+		if ( null === $latest ) {
+			return $readings;
+		}
+
+		$readings[ $latest ] = '' === $rating ? $readings[ $latest ]->without_rating() : $readings[ $latest ]->with( rating: (float) $rating );
+
+		return $readings;
 	}
 
 	/**
@@ -685,7 +710,7 @@ class Meta {
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
 	 * Values are saved in the order of KEYS, whatever the order of the form fields, then the edition languages, a list.
 	 * Whether the book is read and being read, library_read and library_in_progress, are written as readings: see
-	 * apply_reading_state().
+	 * apply_reading_state(); its rating, library_rating, as the rating of its latest reading ended.
 	 *
 	 * @param int                 $post_id Post ID.
 	 * @param array<string,mixed> $values  Unslashed values keyed by meta key.
@@ -695,7 +720,7 @@ class Meta {
 		$before = self::get_readings( $post_id );
 
 		foreach ( self::KEYS as $key ) {
-			if ( ! array_key_exists( $key, $values ) || in_array( $key, array( 'library_reading', 'library_read', 'library_in_progress' ), true ) ) {
+			if ( ! array_key_exists( $key, $values ) || in_array( $key, array( 'library_reading', 'library_read', 'library_in_progress', 'library_rating' ), true ) ) {
 				continue;
 			}
 
@@ -716,14 +741,20 @@ class Meta {
 		$readings = array_key_exists( 'library_reading', $values ) ? self::keep_times( $before, (array) $values['library_reading'] ) : $before;
 		$readings = self::sort_readings( self::apply_reading_state( $before, $readings, $values ) );
 
-		if ( $readings === $before ) {
+		if ( array_key_exists( 'library_rating', $values ) ) {
+			$readings = self::rate_latest( $readings, self::sanitize_rating( $values['library_rating'] ) );
+		}
+
+		$rows = array_map( fn( Reading $reading ) => $reading->to_json(), $readings );
+
+		if ( array_map( fn( Reading $reading ) => $reading->to_json(), $before ) === $rows ) {
 			return;
 		}
 
 		delete_post_meta( $post_id, 'library_reading' );
 
-		foreach ( $readings as $reading ) {
-			add_post_meta( $post_id, 'library_reading', $reading );
+		foreach ( $rows as $row ) {
+			add_post_meta( $post_id, 'library_reading', wp_slash( $row ) );
 		}
 	}
 
@@ -749,40 +780,41 @@ class Meta {
 	 * day saved with its time keeps it, once, while one of today takes the time now, which orders the readings of a day.
 	 * An invalid start or end is an unknown one.
 	 *
-	 * @param string[]     $saved Readings saved.
-	 * @param array<mixed> $given Readings given, their starts and ends by their days, or with their times.
-	 * @return string[]
+	 * @param Reading[]    $saved Readings saved.
+	 * @param array<mixed> $given Readings given, as objects of the REST API, their starts and ends by their days, or with their times.
+	 * @return Reading[]
 	 */
 	private static function keep_times( array $saved, array $given ): array {
-		$given = array_map( fn( $reading ): string => self::sanitize_reading( $reading ), $given );
+		$given = array_map( fn( $reading ): Reading => self::clean_reading( Reading::from( $reading ) ), $given );
+		$parts = fn( Reading $reading ): array => array( $reading->start, $reading->end );
 		// The starts and the ends saved that a day given alone may stand for: not the ones given whole, with their time.
 		$halves = array_map(
-			fn( int $index ): array => array_diff( array_column( array_map( array( self::class, 'split_reading' ), $saved ), $index ), array_column( array_map( array( self::class, 'split_reading' ), $given ), $index ) ),
+			fn( int $index ): array => array_diff( array_column( array_map( $parts, $saved ), $index ), array_column( array_map( $parts, $given ), $index ) ),
 			array( 0, 1 )
 		);
 		$today  = current_time( 'Y-m-d' );
 		$now    = current_time( self::READING_TIME_FORMAT );
 
 		return array_map(
-			function ( string $reading ) use ( &$halves, $today, $now ): string {
-				$parts = self::split_reading( $reading );
+			function ( Reading $reading ) use ( &$halves, $parts, $today, $now ): Reading {
+				$dates = $parts( $reading );
 
-				foreach ( $parts as $index => $part ) {
-					if ( 10 !== strlen( $part ) ) {
+				foreach ( $dates as $index => $date ) {
+					if ( 10 !== strlen( $date ) ) {
 						continue;
 					}
 
-					$found = array_find_key( $halves[ $index ], fn( string $saved ) => str_starts_with( $saved, $part ) );
+					$found = array_find_key( $halves[ $index ], fn( string $saved ) => str_starts_with( $saved, $date ) );
 
 					if ( null !== $found ) {
-						$parts[ $index ] = $halves[ $index ][ $found ];
+						$dates[ $index ] = $halves[ $index ][ $found ];
 						unset( $halves[ $index ][ $found ] );
-					} elseif ( $today === $part ) {
-						$parts[ $index ] = $now;
+					} elseif ( $today === $date ) {
+						$dates[ $index ] = $now;
 					}
 				}
 
-				return self::sanitize_reading( implode( '/', $parts ) );
+				return self::clean_reading( new Reading( $dates[0], $dates[1], $reading->rating ) );
 			},
 			$given
 		);
@@ -796,25 +828,25 @@ class Meta {
 	 * one in progress started, such as one ended today, ends it, which gives it its start when it has none: an older one,
 	 * added to the ones before, leaves it.
 	 *
-	 * @param string[]            $before   Readings saved.
-	 * @param string[]            $readings Readings given, or saved.
+	 * @param Reading[]           $before   Readings saved.
+	 * @param Reading[]           $readings Readings given, or saved.
 	 * @param array<string,mixed> $values   Values given, library_read and library_in_progress among them.
-	 * @return string[]
+	 * @return Reading[]
 	 */
 	private static function apply_reading_state( array $before, array $readings, array $values ): array {
 		$now         = current_time( self::READING_TIME_FORMAT );
 		$ended       = self::get_ended( $readings );
 		$in_progress = self::get_in_progress( $readings );
-		$ends        = fn( array $readings ): array => array_map( fn( string $reading ) => self::split_reading( $reading )[1], self::get_ended( $readings ) );
-		$started     = null !== $in_progress ? self::split_reading( $in_progress )[0] : '';
+		$ends        = fn( array $readings ): array => array_map( fn( Reading $reading ) => $reading->end, self::get_ended( $readings ) );
+		$started     = null !== $in_progress ? $in_progress->start : '';
 		$ending      = array_filter( self::get_added( $ends( $before ), $ends( $readings ) ), fn( string $end ) => '' !== $end && substr( $end, 0, 10 ) >= substr( $started, 0, 10 ) );
 
 		if ( null !== $in_progress && $ending ) {
 			$end   = max( $ending );
-			$index = array_find_key( $ended, fn( string $reading ) => array( '', $end ) === self::split_reading( $reading ) );
+			$index = array_find_key( $ended, fn( Reading $reading ) => '' === $reading->start && $end === $reading->end );
 
 			if ( null !== $index ) {
-				$ended[ $index ] = "$started/$end";
+				$ended[ $index ] = $ended[ $index ]->with( start: $started );
 			}
 
 			$in_progress = null;
@@ -826,9 +858,9 @@ class Meta {
 		if ( ! $is_read ) {
 			$ended = array();
 		} elseif ( ! $ended && $was_read ) {
-			$ended = array( '/' );
+			$ended = array( new Reading() );
 		} elseif ( ! $ended ) {
-			$ended       = array( "$started/$now" );
+			$ended       = array( new Reading( $started, $now ) );
 			$in_progress = null;
 		}
 
@@ -838,7 +870,7 @@ class Meta {
 			if ( ! $is_in_progress ) {
 				$in_progress = null;
 			} elseif ( null === $in_progress ) {
-				$in_progress = "$now/" . self::IN_PROGRESS;
+				$in_progress = new Reading( $now, Reading::IN_PROGRESS );
 			}
 		}
 
@@ -903,22 +935,32 @@ class Meta {
 	}
 
 	/**
-	 * Keep a valid reading, an interval from its start to its end, as READING_PATTERN: a start or an end invalid is an
-	 * unknown one, a start after the end, mistyped, too, and anything else a reading of unknown dates.
+	 * Keep a valid reading, as the row of the meta its JSON is: see clean_reading().
 	 *
-	 * @param mixed $value Raw value.
+	 * @param mixed $value Raw value: its JSON, or the object of the REST API.
 	 * @return string
 	 */
 	public static function sanitize_reading( $value ): string {
-		[ $start, $end ] = self::split_reading( (string) $value );
-		$start           = self::sanitize_reading_date( $start );
-		$end             = self::IN_PROGRESS === $end ? $end : self::sanitize_reading_date( $end );
+		return self::clean_reading( Reading::from( $value ) )->to_json();
+	}
 
-		if ( '' !== $start && '' !== $end && self::IN_PROGRESS !== $end && substr( $start, 0, 10 ) > substr( $end, 0, 10 ) ) {
+	/**
+	 * A valid reading: a start or an end invalid is an unknown one, a start after the end, mistyped, too; a rating off
+	 * RATING_LIMITS is none, and a reading in progress has none yet.
+	 *
+	 * @param Reading $reading Reading.
+	 * @return Reading
+	 */
+	private static function clean_reading( Reading $reading ): Reading {
+		$start  = self::sanitize_reading_date( $reading->start );
+		$end    = $reading->is_ended() ? self::sanitize_reading_date( $reading->end ) : Reading::IN_PROGRESS;
+		$rating = $reading->is_ended() ? self::sanitize_rating( $reading->rating ?? '' ) : '';
+
+		if ( '' !== $start && '' !== $end && Reading::IN_PROGRESS !== $end && substr( $start, 0, 10 ) > substr( $end, 0, 10 ) ) {
 			$start = '';
 		}
 
-		return "$start/$end";
+		return new Reading( $start, $end, '' === $rating ? null : (float) $rating );
 	}
 
 	/**

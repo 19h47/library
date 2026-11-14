@@ -70,6 +70,19 @@
 		gap: var(--app-space-s);
 	}
 
+	/*
+	 * A row with a select after its field, such as the rating of a reading: the select under the field, closer to it than
+	 * to the rows around, the button that removes the row beside them
+	 */
+	.library-inputs-list__item:has(> select) {
+		row-gap: var(--app-space-xs);
+	}
+
+	.library-inputs-list__item:has(> select) > [data-action="remove"] {
+		grid-column: 2;
+		grid-row: 1 / span 2;
+	}
+
 
 	/* A row without input, such as a reading whose date is unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
 	.library-inputs-list__text {

@@ -59,6 +59,36 @@ class Query {
 	}
 
 	/**
+	 * The SQL of the start or the end of a reading, from its row of the meta, its JSON: empty when unknown, its end “..”
+	 * while it is read. JSON_UNQUOTE() writes a null of JSON as “null”: only a string is taken.
+	 *
+	 * @param 'start'|'end' $part The start or the end.
+	 * @return string
+	 */
+	public static function get_reading_sql( string $part ): string {
+		$value = "JSON_EXTRACT( meta_value, '$.$part' )";
+
+		return "IF( JSON_TYPE( $value ) = 'STRING', JSON_UNQUOTE( $value ), '' )";
+	}
+
+	/**
+	 * The SQL of the ratings of the books, a table of their IDs, post_id, and their ratings, rating: the rating of the
+	 * latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
+	 * start. One pass over the readings, which MySQL 5.7 runs faster than a subquery for each book.
+	 *
+	 * @return string
+	 */
+	public static function get_ratings_sql(): string {
+		global $wpdb;
+
+		$start  = self::get_reading_sql( 'start' );
+		$end    = self::get_reading_sql( 'end' );
+		$rating = "JSON_EXTRACT( meta_value, '$.rating' )";
+
+		return "SELECT post_id, CAST( SUBSTRING_INDEX( MAX( CONCAT( $end, '|', $start, '|', $rating ) ), '|', -1 ) AS DECIMAL(3,1) ) AS rating FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND JSON_TYPE( $rating ) <> 'NULL' GROUP BY post_id";
+	}
+
+	/**
 	 * A keyword search for a value, e.g. 'series:"Le Cycle de Dune"'.
 	 *
 	 * @param string $keyword Keyword, one of KEYWORDS.
@@ -233,17 +263,19 @@ class Query {
 		$order = $query->get( 'library_order' );
 
 		if ( 'rating' === $order ) {
-			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS library_order ON library_order.post_id = {$wpdb->posts}.ID AND library_order.meta_key = 'library_rating'";
-			$clauses['orderby'] = "library_order.meta_value IS NULL, CAST( library_order.meta_value AS DECIMAL(3,1) ) DESC, {$wpdb->posts}.post_date DESC";
+			$clauses['join']   .= ' LEFT JOIN ( ' . self::get_ratings_sql() . " ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['orderby'] = "library_order.rating IS NULL, library_order.rating DESC, {$wpdb->posts}.post_date DESC";
 		}
 
 		if ( 'read' === $order ) {
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( SUBSTRING_INDEX( meta_value, '/', -1 ) ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value NOT LIKE '%/' AND meta_value NOT LIKE '%/..' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$end                = self::get_reading_sql( 'end' );
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $end ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end NOT IN ( '', '..' ) GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.read_date IS NULL, library_order.read_date DESC, {$wpdb->posts}.post_date DESC";
 		}
 
 		if ( 'started' === $order ) {
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( SUBSTRING_INDEX( meta_value, '/', 1 ) ) AS started FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value LIKE '_%/..' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$start              = self::get_reading_sql( 'start' );
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $start ) AS started FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND " . self::get_reading_sql( 'end' ) . " = '..' AND $start <> '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.started IS NULL, library_order.started DESC, {$wpdb->posts}.post_date DESC";
 		}
 
@@ -402,7 +434,8 @@ class Query {
 				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
 			case 'read':
 				// A book is read once it has a reading ended, of a known date or not.
-				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value NOT LIKE '%/..'";
+				$end  = self::get_reading_sql( 'end' );
+				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end <> '..'";
 
 				if ( 'yes' === $value ) {
 					return $read;
@@ -417,9 +450,9 @@ class Query {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND SUBSTRING_INDEX( meta_value, '/', -1 ) LIKE %s", $value . '%' );
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end LIKE %s", $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end holds no value given.
 			case 'progress':
-				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND meta_value LIKE '%/..'";
+				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND " . self::get_reading_sql( 'end' ) . " = '..'";
 
 				if ( 'yes' === $value ) {
 					return $in_progress;
@@ -431,7 +464,7 @@ class Query {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_rating' AND CAST( meta_value AS DECIMAL(3,1) ) >= %f", (float) $value );
+				return $wpdb->prepare( 'SELECT post_id FROM ( ' . self::get_ratings_sql() . ' ) AS library_ratings WHERE rating >= %f', (float) $value ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- The SQL of the ratings holds no value given.
 		}
 
 		return $none;
