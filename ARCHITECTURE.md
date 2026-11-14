@@ -25,7 +25,7 @@ Its login is the one of WordPress, which leads back to it: `app/class-login.php`
 
 Its scripts are script modules, without a build:
 
-- `app/js/lib`, the modules the others import, registered as `library-app/<name>`: the router, the store, the API, the formats, the rendering, the base of the bricks and the one of the components;
+- `app/js/lib`, the modules the others import, registered as `library-app/<name>`: the router, the store, the API, the formats, the rendering, the base of the bricks and the one of the components, and what both share without importing the app, `library-app/dom`, which writes in the page, `library-app/dates` and `library-app/rows`, the rows of a list of inputs;
 - `app/js/components`, the custom elements of the components that behave on their own, the root of their markup, each enqueued as `library-app/components/<name>`: they read no store, and their places set their API, attributes and properties, which `types/components.d.ts` gives by their tags;
 - `app/js/bricks`, the custom elements of the app, which read the store, each enqueued as `library-app/<name>`;
 - `app/js/library-app-theme.js`, a classic script that sets the theme before the first paint;
@@ -48,7 +48,7 @@ Every size is on the scale of the golden ratio: its steps, `--app-u0` to `--app-
 
 The components are built as those of a design file, each level made of the ones before it:
 
-- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `book-cover`, `.app-status`, `offline-status`;
+- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `book-cover`, `.app-status`, `.library-input`, the control of a field, `offline-status`;
 - molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`, `isbn-status`, `reading-period`, `barcode-scan`, `.library-disclosure`;
 - organisms: the cards, components of their own, `book-card`, `book-row`, `term-card` and `achievement-card`, each its root the class of its name, `.library-book-card`, and `.library-current`; `.library-section`, `cards-group`, which `fillCardsGroup()` fills, `term-header`, `views-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `inputs-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
 - screens: the views, in `app/css/views`.

@@ -971,7 +971,7 @@ use Library\Meta;
 
 		<template id="library-edit-person">
 			<li class="library-inputs-list__item">
-				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
+				<input class="library-input" name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
 				<button
 					class="app-control"
 					type="button"

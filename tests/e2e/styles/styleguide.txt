@@ -224,7 +224,6 @@
 #e00eee4ef4 | inline; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(92, 92, 92); rgba(0, 0, 0, 0); 0px; rgb(92, 92, 92); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #e06e181ae6 | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; none; none; rgb(92, 92, 92); rgba(0, 0, 0, 0); 0px; rgb(92, 92, 92); 3.78px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 6.29px; 6.29px; none; 1
 #e0c2e562f8 | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgb(255, 255, 255); 1px; rgb(201, 196, 184); 9.89px; 0px; 0px; 0px; 0px; 41.89px; 41.89px; 41.89px; 41.89px; 16px; 16px; none; 1
-#e0e54bb6bd | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 0px; 16px; 0px; 16px; normal; normal; none; 1
 #e19637384b | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 1px; rgb(69, 69, 69); 4.8px; 0px; 0px; 0px; 0px; 9.89px; 9.89px; 9.89px; 9.89px; normal; normal; none; 1
 #e1e65b7db2 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; underline; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #e1f2041083 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 109.67px; 400; 177.44px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
@@ -238,7 +237,6 @@
 #e86521d2fd | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 4.8px; 0px; 0px; 0px; 0px; 9.89px; 9.89px; 9.89px; 9.89px; normal; normal; none; 1
 #e8d4fb22e3 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; oklch(0.52 0.12 27); oklab(0.52 0.11 0.05 / 0.1); 1px; oklab(0.52 0.11 0.05 / 0.4); 9.89px; 0px; 0px; 0px; 0px; 25.89px; 25.89px; 25.89px; 25.89px; normal; normal; none; 1
 #e930eda2e5 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgb(69, 69, 69); 0px; rgb(69, 69, 69); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
-#e9ebc131c0 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 0px; 16px; 0px; 16px; normal; normal; none; 1
 #ea1a955919 | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; underline; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #ea1e4e7e05 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #ea85579336 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 400; 53.28px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
@@ -514,6 +512,16 @@ phone light | .app-status > figcaption:0>p:1>code:0 | #e00eee4ef4
 phone light | .app-status > div:1 | #7665ec1129
 phone light | .app-status > div:1>p:0 | #6ade0ab340
 phone light | .app-status > div:1>p:1 | #e8d4fb22e3
+phone light | .library-input >  | #21099a2d4f
+phone light | .library-input > figcaption:0 | #3b31681e54
+phone light | .library-input > figcaption:0>h4:0 | #ee4e620dd5
+phone light | .library-input > figcaption:0>h4:0>code:0 | #dbdf5b1996
+phone light | .library-input > figcaption:0>p:1 | #f32e27d3ba
+phone light | .library-input > div:1 | #7665ec1129
+phone light | .library-input > div:1>input:0 | #2ed6aea798
+phone light | .library-input > div:1>select:1 | #bb221247ae
+phone light | .library-input > div:1>select:1>option:0 | #dd8fe579bb
+phone light | .library-input > div:1>textarea:2 | #e39bb2c868
 phone light | offline-status >  | #21099a2d4f
 phone light | offline-status > figcaption:0 | #3b31681e54
 phone light | offline-status > figcaption:0>h4:0 | #ee4e620dd5
@@ -1352,8 +1360,8 @@ phone light | inputs-list > div:1>inputs-list:0>fieldset:0 | #21099a2d4f
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>legend:0 | #e35d9f74b4
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1 | #21099a2d4f
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0 | #21099a2d4f
-phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:0 | #e9ebc131c0
-phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:1 | #e9ebc131c0
+phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:0 | #c3ce1da6f2
+phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:1 | #c3ce1da6f2
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>span:2 | #e7a7465625
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>button:3 | #9948e2bc86
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1 | #21099a2d4f
@@ -2033,6 +2041,16 @@ phone dark | .app-status > figcaption:0>p:1>code:0 | #da82be0cbf
 phone dark | .app-status > div:1 | #cd09adf1d8
 phone dark | .app-status > div:1>p:0 | #7716aa7177
 phone dark | .app-status > div:1>p:1 | #4cf6bbccee
+phone dark | .library-input >  | #2d88a2661e
+phone dark | .library-input > figcaption:0 | #7a7a09ffad
+phone dark | .library-input > figcaption:0>h4:0 | #39ad583df4
+phone dark | .library-input > figcaption:0>h4:0>code:0 | #22cc5d16f1
+phone dark | .library-input > figcaption:0>p:1 | #780ec72c98
+phone dark | .library-input > div:1 | #cd09adf1d8
+phone dark | .library-input > div:1>input:0 | #7b366bf6d0
+phone dark | .library-input > div:1>select:1 | #0d76026c2c
+phone dark | .library-input > div:1>select:1>option:0 | #b1eb411d5b
+phone dark | .library-input > div:1>textarea:2 | #284cc12362
 phone dark | offline-status >  | #2d88a2661e
 phone dark | offline-status > figcaption:0 | #7a7a09ffad
 phone dark | offline-status > figcaption:0>h4:0 | #39ad583df4
@@ -2871,8 +2889,8 @@ phone dark | inputs-list > div:1>inputs-list:0>fieldset:0 | #2d88a2661e
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>legend:0 | #07e4467ed6
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1 | #2d88a2661e
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0 | #2d88a2661e
-phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:0 | #e0e54bb6bd
-phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:1 | #e0e54bb6bd
+phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:0 | #0cd3669051
+phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:1 | #0cd3669051
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>span:2 | #3d9b178b43
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>button:3 | #fbd9f80423
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1 | #2d88a2661e
@@ -3552,6 +3570,16 @@ wide light | .app-status > figcaption:0>p:1>code:0 | #e00eee4ef4
 wide light | .app-status > div:1 | #7665ec1129
 wide light | .app-status > div:1>p:0 | #6ade0ab340
 wide light | .app-status > div:1>p:1 | #e8d4fb22e3
+wide light | .library-input >  | #21099a2d4f
+wide light | .library-input > figcaption:0 | #3b31681e54
+wide light | .library-input > figcaption:0>h4:0 | #ee4e620dd5
+wide light | .library-input > figcaption:0>h4:0>code:0 | #dbdf5b1996
+wide light | .library-input > figcaption:0>p:1 | #f32e27d3ba
+wide light | .library-input > div:1 | #7665ec1129
+wide light | .library-input > div:1>input:0 | #2ed6aea798
+wide light | .library-input > div:1>select:1 | #bb221247ae
+wide light | .library-input > div:1>select:1>option:0 | #dd8fe579bb
+wide light | .library-input > div:1>textarea:2 | #e39bb2c868
 wide light | offline-status >  | #21099a2d4f
 wide light | offline-status > figcaption:0 | #3b31681e54
 wide light | offline-status > figcaption:0>h4:0 | #ee4e620dd5
@@ -4390,8 +4418,8 @@ wide light | inputs-list > div:1>inputs-list:0>fieldset:0 | #21099a2d4f
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>legend:0 | #e35d9f74b4
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1 | #21099a2d4f
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0 | #21099a2d4f
-wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:0 | #e9ebc131c0
-wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:1 | #e9ebc131c0
+wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:0 | #c3ce1da6f2
+wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>input:1 | #c3ce1da6f2
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>span:2 | #e7a7465625
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>button:3 | #9948e2bc86
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1 | #21099a2d4f

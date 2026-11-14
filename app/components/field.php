@@ -41,6 +41,7 @@ $description_id = "{$args['id']}-description";
 		$args['control'],
 		$args['attributes'] + array(
 			'id'               => $args['id'],
+			'class'            => 'library-input',
 			'required'         => $args['required'] ? true : null,
 			'aria-describedby' => '' !== $args['description'] ? $description_id : null,
 		)

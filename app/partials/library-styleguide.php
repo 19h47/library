@@ -232,6 +232,17 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>.library-input</code></h4>
+					<p>The control of a field, which each one carries, as a pill its class: an input, a select and a textarea, as high as a control but the textarea</p>
+				</figcaption>
+				<div class="library-styleguide__frame library-form">
+					<input class="library-input" aria-label="An input" value="An input">
+					<select class="library-input" aria-label="A select"><option>A select</option></select>
+					<textarea class="library-input" aria-label="A textarea">A textarea</textarea>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>offline-status</code></h4>
 					<p>The status of the app offline, an <code>.app-status</code>; its root is its custom element, <code>offline-status</code>, which shows it while the browser says it is offline, shown here whatever the network</p>
 				</figcaption>

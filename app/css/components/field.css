@@ -82,8 +82,8 @@
 		color: var(--app-text-muted);
 	}
 
-	/* A field of a form, such as a read date or the title of a book; a checkbox is the one of its pill */
-	:is(.library-field, .library-inputs-list__item, reading-period) :is(input:not([type="checkbox"]), select, textarea) {
+	/* The control of a field of a form, an input, a select or a textarea, such as a read date or the title of a book; a checkbox is the one of its pill */
+	.library-input {
 		/* As a pill or the search, in em of its text */
 		--library-field-padding-inline: 1em;
 		--app-select-padding-inline: var(--library-field-padding-inline);
@@ -136,7 +136,7 @@
 	 * side; empty, or made smaller by hand, they keep room for three lines, their padding one more; made higher by hand
 	 * only, as wide as their place
 	 */
-	.library-field textarea {
+	textarea.library-input {
 		min-block-size: 4lh;
 		padding-block: calc(1em / sqrt(var(--app-phi)));
 		field-sizing: content;

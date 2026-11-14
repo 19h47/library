@@ -13,7 +13,7 @@
 use Library\Markup;
 ?>
 <reading-period>
-	<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
+	<input class="library-input" type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
 	<?php Markup::render_icon( 'arrow_forward' ); ?>
-	<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+	<input class="library-input" type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
 </reading-period>
