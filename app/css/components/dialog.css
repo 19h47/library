@@ -26,9 +26,11 @@
 			background: color-mix(in srgb, var(--app-bg) 70%, transparent);
 		}
 
-		/* Its button that closes it at its corner, rather than at the one of the screen */
+		/* Its button that closes it at its corner, as the page has its toolbar at the one of the screen */
 		& > .app-toolbar {
 			position: absolute;
+			inset: var(--app-toolbar-top) var(--app-space-l) auto auto;
+			z-index: 1;
 		}
 	}
 
@@ -63,6 +65,13 @@
 
 	.library-dialog::backdrop {
 		background: color-mix(in srgb, var(--app-bg) 70%, transparent);
+	}
+
+	/* Its button that closes it at the corner of the screen, where the page has its toolbar, the dialog scrolling under it */
+	.library-dialog > .app-toolbar {
+		position: fixed;
+		inset: var(--app-toolbar-top) var(--app-space-l) auto auto;
+		z-index: 1;
 	}
 
 	@media (min-width: 42rem) {

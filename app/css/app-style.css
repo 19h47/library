@@ -5,7 +5,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision 53f8830.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision d7cd1f8.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * --app-space-xs to --app-space-xl, half steps (√φ) between them for text, --app-text-s to --app-text-3xl, a step and a
@@ -531,17 +531,21 @@
   }
 
   /*
-   * Toolbar: fixed controls, top-right corner; a control, a square button or link of an icon, floating, its icon and
-   * its border faded at rest: by their color rather than by opacity, which would fade its background too
+   * Toolbar: a row of controls, which its place sets where it goes, the page at the top-right corner of the screen; a
+   * control, a square button or link of an icon, floating, its icon and its border faded at rest: by their color rather
+   * than by opacity, which would fade its background too
    */
 
   .app-toolbar {
-    position: fixed;
-    top: var(--app-toolbar-top);
-    right: var(--app-space-l);
-    z-index: 1;
     display: flex;
     gap: var(--app-control-gap);
+  }
+
+  /* The toolbar of the page, a layer fixed to the screen, over the page */
+  body > .app-toolbar {
+    position: fixed;
+    inset: var(--app-toolbar-top) var(--app-space-l) auto auto;
+    z-index: 1;
   }
 
   .app-control {
