@@ -1,13 +1,9 @@
 import { __, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import {
-	formatBooks,
-	formatNumber,
-	formatTotal,
-	join,
-} from 'library-app/format';
 import { fill } from 'library-app/dom';
+import { formatBooks, formatNumber, join } from 'library-app/format';
+import { formatTotal } from 'library-app/behaviors';
 
 /**
  * The filters of the books: a button that says how many are chosen opens their fields in a dialog, a command of the

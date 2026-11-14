@@ -4,22 +4,25 @@
  */
 
 import { __, _n, roles, sprintf } from 'library-app/app';
+import { urlOf } from 'library-app/router';
+import { clone, fill, fillCover, fillHtml } from 'library-app/dom';
+import { getPeople } from 'library-app/api';
 import {
 	formatBooks,
 	formatDate,
 	formatLanguage,
+	formatList,
+	formatListParts,
+	formatMonthInitial,
+	formatMonthName,
 	formatNumber,
+	join,
+} from 'library-app/format';
+import {
 	formatOriginal,
 	formatStatus,
 	formatTranslation,
-	join,
-	listFormat,
-	monthInitialFormat,
-	monthNameFormat,
-} from 'library-app/format';
-import { urlOf } from 'library-app/router';
-import { clone, fill, fillCover, fillHtml } from 'library-app/dom';
-import { getPeople } from 'library-app/api';
+} from 'library-app/book-lines';
 
 /**
  * @import { Achievement, Author, Book, CloseAchievement, Cover, PersonSeries, Target, Term } from 'library-app/api'
@@ -109,11 +112,10 @@ export function linkPeople( $field, people ) {
 	);
 
 	$field.replaceChildren(
-		...listFormat
-			.formatToParts( people.map( ( person ) => person.name ) )
-			.map( ( part ) =>
+		...formatListParts( people.map( ( person ) => person.name ) ).map(
+			( part ) =>
 				'element' === part.type ? $links.shift() : part.value
-			)
+		)
 	);
 }
 
@@ -200,7 +202,7 @@ export function fillBookPage( $root, book ) {
 	const date = ( /** @type {string} */ value ) =>
 		value ? formatDate( value ) : '';
 	const languages = ( /** @type {string[]} */ codes ) =>
-		listFormat.format( codes.map( formatLanguage ) );
+		formatList( codes.map( formatLanguage ) );
 
 	fillBookCover( $root.querySelector( '[data-part="cover"]' ), book );
 	fill( $root, {
@@ -209,7 +211,7 @@ export function fillBookPage( $root, book ) {
 		subtitle: book.subtitle,
 		translation: formatTranslation( book ),
 		excerpt: book.excerpt,
-		authors: listFormat.format( authors.map( ( author ) => author.name ) ),
+		authors: formatList( authors.map( ( author ) => author.name ) ),
 		published_date: date( book.published_date ),
 		languages: languages( book.languages ),
 		form: book.form,
@@ -248,7 +250,7 @@ export function fillBookPage( $root, book ) {
 		Object.fromEntries(
 			roles.map( ( role ) => [
 				role,
-				listFormat.format(
+				formatList(
 					getPeople( book, role ).map( ( person ) => person.name )
 				),
 			] )
@@ -318,7 +320,7 @@ export function renderRow( book ) {
 	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
 		title: book.title,
-		authors: listFormat.format(
+		authors: formatList(
 			getPeople( book, 'author' ).map( ( author ) => author.name )
 		),
 		status: formatStatus( book ),
@@ -625,7 +627,7 @@ export function renderMonths( months, year ) {
 			),
 			span( '', 'library-recap__bar' ),
 			span(
-				monthInitialFormat.format( date ),
+				formatMonthInitial( date ),
 				'app-text-s app-text-muted app-font-ui app-uppercase'
 			),
 		];
@@ -639,7 +641,7 @@ export function renderMonths( months, year ) {
 				sprintf(
 					/* translators: 1: name of a month, 2: number of books read in it. */
 					__( '%1$s: %2$s', 'library' ),
-					monthNameFormat.format( date ),
+					formatMonthName( date ),
 					formatBooks( readings )
 				),
 				'sr-only'

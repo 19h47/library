@@ -5,8 +5,35 @@
  * while it saves.
  */
 
+import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
+import { formatBooks } from 'library-app/format';
 import { fillBook, renderBook } from 'library-app/render';
+
+/**
+ * How many books a list has, as `format` says it, once it is loaded; that it is loading until then.
+ *
+ * @param {{loaded: boolean, total: number}} list     The list.
+ * @param {( books: number ) => string}      [format] What it says of its books, their number unless another one.
+ * @return {string} What it says.
+ */
+export function formatTotal( list, format = formatBooks ) {
+	return list.loaded ? format( list.total ) : __( 'Loading…', 'library' );
+}
+
+/**
+ * Why a list shows nothing: why it could not load, or `empty` once loaded without an item; nothing otherwise.
+ *
+ * @param {{error: string, loaded: boolean, total: number}} list    The list.
+ * @param {string}                                          [empty] What it says without an item, that no book is found unless another one.
+ * @return {string} Why it shows nothing, or empty.
+ */
+export function formatListStatus(
+	list,
+	empty = __( 'No book found.', 'library' )
+) {
+	return list.error || ( list.loaded && ! list.total ? empty : '' );
+}
 
 /** @import { Book } from 'library-app/api' */
 

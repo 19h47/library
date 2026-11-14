@@ -1,37 +1,28 @@
 /**
- * Formats of the bricks: numbers, dates, books and lists in the language of the page, and the line of a book.
+ * Formats in the language of the page: numbers, quantities named, dates, languages and lists, each by a function. It
+ * imports only the strings of the app: bricks and components share it. The lines of a book are library-app/book-lines.
  */
 
-import { __, _n, _x, notKept, sprintf, toBuy } from 'library-app/app';
-import { getPeople } from 'library-app/api';
-
-/** @import { Book } from 'library-app/api' */
+import { __, _n, sprintf } from 'library-app/app';
 
 const { lang } = document.documentElement;
 const numberFormat = new Intl.NumberFormat( lang );
-const dateFormat = new Intl.DateTimeFormat( lang, { dateStyle: 'long' } );
+const dateFormats = {
+	long: new Intl.DateTimeFormat( lang, { dateStyle: 'long' } ),
+	day: new Intl.DateTimeFormat( lang, { day: 'numeric', month: 'long' } ),
+};
 const monthFormat = new Intl.DateTimeFormat( lang, {
 	year: 'numeric',
 	month: 'long',
 } );
-
+const monthNameFormat = new Intl.DateTimeFormat( lang, { month: 'long' } );
+const monthInitialFormat = new Intl.DateTimeFormat( lang, { month: 'narrow' } );
+const listFormat = new Intl.ListFormat( lang, { type: 'unit' } );
 const andFormat = new Intl.ListFormat( lang );
 const languageNames = new Intl.DisplayNames( lang, { type: 'language' } );
-const { language: pageLanguage } = new Intl.Locale( lang );
-const DAY_MS = 24 * 60 * 60 * 1000;
 
-export const dayFormat = new Intl.DateTimeFormat( lang, {
-	day: 'numeric',
-	month: 'long',
-} );
-export const listFormat = new Intl.ListFormat( lang, { type: 'unit' } );
-// The name of a month, and its initial, such as the recap of a year shows them under its bars.
-export const monthNameFormat = new Intl.DateTimeFormat( lang, {
-	month: 'long',
-} );
-export const monthInitialFormat = new Intl.DateTimeFormat( lang, {
-	month: 'narrow',
-} );
+/** The language of the page, its ISO 639 code: "fr". */
+export const { language: pageLanguage } = new Intl.Locale( lang );
 
 /**
  * A number in the language of the page: "1,234".
@@ -100,38 +91,14 @@ export function formatRecap( year ) {
 }
 
 /**
- * How many books a list has, as `format` says it, once it is loaded; that it is loading until then.
+ * A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a
+ * date first published; its day long, "May 12, 2024", or as a day of its year, "May 12".
  *
- * @param {{loaded: boolean, total: number}} list     The list.
- * @param {( books: number ) => string}      [format] What it says of its books, their number unless another one.
- * @return {string} What it says.
- */
-export function formatTotal( list, format = formatBooks ) {
-	return list.loaded ? format( list.total ) : __( 'Loading…', 'library' );
-}
-
-/**
- * Why a list shows nothing: why it could not load, or `empty` once loaded without an item; nothing otherwise.
- *
- * @param {{error: string, loaded: boolean, total: number}} list    The list.
- * @param {string}                                          [empty] What it says without an item, that no book is found unless another one.
- * @return {string} Why it shows nothing, or empty.
- */
-export function formatListStatus(
-	list,
-	empty = __( 'No book found.', 'library' )
-) {
-	return list.error || ( list.loaded && ! list.total ? empty : '' );
-}
-
-/**
- * A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a date first published.
- *
- * @param {string}              date     The date.
- * @param {Intl.DateTimeFormat} [format] The format of a day, the long date unless another one.
+ * @param {string}       date    The date.
+ * @param {'long'|'day'} [style] How its day shows, long unless a day of its year.
  * @return {string} The date formatted.
  */
-export function formatDate( date, format = dateFormat ) {
+export function formatDate( date, style = 'long' ) {
 	const day = date.slice( 0, 10 );
 	const [ year, month, dayOfMonth ] = day.split( '-' );
 
@@ -143,34 +110,7 @@ export function formatDate( date, format = dateFormat ) {
 			: year;
 	}
 
-	return format.format( new Date( `${ day }T00:00` ) );
-}
-
-/**
- * How long the latest reading of a book took, when its start and its end are known: "12 days", the day it started and
- * the day it ended counted; empty otherwise.
- *
- * @param {Book} book The book.
- * @return {string} How long it took, or empty.
- */
-export function formatReadingTime( book ) {
-	const reading = book.readings.at( -1 );
-
-	if ( ! reading?.start || ! reading.end ) {
-		return '';
-	}
-
-	const [ start, end ] = [ reading.start, reading.end ].map( ( date ) =>
-		new Date( `${ date.slice( 0, 10 ) }T00:00` ).getTime()
-	);
-	// A day of a change of time is an hour shorter or longer.
-	const days = Math.round( ( end - start ) / DAY_MS ) + 1;
-
-	return sprintf(
-		/* translators: %s: number of days a reading took, the first and the last counted, e.g. 12. */
-		_n( '%s day', '%s days', days, 'library' ),
-		formatNumber( days )
-	);
+	return dateFormats[ style ].format( new Date( `${ day }T00:00` ) );
 }
 
 /**
@@ -200,156 +140,63 @@ export function formatLanguage( code ) {
 }
 
 /**
- * Who translated a book, and from which of its original languages: "Translated from Italian by A and B". A book without
- * translator is read in its original language, and says nothing. The article before the language may depend on its
- * first letter, as the "de l'" and "du" of French: each string is translated for a vowel and for a consonant.
+ * A day of the device, as a day of its year: "May 12".
  *
- * @param {Book} book The book.
- * @return {string} Who translated it, or empty.
+ * @param {Date} date The day.
+ * @return {string} The day formatted.
  */
-export function formatTranslation( book ) {
-	const translators = getPeople( book, 'translator' ).map(
-		( translator ) => translator.name
-	);
-
-	if ( ! translators.length ) {
-		return '';
-	}
-
-	const languages = book.languages
-		.filter( ( code ) => code !== pageLanguage )
-		.map( ( code ) => languageNames.of( code ) );
-
-	if ( ! languages.length ) {
-		return sprintf(
-			/* translators: %s: list of the translators of a book. */
-			__( 'Translated by %s', 'library' ),
-			andFormat.format( translators )
-		);
-	}
-
-	const format = /^[aeiou]/i.test( languages[ 0 ].normalize( 'NFD' ) )
-		? /* translators: 1: original languages of a book, the first starting with a vowel, e.g. Italian; 2: list of its translators. */
-		  _x(
-				'Translated from %1$s by %2$s',
-				'language starting with a vowel',
-				'library'
-		  )
-		: /* translators: 1: original languages of a book, the first starting with a consonant, e.g. Japanese; 2: list of its translators. */
-		  _x(
-				'Translated from %1$s by %2$s',
-				'language starting with a consonant',
-				'library'
-		  );
-
-	return sprintf(
-		format,
-		andFormat.format( languages ),
-		andFormat.format( translators )
-	);
+export function formatDay( date ) {
+	return dateFormats.day.format( date );
 }
 
 /**
- * Whether a book is read in its original language, as the achievement "In the original" counts it: its text is in its
- * original languages only, none of them the one of the page. A book without original language, or whose edition
- * languages are unknown, says nothing; nor does a multilingual edition, whose text is also in a translation.
+ * The name of a month, as the recap of a year shows it: "May".
  *
- * @param {Book} book The book.
- * @return {string} Its tag, or empty.
+ * @param {Date} date A day of the month.
+ * @return {string} Its name.
  */
-export function formatOriginal( book ) {
-	const isOriginal =
-		book.languages.length &&
-		book.edition_languages.length &&
-		book.edition_languages.every( ( code ) =>
-			book.languages.includes( code )
-		) &&
-		! book.edition_languages.includes( pageLanguage );
-
-	return isOriginal
-		? _x(
-				'Original',
-				'book in its original language, short tag',
-				'library'
-		  )
-		: '';
+export function formatMonthName( date ) {
+	return monthNameFormat.format( date );
 }
 
 /**
- * Whether a book is kept: shown only when it is not, not kept or to buy.
+ * The initial of a month, as the recap of a year shows it under its bars: "M".
  *
- * @param {Book} book The book.
- * @return {string} Its status, or empty.
+ * @param {Date} date A day of the month.
+ * @return {string} Its initial.
  */
-export function formatStatus( book ) {
-	const labels = {
-		[ notKept ]: _x( 'Not kept', 'book status', 'library' ),
-		[ toBuy ]: _x( 'To buy', 'book status', 'library' ),
-	};
-
-	return labels[ book.status ] ?? '';
+export function formatMonthInitial( date ) {
+	return monthInitialFormat.format( date );
 }
 
 /**
- * That a book is read, how many times from two readings: "Read", "Read 2 times".
+ * Names in a list, as units: "A, B, C".
  *
- * @param {Book} book The book, read.
- * @return {string} How many times it is read.
+ * @param {string[]} names The names.
+ * @return {string} The list.
  */
-function formatReadCount( book ) {
-	const readings = book.readings.length;
-
-	return readings > 1
-		? sprintf(
-				/* translators: %s: number of readings of a book, an unknown date included, 2 or more. */
-				_n( 'Read %s time', 'Read %s times', readings, 'library' ),
-				formatNumber( readings )
-		  )
-		: __( 'Read', 'library' );
+export function formatList( names ) {
+	return listFormat.format( names );
 }
 
 /**
- * Whether a book is being read, read, how many times from two readings, or to read unless it is to buy, and its rating.
+ * The parts of a list of names, as units, its names and what goes between them, for each name to be a link.
  *
- * @param {Book} book The book.
- * @return {string} Its state.
+ * @param {string[]} names The names.
+ * @return {ReturnType<Intl.ListFormat['formatToParts']>} Its parts.
  */
-export function formatState( book ) {
-	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
-	const state = book.read ? formatReadCount( book ) : toRead;
-
-	return join( [
-		book.in_progress ? __( 'In progress', 'library' ) : state,
-		formatRating( book.rating ),
-	] );
+export function formatListParts( names ) {
+	return listFormat.formatToParts( names );
 }
 
 /**
- * The readings of a book, in a line: how many times it is read, the day its latest reading ended and how long it took,
- * when they are known: "Read 2 times · April 4, 2025 · in 12 days"; empty unread.
+ * Names joined by "and": "A, B and C".
  *
- * @param {Book} book The book.
- * @return {string} Its readings, or empty.
+ * @param {string[]} names The names.
+ * @return {string} The list.
  */
-export function formatReadings( book ) {
-	const reading = book.readings.at( -1 );
-
-	if ( ! reading ) {
-		return '';
-	}
-
-	const time = formatReadingTime( book );
-
-	return join( [
-		formatReadCount( book ),
-		reading.end && formatDate( reading.end ),
-		time &&
-			sprintf(
-				/* translators: %s: how long a reading took, e.g. 12 days. */
-				__( 'in %s', 'library' ),
-				time
-			),
-	] );
+export function formatAnd( names ) {
+	return andFormat.format( names );
 }
 
 /**
@@ -360,4 +207,17 @@ export function formatReadings( book ) {
  */
 export function join( parts ) {
 	return parts.filter( Boolean ).join( ' · ' );
+}
+
+/**
+ * Today on the device, as a read date: Y-m-d.
+ *
+ * @return {string} Today.
+ */
+export function today() {
+	const now = new Date();
+
+	return [ now.getFullYear(), now.getMonth() + 1, now.getDate() ]
+		.map( ( part ) => part.toString().padStart( 2, '0' ) )
+		.join( '-' );
 }

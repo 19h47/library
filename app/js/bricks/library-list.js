@@ -1,12 +1,12 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatState } from 'library-app/format';
 import {
 	followCards,
 	observeEnd,
 	renderBooks,
 	showBusy,
 } from 'library-app/behaviors';
+import { formatState } from 'library-app/book-lines';
 
 /** @import { List } from 'library-app/store' */
 

@@ -1,17 +1,17 @@
 import { __, _n, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
-import {
-	formatBooks,
-	formatNumber,
-	formatPages,
-	formatRead,
-	formatState,
-	join,
-	listFormat,
-} from 'library-app/format';
 import { fillCardsGroup, renderSeries } from 'library-app/render';
 import { fill } from 'library-app/dom';
 import { TermPage } from 'library-app/term-page';
+import {
+	formatBooks,
+	formatList,
+	formatNumber,
+	formatPages,
+	formatRead,
+	join,
+} from 'library-app/format';
+import { formatState } from 'library-app/book-lines';
 
 /**
  * @import { Book, PageView } from 'library-app/api'
@@ -58,7 +58,7 @@ class LibraryPersonElement extends TermPage {
 				person.otherNames.length,
 				'library'
 			),
-			listFormat.format( person.otherNames )
+			formatList( person.otherNames )
 		);
 
 		fill( this, {
