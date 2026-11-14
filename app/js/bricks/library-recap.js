@@ -2,15 +2,6 @@ import { __, _n, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
-	dayFormat,
-	formatBooks,
-	formatLanguage,
-	formatNumber,
-	formatRating,
-	join,
-	monthNameFormat,
-} from 'library-app/format';
-import {
 	fillPills,
 	pageLink,
 	renderAchievementPill,
@@ -21,6 +12,15 @@ import {
 } from 'library-app/render';
 import { fill } from 'library-app/dom';
 import { urlOf } from 'library-app/router';
+import {
+	formatBooks,
+	formatDay,
+	formatLanguage,
+	formatMonthName,
+	formatNumber,
+	formatRating,
+	join,
+} from 'library-app/format';
 
 /**
  * @import { Book, Recap } from 'library-app/api'
@@ -495,7 +495,7 @@ class LibraryRecapElement extends Brick {
 		return sprintf(
 			/* translators: 1: name of a month, 2: number of books read in it. */
 			__( 'The month read the most: %1$s, %2$s', 'library' ),
-			monthNameFormat.format( new Date( year, months.indexOf( most ) ) ),
+			formatMonthName( new Date( year, months.indexOf( most ) ) ),
 			formatBooks( most )
 		);
 	}
@@ -546,7 +546,7 @@ class LibraryRecapElement extends Brick {
 							'library'
 						),
 						formatNumber( best.pages ),
-						dayFormat.format( new Date( year, 0, 1 + best.day ) )
+						formatDay( new Date( year, 0, 1 + best.day ) )
 				  )
 				: '',
 			dated:

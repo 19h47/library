@@ -1,19 +1,21 @@
 import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
+import { renderBook } from 'library-app/render';
+import { clone, fill } from 'library-app/dom';
 import {
-	dayFormat,
+	followCards,
+	formatListStatus,
+	observeEnd,
+} from 'library-app/behaviors';
+import { urlOf } from 'library-app/router';
+import {
 	formatBooks,
 	formatDate,
-	formatListStatus,
 	formatRating,
 	formatRecap,
 	join,
 } from 'library-app/format';
-import { renderBook } from 'library-app/render';
-import { clone, fill } from 'library-app/dom';
-import { followCards, observeEnd } from 'library-app/behaviors';
-import { urlOf } from 'library-app/router';
 
 /**
  * @import { Book, Month } from 'library-app/api'
@@ -171,7 +173,7 @@ class LibraryDiaryElement extends Brick {
 		const isFirstReading = date === book.readings[ 0 ]?.end;
 
 		return join( [
-			formatDate( date, dayFormat ),
+			formatDate( date, 'day' ),
 			! isFirstReading && __( 'Read again', 'library' ),
 			formatRating( book.rating ),
 		] );

@@ -4,21 +4,17 @@
 
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import {
-	formatBooks,
-	formatListStatus,
-	formatRead,
-	formatState,
-	join,
-} from 'library-app/format';
 import { fillCompletion } from 'library-app/render';
 import { fill, fillHtml } from 'library-app/dom';
 import {
 	focusTitle,
 	followCards,
+	formatListStatus,
 	observeEnd,
 	renderBooks,
 } from 'library-app/behaviors';
+import { formatBooks, formatRead, join } from 'library-app/format';
+import { formatState } from 'library-app/book-lines';
 
 /**
  * @import { Book, PageView } from 'library-app/api'

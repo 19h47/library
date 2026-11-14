@@ -2,8 +2,8 @@ import { __, sprintf } from 'library-app/app';
 import { PAGE_VIEWS } from 'library-app/api';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatRecap } from 'library-app/format';
 import { routeOf, urlOf } from 'library-app/router';
+import { formatRecap } from 'library-app/format';
 
 /**
  * The links to the views, which mark the current one; the one to the books leads to their search. Their row at the top

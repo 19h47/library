@@ -2,9 +2,9 @@ import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
-import { join } from 'library-app/format';
 import { showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
+import { join } from 'library-app/format';
 
 /**
  * @import { Field } from 'library-app/behaviors'

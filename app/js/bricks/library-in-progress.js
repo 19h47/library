@@ -1,9 +1,9 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatBooks } from 'library-app/format';
 import { renderCurrent } from 'library-app/render';
 import { fill } from 'library-app/dom';
 import { followBooks, renderKeyed } from 'library-app/behaviors';
+import { formatBooks } from 'library-app/format';
 
 /**
  * The books being read, as their covers in a row that scrolls sideways, which open them, their reading in their page;

@@ -1,6 +1,6 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatListStatus } from 'library-app/format';
+import { formatListStatus } from 'library-app/behaviors';
 
 /** Why no book of a list shows, those found or the one its `list` attribute names: an error, or none found. */
 class LibraryStatusElement extends Brick {

@@ -1,9 +1,9 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatState } from 'library-app/format';
 import { renderBook, renderRow } from 'library-app/render';
 import { fill } from 'library-app/dom';
 import { followCards } from 'library-app/behaviors';
+import { formatState } from 'library-app/book-lines';
 
 /**
  * The reading idea of the week, and the next one on demand; hidden until it is loaded. Its book as a card, or as a row

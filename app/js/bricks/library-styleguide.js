@@ -1,14 +1,6 @@
 import { notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import {
-	dayFormat,
-	formatBooks,
-	formatDate,
-	formatRating,
-	formatState,
-	join,
-} from 'library-app/format';
-import {
 	fillBookPage,
 	fillBookCover,
 	fillCardsGroup,
@@ -26,6 +18,13 @@ import {
 } from 'library-app/render';
 import { clone, fill, fillHtml } from 'library-app/dom';
 import { showError } from 'library-app/behaviors';
+import {
+	formatBooks,
+	formatDate,
+	formatRating,
+	join,
+} from 'library-app/format';
+import { formatState } from 'library-app/book-lines';
 
 /** @import { Book } from 'library-app/api' */
 
@@ -442,7 +441,7 @@ class LibraryStyleguideElement extends Brick {
 					renderBook(
 						book,
 						join( [
-							formatDate( '2026-10-28', dayFormat ),
+							formatDate( '2026-10-28', 'day' ),
 							formatRating( book.rating ),
 						] )
 					)
