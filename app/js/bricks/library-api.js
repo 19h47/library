@@ -2,7 +2,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { __, _x, sprintf } from 'library-app/app';
 import { pathOf } from 'library-app/api';
-import { clone, fill } from 'library-app/render';
+import { clone, fill } from 'library-app/dom';
 
 /**
  * @import { ApiArg, ApiEndpoint, ApiProperty, ApiRoute, ApiTry } from 'library-app/api'

@@ -1,5 +1,5 @@
 import { Component } from 'library-app/component';
-import { today } from 'library-app/format';
+import { today } from 'library-app/dates';
 
 /**
  * The period of a reading, the root of the component reading-period, from its start to its end, two date fields: a

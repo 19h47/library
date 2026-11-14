@@ -9,12 +9,9 @@ import {
 	join,
 } from 'library-app/format';
 import {
-	clone,
-	fill,
 	fillBookPage,
 	fillBookCover,
 	fillCardsGroup,
-	fillHtml,
 	renderAchievement,
 	renderAuthor,
 	renderBook,
@@ -27,6 +24,7 @@ import {
 	renderShares,
 	renderTile,
 } from 'library-app/render';
+import { clone, fill, fillHtml } from 'library-app/dom';
 import { showError } from 'library-app/behaviors';
 
 /** @import { Book } from 'library-app/api' */

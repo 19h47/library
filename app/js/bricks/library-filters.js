@@ -7,7 +7,7 @@ import {
 	formatTotal,
 	join,
 } from 'library-app/format';
-import { fill } from 'library-app/render';
+import { fill } from 'library-app/dom';
 
 /**
  * The filters of the books: a button that says how many are chosen opens their fields in a dialog, a command of the

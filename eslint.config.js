@@ -52,6 +52,8 @@ export default [
 				'library-app/api',
 				'library-app/brick',
 				'library-app/component',
+				'library-app/dates',
+				'library-app/dom',
 				'library-app/behaviors',
 				'library-app/format',
 				'library-app/render',
@@ -68,11 +70,17 @@ export default [
 			'no-restricted-imports': [
 				'error',
 				{
+					// It writes in the page through library-app/dom, its dates through library-app/dates, its strings through
+					// library-app/app: none of them imports the app.
 					paths: [
 						'library-app/store',
 						'library-app/state',
 						'library-app/router',
+						'library-app/api',
 						'library-app/brick',
+						'library-app/behaviors',
+						'library-app/format',
+						'library-app/render',
 						'library-app/term-page',
 					].map( ( name ) => ( {
 						name,

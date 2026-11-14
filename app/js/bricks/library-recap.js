@@ -11,7 +11,6 @@ import {
 	monthNameFormat,
 } from 'library-app/format';
 import {
-	fill,
 	fillPills,
 	pageLink,
 	renderAchievementPill,
@@ -20,6 +19,7 @@ import {
 	renderShares,
 	renderTile,
 } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { urlOf } from 'library-app/router';
 
 /**

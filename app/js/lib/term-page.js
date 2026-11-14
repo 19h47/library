@@ -11,7 +11,8 @@ import {
 	formatState,
 	join,
 } from 'library-app/format';
-import { fill, fillCompletion, fillHtml } from 'library-app/render';
+import { fillCompletion } from 'library-app/render';
+import { fill, fillHtml } from 'library-app/dom';
 import {
 	focusTitle,
 	followCards,

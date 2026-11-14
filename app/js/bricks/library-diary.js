@@ -10,7 +10,8 @@ import {
 	formatRecap,
 	join,
 } from 'library-app/format';
-import { clone, fill, renderBook } from 'library-app/render';
+import { renderBook } from 'library-app/render';
+import { clone, fill } from 'library-app/dom';
 import { followCards, observeEnd } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 

@@ -3,7 +3,7 @@
  * an item of a list, its control its first element, which takes its value, and a button that removes it.
  */
 
-import { clone } from 'library-app/render';
+import { clone } from 'library-app/dom';
 
 /**
  * The control of a row, its first element: an input, or a component with a value, such as a reading-period.

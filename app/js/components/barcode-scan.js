@@ -1,6 +1,6 @@
 import { __ } from 'library-app/app';
 import { Component } from 'library-app/component';
-import { fill } from 'library-app/render';
+import { fill } from 'library-app/dom';
 
 /**
  * The scan of the barcode of a book, the root of the component barcode-scan: it shows where the browser reads EAN-13

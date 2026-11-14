@@ -1,8 +1,9 @@
 import { statusOf, store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { formatReadings, today } from 'library-app/format';
+import { formatReadings } from 'library-app/format';
+import { today } from 'library-app/dates';
 import { toDays, toInterval } from 'library-app/api';
-import { fill } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { showBusy, showErrors } from 'library-app/behaviors';
 
 /**

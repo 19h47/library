@@ -2,7 +2,8 @@ import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks, formatRead, join } from 'library-app/format';
-import { fill, renderCover } from 'library-app/render';
+import { renderCover } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { urlOf } from 'library-app/router';
 
 /** @import { Book } from 'library-app/api' */

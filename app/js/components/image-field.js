@@ -1,5 +1,5 @@
 import { Component } from 'library-app/component';
-import { fillCover } from 'library-app/render';
+import { fillCover } from 'library-app/dom';
 
 /**
  * @import { Cover } from 'library-app/api'

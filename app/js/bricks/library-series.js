@@ -1,5 +1,6 @@
 import { store } from 'library-app/store';
-import { fill, fillAuthors, fillPills, pageLink } from 'library-app/render';
+import { fillAuthors, fillPills, pageLink } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { urlOf } from 'library-app/router';
 import { TermPage } from 'library-app/term-page';
 
