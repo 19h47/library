@@ -1,0 +1,10 @@
+/**
+ * The status of the app offline, an atom, its custom element its root: an .app-status.
+ */
+
+@layer app.components {
+	/* A block, as the paragraph of a status, rather than the inline of a custom element */
+	offline-status {
+		display: block;
+	}
+}

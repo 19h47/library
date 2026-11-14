@@ -76,7 +76,7 @@ use Library\Meta;
 					</library-nav>
 				</header>
 
-				<library-offline class="app-status" role="status" hidden><?php esc_html_e( 'Offline: the books shown are the ones loaded before, and nothing can be saved.', 'library' ); ?></library-offline>
+				<?php Markup::render_component( 'offline-status' ); ?>
 
 				<library-view name="books" <?php echo 'books' === $view ? '' : 'hidden'; ?>>
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
@@ -615,14 +615,17 @@ use Library\Meta;
 											'id'          => 'library-reading-readings',
 											'label'       => Meta::get_label( 'library_reading' ),
 											'description' => Meta::get_description( 'library_reading' ),
+											'template'    => 'library-reading-ended',
 											'add'         => __( 'Add a reading', 'library' ),
-											'action'      => 'add',
 											// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
-											'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
-											'attributes'  => array(
-												'data-list' => 'readings',
-												'disabled' => true,
+											'variants'    => array(
+												array(
+													'label'    => __( 'Add a reading with an unknown date', 'library' ),
+													'template' => 'library-reading-unknown',
+													'value'    => '/',
+												),
 											),
+											'attributes'  => array( 'disabled' => true ),
 										)
 									);
 									?>
@@ -751,8 +754,7 @@ use Library\Meta;
 							'options'       => Meta::get_role_choices(),
 							'options_label' => __( 'Role', 'library' ),
 							'add'           => __( 'Add a person', 'library' ),
-							'action'        => 'add-person',
-							'attributes'    => array( 'data-list' => 'people' ),
+							'template'      => 'library-edit-person',
 						)
 					);
 					Markup::render_component(

@@ -60,6 +60,8 @@ test.describe( 'Offline', () => {
 		await context.setOffline( true );
 		await page.reload();
 		await expect( page.getByRole( 'heading', { level: 1 } ) ).toBeVisible();
+		// The status of the app, before the views, the styleguide among them.
+		await expect( page.locator( 'offline-status' ).first() ).toBeVisible();
 		await context.setOffline( false );
 	} );
 } );

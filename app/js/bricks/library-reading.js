@@ -3,7 +3,7 @@ import { Brick } from 'library-app/brick';
 import { formatReadings, today } from 'library-app/format';
 import { toDays, toInterval } from 'library-app/api';
 import { fill } from 'library-app/render';
-import { inputsList, showBusy, showErrors } from 'library-app/behaviors';
+import { showBusy, showErrors } from 'library-app/behaviors';
 
 /**
  * @import { ReadingPeriod } from 'library-app/api'
@@ -64,15 +64,8 @@ class LibraryReadingElement extends Brick {
 		const $startedField = this.querySelector( '[data-part="started"]' );
 		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '[data-part="readings"]' );
-		/** @type {HTMLFieldSetElement} */
-		const $readings = this.querySelector( '[data-list="readings"]' );
-		const $list = $readings.querySelector( 'ul' );
-		/** @type {HTMLButtonElement} */
-		const $add = $readings.querySelector( '[data-action="add"]' );
-		/** @type {HTMLButtonElement} */
-		const $addUnknown = $readings.querySelector(
-			'[data-action="add-unknown"]'
-		);
+		// The readings ended, a row each, of a reading-period, or of a reading whose dates are unknown.
+		const $readings = this.querySelector( 'inputs-list' );
 		// Whether a change waits for the saving of the one before.
 		let isPending = false;
 		/**
@@ -92,27 +85,10 @@ class LibraryReadingElement extends Brick {
 			$form.requestSubmit();
 		};
 
-		// A reading ends today, unless changed, from the start of the one in progress, which it ends; a reading whose dates
-		// are unknown has no date input. Its period, reading-period, keeps its end after its start, both up to today.
-		const addReading = inputsList( {
-			$list,
-			$add,
-			id: ( interval ) =>
-				'/' === interval
-					? 'library-reading-unknown'
-					: 'library-reading-ended',
-			signal,
-			value: () =>
-				`${ $inProgress.checked ? $started.value : '' }/${ today() }`,
-			// Its period takes it, its start and its end; a reading whose dates are unknown has none.
-			setup: ( $row, interval ) => {
-				const $period = $row.querySelector( 'reading-period' );
-
-				if ( $period ) {
-					$period.value = interval;
-				}
-			},
-		} );
+		// A reading ends today, unless changed, from the start of the one in progress; its period, reading-period, keeps its
+		// end after its start, both up to today.
+		const newReading = () =>
+			`${ $inProgress.checked ? $started.value : '' }/${ today() }`;
 
 		const clearErrors = showErrors( $form, signal, { focus: false } );
 
@@ -133,29 +109,24 @@ class LibraryReadingElement extends Brick {
 			$details.hidden = ! $read.checked;
 		};
 
-		// Its row has no input to focus: its button does. A book may have been read several times at dates unknown.
-		$addUnknown.addEventListener(
-			'click',
-			() =>
-				/** @type {HTMLButtonElement} */ (
-					addReading( '/' )
-						.closest( 'li' )
-						.querySelector( '[data-action="remove"]' )
-				).focus(),
-			{ signal }
-		);
+		// A reading added, whose period takes the new reading, or whose dates are unknown, ends the one in progress, which it
+		// took the start of. A book may have been read several times at dates unknown.
+		$readings.addEventListener(
+			'rowadd',
+			( event ) => {
+				const $period = /** @type {Element} */ (
+					event.target
+				).querySelector( 'reading-period' );
 
-		// A reading added ends the one in progress, which its row took the start of.
-		[ $add, $addUnknown ].forEach( ( $button ) =>
-			$button.addEventListener(
-				'click',
-				() => {
-					$inProgress.checked = false;
-					showStarted();
-					save();
-				},
-				{ signal }
-			)
+				if ( $period ) {
+					$period.value = newReading();
+				}
+
+				$inProgress.checked = false;
+				showStarted();
+				save();
+			},
+			{ signal }
 		);
 
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
@@ -212,8 +183,8 @@ class LibraryReadingElement extends Brick {
 			'change',
 			() => {
 				// Read today, from the start of the reading in progress, which it ends, unless a reading is there already.
-				if ( $read.checked && ! $list.children.length ) {
-					addReading();
+				if ( $read.checked && ! $readings.value.length ) {
+					$readings.add( newReading() );
 					$inProgress.checked = false;
 					showStarted();
 				}
@@ -266,9 +237,8 @@ class LibraryReadingElement extends Brick {
 					// By its day, as a date field takes it: a reading started today keeps its time once saved.
 					$started.value = book.started.slice( 0, 10 );
 					showStarted();
-					$list.replaceChildren();
-					book.readings.forEach( ( reading ) =>
-						addReading( toInterval( toDays( reading ) ) )
+					$readings.value = book.readings.map( ( reading ) =>
+						toInterval( toDays( reading ) )
 					);
 					showReadings();
 					$rating.value = ( book.rating || '' ).toString();

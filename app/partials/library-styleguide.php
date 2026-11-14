@@ -232,6 +232,15 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>offline-status</code></h4>
+					<p>The status of the app offline, an <code>.app-status</code>; its root is its custom element, <code>offline-status</code>, which shows it while the browser says it is offline, shown here whatever the network</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="offline-status">
+					<?php Markup::render_component( 'offline-status' ); ?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>search</code></h4>
 					<p>The field of a search, as high as a control</p>
 				</figcaption>
@@ -758,9 +767,15 @@ $sizes = array(
 							'id'          => 'library-styleguide-readings',
 							'label'       => 'Readings',
 							'description' => 'From its start to its end, each one left empty when it is unknown.',
+							'template'    => 'library-reading-ended',
 							'add'         => 'Add a reading',
-							'action'      => 'add',
-							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
+							'variants'    => array(
+								array(
+									'label'    => 'Add a reading with an unknown date',
+									'template' => 'library-reading-unknown',
+									'value'    => '/',
+								),
+							),
 							'attributes'  => array( 'data-sample' => 'readings' ),
 						)
 					);
@@ -791,7 +806,7 @@ $sizes = array(
 							),
 							'options_label' => 'Role',
 							'add'           => 'Add a person',
-							'action'        => 'add-person',
+							'template'      => 'library-edit-person',
 							'attributes'    => array( 'data-sample' => 'people' ),
 						)
 					);

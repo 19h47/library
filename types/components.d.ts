@@ -6,6 +6,9 @@
 import type { BarcodeScanElement } from '../app/js/components/barcode-scan.js';
 import type { CheckboxesFieldElement } from '../app/js/components/checkboxes-field.js';
 import type { ImageFieldElement } from '../app/js/components/image-field.js';
+import type { InputGroupsElement } from '../app/js/components/input-groups.js';
+import type { InputsListElement } from '../app/js/components/inputs-list.js';
+import type { OfflineStatusElement } from '../app/js/components/offline-status.js';
 import type { ReadingPeriodElement } from '../app/js/components/reading-period.js';
 
 declare global {
@@ -13,6 +16,9 @@ declare global {
 		'barcode-scan': BarcodeScanElement;
 		'checkboxes-field': CheckboxesFieldElement;
 		'image-field': ImageFieldElement;
+		'input-groups': InputGroupsElement;
+		'inputs-list': InputsListElement;
+		'offline-status': OfflineStatusElement;
 		'reading-period': ReadingPeriodElement;
 	}
 }

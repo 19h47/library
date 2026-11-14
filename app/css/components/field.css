@@ -26,8 +26,10 @@
 		border: 0;
 	}
 
-	/* A field of several choices: a block, as the fieldset it holds, rather than the inline of a custom element */
-	checkboxes-field {
+	/* A field of several choices, a list of inputs: a block, as the fieldset it holds, rather than the inline of a custom element */
+	checkboxes-field,
+	inputs-list,
+	input-groups {
 		display: block;
 	}
 

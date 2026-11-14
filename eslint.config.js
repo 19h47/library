@@ -56,6 +56,7 @@ export default [
 				'library-app/format',
 				'library-app/render',
 				'library-app/router',
+				'library-app/rows',
 				'library-app/term-page',
 			],
 		},

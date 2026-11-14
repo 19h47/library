@@ -3,7 +3,7 @@ import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/render';
 import { join } from 'library-app/format';
-import { inputsList, showErrors, showSaving } from 'library-app/behaviors';
+import { showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
@@ -112,18 +112,8 @@ class LibraryEditElement extends Brick {
 			'checkbox' === $field.type
 				? /** @type {HTMLInputElement} */ ( $field ).checked
 				: $field.value;
-		const $people = this.querySelector( '[data-list="people"]' );
-		/** @type {HTMLSelectElement} */
-		const $role = this.querySelector( '#library-edit-role' );
-		/** @type {HTMLButtonElement} */
-		const $addPerson = this.querySelector( '[data-action="add-person"]' );
-		const $groups = /** @type {HTMLElement[]} */ ( [
-			...$people.querySelectorAll( '[data-group]' ),
-		] );
-		// The list of the names of a role.
-		/** @type {( role: string ) => Element} */
-		const listOf = ( role ) =>
-			$people.querySelector( `[data-group="${ role }"] > ul` );
+		// The names, each in the group of its role.
+		const $people = this.querySelector( 'input-groups' );
 		const $coverField = this.querySelector( 'image-field' );
 		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '[data-part="details"]' );
@@ -143,13 +133,6 @@ class LibraryEditElement extends Brick {
 			series: this.querySelector( '#library-edit-series-paths' ),
 		};
 
-		const addPerson = inputsList( {
-			$list: $people,
-			$add: $addPerson,
-			id: 'library-edit-person',
-			signal,
-			into: () => listOf( $role.value ),
-		} );
 		const clearErrors = showErrors( $form, signal );
 
 		// The summary of the details counts the fields filled in, as the button of the filters does: the checkboxes of a field once.
@@ -204,16 +187,12 @@ class LibraryEditElement extends Brick {
 		 * @param {Credit[]} people The names.
 		 */
 		const showPeople = ( people ) => {
-			$groups.forEach( ( $group ) =>
-				$group.querySelector( 'ul' ).replaceChildren()
-			);
-			people.forEach( ( { name, role } ) =>
-				addPerson( name, listOf( role ) )
-			);
-
-			if ( ! people.length ) {
-				addPerson( '', listOf( 'author' ) );
-			}
+			$people.value = people.length
+				? people.map( ( { name, role } ) => ( {
+						value: name,
+						group: role,
+				  } ) )
+				: [ { value: '', group: 'author' } ];
 		};
 
 		/**
@@ -235,10 +214,6 @@ class LibraryEditElement extends Brick {
 					return /** @type {[Field, string]} */ ( [ $field, value ] );
 				} ),
 			];
-			const $names = /** @type {HTMLInputElement[]} */ ( [
-				...$people.querySelectorAll( '[name="person"]' ),
-			] );
-
 			values
 				.filter(
 					( [ $field, value ] ) => value && ! getValue( $field )
@@ -249,7 +224,7 @@ class LibraryEditElement extends Brick {
 
 			if (
 				book.people.length &&
-				$names.every( ( $name ) => ! $name.value )
+				$people.value.every( ( { value } ) => ! value )
 			) {
 				showPeople( book.people );
 			}
@@ -327,15 +302,11 @@ class LibraryEditElement extends Brick {
 					excerpt: $excerpt.value,
 					content: $content.value,
 					// Each name with the role of its group.
-					people: $groups
-						.flatMap( ( $group ) =>
-							/** @type {HTMLInputElement[]} */ ( [
-								...$group.querySelectorAll( '[name="person"]' ),
-							] ).map( ( $name ) => ( {
-								name: $name.value.trim(),
-								role: $group.dataset.group,
-							} ) )
-						)
+					people: $people.value
+						.map( ( { value, group } ) => ( {
+							name: value.trim(),
+							role: group,
+						} ) )
 						.filter( ( person ) => person.name ),
 					publisher: /** @type {string} */ (
 						data.get( 'publisher' )

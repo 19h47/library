@@ -48,12 +48,12 @@ Every size is on the scale of the golden ratio: its steps, `--app-u0` to `--app-
 
 The components are built as those of a design file, each level made of the ones before it:
 
-- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `book-cover`, `.app-status`;
+- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `book-cover`, `.app-status`, `offline-status`;
 - molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`, `isbn-status`, `reading-period`, `barcode-scan`, `.library-disclosure`;
 - organisms: the cards, components of their own, `book-card`, `book-row`, `term-card` and `achievement-card`, each its root the class of its name, `.library-book-card`, and `.library-current`; `.library-section`, `cards-group`, which `fillCardsGroup()` fills, `term-header`, `views-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `inputs-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
 - screens: the views, in `app/css/views`.
 
-The components that behave on their own have a custom element of their own as their root, in `app/js/components`: `image-field`, `reading-period`, `barcode-scan` and `checkboxes-field`.
+The components that behave on their own have a custom element of their own as their root, in `app/js/components`: `image-field`, `reading-period`, `barcode-scan`, `checkboxes-field`, `inputs-list`, `input-groups` and `offline-status`; the two lists of inputs share their rows through `library-app/rows`.
 
 A component knows none of the places it shows in: a place that needs it otherwise sets its properties, as a card sets the width of its cover, `--library-cover-inline-size`, rather than the cover listing the cards. A class of a view names a part of that view; a style used in several places is a component of its own.
 

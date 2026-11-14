@@ -274,6 +274,8 @@ class LibraryStyleguideElement extends Brick {
 		this.querySelector( '[data-sample="reading-period"]' ).querySelector(
 			'reading-period'
 		).value = '2026-10-20/2026-10-28';
+		// The status of the app offline, shown whatever the network.
+		this.querySelector( 'offline-status' ).hidden = false;
 		// The scan of a barcode, shown whatever the browser reads, a photo without one.
 		const $scan = this.querySelector( 'barcode-scan' );
 
@@ -282,11 +284,11 @@ class LibraryStyleguideElement extends Brick {
 			message: 'No barcode found in the photo: take it again, closer.',
 		} );
 		// The readings of a book, in the list of their field.
-		this.querySelector( '[data-sample="readings"] ul' ).replaceChildren(
-			...[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
-				( interval ) => this.#renderReading( interval )
-			)
-		);
+		this.querySelector( 'inputs-list' ).value = [
+			'/',
+			'2026-10-20/2026-10-28',
+			'/2126-10-28',
+		];
 
 		// The book open, the link to the recap, the status of an ISBN and the keywords of a search, filled as their bricks
 		// fill them.
@@ -325,15 +327,11 @@ class LibraryStyleguideElement extends Brick {
 		);
 
 		// The people of a book, each in the group of its role.
-		[
-			[ 'author', 'A Person' ],
-			[ 'translator', 'A Translator' ],
-			[ 'translator', '' ],
-		].forEach( ( [ role, name ] ) =>
-			this.querySelector(
-				`[data-sample="people"] [data-group="${ role }"] > ul`
-			).append( this.#renderInput( 'library-edit-person', name ) )
-		);
+		this.querySelector( 'input-groups' ).value = [
+			{ value: 'A Person', group: 'author' },
+			{ value: 'A Translator', group: 'translator' },
+			{ value: '', group: 'translator' },
+		];
 
 		// The covers of the atoms and of the book open, and the one of the form, drawn as the others; the form can remove it.
 		this.querySelectorAll( '[data-sample-cover]' ).forEach( ( $cover ) =>
@@ -454,42 +452,6 @@ class LibraryStyleguideElement extends Brick {
 			);
 
 		return $month;
-	}
-
-	/**
-	 * A row of a list of inputs, from its template, with its value.
-	 *
-	 * @param {string} template The ID of its template.
-	 * @param {string} value    The value of its input.
-	 * @return {HTMLElement} The row.
-	 */
-	#renderInput( template, value ) {
-		const $item = clone( template );
-
-		$item.querySelector( 'input' ).value = value;
-
-		return $item;
-	}
-
-	/**
-	 * A row of a reading, of its unknown dates, or its start and end in their inputs.
-	 *
-	 * @param {string} interval The reading, as an interval: 2026-10-20/2026-10-28.
-	 * @return {HTMLElement} The row.
-	 */
-	#renderReading( interval ) {
-		const $item = clone(
-			'/' === interval
-				? 'library-reading-unknown'
-				: 'library-reading-ended'
-		);
-		const $period = $item.querySelector( 'reading-period' );
-
-		if ( $period ) {
-			$period.value = interval;
-		}
-
-		return $item;
 	}
 }
 customElements.define( 'library-styleguide', LibraryStyleguideElement );
