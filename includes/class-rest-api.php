@@ -518,6 +518,20 @@ class Rest_API {
 				'description' => __( 'Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them.', 'library' ),
 				'type'        => 'object',
 				'default'     => array(),
+				'properties'  => array(
+					'reading' => array(
+						'description' => __( 'Readings of the book, which replace its own, each with the rating it ended with, the one in progress last.', 'library' ),
+						'type'        => 'array',
+						'items'       => Rest_Schemas::get_reading(),
+					),
+					'rating'  => array(
+						'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
+						'type'        => array( 'number', 'null' ),
+						'minimum'     => Meta::RATING_LIMITS['minimum'],
+						'maximum'     => Meta::RATING_LIMITS['maximum'],
+						'multipleOf'  => Meta::RATING_LIMITS['multipleOf'],
+					),
+				),
 			),
 			'status'         => array(
 				'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
