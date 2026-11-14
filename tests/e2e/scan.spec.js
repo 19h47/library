@@ -93,6 +93,34 @@ test.describe( 'Scan', () => {
 			form.getByText( 'No barcode found in the photo' )
 		).toBeVisible();
 		await expect( form.locator( '[name="isbn"]' ) ).toHaveValue( '' );
+
+		// The ISBN typed instead, the message goes.
+		await form.locator( '[name="isbn"]' ).fill( '978' );
+		await expect(
+			form.getByText( 'No barcode found in the photo' )
+		).toBeHidden();
+	} );
+
+	test( 'the message of a photo without a barcode goes as the form opens again', async ( {
+		page,
+	} ) => {
+		await detectBarcode( page, null );
+		await openApp( page );
+
+		const form = page.locator( 'library-edit' );
+		const add = page.getByRole( 'button', { name: 'Add New Book' } );
+
+		await add.click();
+		await form.getByLabel( 'Scan the barcode' ).setInputFiles( PHOTO );
+		await expect(
+			form.getByText( 'No barcode found in the photo' )
+		).toBeVisible();
+
+		await page.keyboard.press( 'Escape' );
+		await add.click();
+		await expect(
+			form.getByText( 'No barcode found in the photo' )
+		).toBeHidden();
 	} );
 
 	test( 'a browser that reads no barcode shows no pill', async ( {

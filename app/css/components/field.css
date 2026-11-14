@@ -26,8 +26,10 @@
 		border: 0;
 	}
 
-	/* A field of several choices: a block, as the fieldset it holds, rather than the inline of a custom element */
-	library-choices {
+	/* A field of several choices, a list of inputs: a block, as the fieldset it holds, rather than the inline of a custom element */
+	checkboxes-field,
+	inputs-list,
+	input-groups {
 		display: block;
 	}
 
@@ -80,8 +82,8 @@
 		color: var(--app-text-muted);
 	}
 
-	/* A field of a form, such as a read date or the title of a book; a checkbox is the one of its pill */
-	:is(.library-field, .library-inputs-list__item) :is(input:not([type="checkbox"]), select, textarea) {
+	/* The control of a field of a form, an input, a select or a textarea, such as a read date or the title of a book; a checkbox is the one of its pill */
+	.library-input {
 		/* As a pill or the search, in em of its text */
 		--library-field-padding-inline: 1em;
 		--app-select-padding-inline: var(--library-field-padding-inline);
@@ -134,7 +136,7 @@
 	 * side; empty, or made smaller by hand, they keep room for three lines, their padding one more; made higher by hand
 	 * only, as wide as their place
 	 */
-	.library-field textarea {
+	textarea.library-input {
 		min-block-size: 4lh;
 		padding-block: calc(1em / sqrt(var(--app-phi)));
 		field-sizing: content;
@@ -154,10 +156,15 @@
 		font-size: var(--app-text-s);
 	}
 
-	.library-image-field {
+	image-field {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: end;
 		gap: var(--app-space-m);
+	}
+
+	/* Its pill Remove, while its preview shows an image: the photo picked, or the cover the book has */
+	image-field:not(:has(img:not([hidden]))) > [data-action="remove"] {
+		display: none;
 	}
 }

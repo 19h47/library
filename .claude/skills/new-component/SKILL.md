@@ -11,12 +11,12 @@ The rules, the tokens, the names and the starting points are in `DESIGN-SYSTEM.m
 
 1. Read `DESIGN-SYSTEM.md`, then the part of `ARCHITECTURE.md` on the reading app.
 2. Find the nearest component in the styleguide (`app/partials/library-styleguide.php`) and in `app/components` / `app/css/components`: a new one only if none shows this content. The same content in another state is a variant, an argument of the existing component; another content is another file.
-3. Place it: its level (atom, molecule, organism, screen) and its files, `app/components/<name>.php`, `app/css/components/<name>.css`, a brick `app/js/bricks/library-<name>.js` if it has a behavior. A part of one view only is a class of that view, in `app/css/views/<view>.css`.
+3. Place it: its level (atom, molecule, organism, screen) and its files, `app/components/<name>.php`, `app/css/components/<name>.css`, its element `app/js/components/<name>.js` if it has a behavior of its own, which reads no store, or a brick `app/js/bricks/library-<name>.js` around it if the store fills it. A part of one view only is a class of that view, in `app/css/views/<view>.css`.
 4. If a token is missing, say so before adding one: a token of the scale belongs to the gist, shared by every app, not to the library alone.
 
 ## Writing
 
-5. Start from the skeletons of `DESIGN-SYSTEM.md`: component, sheet, brick.
+5. Start from the skeletons of `DESIGN-SYSTEM.md`: component, sheet, component element or brick.
 6. Sizes from tokens only: space `--app-space-*`, text `--app-text-*`, corners `--app-radius-*`, the steps `--app-u*` for a size; no margin and no width of its own; what its place may change, a custom property it reads.
 7. Data attributes for every element a script reaches, `data-field`, `data-list`, `data-action`, `data-part`…; never a class.
 8. Its strings in `__()`, in PHP and in JS.

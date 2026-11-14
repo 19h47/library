@@ -76,7 +76,7 @@ use Library\Meta;
 					</library-nav>
 				</header>
 
-				<library-offline class="app-status" role="status" hidden><?php esc_html_e( 'Offline: the books shown are the ones loaded before, and nothing can be saved.', 'library' ); ?></library-offline>
+				<?php Markup::render_component( 'offline-status' ); ?>
 
 				<library-view name="books" <?php echo 'books' === $view ? '' : 'hidden'; ?>>
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
@@ -615,14 +615,17 @@ use Library\Meta;
 											'id'          => 'library-reading-readings',
 											'label'       => Meta::get_label( 'library_reading' ),
 											'description' => Meta::get_description( 'library_reading' ),
+											'template'    => 'library-reading-ended',
 											'add'         => __( 'Add a reading', 'library' ),
-											'action'      => 'add',
 											// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
-											'actions'     => array( 'add-unknown' => __( 'Add a reading with an unknown date', 'library' ) ),
-											'attributes'  => array(
-												'data-list' => 'readings',
-												'disabled' => true,
+											'variants'    => array(
+												array(
+													'label'    => __( 'Add a reading with an unknown date', 'library' ),
+													'template' => 'library-reading-unknown',
+													'value'    => '/',
+												),
 											),
+											'attributes'  => array( 'disabled' => true ),
 										)
 									);
 									?>
@@ -710,20 +713,18 @@ use Library\Meta;
 							'name'   => 'cover',
 							'label'  => __( 'Choose a cover', 'library' ),
 							'remove' => __( 'Remove the cover', 'library' ),
-							'action' => 'remove-cover',
 						)
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
-					?>
-					<?php // Where the browser reads EAN-13 barcodes, which its script tells: a photo of the barcode of the book types its ISBN. ?>
-					<p data-part="scan" hidden>
-						<label class="app-pill" for="library-edit-scan">
-							<input class="sr-only" id="library-edit-scan" type="file" accept="image/*" capture="environment">
-							<?php esc_html_e( 'Scan the barcode', 'library' ); ?>
-						</label>
-					</p>
-					<?php
+					// Where the browser reads EAN-13 barcodes: a photo of the barcode of the book types its ISBN.
+					Markup::render_component(
+						'barcode-scan',
+						array(
+							'id'  => 'library-edit-scan',
+							'for' => 'library-edit-library-isbn',
+						)
+					);
 					Markup::render_component( 'isbn-status' );
 					Markup::render_component(
 						'field',
@@ -753,8 +754,7 @@ use Library\Meta;
 							'options'       => Meta::get_role_choices(),
 							'options_label' => __( 'Role', 'library' ),
 							'add'           => __( 'Add a person', 'library' ),
-							'action'        => 'add-person',
-							'attributes'    => array( 'data-list' => 'people' ),
+							'template'      => 'library-edit-person',
 						)
 					);
 					Markup::render_component(
@@ -832,39 +832,29 @@ use Library\Meta;
 							);
 						}
 
-						?>
-						<library-choices>
-							<?php
-							Markup::render_component(
-								'checkboxes-field',
-								array(
-									'id'      => 'library-edit-languages',
-									'label'   => $language_labels->name_for_book,
-									'name'    => 'languages',
-									'add'     => __( 'Add a language', 'library' ),
-									'options' => $language_choices,
-								)
-							);
-							?>
-						</library-choices>
-						<?php // A book added is in the language of the reader, unless the catalogue says otherwise. ?>
-						<library-choices>
-							<?php
-							Markup::render_component(
-								'checkboxes-field',
-								array(
-									'id'          => 'library-edit-edition-languages',
-									'label'       => Meta::get_label( 'library_edition_languages' ),
-									'name'        => Meta::get_name( 'library_edition_languages' ),
-									'add'         => __( 'Add a language', 'library' ),
-									'options'     => $language_choices,
-									'checked'     => array( $own_language_id ),
-									'description' => Meta::get_description( 'library_edition_languages' ),
-								)
-							);
-							?>
-						</library-choices>
-						<?php
+						Markup::render_component(
+							'checkboxes-field',
+							array(
+								'id'      => 'library-edit-languages',
+								'label'   => $language_labels->name_for_book,
+								'name'    => 'languages',
+								'add'     => __( 'Add a language', 'library' ),
+								'options' => $language_choices,
+							)
+						);
+						// A book added is in the language of the reader, unless the catalogue says otherwise.
+						Markup::render_component(
+							'checkboxes-field',
+							array(
+								'id'          => 'library-edit-edition-languages',
+								'label'       => Meta::get_label( 'library_edition_languages' ),
+								'name'        => Meta::get_name( 'library_edition_languages' ),
+								'add'         => __( 'Add a language', 'library' ),
+								'options'     => $language_choices,
+								'checked'     => array( $own_language_id ),
+								'description' => Meta::get_description( 'library_edition_languages' ),
+							)
+						);
 						Markup::render_component(
 							'pill-checkbox',
 							array(
@@ -939,10 +929,8 @@ use Library\Meta;
 		</template>
 
 		<template id="library-reading-ended">
-			<li class="library-inputs-list__item library-reading__item">
-				<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
-				<span class="library-reading__arrow"><?php Markup::render_icon( 'arrow_forward' ); ?></span>
-				<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+			<li class="library-inputs-list__item">
+				<?php Markup::render_component( 'reading-period' ); ?>
 				<button
 					class="app-control"
 					type="button"
@@ -983,7 +971,7 @@ use Library\Meta;
 
 		<template id="library-edit-person">
 			<li class="library-inputs-list__item">
-				<input name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
+				<input class="library-input" name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
 				<button
 					class="app-control"
 					type="button"

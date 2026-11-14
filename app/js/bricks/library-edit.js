@@ -1,15 +1,16 @@
 import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { fill, fillCover } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { join } from 'library-app/format';
-import { inputsList, showErrors, showSaving } from 'library-app/behaviors';
+import { showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
 
 /**
  * @import { Field } from 'library-app/behaviors'
  * @import { CatalogBook, Credit } from 'library-app/api'
  * @import { Catalog } from 'library-app/store'
+ * @import { CheckboxesFieldElement } from '../components/checkboxes-field.js'
  */
 
 /**
@@ -48,24 +49,6 @@ const nameCollator = new Intl.Collator( document.documentElement.lang, {
 } );
 
 /**
- * Checks the checkboxes of the term IDs given, and only them, such as the original languages of a book; the ones it
- * changes tell it, as a click would, for the pills of the choices made.
- *
- * @param {HTMLInputElement[]} $checkboxes The checkboxes, a term ID each.
- * @param {number[]}           ids         The term IDs to check.
- */
-function checkIds( $checkboxes, ids ) {
-	$checkboxes.forEach( ( $checkbox ) => {
-		const checked = ids.includes( Number( $checkbox.value ) );
-
-		if ( checked !== $checkbox.checked ) {
-			$checkbox.checked = checked;
-			$checkbox.dispatchEvent( new Event( 'change', { bubbles: true } ) );
-		}
-	} );
-}
-
-/**
  * Options of a datalist, the names to suggest.
  *
  * @param {Array<{name: string}>} terms The names.
@@ -86,14 +69,10 @@ function renderOptions( terms ) {
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
  * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
  * in the fields left empty, the names as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
- * barcode of a book types its ISBN.
+ * barcode of a book types its ISBN, as if typed: its component, barcode-scan, does it.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
-	#preview = '';
-	// Whether the cover of the book was removed: a photo picked replaces it either way.
-	#removed = false;
-
 	connect( signal ) {
 		const $dialog = this.querySelector( 'dialog' );
 		/** @type {HTMLElement} */
@@ -119,38 +98,23 @@ class LibraryEditElement extends Brick {
 			...$form.querySelectorAll( '[data-meta]' ),
 		] );
 		// The languages, a checkbox each, its value a term ID.
-		const $languages = /** @type {HTMLInputElement[]} */ ( [
-			...$form.querySelectorAll( '[name="languages"]' ),
-		] );
-		const $editionLanguages = /** @type {HTMLInputElement[]} */ ( [
-			...$form.querySelectorAll( '[name="edition_languages"]' ),
-		] );
+		/** @type {CheckboxesFieldElement} */
+		const $languages = $form.querySelector(
+			'checkboxes-field[name="languages"]'
+		);
+		/** @type {CheckboxesFieldElement} */
+		const $editionLanguages = $form.querySelector(
+			'checkboxes-field[name="edition_languages"]'
+		);
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
 		/** @type {( $field: Field ) => string|boolean} */
 		const getValue = ( $field ) =>
 			'checkbox' === $field.type
 				? /** @type {HTMLInputElement} */ ( $field ).checked
 				: $field.value;
-		const $people = this.querySelector( '[data-list="people"]' );
-		/** @type {HTMLSelectElement} */
-		const $role = this.querySelector( '#library-edit-role' );
-		/** @type {HTMLButtonElement} */
-		const $addPerson = this.querySelector( '[data-action="add-person"]' );
-		const $groups = /** @type {HTMLElement[]} */ ( [
-			...$people.querySelectorAll( '[data-group]' ),
-		] );
-		// The list of the names of a role.
-		/** @type {( role: string ) => Element} */
-		const listOf = ( role ) =>
-			$people.querySelector( `[data-group="${ role }"] > ul` );
-		/** @type {HTMLImageElement} */
-		const $preview = this.querySelector(
-			'[data-part="preview"] [data-field="cover"]'
-		);
-		/** @type {HTMLButtonElement} */
-		const $removeCover = this.querySelector(
-			'[data-action="remove-cover"]'
-		);
+		// The names, each in the group of its role.
+		const $people = this.querySelector( 'input-groups' );
+		const $coverField = this.querySelector( 'image-field' );
 		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '[data-part="details"]' );
 		const $summary = $details.querySelector( 'summary' );
@@ -162,10 +126,6 @@ class LibraryEditElement extends Brick {
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
 		/** @type {HTMLButtonElement} */
 		const $buy = this.querySelector( '[data-action="buy"]' );
-		/** @type {HTMLElement} */
-		const $scanRow = this.querySelector( '[data-part="scan"]' );
-		/** @type {HTMLInputElement} */
-		const $scan = $scanRow.querySelector( 'input' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -173,13 +133,6 @@ class LibraryEditElement extends Brick {
 			series: this.querySelector( '#library-edit-series-paths' ),
 		};
 
-		const addPerson = inputsList( {
-			$list: $people,
-			$add: $addPerson,
-			id: 'library-edit-person',
-			signal,
-			into: () => listOf( $role.value ),
-		} );
 		const clearErrors = showErrors( $form, signal );
 
 		// The summary of the details counts the fields filled in, as the button of the filters does: the checkboxes of a field once.
@@ -234,16 +187,12 @@ class LibraryEditElement extends Brick {
 		 * @param {Credit[]} people The names.
 		 */
 		const showPeople = ( people ) => {
-			$groups.forEach( ( $group ) =>
-				$group.querySelector( 'ul' ).replaceChildren()
-			);
-			people.forEach( ( { name, role } ) =>
-				addPerson( name, listOf( role ) )
-			);
-
-			if ( ! people.length ) {
-				addPerson( '', listOf( 'author' ) );
-			}
+			$people.value = people.length
+				? people.map( ( { name, role } ) => ( {
+						value: name,
+						group: role,
+				  } ) )
+				: [ { value: '', group: 'author' } ];
 		};
 
 		/**
@@ -265,10 +214,6 @@ class LibraryEditElement extends Brick {
 					return /** @type {[Field, string]} */ ( [ $field, value ] );
 				} ),
 			];
-			const $names = /** @type {HTMLInputElement[]} */ ( [
-				...$people.querySelectorAll( '[name="person"]' ),
-			] );
-
 			values
 				.filter(
 					( [ $field, value ] ) => value && ! getValue( $field )
@@ -279,24 +224,22 @@ class LibraryEditElement extends Brick {
 
 			if (
 				book.people.length &&
-				$names.every( ( $name ) => ! $name.value )
+				$people.value.every( ( { value } ) => ! value )
 			) {
 				showPeople( book.people );
 			}
 
-			if ( ! $languages.some( getValue ) ) {
-				checkIds( $languages, book.languages );
+			if ( ! $languages.value.length ) {
+				$languages.value = book.languages;
 			}
 
 			// The edition languages left as the form gave them, the language of the reader, take the ones of the catalogue.
 			if (
 				book.meta.edition_languages.length &&
-				$editionLanguages.every(
-					( $checkbox ) =>
-						$checkbox.checked === $checkbox.defaultChecked
-				)
+				$editionLanguages.value.join() ===
+					$editionLanguages.defaultValue.join()
 			) {
-				checkIds( $editionLanguages, book.meta.edition_languages );
+				$editionLanguages.value = book.meta.edition_languages;
 			}
 
 			// A collection needs its publisher, which enables it.
@@ -313,20 +256,6 @@ class LibraryEditElement extends Brick {
 			countDetails();
 		};
 
-		// The cover shown: the photo picked, else the one of the book, unless it was removed.
-		const showCover = () => {
-			const { books, editing } = store.get();
-			const file = $cover.files[ 0 ];
-			const bookCover = this.#removed
-				? null
-				: books[ editing.id ]?.cover ?? null;
-
-			URL.revokeObjectURL( this.#preview );
-			this.#preview = file ? URL.createObjectURL( file ) : '';
-			fillCover( $preview, file ? { url: this.#preview } : bookCover );
-			$removeCover.hidden = ! file && ! bookCover;
-		};
-
 		$dialog.addEventListener( 'close', () => store.closeEdit(), {
 			signal,
 		} );
@@ -334,52 +263,9 @@ class LibraryEditElement extends Brick {
 		$isbn.addEventListener(
 			'change',
 			() => {
-				fill( this, { scan: '' } );
-
 				if ( ! store.get().editing.id ) {
 					store.checkIsbn( $isbn.value );
 				}
-			},
-			{ signal }
-		);
-
-		// The barcode of a book is an EAN-13: the pill that scans it shows where the browser reads them.
-		window.BarcodeDetector?.getSupportedFormats().then( ( formats ) => {
-			$scanRow.hidden = ! formats.includes( 'ean_13' );
-		} );
-
-		// The barcode read types the ISBN, as if typed; a photo without one says so.
-		$scan.addEventListener(
-			'change',
-			async () => {
-				const photo = $scan.files[ 0 ];
-
-				if ( ! photo ) {
-					return;
-				}
-
-				const detector = new BarcodeDetector( {
-					formats: [ 'ean_13' ],
-				} );
-				const [ barcode ] = await createImageBitmap( photo )
-					.then( ( bitmap ) => detector.detect( bitmap ) )
-					.catch( () => [] );
-
-				// The same photo can be taken again.
-				$scan.value = '';
-
-				if ( ! barcode ) {
-					fill( this, {
-						scan: __(
-							'No barcode found in the photo: take it again, closer.',
-							'library'
-						),
-					} );
-					return;
-				}
-
-				$isbn.value = barcode.rawValue;
-				$isbn.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			},
 			{ signal }
 		);
@@ -405,19 +291,6 @@ class LibraryEditElement extends Brick {
 			{ signal }
 		);
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
-		$cover.addEventListener( 'change', showCover, { signal } );
-
-		$removeCover.addEventListener(
-			'click',
-			() => {
-				$cover.value = '';
-				this.#removed = true;
-				showCover();
-				// The button hides: the focus goes to the one that picks a photo.
-				$cover.focus();
-			},
-			{ signal }
-		);
 
 		$form.addEventListener(
 			'submit',
@@ -429,15 +302,11 @@ class LibraryEditElement extends Brick {
 					excerpt: $excerpt.value,
 					content: $content.value,
 					// Each name with the role of its group.
-					people: $groups
-						.flatMap( ( $group ) =>
-							/** @type {HTMLInputElement[]} */ ( [
-								...$group.querySelectorAll( '[name="person"]' ),
-							] ).map( ( $name ) => ( {
-								name: $name.value.trim(),
-								role: $group.dataset.group,
-							} ) )
-						)
+					people: $people.value
+						.map( ( { value, group } ) => ( {
+							name: value.trim(),
+							role: group,
+						} ) )
 						.filter( ( person ) => person.name ),
 					publisher: /** @type {string} */ (
 						data.get( 'publisher' )
@@ -471,7 +340,7 @@ class LibraryEditElement extends Brick {
 					store.editBook( {
 						...book,
 						cover,
-						coverRemoved: this.#removed,
+						coverRemoved: data.has( 'cover_removed' ),
 					} );
 				} else {
 					store
@@ -501,8 +370,6 @@ class LibraryEditElement extends Brick {
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
 					clearErrors();
-					fill( this, { scan: '' } );
-					this.#removed = false;
 					$heading.textContent = id
 						? $heading.dataset.edit
 						: $heading.dataset.add;
@@ -521,11 +388,8 @@ class LibraryEditElement extends Brick {
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$series.value = book.series;
-						checkIds( $languages, book.languages );
-						checkIds(
-							$editionLanguages,
-							book.meta.edition_languages
-						);
+						$languages.value = book.languages;
+						$editionLanguages.value = book.meta.edition_languages;
 						$bookForm.value = ( book.form || '' ).toString();
 						$meta.forEach( ( $field ) => {
 							const value = book.meta[ $field.name ] ?? '';
@@ -540,7 +404,8 @@ class LibraryEditElement extends Brick {
 
 					$details.open = false;
 					countDetails();
-					showCover();
+					// The cover the book has; the field shows a photo picked itself.
+					$coverField.cover = store.get().books[ id ]?.cover ?? null;
 					suggestCollections();
 					$dialog.showModal();
 					$dialog.scrollTop = 0;

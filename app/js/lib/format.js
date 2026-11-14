@@ -361,16 +361,3 @@ export function formatReadings( book ) {
 export function join( parts ) {
 	return parts.filter( Boolean ).join( ' · ' );
 }
-
-/**
- * Today on the device, as a read date: Y-m-d.
- *
- * @return {string} Today.
- */
-export function today() {
-	const now = new Date();
-
-	return [ now.getFullYear(), now.getMonth() + 1, now.getDate() ]
-		.map( ( part ) => part.toString().padStart( 2, '0' ) )
-		.join( '-' );
-}

@@ -1,7 +1,8 @@
 import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { fill, fillBookPage } from 'library-app/render';
+import { fillBookPage } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { focusTitle, showBusy } from 'library-app/behaviors';
 
 /**

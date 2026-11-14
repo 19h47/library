@@ -1,11 +1,8 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatNumber } from 'library-app/format';
-import {
-	fill,
-	renderAchievement,
-	renderCloseAchievement,
-} from 'library-app/render';
+import { renderAchievement, renderCloseAchievement } from 'library-app/render';
+import { fill } from 'library-app/dom';
 
 /** The achievements close to be earned, with their progress, then the ones earned, latest first. */
 class LibraryAchievementsElement extends Brick {

@@ -3,8 +3,8 @@
  * A list of inputs in groups, in a fieldset, such as the people of a book by role: each group a fieldset of its own, a
  * field apart, its legend above its rows, shown once it holds one; then the pills that add an input, the group it goes
  * in, chosen among its options, and the button. Its label is read only: the legends of its groups show what they hold.
- * Its rows are clones of a template, which inputsList() adds, in the group chosen, and removes. Its attributes are the
- * ones of its fieldset.
+ * Its rows are clones of its template. Its root is its custom element, input-groups, which adds them, in the group
+ * chosen, and removes them; its attributes are the ones of its fieldset.
  *
  * @link       https://github.com/19h47/library
  * @since      9.38.0
@@ -12,13 +12,16 @@
  * @package    Library
  * @subpackage Library/app/components
  *
- * @var array{id: string, label: string, groups: array<string, string>, options: array<string, string>, options_label: string, add: string, action: string, attributes?: array<string, string|bool|null>} $args
+ * @var array{id: string, label: string, groups: array<string, string>, options: array<string, string>, options_label: string, add: string, template: string, attributes?: array<string, string|bool|null>} $args
  */
 
 use Library\Markup;
 
 $args = wp_parse_args( $args, array( 'attributes' => array() ) );
 
+?>
+<input-groups template="<?php echo esc_attr( $args['template'] ); ?>">
+<?php
 Markup::render_tag( '<fieldset>', $args['attributes'] + array( 'class' => 'library-inputs-list library-inputs-list--groups' ) );
 ?>
 	<legend class="sr-only"><?php echo esc_html( $args['label'] ); ?></legend>
@@ -39,6 +42,7 @@ Markup::render_tag( '<fieldset>', $args['attributes'] + array( 'class' => 'libra
 			)
 		);
 		?>
-		<button class="app-pill" type="button" data-action="<?php echo esc_attr( $args['action'] ); ?>"><?php echo esc_html( $args['add'] ); ?></button>
+		<button class="app-pill" type="button" data-action="add"><?php echo esc_html( $args['add'] ); ?></button>
 	</p>
 </fieldset>
+</input-groups>

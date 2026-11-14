@@ -25,8 +25,9 @@ Its login is the one of WordPress, which leads back to it: `app/class-login.php`
 
 Its scripts are script modules, without a build:
 
-- `app/js/lib`, the modules the others import, registered as `library-app/<name>`: the router, the store, the API, the formats, the rendering and the base of the bricks;
-- `app/js/bricks`, one custom element per file, each enqueued as `library-app/<name>`;
+- `app/js/lib`, the modules the others import, registered as `library-app/<name>`: the router, the store, the API, the formats, the rendering, the base of the bricks and the one of the components, and what both share without importing the app, `library-app/dom`, which writes in the page, `library-app/dates` and `library-app/rows`, the rows of a list of inputs;
+- `app/js/components`, the custom elements of the components that behave on their own, the root of their markup, each enqueued as `library-app/components/<name>`: they read no store, and their places set their API, attributes and properties, which `types/components.d.ts` gives by their tags;
+- `app/js/bricks`, the custom elements of the app, which read the store, each enqueued as `library-app/<name>`;
 - `app/js/library-app-theme.js`, a classic script that sets the theme before the first paint;
 - `app/js/library-app-service-worker.js`, served from the URL of the app so that it controls its pages, which keeps the app and what it loaded for a visit without network.
 
@@ -47,16 +48,18 @@ Every size is on the scale of the golden ratio: its steps, `--app-u0` to `--app-
 
 The components are built as those of a design file, each level made of the ones before it:
 
-- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `book-cover`, `.app-status`;
-- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`, `isbn-status`, `.library-disclosure`;
+- atoms: the styles of text (`.library-heading`, `.library-prose`, a meta line of utilities), `.app-pill`, `.app-control`, `.library-link`, `.library-tag`, `book-cover`, `.app-status`, `.library-input`, the control of a field, `offline-status`;
+- molecules: `.library-title`, `pill-checkbox`, `pill-select`, `back`, `.library-pills`, `.library-strip`, `.library-cover-link`, `.library-card-link`, `.library-fields`, `.library-notice`, `field`, `image-field`, `search` (`.library-search`, in an `.app-search`), `recap-link`, `isbn-status`, `reading-period`, `barcode-scan`, `.library-disclosure`;
 - organisms: the cards, components of their own, `book-card`, `book-row`, `term-card` and `achievement-card`, each its root the class of its name, `.library-book-card`, and `.library-current`; `.library-section`, `cards-group`, which `fillCardsGroup()` fills, `term-header`, `views-nav`, `.app-controls`, `.library-sheet` with `dialog-close`, `checkboxes-field`, `inputs-list`; the parts of the page of a book, `book-header` and `book-fields`, which `fillBookPage()` fills;
 - screens: the views, in `app/css/views`.
+
+The components that behave on their own have a custom element of their own as their root, in `app/js/components`: `image-field`, `reading-period`, `barcode-scan`, `checkboxes-field`, `inputs-list`, `input-groups` and `offline-status`; the two lists of inputs share their rows through `library-app/rows`.
 
 A component knows none of the places it shows in: a place that needs it otherwise sets its properties, as a card sets the width of its cover, `--library-cover-inline-size`, rather than the cover listing the cards. A class of a view names a part of that view; a style used in several places is a component of its own.
 
 ### Markup
 
-The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`: a component is markup alone, the brick that gives it a behavior around it in the app, and a template of an item of a list holds one, `<li>` then a card. A component carries neither a margin nor a width of its own: its place spaces it and sizes it. The scripts reach the markup by data attributes, `data-field`, `data-list`, `data-action`, `data-part`…, or by what an element is, never by a class of its styles; ESLint fails on a script that does.
+The markup comes from the templates of `app/partials/library-app.php`, which the bricks fill, and from small PHP components, in `app/components`, printed with `Library\Markup::render_component()`: a component is markup alone, the brick that ties it to the store around it in the app, or its own element as its root when it behaves on its own, and a template of an item of a list holds one, `<li>` then a card. A component carries neither a margin nor a width of its own: its place spaces it and sizes it. The scripts reach the markup by data attributes, `data-field`, `data-list`, `data-action`, `data-part`…, or by what an element is, never by a class of its styles; ESLint fails on a script that does.
 
 Searching `styleguide` then Enter in the app opens its styleguide, for development, in English: the foundations, then the atoms, the molecules, the organisms and the screens, each component under its name, in a frame with the markup the app renders, the PHP components and the templates of the app filled as the bricks fill them, its caption saying what it is made of, its variants and its properties.
 

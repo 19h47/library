@@ -232,6 +232,26 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>.library-input</code></h4>
+					<p>The control of a field, which each one carries, as a pill its class: an input, a select and a textarea, as high as a control but the textarea</p>
+				</figcaption>
+				<div class="library-styleguide__frame library-form">
+					<input class="library-input" aria-label="An input" value="An input">
+					<select class="library-input" aria-label="A select"><option>A select</option></select>
+					<textarea class="library-input" aria-label="A textarea">A textarea</textarea>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>offline-status</code></h4>
+					<p>The status of the app offline, an <code>.app-status</code>; its root is its custom element, <code>offline-status</code>, which shows it while the browser says it is offline, shown here whatever the network</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="offline-status">
+					<?php Markup::render_component( 'offline-status' ); ?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>search</code></h4>
 					<p>The field of a search, as high as a control</p>
 				</figcaption>
@@ -467,7 +487,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>image-field</code></h4>
-					<p>A <code>book-cover</code> and the pills that pick it and remove it</p>
+					<p>A <code>book-cover</code> and the pills that pick it and remove it, Remove shown while it shows an image; its root is its custom element, <code>image-field</code>, which shows the photo picked at once and, removed, checks its checkbox, <code>&lt;name&gt;_removed</code>, which the reset of the form unchecks</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -478,7 +498,39 @@ $sizes = array(
 							'name'   => 'cover',
 							'label'  => 'Choose a cover',
 							'remove' => 'Remove the cover',
-							'action' => 'remove-cover',
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>reading-period</code></h4>
+					<p>The period of a reading, two date fields: its start above its end, on one line beyond a phone, an arrow between them; its root is its custom element, <code>reading-period</code>, which keeps the end after the start, both up to today</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="reading-period">
+					<?php Markup::render_component( 'reading-period' ); ?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>barcode-scan</code></h4>
+					<p>The scan of the barcode of a book, under the field it types, <code>for</code>: the pill that takes its photo, then what the photo told, a status; its root is its custom element, <code>barcode-scan</code>, which shows it where the browser reads EAN-13 barcodes, here a photo without one</p>
+				</figcaption>
+				<div class="library-styleguide__frame library-form" data-sample="barcode-scan">
+					<?php
+					Markup::render_component(
+						'field',
+						array(
+							'id'    => 'library-styleguide-isbn',
+							'label' => 'ISBN',
+						)
+					);
+					Markup::render_component(
+						'barcode-scan',
+						array(
+							'id'  => 'library-styleguide-scan',
+							'for' => 'library-styleguide-isbn',
 						)
 					);
 					?>
@@ -689,30 +741,28 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>checkboxes-field</code></h4>
-					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description</p>
+					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description; its root is its custom element, <code>checkboxes-field</code>, named as its field, its <code>value</code> the values checked</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<library-choices>
-						<?php
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'          => 'library-styleguide-choices',
-								'label'       => 'Choices',
-								'name'        => 'choices',
-								'add'         => 'Add a choice',
-								'options'     => array(
-									'en' => 'English',
-									'fr' => 'French',
-									'de' => 'German',
-									'ja' => 'Japanese',
-								),
-								'checked'     => array( 'en', 'fr' ),
-								'description' => 'Its description, under its choices.',
-							)
-						);
-						?>
-					</library-choices>
+					<?php
+					Markup::render_component(
+						'checkboxes-field',
+						array(
+							'id'          => 'library-styleguide-choices',
+							'label'       => 'Choices',
+							'name'        => 'choices',
+							'add'         => 'Add a choice',
+							'options'     => array(
+								'en' => 'English',
+								'fr' => 'French',
+								'de' => 'German',
+								'ja' => 'Japanese',
+							),
+							'checked'     => array( 'en', 'fr' ),
+							'description' => 'Its description, under its choices.',
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>
@@ -728,9 +778,15 @@ $sizes = array(
 							'id'          => 'library-styleguide-readings',
 							'label'       => 'Readings',
 							'description' => 'From its start to its end, each one left empty when it is unknown.',
+							'template'    => 'library-reading-ended',
 							'add'         => 'Add a reading',
-							'action'      => 'add',
-							'actions'     => array( 'add-unknown' => 'Add a reading with an unknown date' ),
+							'variants'    => array(
+								array(
+									'label'    => 'Add a reading with an unknown date',
+									'template' => 'library-reading-unknown',
+									'value'    => '/',
+								),
+							),
 							'attributes'  => array( 'data-sample' => 'readings' ),
 						)
 					);
@@ -761,7 +817,7 @@ $sizes = array(
 							),
 							'options_label' => 'Role',
 							'add'           => 'Add a person',
-							'action'        => 'add-person',
+							'template'      => 'library-edit-person',
 							'attributes'    => array( 'data-sample' => 'people' ),
 						)
 					);

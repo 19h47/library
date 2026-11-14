@@ -51,11 +51,43 @@ export default [
 				'library-app/state',
 				'library-app/api',
 				'library-app/brick',
+				'library-app/component',
+				'library-app/dates',
+				'library-app/dom',
 				'library-app/behaviors',
 				'library-app/format',
 				'library-app/render',
 				'library-app/router',
+				'library-app/rows',
 				'library-app/term-page',
+			],
+		},
+	},
+	{
+		// A component is plugged in and out as a package, through its API alone: it reads no state of the app.
+		files: [ 'app/js/components/**' ],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					// It writes in the page through library-app/dom, its dates through library-app/dates, its strings through
+					// library-app/app: none of them imports the app.
+					paths: [
+						'library-app/store',
+						'library-app/state',
+						'library-app/router',
+						'library-app/api',
+						'library-app/brick',
+						'library-app/behaviors',
+						'library-app/format',
+						'library-app/render',
+						'library-app/term-page',
+					].map( ( name ) => ( {
+						name,
+						message:
+							'A component reads no state of the app: its place sets its API, its attributes and its properties.',
+					} ) ),
+				},
 			],
 		},
 	},

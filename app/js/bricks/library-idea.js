@@ -1,7 +1,8 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatState } from 'library-app/format';
-import { fill, renderBook, renderRow } from 'library-app/render';
+import { renderBook, renderRow } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { followCards } from 'library-app/behaviors';
 
 /**

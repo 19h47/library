@@ -1,5 +1,5 @@
 import { Brick } from 'library-app/brick';
-import { fill } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { urlOf } from 'library-app/router';
 
 /**

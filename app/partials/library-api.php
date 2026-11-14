@@ -80,7 +80,7 @@
 		<p class="library-field">
 			<?php // The name of an argument as the API takes it, in its case. ?>
 			<label class="app-text-s app-text-muted app-font-ui"></label>
-			<input type="text" autocomplete="off" spellcheck="false">
+			<input class="library-input" type="text" autocomplete="off" spellcheck="false">
 		</p>
 	</template>
 </library-api>

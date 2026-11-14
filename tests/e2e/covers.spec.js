@@ -5,7 +5,13 @@
 
 import { fileURLToPath } from 'node:url';
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
-import { addBook, deleteAllBooks, openApp, waitForIdle } from './library.js';
+import {
+	addBook,
+	deleteAllBooks,
+	getBook,
+	openApp,
+	waitForIdle,
+} from './library.js';
 
 // A photo of a cover, 1200 by 1800, from which WordPress makes the sizes of a srcset.
 const PHOTO = fileURLToPath( new URL( './assets/cover.jpg', import.meta.url ) );
@@ -126,5 +132,63 @@ test.describe( 'Covers', () => {
 
 		expect( await preview.getAttribute( 'sizes' ) ).toBeNull();
 		expect( shape.shown ).toBeCloseTo( shape.natural, 1 );
+	} );
+
+	test( 'a photo picked shows Remove, which empties the field, the focus going to Choose a cover', async ( {
+		page,
+	} ) => {
+		await openApp( page );
+		await page.getByRole( 'button', { name: 'Add New Book' } ).click();
+
+		const form = page.locator( 'library-edit' );
+		const remove = form.getByRole( 'button', { name: 'Remove the cover' } );
+
+		await expect( remove ).toBeHidden();
+		await form.getByLabel( 'Choose a cover' ).setInputFiles( PHOTO );
+		await expect( remove ).toBeVisible();
+
+		await remove.click();
+		await expect( remove ).toBeHidden();
+		await expect(
+			form.locator( '[data-part="preview"] > img' )
+		).toBeHidden();
+		await expect( form.getByLabel( 'Choose a cover' ) ).toBeFocused();
+		await expect( form.getByLabel( 'Choose a cover' ) ).toHaveValue( '' );
+	} );
+
+	test( 'the cover of a book removed is saved without it, the form unchecked once open again', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		const media = await requestUtils.uploadMedia( PHOTO );
+		const covered = await addBook( requestUtils, {
+			title: 'The Removed Cover Test',
+			featured_media: media.id,
+		} );
+
+		await openApp( page, `&view=book&book=${ covered.id }` );
+		await page.getByRole( 'button', { name: 'Edit Book' } ).click();
+
+		const form = page.locator( 'library-edit' );
+		const remove = form.getByRole( 'button', { name: 'Remove the cover' } );
+		const removed = form.locator( '[name="cover_removed"]' );
+
+		await expect(
+			form.locator( '[data-part="preview"] > img' )
+		).toBeVisible();
+		await remove.click();
+		await expect( removed ).toBeChecked();
+		await form.getByRole( 'button', { name: 'Save' } ).click();
+		await expect
+			.poll(
+				async () =>
+					( await getBook( requestUtils, covered.id ) ).featured_media
+			)
+			.toBe( 0 );
+
+		await waitForIdle( page );
+		await page.getByRole( 'button', { name: 'Edit Book' } ).click();
+		await expect( removed ).not.toBeChecked();
+		await expect( remove ).toBeHidden();
 	} );
 } );

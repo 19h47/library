@@ -191,6 +191,53 @@ test.describe( 'Reading', () => {
 		).toHaveValue( '2025-03-21' );
 	} );
 
+	test( 'a reading removed is saved at once, the focus going to Add a reading', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		const posts = [];
+
+		await requestUtils.rest( {
+			method: 'POST',
+			path: `/library/v1/books/${ book.id }`,
+			data: {
+				meta: {
+					reading: [ '/', '2025-03-10/2025-03-21' ],
+				},
+			},
+		} );
+		await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
+			if ( 'POST' === route.request().method() ) {
+				posts.push( route.request().postDataJSON() );
+			}
+
+			await route.continue();
+		} );
+		await openApp( page, `&view=book&book=${ book.id }` );
+		await waitForIdle( page );
+		await page.locator( 'library-reading summary' ).click();
+
+		// The reading whose date is unknown, the first one.
+		await page
+			.locator( 'library-reading' )
+			.getByRole( 'button', { name: 'Remove this reading' } )
+			.first()
+			.click();
+		await waitForIdle( page );
+
+		expect( posts ).toEqual( [
+			{ meta: { reading: [ '2025-03-10/2025-03-21' ] } },
+		] );
+		await expect(
+			page.getByRole( 'button', { name: 'Add a reading', exact: true } )
+		).toBeFocused();
+		await expect
+			.poll(
+				async () => ( await getBook( requestUtils, book.id ) ).readings
+			)
+			.toEqual( [ '2025-03-10/2025-03-21' ] );
+	} );
+
 	test( 'a reading in progress, from the day it started, ends with Read', async ( {
 		page,
 		requestUtils,
@@ -229,6 +276,64 @@ test.describe( 'Reading', () => {
 			page.locator( 'library-reading [name="reading_start"]' )
 		).toHaveValue( '2020-01-01' );
 		await expect( started ).toBeHidden();
+	} );
+
+	test( 'a reading added ends the one in progress, from its start, and one of an unknown date is saved too', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await requestUtils.rest( {
+			method: 'POST',
+			path: `/library/v1/books/${ book.id }`,
+			data: {
+				meta: { reading: [ '2019-05-01/2019-05-10', '2020-01-01/..' ] },
+			},
+		} );
+		await openApp( page, `&view=book&book=${ book.id }` );
+		await waitForIdle( page );
+
+		const reading = page.locator( 'library-reading' );
+		const today = await page.evaluate( () =>
+			new Date().toLocaleDateString( 'sv' )
+		);
+		const readings = async () =>
+			( await getBook( requestUtils, book.id ) ).readings.map(
+				( interval ) => interval.slice( 0, 21 )
+			);
+
+		await reading.locator( 'summary' ).click();
+		await reading
+			.getByRole( 'button', { name: 'Add a reading', exact: true } )
+			.click();
+		await waitForIdle( page );
+
+		// Its start, the one of the reading in progress, which it ends; the focus on it.
+		await expect(
+			reading.locator( '[name="reading_start"]' ).last()
+		).toBeFocused();
+		await expect(
+			reading.locator( '[name="reading_start"]' ).last()
+		).toHaveValue( '2020-01-01' );
+		await expect(
+			reading.locator( '[name="in_progress"]' )
+		).not.toBeChecked();
+		await expect
+			.poll( readings )
+			.toEqual( [ '2019-05-01/2019-05-10', `2020-01-01/${ today }` ] );
+
+		// No date to type: the focus on the button that removes it.
+		await reading
+			.getByRole( 'button', {
+				name: 'Add a reading with an unknown date',
+			} )
+			.click();
+		await waitForIdle( page );
+		await expect(
+			reading
+				.getByRole( 'button', { name: 'Remove this reading' } )
+				.last()
+		).toBeFocused();
+		await expect.poll( readings ).toContain( '/' );
 	} );
 
 	test.describe( 'a date typed', () => {

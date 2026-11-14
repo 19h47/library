@@ -398,11 +398,11 @@ JS;
 	}
 
 	/**
-	 * Register the styles and scripts the page prints: the theme in the head, before the first paint, the router then the bricks after the markup.
+	 * Register the styles and scripts the page prints: the theme in the head, before the first paint, the router, the components then the bricks after the markup.
 	 *
 	 * The styles of the app come after app-style.css, the base shared by 19h47's small apps, copied from its gist:
 	 * library-app.css, the order of their layers and their tokens, then a sheet per component and per view.
-	 * Each brick is a script module, which imports the modules it shares with the others: every brick depends on them
+	 * Each component and each brick is a script module, which imports the modules it shares with the others: each depends on them
 	 * all, so that the import map gives them all, with versioned URLs that an update loads again, the store among them.
 	 * WordPress gives each module its translations.
 	 *
@@ -448,13 +448,21 @@ JS;
 		// Before the bricks: it reads the URL, which says what they show.
 		wp_enqueue_script_module( 'library-app/router' );
 
-		$brick_files = glob( LIBRARY_DIR_PATH . 'app/js/bricks/*.js' );
+		// The components, whose names are those of their markup and their sheet, then the bricks.
+		$element_folders = array(
+			'components' => 'library-app/components/',
+			'bricks'     => 'library-app/',
+		);
 
-		foreach ( $brick_files ? $brick_files : array() as $file ) {
-			$name              = basename( $file, '.js' );
-			[ $url, $version ] = Plugin::get_asset( "app/js/bricks/$name.js" );
-			wp_enqueue_script_module( "library-app/$name", $url, $shared, $version );
-			wp_set_script_module_translations( "library-app/$name", 'library', LIBRARY_DIR_PATH . 'languages' );
+		foreach ( $element_folders as $folder => $prefix ) {
+			$element_files = glob( LIBRARY_DIR_PATH . "app/js/$folder/*.js" );
+
+			foreach ( $element_files ? $element_files : array() as $file ) {
+				$name              = basename( $file, '.js' );
+				[ $url, $version ] = Plugin::get_asset( "app/js/$folder/$name.js" );
+				wp_enqueue_script_module( $prefix . $name, $url, $shared, $version );
+				wp_set_script_module_translations( $prefix . $name, 'library', LIBRARY_DIR_PATH . 'languages' );
+			}
 		}
 	}
 

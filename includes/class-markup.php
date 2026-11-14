@@ -68,7 +68,8 @@ class Markup {
 	}
 
 	/**
-	 * Markup of a control with its attributes, set on its first tag: an attribute true is set alone, null is left out.
+	 * Markup of a control with its attributes, set on its first tag: an attribute true is set alone, null is left out; a
+	 * class is added to the ones the tag has, such as the class of a field on a control given by its markup.
 	 *
 	 * @param string                          $markup     Markup of the control, such as <input> or a select with its options.
 	 * @param array<string, string|bool|null> $attributes Attributes of the control.
@@ -80,6 +81,14 @@ class Markup {
 		$control->next_tag();
 
 		foreach ( array_filter( $attributes, fn( $value ) => null !== $value ) as $name => $value ) {
+			if ( 'class' === $name && is_string( $value ) ) {
+				foreach ( array_filter( explode( ' ', $value ) ) as $class_name ) {
+					$control->add_class( $class_name );
+				}
+
+				continue;
+			}
+
 			$control->set_attribute( $name, is_bool( $value ) ? $value : (string) $value );
 		}
 

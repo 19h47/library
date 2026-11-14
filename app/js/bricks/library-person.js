@@ -9,7 +9,8 @@ import {
 	join,
 	listFormat,
 } from 'library-app/format';
-import { fill, fillCardsGroup, renderSeries } from 'library-app/render';
+import { fillCardsGroup, renderSeries } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { TermPage } from 'library-app/term-page';
 
 /**

@@ -1,7 +1,8 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatBooks } from 'library-app/format';
-import { fill, renderCurrent } from 'library-app/render';
+import { renderCurrent } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import { followBooks, renderKeyed } from 'library-app/behaviors';
 
 /**
