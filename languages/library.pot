@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T08:56:43+00:00\n"
+"POT-Creation-Date: 2026-11-14T09:13:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -419,7 +419,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:620
+#: app/js/lib/render.js:526
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -465,7 +465,7 @@ msgstr ""
 #: includes/class-books.php:319
 #: includes/class-books.php:324
 #: includes/class-books.php:342
-#: app/js/lib/render.js:735
+#: app/js/lib/render.js:641
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -766,7 +766,7 @@ msgstr ""
 
 #: app/partials/library-app.php:132
 #: app/js/bricks/library-api.js:273
-#: app/js/bricks/library-book.js:38
+#: app/js/bricks/library-book.js:39
 #: app/js/bricks/library-recap.js:334
 #: app/js/lib/format.js:110
 msgid "Loading…"
@@ -778,7 +778,7 @@ msgstr ""
 
 #: app/partials/library-app.php:146
 #: includes/class-meta.php:163
-#: app/js/bricks/library-volumes.js:106
+#: app/js/bricks/library-volumes.js:107
 #: app/js/lib/format.js:308
 msgid "Read"
 msgstr ""
@@ -1437,7 +1437,7 @@ msgstr ""
 #. translators: %s: number of the book in its collection.
 #: includes/class-books.php:329
 #: includes/class-books.php:421
-#: app/js/lib/render.js:334
+#: app/js/lib/render.js:240
 #, php-format,js-format
 msgid "no. %s"
 msgstr ""
@@ -1502,7 +1502,7 @@ msgid "Collective work"
 msgstr ""
 
 #: includes/class-meta.php:164
-#: app/js/bricks/library-volumes.js:103
+#: app/js/bricks/library-volumes.js:104
 #: app/js/lib/format.js:322
 msgid "In progress"
 msgstr ""
@@ -2834,11 +2834,11 @@ msgstr ""
 msgid "%s items"
 msgstr ""
 
-#: app/js/bricks/library-diary.js:42
+#: app/js/bricks/library-diary.js:43
 msgid "No readings yet."
 msgstr ""
 
-#: app/js/bricks/library-diary.js:174
+#: app/js/bricks/library-diary.js:175
 msgid "Read again"
 msgstr ""
 
@@ -2857,13 +2857,13 @@ msgid "Show %s"
 msgstr ""
 
 #. translators: %s: average rating of the books of a person, e.g. 7.5.
-#: app/js/bricks/library-person.js:39
+#: app/js/bricks/library-person.js:40
 #, js-format
 msgid "%s/10 on average"
 msgstr ""
 
 #. translators: %s: list of the other names of a person, such as a pseudonym or their birth name.
-#: app/js/bricks/library-person.js:54
+#: app/js/bricks/library-person.js:55
 #, js-format
 msgid "Other name: %s"
 msgid_plural "Other names: %s"
@@ -2871,7 +2871,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of series of a person, after the first ones.
-#: app/js/bricks/library-person.js:95
+#: app/js/bricks/library-person.js:96
 #, js-format
 msgid "%s other series"
 msgid_plural "%s other series"
@@ -2879,7 +2879,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: year a book first came out.
-#: app/js/bricks/library-person.js:119
+#: app/js/bricks/library-person.js:120
 #, js-format
 msgid "First published in %s"
 msgstr ""
@@ -3111,7 +3111,7 @@ msgid "in %s"
 msgstr ""
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:533
+#: app/js/lib/render.js:439
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"
