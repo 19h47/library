@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.44.0
+Stable tag: 9.45.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -130,6 +130,14 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.45.0 =
+* Changed: reading app: the message of a photo without a barcode shows under the pill **Scan the barcode**, rather than among what the ISBN tells.
+* Code only: reading app: the components that behave on their own have a custom element of their own as their root, named as the component, without a prefix, in `app/js/components`, on `Component`: `reading-period`, `image-field`, `barcode-scan`, `checkboxes-field`, `inputs-list`, `input-groups` and `offline-status`. They read no store and import nothing of the app, which ESLint checks; their places set their API, their attributes and their properties, and read their events and their fields, rather than reaching inside them. A row removed from a list of inputs tells it with a change.
+* Code only: reading app: a field carries its class, `.library-input`, rather than a sheet listing the places that hold fields.
+* Code only: reading app: the formats, one level each: `library-app/format`, the language of the page, a function each; `library-app/book-lines`, the lines of a book; `library-app/dom`, what writes in the page.
+* Code only: reading app: the shared base styles, revision d7cd1f8: a toolbar is a row of controls, which its place sets where it goes.
+* Code only: TypeScript without its strict mode, said in `jsconfig.json`, so that an editor with TypeScript 6 checks what `pnpm check:js` checks.
 
 = 9.44.0 =
 * Reading app: the form of a book scans its barcode, where the browser reads EAN-13 barcodes: **Scan the barcode**, under the ISBN, takes a photo of the barcode on the back of the book, and its ISBN is typed as if by hand, which tells a book added already or fills the form from the catalogue of the BnF; a photo without a barcode says so. Chrome on Android reads them, Safari behind its **Shape Detection API** flag; elsewhere the pill does not show.
