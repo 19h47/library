@@ -196,7 +196,7 @@ class Test_Readings extends TestCase {
 	}
 
 	/**
-	 * The rating of a book given rates its latest reading ended, as quick edit does; empty, it takes it away; a book not
+	 * The rating of a book given rates its latest reading ended, as quick edit does; null, it takes it away; a book not
 	 * read has no reading to rate.
 	 *
 	 * @return void
@@ -208,7 +208,7 @@ class Test_Readings extends TestCase {
 
 		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#8.5', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id ) ) );
 
-		$this->save( $book_id, array( 'rating' => '' ) );
+		$this->save( $book_id, array( 'rating' => null ) );
 
 		$this->assertSame( 6.0, get_post_meta( $book_id, 'library_rating', true ) );
 
@@ -265,5 +265,26 @@ class Test_Readings extends TestCase {
 				)
 			)
 		);
+	}
+
+	/**
+	 * The route of a book checks the readings it takes against their schema, as the reference of the API shows them.
+	 *
+	 * @return void
+	 */
+	public function test_the_route_checks_the_readings_against_their_schema(): void {
+		$book_id = $this->add_book();
+		$request = new WP_REST_Request( 'POST', '/library/v1/books/' . $book_id );
+
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'meta' => array( 'reading' => array( self::reading( 'soon/2024-03-01#11' ) ) ) ) ) );
+
+		$this->assertSame( 400, rest_do_request( $request )->get_status() );
+		$this->assertSame( array(), Meta::get_readings( $book_id ) );
+
+		$route = rest_get_server()->get_routes()['/library/v1/books/(?P<id>\\d+)'];
+		$args  = array_merge( ...array_column( $route, 'args' ) );
+
+		$this->assertSame( 'library-reading', $args['meta']['properties']['reading']['items']['title'] );
 	}
 }

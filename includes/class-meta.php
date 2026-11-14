@@ -170,7 +170,7 @@ class Meta {
 			'library_printed_date'      => __( 'When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23.', 'library' ),
 			'library_reading'           => __( 'From its start to its end, each one left empty when it is unknown, and the rating it ended with.', 'library' ),
 			'library_in_progress'       => __( 'Being read, for the first time or again, since the day it started: a reading added ends it.', 'library' ),
-			'library_rating'            => __( 'Rating from 1 to 10.', 'library' ),
+			'library_rating'            => __( 'Rating from 1 to 10, the one of its latest reading rated; given, it rates its latest reading ended.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 			'library_edition_languages' => __( 'The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book.', 'library' ),
 		);
