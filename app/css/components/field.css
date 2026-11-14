@@ -27,7 +27,7 @@
 	}
 
 	/* A field of several choices: a block, as the fieldset it holds, rather than the inline of a custom element */
-	library-choices {
+	checkboxes-field {
 		display: block;
 	}
 

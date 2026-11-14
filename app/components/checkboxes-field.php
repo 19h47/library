@@ -2,8 +2,9 @@
 /**
  * A field of several options, such as the original languages of a book: its label above a pill for each option checked,
  * which unchecks it, and a button that opens all of them in a sheet, a checkbox each; its description under them. The
- * checkboxes are the field, in its form: the pills only show them, as library-choices, which holds it in the app, keeps
- * them in step. The options checked by default are the ones a reset of the form checks again.
+ * checkboxes are the field, in its form: the pills only show them. Its root is its custom element, checkboxes-field,
+ * named as its field, which keeps the pills in step with the checkboxes; its `value`, the values checked, which its
+ * place sets. The options checked by default are the ones a reset of the form checks again.
  *
  * @link       https://github.com/19h47/library
  * @since      9.28.0
@@ -28,6 +29,9 @@ $description_id = "{$args['id']}-description";
 $dialog_id      = "{$args['id']}-dialog";
 $title_id       = "{$args['id']}-title";
 
+?>
+<checkboxes-field name="<?php echo esc_attr( $args['name'] ); ?>">
+<?php
 Markup::render_tag(
 	'<fieldset class="library-field">',
 	array(
@@ -76,3 +80,4 @@ Markup::render_tag(
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>
 	<?php endif; ?>
 </fieldset>
+</checkboxes-field>

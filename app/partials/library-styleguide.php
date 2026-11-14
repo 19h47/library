@@ -721,30 +721,28 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>checkboxes-field</code></h4>
-					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description</p>
+					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description; its root is its custom element, <code>checkboxes-field</code>, named as its field, its <code>value</code> the values checked</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<library-choices>
-						<?php
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'          => 'library-styleguide-choices',
-								'label'       => 'Choices',
-								'name'        => 'choices',
-								'add'         => 'Add a choice',
-								'options'     => array(
-									'en' => 'English',
-									'fr' => 'French',
-									'de' => 'German',
-									'ja' => 'Japanese',
-								),
-								'checked'     => array( 'en', 'fr' ),
-								'description' => 'Its description, under its choices.',
-							)
-						);
-						?>
-					</library-choices>
+					<?php
+					Markup::render_component(
+						'checkboxes-field',
+						array(
+							'id'          => 'library-styleguide-choices',
+							'label'       => 'Choices',
+							'name'        => 'choices',
+							'add'         => 'Add a choice',
+							'options'     => array(
+								'en' => 'English',
+								'fr' => 'French',
+								'de' => 'German',
+								'ja' => 'Japanese',
+							),
+							'checked'     => array( 'en', 'fr' ),
+							'description' => 'Its description, under its choices.',
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>

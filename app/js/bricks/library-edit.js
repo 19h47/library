@@ -10,6 +10,7 @@ import { urlOf } from 'library-app/router';
  * @import { Field } from 'library-app/behaviors'
  * @import { CatalogBook, Credit } from 'library-app/api'
  * @import { Catalog } from 'library-app/store'
+ * @import { CheckboxesFieldElement } from '../components/checkboxes-field.js'
  */
 
 /**
@@ -46,24 +47,6 @@ function openBook( id ) {
 const nameCollator = new Intl.Collator( document.documentElement.lang, {
 	sensitivity: 'base',
 } );
-
-/**
- * Checks the checkboxes of the term IDs given, and only them, such as the original languages of a book; the ones it
- * changes tell it, as a click would, for the pills of the choices made.
- *
- * @param {HTMLInputElement[]} $checkboxes The checkboxes, a term ID each.
- * @param {number[]}           ids         The term IDs to check.
- */
-function checkIds( $checkboxes, ids ) {
-	$checkboxes.forEach( ( $checkbox ) => {
-		const checked = ids.includes( Number( $checkbox.value ) );
-
-		if ( checked !== $checkbox.checked ) {
-			$checkbox.checked = checked;
-			$checkbox.dispatchEvent( new Event( 'change', { bubbles: true } ) );
-		}
-	} );
-}
 
 /**
  * Options of a datalist, the names to suggest.
@@ -115,12 +98,14 @@ class LibraryEditElement extends Brick {
 			...$form.querySelectorAll( '[data-meta]' ),
 		] );
 		// The languages, a checkbox each, its value a term ID.
-		const $languages = /** @type {HTMLInputElement[]} */ ( [
-			...$form.querySelectorAll( '[name="languages"]' ),
-		] );
-		const $editionLanguages = /** @type {HTMLInputElement[]} */ ( [
-			...$form.querySelectorAll( '[name="edition_languages"]' ),
-		] );
+		/** @type {CheckboxesFieldElement} */
+		const $languages = $form.querySelector(
+			'checkboxes-field[name="languages"]'
+		);
+		/** @type {CheckboxesFieldElement} */
+		const $editionLanguages = $form.querySelector(
+			'checkboxes-field[name="edition_languages"]'
+		);
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
 		/** @type {( $field: Field ) => string|boolean} */
 		const getValue = ( $field ) =>
@@ -269,19 +254,17 @@ class LibraryEditElement extends Brick {
 				showPeople( book.people );
 			}
 
-			if ( ! $languages.some( getValue ) ) {
-				checkIds( $languages, book.languages );
+			if ( ! $languages.value.length ) {
+				$languages.value = book.languages;
 			}
 
 			// The edition languages left as the form gave them, the language of the reader, take the ones of the catalogue.
 			if (
 				book.meta.edition_languages.length &&
-				$editionLanguages.every(
-					( $checkbox ) =>
-						$checkbox.checked === $checkbox.defaultChecked
-				)
+				$editionLanguages.value.join() ===
+					$editionLanguages.defaultValue.join()
 			) {
-				checkIds( $editionLanguages, book.meta.edition_languages );
+				$editionLanguages.value = book.meta.edition_languages;
 			}
 
 			// A collection needs its publisher, which enables it.
@@ -434,11 +417,8 @@ class LibraryEditElement extends Brick {
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$series.value = book.series;
-						checkIds( $languages, book.languages );
-						checkIds(
-							$editionLanguages,
-							book.meta.edition_languages
-						);
+						$languages.value = book.languages;
+						$editionLanguages.value = book.meta.edition_languages;
 						$bookForm.value = ( book.form || '' ).toString();
 						$meta.forEach( ( $field ) => {
 							const value = book.meta[ $field.name ] ?? '';

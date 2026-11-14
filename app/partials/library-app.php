@@ -830,39 +830,29 @@ use Library\Meta;
 							);
 						}
 
-						?>
-						<library-choices>
-							<?php
-							Markup::render_component(
-								'checkboxes-field',
-								array(
-									'id'      => 'library-edit-languages',
-									'label'   => $language_labels->name_for_book,
-									'name'    => 'languages',
-									'add'     => __( 'Add a language', 'library' ),
-									'options' => $language_choices,
-								)
-							);
-							?>
-						</library-choices>
-						<?php // A book added is in the language of the reader, unless the catalogue says otherwise. ?>
-						<library-choices>
-							<?php
-							Markup::render_component(
-								'checkboxes-field',
-								array(
-									'id'          => 'library-edit-edition-languages',
-									'label'       => Meta::get_label( 'library_edition_languages' ),
-									'name'        => Meta::get_name( 'library_edition_languages' ),
-									'add'         => __( 'Add a language', 'library' ),
-									'options'     => $language_choices,
-									'checked'     => array( $own_language_id ),
-									'description' => Meta::get_description( 'library_edition_languages' ),
-								)
-							);
-							?>
-						</library-choices>
-						<?php
+						Markup::render_component(
+							'checkboxes-field',
+							array(
+								'id'      => 'library-edit-languages',
+								'label'   => $language_labels->name_for_book,
+								'name'    => 'languages',
+								'add'     => __( 'Add a language', 'library' ),
+								'options' => $language_choices,
+							)
+						);
+						// A book added is in the language of the reader, unless the catalogue says otherwise.
+						Markup::render_component(
+							'checkboxes-field',
+							array(
+								'id'          => 'library-edit-edition-languages',
+								'label'       => Meta::get_label( 'library_edition_languages' ),
+								'name'        => Meta::get_name( 'library_edition_languages' ),
+								'add'         => __( 'Add a language', 'library' ),
+								'options'     => $language_choices,
+								'checked'     => array( $own_language_id ),
+								'description' => Meta::get_description( 'library_edition_languages' ),
+							)
+						);
 						Markup::render_component(
 							'pill-checkbox',
 							array(
