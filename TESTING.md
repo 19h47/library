@@ -79,7 +79,7 @@ The file holds each set of styles once, under a hash of it, then each element wi
 
 ## The scripts and the stylesheets
 
-ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; it fails as well on a script that reaches an element by a class of its styles, rather than by a data attribute or by what it is (see `DESIGN-SYSTEM.md`). TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts`. `bin/check-css.mjs` fails on a stylesheet of the app off the rules of `DESIGN-SYSTEM.md`: a length off the scale, a color written as it is rather than a token, a margin or a width a component gives itself:
+ESLint checks the scripts with the rules of WordPress, `@wordpress/eslint-plugin`, and formats them with `wp-prettier`; it fails as well on a script that reaches an element by a class of its styles, rather than by a data attribute or by what it is (see `DESIGN-SYSTEM.md`). TypeScript reads their types from their JSDoc, without building anything, with the types of the packages of WordPress they use and of `types/globals.d.ts` and `types/components.d.ts`, without its strict mode, said in `jsconfig.json` rather than left to the version: an editor with TypeScript 6, strict by default, checks what `pnpm check:js` checks. `bin/check-css.mjs` fails on a stylesheet of the app off the rules of `DESIGN-SYSTEM.md`: a length off the scale, a color written as it is rather than a token, a margin or a width a component gives itself:
 
 ```sh
 pnpm lint:js
