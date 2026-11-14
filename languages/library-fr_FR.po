@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-14T11:04:27+00:00\n"
+"POT-Creation-Date: 2026-11-14T11:47:34+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -479,7 +479,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1211
+#: includes/class-rest-api.php:1225
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -585,7 +585,12 @@ msgid ""
 "when it is unknown, and the rating it ended with. Ending a reading marks the "
 "book as read; marking it as read without a reading ends one today. The "
 "rating of the book is the one of its latest reading rated."
-msgstr "Facultatives. Une ligne par lecture, de son début à sa fin, chacun laissé vide quand il est inconnu, et la note donnée en la terminant. Terminer une lecture marque le livre comme lu ; le marquer comme lu sans lecture en termine une aujourd’hui. La note du livre est celle de sa dernière lecture notée."
+msgstr ""
+"Facultatives. Une ligne par lecture, de son début à sa fin, chacun laissé "
+"vide quand il est inconnu, et la note donnée en la terminant. Terminer une "
+"lecture marque le livre comme lu ; le marquer comme lu sans lecture en "
+"termine une aujourd’hui. La note du livre est celle de sa dernière lecture "
+"notée."
 
 #: admin/partials/library-form.php:135 admin/partials/library-form.php:138
 msgid "Roles"
@@ -1566,7 +1571,9 @@ msgstr ""
 msgid ""
 "From its start to its end, each one left empty when it is unknown, and the "
 "rating it ended with."
-msgstr "De son début à sa fin, chacun laissé vide quand il est inconnu, et la note donnée en la terminant."
+msgstr ""
+"De son début à sa fin, chacun laissé vide quand il est inconnu, et la note "
+"donnée en la terminant."
 
 #: includes/class-meta.php:172
 msgid ""
@@ -1577,8 +1584,10 @@ msgstr ""
 "elle a commencé : une lecture ajoutée la termine."
 
 #: includes/class-meta.php:173
-msgid "Rating from 1 to 10."
-msgstr "Note de 1 à 10."
+msgid ""
+"Rating from 1 to 10, the one of its latest reading rated; given, it rates "
+"its latest reading ended."
+msgstr "Note de 1 à 10, celle de sa dernière lecture notée ; donnée, elle note sa dernière lecture terminée."
 
 #: includes/class-meta.php:174
 msgid ""
@@ -1965,7 +1974,10 @@ msgid ""
 "Readings of the book, from the first to the latest, each with its start, its "
 "end and the rating it ended with: {\"start\":\"2026-10-20\",\"end\":"
 "\"2026-11-02\",\"rating\":8}."
-msgstr "Lectures du livre, de la première à la dernière, chacune avec son début, sa fin et la note donnée en la terminant : {\"start\":\"2026-10-20\",\"end\":\"2026-11-02\",\"rating\":8}."
+msgstr ""
+"Lectures du livre, de la première à la dernière, chacune avec son début, sa "
+"fin et la note donnée en la terminant : {\"start\":\"2026-10-20\",\"end\":"
+"\"2026-11-02\",\"rating\":8}."
 
 #: includes/class-rest-api.php:80
 msgid ""
@@ -2120,20 +2132,32 @@ msgstr ""
 "que le formulaire du livre les enregistre."
 
 #: includes/class-rest-api.php:523
+msgid ""
+"Readings of the book, which replace its own, each with the rating it ended "
+"with, the one in progress last."
+msgstr "Lectures du livre, qui remplacent les siennes, chacune avec la note donnée en la terminant, celle en cours en dernier."
+
+#: includes/class-rest-api.php:528
+msgid ""
+"Rating of its latest reading ended, which a book not read has none of; null "
+"takes it away."
+msgstr "Note de sa dernière lecture terminée, qu’un livre non lu n’a pas ; null la retire."
+
+#: includes/class-rest-api.php:537
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 "Statut du livre : dans la bibliothèque, c’est-à-dire publié, de passage ou "
 "envie."
 
-#: includes/class-rest-api.php:554
+#: includes/class-rest-api.php:568
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:652 app/js/bricks/library-edit.js:439
+#: includes/class-rest-api.php:666 app/js/bricks/library-edit.js:439
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
-#: includes/class-rest-api.php:838
+#: includes/class-rest-api.php:852
 msgid "No photo was sent, in the file field."
 msgstr "Aucune photo n’a été envoyée dans le champ file."
 
@@ -2249,18 +2273,24 @@ msgstr "Rôle, comme author, translator ou colorist."
 #: includes/class-rest-schemas.php:224
 msgid ""
 "Start, its day or with its time, such as 2026-11-08T09:15; null when unknown."
-msgstr "Début, son jour ou avec son heure, comme 2026-11-08T09:15 ; null quand il est inconnu."
+msgstr ""
+"Début, son jour ou avec son heure, comme 2026-11-08T09:15 ; null quand il "
+"est inconnu."
 
 #: includes/class-rest-schemas.php:225
 msgid ""
 "End, its day or with its time; null when unknown, “..” while it is read."
-msgstr "Fin, son jour ou avec son heure ; null quand elle est inconnue, « .. » tant que la lecture est en cours."
+msgstr ""
+"Fin, son jour ou avec son heure ; null quand elle est inconnue, « .. » tant "
+"que la lecture est en cours."
 
 #: includes/class-rest-schemas.php:228
 msgid ""
 "Rating it ended with, out of 10, by half points; null without, and while it "
 "is read."
-msgstr "Note donnée en la terminant, sur 10, par demi-points ; null sans note, et tant que la lecture est en cours."
+msgstr ""
+"Note donnée en la terminant, sur 10, par demi-points ; null sans note, et "
+"tant que la lecture est en cours."
 
 #: includes/class-rest-schemas.php:251
 msgid "Term ID, of a publisher or of a collection: its page in the app."
@@ -3245,6 +3275,9 @@ msgstr "Lecture enregistrée."
 #: app/js/lib/store.js:1124
 msgid "Undo"
 msgstr "Annuler"
+
+#~ msgid "Rating from 1 to 10."
+#~ msgstr "Note de 1 à 10."
 
 #~ msgid ""
 #~ "Optional. One line per reading, from its start to its end, each left "

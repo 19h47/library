@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T11:27:23+00:00\n"
+"POT-Creation-Date: 2026-11-14T11:47:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -491,7 +491,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1211
+#: includes/class-rest-api.php:1225
 msgid "No book to read."
 msgstr ""
 
@@ -1564,7 +1564,7 @@ msgid "Being read, for the first time or again, since the day it started: a read
 msgstr ""
 
 #: includes/class-meta.php:173
-msgid "Rating from 1 to 10."
+msgid "Rating from 1 to 10, the one of its latest reading rated; given, it rates its latest reading ended."
 msgstr ""
 
 #: includes/class-meta.php:174
@@ -2029,19 +2029,27 @@ msgid "Book meta by their names, without the prefix of their keys, such as isbn,
 msgstr ""
 
 #: includes/class-rest-api.php:523
+msgid "Readings of the book, which replace its own, each with the rating it ended with, the one in progress last."
+msgstr ""
+
+#: includes/class-rest-api.php:528
+msgid "Rating of its latest reading ended, which a book not read has none of; null takes it away."
+msgstr ""
+
+#: includes/class-rest-api.php:537
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."
 msgstr ""
 
-#: includes/class-rest-api.php:554
+#: includes/class-rest-api.php:568
 msgid "No book has this ID."
 msgstr ""
 
-#: includes/class-rest-api.php:652
+#: includes/class-rest-api.php:666
 #: app/js/bricks/library-edit.js:439
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
-#: includes/class-rest-api.php:838
+#: includes/class-rest-api.php:852
 msgid "No photo was sent, in the file field."
 msgstr ""
 
