@@ -185,18 +185,18 @@ export function observeEnd( $more, signal, callback ) {
  * such as the people of a book or its readings. Removing an input gives the focus to `$add`, adding one gives it the focus.
  * A row removed tells with a change of `$list`, as a field changed does: the values of the form changed.
  * `id` may be a function of the value, for a row whose template depends on it, such as a reading whose date is unknown.
- * `value` gives the value of a new input, `setup` prepares each one from its value, such as a row of a reading, whose two
- * inputs take its start and its end. `into` gives the list a new input goes in when `$list` holds several, such as the
+ * `value` gives the value of a new row, `setup` writes it in the row, in its input unless given, such as the period of a
+ * reading, its start and its end. `into` gives the list a new input goes in when `$list` holds several, such as the
  * people of a book in the group of the role chosen. Returns the function that adds an input, with a value, in a list.
  *
- * @param {Object}                                              options         Options.
- * @param {Element}                                             options.$list   The list, or the box of its groups.
- * @param {HTMLElement}                                         options.$add    The button that adds an input.
- * @param {string|(( value: string ) => string)}                options.id      The ID of the template of a row, or the function that gives it from the value.
- * @param {AbortSignal}                                         options.signal  Removes the listeners.
- * @param {() => string}                                        [options.value] The value of a new input.
- * @param {( $input: HTMLInputElement, value: string ) => void} [options.setup] Prepares each input, from its value.
- * @param {() => Element}                                       [options.into]  The list a new input goes in, `$list` unless given.
+ * @param {Object}                                       options         Options.
+ * @param {Element}                                      options.$list   The list, or the box of its groups.
+ * @param {HTMLElement}                                  options.$add    The button that adds an input.
+ * @param {string|(( value: string ) => string)}         options.id      The ID of the template of a row, or the function that gives it from the value.
+ * @param {AbortSignal}                                  options.signal  Removes the listeners.
+ * @param {() => string}                                 [options.value] The value of a new input.
+ * @param {( $row: HTMLElement, value: string ) => void} [options.setup] Writes the value in its row, in its input unless given.
+ * @param {() => Element}                                [options.into]  The list a new input goes in, `$list` unless given.
  * @return {( text?: string, $into?: Element ) => HTMLInputElement} The function that adds an input, with a value, in a list.
  */
 export function inputsList( {
@@ -205,19 +205,19 @@ export function inputsList( {
 	id,
 	signal,
 	value = () => '',
-	setup = () => {},
+	setup = ( $row, text ) => {
+		$row.querySelector( 'input' ).value = text;
+	},
 	into = () => $list,
 } ) {
 	const templateOf = typeof id === 'function' ? id : () => id;
 	const add = ( text = value(), $into = into() ) => {
 		const $item = clone( templateOf( text ) );
-		const $input = $item.querySelector( 'input' );
 
-		$input.value = text;
-		setup( $input, text );
+		setup( $item, text );
 		$into.append( $item );
 
-		return $input;
+		return $item.querySelector( 'input' );
 	};
 
 	$add.addEventListener( 'click', () => add().focus(), { signal } );

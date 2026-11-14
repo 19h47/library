@@ -467,7 +467,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>image-field</code></h4>
-					<p>A <code>book-cover</code> and the pills that pick it and remove it</p>
+					<p>A <code>book-cover</code> and the pills that pick it and remove it, Remove shown while it shows an image; its root is its custom element, <code>image-field</code>, which shows the photo picked at once and, removed, checks its checkbox, <code>&lt;name&gt;_removed</code>, which the reset of the form unchecks</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -478,7 +478,39 @@ $sizes = array(
 							'name'   => 'cover',
 							'label'  => 'Choose a cover',
 							'remove' => 'Remove the cover',
-							'action' => 'remove-cover',
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>reading-period</code></h4>
+					<p>The period of a reading, two date fields: its start above its end, on one line beyond a phone, an arrow between them; its root is its custom element, <code>reading-period</code>, which keeps the end after the start, both up to today</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="reading-period">
+					<?php Markup::render_component( 'reading-period' ); ?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>barcode-scan</code></h4>
+					<p>The scan of the barcode of a book, under the field it types, <code>for</code>: the pill that takes its photo, then what the photo told, a status; its root is its custom element, <code>barcode-scan</code>, which shows it where the browser reads EAN-13 barcodes, here a photo without one</p>
+				</figcaption>
+				<div class="library-styleguide__frame library-form" data-sample="barcode-scan">
+					<?php
+					Markup::render_component(
+						'field',
+						array(
+							'id'    => 'library-styleguide-isbn',
+							'label' => 'ISBN',
+						)
+					);
+					Markup::render_component(
+						'barcode-scan',
+						array(
+							'id'  => 'library-styleguide-scan',
+							'for' => 'library-styleguide-isbn',
 						)
 					);
 					?>

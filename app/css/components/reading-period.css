@@ -1,0 +1,29 @@
+/**
+ * The period of a reading, a molecule, its custom element its root: its start above its end, closer to each other than to the
+ * readings around; on one line beyond a phone, an arrow between them, where two dates fit side by side.
+ */
+
+@layer app.components {
+	reading-period {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--app-space-xs);
+	}
+
+	/* Its arrow, the icon between its dates */
+	reading-period > svg {
+		display: none;
+	}
+
+	@media (min-width: 42rem) {
+		reading-period {
+			grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+			align-items: center;
+			gap: var(--app-space-s);
+		}
+
+		reading-period > svg {
+			display: revert;
+		}
+	}
+}

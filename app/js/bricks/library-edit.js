@@ -1,7 +1,7 @@
 import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { fill, fillCover } from 'library-app/render';
+import { fill } from 'library-app/render';
 import { join } from 'library-app/format';
 import { inputsList, showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
@@ -86,14 +86,10 @@ function renderOptions( terms ) {
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
  * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
  * in the fields left empty, the names as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
- * barcode of a book types its ISBN.
+ * barcode of a book types its ISBN, as if typed: its component, barcode-scan, does it.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
-	#preview = '';
-	// Whether the cover of the book was removed: a photo picked replaces it either way.
-	#removed = false;
-
 	connect( signal ) {
 		const $dialog = this.querySelector( 'dialog' );
 		/** @type {HTMLElement} */
@@ -143,14 +139,7 @@ class LibraryEditElement extends Brick {
 		/** @type {( role: string ) => Element} */
 		const listOf = ( role ) =>
 			$people.querySelector( `[data-group="${ role }"] > ul` );
-		/** @type {HTMLImageElement} */
-		const $preview = this.querySelector(
-			'[data-part="preview"] [data-field="cover"]'
-		);
-		/** @type {HTMLButtonElement} */
-		const $removeCover = this.querySelector(
-			'[data-action="remove-cover"]'
-		);
+		const $coverField = this.querySelector( 'image-field' );
 		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '[data-part="details"]' );
 		const $summary = $details.querySelector( 'summary' );
@@ -162,10 +151,6 @@ class LibraryEditElement extends Brick {
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
 		/** @type {HTMLButtonElement} */
 		const $buy = this.querySelector( '[data-action="buy"]' );
-		/** @type {HTMLElement} */
-		const $scanRow = this.querySelector( '[data-part="scan"]' );
-		/** @type {HTMLInputElement} */
-		const $scan = $scanRow.querySelector( 'input' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -313,20 +298,6 @@ class LibraryEditElement extends Brick {
 			countDetails();
 		};
 
-		// The cover shown: the photo picked, else the one of the book, unless it was removed.
-		const showCover = () => {
-			const { books, editing } = store.get();
-			const file = $cover.files[ 0 ];
-			const bookCover = this.#removed
-				? null
-				: books[ editing.id ]?.cover ?? null;
-
-			URL.revokeObjectURL( this.#preview );
-			this.#preview = file ? URL.createObjectURL( file ) : '';
-			fillCover( $preview, file ? { url: this.#preview } : bookCover );
-			$removeCover.hidden = ! file && ! bookCover;
-		};
-
 		$dialog.addEventListener( 'close', () => store.closeEdit(), {
 			signal,
 		} );
@@ -334,52 +305,9 @@ class LibraryEditElement extends Brick {
 		$isbn.addEventListener(
 			'change',
 			() => {
-				fill( this, { scan: '' } );
-
 				if ( ! store.get().editing.id ) {
 					store.checkIsbn( $isbn.value );
 				}
-			},
-			{ signal }
-		);
-
-		// The barcode of a book is an EAN-13: the pill that scans it shows where the browser reads them.
-		window.BarcodeDetector?.getSupportedFormats().then( ( formats ) => {
-			$scanRow.hidden = ! formats.includes( 'ean_13' );
-		} );
-
-		// The barcode read types the ISBN, as if typed; a photo without one says so.
-		$scan.addEventListener(
-			'change',
-			async () => {
-				const photo = $scan.files[ 0 ];
-
-				if ( ! photo ) {
-					return;
-				}
-
-				const detector = new BarcodeDetector( {
-					formats: [ 'ean_13' ],
-				} );
-				const [ barcode ] = await createImageBitmap( photo )
-					.then( ( bitmap ) => detector.detect( bitmap ) )
-					.catch( () => [] );
-
-				// The same photo can be taken again.
-				$scan.value = '';
-
-				if ( ! barcode ) {
-					fill( this, {
-						scan: __(
-							'No barcode found in the photo: take it again, closer.',
-							'library'
-						),
-					} );
-					return;
-				}
-
-				$isbn.value = barcode.rawValue;
-				$isbn.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			},
 			{ signal }
 		);
@@ -405,19 +333,6 @@ class LibraryEditElement extends Brick {
 			{ signal }
 		);
 		$publisher.addEventListener( 'input', suggestCollections, { signal } );
-		$cover.addEventListener( 'change', showCover, { signal } );
-
-		$removeCover.addEventListener(
-			'click',
-			() => {
-				$cover.value = '';
-				this.#removed = true;
-				showCover();
-				// The button hides: the focus goes to the one that picks a photo.
-				$cover.focus();
-			},
-			{ signal }
-		);
 
 		$form.addEventListener(
 			'submit',
@@ -471,7 +386,7 @@ class LibraryEditElement extends Brick {
 					store.editBook( {
 						...book,
 						cover,
-						coverRemoved: this.#removed,
+						coverRemoved: data.has( 'cover_removed' ),
 					} );
 				} else {
 					store
@@ -501,8 +416,6 @@ class LibraryEditElement extends Brick {
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
 					clearErrors();
-					fill( this, { scan: '' } );
-					this.#removed = false;
 					$heading.textContent = id
 						? $heading.dataset.edit
 						: $heading.dataset.add;
@@ -540,7 +453,8 @@ class LibraryEditElement extends Brick {
 
 					$details.open = false;
 					countDetails();
-					showCover();
+					// The cover the book has; the field shows a photo picked itself.
+					$coverField.cover = store.get().books[ id ]?.cover ?? null;
 					suggestCollections();
 					$dialog.showModal();
 					$dialog.scrollTop = 0;

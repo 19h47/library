@@ -81,7 +81,7 @@
 	}
 
 	/* A field of a form, such as a read date or the title of a book; a checkbox is the one of its pill */
-	:is(.library-field, .library-inputs-list__item) :is(input:not([type="checkbox"]), select, textarea) {
+	:is(.library-field, .library-inputs-list__item, reading-period) :is(input:not([type="checkbox"]), select, textarea) {
 		/* As a pill or the search, in em of its text */
 		--library-field-padding-inline: 1em;
 		--app-select-padding-inline: var(--library-field-padding-inline);
@@ -154,10 +154,15 @@
 		font-size: var(--app-text-s);
 	}
 
-	.library-image-field {
+	image-field {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: end;
 		gap: var(--app-space-m);
+	}
+
+	/* Its pill Remove, while its preview shows an image: the photo picked, or the cover the book has */
+	image-field:not(:has(img:not([hidden]))) > [data-action="remove"] {
+		display: none;
 	}
 }

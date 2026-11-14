@@ -9,6 +9,7 @@
 #07e4467ed6 | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(154, 151, 144); rgba(0, 0, 0, 0); 0px; rgb(154, 151, 144); 0px; 0px; 0px; 6.11px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #09b5a0a688 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 20.35px; 400; 32.93px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #0c34be96dc | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 3.78px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 6.29px; 6.29px; none; 1
+#0cd3669051 | none; Arial; 13.33px; 400; normal; normal; none; none; rgb(255, 255, 255); rgba(0, 0, 0, 0); 0px; rgb(255, 255, 255); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #0d76026c2c | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 0px; 34.33px; 0px; 16px; normal; normal; none; 1
 #0e47d49dd5 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); oklch(0.76 0.08 150); 1px; rgb(58, 56, 52); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #0e8df6c53e | none; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(92, 92, 92); oklab(0.47 0 0 / 0.1); 1px; oklab(0.47 0 0 / 0.4); 2.33px; 0px; 0px; 0px; 0px; 0px; 4.8px; 0px; 4.8px; normal; normal; none; 1
@@ -190,6 +191,7 @@
 #bf9452ae2b | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 16px; 16px; 16px; 16px; 6.11px; 6.11px; none; 1
 #bfe571bb71 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 20.35px; 700; 32.93px; -0.41px; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #c08239b2b9 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 400; 53.28px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
+#c3ce1da6f2 | none; Arial; 13.33px; 400; normal; normal; none; none; rgb(0, 0, 0); rgba(0, 0, 0, 0); 0px; rgb(0, 0, 0); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #c52bca0c2c | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #c6c25725eb | flex; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 9.89px; 9.89px; none; 1
 #c76c67edf3 | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 16px; 16px; 16px; 16px; 6.11px; 16px; none; 1
@@ -702,15 +704,44 @@ phone light | image-field > figcaption:0>h4:0 | #ee4e620dd5
 phone light | image-field > figcaption:0>h4:0>code:0 | #dbdf5b1996
 phone light | image-field > figcaption:0>p:1 | #f32e27d3ba
 phone light | image-field > figcaption:0>p:1>code:0 | #e00eee4ef4
+phone light | image-field > figcaption:0>p:1>code:1 | #e00eee4ef4
+phone light | image-field > figcaption:0>p:1>code:2 | #e00eee4ef4
 phone light | image-field > div:1 | #7665ec1129
-phone light | image-field > div:1>div:0 | #1c31289a9e
-phone light | image-field > div:1>div:0>span:0 | #dcb3fa55c4
-phone light | image-field > div:1>div:0>span:0>img:0 | #bb19302e52
-phone light | image-field > div:1>div:0>span:0>span:1 | #e86521d2fd
-phone light | image-field > div:1>div:0>span:0>span:1>span:0 | #793018797d
-phone light | image-field > div:1>div:0>label:1 | #cbd157aa9a
-phone light | image-field > div:1>div:0>label:1>input:0 | #e6c16c89e3
-phone light | image-field > div:1>div:0>button:2 | #cbd157aa9a
+phone light | image-field > div:1>image-field:0 | #1c31289a9e
+phone light | image-field > div:1>image-field:0>span:0 | #dcb3fa55c4
+phone light | image-field > div:1>image-field:0>span:0>img:0 | #bb19302e52
+phone light | image-field > div:1>image-field:0>span:0>span:1 | #e86521d2fd
+phone light | image-field > div:1>image-field:0>span:0>span:1>span:0 | #793018797d
+phone light | image-field > div:1>image-field:0>label:1 | #cbd157aa9a
+phone light | image-field > div:1>image-field:0>label:1>input:0 | #e6c16c89e3
+phone light | image-field > div:1>image-field:0>button:2 | #cbd157aa9a
+phone light | image-field > div:1>image-field:0>input:3 | #c3ce1da6f2
+phone light | reading-period >  | #21099a2d4f
+phone light | reading-period > figcaption:0 | #3b31681e54
+phone light | reading-period > figcaption:0>h4:0 | #ee4e620dd5
+phone light | reading-period > figcaption:0>h4:0>code:0 | #dbdf5b1996
+phone light | reading-period > figcaption:0>p:1 | #f32e27d3ba
+phone light | reading-period > figcaption:0>p:1>code:0 | #e00eee4ef4
+phone light | reading-period > div:1 | #7665ec1129
+phone light | reading-period > div:1>reading-period:0 | #b0b9041b14
+phone light | reading-period > div:1>reading-period:0>input:0 | #2ed6aea798
+phone light | reading-period > div:1>reading-period:0>input:2 | #2ed6aea798
+phone light | barcode-scan >  | #21099a2d4f
+phone light | barcode-scan > figcaption:0 | #3b31681e54
+phone light | barcode-scan > figcaption:0>h4:0 | #ee4e620dd5
+phone light | barcode-scan > figcaption:0>h4:0>code:0 | #dbdf5b1996
+phone light | barcode-scan > figcaption:0>p:1 | #f32e27d3ba
+phone light | barcode-scan > figcaption:0>p:1>code:0 | #e00eee4ef4
+phone light | barcode-scan > figcaption:0>p:1>code:1 | #e00eee4ef4
+phone light | barcode-scan > div:1 | #7665ec1129
+phone light | barcode-scan > div:1>p:0 | #b0b9041b14
+phone light | barcode-scan > div:1>p:0>label:0 | #92bd6266d2
+phone light | barcode-scan > div:1>p:0>input:1 | #2ed6aea798
+phone light | barcode-scan > div:1>barcode-scan:1 | #21099a2d4f
+phone light | barcode-scan > div:1>barcode-scan:1>label:0 | #cbd157aa9a
+phone light | barcode-scan > div:1>barcode-scan:1>label:0>input:0 | #e6c16c89e3
+phone light | barcode-scan > div:1>barcode-scan:1>p:1 | #7a5b8be307
+phone light | barcode-scan > div:1>barcode-scan:1>p:1>span:0 | #6fe76e2496
 phone light | section:4 | #d4fbba5493
 phone light | section:4>h3:0 | #9055b3e2bd
 phone light | section:4>div:1 | #3ac54a8541
@@ -1313,17 +1344,17 @@ phone light | inputs-list > div:1>fieldset:0>ul:1>li:0>input:0 | #e9ebc131c0
 phone light | inputs-list > div:1>fieldset:0>ul:1>li:0>input:1 | #e9ebc131c0
 phone light | inputs-list > div:1>fieldset:0>ul:1>li:0>span:2 | #e7a7465625
 phone light | inputs-list > div:1>fieldset:0>ul:1>li:0>button:3 | #9948e2bc86
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:1 | #895400470b
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>input:0 | #2ed6aea798
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>span:1 | #f2f867892d
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>input:2 | #2ed6aea798
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>button:3 | #9948e2bc86
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:2 | #895400470b
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>input:0 | #2ed6aea798
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>span:1 | #f2f867892d
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>input:2 | #40e34c0f7e
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>button:3 | #9948e2bc86
-phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>span:4 | #c7ad66ea95
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:1 | #21099a2d4f
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0 | #b0b9041b14
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0>input:0 | #2ed6aea798
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0>input:2 | #2ed6aea798
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:1>button:1 | #9948e2bc86
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:2 | #21099a2d4f
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0 | #b0b9041b14
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0>input:0 | #2ed6aea798
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0>input:2 | #40e34c0f7e
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>button:1 | #9948e2bc86
+phone light | inputs-list > div:1>fieldset:0>ul:1>li:2>span:2 | #c7ad66ea95
 phone light | inputs-list > div:1>fieldset:0>small:2 | #f93c5a365e
 phone light | inputs-list > div:1>fieldset:0>p:3 | #d6d2da044b
 phone light | inputs-list > div:1>fieldset:0>p:3>button:0 | #cbd157aa9a
@@ -1542,14 +1573,12 @@ phone light | isbn-status > div:1>div:0>p:0>span:0 | #6fe76e2496
 phone light | isbn-status > div:1>div:0>p:0>span:0>a:0 | #fb4bc4d02a
 phone light | isbn-status > div:1>div:0>p:0>span:0>button:1 | #48f5a9ae7a
 phone light | isbn-status > div:1>div:0>p:0>span:1 | #f2f867892d
-phone light | isbn-status > div:1>div:0>p:0>span:2 | #f2f867892d
 phone light | isbn-status > div:1>div:1 | #7a5b8be307
 phone light | isbn-status > div:1>div:1>p:0 | #7a5b8be307
 phone light | isbn-status > div:1>div:1>p:0>span:0 | #f2f867892d
 phone light | isbn-status > div:1>div:1>p:0>span:0>a:0 | #fb4bc4d02a
 phone light | isbn-status > div:1>div:1>p:0>span:0>button:1 | #92c737bdda
 phone light | isbn-status > div:1>div:1>p:0>span:1 | #6fe76e2496
-phone light | isbn-status > div:1>div:1>p:0>span:2 | #f2f867892d
 phone light | .library-edit__details >  | #21099a2d4f
 phone light | .library-edit__details > figcaption:0 | #3b31681e54
 phone light | .library-edit__details > figcaption:0>h4:0 | #ee4e620dd5
@@ -2181,15 +2210,44 @@ phone dark | image-field > figcaption:0>h4:0 | #39ad583df4
 phone dark | image-field > figcaption:0>h4:0>code:0 | #22cc5d16f1
 phone dark | image-field > figcaption:0>p:1 | #780ec72c98
 phone dark | image-field > figcaption:0>p:1>code:0 | #da82be0cbf
+phone dark | image-field > figcaption:0>p:1>code:1 | #da82be0cbf
+phone dark | image-field > figcaption:0>p:1>code:2 | #da82be0cbf
 phone dark | image-field > div:1 | #cd09adf1d8
-phone dark | image-field > div:1>div:0 | #61a7f58a4f
-phone dark | image-field > div:1>div:0>span:0 | #130c38dee9
-phone dark | image-field > div:1>div:0>span:0>img:0 | #283766d4d5
-phone dark | image-field > div:1>div:0>span:0>span:1 | #2ce0722b12
-phone dark | image-field > div:1>div:0>span:0>span:1>span:0 | #8be81d709c
-phone dark | image-field > div:1>div:0>label:1 | #fd687296c6
-phone dark | image-field > div:1>div:0>label:1>input:0 | #ee92c8a3ae
-phone dark | image-field > div:1>div:0>button:2 | #fd687296c6
+phone dark | image-field > div:1>image-field:0 | #61a7f58a4f
+phone dark | image-field > div:1>image-field:0>span:0 | #130c38dee9
+phone dark | image-field > div:1>image-field:0>span:0>img:0 | #283766d4d5
+phone dark | image-field > div:1>image-field:0>span:0>span:1 | #2ce0722b12
+phone dark | image-field > div:1>image-field:0>span:0>span:1>span:0 | #8be81d709c
+phone dark | image-field > div:1>image-field:0>label:1 | #fd687296c6
+phone dark | image-field > div:1>image-field:0>label:1>input:0 | #ee92c8a3ae
+phone dark | image-field > div:1>image-field:0>button:2 | #fd687296c6
+phone dark | image-field > div:1>image-field:0>input:3 | #0cd3669051
+phone dark | reading-period >  | #2d88a2661e
+phone dark | reading-period > figcaption:0 | #7a7a09ffad
+phone dark | reading-period > figcaption:0>h4:0 | #39ad583df4
+phone dark | reading-period > figcaption:0>h4:0>code:0 | #22cc5d16f1
+phone dark | reading-period > figcaption:0>p:1 | #780ec72c98
+phone dark | reading-period > figcaption:0>p:1>code:0 | #da82be0cbf
+phone dark | reading-period > div:1 | #cd09adf1d8
+phone dark | reading-period > div:1>reading-period:0 | #f3e118a00f
+phone dark | reading-period > div:1>reading-period:0>input:0 | #7b366bf6d0
+phone dark | reading-period > div:1>reading-period:0>input:2 | #7b366bf6d0
+phone dark | barcode-scan >  | #2d88a2661e
+phone dark | barcode-scan > figcaption:0 | #7a7a09ffad
+phone dark | barcode-scan > figcaption:0>h4:0 | #39ad583df4
+phone dark | barcode-scan > figcaption:0>h4:0>code:0 | #22cc5d16f1
+phone dark | barcode-scan > figcaption:0>p:1 | #780ec72c98
+phone dark | barcode-scan > figcaption:0>p:1>code:0 | #da82be0cbf
+phone dark | barcode-scan > figcaption:0>p:1>code:1 | #da82be0cbf
+phone dark | barcode-scan > div:1 | #cd09adf1d8
+phone dark | barcode-scan > div:1>p:0 | #f3e118a00f
+phone dark | barcode-scan > div:1>p:0>label:0 | #85d1ea2f15
+phone dark | barcode-scan > div:1>p:0>input:1 | #7b366bf6d0
+phone dark | barcode-scan > div:1>barcode-scan:1 | #2d88a2661e
+phone dark | barcode-scan > div:1>barcode-scan:1>label:0 | #fd687296c6
+phone dark | barcode-scan > div:1>barcode-scan:1>label:0>input:0 | #ee92c8a3ae
+phone dark | barcode-scan > div:1>barcode-scan:1>p:1 | #9270eec119
+phone dark | barcode-scan > div:1>barcode-scan:1>p:1>span:0 | #46925c465d
 phone dark | section:4 | #fc4a2a016d
 phone dark | section:4>h3:0 | #114fac91a4
 phone dark | section:4>div:1 | #1212f12581
@@ -2792,17 +2850,17 @@ phone dark | inputs-list > div:1>fieldset:0>ul:1>li:0>input:0 | #e0e54bb6bd
 phone dark | inputs-list > div:1>fieldset:0>ul:1>li:0>input:1 | #e0e54bb6bd
 phone dark | inputs-list > div:1>fieldset:0>ul:1>li:0>span:2 | #3d9b178b43
 phone dark | inputs-list > div:1>fieldset:0>ul:1>li:0>button:3 | #fbd9f80423
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1 | #4a7cde5b63
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>input:0 | #7b366bf6d0
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>span:1 | #c52bca0c2c
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>input:2 | #7b366bf6d0
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>button:3 | #fbd9f80423
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2 | #4a7cde5b63
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>input:0 | #7b366bf6d0
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>span:1 | #c52bca0c2c
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>input:2 | #4fc6aeaf26
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>button:3 | #fbd9f80423
-phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>span:4 | #b68f623131
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1 | #2d88a2661e
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0 | #f3e118a00f
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0>input:0 | #7b366bf6d0
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0>input:2 | #7b366bf6d0
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:1>button:1 | #fbd9f80423
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2 | #2d88a2661e
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0 | #f3e118a00f
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0>input:0 | #7b366bf6d0
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0>input:2 | #4fc6aeaf26
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>button:1 | #fbd9f80423
+phone dark | inputs-list > div:1>fieldset:0>ul:1>li:2>span:2 | #b68f623131
 phone dark | inputs-list > div:1>fieldset:0>small:2 | #a2680ab512
 phone dark | inputs-list > div:1>fieldset:0>p:3 | #c6c25725eb
 phone dark | inputs-list > div:1>fieldset:0>p:3>button:0 | #fd687296c6
@@ -3021,14 +3079,12 @@ phone dark | isbn-status > div:1>div:0>p:0>span:0 | #46925c465d
 phone dark | isbn-status > div:1>div:0>p:0>span:0>a:0 | #ef68e6bf57
 phone dark | isbn-status > div:1>div:0>p:0>span:0>button:1 | #d6b64116f3
 phone dark | isbn-status > div:1>div:0>p:0>span:1 | #c52bca0c2c
-phone dark | isbn-status > div:1>div:0>p:0>span:2 | #c52bca0c2c
 phone dark | isbn-status > div:1>div:1 | #9270eec119
 phone dark | isbn-status > div:1>div:1>p:0 | #9270eec119
 phone dark | isbn-status > div:1>div:1>p:0>span:0 | #c52bca0c2c
 phone dark | isbn-status > div:1>div:1>p:0>span:0>a:0 | #ef68e6bf57
 phone dark | isbn-status > div:1>div:1>p:0>span:0>button:1 | #bbedf557bd
 phone dark | isbn-status > div:1>div:1>p:0>span:1 | #46925c465d
-phone dark | isbn-status > div:1>div:1>p:0>span:2 | #c52bca0c2c
 phone dark | .library-edit__details >  | #2d88a2661e
 phone dark | .library-edit__details > figcaption:0 | #7a7a09ffad
 phone dark | .library-edit__details > figcaption:0>h4:0 | #39ad583df4
@@ -3660,15 +3716,44 @@ wide light | image-field > figcaption:0>h4:0 | #ee4e620dd5
 wide light | image-field > figcaption:0>h4:0>code:0 | #dbdf5b1996
 wide light | image-field > figcaption:0>p:1 | #f32e27d3ba
 wide light | image-field > figcaption:0>p:1>code:0 | #e00eee4ef4
+wide light | image-field > figcaption:0>p:1>code:1 | #e00eee4ef4
+wide light | image-field > figcaption:0>p:1>code:2 | #e00eee4ef4
 wide light | image-field > div:1 | #7665ec1129
-wide light | image-field > div:1>div:0 | #1c31289a9e
-wide light | image-field > div:1>div:0>span:0 | #dcb3fa55c4
-wide light | image-field > div:1>div:0>span:0>img:0 | #bb19302e52
-wide light | image-field > div:1>div:0>span:0>span:1 | #e86521d2fd
-wide light | image-field > div:1>div:0>span:0>span:1>span:0 | #793018797d
-wide light | image-field > div:1>div:0>label:1 | #cbd157aa9a
-wide light | image-field > div:1>div:0>label:1>input:0 | #e6c16c89e3
-wide light | image-field > div:1>div:0>button:2 | #cbd157aa9a
+wide light | image-field > div:1>image-field:0 | #1c31289a9e
+wide light | image-field > div:1>image-field:0>span:0 | #dcb3fa55c4
+wide light | image-field > div:1>image-field:0>span:0>img:0 | #bb19302e52
+wide light | image-field > div:1>image-field:0>span:0>span:1 | #e86521d2fd
+wide light | image-field > div:1>image-field:0>span:0>span:1>span:0 | #793018797d
+wide light | image-field > div:1>image-field:0>label:1 | #cbd157aa9a
+wide light | image-field > div:1>image-field:0>label:1>input:0 | #e6c16c89e3
+wide light | image-field > div:1>image-field:0>button:2 | #cbd157aa9a
+wide light | image-field > div:1>image-field:0>input:3 | #c3ce1da6f2
+wide light | reading-period >  | #21099a2d4f
+wide light | reading-period > figcaption:0 | #3b31681e54
+wide light | reading-period > figcaption:0>h4:0 | #ee4e620dd5
+wide light | reading-period > figcaption:0>h4:0>code:0 | #dbdf5b1996
+wide light | reading-period > figcaption:0>p:1 | #f32e27d3ba
+wide light | reading-period > figcaption:0>p:1>code:0 | #e00eee4ef4
+wide light | reading-period > div:1 | #7665ec1129
+wide light | reading-period > div:1>reading-period:0 | #21099a2d4f
+wide light | reading-period > div:1>reading-period:0>input:0 | #2ed6aea798
+wide light | reading-period > div:1>reading-period:0>input:2 | #2ed6aea798
+wide light | barcode-scan >  | #21099a2d4f
+wide light | barcode-scan > figcaption:0 | #3b31681e54
+wide light | barcode-scan > figcaption:0>h4:0 | #ee4e620dd5
+wide light | barcode-scan > figcaption:0>h4:0>code:0 | #dbdf5b1996
+wide light | barcode-scan > figcaption:0>p:1 | #f32e27d3ba
+wide light | barcode-scan > figcaption:0>p:1>code:0 | #e00eee4ef4
+wide light | barcode-scan > figcaption:0>p:1>code:1 | #e00eee4ef4
+wide light | barcode-scan > div:1 | #7665ec1129
+wide light | barcode-scan > div:1>p:0 | #b0b9041b14
+wide light | barcode-scan > div:1>p:0>label:0 | #92bd6266d2
+wide light | barcode-scan > div:1>p:0>input:1 | #2ed6aea798
+wide light | barcode-scan > div:1>barcode-scan:1 | #21099a2d4f
+wide light | barcode-scan > div:1>barcode-scan:1>label:0 | #cbd157aa9a
+wide light | barcode-scan > div:1>barcode-scan:1>label:0>input:0 | #e6c16c89e3
+wide light | barcode-scan > div:1>barcode-scan:1>p:1 | #7a5b8be307
+wide light | barcode-scan > div:1>barcode-scan:1>p:1>span:0 | #6fe76e2496
 wide light | section:4 | #d4fbba5493
 wide light | section:4>h3:0 | #9055b3e2bd
 wide light | section:4>div:1 | #3ac54a8541
@@ -4271,17 +4356,17 @@ wide light | inputs-list > div:1>fieldset:0>ul:1>li:0>input:0 | #e9ebc131c0
 wide light | inputs-list > div:1>fieldset:0>ul:1>li:0>input:1 | #e9ebc131c0
 wide light | inputs-list > div:1>fieldset:0>ul:1>li:0>span:2 | #e7a7465625
 wide light | inputs-list > div:1>fieldset:0>ul:1>li:0>button:3 | #9948e2bc86
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:1 | #895400470b
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>input:0 | #2ed6aea798
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>span:1 | #7a5b8be307
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>input:2 | #2ed6aea798
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>button:3 | #9948e2bc86
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:2 | #895400470b
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>input:0 | #2ed6aea798
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>span:1 | #7a5b8be307
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>input:2 | #40e34c0f7e
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>button:3 | #9948e2bc86
-wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>span:4 | #c7ad66ea95
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:1 | #21099a2d4f
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0 | #21099a2d4f
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0>input:0 | #2ed6aea798
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>reading-period:0>input:2 | #2ed6aea798
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:1>button:1 | #9948e2bc86
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:2 | #21099a2d4f
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0 | #21099a2d4f
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0>input:0 | #2ed6aea798
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>reading-period:0>input:2 | #40e34c0f7e
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>button:1 | #9948e2bc86
+wide light | inputs-list > div:1>fieldset:0>ul:1>li:2>span:2 | #c7ad66ea95
 wide light | inputs-list > div:1>fieldset:0>small:2 | #f93c5a365e
 wide light | inputs-list > div:1>fieldset:0>p:3 | #d6d2da044b
 wide light | inputs-list > div:1>fieldset:0>p:3>button:0 | #cbd157aa9a
@@ -4500,14 +4585,12 @@ wide light | isbn-status > div:1>div:0>p:0>span:0 | #6fe76e2496
 wide light | isbn-status > div:1>div:0>p:0>span:0>a:0 | #fb4bc4d02a
 wide light | isbn-status > div:1>div:0>p:0>span:0>button:1 | #48f5a9ae7a
 wide light | isbn-status > div:1>div:0>p:0>span:1 | #f2f867892d
-wide light | isbn-status > div:1>div:0>p:0>span:2 | #f2f867892d
 wide light | isbn-status > div:1>div:1 | #7a5b8be307
 wide light | isbn-status > div:1>div:1>p:0 | #7a5b8be307
 wide light | isbn-status > div:1>div:1>p:0>span:0 | #f2f867892d
 wide light | isbn-status > div:1>div:1>p:0>span:0>a:0 | #fb4bc4d02a
 wide light | isbn-status > div:1>div:1>p:0>span:0>button:1 | #92c737bdda
 wide light | isbn-status > div:1>div:1>p:0>span:1 | #6fe76e2496
-wide light | isbn-status > div:1>div:1>p:0>span:2 | #f2f867892d
 wide light | .library-edit__details >  | #21099a2d4f
 wide light | .library-edit__details > figcaption:0 | #3b31681e54
 wide light | .library-edit__details > figcaption:0>h4:0 | #ee4e620dd5

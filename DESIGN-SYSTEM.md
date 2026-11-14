@@ -59,10 +59,10 @@ None, but what is no size of the scale: a line of 1 to 3 px, a length in `em`, w
 ## Names
 
 - `app-`: what the apps share, the base of `app/css/app-style.css`, a copy of [the gist](https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498): tokens, `.app-pill`, `.app-control`, `.app-list`, `.app-item`, the utilities. It changes in the gist, then in every app, never in its copy alone.
-- `library-`: what the reading app adds, its tokens, its components and its custom elements.
+- `library-`: what the reading app adds, its tokens, its components and its bricks.
 - A class names a block, an element of it or a variant, as BEM does: `.library-book-card`, `.library-book-card__title`, `.library-fields--aside`. A class of a view names a part of that view; a style used in several places is a component of its own.
 - A utility sets one property, and wins over the components: `.app-text-s`, `.app-text-muted`, `.app-font-ui`, `.app-font-normal`, `.app-uppercase`, `.sr-only`. A meta line is `app-text-s app-text-muted app-font-ui app-uppercase`.
-- A brick is a custom element, `library-<name>`, in `app/js/bricks/library-<name>.js`, which the page loads by its name.
+- A custom element is of one of two kinds. A brick is an element of the app, which reads the store: `library-<name>`, in `app/js/bricks/library-<name>.js`. A component element is the root of a component that behaves on its own, which reads no store: the name of its component, `<name>`, without a prefix, in `app/js/components/<name>.js`, beside `app/components/<name>.php` and `app/css/components/<name>.css`, its three files of the same name, as a package. The page loads both by their names.
 - A PHP component is `app/components/<name>.php`, printed by `Markup::render_component( '<name>', $args )`; its name says what it shows, then what kind of thing it is, `book-card`, `term-header`, `image-field`; its root carries the class of its name, `.library-book-card`, and its sheet, if it has styles of its own, the same name, `app/css/components/<name>.css`. A part two components share is a block of its own, such as the link that covers a card, `.library-card-link`, rather than an element of one of them.
 
 ## Components
@@ -74,7 +74,8 @@ The components are built as those of a design file, each level made of the ones 
 - **Its place sets its properties.** A place that needs a component otherwise sets the custom properties the component reads, rather than a selector of its own reaching into it: a card gives its cover `--library-cover-inline-size`, the last screen of the recap gives its pills `--app-pill-background`, the styleguide gives its strips `--library-bleed`. The component lists its properties in its comment and in its caption in the styleguide.
 - **Its container is not its own.** A component is what it shows, whatever holds it: a card is an `article`, and the item of a list holds it, `<li><?php Markup::render_component( 'book-card' ); ?></li>`, the list being the one to know it is a list.
 - **Its heading level is an argument.** A component that has a heading takes its level, `level`, as its place sets it.
-- **Markup alone, its brick around it.** A component is markup: the app puts the brick that gives it its behavior around it, where it needs one, `<library-back class="library-back">` then the component `back`, as the styleguide puts none, or one that needs no store. A brick that only assembles others, such as a list of books and its status, is no component: the view writes it.
+- **Markup alone, a brick around it.** A component is markup: the app puts the brick that ties it to the store around it, where it needs one, `<library-back class="library-back">` then the component `back`, as the styleguide puts none, or one that needs no store. A brick that only assembles others, such as a list of books and its status, is no component: the view writes it.
+- **A behavior of its own, its element its root.** A behavior that is the component's own, which reads no store and has no sense without its markup, such as the bounds of the two dates of a period, the preview of a photo picked or the scan of a barcode, makes a component element its root, styled by its tag, without a class that would say its name again: `reading-period` is `<reading-period>`, `image-field` is `<image-field>`, `barcode-scan` is `<barcode-scan>`. It is plugged in and out as a package, through its API alone, which its comment lists: its attributes, such as `for`; its properties, such as `value` or `cover`, which `types/components.d.ts` gives by its tag; the events it sends, native ones, such as a change; the fields it gives its form, which the form reads and resets, such as the checkbox of a cover removed. Its place never reaches inside it; ESLint fails on one that imports the store.
 
 ### Arguments
 
@@ -88,6 +89,7 @@ The same word means the same thing in every component:
 | `options` | its choices, label by value, as a select or checkboxes give them |
 | `attributes` | the attributes of its control, set on it as `Markup::set_attributes()` sets them; of its root without a control |
 | `action` | the action of its button, its `data-action`, which a script reads |
+| `for` | the ID of the field it fills, as a label names its control: the ISBN a barcode scanned types |
 | `level` | the level of its heading, from its place |
 
 An argument of a part names the part first, such as `options_label`, the label of the options of a list of inputs in groups. A component takes no class from its place: the place sets the properties it reads, or reaches it through its own selector.
@@ -190,6 +192,37 @@ customElements.define( 'library-thing', LibraryThingElement );
 ```
 
 Its listeners take `signal`, which aborts as the brick leaves the page; it returns what it selects of the store, unsubscribed then. No brick knows another. A list of items clones a template of `app/partials/library-app.php`, which holds the translated labels, and fills it.
+
+A component element, `app/js/components/<name>.js`, here `thing-field.js`, and its tag in `types/components.d.ts`:
+
+```js
+import { Component } from 'library-app/component';
+
+/**
+ * What it is, and what it does.
+ *
+ * Its API: `value`, what it holds; its field, thing, which its form sends.
+ */
+export class ThingFieldElement extends Component {
+	// Set before the element is defined, such as on a row cloned from a template, it still goes through its accessor.
+	static properties = [ 'value' ];
+
+	get value() {
+		return this.querySelector( 'input' ).value;
+	}
+
+	set value( value ) {
+		this.querySelector( 'input' ).value = value;
+	}
+
+	connect( signal ) {
+		this.addEventListener( 'input', () => {}, { signal } );
+	}
+}
+customElements.define( 'thing-field', ThingFieldElement );
+```
+
+Its listeners take `signal`, which aborts as it leaves the page; it returns nothing, as it selects nothing.
 
 ## Finishing a component
 

@@ -13,7 +13,6 @@ import {
 	fill,
 	fillBookPage,
 	fillBookCover,
-	fillCover,
 	fillCardsGroup,
 	fillHtml,
 	renderAchievement,
@@ -271,6 +270,17 @@ class LibraryStyleguideElement extends Brick {
 				...render()
 			)
 		);
+		// The period of a reading, its start and its end.
+		this.querySelector( '[data-sample="reading-period"]' ).querySelector(
+			'reading-period'
+		).value = '2026-10-20/2026-10-28';
+		// The scan of a barcode, shown whatever the browser reads, a photo without one.
+		const $scan = this.querySelector( 'barcode-scan' );
+
+		$scan.hidden = false;
+		fill( $scan, {
+			message: 'No barcode found in the photo: take it again, closer.',
+		} );
 		// The readings of a book, in the list of their field.
 		this.querySelector( '[data-sample="readings"] ul' ).replaceChildren(
 			...[ '/', '2026-10-20/2026-10-28', '/2126-10-28' ].map(
@@ -336,10 +346,7 @@ class LibraryStyleguideElement extends Brick {
 			cover: null,
 			title: 'A book without its cover, and a title long enough to be cut',
 		} );
-		fillCover(
-			this.querySelector( '[data-part="preview"] [data-field="cover"]' ),
-			COVER
-		);
+		this.querySelector( 'image-field' ).cover = COVER;
 
 		// The headers of the page of a person and of a series, filled as their pages fill them.
 		Object.entries( HEADERS ).forEach(
@@ -355,9 +362,6 @@ class LibraryStyleguideElement extends Brick {
 				);
 			}
 		);
-		/** @type {HTMLButtonElement} */ (
-			this.querySelector( '[data-action="remove-cover"]' )
-		).hidden = false;
 
 		// The fields in error show as the forms show theirs.
 		/** @type {HTMLInputElement} */
@@ -474,20 +478,16 @@ class LibraryStyleguideElement extends Brick {
 	 * @return {HTMLElement} The row.
 	 */
 	#renderReading( interval ) {
-		const [ start, end ] = interval.split( '/' );
 		const $item = clone(
 			'/' === interval
 				? 'library-reading-unknown'
 				: 'library-reading-ended'
 		);
+		const $period = $item.querySelector( 'reading-period' );
 
-		/** @type {HTMLInputElement} */
-		const $start = $item.querySelector( '[name="reading_start"]' );
-		/** @type {HTMLInputElement} */
-		const $end = $item.querySelector( '[name="reading_end"]' );
-
-		$start.value = start;
-		$end.value = end;
+		if ( $period ) {
+			$period.value = interval;
+		}
 
 		return $item;
 	}

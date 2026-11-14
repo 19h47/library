@@ -1,0 +1,17 @@
+/**
+ * The scan of the barcode of a book, a molecule, its custom element its root: the pill that takes its photo, then what the photo
+ * told, under it.
+ */
+
+@layer app.components {
+	barcode-scan {
+		display: grid;
+		justify-items: start;
+		gap: var(--app-space-s);
+	}
+
+	/* Its message stays in the page, to be read once it shows, out of the flow while it does not */
+	barcode-scan > [role="status"]:not(:has(> :not([hidden]))) {
+		position: absolute;
+	}
+}

@@ -710,20 +710,18 @@ use Library\Meta;
 							'name'   => 'cover',
 							'label'  => __( 'Choose a cover', 'library' ),
 							'remove' => __( 'Remove the cover', 'library' ),
-							'action' => 'remove-cover',
 						)
 					);
 					// An ISBN takes hyphens, which a numeric keyboard may not have.
 					Markup::render_component( 'meta-field', array( 'key' => 'library_isbn' ) );
-					?>
-					<?php // Where the browser reads EAN-13 barcodes, which its script tells: a photo of the barcode of the book types its ISBN. ?>
-					<p data-part="scan" hidden>
-						<label class="app-pill" for="library-edit-scan">
-							<input class="sr-only" id="library-edit-scan" type="file" accept="image/*" capture="environment">
-							<?php esc_html_e( 'Scan the barcode', 'library' ); ?>
-						</label>
-					</p>
-					<?php
+					// Where the browser reads EAN-13 barcodes: a photo of the barcode of the book types its ISBN.
+					Markup::render_component(
+						'barcode-scan',
+						array(
+							'id'  => 'library-edit-scan',
+							'for' => 'library-edit-library-isbn',
+						)
+					);
 					Markup::render_component( 'isbn-status' );
 					Markup::render_component(
 						'field',
@@ -939,10 +937,8 @@ use Library\Meta;
 		</template>
 
 		<template id="library-reading-ended">
-			<li class="library-inputs-list__item library-reading__item">
-				<input type="date" name="reading_start" aria-label="<?php esc_attr_e( 'Start of the reading', 'library' ); ?>">
-				<span class="library-reading__arrow"><?php Markup::render_icon( 'arrow_forward' ); ?></span>
-				<input type="date" name="reading_end" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
+			<li class="library-inputs-list__item">
+				<?php Markup::render_component( 'reading-period' ); ?>
 				<button
 					class="app-control"
 					type="button"

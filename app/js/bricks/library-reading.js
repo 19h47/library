@@ -92,37 +92,8 @@ class LibraryReadingElement extends Brick {
 			$form.requestSubmit();
 		};
 
-		/**
-		 * A start never after its end, an end never before its start, and neither later than today. The field typed in
-		 * keeps its bounds: Chrome starts the typing of a date field again as its bounds are set, which empties it at the
-		 * next key, such as the year 0002 of 2025; a bound is set only when it changes.
-		 *
-		 * @param {Element}               $row     The row of a reading.
-		 * @param {HTMLInputElement|null} [$field] The field typed in, if any.
-		 */
-		const limit = ( $row, $field = null ) => {
-			const [ $start, $end ] = /** @type {HTMLInputElement[]} */ ( [
-				...$row.querySelectorAll( 'input[type="date"]' ),
-			] );
-			const bound = (
-				/** @type {HTMLInputElement} */ $input,
-				/** @type {'min'|'max'} */ name,
-				/** @type {string} */ value
-			) => {
-				if ( $input !== $field && $input[ name ] !== value ) {
-					$input[ name ] = value;
-				}
-			};
-
-			if ( $start && $end ) {
-				bound( $start, 'max', $end.value || today() );
-				bound( $end, 'min', $start.value );
-				bound( $end, 'max', today() );
-			}
-		};
-
 		// A reading ends today, unless changed, from the start of the one in progress, which it ends; a reading whose dates
-		// are unknown has no date input.
+		// are unknown has no date input. Its period, reading-period, keeps its end after its start, both up to today.
 		const addReading = inputsList( {
 			$list,
 			$add,
@@ -133,15 +104,13 @@ class LibraryReadingElement extends Brick {
 			signal,
 			value: () =>
 				`${ $inProgress.checked ? $started.value : '' }/${ today() }`,
-			setup: ( $start, interval ) => {
-				const [ start, end ] = interval.split( '/' );
-				const $row = $start.closest( 'li' );
-				/** @type {HTMLInputElement} */
-				const $end = $row.querySelector( '[name="reading_end"]' );
+			// Its period takes it, its start and its end; a reading whose dates are unknown has none.
+			setup: ( $row, interval ) => {
+				const $period = $row.querySelector( 'reading-period' );
 
-				$start.value = start;
-				$end.value = end;
-				limit( $row );
+				if ( $period ) {
+					$period.value = interval;
+				}
 			},
 		} );
 
@@ -189,15 +158,6 @@ class LibraryReadingElement extends Brick {
 			)
 		);
 
-		$list.addEventListener(
-			'input',
-			( event ) => {
-				const $field = /** @type {HTMLInputElement} */ ( event.target );
-
-				limit( $field.closest( 'li' ), $field );
-			},
-			{ signal }
-		);
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
 		// A field changed, or the list of readings, one removed.
 		$form.addEventListener(
