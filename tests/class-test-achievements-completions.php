@@ -689,7 +689,7 @@ class Test_Achievements_Completions extends TestCase {
 				array(
 					'meta' => array(
 						'read'    => true,
-						'reading' => array( "/$read_date" ),
+						'reading' => array( self::reading( "/$read_date" ) ),
 					),
 				)
 			)

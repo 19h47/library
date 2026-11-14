@@ -12,6 +12,7 @@
 namespace Library\Admin;
 
 use Library\Meta;
+use Library\Reading;
 use Library\Posts;
 use Library\Status;
 use Library\Taxonomies;
@@ -122,16 +123,26 @@ class Metaboxes {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta.
 		$values = wp_unslash( $_POST );
 
-		// The readings ended, a start and an end each, then the one in progress, since its start; a book whose readings were
-		// all removed sends none, and so does one without edition language.
-		$starts = (array) ( $values['library_reading_start'] ?? array() );
-		$ends   = (array) ( $values['library_reading_end'] ?? array() );
+		// The readings ended, a start, an end and a rating each, then the one in progress, since its start; a book whose
+		// readings were all removed sends none, and so does one without edition language.
+		$starts  = (array) ( $values['library_reading_start'] ?? array() );
+		$ends    = (array) ( $values['library_reading_end'] ?? array() );
+		$ratings = (array) ( $values['library_reading_rating'] ?? array() );
 
-		$values['library_reading']             = array_map( fn( $start, $end ) => "$start/$end", $starts, $ends );
+		$values['library_reading']             = array_map(
+			fn( $start, $end, $rating ) => array(
+				'start'  => $start,
+				'end'    => $end,
+				'rating' => $rating,
+			),
+			$starts,
+			$ends,
+			$ratings
+		);
 		$values['library_edition_languages'] ??= array();
 
 		if ( rest_sanitize_boolean( $values['library_in_progress'] ?? false ) ) {
-			$values['library_reading'][] = ( $values['library_started'] ?? '' ) . '/' . Meta::IN_PROGRESS;
+			$values['library_reading'][] = new Reading( (string) ( $values['library_started'] ?? '' ), Reading::IN_PROGRESS )->to_array();
 		}
 
 		Meta::save( $post_id, $values );

@@ -19,6 +19,7 @@
 
 use Library\Markup;
 use Library\Meta;
+use Library\Reading;
 
 ?>
 
@@ -77,8 +78,8 @@ use Library\Meta;
 	}
 
 	// The reading in progress, since its start: today when it starts.
-	$in_progress = array_find( $values['library_reading'], fn( string $reading ) => Meta::IN_PROGRESS === Meta::split_reading( $reading )[1] );
-	$started     = null !== $in_progress ? substr( Meta::split_reading( $in_progress )[0], 0, 10 ) : current_time( 'Y-m-d' );
+	$in_progress = array_find( $values['library_reading'], fn( Reading $reading ) => ! $reading->is_ended() );
+	$started     = null !== $in_progress ? substr( $in_progress->start, 0, 10 ) : current_time( 'Y-m-d' );
 	?>
 
 	<!-- In progress -->
@@ -116,23 +117,17 @@ use Library\Meta;
 				<template>
 					<?php
 					// A reading added ends today, unless changed.
-					$reading = '/' . current_time( 'Y-m-d' );
+					$reading = new Reading( end: current_time( 'Y-m-d' ) );
 
 					require __DIR__ . '/library-reading.php';
 					?>
 				</template>
 			</fieldset>
 			<p class="description" id="library-reading-description">
-				<?php esc_html_e( 'Optional. One line per reading, from its start to its end, each left empty when it is unknown. Ending a reading marks the book as read; marking it as read without a reading ends one today.', 'library' ); ?>
+				<?php esc_html_e( 'Optional. One line per reading, from its start to its end, each left empty when it is unknown, and the rating it ended with. Ending a reading marks the book as read; marking it as read without a reading ends one today. The rating of the book is the one of its latest reading rated.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>
-
-	<?php
-	$key = 'library_rating';
-
-	require __DIR__ . '/library-form-field.php';
-	?>
 
 	<?php if ( $names ) : ?>
 		<!-- Roles -->

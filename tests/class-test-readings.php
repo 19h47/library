@@ -9,6 +9,7 @@
 namespace Library\Tests;
 
 use Library\Meta;
+use Library\Reading;
 use WP_REST_Request;
 
 /**
@@ -27,7 +28,7 @@ class Test_Readings extends TestCase {
 	private function save( int $book_id, array $meta ): void {
 		$request = new WP_REST_Request( 'POST', '/library/v1/books/' . $book_id );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'meta' => $meta ) ) );
+		$request->set_body( wp_json_encode( array( 'meta' => isset( $meta['reading'] ) ? array( 'reading' => self::readings( $meta['reading'] ) ) + $meta : $meta ) ) );
 
 		$this->assertSame( 200, rest_do_request( $request )->get_status() );
 	}
@@ -56,9 +57,9 @@ class Test_Readings extends TestCase {
 		$this->save( $book_id, array( 'in_progress' => true ) );
 
 		[ $reading ] = Meta::get_readings( $book_id );
-		[ $start ]   = Meta::split_reading( $reading );
+		$start       = $reading->start;
 
-		$this->assertSame( Meta::IN_PROGRESS, Meta::split_reading( $reading )[1] );
+		$this->assertSame( Reading::IN_PROGRESS, $reading->end );
 		$this->assertStringStartsWith( current_time( 'Y-m-d' ) . 'T', $start );
 		$this->assertTrue( (bool) get_post_meta( $book_id, 'library_in_progress', true ) );
 		$this->assertFalse( (bool) get_post_meta( $book_id, 'library_read', true ) );
@@ -67,8 +68,8 @@ class Test_Readings extends TestCase {
 
 		[ $reading ] = Meta::get_readings( $book_id );
 
-		$this->assertSame( $start, Meta::split_reading( $reading )[0] );
-		$this->assertStringStartsWith( current_time( 'Y-m-d' ) . 'T', Meta::split_reading( $reading )[1] );
+		$this->assertSame( $start, $reading->start );
+		$this->assertStringStartsWith( current_time( 'Y-m-d' ) . 'T', $reading->end );
 		$this->assertFalse( (bool) get_post_meta( $book_id, 'library_in_progress', true ) );
 		$this->assertTrue( (bool) get_post_meta( $book_id, 'library_read', true ) );
 	}
@@ -83,7 +84,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'reading' => array( '/2019-06-14', '/2024-11-02', '2024-10-20/..' ) ) );
 
-		$this->assertSame( array( '/2019-06-14', '2024-10-20/2024-11-02' ), Meta::get_readings( $book_id ) );
+		$this->assertSame( array( '/2019-06-14', '2024-10-20/2024-11-02' ), self::intervals( Meta::get_readings( $book_id ) ) );
 	}
 
 	/**
@@ -100,7 +101,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'read' => false ) );
 
-		$this->assertSame( array( '2026-11-01/..' ), Meta::get_readings( $book_id ) );
+		$this->assertSame( array( '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id ) ) );
 	}
 
 	/**
@@ -113,7 +114,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'reading' => array( '2026-11-01/2026-11-01' ) ) );
 
-		$this->assertSame( array( '2026-11-01T09:15/2026-11-01T21:40' ), Meta::get_readings( $book_id ) );
+		$this->assertSame( array( '2026-11-01T09:15/2026-11-01T21:40' ), self::intervals( Meta::get_readings( $book_id ) ) );
 	}
 
 	/**
@@ -123,14 +124,20 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_readings_are_sanitized_and_in_order(): void {
-		$this->assertSame( '/2024-03-01', Meta::sanitize_reading( '2024-04-01/2024-03-01' ) );
-		$this->assertSame( '/2024-03-01', Meta::sanitize_reading( 'soon/2024-03-01' ) );
-		$this->assertSame( '/', Meta::sanitize_reading( 'anything' ) );
-		$this->assertSame( '2026-11-08T09:15/..', Meta::sanitize_reading( '2026-11-08T09:15/..' ) );
+		$sanitized = fn( $reading ) => self::intervals( array( Reading::from( Meta::sanitize_reading( is_string( $reading ) ? self::reading( $reading ) : $reading ) ) ) )[0];
+
+		$this->assertSame( '/2024-03-01', $sanitized( '2024-04-01/2024-03-01' ) );
+		$this->assertSame( '/2024-03-01', $sanitized( 'soon/2024-03-01' ) );
+		$this->assertSame( '/', $sanitized( array( 'anything' ) ) );
+		$this->assertSame( '/', $sanitized( 'anything' ) );
+		$this->assertSame( '2026-11-08T09:15/..', $sanitized( '2026-11-08T09:15/..' ) );
+		$this->assertSame( '/2024-03-01#7.5', $sanitized( '/2024-03-01#7.4' ) );
+		$this->assertSame( '/2024-03-01', $sanitized( '/2024-03-01#11' ) );
+		$this->assertSame( '2026-11-08/..', $sanitized( '2026-11-08/..#8' ) );
 
 		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-03-01', '2026-11-01/..', '/', '2023-01-01/2023-02-01' ) ) ) );
 
-		$this->assertSame( array( '/', '2023-01-01/2023-02-01', '/2024-03-01', '2026-11-01/..' ), Meta::get_readings( $book_id ) );
+		$this->assertSame( array( '/', '2023-01-01/2023-02-01', '/2024-03-01', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id ) ) );
 		$this->assertSame( array( '', '2023-02-01', '2024-03-01' ), Meta::get_read_dates( $book_id ) );
 	}
 
@@ -142,7 +149,7 @@ class Test_Readings extends TestCase {
 	public function test_quick_edit_keeps_the_start_of_the_latest_reading(): void {
 		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14', '2024-03-02/2024-03-20' ) ) ) );
 
-		$this->assertSame( array( '/2019-06-14', '2024-03-02/2024-03-25' ), Meta::replace_latest_read_date( $book_id, '2024-03-25' ) );
+		$this->assertSame( array( '/2019-06-14', '2024-03-02/2024-03-25' ), self::intervals( Meta::replace_latest_read_date( $book_id, '2024-03-25' ) ) );
 	}
 
 	/**
@@ -165,6 +172,96 @@ class Test_Readings extends TestCase {
 				array(
 					'search'  => 'progress:yes',
 					'orderby' => 'started',
+				)
+			)
+		);
+	}
+
+	/**
+	 * The rating of a book is the one of its latest reading rated: read again without rating, it keeps the one before;
+	 * rated again, it takes the new one. A reading in progress has none.
+	 *
+	 * @return void
+	 */
+	public function test_the_rating_of_a_book_is_the_one_of_its_latest_reading_rated(): void {
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14#6', '2024-03-02/2024-03-20' ) ) ) );
+
+		$this->assertSame( 6.0, get_post_meta( $book_id, 'library_rating', true ) );
+
+		$this->save( $book_id, array( 'reading' => array( '/2019-06-14#6', '2024-03-02/2024-03-20#9', '2026-11-01/..#7' ) ) );
+
+		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#9', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id ) ) );
+		$this->assertSame( 9.0, get_post_meta( $book_id, 'library_rating', true ) );
+		$this->assertSame( '', get_post_meta( $this->add_book(), 'library_rating', true ) );
+	}
+
+	/**
+	 * The rating of a book given rates its latest reading ended, as quick edit does; empty, it takes it away; a book not
+	 * read has no reading to rate.
+	 *
+	 * @return void
+	 */
+	public function test_a_rating_given_rates_the_latest_reading(): void {
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14#6', '2024-03-02/2024-03-20', '2026-11-01/..' ) ) ) );
+
+		$this->save( $book_id, array( 'rating' => 8.5 ) );
+
+		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#8.5', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id ) ) );
+
+		$this->save( $book_id, array( 'rating' => '' ) );
+
+		$this->assertSame( 6.0, get_post_meta( $book_id, 'library_rating', true ) );
+
+		$unread = $this->add_book( array( 'meta' => array( 'rating' => 8 ) ) );
+
+		$this->assertSame( array(), Meta::get_readings( $unread ) );
+		$this->assertFalse( (bool) get_post_meta( $unread, 'library_read', true ) );
+	}
+
+	/**
+	 * The REST API gives the readings as objects, a start or an end unknown and no rating null.
+	 *
+	 * @return void
+	 */
+	public function test_the_api_gives_the_readings_as_objects(): void {
+		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/', '2024-03-02/2024-03-20#8' ) ) ) );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/books/' . $book_id );
+
+		$this->assertSame(
+			array(
+				array(
+					'start'  => null,
+					'end'    => null,
+					'rating' => null,
+				),
+				array(
+					'start'  => '2024-03-02',
+					'end'    => '2024-03-20',
+					'rating' => 8.0,
+				),
+			),
+			rest_do_request( $request )->get_data()['readings']
+		);
+	}
+
+	/**
+	 * The search of a rating and the order by rating read the latest reading rated of each book.
+	 *
+	 * @return void
+	 */
+	public function test_searches_read_the_rating_of_the_latest_reading(): void {
+		$rated_again = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14#9', '/2024-03-20#6' ) ) ) );
+		$rated_once  = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-01-01#8' ) ) ) );
+		$kept        = $this->add_book( array( 'meta' => array( 'reading' => array( '/2019-06-14#7', '/2024-03-20' ) ) ) );
+		$unrated     = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-01-01' ) ) ) );
+
+		$this->assertEqualsCanonicalizing( array( $rated_once, $kept ), $this->find( array( 'search' => 'rating:7' ) ) );
+		$this->assertSame(
+			array( $rated_once, $kept, $rated_again, $unrated ),
+			$this->find(
+				array(
+					'orderby'  => 'rating',
+					'per_page' => 10,
 				)
 			)
 		);

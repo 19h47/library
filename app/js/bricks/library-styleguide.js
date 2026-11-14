@@ -45,8 +45,8 @@ const BOOKS = [
 		cover: COVER,
 		read: true,
 		readings: [
-			{ start: '', end: '' },
-			{ start: '2026-10-20', end: '2026-10-28' },
+			{ start: '', end: '', rating: null },
+			{ start: '2026-10-20', end: '2026-10-28', rating: 8 },
 		],
 		rating: 8,
 	},
@@ -286,6 +286,12 @@ class LibraryStyleguideElement extends Brick {
 			'2026-10-20/2026-10-28',
 			'/2126-10-28',
 		];
+		// The reading of known dates rated.
+		/** @type {HTMLSelectElement} */ (
+			this.querySelector( 'inputs-list' ).querySelectorAll(
+				'[name="reading_rating"]'
+			)[ 1 ]
+		).value = '8';
 
 		// The book open, the link to the recap, the status of an ISBN and the keywords of a search, filled as their bricks
 		// fill them.

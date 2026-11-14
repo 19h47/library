@@ -67,16 +67,20 @@ test.describe( 'Store', () => {
 		await openApp( page, `&view=book&book=${ books[ 0 ].id }` );
 		await waitForIdle( page );
 
-		const rating = page.locator( 'library-reading [name="rating"]' );
+		const status = page.locator( 'library-reading [name="status"]' );
 
 		// Typed, not chosen yet: no change, nothing saved.
-		await rating.evaluate( ( select ) => {
-			select.value = '6';
+		const typed = await status.evaluate( ( select ) => {
+			select.value = [ ...select.options ].find(
+				( option ) => ! option.selected
+			).value;
+
+			return select.value;
 		} );
 		await comeBackLater( page );
 		await waitForIdle( page );
 
-		await expect( rating ).toHaveValue( '6' );
+		await expect( status ).toHaveValue( typed );
 	} );
 
 	test( 'a page of a person loaded again shows a book added to it meanwhile', async ( {

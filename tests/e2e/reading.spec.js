@@ -8,6 +8,8 @@
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
 import {
 	addBook,
+	intervalsOf,
+	readings,
 	deleteAllBooks,
 	getBook,
 	openApp,
@@ -49,19 +51,31 @@ test.describe( 'Reading', () => {
 		await deleteAllBooks( requestUtils );
 	} );
 
-	test( 'a rating is saved at once, and Undo puts it back', async ( {
+	test( 'a reading is rated at once, and Undo takes its rating back', async ( {
 		page,
 		requestUtils,
 	} ) => {
+		await requestUtils.rest( {
+			method: 'POST',
+			path: `/library/v1/books/${ book.id }`,
+			data: { meta: { reading: readings( [ '/2025-03-10' ] ) } },
+		} );
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
+		// The readings, folded under the line that sums them up.
+		await page.locator( 'library-reading summary' ).click();
 
-		await page
-			.locator( 'library-reading [name="rating"]' )
-			.selectOption( '7' );
+		const rating = page.locator(
+			'library-reading [name="reading_rating"]'
+		);
+		const saved = async () =>
+			intervalsOf( ( await getBook( requestUtils, book.id ) ).readings );
+
+		await rating.selectOption( '7' );
 		await expect(
 			page.getByRole( 'button', { name: 'Undo' } )
 		).toBeVisible();
+		await expect.poll( saved ).toEqual( [ '/2025-03-10#7' ] );
 		await expect
 			.poll(
 				async () =>
@@ -71,16 +85,8 @@ test.describe( 'Reading', () => {
 			.toBe( 7 );
 
 		await page.getByRole( 'button', { name: 'Undo' } ).click();
-		await expect
-			.poll(
-				async () =>
-					( await getBook( requestUtils, book.id ) ).meta
-						.library_rating
-			)
-			.toBeNull();
-		await expect(
-			page.locator( 'library-reading [name="rating"]' )
-		).toHaveValue( '' );
+		await expect.poll( saved ).toEqual( [ '/2025-03-10' ] );
+		await expect( rating ).toHaveValue( '' );
 	} );
 
 	test( 'a change made while the one before saves is saved after it', async ( {
@@ -92,6 +98,11 @@ test.describe( 'Reading', () => {
 			new Date().toLocaleDateString( 'sv' )
 		);
 
+		await requestUtils.rest( {
+			method: 'POST',
+			path: `/library/v1/books/${ book.id }`,
+			data: { meta: { reading: readings( [ '/2025-03-10' ] ) } },
+		} );
 		// A save that takes its time, so that the second change comes while the first one saves.
 		await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
 			if ( 'POST' === route.request().method() ) {
@@ -103,9 +114,10 @@ test.describe( 'Reading', () => {
 		} );
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
+		await page.locator( 'library-reading summary' ).click();
 
 		await page
-			.locator( 'library-reading [name="rating"]' )
+			.locator( 'library-reading [name="reading_rating"]' )
 			.selectOption( '8' );
 		await page.locator( 'library-reading [name="in_progress"]' ).check();
 		await page.waitForFunction( () => window.store.get().saving.loading );
@@ -113,11 +125,11 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 
 		expect( posts ).toEqual( [
-			{ meta: { rating: 8 } },
+			{ meta: { reading: readings( [ '/2025-03-10#8' ] ) } },
 			{
 				meta: {
 					in_progress: true,
-					reading: [ `${ today }/..` ],
+					reading: readings( [ '/2025-03-10#8', `${ today }/..` ] ),
 				},
 			},
 		] );
@@ -126,7 +138,7 @@ test.describe( 'Reading', () => {
 			.poll( async () => ( await getBook( requestUtils, book.id ) ).meta )
 			.toMatchObject( { library_rating: 8, library_in_progress: true } );
 		await expect(
-			page.locator( 'library-reading [name="rating"]' )
+			page.locator( 'library-reading [name="reading_rating"]' )
 		).toHaveValue( '8' );
 		await expect(
 			page.locator( 'library-reading [name="in_progress"]' )
@@ -153,7 +165,7 @@ test.describe( 'Reading', () => {
 		await expect
 			.poll( async () =>
 				( await getBook( requestUtils, book.id ) ).readings.map(
-					( reading ) => reading.split( '/' )[ 1 ].slice( 0, 10 )
+					( { end } ) => end.slice( 0, 10 )
 				)
 			)
 			.toEqual( [ today ] );
@@ -169,7 +181,7 @@ test.describe( 'Reading', () => {
 			path: `/library/v1/books/${ book.id }`,
 			data: {
 				meta: {
-					reading: [ '/', '2025-03-10/2025-03-21' ],
+					reading: readings( [ '/', '2025-03-10/2025-03-21' ] ),
 				},
 			},
 		} );
@@ -202,7 +214,7 @@ test.describe( 'Reading', () => {
 			path: `/library/v1/books/${ book.id }`,
 			data: {
 				meta: {
-					reading: [ '/', '2025-03-10/2025-03-21' ],
+					reading: readings( [ '/', '2025-03-10/2025-03-21' ] ),
 				},
 			},
 		} );
@@ -226,14 +238,16 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 
 		expect( posts ).toEqual( [
-			{ meta: { reading: [ '2025-03-10/2025-03-21' ] } },
+			{ meta: { reading: readings( [ '2025-03-10/2025-03-21' ] ) } },
 		] );
 		await expect(
 			page.getByRole( 'button', { name: 'Add a reading', exact: true } )
 		).toBeFocused();
 		await expect
-			.poll(
-				async () => ( await getBook( requestUtils, book.id ) ).readings
+			.poll( async () =>
+				intervalsOf(
+					( await getBook( requestUtils, book.id ) ).readings
+				)
 			)
 			.toEqual( [ '2025-03-10/2025-03-21' ] );
 	} );
@@ -258,8 +272,10 @@ test.describe( 'Reading', () => {
 		await started.blur();
 		await waitForIdle( page );
 		await expect
-			.poll(
-				async () => ( await getBook( requestUtils, book.id ) ).readings
+			.poll( async () =>
+				intervalsOf(
+					( await getBook( requestUtils, book.id ) ).readings
+				)
 			)
 			.toEqual( [ '2020-01-01/..' ] );
 
@@ -267,9 +283,9 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 		await expect
 			.poll( async () =>
-				( await getBook( requestUtils, book.id ) ).readings.map(
-					( reading ) => reading.slice( 0, 21 )
-				)
+				intervalsOf(
+					( await getBook( requestUtils, book.id ) ).readings
+				).map( ( interval ) => interval.slice( 0, 21 ) )
 			)
 			.toEqual( [ `2020-01-01/${ today }` ] );
 		await expect(
@@ -278,7 +294,7 @@ test.describe( 'Reading', () => {
 		await expect( started ).toBeHidden();
 	} );
 
-	test( 'a reading added ends the one in progress, from its start, and one of an unknown date is saved too', async ( {
+	test( 'a reading added ends the one in progress, from its start, and one of an unknown date is saved too, the focus on its rating', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -286,7 +302,12 @@ test.describe( 'Reading', () => {
 			method: 'POST',
 			path: `/library/v1/books/${ book.id }`,
 			data: {
-				meta: { reading: [ '2019-05-01/2019-05-10', '2020-01-01/..' ] },
+				meta: {
+					reading: readings( [
+						'2019-05-01/2019-05-10',
+						'2020-01-01/..',
+					] ),
+				},
 			},
 		} );
 		await openApp( page, `&view=book&book=${ book.id }` );
@@ -296,10 +317,10 @@ test.describe( 'Reading', () => {
 		const today = await page.evaluate( () =>
 			new Date().toLocaleDateString( 'sv' )
 		);
-		const readings = async () =>
-			( await getBook( requestUtils, book.id ) ).readings.map(
-				( interval ) => interval.slice( 0, 21 )
-			);
+		const saved = async () =>
+			intervalsOf(
+				( await getBook( requestUtils, book.id ) ).readings
+			).map( ( interval ) => interval.slice( 0, 21 ) );
 
 		await reading.locator( 'summary' ).click();
 		await reading
@@ -318,10 +339,10 @@ test.describe( 'Reading', () => {
 			reading.locator( '[name="in_progress"]' )
 		).not.toBeChecked();
 		await expect
-			.poll( readings )
+			.poll( saved )
 			.toEqual( [ '2019-05-01/2019-05-10', `2020-01-01/${ today }` ] );
 
-		// No date to type: the focus on the button that removes it.
+		// No date to type: the focus on its rating.
 		await reading
 			.getByRole( 'button', {
 				name: 'Add a reading with an unknown date',
@@ -329,11 +350,9 @@ test.describe( 'Reading', () => {
 			.click();
 		await waitForIdle( page );
 		await expect(
-			reading
-				.getByRole( 'button', { name: 'Remove this reading' } )
-				.last()
+			reading.locator( '[name="reading_rating"]' ).last()
 		).toBeFocused();
-		await expect.poll( readings ).toContain( '/' );
+		await expect.poll( saved ).toContain( '/' );
 	} );
 
 	test.describe( 'a date typed', () => {
@@ -345,7 +364,7 @@ test.describe( 'Reading', () => {
 				method: 'POST',
 				path: `/library/v1/books/${ book.id }`,
 				data: {
-					meta: { reading: [ '2025-03-10/2025-03-20' ] },
+					meta: { reading: readings( [ '2025-03-10/2025-03-20' ] ) },
 				},
 			} );
 			await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
@@ -385,12 +404,13 @@ test.describe( 'Reading', () => {
 			await waitForIdle( page );
 
 			expect( posts ).toEqual( [
-				{ meta: { reading: [ '2025-03-10/2025-03-15' ] } },
+				{ meta: { reading: readings( [ '2025-03-10/2025-03-15' ] ) } },
 			] );
 			await expect
-				.poll(
-					async () =>
+				.poll( async () =>
+					intervalsOf(
 						( await getBook( requestUtils, book.id ) ).readings
+					)
 				)
 				.toEqual( [ '2025-03-10/2025-03-15' ] );
 		} );
@@ -425,12 +445,13 @@ test.describe( 'Reading', () => {
 			await waitForIdle( page );
 
 			expect( posts ).toEqual( [
-				{ meta: { reading: [ '2025-03-10/2025-04-04' ] } },
+				{ meta: { reading: readings( [ '2025-03-10/2025-04-04' ] ) } },
 			] );
 			await expect
-				.poll(
-					async () =>
+				.poll( async () =>
+					intervalsOf(
 						( await getBook( requestUtils, book.id ) ).readings
+					)
 				)
 				.toEqual( [ '2025-03-10/2025-04-04' ] );
 		} );
@@ -457,9 +478,10 @@ test.describe( 'Reading', () => {
 			await start.blur();
 			await waitForIdle( page );
 			await expect
-				.poll(
-					async () =>
+				.poll( async () =>
+					intervalsOf(
 						( await getBook( requestUtils, book.id ) ).readings
+					)
 				)
 				.toEqual( [ '2025-03-01/2025-03-05' ] );
 		} );

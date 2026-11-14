@@ -26,7 +26,7 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
 /**
- * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ReadingPeriod, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ApiReading, EndedReading, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -129,12 +129,11 @@ import * as api from 'library-app/api';
  * The reading of a book, as the route of its form takes it.
  *
  * @typedef {Object} BookReading
- * @property {Object}      meta             Its meta.
- * @property {boolean}     meta.read        Whether it is read.
- * @property {boolean}     meta.in_progress Whether it is being read.
- * @property {string[]}    meta.reading     Its readings, by their days, as intervals: 2026-10-20/2026-11-02.
- * @property {number|null} meta.rating      Its rating, none for none.
- * @property {string}      [status]         Its status, unless another one than in the library, not kept or to buy.
+ * @property {Object}       meta             Its meta.
+ * @property {boolean}      meta.read        Whether it is read.
+ * @property {boolean}      meta.in_progress Whether it is being read.
+ * @property {ApiReading[]} meta.reading     Its readings, by their days, each with its rating, the one in progress last.
+ * @property {string}       [status]         Its status, unless another one than in the library, not kept or to buy.
  */
 
 /**
@@ -317,25 +316,40 @@ function searchOf( { query, read } ) {
 }
 
 /**
- * The readings of `book` by their days, as the form gives them, as intervals: the ones ended, then the one in progress.
+ * The readings of `book` by their days, as the form gives them, as the API takes them: the ones ended, each with its
+ * rating, then the one in progress.
  *
  * @param {Book} book The book.
- * @return {string[]} Its readings.
+ * @return {ApiReading[]} Its readings.
  */
-function intervalsOf( book ) {
+function readingsOf( book ) {
 	const ended = book.readings.map( ( reading ) =>
-		api.toInterval( api.toDays( reading ) )
+		api.toApiReading( api.toDays( reading ) )
 	);
-	const started = book.started.slice( 0, 10 );
 
 	return book.in_progress
-		? [ ...ended, `${ started }/${ api.IN_PROGRESS }` ]
+		? [
+				...ended,
+				api.toApiReadingInProgress( book.started.slice( 0, 10 ) ),
+		  ]
 		: ended;
 }
 
 /**
+ * Readings in any order, to compare: the server keeps the time of a reading of the day.
+ *
+ * @param {ApiReading[]} readings The readings.
+ * @return {string} Them, sorted, as JSON.
+ */
+const sortedOf = ( readings ) =>
+	JSON.stringify(
+		readings.map( ( reading ) => JSON.stringify( reading ) ).sort()
+	);
+
+/**
  * The reading of `book`, as the route of its form takes it, to put it back as it was: whether it is read and being read,
- * its readings by their days, as the form gives them, its rating, and its status unless another one, such as a draft.
+ * its readings by their days, as the form gives them, with their ratings, and its status unless another one, such as a
+ * draft.
  *
  * @param {Book} book The book.
  * @return {BookReading} Its reading.
@@ -344,8 +358,7 @@ function readingOf( book ) {
 	const meta = {
 		read: book.read,
 		in_progress: book.in_progress,
-		reading: intervalsOf( book ),
-		rating: book.rating || null,
+		reading: readingsOf( book ),
 	};
 
 	return STATUSES.includes( book.status )
@@ -1119,27 +1132,25 @@ class LibraryStore extends Store {
 	 * It goes through the route of the book form, which writes the readings at once: the core API, which removes a
 	 * meta value by value, would remove two readings of unknown dates, the same, together.
 	 *
-	 * @param {Object}          reading            The reading, as the form gives it.
-	 * @param {boolean}         reading.read       Whether the book is read.
-	 * @param {boolean}         reading.inProgress Whether it is being read.
-	 * @param {string}          reading.started    The day its reading in progress started, or empty.
-	 * @param {ReadingPeriod[]} reading.readings   Its readings ended, by their days.
-	 * @param {number|null}     reading.rating     Its rating, none for none.
-	 * @param {string}          reading.status     Its status, as the form shows it.
+	 * @param {Object}         reading            The reading, as the form gives it.
+	 * @param {boolean}        reading.read       Whether the book is read.
+	 * @param {boolean}        reading.inProgress Whether it is being read.
+	 * @param {string}         reading.started    The day its reading in progress started, or empty.
+	 * @param {EndedReading[]} reading.readings   Its readings ended, by their days, each with its rating.
+	 * @param {string}         reading.status     Its status, as the form shows it.
 	 */
 	async saveReading( {
 		read,
 		inProgress,
 		started,
 		readings,
-		rating,
 		status: chosen,
 	} ) {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
-		const ended = readings.map( api.toInterval );
-		const intervals = inProgress
-			? [ ...ended, `${ started }/${ api.IN_PROGRESS }` ]
+		const ended = readings.map( api.toApiReading );
+		const given = inProgress
+			? [ ...ended, api.toApiReadingInProgress( started ) ]
 			: ended;
 		// A book in another status, such as a draft, stays in it unless another one is chosen.
 		const status = chosen === statusOf( book ) ? book.status : chosen;
@@ -1154,15 +1165,9 @@ class LibraryStore extends Store {
 			meta.in_progress = inProgress;
 		}
 
-		// By their days, as the form gives them, in any order: the server keeps the time of a reading of the day.
-		const saved = intervalsOf( book );
-
-		if ( [ ...intervals ].sort().join() !== [ ...saved ].sort().join() ) {
-			meta.reading = intervals;
-		}
-
-		if ( rating !== ( book.rating || null ) ) {
-			meta.rating = rating;
+		// By their days, as the form gives them, in any order.
+		if ( sortedOf( given ) !== sortedOf( readingsOf( book ) ) ) {
+			meta.reading = given;
 		}
 
 		if ( ! Object.keys( meta ).length && status === book.status ) {

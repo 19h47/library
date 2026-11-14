@@ -66,14 +66,11 @@ class Rest_API {
 				),
 			),
 			'readings'               => array(
-				'get_callback' => fn( array $book ) => Meta::get_readings( $book['id'] ),
+				'get_callback' => fn( array $book ) => array_map( fn( Reading $reading ) => $reading->to_array(), Meta::get_readings( $book['id'] ) ),
 				'schema'       => array(
-					'description' => __( 'Readings of the book, from the first to the latest, as intervals from their starts to their ends, either empty when unknown, the end of the one in progress “..”: 2026-10-20/2026-11-02.', 'library' ),
+					'description' => __( 'Readings of the book, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}.', 'library' ),
 					'type'        => 'array',
-					'items'       => array(
-						'type'    => 'string',
-						'pattern' => Meta::READING_PATTERN,
-					),
+					'items'       => Rest_Schemas::get_reading(),
 					'readonly'    => true,
 				),
 			),

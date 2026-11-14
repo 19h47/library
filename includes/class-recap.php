@@ -113,11 +113,12 @@ class Recap {
 		$day_of = fn( string $date ): int => (int) new DateTimeImmutable( $date, wp_timezone() )->format( 'z' );
 
 		foreach ( $books as $book ) {
-			foreach ( $book->readings as $reading ) {
-				[ $start, $end ] = array_map( fn( string $date ) => substr( $date, 0, 10 ), Meta::split_reading( $reading ) );
-				$is_dated        = '' !== $start;
+			foreach ( Meta::get_ended( $book->readings ) as $reading ) {
+				$start    = substr( $reading->start, 0, 10 );
+				$end      = substr( $reading->end, 0, 10 );
+				$is_dated = '' !== $start;
 
-				if ( '' === $end || Meta::IN_PROGRESS === $end ) {
+				if ( '' === $end ) {
 					continue;
 				}
 

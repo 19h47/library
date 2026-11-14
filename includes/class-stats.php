@@ -45,15 +45,21 @@ class Stats {
 	}
 
 	/**
-	 * The books read in `$year`, each one once, in the order they were first read that year.
+	 * The books read in `$year`, each one once, in the order they were first read that year, as its latest reading of the
+	 * year: its read date, and the rating it ended with, the one the book had that year.
 	 *
 	 * @param int $year Year.
 	 * @return list<Book>
 	 */
 	public static function get_year_books( int $year ): array {
-		$books = Books::get_books();
+		$books = array();
 
-		return array_map( fn( int $id ) => $books[ $id ], array_values( array_unique( array_column( self::get_year_readings( $year ), 'id' ) ) ) );
+		// A book keeps its place, that of its first reading of the year, and takes its latest.
+		foreach ( self::get_year_readings( $year ) as $reading ) {
+			$books[ $reading->id ] = $reading;
+		}
+
+		return array_values( $books );
 	}
 
 	/**

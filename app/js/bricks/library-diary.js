@@ -163,7 +163,7 @@ class LibraryDiaryElement extends Brick {
 	}
 
 	/**
-	 * The line of a reading: its day, whether the book was read again then, and its rating.
+	 * The line of a reading: its day, whether the book was read again then, and the rating it ended with.
 	 *
 	 * @param {Book}   book The book.
 	 * @param {string} date The date of the reading, empty when unknown.
@@ -171,11 +171,12 @@ class LibraryDiaryElement extends Brick {
 	 */
 	#state( book, date ) {
 		const isFirstReading = date === book.readings[ 0 ]?.end;
+		const reading = book.readings.find( ( { end } ) => end === date );
 
 		return join( [
 			formatDate( date, 'day' ),
 			! isFirstReading && __( 'Read again', 'library' ),
-			formatRating( book.rating ),
+			formatRating( reading?.rating ?? 0 ),
 		] );
 	}
 }

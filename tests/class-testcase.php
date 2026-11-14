@@ -10,6 +10,7 @@ namespace Library\Tests;
 use Library\Achievements;
 use Library\Books;
 use Library\Cache;
+use Library\Reading;
 use ReflectionProperty;
 use WP_REST_Request;
 use WP_UnitTestCase;
@@ -37,8 +38,8 @@ abstract class TestCase extends WP_UnitTestCase {
 	/**
 	 * Add a book through `POST library/v1/books`, as its form sends it, with its date added.
 	 *
-	 * Readings go in `meta.reading`, which also makes it read: `array( '/2024-03-14' )`, or `array( '/' )` for a
-	 * reading on an unknown date; `read` alone would date it today.
+	 * Readings go in `meta.reading`, which also makes it read, as intervals, see reading(): `array( '/2024-03-14' )`, or
+	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today.
 	 *
 	 * @param array  $book  Book, as the route takes it: title, people, series, meta… A title is made up when missing.
 	 * @param string $added Date added, Y-m-d H:i:s, or empty for now.
@@ -46,6 +47,10 @@ abstract class TestCase extends WP_UnitTestCase {
 	 */
 	protected function add_book( array $book = array(), string $added = '' ): int {
 		$book += array( 'title' => 'Book ' . wp_generate_password( 6, false ) );
+
+		if ( isset( $book['meta']['reading'] ) ) {
+			$book['meta']['reading'] = self::readings( $book['meta']['reading'] );
+		}
 
 		$request = new WP_REST_Request( 'POST', '/library/v1/books' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -70,6 +75,45 @@ abstract class TestCase extends WP_UnitTestCase {
 		self::forget_books();
 
 		return $book_id;
+	}
+
+	/**
+	 * A reading as the route of a book takes it, from its interval, as the tests write it: its start and its end, either
+	 * empty when unknown, its end “..” while it is read, and its rating after a hash: '/2024-03-14', '2024-10-20/..',
+	 * '/' for a reading of unknown dates, '2024-03-02/2024-03-20#8'.
+	 *
+	 * @param string $interval Interval.
+	 * @return array{start:string|null,end:string|null,rating:float|null}
+	 */
+	protected static function reading( string $interval ): array {
+		[ $period, $rating ] = array_pad( explode( '#', $interval, 2 ), 2, null );
+		[ $start, $end ]     = array_pad( explode( '/', $period, 2 ), 2, '' );
+
+		return array(
+			'start'  => '' !== $start ? $start : null,
+			'end'    => '' !== $end ? $end : null,
+			'rating' => null !== $rating ? (float) $rating : null,
+		);
+	}
+
+	/**
+	 * Readings as the route of a book takes them, the ones written as intervals turned into readings: see reading().
+	 *
+	 * @param array<mixed> $readings Readings, as intervals or as the route takes them.
+	 * @return array<mixed>
+	 */
+	protected static function readings( array $readings ): array {
+		return array_map( fn( $reading ) => is_string( $reading ) ? self::reading( $reading ) : $reading, $readings );
+	}
+
+	/**
+	 * Readings as intervals, as the tests write them: see reading().
+	 *
+	 * @param Reading[] $readings Readings.
+	 * @return string[]
+	 */
+	protected static function intervals( array $readings ): array {
+		return array_map( fn( Reading $reading ) => "{$reading->start}/{$reading->end}" . ( null !== $reading->rating ? "#{$reading->rating}" : '' ), $readings );
 	}
 
 	/**
