@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T09:13:02+00:00\n"
+"POT-Creation-Date: 2026-11-14T09:21:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -226,7 +226,7 @@ msgstr ""
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-dashboard.php:369
 #: includes/class-books.php:503
-#: app/js/lib/format.js:186
+#: app/js/lib/format.js:126
 #, php-format,js-format
 msgid "%s/10"
 msgstr ""
@@ -254,7 +254,7 @@ msgstr ""
 
 #. translators: %s: number of books read, after the number of books of a person, a series or a collection.
 #: admin/class-dashboard.php:429
-#: app/js/lib/format.js:69
+#: app/js/lib/format.js:60
 #, php-format,js-format
 msgid "%s read"
 msgid_plural "%s read"
@@ -419,7 +419,7 @@ msgstr[1] ""
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/lib/render.js:526
+#: app/js/lib/render.js:528
 #, php-format,js-format
 msgid "%1$s of %2$s"
 msgstr ""
@@ -465,7 +465,7 @@ msgstr ""
 #: includes/class-books.php:319
 #: includes/class-books.php:324
 #: includes/class-books.php:342
-#: app/js/lib/render.js:641
+#: app/js/lib/render.js:643
 #, php-format,js-format
 msgid "%1$s: %2$s"
 msgstr ""
@@ -497,7 +497,7 @@ msgstr ""
 
 #. translators: %s: number of pages.
 #: admin/partials/library-dashboard-idea.php:30
-#: app/js/lib/format.js:83
+#: app/js/lib/format.js:74
 #, php-format,js-format
 msgid "%s page"
 msgid_plural "%s pages"
@@ -768,7 +768,7 @@ msgstr ""
 #: app/js/bricks/library-api.js:273
 #: app/js/bricks/library-book.js:39
 #: app/js/bricks/library-recap.js:334
-#: app/js/lib/format.js:110
+#: app/js/lib/behaviors.js:21
 msgid "Loading…"
 msgstr ""
 
@@ -779,12 +779,12 @@ msgstr ""
 #: app/partials/library-app.php:146
 #: includes/class-meta.php:163
 #: app/js/bricks/library-volumes.js:107
-#: app/js/lib/format.js:308
+#: app/js/lib/book-lines.js:124
 msgid "Read"
 msgstr ""
 
 #: app/partials/library-app.php:147
-#: app/js/lib/format.js:318
+#: app/js/lib/book-lines.js:134
 msgid "To read"
 msgstr ""
 
@@ -1437,7 +1437,7 @@ msgstr ""
 #. translators: %s: number of the book in its collection.
 #: includes/class-books.php:329
 #: includes/class-books.php:421
-#: app/js/lib/render.js:240
+#: app/js/lib/render.js:242
 #, php-format,js-format
 msgid "no. %s"
 msgstr ""
@@ -1450,7 +1450,7 @@ msgstr ""
 
 #. translators: %s: number of books.
 #: includes/class-books.php:449
-#: app/js/lib/format.js:55
+#: app/js/lib/format.js:46
 #, php-format,js-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -1503,7 +1503,7 @@ msgstr ""
 
 #: includes/class-meta.php:164
 #: app/js/bricks/library-volumes.js:104
-#: app/js/lib/format.js:322
+#: app/js/lib/book-lines.js:138
 msgid "In progress"
 msgstr ""
 
@@ -2389,13 +2389,13 @@ msgid "In the library"
 msgstr ""
 
 #: includes/class-status.php:37
-#: app/js/lib/format.js:286
+#: app/js/lib/book-lines.js:102
 msgctxt "book status"
 msgid "Not kept"
 msgstr ""
 
 #: includes/class-status.php:38
-#: app/js/lib/format.js:287
+#: app/js/lib/book-lines.js:103
 msgctxt "book status"
 msgid "To buy"
 msgstr ""
@@ -2834,11 +2834,11 @@ msgstr ""
 msgid "%s items"
 msgstr ""
 
-#: app/js/bricks/library-diary.js:43
+#: app/js/bricks/library-diary.js:45
 msgid "No readings yet."
 msgstr ""
 
-#: app/js/bricks/library-diary.js:175
+#: app/js/bricks/library-diary.js:177
 msgid "Read again"
 msgstr ""
 
@@ -2851,7 +2851,7 @@ msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr ""
 
 #. translators: %s: number of books found, e.g. 19 books.
-#: app/js/bricks/library-filters.js:79
+#: app/js/bricks/library-filters.js:75
 #, js-format
 msgid "Show %s"
 msgstr ""
@@ -3052,66 +3052,66 @@ msgstr ""
 msgid "The books could not be loaded."
 msgstr ""
 
-#. translators: %s: year.
-#: app/js/lib/format.js:97
-#, js-format
-msgid "Recap of %s"
-msgstr ""
-
-#: app/js/lib/format.js:122
+#: app/js/lib/behaviors.js:33
 #: app/js/lib/store.js:1336
 msgid "No book found."
 msgstr ""
 
-#. translators: %s: number of days a reading took, the first and the last counted, e.g. 12.
-#: app/js/lib/format.js:171
-#, js-format
-msgid "%s day"
-msgid_plural "%s days"
-msgstr[0] ""
-msgstr[1] ""
-
 #. translators: %s: list of the translators of a book.
-#: app/js/lib/format.js:226
+#: app/js/lib/book-lines.js:46
 #, js-format
 msgid "Translated by %s"
 msgstr ""
 
 #. translators: 1: original languages of a book, the first starting with a vowel, e.g. Italian; 2: list of its translators.
-#: app/js/lib/format.js:233
+#: app/js/lib/book-lines.js:53
 #, js-format
 msgctxt "language starting with a vowel"
 msgid "Translated from %1$s by %2$s"
 msgstr ""
 
 #. translators: 1: original languages of a book, the first starting with a consonant, e.g. Japanese; 2: list of its translators.
-#: app/js/lib/format.js:239
+#: app/js/lib/book-lines.js:59
 #, js-format
 msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr ""
 
-#: app/js/lib/format.js:270
+#: app/js/lib/book-lines.js:86
 msgctxt "book in its original language, short tag"
 msgid "Original"
 msgstr ""
 
 #. translators: %s: number of readings of a book, an unknown date included, 2 or more.
-#: app/js/lib/format.js:305
+#: app/js/lib/book-lines.js:121
 #, js-format
 msgid "Read %s time"
 msgid_plural "Read %s times"
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %s: number of days a reading took, the first and the last counted, e.g. 12.
+#: app/js/lib/book-lines.js:165
+#, js-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: %s: how long a reading took, e.g. 12 days.
-#: app/js/lib/format.js:349
+#: app/js/lib/book-lines.js:192
 #, js-format
 msgid "in %s"
 msgstr ""
 
+#. translators: %s: year.
+#: app/js/lib/format.js:88
+#, js-format
+msgid "Recap of %s"
+msgstr ""
+
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:439
+#: app/js/lib/render.js:441
 #, js-format
 msgid "%s other author"
 msgid_plural "%s other authors"

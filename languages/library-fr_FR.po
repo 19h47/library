@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-14T09:13:02+00:00\n"
+"POT-Creation-Date: 2026-11-14T09:21:46+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -216,7 +216,7 @@ msgstr "Note"
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-dashboard.php:369 includes/class-books.php:503
-#: app/js/lib/format.js:186
+#: app/js/lib/format.js:126
 #, php-format
 msgid "%s/10"
 msgstr "%s/10"
@@ -241,7 +241,7 @@ msgid "Best: %1$s (%2$s)"
 msgstr "Meilleure : %1$s (%2$s)"
 
 #. translators: %s: number of books read, after the number of books of a person, a series or a collection.
-#: admin/class-dashboard.php:429 app/js/lib/format.js:69
+#: admin/class-dashboard.php:429 app/js/lib/format.js:60
 #, php-format
 msgid "%s read"
 msgid_plural "%s read"
@@ -410,7 +410,7 @@ msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:526
+#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:528
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -453,7 +453,7 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:319
 #: includes/class-books.php:324 includes/class-books.php:342
-#: app/js/lib/render.js:641
+#: app/js/lib/render.js:643
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -484,7 +484,7 @@ msgid "No book to read."
 msgstr "Aucun livre à lire."
 
 #. translators: %s: number of pages.
-#: admin/partials/library-dashboard-idea.php:30 app/js/lib/format.js:83
+#: admin/partials/library-dashboard-idea.php:30 app/js/lib/format.js:74
 #, php-format
 msgid "%s page"
 msgid_plural "%s pages"
@@ -767,7 +767,7 @@ msgstr "Dernières lectures"
 
 #: app/partials/library-app.php:132 app/js/bricks/library-api.js:273
 #: app/js/bricks/library-book.js:39 app/js/bricks/library-recap.js:334
-#: app/js/lib/format.js:110
+#: app/js/lib/behaviors.js:21
 msgid "Loading…"
 msgstr "Chargement…"
 
@@ -776,11 +776,11 @@ msgid "Reading state"
 msgstr "État de lecture"
 
 #: app/partials/library-app.php:146 includes/class-meta.php:163
-#: app/js/bricks/library-volumes.js:107 app/js/lib/format.js:308
+#: app/js/bricks/library-volumes.js:107 app/js/lib/book-lines.js:124
 msgid "Read"
 msgstr "Lu"
 
-#: app/partials/library-app.php:147 app/js/lib/format.js:318
+#: app/partials/library-app.php:147 app/js/lib/book-lines.js:134
 msgid "To read"
 msgstr "À lire"
 
@@ -1424,7 +1424,7 @@ msgstr "t. %s"
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
 #: includes/class-books.php:329 includes/class-books.php:421
-#: app/js/lib/render.js:240
+#: app/js/lib/render.js:242
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
@@ -1436,7 +1436,7 @@ msgid "%s (dir.)"
 msgstr "%s (dir.)"
 
 #. translators: %s: number of books.
-#: includes/class-books.php:449 app/js/lib/format.js:55
+#: includes/class-books.php:449 app/js/lib/format.js:46
 #, php-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -1488,7 +1488,7 @@ msgid "Collective work"
 msgstr "Ouvrage collectif"
 
 #: includes/class-meta.php:164 app/js/bricks/library-volumes.js:104
-#: app/js/lib/format.js:322
+#: app/js/lib/book-lines.js:138
 msgid "In progress"
 msgstr "En cours"
 
@@ -2504,12 +2504,12 @@ msgctxt "book status"
 msgid "In the library"
 msgstr "Dans la bibliothèque"
 
-#: includes/class-status.php:37 app/js/lib/format.js:286
+#: includes/class-status.php:37 app/js/lib/book-lines.js:102
 msgctxt "book status"
 msgid "Not kept"
 msgstr "De passage"
 
-#: includes/class-status.php:38 app/js/lib/format.js:287
+#: includes/class-status.php:38 app/js/lib/book-lines.js:103
 msgctxt "book status"
 msgid "To buy"
 msgstr "Envie"
@@ -2968,11 +2968,11 @@ msgstr "Pas de réponse"
 msgid "%s items"
 msgstr "%s éléments"
 
-#: app/js/bricks/library-diary.js:43
+#: app/js/bricks/library-diary.js:45
 msgid "No readings yet."
 msgstr "Aucune lecture pour l’instant."
 
-#: app/js/bricks/library-diary.js:175
+#: app/js/bricks/library-diary.js:177
 msgid "Read again"
 msgstr "Relu"
 
@@ -2985,7 +2985,7 @@ msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 
 #. translators: %s: number of books found, e.g. 19 books.
-#: app/js/bricks/library-filters.js:79
+#: app/js/bricks/library-filters.js:75
 msgid "Show %s"
 msgstr "Voir %s"
 
@@ -3164,58 +3164,58 @@ msgstr "Aucun code-barres sur la photo : reprenez-la, de plus près."
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#. translators: %s: year.
-#: app/js/lib/format.js:97
-msgid "Recap of %s"
-msgstr "Bilan %s"
-
-#: app/js/lib/format.js:122 app/js/lib/store.js:1336
+#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1336
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
-#. translators: %s: number of days a reading took, the first and the last counted, e.g. 12.
-#: app/js/lib/format.js:171
-msgid "%s day"
-msgid_plural "%s days"
-msgstr[0] "%s jour"
-msgstr[1] "%s jours"
-
 #. translators: %s: list of the translators of a book.
-#: app/js/lib/format.js:226
+#: app/js/lib/book-lines.js:46
 msgid "Translated by %s"
 msgstr "Traduit par %s"
 
 #. translators: 1: original languages of a book, the first starting with a vowel, e.g. Italian; 2: list of its translators.
-#: app/js/lib/format.js:233
+#: app/js/lib/book-lines.js:53
 msgctxt "language starting with a vowel"
 msgid "Translated from %1$s by %2$s"
 msgstr "Traduit de l’%1$s par %2$s"
 
 #. translators: 1: original languages of a book, the first starting with a consonant, e.g. Japanese; 2: list of its translators.
-#: app/js/lib/format.js:239
+#: app/js/lib/book-lines.js:59
 msgctxt "language starting with a consonant"
 msgid "Translated from %1$s by %2$s"
 msgstr "Traduit du %1$s par %2$s"
 
-#: app/js/lib/format.js:270
+#: app/js/lib/book-lines.js:86
 msgctxt "book in its original language, short tag"
 msgid "Original"
 msgstr "VO"
 
 #. translators: %s: number of readings of a book, an unknown date included, 2 or more.
-#: app/js/lib/format.js:305
+#: app/js/lib/book-lines.js:121
 msgid "Read %s time"
 msgid_plural "Read %s times"
 msgstr[0] "Lu %s fois"
 msgstr[1] "Lu %s fois"
 
+#. translators: %s: number of days a reading took, the first and the last counted, e.g. 12.
+#: app/js/lib/book-lines.js:165
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s jour"
+msgstr[1] "%s jours"
+
 #. translators: %s: how long a reading took, e.g. 12 days.
-#: app/js/lib/format.js:349
+#: app/js/lib/book-lines.js:192
 msgid "in %s"
 msgstr "en %s"
 
+#. translators: %s: year.
+#: app/js/lib/format.js:88
+msgid "Recap of %s"
+msgstr "Bilan %s"
+
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:439
+#: app/js/lib/render.js:441
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
