@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.46.0
+Stable tag: 9.46.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -130,6 +130,9 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.46.1 =
+* Fixed: REST API: the route of a book checks the readings it takes, `meta.reading`, objects `library-reading`, and the rating, `meta.rating`, against their schema, which the reference of the API now shows: a reading malformed is refused, rather than saved as one of unknown dates. The rating of a book, `library_rating`, says it is the one of its latest reading rated.
 
 = 9.46.0 =
 * Each reading has its own rating, the one it ended with: in the reading app under its dates, in the admin on its row. The rating of a book is the one of its latest reading rated; the recap of a year, the average rating of each year on the dashboard and the diary show the rating each book had then. A reading in progress has none yet.
