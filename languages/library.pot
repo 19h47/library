@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T08:00:57+00:00\n"
+"POT-Creation-Date: 2026-11-14T08:18:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -84,7 +84,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:151
-#: app/partials/library-app.php:956
+#: app/partials/library-app.php:946
 msgid "Unknown date"
 msgstr ""
 
@@ -613,10 +613,10 @@ msgid "Start of the reading"
 msgstr ""
 
 #: admin/partials/library-reading.php:28
-#: app/partials/library-app.php:946
-#: app/partials/library-app.php:947
-#: app/partials/library-app.php:961
-#: app/partials/library-app.php:962
+#: app/partials/library-app.php:936
+#: app/partials/library-app.php:937
+#: app/partials/library-app.php:951
+#: app/partials/library-app.php:952
 msgid "Remove this reading"
 msgstr ""
 
@@ -670,11 +670,11 @@ msgstr ""
 msgid "Added"
 msgstr ""
 
-#: app/components/checkboxes-field.php:43
+#: app/components/checkboxes-field.php:47
 msgid "Remove:"
 msgstr ""
 
-#: app/components/checkboxes-field.php:72
+#: app/components/checkboxes-field.php:76
 msgid "Done"
 msgstr ""
 
@@ -924,33 +924,33 @@ msgstr ""
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:842
-#: app/partials/library-app.php:857
+#: app/partials/library-app.php:839
+#: app/partials/library-app.php:850
 msgid "Add a language"
 msgstr ""
 
-#: app/partials/library-app.php:884
+#: app/partials/library-app.php:874
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:896
+#: app/partials/library-app.php:886
 msgid "Notes"
 msgstr ""
 
-#: app/partials/library-app.php:908
+#: app/partials/library-app.php:898
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:908
+#: app/partials/library-app.php:898
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:912
+#: app/partials/library-app.php:902
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:987
-#: app/partials/library-app.php:988
+#: app/partials/library-app.php:977
+#: app/partials/library-app.php:978
 msgid "Remove this person"
 msgstr ""
 
@@ -1423,7 +1423,7 @@ msgid "Volume 1 read after a later volume"
 msgstr ""
 
 #: includes/class-bnf.php:174
-#: app/js/bricks/library-edit.js:492
+#: app/js/bricks/library-edit.js:472
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr ""
 
@@ -2037,7 +2037,7 @@ msgid "No book has this ID."
 msgstr ""
 
 #: includes/class-rest-api.php:655
-#: app/js/bricks/library-edit.js:488
+#: app/js/bricks/library-edit.js:468
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
@@ -2842,11 +2842,11 @@ msgstr ""
 msgid "Read again"
 msgstr ""
 
-#: app/js/bricks/library-edit.js:480
+#: app/js/bricks/library-edit.js:460
 msgid "Searching the catalogue of the BnF…"
 msgstr ""
 
-#: app/js/bricks/library-edit.js:484
+#: app/js/bricks/library-edit.js:464
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr ""
 
