@@ -189,15 +189,6 @@ class LibraryReadingElement extends Brick {
 			)
 		);
 
-		// A reading removed, after inputsList() removed its row.
-		$list.addEventListener(
-			'click',
-			( event ) =>
-				/** @type {Element} */ ( event.target ).closest(
-					'[data-action="remove"]'
-				) && save(),
-			{ signal }
-		);
 		$list.addEventListener(
 			'input',
 			( event ) => {
@@ -208,6 +199,7 @@ class LibraryReadingElement extends Brick {
 			{ signal }
 		);
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
+		// A field changed, or the list of readings, one removed.
 		$form.addEventListener(
 			'change',
 			( event ) => {

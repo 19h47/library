@@ -183,6 +183,7 @@ export function observeEnd( $more, signal, callback ) {
 /**
  * A list of inputs in `$list`, one per clone of the template `id`, each one with a button to remove it, and `$add` to add one,
  * such as the people of a book or its readings. Removing an input gives the focus to `$add`, adding one gives it the focus.
+ * A row removed tells with a change of `$list`, as a field changed does: the values of the form changed.
  * `id` may be a function of the value, for a row whose template depends on it, such as a reading whose date is unknown.
  * `value` gives the value of a new input, `setup` prepares each one from its value, such as a row of a reading, whose two
  * inputs take its start and its end. `into` gives the list a new input goes in when `$list` holds several, such as the
@@ -231,6 +232,7 @@ export function inputsList( {
 			if ( $remove ) {
 				$remove.closest( 'li' ).remove();
 				$add.focus();
+				$list.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			}
 		},
 		{ signal }
