@@ -523,7 +523,7 @@ class Dashboard {
 
 		$items[] = sprintf(
 			'<a class="book-count" href="%1$s">%2$s</a>',
-			esc_url( admin_url( 'edit.php?post_type=library_book' ) ),
+			esc_url( Books_List::get_url() ),
 			esc_html( $text )
 		);
 

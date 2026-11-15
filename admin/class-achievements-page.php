@@ -187,9 +187,7 @@ class Achievements_Page {
 		$shelf = Status::get_list();
 
 		if ( 'search' === $target['type'] ) {
-			$url = add_query_arg( 'library_shelf', $shelf, admin_url( 'edit.php?post_type=library_book' ) );
-
-			return add_query_arg( 's', rawurlencode( $target['search'] ), $url );
+			return add_query_arg( 's', rawurlencode( $target['search'] ), Books_List::get_url( $shelf ) );
 		}
 
 		$taxonomy = Achievements::COMPLETION_TAXONOMIES[ $target['type'] ];

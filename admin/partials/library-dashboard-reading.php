@@ -11,6 +11,8 @@
  * @var array<int,array>                                                     $charts
  */
 
+use Library\Admin\Books_List;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -79,7 +81,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<div class="library-dashboard-stats-wrap">
-		<a class="library-dashboard-link" href="<?php echo esc_url( admin_url( 'edit.php?post_type=library_book' ) ); ?>">
+		<a class="library-dashboard-link" href="<?php echo esc_url( Books_List::get_url() ); ?>">
 			<?php esc_html_e( 'View all books', 'library' ); ?>
 		</a>
 	</div>
