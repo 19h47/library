@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.0.0
+Stable tag: 10.0.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,14 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.0.1 =
+* Fixed: a copy is on a shelf. Notes, a printed date or a photo of the copy put a book on none of the shelves of the reader among the books not kept, as a reading does, and taking a book off deletes every row of the reader. Notes given to a book on none of the shelves, in the app or on the screen of the book, no longer go at once.
+* Fixed: a draft no longer holds its ISBN, only a book of the catalogue, published; the form of a book to add shows the book of an ISBN taken it had not found, with its action.
+* Fixed: the recap of a year counts as read again every reading of a book read before, in a year before or on a day unknown too, not only a book read twice in the year.
+* Changed: the screen of a book holds the copy of the reader in the box My shelves, its shelf, printed date, read state, readings and notes, and the record in the Information box.
+* Changed: the REST API describes itself, and its messages speak, as WordPress does; the French translation says vous.
+* Code only: the readings leave the meta of the record, for `Readings` and `Shelf`; the copy of a reader has one list of its fields, `Shelf::NAMES`, and one schema; the history reads the meta that WordPress revisions; the tests write the copy in its shelf, test the preloading of the app, and run on MySQL 5.7 and MariaDB 11.8 too.
 
 = 10.0.0 =
 * Several readers share the catalogue of a site, each with their own shelves: where a book is for them, in the library, not kept, to buy or on none of their shelves, since when, their readings and their ratings, the date their copy was printed, their notes and a photo of their copy, which shows instead of the cover of its edition. The stats, the recap, the achievements, the reading idea, the dashboard and the app read the shelves of the reader; the app and the books list filter by shelf, the whole catalogue a choice of its own. A book read is on a shelf, among the books not kept unless the reader says otherwise.
