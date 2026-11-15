@@ -126,14 +126,14 @@ import * as api from 'library-app/api';
  */
 
 /**
- * The reading of a book, as the route of its form takes it.
+ * The reading of a book: its meta, as the route of its form takes them, and where it is for the reader.
  *
  * @typedef {Object} BookReading
- * @property {Object}       meta             Its meta.
- * @property {boolean}      meta.read        Whether it is read.
- * @property {boolean}      meta.in_progress Whether it is being read.
- * @property {ApiReading[]} meta.reading     Its readings, by their days, each with its rating, the one in progress last.
- * @property {string}       status           Where it is for the reader, empty on none of their shelves.
+ * @property {Object}       meta               Its meta, those that change only.
+ * @property {boolean}      [meta.read]        Whether it is read.
+ * @property {boolean}      [meta.in_progress] Whether it is being read.
+ * @property {ApiReading[]} [meta.reading]     Its readings, by their days, each with its rating, the one in progress last.
+ * @property {string}       status             Where it is for the reader, empty on none of their shelves.
  */
 
 /**

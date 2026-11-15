@@ -87,13 +87,6 @@ const BOOKS = [
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
-	{
-		title: 'A book of the catalogue',
-		credits: 'An Author · A Publisher · 2024',
-		cover: COVER,
-		// On none of the shelves of the reader.
-		status: '',
-	},
 ].map(
 	( book, index ) =>
 		/** @type {Book} */ ( {
