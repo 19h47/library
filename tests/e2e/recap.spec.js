@@ -16,19 +16,14 @@ test.describe( 'Recap', () => {
 		await addBook( requestUtils, {
 			title: 'The Recap Long Book',
 			people: [ { name: 'Ann Recap', role: 'author' } ],
-			meta: {
-				reading: [ `/${ YEAR }-03-02` ],
-				pages: 600,
-				rating: 9,
-			},
+			meta: { pages: 600 },
+			shelf: { readings: [ `/${ YEAR }-03-02` ], rating: 9 },
 		} );
 		await addBook( requestUtils, {
 			title: 'The Recap Short Book',
 			people: [ { name: 'Ann Recap', role: 'author' } ],
-			meta: {
-				reading: [ `/${ YEAR }-03-20`, `/${ YEAR }-09-01` ],
-				pages: 40,
-			},
+			meta: { pages: 40 },
+			shelf: { readings: [ `/${ YEAR }-03-20`, `/${ YEAR }-09-01` ] },
 		} );
 	} );
 

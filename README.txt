@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.47.0
+Stable tag: 10.0.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,27 +14,29 @@ Catalogue your books and log your readings: people, series, publishers, ratings,
 
 == Description ==
 
-Library adds a **Book** post type and five taxonomies, **People**, **Series**, **Publishers**, **Languages** and **Forms**. Catalogue your books and log your readings from the WordPress admin, or from your phone.
+Library adds a **Book** post type and five taxonomies, **People**, **Series**, **Publishers**, **Languages** and **Forms**. The readers of a site share its catalogue, and each has their own shelves and readings. Catalogue your books and log your readings from the WordPress admin, or from your phone.
 
 = Features =
 
-* **Books** – Cover, subtitle, series and volume, collection number, ISBN, pages, edition date, date first published, excerpt, notes and readings, each with the rating it ended with, from 1 to 10 by half points: the rating of the book is the one of its latest reading rated, and the recap of a year shows the rating of each book then. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6. A book without ISBN takes its EAN-13.
+* **Books** – Cover, subtitle, series and volume, collection number, ISBN, pages, edition date, date first published and excerpt. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6, and is the one of a single book of the catalogue. A book without ISBN takes its EAN-13.
+* **Shelves** – Each reader has their own: a book is in their library, “Not kept”, borrowed or passed on, “To buy”, or on none of their shelves, a book of the catalogue. Their readings, each with the rating it ended with, from 1 to 10 by half points, the date their copy was printed, their notes and a photo of their copy are theirs too: the rating of a book is the one of their latest reading rated, and the recap of a year shows the rating of each book then. A book read is on a shelf, among the books not kept unless they say otherwise. A book not kept stays on the reading pile until it is read.
+* **Roles** – A reader, **Reader**, shelves the books, adds the ones the catalogue lacks and changes the records they added; a librarian, **Librarian**, refines every record and every name of the catalogue; the editors and the administrators delete them. The record of a book keeps its revisions, each by the reader who saved it.
 * **People** – Every name of a book is a person, the author unless another role is chosen: translator, colorist, inker, letterer, publishing director or adapted author. A magazine or an anthology is a collective work: it counts for none of its people.
 * **Cycles, collections and pseudonyms** – A series belongs to its cycle, a collection to its publisher, a sub-collection to its collection, as the BnF has them, and a pseudonym to the name the person is known by. Filtering by a cycle, a publisher or a person includes what belongs to them.
 * **Readings** – Each reading has a start and an end, either one unknown if need be. A book read again keeps every reading. A book being read is in progress from the day it started.
-* **Statuses** – A book is in the library, “Not kept”, borrowed or passed on, or “To buy”. A book not kept stays on the reading pile until it is read.
-* **Books list** – Columns for the cover, edition date, ISBN, read state, latest read date and rating, with quick and bulk edit. The search covers every field, and keywords such as `series:SAS` or `read:2024` narrow it: see the Help tab.
-* **Terms lists** – People, publishers, series, languages and forms count their books not kept and to buy, and list the terms without books in a view of their own.
-* **Dashboard** – Six widgets: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
+* **Books list** – The views My shelves, In the library, Not kept and To buy beside the whole catalogue. Columns for the cover, the shelf, the edition date, the printed date, the ISBN, the read state, the latest read date and the rating, those of the reader, with quick edit of the ISBN and the pages and bulk edit. The search covers every field, and keywords such as `series:SAS` or `read:2024` narrow it: see the Help tab.
+* **Terms lists** – People, publishers, series, languages and forms count their books in the catalogue, and list the terms without books in a view of their own.
+* **Dashboard** – Six widgets of the shelves of the reader: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series, an author rated well, an anniversary, a short book… and now and then a book to buy.
-* **Achievements** – Computed from the books, nothing stored: authors, series and collections read in full, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, an ISBN typed or scanned from its barcode fills the form from the catalogue of the BnF. Without network, it shows what it loaded.
+* **Achievements** – Computed from the books of the reader, nothing stored: authors, series and collections read in full, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, on the shelves of the reader or in the whole catalogue, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, an ISBN typed or scanned from its barcode fills the form from the catalogue of the BnF. Without network, it shows what it loaded, which logging out takes off the device.
 * **REST API** – Books and their taxonomies in the core REST API, and routes for the book form, the BnF, the stats, the readings, the reading idea, the achievements, the recap and the pages of the app: see the FAQ.
 * **Translatable** – French translation included.
 
 = Technical =
 
-* Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_series`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn`, `library_reading` and so on, all in the REST API.
+* Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_series`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn` and so on, all in the REST API. The shelf of each reader is meta of the book, the key followed by their user ID: `library_status_12`, `library_added_12`, `library_reading_12`, `library_printed_date_12`, `library_notes_12` and `library_cover_12`.
+* Adds the roles Reader, `library_reader`, and Librarian, `library_librarian`, and gives the books capabilities of their own, `library_book`, which the editors and the administrators have too.
 * No shortcodes or front-end templates: display books with your theme or blocks.
 * The hyphens of an ISBN come from the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation), in `includes/isbn-ranges.json`. An ISBN outside them, or with a wrong check digit, is kept as typed.
 * The database needs the JSON functions of MySQL 5.7.8 or MariaDB 10.2.3 at least: a reading is a row of JSON, which the searches and the orders by rating or by reading read.
@@ -48,7 +50,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 
 = Uninstalling =
 
-Deleting the plugin from the **Plugins** screen deletes its caches, never the books: their posts, meta and terms stay in the database, for a later install to find them.
+Deleting the plugin from the **Plugins** screen deletes its roles, the capabilities it gave and its caches, never the books: their posts, meta and terms, the shelves of the readers among them, stay in the database, for a later install to find them.
 
 = Updates =
 
@@ -58,15 +60,15 @@ The plugin updates from the latest release of [19h47/library](https://github.com
 
 = How do I use the app on my phone? =
 
-Log in on the phone and open **Books > App**. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. The page of a book edits its reading, and **Edit book** the rest. The **+** at the top adds a book.
+Log in on the phone and open **Books > App**, as a reader, a librarian, an editor or an administrator. On an iPhone, add it to the home screen with **Share > Add to Home Screen**; on Android, with **Install app** in the browser menu. It then opens full screen and keeps the login of the site. The page of a book edits your reading, your shelf, your notes and the photo of your copy, and **Edit book** its record, when you may. The **+** at the top adds a book.
 
 = Can several readers share the library? =
 
-No, the plugin has one reader per site. The readings, ratings and statuses belong to the book, not to a user: every user of the site sees and changes the same ones. Each reader keeps their library on their own site.
+Yes. The readers of a site share its catalogue: a book is added once, by its ISBN, and anyone who may refines it. Each has their own shelves, readings, ratings, notes and photo of their copy, which the others never see. Give each user the role **Reader**, or **Librarian** to refine every record, in **Users**. An ISBN typed that the catalogue has puts that book on your shelves rather than adding it twice.
 
 = How do I log a book read again? =
 
-Add a reading in the Information box of the book, or in its reading in the app: one line per reading, from its start to its end. Leave a date empty when it is unknown. A book read again counts once per reading in the stats, and once in the achievements.
+Add a reading in the Information box of the book, or in your reading of it in the app: one line per reading, from its start to its end. Leave a date empty when it is unknown. A book read again counts once per reading in the stats, and once in the achievements.
 
 = How do I add a series to a cycle? =
 
@@ -88,7 +90,7 @@ Yes, where the browser reads barcodes: **Scan the barcode**, under the ISBN of t
 
 = Can I import books from a WordPress export? =
 
-Yes, with **Tools > Import > WordPress**, once the plugin is active, so that statuses like “Not kept” are known. The importer only adds books: it skips a book that already exists (same title and date) and never updates it.
+Yes, with **Tools > Import > WordPress**, once the plugin is active. The shelves of the readers are meta keyed by their user ID: they follow the readers of the same IDs on the site imported into. The importer only adds books: it skips a book that already exists (same title and date) and never updates it.
 
 = Can I change the book slug? =
 
@@ -100,9 +102,9 @@ Books are at `/wp-json/wp/v2/books`, their meta under `meta`. Besides the fields
 
 * `credits` – the line shown under its title.
 * `main_title` – its title but its subtitle, with its series and its volume, which its page shows above its subtitle, `meta.library_subtitle`; `title` gives them all.
-* `readings` – its readings, from the first, as ISO 8601 intervals, either end empty when unknown and `..` for a reading in progress: `2026-10-20/2026-11-01T21:40`, `/2019-06-14`, `2026-11-08/..`. They are written as `meta.reading` through `POST /wp-json/library/v1/books/<id>`; `read` and `in_progress` are worked out from them.
+* `shelf` – the shelf of the reader logged in, the schema `library-shelf`, which a visitor does not get: `status`, `in-library`, `not-kept`, `to-buy` or `null` on none of their shelves; `added`, when they added it; their copy, `printed_date`, `readings`, from the first, each with its start, its end and the rating it ended with, `{ "start": "2026-10-20", "end": "2026-11-02", "rating": 8 }`, either `null` when unknown and the end `..` for a reading in progress, `read`, `in_progress` and `rating`, worked out from them, `notes`, `raw` and `rendered`, and `cover`, the photo of their copy with its ID, or `null`. They are written through `POST /wp-json/library/v1/books/<id>/shelf`.
 * `names` – its people as named on it, each with its term ID and its role, the schema `library-book-person`, as `POST /wp-json/library/v1/books/<id>` takes and gives them: `{ "id": 12, "name": "Andy Chambers", "role": "author" }`; `people` gives their term IDs only, as core does for a taxonomy.
-* `cover`, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
+* `cover`, the cover of its edition, `series_name`, `language_codes`, `edition_language_codes` and `form_name` – what a list shows, without embedding.
 * `publisher_names` – its publishers, each followed by the collections it is in under it, from the widest, each with its term ID, the schema `library-book-publisher`: `{ "id": 7, "name": "Gallimard" }, { "id": 31, "name": "Folio" }`.
 
 The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `languages` and `forms`. A series of a cycle, or a collection, has a `parent`. A series gives its `path`, “Star Wars, Young Jedi Knights”, and the series of a magazine its ISSN, `meta.library_issn`; a collection its `path` after the collections it is part of, “Folio, Science-fiction”, and the ID of its publisher, `publisher_id`.
@@ -110,18 +112,20 @@ The taxonomies are at `/wp-json/wp/v2/people`, `series`, `publishers`, `language
 The books take these parameters, besides those of core:
 
 * `forms=<id>` – the books of a form.
-* `status=library-not-kept` or `status=library-to-buy` – the books not kept, or to buy.
+* `shelf=in-library,not-kept,to-buy` – the books on the shelves of the reader with these statuses, latest added first; the whole catalogue without.
 * `search=series:SAS` – the search keywords. A series is listed in reading order, unless `orderby` is given.
 * `orderby=rating`, `orderby=read` or `orderby=started` – by rating, by latest read date or by start of the reading in progress, the books without last.
 
-The routes of the plugin, under `/wp-json/library/v1`, to users who can edit posts unless said otherwise:
+The routes of the plugin, under `/wp-json/library/v1`, to readers, the users who shelve books, unless said otherwise:
 
-* `POST /books` – adds a book as the book form does, kept, not kept or to buy as its `status` says, to users who can publish posts. It gives the book back as `wp/v2/books/<id>` does, `_fields` included.
+* `POST /books` – adds a book as the book form does, on the shelf of the reader its `shelf` says, in the library by default, with their copy, as the route of its shelf takes it. It gives the book back as `wp/v2/books/<id>` does, `_fields` included. 409 for an ISBN another book has, that book in `data.book`.
 * `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it; 404 for an ID no book has.
-* `POST /books/<id>` – edits a book: only the fields sent change, and a `featured_media` of 0 removes the cover. It gives the book back.
+* `POST /books/<id>` – edits the record of a book, to users who can edit it: only the fields sent change, and a `featured_media` of 0 removes the cover of its edition. It gives the book back; 409 for an ISBN another book has.
+* `POST /books/<id>/shelf` – puts a book on the shelf of the reader its `status` says, and writes their copy: `printed_date`, `readings`, which replace theirs, `read`, `in_progress`, `rating`, `notes`, and `cover`, an image they uploaded, 0 to remove it. Only what is sent changes; a book read on none of their shelves goes among the books not kept. It gives the book back.
+* `DELETE /books/<id>/shelf` – takes a book off the shelves of the reader, unless they read it: 409.
 * `GET /books/bnf?isbn=<isbn>` – the book of an ISBN in the catalogue of the BnF, as `GET /books/<id>` gives a book; 404 when the catalogue does not know it, 502 when it does not answer. To users who can publish posts.
-* `POST /covers` – uploads the photo of a cover, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
-* `GET /stats` – the books, the books read this year against last year, and the year the books to read would all be read at this pace.
+* `POST /covers` – uploads the photo of a cover, of an edition or of a copy, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
+* `GET /stats` – the books of the reader, the books read this year against last year, and the year the books to read would all be read at this pace.
 * `GET /readings` – the readings by month, latest first: `page` and `per_page` count months.
 * `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
 * `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
@@ -135,6 +139,17 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.0.0 =
+* Several readers share the catalogue of a site, each with their own shelves: where a book is for them, in the library, not kept, to buy or on none of their shelves, since when, their readings and their ratings, the date their copy was printed, their notes and a photo of their copy, which shows instead of the cover of its edition. The stats, the recap, the achievements, the reading idea, the dashboard and the app read the shelves of the reader; the app and the books list filter by shelf, the whole catalogue a choice of its own. A book read is on a shelf, among the books not kept unless the reader says otherwise.
+* Roles: Reader shelves the books, adds the ones the catalogue lacks and changes the records they added; Librarian refines every record and every name of the catalogue; the editors and the administrators delete them. The app shows **Edit book** only to a reader who may edit it.
+* One book per ISBN: an ISBN another book has is refused, and the form of a book to add offers to put that book on the shelves of the reader.
+* The record of a book keeps its revisions, its meta and its names among them, each by the reader who saved it, which **Revisions** compares and restores.
+* The caches are those of each reader, on the server and on the device, and logging out takes off the device what the app kept.
+* Changed: books list: sorted by edition date by default, a column of its own; quick edit edits the ISBN and the pages only, the reading being the one of each reader. Terms lists: no columns by status any more, the count of WordPress counting the catalogue.
+* Changed: the date a copy was printed no longer stands for the date of a book, in its credits, its reading order and the achievement Hot off the press: it is the one of each reader.
+* Breaking: REST API: a book gives its `shelf`, rather than `readings`, and its `meta` no longer gives `library_printed_date`, `library_read`, `library_in_progress` nor `library_rating`; the readings, the rating, the printed date and the notes are written through `POST library/v1/books/<id>/shelf`, rather than `meta.reading`, `meta.rating`, `meta.printed_date` and `content` of `POST library/v1/books/<id>`; `shelf` replaces `status`, as a parameter of `wp/v2/books` and of `POST library/v1/books`. The routes of the readers take the capability `shelve_library_books`, no longer `edit_posts`, which a visitor never has.
+* Breaking: the books, all published, are the catalogue; their statuses, the dates they were added, their readings, their printed dates and their notes become those of a reader, the one whose library it is. Migrate the data before updating, their user ID in place of 1, with your table prefix: `SET @reader = 1`, then `INSERT INTO wp_postmeta ( post_id, meta_key, meta_value ) SELECT p.ID, CONCAT( 'library_status_', @reader ), CASE IF( p.post_status = 'trash', t.meta_value, p.post_status ) WHEN 'publish' THEN 'in-library' WHEN 'library-not-kept' THEN 'not-kept' ELSE 'to-buy' END FROM wp_posts AS p LEFT JOIN wp_postmeta AS t ON t.post_id = p.ID AND t.meta_key = '_wp_trash_meta_status' WHERE p.post_type = 'library_book' AND IF( p.post_status = 'trash', t.meta_value, p.post_status ) IN ( 'publish', 'library-not-kept', 'library-to-buy' )`, then `INSERT INTO wp_postmeta ( post_id, meta_key, meta_value ) SELECT p.ID, CONCAT( 'library_added_', @reader ), p.post_date FROM wp_posts AS p LEFT JOIN wp_postmeta AS t ON t.post_id = p.ID AND t.meta_key = '_wp_trash_meta_status' WHERE p.post_type = 'library_book' AND IF( p.post_status = 'trash', t.meta_value, p.post_status ) IN ( 'publish', 'library-not-kept', 'library-to-buy' )`, then `UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id AND p.post_type = 'library_book' SET m.meta_key = CONCAT( m.meta_key, '_', @reader ) WHERE m.meta_key IN ( 'library_reading', 'library_printed_date' )`, then `INSERT INTO wp_postmeta ( post_id, meta_key, meta_value ) SELECT ID, CONCAT( 'library_notes_', @reader ), post_content FROM wp_posts WHERE post_type = 'library_book' AND post_content <> ''`, then `UPDATE wp_posts SET post_content = '' WHERE post_type = 'library_book'`, then `UPDATE wp_posts SET post_status = 'publish' WHERE post_type = 'library_book' AND post_status IN ( 'library-not-kept', 'library-to-buy' )`, then `UPDATE wp_postmeta AS m INNER JOIN wp_posts AS p ON p.ID = m.post_id AND p.post_type = 'library_book' SET m.meta_value = 'publish' WHERE m.meta_key = '_wp_trash_meta_status' AND m.meta_value IN ( 'library-not-kept', 'library-to-buy' )`, then `DELETE FROM wp_posts WHERE post_type = 'revision' AND post_parent IN ( SELECT ID FROM ( SELECT ID FROM wp_posts WHERE post_type = 'library_book' ) AS books )`, then `UPDATE wp_term_taxonomy AS tt SET tt.count = ( SELECT COUNT( * ) FROM wp_term_relationships AS tr INNER JOIN wp_posts AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status = 'publish' WHERE tr.term_taxonomy_id = tt.term_taxonomy_id ) WHERE tt.taxonomy IN ( 'library_person', 'library_series', 'library_publisher', 'library_language', 'library_form' )` and `UPDATE wp_options SET option_value = option_value + 1 WHERE option_name = 'library_cache_generation'`. Run the statements together, once: `@reader` lasts as long as the session. A book in the trash goes back to the catalogue as it is restored, a draft stays one, on no shelf. Then give the other users the role Reader or Librarian in **Users**.
 
 = 9.47.0 =
 * Deleting the plugin deletes its caches, never the books: their posts, their meta and their terms stay in the database.

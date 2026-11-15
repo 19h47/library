@@ -1,4 +1,4 @@
-import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
+import { __, catalogue, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
@@ -19,13 +19,12 @@ import { join } from 'library-app/format';
  * @typedef {Object} EditFields
  * @property {HTMLInputElement}    title      Its title.
  * @property {HTMLTextAreaElement} excerpt    Its summary in a few words.
- * @property {HTMLTextAreaElement} content    Its notes.
  * @property {HTMLInputElement}    publisher  Its publisher.
  * @property {HTMLInputElement}    collection Its collection.
  * @property {HTMLInputElement}    series     Its series.
  * @property {HTMLSelectElement}   form       Its form.
  * @property {HTMLInputElement}    cover      The photo of its cover.
- * @property {HTMLSelectElement}   status     The status of a book to add.
+ * @property {HTMLSelectElement}   status     The shelf of the reader a book to add goes on.
  * @property {HTMLInputElement}    isbn       Its ISBN.
  */
 
@@ -60,15 +59,17 @@ function renderOptions( terms ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
- * publisher, collection and its number, form and printed date, its status when it is added, the one of the list shown
- * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
- * the ones filled in: subtitle, first published, edition date, pages, original languages, edition languages, collective work,
- * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
+ * The fields most books have, in the order a book in hand gives them: the cover of its edition, ISBN, title, people,
+ * series and volume, publisher, collection and its number, form, its shelf when it is added, the one of the list shown;
+ * then more details, which few books have, folded, their summary counting the ones filled in: subtitle, first
+ * published, edition date, pages, original languages, edition languages, collective work, excerpt. The copy of the
+ * reader, its shelf after, its printed date, their notes and its photo, is in the form of their reading. A book added is
+ * in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
- * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
- * in the fields left empty, the names as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
+ * a book of the catalogue has already shows it, which opens, a book to buy bought from there and one on none of the
+ * shelves of the reader put in their library; else the catalogue of the BnF fills in the fields left empty, the names
+ * as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
  * barcode of a book types its ISBN, as if typed: its component, barcode-scan, does it.
  * Closing the form drops it.
  */
@@ -82,7 +83,6 @@ class LibraryEditElement extends Brick {
 		const {
 			title: $title,
 			excerpt: $excerpt,
-			content: $content,
 			publisher: $publisher,
 			collection: $collection,
 			series: $series,
@@ -125,7 +125,8 @@ class LibraryEditElement extends Brick {
 		/** @type {HTMLAnchorElement} */
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
 		/** @type {HTMLButtonElement} */
-		const $buy = this.querySelector( '[data-action="buy"]' );
+		/** @type {HTMLButtonElement} */
+		const $keep = this.querySelector( '[data-action="keep"]' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -282,11 +283,11 @@ class LibraryEditElement extends Brick {
 				),
 			{ signal }
 		);
-		$buy.addEventListener(
+		$keep.addEventListener(
 			'click',
 			async () =>
 				openBook(
-					await store.buyBook( store.get().editing.duplicate )
+					await store.keepBook( store.get().editing.duplicate )
 				),
 			{ signal }
 		);
@@ -300,7 +301,6 @@ class LibraryEditElement extends Brick {
 				const book = {
 					title: /** @type {string} */ ( data.get( 'title' ) ),
 					excerpt: $excerpt.value,
-					content: $content.value,
 					// Each name with the role of its group.
 					people: $people.value
 						.map( ( { value, group } ) => ( {
@@ -344,7 +344,11 @@ class LibraryEditElement extends Brick {
 					} );
 				} else {
 					store
-						.addBook( { ...book, cover, status: $status.value } )
+						.addBook( {
+							...book,
+							cover,
+							shelf: { status: $status.value },
+						} )
 						.then( openBook );
 				}
 			},
@@ -360,12 +364,11 @@ class LibraryEditElement extends Brick {
 						return;
 					}
 
-					const { editing, view, status, form } = store.get();
+					const { editing, view, shelf, form } = store.get();
 					const { id, book } = editing;
-					// A book added joins the list shown: to buy from the books to buy, of the status and form chosen from the books.
-					const listedStatus = { books: status, 'to-buy': toBuy }[
-						view
-					];
+					// A book added joins the list shown: to buy from the books to buy, on the shelf and of the form chosen from the
+					// books, else in the library.
+					const listed = { books: shelf, 'to-buy': toBuy }[ view ];
 
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
@@ -377,14 +380,14 @@ class LibraryEditElement extends Brick {
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
-					$status.value = listedStatus || inLibrary;
+					$status.value =
+						listed && catalogue !== listed ? listed : inLibrary;
 					$bookForm.value = 'books' === view ? form : '';
 					showPeople( book?.people ?? [] );
 
 					if ( book ) {
 						$title.value = book.title;
 						$excerpt.value = book.excerpt;
-						$content.value = book.content;
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$series.value = book.series;
@@ -404,8 +407,9 @@ class LibraryEditElement extends Brick {
 
 					$details.open = false;
 					countDetails();
-					// The cover the book has; the field shows a photo picked itself.
-					$coverField.cover = store.get().books[ id ]?.cover ?? null;
+					// The cover of its edition, whatever the photo of the copy of the reader; the field shows a photo picked itself.
+					$coverField.cover =
+						store.get().books[ id ]?.edition_cover ?? null;
 					suggestCollections();
 					$dialog.showModal();
 					$dialog.scrollTop = 0;
@@ -460,7 +464,12 @@ class LibraryEditElement extends Brick {
 
 					fill( this, { duplicate: book?.title ?? '' } );
 					$duplicate.href = urlOf( { view: 'book', id } );
-					$buy.hidden = toBuy !== book?.status;
+					// A book to buy is bought, one on none of the shelves of the reader put in their library; the others are theirs.
+					$keep.hidden = ! [ toBuy, '' ].includes( book?.status );
+					$keep.textContent =
+						toBuy === book?.status
+							? $keep.dataset.toBuy
+							: $keep.dataset.catalogue;
 				}
 			),
 			store.select(

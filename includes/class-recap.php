@@ -14,7 +14,7 @@ namespace Library;
 use DateTimeImmutable;
 
 /**
- * The recap of a year, from Books::get_books(): its readings, those of the year before, its pages, its months, its forms,
+ * The recap of a year, from Books::get_shelved(): its readings, those of the year before, its pages, its months, its forms,
  * the people read the most and those read for the first time, its original languages, its series, its ratings, its
  * records, its achievements, the books added and its days of reading. A reading is a read date of the year: a book read
  * again counts once per reading, as on the home; what counts books, the ratings and the records, takes each book once.
@@ -54,7 +54,7 @@ class Recap {
 	 * @return Recap_Data
 	 */
 	public static function get_recap( int $year ): array {
-		$books    = Books::get_books();
+		$books    = Books::get_shelved();
 		$readings = Stats::get_year_readings( $year );
 		$read     = Stats::get_year_books( $year );
 

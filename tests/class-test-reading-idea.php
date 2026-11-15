@@ -114,7 +114,7 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	public function test_series_waits_for_the_next_volume_to_buy(): void {
 		$this->add_volume( 'Earthsea', 1, array( '2021-07-14' ) );
-		$this->add_volume( 'Earthsea', 2, array(), array( 'status' => Status::To_Buy->value ) );
+		$this->add_volume( 'Earthsea', 2, array(), array( 'shelf' => array( 'status' => Status::To_Buy->value ) ) );
 		$this->add_volume( 'Earthsea', 3 );
 
 		$this->assertSame( array(), $this->get_ideas_of( 'series' ) );
@@ -275,7 +275,7 @@ class Test_Reading_Idea extends TestCase {
 	public function test_unread_author_counts_the_books_at_hand(): void {
 		$this->add_by( 'Ursula K. Le Guin' );
 		$this->add_by( 'Ursula K. Le Guin' );
-		$this->add_by( 'Ursula K. Le Guin', array( 'status' => Status::To_Buy->value ) );
+		$this->add_by( 'Ursula K. Le Guin', array( 'shelf' => array( 'status' => Status::To_Buy->value ) ) );
 		$this->add_by( 'Ursula K. Le Guin', array( 'meta' => array( 'collective' => true ) ) );
 
 		$this->assertSame( array(), $this->get_ideas_of( 'unread_author' ) );
@@ -569,7 +569,7 @@ class Test_Reading_Idea extends TestCase {
 		$book = $this->add_book( array(), $days_ago( 5 ) );
 		$this->add_book( array(), $days_ago( 40 ) );
 		$this->add_book( array( 'meta' => array( 'reading' => array( '/2024-03-01' ) ) ), $days_ago( 2 ) );
-		$this->add_book( array( 'status' => Status::To_Buy->value ), $days_ago( 2 ) );
+		$this->add_book( array( 'shelf' => array( 'status' => Status::To_Buy->value ) ), $days_ago( 2 ) );
 
 		$this->assertSame(
 			array( $book => array( 'Added 5 days ago.' ) ),
@@ -586,7 +586,7 @@ class Test_Reading_Idea extends TestCase {
 		$year = (int) wp_date( 'Y' ) - 10;
 
 		$kept     = $this->add_rated( 'Frank Herbert', 9, "$year-12-31" );
-		$not_kept = $this->add_rated( 'Frank Herbert', 9.5, '2001-06-01', array( 'status' => Status::Not_Kept->value ) );
+		$not_kept = $this->add_rated( 'Frank Herbert', 9.5, '2001-06-01', array( 'shelf' => array( 'status' => Status::Not_Kept->value ) ) );
 		$this->add_rated( 'Frank Herbert', 10, ( $year + 1 ) . '-01-01' );
 		$this->add_rated( 'Frank Herbert', 8.5, '2001-06-01' );
 		$this->add_book( array( 'meta' => array( 'reading' => array( '/2001-06-01' ) ) ) );
@@ -615,10 +615,10 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	public function test_pile_of_books_to_read(): void {
 		$kept     = $this->add_book( array(), '2019-04-02 10:00:00' );
-		$not_kept = $this->add_book( array( 'status' => Status::Not_Kept->value ) );
+		$not_kept = $this->add_book( array( 'shelf' => array( 'status' => Status::Not_Kept->value ) ) );
 		$next     = $this->add_volume( 'Earthsea', 1, array(), array(), '2021-09-12 10:00:00' );
 		$this->add_volume( 'Earthsea', 2 );
-		$this->add_book( array( 'status' => Status::To_Buy->value ) );
+		$this->add_book( array( 'shelf' => array( 'status' => Status::To_Buy->value ) ) );
 		$this->add_book( array( 'meta' => array( 'reading' => array( '/2024-03-01' ) ) ) );
 
 		$this->assertSame(
@@ -637,7 +637,7 @@ class Test_Reading_Idea extends TestCase {
 	 * @return void
 	 */
 	public function test_to_buy_next_volume(): void {
-		$to_buy = array( 'status' => Status::To_Buy->value );
+		$to_buy = array( 'shelf' => array( 'status' => Status::To_Buy->value ) );
 
 		$this->add_volume( 'Earthsea', 1, array( '2024-03-01' ) );
 		$this->add_volume( 'Earthsea', 2, array( '2024-04-01' ) );
@@ -658,8 +658,8 @@ class Test_Reading_Idea extends TestCase {
 	 */
 	public function test_to_buy_the_next_part_of_a_cycle(): void {
 		$to_buy = array(
-			'status' => Status::To_Buy->value,
-			'meta'   => array( 'published_date' => '1999' ),
+			'shelf' => array( 'status' => Status::To_Buy->value ),
+			'meta'  => array( 'published_date' => '1999' ),
 		);
 
 		$this->add_volume( 'Dune, Dune', 1, array( '2019-02-10' ), array( 'meta' => array( 'published_date' => '1965' ) ) );
@@ -678,7 +678,7 @@ class Test_Reading_Idea extends TestCase {
 	 * @return void
 	 */
 	public function test_to_buy_by_an_author_rated_well(): void {
-		$to_buy = array( 'status' => Status::To_Buy->value );
+		$to_buy = array( 'shelf' => array( 'status' => Status::To_Buy->value ) );
 
 		$this->add_rated( 'Ursula K. Le Guin', 9, '2024-03-01' );
 		$this->add_rated( 'Ursula K. Le Guin', 9, '2024-04-01' );
@@ -739,7 +739,7 @@ class Test_Reading_Idea extends TestCase {
 		$this->add_volume( 'Earthsea', 2, array( '2024-04-01' ), $this->by( 'Ursula K. Le Guin' ) + array( 'meta' => array( 'rating' => 9 ) ) );
 		$next   = $this->add_volume( 'Earthsea', 3, array(), $this->by( 'Ursula K. Le Guin' ) );
 		$book   = $this->add_by( 'Ursula K. Le Guin' );
-		$to_buy = $this->add_volume( 'Earthsea', 4, array(), array( 'status' => Status::To_Buy->value ) );
+		$to_buy = $this->add_volume( 'Earthsea', 4, array(), array( 'shelf' => array( 'status' => Status::To_Buy->value ) ) );
 		$reread = $this->add_rated( 'Frank Herbert', 10, '2001-06-01' );
 
 		$ideas = $this->get_all_ideas();

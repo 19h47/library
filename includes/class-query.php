@@ -16,8 +16,8 @@ use WP_REST_Request;
 
 /**
  * Extends book searches to the book text meta (ISBN, series…) and terms (people, publishers, collections),
- * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi"; the REST API lists a series in reading order,
- * and books by rating or by latest reading too.
+ * and narrows them with keywords, such as "series:SAS" or "author:Tabucchi", or to the shelves of the reader; the REST
+ * API lists a series in reading order, and books by rating or by latest reading too.
  *
  * @since      1.0.0
  * @package    Library
@@ -54,6 +54,11 @@ class Query {
 		add_filter( 'rest_library_book_query', array( $this, 'pass_order' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'order_series_search' ), 10, 2 );
 		add_filter( 'posts_clauses', array( $this, 'order_books' ), 10, 2 );
+		add_filter( 'query_vars', array( $this, 'add_shelf_var' ) );
+		add_filter( 'rest_library_book_collection_params', array( $this, 'add_shelf_param' ) );
+		add_filter( 'rest_library_book_query', array( $this, 'pass_shelf' ), 10, 2 );
+		// After the orders, whose date added it replaces.
+		add_filter( 'posts_clauses', array( $this, 'filter_shelf' ), 20, 2 );
 		add_filter( 'get_search_query', array( $this, 'show_typed_search' ) );
 		add_action( 'load-edit.php', array( $this, 'add_help_tab' ) );
 	}
@@ -72,8 +77,17 @@ class Query {
 	}
 
 	/**
-	 * The SQL of the ratings of the books, a table of their IDs, post_id, and their ratings, rating: the rating of the
-	 * latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
+	 * The SQL of the key of the readings of the current reader, quoted: a key of the plugin and a user ID, nothing typed.
+	 *
+	 * @return string
+	 */
+	private static function get_readings_key_sql(): string {
+		return "'" . Shelf::key( 'library_reading', get_current_user_id() ) . "'";
+	}
+
+	/**
+	 * The SQL of the ratings of the books by the current reader, a table of their IDs, post_id, and their ratings, rating:
+	 * the rating of the latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
 	 * start. One pass over the readings, which MySQL 5.7 runs faster than a subquery for each book.
 	 *
 	 * @return string
@@ -85,7 +99,7 @@ class Query {
 		$end    = self::get_reading_sql( 'end' );
 		$rating = "JSON_EXTRACT( meta_value, '$.rating' )";
 
-		return "SELECT post_id, CAST( SUBSTRING_INDEX( MAX( CONCAT( $end, '|', $start, '|', $rating ) ), '|', -1 ) AS DECIMAL(3,1) ) AS rating FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND JSON_TYPE( $rating ) <> 'NULL' GROUP BY post_id";
+		return "SELECT post_id, CAST( SUBSTRING_INDEX( MAX( CONCAT( $end, '|', $start, '|', $rating ) ), '|', -1 ) AS DECIMAL(3,1) ) AS rating FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND JSON_TYPE( $rating ) <> 'NULL' GROUP BY post_id";
 	}
 
 	/**
@@ -153,9 +167,9 @@ class Query {
 	}
 
 	/**
-	 * Also match books whose text meta or terms contain the search phrase, and the issues of a magazine by the ISSN of its
-	 * series; a term matches by its ancestors too, so searching for the name of a person finds the books of their other
-	 * names and a publisher the books of its collections.
+	 * Also match books whose text meta, notes of the reader or terms contain the search phrase, and the issues of a
+	 * magazine by the ISSN of its series; a term matches by its ancestors too, so searching for the name of a person
+	 * finds the books of their other names and a publisher the books of its collections.
 	 *
 	 * @param string   $search Search SQL, starting with " AND ".
 	 * @param WP_Query $query  Query instance.
@@ -170,10 +184,12 @@ class Query {
 
 		global $wpdb;
 
-		$like         = '%' . $wpdb->esc_like( $query->get( 's' ) ) . '%';
-		$meta_values  = array( ...Meta::TEXT_KEYS, $like );
+		$like = '%' . $wpdb->esc_like( $query->get( 's' ) ) . '%';
+		// The notes of the reader too, which core searched in the content of the book.
+		$meta_keys    = array( ...Meta::TEXT_KEYS, Shelf::key( 'library_notes', get_current_user_id() ) );
+		$meta_values  = array( ...$meta_keys, $like );
 		$meta_matches = $wpdb->prepare(
-			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( Meta::TEXT_KEYS ), '%s' ) ) . ' ) AND meta_value LIKE %s',
+			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) ) . ' ) AND meta_value LIKE %s',
 			$meta_values
 		);
 		$term_matches = self::build_term_matches( Taxonomies::TAXONOMIES, $query->get( 's' ) );
@@ -269,15 +285,101 @@ class Query {
 
 		if ( 'read' === $order ) {
 			$end                = self::get_reading_sql( 'end' );
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $end ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end NOT IN ( '', '..' ) GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $end ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND $end NOT IN ( '', '..' ) GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.read_date IS NULL, library_order.read_date DESC, {$wpdb->posts}.post_date DESC";
 		}
 
 		if ( 'started' === $order ) {
 			$start              = self::get_reading_sql( 'start' );
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $start ) AS started FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND " . self::get_reading_sql( 'end' ) . " = '..' AND $start <> '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $start ) AS started FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . ' AND ' . self::get_reading_sql( 'end' ) . " = '..' AND $start <> '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.started IS NULL, library_order.started DESC, {$wpdb->posts}.post_date DESC";
 		}
+
+		return $clauses;
+	}
+
+	/**
+	 * Let a query of the books ask for the shelves of the reader, `library_shelf`, as the books list does from its URL.
+	 *
+	 * @param string[] $vars Public query variables.
+	 * @return string[]
+	 */
+	public function add_shelf_var( array $vars ): array {
+		$vars[] = 'library_shelf';
+
+		return $vars;
+	}
+
+	/**
+	 * Let the REST API list the books on the shelves of the reader, `shelf`, rather than the whole catalogue.
+	 *
+	 * @param array<string,array<string,mixed>> $params Collection parameters, each with its schema.
+	 * @return array<string,array<string,mixed>>
+	 */
+	public function add_shelf_param( array $params ): array {
+		$params['shelf'] = array(
+			'description' => __( 'Statuses of the books on the shelves of the reader to list, by the date they added them, latest first; the whole catalogue without.', 'library' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+				'enum' => Status::get_values(),
+			),
+		);
+
+		return $params;
+	}
+
+	/**
+	 * Pass the shelves asked for to the query: filter_shelf() reads them.
+	 *
+	 * @param array<string,mixed> $args    WP_Query arguments.
+	 * @param WP_REST_Request     $request Request.
+	 * @return array<string,mixed>
+	 */
+	public function pass_shelf( array $args, WP_REST_Request $request ): array {
+		if ( $request['shelf'] ) {
+			$args['library_shelf'] = $request['shelf'];
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Statuses of the books on the shelves of the reader a query asks for, in `library_shelf`, as a list or separated with
+	 * commas: "in-library,not-kept". None for the whole catalogue.
+	 *
+	 * @param WP_Query $query Query instance.
+	 * @return string[]
+	 */
+	public static function get_shelf( WP_Query $query ): array {
+		return array_values( array_intersect( Status::get_values(), wp_parse_list( $query->get( 'library_shelf' ) ) ) );
+	}
+
+	/**
+	 * Keep the books on the shelves of the current reader a query asks for, see get_shelf(), and order them by the date
+	 * the reader added them rather than by the date of their post, the one of the catalogue.
+	 *
+	 * @param array<string,string> $clauses Query clauses.
+	 * @param WP_Query             $query   Query instance.
+	 * @return array<string,string>
+	 */
+	public function filter_shelf( array $clauses, WP_Query $query ): array {
+		$statuses = self::get_shelf( $query );
+
+		if ( ! $statuses ) {
+			return $clauses;
+		}
+
+		global $wpdb;
+
+		$reader             = get_current_user_id();
+		$shelf_values       = array( Shelf::key( Shelf::STATUS, $reader ), ...$statuses );
+		$clauses['join']   .= $wpdb->prepare(
+			" INNER JOIN {$wpdb->postmeta} AS library_shelf ON library_shelf.post_id = {$wpdb->posts}.ID AND library_shelf.meta_key = %s AND library_shelf.meta_value IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ' )',
+			$shelf_values
+		);
+		$clauses['join']   .= $wpdb->prepare( " LEFT JOIN {$wpdb->postmeta} AS library_added ON library_added.post_id = {$wpdb->posts}.ID AND library_added.meta_key = %s", Shelf::key( Shelf::ADDED, $reader ) );
+		$clauses['orderby'] = str_replace( "{$wpdb->posts}.post_date", 'library_added.meta_value', $clauses['orderby'] );
 
 		return $clauses;
 	}
@@ -435,7 +537,7 @@ class Query {
 			case 'read':
 				// A book is read once it has a reading ended, of a known date or not.
 				$end  = self::get_reading_sql( 'end' );
-				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end <> '..'";
+				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND $end <> '..'";
 
 				if ( 'yes' === $value ) {
 					return $read;
@@ -450,9 +552,9 @@ class Query {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end LIKE %s", $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end holds no value given.
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND $end LIKE %s", Shelf::key( 'library_reading', get_current_user_id() ), $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end holds no value given.
 			case 'progress':
-				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND " . self::get_reading_sql( 'end' ) . " = '..'";
+				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . ' AND ' . self::get_reading_sql( 'end' ) . " = '..'";
 
 				if ( 'yes' === $value ) {
 					return $in_progress;

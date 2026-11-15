@@ -114,8 +114,8 @@ class Test_Achievements_Completions extends TestCase {
 		$this->add_reads( array( '2024-01-10', '2024-02-10', '2024-03-05' ), $this->by( 'Ursula K. Le Guin' ) );
 		$this->add_book(
 			array(
-				'title'  => 'Lavinia',
-				'status' => 'library-to-buy',
+				'title' => 'Lavinia',
+				'shelf' => array( 'status' => 'to-buy' ),
 			) + $this->by( 'Ursula K. Le Guin' )
 		);
 
@@ -135,7 +135,7 @@ class Test_Achievements_Completions extends TestCase {
 	 */
 	public function test_a_book_not_kept_counts_as_read(): void {
 		$this->add_reads( array( '2024-01-10', '2024-02-10' ), $this->by( 'Ursula K. Le Guin' ) );
-		$this->add_reads( array( '2024-03-05' ), array( 'status' => 'library-not-kept' ) + $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_reads( array( '2024-03-05' ), array( 'shelf' => array( 'status' => 'not-kept' ) ) + $this->by( 'Ursula K. Le Guin' ) );
 
 		$author = $this->get_earned()['author'];
 
@@ -682,15 +682,13 @@ class Test_Achievements_Completions extends TestCase {
 	 * @return void
 	 */
 	private function read( int $book_id, string $read_date ): void {
-		$request = new WP_REST_Request( 'POST', '/library/v1/books/' . $book_id );
+		$request = new WP_REST_Request( 'POST', "/library/v1/books/$book_id/shelf" );
 		$request->set_header( 'Content-Type', 'application/json' );
 		$request->set_body(
 			wp_json_encode(
 				array(
-					'meta' => array(
-						'read'    => true,
-						'reading' => array( self::reading( "/$read_date" ) ),
-					),
+					'read'     => true,
+					'readings' => array( self::reading( "/$read_date" ) ),
 				)
 			)
 		);

@@ -249,7 +249,6 @@ class Test_Achievements_Forms extends TestCase {
 		$this->assertSame( 2, $library_tour[0]['done'] );
 		$this->assertSame( 3, $library_tour[0]['total'] );
 		$this->assertSame( 'form:"Poetry" read:no', $library_tour[0]['target']['search'] );
-		$this->assertFalse( $library_tour[0]['target']['not_kept'] );
 	}
 
 	/**
@@ -273,7 +272,7 @@ class Test_Achievements_Forms extends TestCase {
 	}
 
 	/**
-	 * The form of a book not kept is in the tour, its books to read are found among those not kept.
+	 * The form of a book not kept is in the tour.
 	 *
 	 * @return void
 	 */
@@ -282,15 +281,14 @@ class Test_Achievements_Forms extends TestCase {
 		$this->add_form_reads( 'Comic', 1 );
 		$this->add_book(
 			array(
-				'form'   => $this->get_form( 'Poetry' ),
-				'status' => 'library-not-kept',
+				'form'  => $this->get_form( 'Poetry' ),
+				'shelf' => array( 'status' => 'not-kept' ),
 			)
 		);
 
 		$library_tour = $this->get_close()['library-tour'];
 
 		$this->assertSame( 'Still to read: Poetry', $library_tour[0]['detail'] );
-		$this->assertTrue( $library_tour[0]['target']['not_kept'] );
 	}
 
 	/**
@@ -303,8 +301,8 @@ class Test_Achievements_Forms extends TestCase {
 		$this->add_form_reads( 'Comic', 1 );
 		$this->add_book(
 			array(
-				'form'   => $this->get_form( 'Poetry' ),
-				'status' => 'library-to-buy',
+				'form'  => $this->get_form( 'Poetry' ),
+				'shelf' => array( 'status' => 'to-buy' ),
 			)
 		);
 

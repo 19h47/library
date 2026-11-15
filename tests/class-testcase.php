@@ -10,7 +10,9 @@ namespace Library\Tests;
 use Library\Achievements;
 use Library\Books;
 use Library\Cache;
+use Library\Meta;
 use Library\Reading;
+use Library\Shelf;
 use ReflectionProperty;
 use WP_REST_Request;
 use WP_UnitTestCase;
@@ -31,15 +33,34 @@ abstract class TestCase extends WP_UnitTestCase {
 
 		self::forget_books();
 		new ReflectionProperty( Cache::class, 'changed' )->setValue( null, false );
+		// The suite unregisters every meta key after each test, those the plugin registers once, on init, among them.
+		new Meta()->register_meta();
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$this->as_user( 'administrator' );
 	}
 
 	/**
-	 * Add a book through `POST library/v1/books`, as its form sends it, with its date added.
+	 * Log in as a new user of a role, such as a reader, library_reader.
+	 *
+	 * @param string $role Role.
+	 * @return int User ID.
+	 */
+	protected function as_user( string $role ): int {
+		$user_id = self::factory()->user->create( array( 'role' => $role ) );
+
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Add a book through `POST library/v1/books`, as its form sends it, on a shelf of the current reader, the library
+	 * unless `shelf` says otherwise, with the date they added it.
 	 *
 	 * Readings go in `meta.reading`, which also makes it read, as intervals, see reading(): `array( '/2024-03-14' )`, or
-	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today.
+	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today. The copy of the reader, its
+	 * readings, printed date, read state and rating, is written with the meta of the book, as the tests write them, and
+	 * goes in its shelf, as the route takes it.
 	 *
 	 * @param array  $book  Book, as the route takes it: title, people, series, meta… A title is made up when missing.
 	 * @param string $added Date added, Y-m-d H:i:s, or empty for now.
@@ -48,8 +69,13 @@ abstract class TestCase extends WP_UnitTestCase {
 	protected function add_book( array $book = array(), string $added = '' ): int {
 		$book += array( 'title' => 'Book ' . wp_generate_password( 6, false ) );
 
-		if ( isset( $book['meta']['reading'] ) ) {
-			$book['meta']['reading'] = self::readings( $book['meta']['reading'] );
+		foreach ( Shelf::NAMES as $name => $key ) {
+			$meta_name = Meta::get_name( $key );
+
+			if ( array_key_exists( $meta_name, $book['meta'] ?? array() ) ) {
+				$book['shelf'][ $name ] = 'reading' === $meta_name ? self::readings( $book['meta'][ $meta_name ] ) : $book['meta'][ $meta_name ];
+				unset( $book['meta'][ $meta_name ] );
+			}
 		}
 
 		$request = new WP_REST_Request( 'POST', '/library/v1/books' );
@@ -63,13 +89,7 @@ abstract class TestCase extends WP_UnitTestCase {
 		$book_id = $response->get_data()['id'];
 
 		if ( $added ) {
-			wp_update_post(
-				array(
-					'ID'            => $book_id,
-					'post_date'     => $added,
-					'post_date_gmt' => get_gmt_from_date( $added ),
-				)
-			);
+			update_post_meta( $book_id, Shelf::key( Shelf::ADDED, get_current_user_id() ), $added );
 		}
 
 		self::forget_books();

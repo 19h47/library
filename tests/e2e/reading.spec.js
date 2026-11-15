@@ -57,8 +57,8 @@ test.describe( 'Reading', () => {
 	} ) => {
 		await requestUtils.rest( {
 			method: 'POST',
-			path: `/library/v1/books/${ book.id }`,
-			data: { meta: { reading: readings( [ '/2025-03-10' ] ) } },
+			path: `/library/v1/books/${ book.id }/shelf`,
+			data: { readings: readings( [ '/2025-03-10' ] ) },
 		} );
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
@@ -69,7 +69,9 @@ test.describe( 'Reading', () => {
 			'library-reading [name="reading_rating"]'
 		);
 		const saved = async () =>
-			intervalsOf( ( await getBook( requestUtils, book.id ) ).readings );
+			intervalsOf(
+				( await getBook( requestUtils, book.id ) ).shelf.readings
+			);
 
 		await rating.selectOption( '7' );
 		await expect(
@@ -79,8 +81,7 @@ test.describe( 'Reading', () => {
 		await expect
 			.poll(
 				async () =>
-					( await getBook( requestUtils, book.id ) ).meta
-						.library_rating
+					( await getBook( requestUtils, book.id ) ).shelf.rating
 			)
 			.toBe( 7 );
 
@@ -100,8 +101,8 @@ test.describe( 'Reading', () => {
 
 		await requestUtils.rest( {
 			method: 'POST',
-			path: `/library/v1/books/${ book.id }`,
-			data: { meta: { reading: readings( [ '/2025-03-10' ] ) } },
+			path: `/library/v1/books/${ book.id }/shelf`,
+			data: { readings: readings( [ '/2025-03-10' ] ) },
 		} );
 		// A save that takes its time, so that the second change comes while the first one saves.
 		await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
@@ -125,18 +126,18 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 
 		expect( posts ).toEqual( [
-			{ meta: { reading: readings( [ '/2025-03-10#8' ] ) } },
+			{ readings: readings( [ '/2025-03-10#8' ] ) },
 			{
-				meta: {
-					in_progress: true,
-					reading: readings( [ '/2025-03-10#8', `${ today }/..` ] ),
-				},
+				in_progress: true,
+				readings: readings( [ '/2025-03-10#8', `${ today }/..` ] ),
 			},
 		] );
 
 		await expect
-			.poll( async () => ( await getBook( requestUtils, book.id ) ).meta )
-			.toMatchObject( { library_rating: 8, library_in_progress: true } );
+			.poll(
+				async () => ( await getBook( requestUtils, book.id ) ).shelf
+			)
+			.toMatchObject( { rating: 8, in_progress: true } );
 		await expect(
 			page.locator( 'library-reading [name="reading_rating"]' )
 		).toHaveValue( '8' );
@@ -164,7 +165,7 @@ test.describe( 'Reading', () => {
 
 		await expect
 			.poll( async () =>
-				( await getBook( requestUtils, book.id ) ).readings.map(
+				( await getBook( requestUtils, book.id ) ).shelf.readings.map(
 					( { end } ) => end.slice( 0, 10 )
 				)
 			)
@@ -178,12 +179,8 @@ test.describe( 'Reading', () => {
 	} ) => {
 		await requestUtils.rest( {
 			method: 'POST',
-			path: `/library/v1/books/${ book.id }`,
-			data: {
-				meta: {
-					reading: readings( [ '/', '2025-03-10/2025-03-21' ] ),
-				},
-			},
+			path: `/library/v1/books/${ book.id }/shelf`,
+			data: { readings: readings( [ '/', '2025-03-10/2025-03-21' ] ) },
 		} );
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await waitForIdle( page );
@@ -211,12 +208,8 @@ test.describe( 'Reading', () => {
 
 		await requestUtils.rest( {
 			method: 'POST',
-			path: `/library/v1/books/${ book.id }`,
-			data: {
-				meta: {
-					reading: readings( [ '/', '2025-03-10/2025-03-21' ] ),
-				},
-			},
+			path: `/library/v1/books/${ book.id }/shelf`,
+			data: { readings: readings( [ '/', '2025-03-10/2025-03-21' ] ) },
 		} );
 		await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
 			if ( 'POST' === route.request().method() ) {
@@ -238,7 +231,7 @@ test.describe( 'Reading', () => {
 		await waitForIdle( page );
 
 		expect( posts ).toEqual( [
-			{ meta: { reading: readings( [ '2025-03-10/2025-03-21' ] ) } },
+			{ readings: readings( [ '2025-03-10/2025-03-21' ] ) },
 		] );
 		await expect(
 			page.getByRole( 'button', { name: 'Add a reading', exact: true } )
@@ -246,7 +239,7 @@ test.describe( 'Reading', () => {
 		await expect
 			.poll( async () =>
 				intervalsOf(
-					( await getBook( requestUtils, book.id ) ).readings
+					( await getBook( requestUtils, book.id ) ).shelf.readings
 				)
 			)
 			.toEqual( [ '2025-03-10/2025-03-21' ] );
@@ -274,7 +267,7 @@ test.describe( 'Reading', () => {
 		await expect
 			.poll( async () =>
 				intervalsOf(
-					( await getBook( requestUtils, book.id ) ).readings
+					( await getBook( requestUtils, book.id ) ).shelf.readings
 				)
 			)
 			.toEqual( [ '2020-01-01/..' ] );
@@ -284,7 +277,7 @@ test.describe( 'Reading', () => {
 		await expect
 			.poll( async () =>
 				intervalsOf(
-					( await getBook( requestUtils, book.id ) ).readings
+					( await getBook( requestUtils, book.id ) ).shelf.readings
 				).map( ( interval ) => interval.slice( 0, 21 ) )
 			)
 			.toEqual( [ `2020-01-01/${ today }` ] );
@@ -300,14 +293,12 @@ test.describe( 'Reading', () => {
 	} ) => {
 		await requestUtils.rest( {
 			method: 'POST',
-			path: `/library/v1/books/${ book.id }`,
+			path: `/library/v1/books/${ book.id }/shelf`,
 			data: {
-				meta: {
-					reading: readings( [
-						'2019-05-01/2019-05-10',
-						'2020-01-01/..',
-					] ),
-				},
+				readings: readings( [
+					'2019-05-01/2019-05-10',
+					'2020-01-01/..',
+				] ),
 			},
 		} );
 		await openApp( page, `&view=book&book=${ book.id }` );
@@ -319,7 +310,7 @@ test.describe( 'Reading', () => {
 		);
 		const saved = async () =>
 			intervalsOf(
-				( await getBook( requestUtils, book.id ) ).readings
+				( await getBook( requestUtils, book.id ) ).shelf.readings
 			).map( ( interval ) => interval.slice( 0, 21 ) );
 
 		await reading.locator( 'summary' ).click();
@@ -362,10 +353,8 @@ test.describe( 'Reading', () => {
 			posts.length = 0;
 			await requestUtils.rest( {
 				method: 'POST',
-				path: `/library/v1/books/${ book.id }`,
-				data: {
-					meta: { reading: readings( [ '2025-03-10/2025-03-20' ] ) },
-				},
+				path: `/library/v1/books/${ book.id }/shelf`,
+				data: { readings: readings( [ '2025-03-10/2025-03-20' ] ) },
 			} );
 			await page.route( /\/library\/v1\/books\/\d+/, async ( route ) => {
 				if ( 'POST' === route.request().method() ) {
@@ -404,12 +393,13 @@ test.describe( 'Reading', () => {
 			await waitForIdle( page );
 
 			expect( posts ).toEqual( [
-				{ meta: { reading: readings( [ '2025-03-10/2025-03-15' ] ) } },
+				{ readings: readings( [ '2025-03-10/2025-03-15' ] ) },
 			] );
 			await expect
 				.poll( async () =>
 					intervalsOf(
-						( await getBook( requestUtils, book.id ) ).readings
+						( await getBook( requestUtils, book.id ) ).shelf
+							.readings
 					)
 				)
 				.toEqual( [ '2025-03-10/2025-03-15' ] );
@@ -445,12 +435,13 @@ test.describe( 'Reading', () => {
 			await waitForIdle( page );
 
 			expect( posts ).toEqual( [
-				{ meta: { reading: readings( [ '2025-03-10/2025-04-04' ] ) } },
+				{ readings: readings( [ '2025-03-10/2025-04-04' ] ) },
 			] );
 			await expect
 				.poll( async () =>
 					intervalsOf(
-						( await getBook( requestUtils, book.id ) ).readings
+						( await getBook( requestUtils, book.id ) ).shelf
+							.readings
 					)
 				)
 				.toEqual( [ '2025-03-10/2025-04-04' ] );
@@ -480,7 +471,8 @@ test.describe( 'Reading', () => {
 			await expect
 				.poll( async () =>
 					intervalsOf(
-						( await getBook( requestUtils, book.id ) ).readings
+						( await getBook( requestUtils, book.id ) ).shelf
+							.readings
 					)
 				)
 				.toEqual( [ '2025-03-01/2025-03-05' ] );

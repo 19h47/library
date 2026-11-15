@@ -14,7 +14,7 @@ namespace Library;
 use DateTimeImmutable;
 
 /**
- * Counts the books and their readings, from Books::get_books(): the readings, the books read and to read, this
+ * Counts the books and their readings, from Books::get_shelved(): the readings, the books read and to read, this
  * year against last year.
  *
  * @since      6.0.0
@@ -121,12 +121,12 @@ class Stats {
 	}
 
 	/**
-	 * The books in the library, i.e. kept, published.
+	 * The books in the library of the reader, i.e. kept.
 	 *
 	 * @return array<int,Book>
 	 */
 	public static function get_kept_books(): array {
-		return array_filter( Books::get_books(), fn( Book $book ) => Status::In_Library === $book->status );
+		return array_filter( Books::get_shelved(), fn( Book $book ) => Status::In_Library === $book->status );
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Stats {
 	 * @return array<int,Book>
 	 */
 	public static function get_books_on_the_pile(): array {
-		return array_filter( Books::get_books(), fn( Book $book ) => $book->is_on_the_pile() );
+		return array_filter( Books::get_shelved(), fn( Book $book ) => $book->is_on_the_pile() );
 	}
 
 	/**

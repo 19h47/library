@@ -11,7 +11,6 @@ import {
 	bookFields,
 	maxPerPage,
 	perPage,
-	statuses,
 } from 'library-app/app';
 
 /**
@@ -34,7 +33,8 @@ import {
  */
 
 /**
- * The meta of a book by their names, without the prefix of their keys: library_rating is its rating.
+ * The meta of a book by their names, without the prefix of their keys, library_isbn its ISBN, and the copy of the
+ * reader, from its shelf: when it was printed, whether it is read and being read, and its rating.
  *
  * @typedef {Object} BookMeta
  * @property {string}   subtitle          Its subtitle.
@@ -43,12 +43,12 @@ import {
  * @property {string}   collection_number Its number in its collection.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
  * @property {string}   edition_date      The date its edition, the one of its ISBN, first came out: a day, a month or a year.
- * @property {string}   printed_date      The date its copy was printed: a day, a month or a year.
+ * @property {string}   printed_date      The date the copy of the reader was printed: a day, a month or a year, or empty.
  * @property {number}   pages             Its number of pages, 0 for unknown.
- * @property {number}   rating            Its rating out of 10, the one of its latest reading rated, 0 for none.
+ * @property {number}   rating            The rating of the reader out of 10, the one of their latest reading rated, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
- * @property {boolean}  read              Whether it is read.
- * @property {boolean}  in_progress       Whether it is being read.
+ * @property {boolean}  read              Whether the reader read it.
+ * @property {boolean}  in_progress       Whether the reader is reading it.
  * @property {number[]} edition_languages The term IDs of the languages of its text.
  */
 
@@ -66,10 +66,14 @@ import {
  * @property {string}     title             Its title, with its series, its volume and its subtitle.
  * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
  * @property {string}     excerpt           Its summary in a few words.
- * @property {string}     content           Its notes, HTML as the API renders them.
+ * @property {string}     content           The notes of the reader, HTML as the API renders them.
+ * @property {string}     notes             The notes of the reader, as typed.
  * @property {string}     credits           Its authors, publisher and year, under its title.
- * @property {string}     status            Its status: in the library, not kept, to buy, or another one, such as a draft.
- * @property {Cover|null} cover             Its cover, none without one.
+ * @property {string}     status            Where it is for the reader: in the library, not kept, to buy, or empty on none of their shelves.
+ * @property {Cover|null} cover             Its cover as the reader sees it, the photo of their copy, else the cover of its edition, none without either.
+ * @property {Cover|null} edition_cover     The cover of its edition, none without one.
+ * @property {number}     copy_cover        The ID of the image of the photo of the copy of the reader, 0 for none.
+ * @property {boolean}    editable          Whether the reader may edit it: the record they added, or any for a librarian.
  * @property {Person[]}   people            Its names, each with its role.
  * @property {string}     series            Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
  * @property {number}     series_id         The term ID of its series, 0 without one.
@@ -77,7 +81,7 @@ import {
  * @property {string[]}   edition_languages The languages of its text, as their ISO 639 codes.
  * @property {string}     form              The name of its form, such as a novel, or empty.
  * @property {Term[]}     publishers        Its publishers, each followed by the collections it is in under it, from the widest.
- * @property {string}     added_date        The date it was added to the library.
+ * @property {string}     added_date        The date the reader added it, or empty on none of their shelves.
  */
 
 /**
@@ -88,6 +92,34 @@ import {
  * @property {string|null} start  Its start, or null.
  * @property {string|null} end    Its end, “..” while it is read, or null.
  * @property {number|null} rating The rating it ended with, or null.
+ */
+
+/**
+ * The shelf of a book for the reader, as the API gives it: library-shelf.
+ *
+ * @typedef {Object} ApiShelf
+ * @property {string|null}                     status       Where it is for them: in-library, not-kept or to-buy; null on none of their shelves.
+ * @property {string|null}                     added        When they added it, Y-m-d H:i:s; null on none of their shelves.
+ * @property {string}                          printed_date When their copy was printed, Y, Y-m or Y-m-d, or empty.
+ * @property {ApiReading[]}                    readings     Their readings, in order, the one in progress last.
+ * @property {boolean}                         read         Whether they read it.
+ * @property {boolean}                         in_progress  Whether they are reading it.
+ * @property {number|null}                     rating       Their rating, the one of their latest reading rated, or null.
+ * @property {{raw: string, rendered: string}} notes        Their notes, as typed and as HTML.
+ * @property {(Cover & {id: number})|null}     cover        The photo of their copy, with the ID of its image, or null.
+ */
+
+/**
+ * The copy of the reader as the route of its shelf takes it, only what changes, and where it goes for them: see ApiShelf.
+ *
+ * @typedef {Object} ShelfValues
+ * @property {string}       [status]       Where it goes: in-library, not-kept or to-buy.
+ * @property {string}       [printed_date] When their copy was printed, or empty.
+ * @property {ApiReading[]} [readings]     Their readings, which replace theirs.
+ * @property {boolean}      [read]         Whether they read it.
+ * @property {boolean}      [in_progress]  Whether they are reading it.
+ * @property {string}       [notes]        Their notes, as typed.
+ * @property {number}       [cover]        The ID of the image of the photo of their copy, 0 for none.
  */
 
 /**
@@ -129,7 +161,6 @@ import {
  * @typedef {Object} BookValues
  * @property {string}                  title            Its title.
  * @property {string}                  excerpt          Its summary in a few words.
- * @property {string}                  content          Its notes.
  * @property {Credit[]}                people           Its names, each with its role.
  * @property {string}                  publisher        The name of its publisher.
  * @property {string}                  collection       Its collection, after the collections it is part of.
@@ -137,7 +168,7 @@ import {
  * @property {number[]}                languages        The term IDs of its original languages.
  * @property {number}                  form             The term ID of its form, 0 for none.
  * @property {Object<string, unknown>} meta             Its meta, by their names, isbn… and its edition languages.
- * @property {string}                  [status]         The status of a book to add.
+ * @property {{status: string}}        [shelf]          The shelf of the reader a book to add goes on.
  * @property {number}                  [featured_media] The ID of the image of its cover, 0 for none.
  */
 
@@ -148,7 +179,6 @@ import {
  * @property {number}   id         Its ID.
  * @property {string}   title      Its title.
  * @property {string}   excerpt    Its summary in a few words.
- * @property {string}   content    Its notes.
  * @property {Credit[]} people     Its names, each with its role.
  * @property {string}   publisher  The name of its publisher.
  * @property {string}   collection Its collection, after the collections it is part of.
@@ -168,7 +198,7 @@ import {
 /**
  * A book to add as the catalogue of the BnF describes it, as its form takes it, with the names of the library.
  *
- * @typedef {Omit<BookForm, 'id'|'excerpt'|'content'>} CatalogBook
+ * @typedef {Omit<BookForm, 'id'|'excerpt'>} CatalogBook
  */
 
 /**
@@ -416,24 +446,23 @@ import {
  * A book as the REST API of core gives it, with the fields of the plugin, those the app asks for.
  *
  * @typedef {Object} ApiBook
- * @property {number}                  id                     Its ID.
- * @property {{rendered: string}}      title                  Its title, HTML.
- * @property {string}                  main_title             Its title but its subtitle, HTML.
- * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
- * @property {{rendered: string}}      content                Its notes, HTML.
- * @property {string}                  credits                Its credits, HTML.
- * @property {string}                  status                 Its status.
- * @property {Object<string, unknown>} meta                   Its meta, by their keys.
- * @property {ApiReading[]}            readings               Its readings, in order, the one in progress last.
- * @property {Cover|null}              cover                  Its cover, none without one.
- * @property {Person[]}                names                  Its names, HTML, each with its term ID and its role.
- * @property {number[]}                series                 The term IDs of its series.
- * @property {string}                  series_name            Its series after its cycles, HTML.
- * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
- * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
- * @property {string}                  form_name              The name of its form, HTML.
- * @property {Term[]}                  publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID: library-book-publisher.
- * @property {string}                  date                   The date it was added, its post date.
+ * @property {number}                                            id                     Its ID.
+ * @property {{rendered: string}}                                title                  Its title, HTML.
+ * @property {string}                                            main_title             Its title but its subtitle, HTML.
+ * @property {{rendered: string}}                                excerpt                Its excerpt, HTML.
+ * @property {string}                                            credits                Its credits, HTML.
+ * @property {ApiShelf}                                          shelf                  Its shelf for the reader.
+ * @property {{self: Array<{targetHints?: {allow?: string[]}}>}} _links                 Its links, the methods allowed on it among the hints of its own.
+ * @property {Object<string, unknown>}                           meta                   Its meta, by their keys.
+ * @property {Cover|null}                                        cover                  Its cover, none without one.
+ * @property {Person[]}                                          names                  Its names, HTML, each with its term ID and its role.
+ * @property {number[]}                                          series                 The term IDs of its series.
+ * @property {string}                                            series_name            Its series after its cycles, HTML.
+ * @property {string[]}                                          language_codes         Its original languages, as their ISO 639 codes.
+ * @property {string[]}                                          edition_language_codes The languages of its text, as their ISO 639 codes.
+ * @property {string}                                            form_name              The name of its form, HTML.
+ * @property {Term[]}                                            publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID: library-book-publisher.
+ * @property {string}                                            date                   The date it was added, its post date.
  */
 
 /**
@@ -568,17 +597,29 @@ function toBook( item ) {
 
 	return {
 		...meta,
-		...toReadings( item.readings ),
+		...toReadings( item.shelf.readings ),
+		printed_date: item.shelf.printed_date,
+		read: item.shelf.read,
+		in_progress: item.shelf.in_progress,
+		rating: item.shelf.rating ?? 0,
 		id: item.id,
 		title: text( item.title.rendered ),
 		main_title: text( item.main_title ),
 		excerpt: text( item.excerpt.rendered ),
 		// HTML as the API renders it: its paragraphs and links.
-		content: item.content.rendered,
+		content: item.shelf.notes.rendered,
+		notes: item.shelf.notes.raw,
 		credits: text( item.credits ),
-		status: item.status,
-		// Its size gives the image its place before it loads.
-		cover: item.cover,
+		status: item.shelf.status ?? '',
+		// Its size gives the image its place before it loads. The photo of the copy of the reader shows instead of the cover of
+		// its edition, which the form of the book edits.
+		cover: item.shelf.cover ?? item.cover,
+		edition_cover: item.cover,
+		copy_cover: item.shelf.cover?.id ?? 0,
+		// As core tells it, which allows POST to whoever may edit it.
+		editable:
+			item._links.self[ 0 ].targetHints?.allow?.includes( 'POST' ) ??
+			false,
 		// As named on the book: another name opens the page of the person too.
 		people: item.names.map( toPlainName ),
 		// After its cycles, as typed, "Star Wars, Young Jedi Knights", and its ID, for its page.
@@ -591,7 +632,7 @@ function toBook( item ) {
 		form: text( item.form_name ),
 		// From the widest, each to its page.
 		publishers: item.publisher_names.map( toPlainName ),
-		added_date: item.date,
+		added_date: item.shelf.added ?? '',
 	};
 }
 
@@ -710,7 +751,6 @@ export async function getBooks( ids, { signal } = {} ) {
 		chunks.map( ( chunk ) => {
 			const path = addQueryArgs( '/wp/v2/books', {
 				...BOOK_QUERY,
-				status: statuses,
 				include: chunk.join( ',' ),
 				per_page: chunk.length,
 			} );
@@ -738,7 +778,7 @@ export async function getBook( id ) {
 
 /**
  * The books `query` finds from `offset`, `count` of them, and how many it finds in all: `query` as the API reads it, its
- * search, statuses, forms and order.
+ * search, shelves, forms and order.
  *
  * @param {Object<string, string>} query            The query of the books.
  * @param {Object}                 [options]        Options.
@@ -794,7 +834,6 @@ export async function getVolumes( name, { signal } = {} ) {
 	const path = addQueryArgs( '/wp/v2/books', {
 		...BOOK_QUERY,
 		search: `series:"${ name }"`,
-		status: statuses,
 		// Every page, however many volumes: apiFetch loads the first one, as the page preloads it, then the others.
 		per_page: -1,
 	} );
@@ -813,7 +852,6 @@ export async function getVolumes( name, { signal } = {} ) {
 export async function findIsbn( digits ) {
 	const path = addQueryArgs( '/wp/v2/books', {
 		search: `isbn:${ digits }`,
-		status: statuses,
 		per_page: 1,
 		_fields: 'id',
 	} );
@@ -1010,6 +1048,39 @@ export async function saveBook( id, data ) {
 			path: addQueryArgs( `/library/v1/books/${ id }`, BOOK_QUERY ),
 			method: 'POST',
 			data,
+		} )
+	);
+}
+
+/**
+ * Saves `values` to the shelf of the reader for the book `id`, where it goes and their copy, through the route of its
+ * shelf, which a reader may use on a book they cannot edit, and returns the book as it is now.
+ *
+ * @param {number}      id     Book ID.
+ * @param {ShelfValues} values What changes, as the route takes it.
+ * @return {Promise<Book>} The book.
+ */
+export async function saveShelf( id, values ) {
+	return toBook(
+		await apiFetch( {
+			path: addQueryArgs( `/library/v1/books/${ id }/shelf`, BOOK_QUERY ),
+			method: 'POST',
+			data: values,
+		} )
+	);
+}
+
+/**
+ * Takes the book `id` off the shelves of the reader, unless they read it, and returns the book as it is now.
+ *
+ * @param {number} id Book ID.
+ * @return {Promise<Book>} The book.
+ */
+export async function removeShelf( id ) {
+	return toBook(
+		await apiFetch( {
+			path: addQueryArgs( `/library/v1/books/${ id }/shelf`, BOOK_QUERY ),
+			method: 'DELETE',
 		} )
 	);
 }

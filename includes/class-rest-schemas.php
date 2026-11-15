@@ -29,18 +29,19 @@ class Rest_Schemas {
 	 */
 	public static function get_schemas(): array {
 		return array(
-			'books'                  => array( self::class, 'get_book' ),
-			'books/(?P<id>\d+)'      => array( self::class, 'get_book_form' ),
-			'books/bnf'              => array( self::class, 'get_book_form' ),
-			'covers'                 => array( self::class, 'get_cover' ),
-			'stats'                  => array( self::class, 'get_stats' ),
-			'readings'               => array( self::class, 'get_readings' ),
-			'idea'                   => array( self::class, 'get_idea' ),
-			'achievements'           => array( self::class, 'get_achievements' ),
-			'recaps/(?P<year>\d{4})' => array( self::class, 'get_recap' ),
-			'people/(?P<id>\d+)'     => array( self::class, 'get_person' ),
-			'series/(?P<id>\d+)'     => array( self::class, 'get_series' ),
-			'publishers/(?P<id>\d+)' => array( self::class, 'get_publisher' ),
+			'books'                   => array( self::class, 'get_book' ),
+			'books/(?P<id>\d+)'       => array( self::class, 'get_book_form' ),
+			'books/(?P<id>\d+)/shelf' => array( self::class, 'get_book' ),
+			'books/bnf'               => array( self::class, 'get_book_form' ),
+			'covers'                  => array( self::class, 'get_cover' ),
+			'stats'                   => array( self::class, 'get_stats' ),
+			'readings'                => array( self::class, 'get_readings' ),
+			'idea'                    => array( self::class, 'get_idea' ),
+			'achievements'            => array( self::class, 'get_achievements' ),
+			'recaps/(?P<year>\d{4})'  => array( self::class, 'get_recap' ),
+			'people/(?P<id>\d+)'      => array( self::class, 'get_person' ),
+			'series/(?P<id>\d+)'      => array( self::class, 'get_series' ),
+			'publishers/(?P<id>\d+)'  => array( self::class, 'get_publisher' ),
 		);
 	}
 
@@ -125,10 +126,9 @@ class Rest_Schemas {
 						__( 'What it leads to: a book, a search, or an author, a series or a collection, by its type; none for nothing.', 'library' ),
 						array(
 							'properties' => array(
-								'type'     => self::property( 'string', __( 'Type: book, search, author, series or collection.', 'library' ) ),
-								'id'       => self::property( 'integer', __( 'ID of the book, or term ID.', 'library' ) ),
-								'search'   => self::property( 'string', __( 'Search of the books, for a search.', 'library' ) ),
-								'not_kept' => self::property( 'boolean', __( 'Whether its books include books not kept.', 'library' ) ),
+								'type'   => self::property( 'string', __( 'Type: book, search, author, series or collection.', 'library' ) ),
+								'id'     => self::property( 'integer', __( 'ID of the book, or term ID.', 'library' ) ),
+								'search' => self::property( 'string', __( 'Search of the books, for a search.', 'library' ) ),
 							),
 						)
 					),
@@ -238,6 +238,52 @@ class Rest_Schemas {
 	}
 
 	/**
+	 * The shelf of a book for the current reader: what a book of `wp/v2/books` gives in its shelf, where it is for them,
+	 * since when, and their copy.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_shelf(): array {
+		return array(
+			'title'                => 'library-shelf',
+			'type'                 => 'object',
+			'properties'           => array(
+				'status'       => self::property( array( 'string', 'null' ), __( 'Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
+				'added'        => self::property( array( 'string', 'null' ), __( 'When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves.', 'library' ) ),
+				'printed_date' => self::property( 'string', __( 'When the copy of the reader was printed, Y, Y-m or Y-m-d, or empty.', 'library' ) ),
+				'readings'     => self::property( 'array', __( 'Readings of the reader, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}.', 'library' ), array( 'items' => self::get_reading() ) ),
+				'read'         => self::property( 'boolean', __( 'Whether the reader read it: whether they have a reading ended.', 'library' ) ),
+				'in_progress'  => self::property( 'boolean', __( 'Whether the reader is reading it.', 'library' ) ),
+				'rating'       => self::property( array( 'number', 'null' ), __( 'Rating of the reader, the one of their latest reading rated; null without.', 'library' ) ),
+				'notes'        => self::property(
+					'object',
+					__( 'Notes of the reader, as typed and as HTML.', 'library' ),
+					array(
+						'properties' => array(
+							'raw'      => self::property( 'string', __( 'As typed.', 'library' ) ),
+							'rendered' => self::property( 'string', __( 'HTML, its paragraphs.', 'library' ) ),
+						),
+					)
+				),
+				'cover'        => self::property(
+					array( 'object', 'null' ),
+					__( 'Photo of the copy of the reader, its ID and its image, as the cover of a book gives it; null without, the cover of the edition shown instead.', 'library' ),
+					array(
+						'properties' => array(
+							'id'     => array( 'type' => 'integer' ),
+							'url'    => array( 'type' => 'string' ),
+							'width'  => array( 'type' => 'integer' ),
+							'height' => array( 'type' => 'integer' ),
+							'srcset' => array( 'type' => 'string' ),
+						),
+					)
+				),
+			),
+			'additionalProperties' => false,
+		);
+	}
+
+	/**
 	 * A publisher of a book, or a collection it is in, with its term ID: what a book of `wp/v2/books` gives in its
 	 * publisher names, from the publisher down.
 	 *
@@ -273,8 +319,7 @@ class Rest_Schemas {
 		$registered = get_registered_meta_keys( 'post', 'library_book' );
 		$meta       = array();
 
-		// The readings are written through the route, but edited by their own form: the book form gives none.
-		foreach ( array_diff( array( ...Meta::KEYS, 'library_edition_languages' ), array( 'library_reading' ) ) as $key ) {
+		foreach ( array( ...Meta::KEYS, 'library_edition_languages' ) as $key ) {
 			$meta[ Meta::get_name( $key ) ] = array_filter(
 				array(
 					'type'        => $registered[ $key ]['type'] ?? 'string',
@@ -289,7 +334,6 @@ class Rest_Schemas {
 				'id'         => self::property( 'integer', __( 'ID of the book, none for a book of the catalogue.', 'library' ) ),
 				'title'      => self::property( 'string', __( 'Title of the book.', 'library' ) ),
 				'excerpt'    => self::property( 'string', __( 'Summary of the book in a few words, its excerpt.', 'library' ) ),
-				'content'    => self::property( 'string', __( 'Notes on the book, its content.', 'library' ) ),
 				'people'     => self::property(
 					'array',
 					__( 'People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person.', 'library' ),

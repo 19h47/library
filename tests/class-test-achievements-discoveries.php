@@ -73,14 +73,14 @@ class Test_Achievements_Discoveries extends TestCase {
 	}
 
 	/**
-	 * Without the date of its edition either, the year its copy was printed tells it.
+	 * Without the date of its edition either, the year its copy was printed tells nothing: a copy is no edition.
 	 *
 	 * @return void
 	 */
-	public function test_hot_off_the_press_falls_back_on_the_printed_date(): void {
+	public function test_hot_off_the_press_never_reads_the_printed_date(): void {
 		$this->add_read_book( 'New printing', '2024-06-01', array( 'printed_date' => '2024-02' ) );
 
-		$this->assertSame( 'New printing', $this->get_earned()['hot-off-the-press'][0]['subject'] );
+		$this->assertArrayNotHasKey( 'hot-off-the-press', $this->get_earned() );
 	}
 
 	/**
@@ -240,8 +240,8 @@ class Test_Achievements_Discoveries extends TestCase {
 	public function test_a_book_waits_for_the_one_on_the_pile( string $status, bool $is_on_the_pile ): void {
 		$this->add_book(
 			array(
-				'title'  => 'Not read',
-				'status' => $status,
+				'title' => 'Not read',
+				'shelf' => array( 'status' => $status ),
 			),
 			'2024-01-01 10:00:00'
 		);

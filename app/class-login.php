@@ -39,6 +39,7 @@ class Login {
 	 */
 	public function hooks(): void {
 		add_action( 'login_init', array( $this, 'dress' ) );
+		add_action( 'wp_logout', array( $this, 'clear_device' ) );
 	}
 
 	/**
@@ -220,6 +221,19 @@ class Login {
 		$icon = '<svg class="library-login-icon" viewBox="160 -880 640 800" aria-hidden="true" focusable="false"><path d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm200-440 100-60 100 60v-280H440v280Z"/></svg>';
 
 		return $icon . esc_html( $this->get_name() );
+	}
+
+	/**
+	 * Clear what the app kept on the device of a reader who logs out, so that the next reader of the device finds nothing
+	 * of theirs: its service worker and its caches, the books and readings it loaded among them, and its choices. The
+	 * header goes with the redirect of the logout; a browser clears the data of a secure page only, such as HTTPS.
+	 *
+	 * @return void
+	 */
+	public function clear_device(): void {
+		if ( ! headers_sent() ) {
+			header( 'Clear-Site-Data: "storage"' );
+		}
 	}
 
 	/**

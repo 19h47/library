@@ -1,6 +1,6 @@
 <?php
 /**
- * Terms lists of the admin: the books not kept and to buy of a term, the terms without books, and the messages of a term saved.
+ * Terms lists of the admin: the terms without books, and the messages of a term saved.
  *
  * @link       https://github.com/19h47/library
  * @since      6.1.1
@@ -12,13 +12,12 @@
 namespace Library\Admin;
 
 use Library\Posts;
-use Library\Status;
 use Library\Taxonomies;
 use WP_Term;
 
 /**
- * Adds "Not kept" and "To buy" columns and a "Without books" view to the lists of people, publishers, series, languages
- * and forms, and names their messages.
+ * Adds a "Without books" view to the lists of people, publishers, series, languages and forms, and names their
+ * messages. Their count is the one of core: the books of the catalogue.
  *
  * @since      6.1.1
  * @package    Library
@@ -35,11 +34,11 @@ class Terms_List {
 	public const string WITHOUT_BOOKS = 'library_without_books';
 
 	/**
-	 * Books of each status by term ID, by taxonomy; a term without books has none.
+	 * IDs of the terms with books, by taxonomy.
 	 *
-	 * @var array<string,array<int,array<string,int>>>
+	 * @var array<string,int[]>
 	 */
-	private array $counts = array();
+	private array $with_books = array();
 
 	/**
 	 * Register hooks.
@@ -52,8 +51,6 @@ class Terms_List {
 		add_action( 'load-edit-tags.php', array( $this, 'show_without_books' ) );
 
 		foreach ( Taxonomies::TAXONOMIES as $taxonomy ) {
-			add_filter( "manage_edit-{$taxonomy}_columns", array( $this, 'add_status_columns' ) );
-			add_filter( "manage_{$taxonomy}_custom_column", array( $this, 'render_status_column' ), 10, 3 );
 			add_filter( "views_edit-{$taxonomy}", array( $this, 'add_views' ) );
 		}
 	}
@@ -122,62 +119,7 @@ class Terms_List {
 	}
 
 	/**
-	 * Add a column per status after the count, which only counts the books in the library, named after the status.
-	 *
-	 * @param string[] $columns Columns.
-	 * @return string[]
-	 */
-	public function add_status_columns( array $columns ): array {
-		foreach ( self::get_status_columns() as $column => $status ) {
-			$columns[ $column ] = $status->label();
-		}
-
-		return $columns;
-	}
-
-	/**
-	 * Number of books of a term in the status of the column, linked to their view.
-	 *
-	 * @param string $content     Column content.
-	 * @param string $column_name Column name.
-	 * @param int    $term_id     Term ID.
-	 * @return string
-	 */
-	public function render_status_column( string $content, string $column_name, int $term_id ): string {
-		$status = self::get_status_columns()[ $column_name ] ?? null;
-		$term   = get_term( $term_id );
-
-		if ( ! $status || ! $term instanceof WP_Term ) {
-			return $content;
-		}
-
-		$books = $this->get_counts( $term->taxonomy )[ $term_id ][ $status->value ] ?? 0;
-
-		if ( ! $books ) {
-			return number_format_i18n( $books );
-		}
-
-		return sprintf( '<a href="%s">%s</a>', esc_url( Books_List::get_term_url( $term, $status->value ) ), esc_html( number_format_i18n( $books ) ) );
-	}
-
-	/**
-	 * Statuses counted in a column of their own, those out of the library, by column, named after the status: the count
-	 * of core only counts the books in the library.
-	 *
-	 * @return array<string,Status> Statuses by column, such as library_not_kept for library-not-kept.
-	 */
-	private static function get_status_columns(): array {
-		$columns = array();
-
-		foreach ( Status::get_others() as $status ) {
-			$columns[ str_replace( '-', '_', $status->value ) ] = $status;
-		}
-
-		return $columns;
-	}
-
-	/**
-	 * Views of the list: all the terms, and those without books, in any status, theirs or of the terms under them. The
+	 * Views of the list: all the terms, and those without books, theirs or of the terms under them. The
 	 * terms without books are in alphabetical order, in a flat list: a term of a tree may be without books under a term
 	 * with some.
 	 *
@@ -289,7 +231,7 @@ class Terms_List {
 	 * @return int[] Term IDs.
 	 */
 	private function get_used_ids( string $taxonomy ): array {
-		$term_ids = array_keys( $this->get_counts( $taxonomy ) );
+		$term_ids = $this->get_ids_with_books( $taxonomy );
 
 		if ( 'library_language' !== $taxonomy ) {
 			return $term_ids;
@@ -308,39 +250,37 @@ class Terms_List {
 	}
 
 	/**
-	 * Count the books of every term of a taxonomy by status in one query, those in the trash left out; a term also counts
-	 * the books of the terms under it: the name of a person those of their other names, a publisher those of its
-	 * collections and their sub-collections.
+	 * IDs of the terms of a taxonomy with books in one query, those in the trash left out; a term also has the books of the
+	 * terms under it: the name of a person those of their other names, a publisher those of its collections and their
+	 * sub-collections.
 	 *
 	 * @param string $taxonomy Taxonomy.
-	 * @return array<int,array<string,int>>
+	 * @return int[]
 	 */
-	private function get_counts( string $taxonomy ): array {
-		if ( isset( $this->counts[ $taxonomy ] ) ) {
-			return $this->counts[ $taxonomy ];
+	private function get_ids_with_books( string $taxonomy ): array {
+		if ( isset( $this->with_books[ $taxonomy ] ) ) {
+			return $this->with_books[ $taxonomy ];
 		}
 
 		global $wpdb;
 
-		$rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
+		$term_ids   = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin terms list only.
 			$wpdb->prepare(
-				"SELECT DISTINCT tt.term_id, p.ID AS book_id, p.post_status
+				"SELECT DISTINCT tt.term_id
 				FROM {$wpdb->term_relationships} AS tr
 				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = %s
 				INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id AND p.post_type = 'library_book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )",
 				$taxonomy
 			)
 		);
-		$books = array();
+		$with_books = array();
 
-		foreach ( $rows as $row ) {
-			foreach ( array( (int) $row->term_id, ...get_ancestors( (int) $row->term_id, $taxonomy, 'taxonomy' ) ) as $term_id ) {
-				$books[ $term_id ][ $row->post_status ][ $row->book_id ] = true;
-			}
+		foreach ( array_map( 'intval', $term_ids ) as $term_id ) {
+			array_push( $with_books, $term_id, ...get_ancestors( $term_id, $taxonomy, 'taxonomy' ) );
 		}
 
-		$this->counts[ $taxonomy ] = array_map( fn( array $statuses ) => array_map( 'count', $statuses ), $books );
+		$this->with_books[ $taxonomy ] = array_values( array_unique( $with_books ) );
 
-		return $this->counts[ $taxonomy ];
+		return $this->with_books[ $taxonomy ];
 	}
 }

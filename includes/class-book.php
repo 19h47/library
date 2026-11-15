@@ -44,19 +44,19 @@ final readonly class Book {
 	 * @param int                  $id                Post ID.
 	 * @param string               $title             Title of the post.
 	 * @param string               $full_title        Title to show, with its series, volume and subtitle.
-	 * @param Status               $status            Status: in the library, not kept or to buy.
+	 * @param Status|null          $status            Status for the reader: in the library, not kept or to buy; null on none of their shelves.
 	 * @param string               $series            Series after its cycles, as typed, or the title of a volume without series.
 	 * @param int                  $series_id         Term ID of its series, 0 without.
 	 * @param int[]                $series_ids        Term IDs of its series and of the cycles it is part of, the widest last.
 	 * @param int|null             $volume            Volume number, null without.
 	 * @param bool                 $collective        Whether it is a collective work.
-	 * @param Reading[]            $readings          Readings, from the first to the latest: see Meta::get_readings().
+	 * @param Reading[]            $readings          Readings of the reader, from the first to the latest: see Meta::get_readings().
 	 * @param float|null           $rating            Rating out of 10, the one of its latest reading rated, or of the reading it stands for in a list of readings; null without.
 	 * @param int|null             $pages             Number of pages, null without.
 	 * @param string               $published_date    Date it first came out, Y, Y-m or Y-m-d, or empty.
 	 * @param string               $edition_date      Date its edition first came out, Y, Y-m or Y-m-d, or empty.
-	 * @param string               $printed_date      Date its copy was printed, Y, Y-m or Y-m-d, or empty.
-	 * @param string               $added             Date added, the date of the post.
+	 * @param string               $printed_date      Date the copy of the reader was printed, Y, Y-m or Y-m-d, or empty.
+	 * @param string               $added             Date the reader added it, Y-m-d H:i:s, or empty on none of their shelves.
 	 * @param string[]             $authors           Names of its authors, by the name they are known by.
 	 * @param int[]                $author_ids        Term IDs of its authors.
 	 * @param int[]                $contributor_ids   Term IDs of the names with another role, such as a colorist.
@@ -76,7 +76,7 @@ final readonly class Book {
 		public int $id,
 		public string $title,
 		public string $full_title,
-		public Status $status,
+		public ?Status $status,
 		public string $series,
 		public int $series_id,
 		public array $series_ids,
@@ -185,12 +185,13 @@ final readonly class Book {
 	}
 
 	/**
-	 * Whether it is at hand: in the library or passing through, not kept once read; a book to buy is not yet.
+	 * Whether it is at hand: in the library or passing through, not kept once read; a book to buy is not yet, and one on
+	 * none of the shelves of the reader is not theirs.
 	 *
 	 * @return bool
 	 */
 	public function is_at_hand(): bool {
-		return Status::To_Buy !== $this->status;
+		return null !== $this->status && Status::To_Buy !== $this->status;
 	}
 
 	/**

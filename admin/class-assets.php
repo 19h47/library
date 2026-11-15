@@ -13,7 +13,6 @@ namespace Library\Admin;
 
 use Library\Plugin;
 use Library\Posts;
-use Library\Status;
 use Library\Taxonomies;
 
 /**
@@ -69,12 +68,5 @@ class Assets {
 
 		[ $inline_edit_url, $inline_edit_version ] = Plugin::get_asset( 'admin/js/library-admin-inline-edit.js' );
 		wp_enqueue_script( 'library-admin-inline-edit', $inline_edit_url, array( 'inline-edit-post' ), $inline_edit_version, true );
-		wp_localize_script(
-			'library-admin-inline-edit',
-			'libraryInlineEdit',
-			array(
-				'statusChoices' => array_intersect_key( Status::get_choices(), array_flip( Status::get_other_values() ) ),
-			)
-		);
 	}
 }

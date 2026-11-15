@@ -12,8 +12,10 @@
 namespace Library\Admin;
 
 use Library\Meta;
-use Library\Reading;
 use Library\Posts;
+use Library\Reading;
+use Library\Roles;
+use Library\Shelf;
 use Library\Status;
 use Library\Taxonomies;
 use WP_Post;
@@ -37,18 +39,18 @@ class Metaboxes {
 	public function hooks(): void {
 		add_action( 'add_meta_boxes_library_book', array( $this, 'add_metabox' ) );
 		add_action( 'add_meta_boxes_library_book', array( $this, 'register_person_box' ) );
-		add_action( 'admin_action_editpost', array( $this, 'refuse_mistyped_isbn' ) );
+		add_action( 'admin_action_editpost', array( $this, 'refuse_isbn' ) );
 		add_action( 'admin_notices', array( $this, 'show_refused_isbn' ) );
 		add_filter( 'removable_query_args', array( $this, 'remove_refused_isbn_arg' ) );
 		add_action( 'save_post_library_book', array( $this, 'save_metabox' ) );
-		add_action( 'post_submitbox_misc_actions', array( $this, 'render_status' ) );
-		add_filter( 'wp_insert_post_data', array( $this, 'save_status' ), 10, 2 );
+		add_action( 'add_meta_boxes_library_book', array( $this, 'add_shelf_box' ) );
+		add_action( 'save_post_library_book', array( $this, 'save_shelf' ) );
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'keep_classic_editor' ), 10, 2 );
 	}
 
 	/**
-	 * Keep the classic edit screen for books: the block editor has no publish box for the "Library" menu,
-	 * and its notes stay text in paragraphs, which the reading app edits as typed.
+	 * Keep the classic edit screen for books: the block editor shows the boxes of a book apart from it, and its notes
+	 * stay text in paragraphs, which the reading app edits as typed.
 	 *
 	 * @param bool   $use_block_editor Whether the post type uses the block editor.
 	 * @param string $post_type        Post type.
@@ -89,7 +91,8 @@ class Metaboxes {
 	public function render_metabox( WP_Post $post ): void {
 		wp_nonce_field( 'library_metabox_nonce', 'library_metabox_nonce' );
 
-		$values       = Meta::get_values( $post->ID );
+		// The record, then the copy of the reader, on their shelf.
+		$values       = Meta::get_values( $post->ID ) + Shelf::get_values( $post->ID, get_current_user_id() );
 		$own_language = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 
 		// A book added is in the language of the reader, as in the form of the app.
@@ -147,6 +150,11 @@ class Metaboxes {
 
 		Meta::save( $post_id, $values );
 
+		// The copy of the reader, once the book is in the catalogue: see Shelf::save().
+		if ( current_user_can( 'shelve_book', $post_id ) ) {
+			Shelf::save( $post_id, get_current_user_id(), array_intersect_key( $values, array_flip( Meta::SHELF_KEYS ) ) );
+		}
+
 		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.
 		if ( isset( $values['series'] ) ) {
 			Taxonomies::set_series( $post_id, sanitize_text_field( $values['series'] ) );
@@ -159,14 +167,14 @@ class Metaboxes {
 	}
 
 	/**
-	 * Keep the ISBN of a book when the one typed in its form is mistyped, as Meta::check_isbn() tells, before
-	 * core writes the book: the rest of it is saved, its slug with the ISBN kept, and a notice says why.
+	 * Keep the ISBN of a book when the one typed in its form is mistyped, or another book has it, as Meta::check_isbn()
+	 * tells, before core writes the book: the rest of it is saved, its slug with the ISBN kept, and a notice says why.
 	 *
 	 * The ISBN sent is replaced by the one saved, which edit_post(), the slug and save_metabox() then read.
 	 *
 	 * @return void
 	 */
-	public function refuse_mistyped_isbn(): void {
+	public function refuse_isbn(): void {
 		$nonce   = isset( $_POST['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
 		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
 
@@ -194,12 +202,16 @@ class Metaboxes {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
 		$isbn = isset( $_GET['library_refused_isbn'] ) ? sanitize_text_field( wp_unslash( $_GET['library_refused_isbn'] ) ) : '';
 
-		if ( '' === $isbn || 'library_book' !== get_current_screen()?->post_type ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		$error   = '' !== $isbn ? Meta::check_isbn( $post_id, $isbn ) : null;
+
+		if ( ! $error || 'library_book' !== get_current_screen()?->post_type ) {
 			return;
 		}
 
-		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
-		$message = sprintf( __( 'The ISBN %s was not saved, as its last digit, its check digit, does not match the others: check them.', 'library' ), $isbn );
+		/* translators: %s: why, such as a check digit that does not match. */
+		$message = sprintf( __( 'The ISBN was not saved. %s', 'library' ), $error->get_error_message() );
 
 		wp_admin_notice( esc_html( $message ), array( 'type' => 'error' ) );
 	}
@@ -215,62 +227,70 @@ class Metaboxes {
 	}
 
 	/**
-	 * Render the "Library" menu in the publish box, under the status: in the library, not kept or to buy.
+	 * Add the box of the shelves of the reader, beside the publish box, for a reader who shelves the books.
 	 *
-	 * The status menu of the publish box only offers core statuses and has no filter.
+	 * @return void
+	 */
+	public function add_shelf_box(): void {
+		if ( ! current_user_can( Roles::SHELVE ) ) {
+			return;
+		}
+
+		add_meta_box( 'library_shelf', __( 'My shelves', 'library' ), array( $this, 'render_shelf_box' ), 'library_book', 'side', 'high' );
+	}
+
+	/**
+	 * Render the shelf of the book for the reader: in the library, not kept, to buy, or on none of their shelves, and their
+	 * notes. A book added goes in the library.
 	 *
 	 * @param WP_Post $post Post.
 	 * @return void
 	 */
-	public function render_status( WP_Post $post ): void {
-		if ( 'library_book' !== $post->post_type ) {
-			return;
-		}
+	public function render_shelf_box( WP_Post $post ): void {
+		$status   = 'auto-draft' === $post->post_status ? Status::In_Library : Shelf::get_status( $post->ID, get_current_user_id() );
+		$selected = $status->value ?? '';
 
-		$status_choices = Status::get_choices();
-		$selected       = isset( $status_choices[ $post->post_status ] ) ? $post->post_status : Status::In_Library->value;
+		wp_nonce_field( 'library_shelf', 'library_shelf_nonce' );
 		?>
-		<div class="misc-pub-section misc-pub-library-status">
-			<?php wp_nonce_field( 'library_status', 'library_status_nonce' ); ?>
-			<label for="library-status"><?php esc_html_e( 'Library', 'library' ); ?></label>
-			<select id="library-status" name="library_status" aria-describedby="library-status-description">
-				<?php foreach ( $status_choices as $status => $label ) : ?>
-					<option value="<?php echo esc_attr( $status ); ?>" <?php selected( $status, $selected ); ?>><?php echo esc_html( $label ); ?></option>
+		<p>
+			<label for="library-shelf" class="screen-reader-text"><?php esc_html_e( 'Shelf', 'library' ); ?></label>
+			<select id="library-shelf" name="library_shelf_status" aria-describedby="library-shelf-description">
+				<option value="" <?php selected( '', $selected ); ?>><?php esc_html_e( 'On none of my shelves', 'library' ); ?></option>
+				<?php foreach ( Status::get_choices() as $value => $label ) : ?>
+					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $selected ); ?>><?php echo esc_html( $label ); ?></option>
 				<?php endforeach; ?>
 			</select>
-			<p class="description" id="library-status-description">
-				<?php esc_html_e( 'Not kept: read but not in my library. To buy: not in my library yet. Both are hidden from the books list and the site.', 'library' ); ?>
-			</p>
-		</div>
+		</p>
+		<p class="description" id="library-shelf-description">
+			<?php esc_html_e( 'Not kept: read but not in my library. To buy: not in my library yet. The book stays in the catalogue for the other readers.', 'library' ); ?>
+		</p>
+		<p>
+			<label for="library-shelf-notes"><?php echo esc_html( Meta::get_label( 'library_notes' ) ); ?></label>
+			<textarea id="library-shelf-notes" class="widefat" name="library_shelf_notes" rows="5"><?php echo esc_textarea( Shelf::get_values( $post->ID, get_current_user_id() )['library_notes'] ); ?></textarea>
+		</p>
 		<?php
 	}
 
 	/**
-	 * Apply the "Library" menu of the publish box to the book status.
+	 * Put the book on the shelf chosen in its box, for the reader, with their notes, once it is in the catalogue.
 	 *
-	 * The menu decides over the status menu and the button pressed; in the library publishes a book not kept or to buy.
-	 *
-	 * @param array<string,mixed> $data    Slashed post data to insert.
-	 * @param array<string,mixed> $postarr Slashed submitted data, with the form fields.
-	 * @return array<string,mixed>
+	 * @param int $post_id Post ID.
+	 * @return void
 	 */
-	public function save_status( array $data, array $postarr ): array {
-		$nonce = isset( $postarr['library_status_nonce'] ) ? sanitize_key( wp_unslash( $postarr['library_status_nonce'] ) ) : '';
+	public function save_shelf( int $post_id ): void {
+		$nonce = isset( $_POST['library_shelf_nonce'] ) ? sanitize_key( wp_unslash( $_POST['library_shelf_nonce'] ) ) : '';
 
-		if ( 'library_book' !== $data['post_type'] || ! wp_verify_nonce( $nonce, 'library_status' ) || in_array( $data['post_status'], array( 'trash', 'auto-draft' ), true ) ) {
-			return $data;
+		if ( ! wp_verify_nonce( $nonce, 'library_shelf' ) || ! current_user_can( 'shelve_book', $post_id ) ) {
+			return;
 		}
 
-		$status   = sanitize_key( wp_unslash( $postarr['library_status'] ?? '' ) );
-		$statuses = Status::get_other_values();
+		$status = Status::tryFrom( sanitize_key( wp_unslash( $_POST['library_shelf_status'] ?? '' ) ) );
 
-		if ( in_array( $status, $statuses, true ) ) {
-			$data['post_status'] = $status;
-		} elseif ( in_array( $data['post_status'], $statuses, true ) ) {
-			$data['post_status'] = Status::In_Library->value;
+		Shelf::set_status( $post_id, get_current_user_id(), $status );
+
+		if ( isset( $_POST['library_shelf_notes'] ) ) {
+			Shelf::save( $post_id, get_current_user_id(), array( 'library_notes' => wp_kses_post( wp_unslash( $_POST['library_shelf_notes'] ) ) ) );
 		}
-
-		return $data;
 	}
 
 	/**

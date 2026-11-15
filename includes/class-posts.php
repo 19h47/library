@@ -36,11 +36,9 @@ class Posts {
 	public function hooks(): void {
 		add_action( 'after_setup_theme', array( $this, 'add_thumbnail_support' ), 11 );
 		add_action( 'init', array( $this, 'register_post_type' ) );
-		add_action( 'init', array( $this, 'register_post_statuses' ) );
 		add_filter( 'wp_untrash_post_status', array( $this, 'restore_status' ), 10, 3 );
-		// After the status of the post is known, which the "Library" menu of the publish box may change.
+		// After the status of the post is known.
 		add_filter( 'wp_insert_post_data', array( $this, 'build_slug' ), 11, 2 );
-		add_filter( 'wp_insert_post_data', array( $this, 'set_bought_date' ), 11, 2 );
 		add_filter( 'the_title', array( $this, 'show_full_title' ), 10, 2 );
 	}
 
@@ -57,36 +55,8 @@ class Posts {
 	}
 
 	/**
-	 * Register the statuses of the books read but not kept, and of the books to buy.
-	 *
-	 * Core then leaves them out of the "All" view, its count, the site and search,
-	 * and lists them in their own views of the books list.
-	 *
-	 * @return void
-	 */
-	public function register_post_statuses(): void {
-		$args = array(
-			'public'                    => false,
-			'protected'                 => true,
-			'exclude_from_search'       => true,
-			'show_in_admin_all_list'    => false,
-			'show_in_admin_status_list' => true,
-		);
-
-		foreach ( Status::get_others() as $status ) {
-			register_post_status(
-				$status->value,
-				array(
-					'label'       => $status->label(),
-					'label_count' => $status->label_count(),
-				) + $args
-			);
-		}
-	}
-
-	/**
-	 * Restore a book from the trash in the status it had, in the library, not kept or to buy, rather than as a draft, as core
-	 * restores a post since WordPress 5.6: a draft leaves the app, the stats and the achievements, and its status is lost.
+	 * Restore a book from the trash in the status it had, published, rather than as a draft, as core restores a post since
+	 * WordPress 5.6: a draft leaves the catalogue, and so the shelves of every reader.
 	 *
 	 * @param string $new_status      Status core restores the post in.
 	 * @param int    $post_id         Post ID.
@@ -95,26 +65,6 @@ class Posts {
 	 */
 	public function restore_status( string $new_status, int $post_id, string $previous_status ): string {
 		return 'library_book' === get_post_type( $post_id ) ? $previous_status : $new_status;
-	}
-
-	/**
-	 * Date a book leaving the books to buy from today: its post date is the date it was added to the library.
-	 *
-	 * @param array<string,mixed> $data    Slashed post data about to be saved.
-	 * @param array<string,mixed> $postarr Slashed submitted data.
-	 * @return array<string,mixed>
-	 */
-	public function set_bought_date( array $data, array $postarr ): array {
-		$post_id = (int) ( $postarr['ID'] ?? 0 );
-
-		if ( 'library_book' !== $data['post_type'] || ! $post_id || Status::To_Buy->value !== get_post_status( $post_id ) || in_array( $data['post_status'], array( Status::To_Buy->value, 'trash' ), true ) ) {
-			return $data;
-		}
-
-		$data['post_date']     = current_time( 'mysql' );
-		$data['post_date_gmt'] = current_time( 'mysql', true );
-
-		return $data;
 	}
 
 	/**
@@ -217,8 +167,9 @@ class Posts {
 			'filter_items_list'     => __( 'Filter books list', 'library' ),
 		);
 
-		// The excerpt is a summary of the book in a few words, the content its notes.
-		$supports = array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' );
+		// The excerpt is a summary of the book in a few words; no editor, the notes on a book being those of each reader. Its
+		// revisions keep its record as each reader changed it: see History.
+		$supports = array( 'title', 'excerpt', 'thumbnail', 'custom-fields', 'revisions' );
 
 		$rewrite = array(
 			'slug'       => 'books',
@@ -242,7 +193,9 @@ class Posts {
 			'rewrite'             => $rewrite,
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
-			'capability_type'     => 'post',
+			// Capabilities of their own, which the roles of the readers give: see Roles.
+			'capability_type'     => array( 'library_book', 'library_books' ),
+			'map_meta_cap'        => true,
 			'show_in_rest'        => true,
 			'rest_base'           => 'books',
 		);
@@ -257,16 +210,6 @@ class Posts {
 		$args = apply_filters( 'library_post_type_args', $args );
 
 		register_post_type( 'library_book', $args );
-	}
-
-	/**
-	 * Whether a book has been read: whether it has a reading, of a known date or not.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return bool
-	 */
-	public static function is_read( int $post_id ): bool {
-		return (bool) Meta::get_read_dates( $post_id );
 	}
 
 	/**

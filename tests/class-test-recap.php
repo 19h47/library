@@ -8,6 +8,7 @@
 namespace Library\Tests;
 
 use DateTimeImmutable;
+use Library\Books;
 use Library\Recap;
 use Library\Status;
 
@@ -109,7 +110,7 @@ class Test_Recap extends TestCase {
 		$this->assertSame( 6.0, Recap::get_recap( 2024 )['rating'] );
 		$this->assertSame( 9.0, Recap::get_recap( 2025 )['rating'] );
 		$this->assertSame( array( $book_id ), Recap::get_recap( 2024 )['best'] );
-		$this->assertSame( 9.0, get_post_meta( $book_id, 'library_rating', true ) );
+		$this->assertSame( 9.0, Books::get_books()[ $book_id ]->rating );
 	}
 
 	/**
@@ -181,7 +182,7 @@ class Test_Recap extends TestCase {
 		$this->add_book(
 			array(
 				'series' => 'Started',
-				'status' => Status::To_Buy->value,
+				'shelf'  => array( 'status' => Status::To_Buy->value ),
 			)
 		);
 		$this->add_read( '2025-05-01', array( 'series' => 'Alone' ) );
@@ -222,8 +223,8 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_books_added(): void {
 		$this->add_book( array(), '2025-03-01 10:00:00' );
-		$this->add_book( array( 'status' => Status::Not_Kept->value ), '2025-04-01 10:00:00' );
-		$this->add_book( array( 'status' => Status::To_Buy->value ), '2025-05-01 10:00:00' );
+		$this->add_book( array( 'shelf' => array( 'status' => Status::Not_Kept->value ) ), '2025-04-01 10:00:00' );
+		$this->add_book( array( 'shelf' => array( 'status' => Status::To_Buy->value ) ), '2025-05-01 10:00:00' );
 		$this->add_book( array(), '2024-12-31 10:00:00' );
 
 		$this->assertSame( 2, Recap::get_recap( 2025 )['added_count'] );

@@ -51,7 +51,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			$this->add_book();
 		}
 
-		$this->add_book( array( 'status' => $status ) );
+		$this->add_book( array( 'shelf' => array( 'status' => $status ) ) );
 
 		$this->assertSame( $is_on_the_pile, isset( $this->get_earned()['tsundoku'] ) );
 	}
@@ -286,9 +286,9 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_read(
 			'2024-05-10',
 			array(
-				'title'  => 'Gone',
-				'status' => 'library-not-kept',
-				'meta'   => array( 'rating' => 9 ),
+				'title' => 'Gone',
+				'shelf' => array( 'status' => 'not-kept' ),
+				'meta'  => array( 'rating' => 9 ),
 			)
 		);
 
@@ -310,8 +310,8 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_read(
 			'2024-05-10',
 			array(
-				'status' => 'library-not-kept',
-				'meta'   => array( 'rating' => 8.5 ),
+				'shelf' => array( 'status' => 'not-kept' ),
+				'meta'  => array( 'rating' => 8.5 ),
 			)
 		);
 		$this->add_read( '2024-05-11', array( 'meta' => array( 'rating' => 10 ) ) );

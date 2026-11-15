@@ -1,6 +1,6 @@
 <?php
 /**
- * What deleting the plugin leaves out: its caches, never the books.
+ * What deleting the plugin leaves out: its roles and its caches, never the books.
  *
  * @link       https://github.com/19h47/library
  * @since      9.47.0
@@ -14,6 +14,25 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 global $wpdb;
+
+// The roles of the readers, and the capabilities the roles of WordPress had from the plugin, as it last gave them: see Roles.
+$library_roles = get_option( 'library_roles', array() );
+
+foreach ( is_array( $library_roles ) ? $library_roles : array() as $library_role => $library_capabilities ) {
+	$library_role = get_role( $library_role );
+
+	if ( ! $library_role ) {
+		continue;
+	}
+
+	foreach ( $library_capabilities as $library_capability ) {
+		$library_role->remove_cap( $library_capability );
+	}
+}
+
+remove_role( 'library_reader' );
+remove_role( 'library_librarian' );
+delete_option( 'library_roles' );
 
 // The caches of the books, of the BnF and of the latest release: see Cache, BnF and Updater.
 delete_option( 'library_cache_generation' );

@@ -63,15 +63,13 @@
 		checkbox.disabled = true;
 		readPercentageEl.textContent = readPercentageEl.dataset.loadingText;
 
-		// Through the route of the book form, as the reading app saves: marked as read without a read date, a book is read
-		// now, its time with it, and its reading in progress ends.
-		const meta = { library_read: checkbox.checked };
-
+		// Through the route of the shelf of the reader, as the reading app saves: marked as read without a read date, a book
+		// is read now, its time with it, and its reading in progress ends.
 		try {
 			await apiFetch( {
-				path: `/library/v1/books/${ id }?_fields=id`,
+				path: `/library/v1/books/${ id }/shelf?_fields=id`,
 				method: 'POST',
-				data: { meta },
+				data: { read: checkbox.checked },
 			} );
 		} catch ( error ) {
 			const message =

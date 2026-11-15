@@ -41,6 +41,4 @@ WordPress updates the plugin from the latest [GitHub release](https://github.com
 
 - Patch, `x.y.Z`: a fix, or a change the reader does not see.
 - Minor, `x.Y.0`: a new feature.
-- Major, `X.0.0`: a breaking change to the REST API, the meta or the data. Migrate the data of each site before updating it, as its `* Breaking: …` line says, in SQL with the table prefix `wp_`.
-
-While the plugin runs on a single site, a breaking change stays a minor version: its `* Breaking: …` line still gives the migration.
+- Major, `X.0.0`: a breaking change to the REST API, the meta or the data. Migrate the data of each site before updating it, as its `* Breaking: …` line says, in SQL with the table prefix `wp_`. A test runs that SQL as `README.txt` writes it, such as `tests/class-test-migration.php` for 10.0.0, on data of before.

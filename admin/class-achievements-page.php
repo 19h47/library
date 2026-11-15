@@ -15,6 +15,7 @@ use Library\Achievement_Family;
 use Library\Achievement_Kind;
 use Library\Achievements;
 use Library\Posts;
+use Library\Roles;
 use Library\Status;
 use WP_Term;
 
@@ -67,7 +68,7 @@ class Achievements_Page {
 	 * Add the achievements page under the books menu, with the dashboard styles.
 	 */
 	public function add_page(): void {
-		$hook = add_submenu_page( 'edit.php?post_type=library_book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), 'edit_posts', self::PAGE, array( $this, 'render_page' ) );
+		$hook = add_submenu_page( 'edit.php?post_type=library_book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), Roles::SHELVE, self::PAGE, array( $this, 'render_page' ) );
 
 		add_action( "admin_print_styles-$hook", array( Dashboard::class, 'enqueue_style' ) );
 	}
@@ -165,8 +166,8 @@ class Achievements_Page {
 	}
 
 	/**
-	 * Link of the subject of an achievement in the admin: the edit screen of its book, or its books in the books list,
-	 * in the "Not kept" view when none of them is kept, since the "All" view leaves them out. Empty without target.
+	 * Link of the subject of an achievement in the admin: the edit screen of its book, or its books in the books list, on
+	 * the shelves of the reader. Empty without target.
 	 *
 	 * @param Achievement|Close_Achievement $achievement Achievement.
 	 * @return string
@@ -182,11 +183,11 @@ class Achievements_Page {
 			return (string) get_edit_post_link( $target['id'], 'raw' );
 		}
 
-		$status = $target['not_kept'] ? Status::Not_Kept->value : '';
+		// The achievements count the books of the shelves of the reader.
+		$shelf = implode( ',', Status::get_values() );
 
 		if ( 'search' === $target['type'] ) {
-			$url = admin_url( 'edit.php?post_type=library_book' );
-			$url = '' !== $status ? add_query_arg( 'post_status', $status, $url ) : $url;
+			$url = add_query_arg( 'library_shelf', $shelf, admin_url( 'edit.php?post_type=library_book' ) );
 
 			return add_query_arg( 's', rawurlencode( $target['search'] ), $url );
 		}
@@ -194,6 +195,6 @@ class Achievements_Page {
 		$taxonomy = Achievements::COMPLETION_TAXONOMIES[ $target['type'] ];
 		$term     = get_term( $target['id'], $taxonomy );
 
-		return $term instanceof WP_Term ? Books_List::get_term_url( $term, $status ) : '';
+		return $term instanceof WP_Term ? Books_List::get_term_url( $term, $shelf ) : '';
 	}
 }

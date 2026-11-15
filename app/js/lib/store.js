@@ -11,11 +11,11 @@
 import {
 	__,
 	appUrl,
+	catalogue,
 	forms,
 	icons,
 	inLibrary,
 	maxPerPage,
-	notKept,
 	perPage,
 	serviceWorkerUrl,
 	statuses,
@@ -26,7 +26,7 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
 /**
- * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ApiReading, EndedReading, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ApiReading, EndedReading, Recap, SeriesData, ShelfValues, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -126,14 +126,12 @@ import * as api from 'library-app/api';
  */
 
 /**
- * The reading of a book, as the route of its form takes it.
+ * The reading of a book by the reader: their copy, as the route of its shelf takes it, the values that change only, and
+ * where it goes for them, empty to take it off their shelves.
  *
  * @typedef {Object} BookReading
- * @property {Object}       meta             Its meta.
- * @property {boolean}      meta.read        Whether it is read.
- * @property {boolean}      meta.in_progress Whether it is being read.
- * @property {ApiReading[]} meta.reading     Its readings, by their days, each with its rating, the one in progress last.
- * @property {string}       [status]         Its status, unless another one than in the library, not kept or to buy.
+ * @property {ShelfValues} copy   Their copy, its readings by their days, each with its rating, the one in progress last.
+ * @property {string}      status Where it is for them, empty on none of their shelves.
  */
 
 /**
@@ -153,7 +151,7 @@ import * as api from 'library-app/api';
  * @property {'light'|'dark'}         theme        The theme shown.
  * @property {boolean}                themeChosen  Whether the theme was chosen over the system one.
  * @property {string}                 read         The read state of the books shown: "", "yes", "no" or "progress".
- * @property {string}                 status       The status of the books shown, "" for any.
+ * @property {string}                 shelf        The shelf of the books shown: "" for any of the reader, a status, or the catalogue.
  * @property {string}                 form         The term ID of the form of the books shown, "" for any.
  * @property {string}                 sort         The order of the books, "" for the latest added.
  * @property {boolean}                covers       Whether the lists of books show as a grid of their covers.
@@ -186,7 +184,7 @@ const SAVED = [
 	'theme',
 	'themeChosen',
 	'read',
-	'status',
+	'shelf',
 	'form',
 	'sort',
 	'covers',
@@ -196,7 +194,7 @@ const STATUSES = statuses.split( ',' );
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
 // The filters of the books, and their order: see load().
-const FILTERS = [ 'read', 'status', 'form', 'sort' ];
+const FILTERS = [ 'read', 'shelf', 'form', 'sort' ];
 // The page of a book, opened from its card, its cover or a link.
 const BOOK_VIEW = 'book';
 // The recap of a year, opened from the diary or, in January, from the home.
@@ -232,7 +230,7 @@ const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
  * What localStorage holds, checked: anything else falls back. The theme chosen is the one the theme script read from
  * it before the first paint, on <html data-theme>.
  *
- * @return {Pick<State, 'theme'|'themeChosen'|'read'|'status'|'form'|'sort'|'covers'>} What it holds.
+ * @return {Pick<State, 'theme'|'themeChosen'|'read'|'shelf'|'form'|'sort'|'covers'>} What it holds.
  */
 function load() {
 	let saved = null;
@@ -253,8 +251,10 @@ function load() {
 		read: [ 'yes', 'no', 'progress' ].includes( saved?.read )
 			? saved.read
 			: '',
-		// "" for any, or the status of the books shown, such as not kept.
-		status: STATUSES.includes( saved?.status ) ? saved.status : '',
+		// "" for any shelf of the reader, the status of the books shown, such as not kept, or the whole catalogue.
+		shelf: [ ...STATUSES, catalogue ].includes( saved?.shelf )
+			? saved.shelf
+			: '',
 		// "" for any, or the term ID of the form of the books shown, such as comics.
 		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		// "" for the latest added, or one of SORTS.
@@ -279,17 +279,6 @@ function save( state ) {
 			)
 		);
 	} catch {}
-}
-
-/**
- * The status of `book` as its forms show it, as the "Library" menu of the book form does: not kept or to buy, else in the
- * library, which a book in another status, such as a draft, shows as.
- *
- * @param {Book} book The book.
- * @return {string} Its status shown.
- */
-export function statusOf( book ) {
-	return [ notKept, toBuy ].includes( book.status ) ? book.status : inLibrary;
 }
 
 /**
@@ -347,29 +336,30 @@ const sortedOf = ( readings ) =>
 	);
 
 /**
- * The reading of `book`, as the route of its form takes it, to put it back as it was: whether it is read and being read,
- * its readings by their days, as the form gives them, with their ratings, and its status unless another one, such as a
- * draft.
+ * The reading of `book`, to put it back as it was: whether it is read and being read, its readings by their days, as the
+ * form gives them, with their ratings, when its copy was printed, their notes, the photo of their copy, and where it is
+ * for the reader.
  *
  * @param {Book} book The book.
  * @return {BookReading} Its reading.
  */
 function readingOf( book ) {
-	const meta = {
+	const copy = {
 		read: book.read,
 		in_progress: book.in_progress,
-		reading: readingsOf( book ),
+		readings: readingsOf( book ),
+		printed_date: book.printed_date,
+		notes: book.notes,
+		cover: book.copy_cover,
 	};
 
-	return STATUSES.includes( book.status )
-		? { meta, status: book.status }
-		: { meta };
+	return { copy, status: book.status };
 }
 
 /**
- * What a list asks the API for: `search` the books the search finds, of the status chosen, else of any status but
- * to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen; `toBuy` the books
- * to buy; `inProgress` the books being read, the latest started first.
+ * What a list asks the API for: `search` the books the search finds on the shelf chosen, else on any shelf of the
+ * reader but the books to buy for the books to read, which are not at hand, or in the whole catalogue, and of the form
+ * chosen, in the order chosen; `toBuy` the books to buy; `inProgress` the books being read, the latest started first.
  *
  * @param {List}  list  The list.
  * @param {State} state The state, its search and filters.
@@ -377,16 +367,16 @@ function readingOf( book ) {
  */
 function queryOf( list, state ) {
 	if ( 'toBuy' === list ) {
-		return { status: toBuy };
+		return { shelf: toBuy };
 	}
 
 	if ( 'inProgress' === list ) {
-		return { search: 'progress:yes', status: statuses, orderby: 'started' };
+		return { search: 'progress:yes', shelf: statuses, orderby: 'started' };
 	}
 
 	const search = searchOf( state );
 	const atHand = STATUSES.filter( ( item ) => toBuy !== item ).join();
-	const status = state.status || ( 'no' === state.read ? atHand : statuses );
+	const shelf = state.shelf || ( 'no' === state.read ? atHand : statuses );
 	const order = state.sort && {
 		orderby: state.sort,
 		order: 'title' === state.sort ? 'asc' : 'desc',
@@ -394,7 +384,7 @@ function queryOf( list, state ) {
 
 	return {
 		...( search && { search } ),
-		status,
+		...( catalogue !== shelf && { shelf } ),
 		...( state.form && { forms: state.form } ),
 		...order,
 	};
@@ -965,18 +955,19 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The book to buy `id`, bought: it joins the library. What was loaded loads again, in place, as after a book saved.
-	 * Returns its ID once bought, for its page to open, which then closes the form of a book to add, else 0.
+	 * The book `id`, to buy or on none of the shelves of the reader, kept: it joins their library. What was loaded loads
+	 * again, in place, as after a book saved. Returns its ID once kept, for its page to open, which then closes the form
+	 * of a book to add, else 0.
 	 *
-	 * @param {number} id The book to buy.
-	 * @return {Promise<number>} Its ID once bought, else 0.
+	 * @param {number} id The book to keep.
+	 * @return {Promise<number>} Its ID once kept, else 0.
 	 */
-	async buyBook( id ) {
+	async keepBook( id ) {
 		this.#update( 'editing', () => ( { loading: true, error: '' } ) );
 
 		try {
 			this.#addBooks( [
-				await api.saveBook( id, { status: inLibrary } ),
+				await api.saveShelf( id, { status: inLibrary } ),
 			] );
 			this.#reloadAdded();
 
@@ -1059,7 +1050,7 @@ class LibraryStore extends Store {
 			changes.meta = changedMeta;
 		}
 
-		if ( coverRemoved && ! cover && books[ id ].cover ) {
+		if ( coverRemoved && ! cover && books[ id ].edition_cover ) {
 			changes.featured_media = 0;
 		}
 
@@ -1103,7 +1094,7 @@ class LibraryStore extends Store {
 	#noticeSaved( id, before ) {
 		const undo = async () => {
 			try {
-				this.#addBooks( [ await api.saveBook( id, before ) ] );
+				this.#addBooks( [ await this.#writeReading( id, before ) ] );
 				this.#reloadLoaded( id );
 				this.set( ( state ) => ( {
 					...state,
@@ -1127,24 +1118,55 @@ class LibraryStore extends Store {
 	}
 
 	/**
+	 * Writes the reading of the book `id` through the route of its shelf, which a reader may use on a book they cannot
+	 * edit: their copy and where it goes at once, then off their shelves when it goes on none, once their readings are
+	 * written, as a book read stays on them. Returns the book as it is now.
+	 *
+	 * @param {number}      id      The book.
+	 * @param {BookReading} reading Its reading: the copy to write, and where it goes.
+	 * @return {Promise<Book>} The book.
+	 */
+	async #writeReading( id, { copy, status } ) {
+		let book = this.get().books[ id ];
+		const values = {
+			...copy,
+			...( status && status !== book.status && { status } ),
+		};
+
+		if ( Object.keys( values ).length ) {
+			book = await api.saveShelf( id, values );
+		}
+
+		return status || ! book.status ? book : api.removeShelf( id );
+	}
+
+	/**
 	 * Saves the reading of the book open, which says so, with Undo. Only what changed is sent, so a value the form
 	 * cannot show stays as it is; marked as unread, the book loses its readings ended on the server.
-	 * It goes through the route of the book form, which writes the readings at once: the core API, which removes a
-	 * meta value by value, would remove two readings of unknown dates, the same, together.
+	 * It goes through the route of the shelf, which writes the readings at once: the core API, which removes a meta
+	 * value by value, would remove two readings of unknown dates, the same, together.
 	 *
-	 * @param {Object}         reading            The reading, as the form gives it.
-	 * @param {boolean}        reading.read       Whether the book is read.
-	 * @param {boolean}        reading.inProgress Whether it is being read.
-	 * @param {string}         reading.started    The day its reading in progress started, or empty.
-	 * @param {EndedReading[]} reading.readings   Its readings ended, by their days, each with its rating.
-	 * @param {string}         reading.status     Its status, as the form shows it.
+	 * @param {Object}         reading              The reading, as the form gives it.
+	 * @param {boolean}        reading.read         Whether the book is read.
+	 * @param {boolean}        reading.inProgress   Whether it is being read.
+	 * @param {string}         reading.started      The day its reading in progress started, or empty.
+	 * @param {EndedReading[]} reading.readings     Its readings ended, by their days, each with its rating.
+	 * @param {string}         reading.printedDate  When the copy of the reader was printed, or empty.
+	 * @param {string}         reading.notes        Their notes, as typed.
+	 * @param {File|null}      reading.photo        The photo of their copy picked, uploaded first, if any.
+	 * @param {boolean}        reading.photoRemoved Whether the photo of their copy is removed.
+	 * @param {string}         reading.status       Where it is for the reader, empty on none of their shelves.
 	 */
 	async saveReading( {
 		read,
 		inProgress,
 		started,
 		readings,
-		status: chosen,
+		printedDate,
+		notes,
+		photo,
+		photoRemoved,
+		status,
 	} ) {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
@@ -1152,36 +1174,57 @@ class LibraryStore extends Store {
 		const given = inProgress
 			? [ ...ended, api.toApiReadingInProgress( started ) ]
 			: ended;
-		// A book in another status, such as a draft, stays in it unless another one is chosen.
-		const status = chosen === statusOf( book ) ? book.status : chosen;
-		/** @type {Object<string, unknown>} */
-		const meta = {};
+		/** @type {ShelfValues} */
+		const copy = {};
 
 		if ( read !== book.read ) {
-			meta.read = read;
+			copy.read = read;
 		}
 
 		if ( inProgress !== book.in_progress ) {
-			meta.in_progress = inProgress;
+			copy.in_progress = inProgress;
 		}
 
 		// By their days, as the form gives them, in any order.
 		if ( sortedOf( given ) !== sortedOf( readingsOf( book ) ) ) {
-			meta.reading = given;
+			copy.readings = given;
 		}
 
-		if ( ! Object.keys( meta ).length && status === book.status ) {
+		if ( printedDate !== book.printed_date ) {
+			copy.printed_date = printedDate;
+		}
+
+		if ( notes !== book.notes ) {
+			copy.notes = notes;
+		}
+
+		if ( photoRemoved && ! photo && book.copy_cover ) {
+			copy.cover = 0;
+		}
+
+		if (
+			! photo &&
+			! Object.keys( copy ).length &&
+			status === book.status
+		) {
 			return;
 		}
 
 		this.#update( 'saving', () => ( { loading: true, error: '' } ) );
 
 		try {
+			// Named after the book, as the cover of its edition.
+			if ( photo ) {
+				copy.cover = await api.uploadCover( photo, {
+					title: book.title,
+					people: book.people,
+					series: '',
+					meta: { isbn: book.isbn },
+				} );
+			}
+
 			this.#addBooks( [
-				await api.saveBook(
-					id,
-					status === book.status ? { meta } : { meta, status }
-				),
+				await this.#writeReading( id, { copy, status } ),
 			] );
 			this.set( ( state ) => ( { ...state, saving: saving() } ) );
 			this.#reloadLoaded( id );
@@ -1586,11 +1629,11 @@ class LibraryStore extends Store {
 	async #refreshList( list, id ) {
 		const query = queryOf( list, this.get() );
 
-		// Every book is found without a search, a status or a form chosen.
+		// Every book is found in the whole catalogue without a search or a form chosen.
 		if (
 			'search' === list &&
 			! query.search &&
-			! this.get().status &&
+			! query.shelf &&
 			! query.forms
 		) {
 			return;
@@ -1598,7 +1641,7 @@ class LibraryStore extends Store {
 
 		try {
 			const isFound = await api.finds( query, id );
-			// Another search, status or form may have replaced the books found meanwhile.
+			// Another search, shelf or form may have replaced the books found meanwhile.
 			const isListed =
 				JSON.stringify( queryOf( list, this.get() ) ) ===
 					JSON.stringify( query ) &&

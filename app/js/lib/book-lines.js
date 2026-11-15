@@ -92,7 +92,8 @@ export function formatOriginal( book ) {
 }
 
 /**
- * Whether a book is kept: shown only when it is not, not kept or to buy.
+ * Whether a book is kept by the reader: shown only when it is not, not kept, to buy, or on none of their shelves, a book
+ * of the catalogue.
  *
  * @param {Book} book The book.
  * @return {string} Its status, or empty.
@@ -101,6 +102,7 @@ export function formatStatus( book ) {
 	const labels = {
 		[ notKept ]: _x( 'Not kept', 'book status', 'library' ),
 		[ toBuy ]: _x( 'To buy', 'book status', 'library' ),
+		'': __( 'Not on your shelves', 'library' ),
 	};
 
 	return labels[ book.status ] ?? '';

@@ -15,13 +15,13 @@ use Library\Books;
 use Library\Meta;
 use Library\Posts;
 use Library\Query;
+use Library\Shelf;
 use Library\Stats;
 use Library\Status;
 use Library\Taxonomies;
 use WP_HTML_Tag_Processor;
 use WP_Post;
 use WP_Query;
-use WP_Screen;
 use WP_Term;
 
 /**
@@ -49,11 +49,10 @@ class Books_List {
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
 		// Before core saves a quick edit, at 1.
-		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_mistyped_isbn' ), 0 );
+		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_isbn' ), 0 );
 		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
 		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
-		add_action( 'current_screen', array( $this, 'label_published_view' ) );
 	}
 
 	/**
@@ -87,9 +86,12 @@ class Books_List {
 
 		// The column of the people shows the ones credited, as the credits of a book do.
 		$columns['taxonomy-library_person'] = __( 'Authors', 'library' );
-		$columns['library_printed_date']    = Meta::get_label( 'library_printed_date' );
-		$columns['library_isbn']            = Meta::get_label( 'library_isbn' );
-		$columns['library_read']            = Meta::get_label( 'library_read' );
+		$columns['library_shelf']           = __( 'Shelf', 'library' );
+		$columns['library_edition_date']    = Meta::get_label( 'library_edition_date' );
+		// The columns of the copy of the reader, on their shelf.
+		$columns['library_printed_date'] = Meta::get_label( 'library_printed_date' );
+		$columns['library_isbn']         = Meta::get_label( 'library_isbn' );
+		$columns['library_read']         = Meta::get_label( 'library_read' );
 		// The latest one.
 		$columns['library_read_date'] = __( 'Read date', 'library' );
 		$columns['library_rating']    = Meta::get_label( 'library_rating' );
@@ -108,9 +110,15 @@ class Books_List {
 	 */
 	public function render_custom_columns( string $column_name, int $post_id ): void {
 		$output = '';
+		$reader = get_current_user_id();
 
 		switch ( $column_name ) {
 
+			case 'library_shelf':
+				$status  = Shelf::get_status( $post_id, get_current_user_id() );
+				$output .= $status ? esc_html( $status->label() ) : '—';
+
+				break;
 			case 'library_read':
 				/* translators: %s: book title. */
 				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
@@ -119,18 +127,15 @@ class Books_List {
 					'<input type="checkbox" data-part="read" data-post-id="%1$d" aria-label="%2$s"%3$s>',
 					$post_id,
 					esc_attr( $label ),
-					checked( Posts::is_read( $post_id ), true, false )
+					checked( (bool) Meta::get_read_dates( $post_id, $reader ), true, false )
 				);
 
 				break;
+			case 'library_edition_date':
 			case 'library_printed_date':
-				$printed_date = (string) get_post_meta( $post_id, 'library_printed_date', true );
+				$date = 'library_printed_date' === $column_name ? Shelf::get_printed_date( $post_id, $reader ) : (string) get_post_meta( $post_id, $column_name, true );
 
-				if ( '' !== $printed_date ) {
-					$output .= Books::format_partial_date( $printed_date );
-				} else {
-					$output .= '—';
-				}
+				$output .= '' !== $date ? Books::format_partial_date( $date ) : '—';
 
 				break;
 			case 'library_isbn':
@@ -140,7 +145,7 @@ class Books_List {
 
 				break;
 			case 'library_read_date':
-				$read_dates = Meta::get_read_dates( $post_id );
+				$read_dates = Meta::get_read_dates( $post_id, $reader );
 				$readings   = count( $read_dates );
 
 				if ( ! $read_dates ) {
@@ -158,18 +163,18 @@ class Books_List {
 
 				break;
 			case 'library_rating':
-				$rating = get_post_meta( $post_id, 'library_rating', true );
+				$rating = Meta::get_rating( Meta::get_readings( $post_id, $reader ) );
 
-				$output .= '' !== $rating ? esc_html( Books::format_rating_out_of_ten( (float) $rating ) ) : '—';
+				$output .= null !== $rating ? esc_html( Books::format_rating_out_of_ten( $rating ) ) : '—';
 
 				break;
 			case 'thumbnail':
-				$rating = get_post_meta( $post_id, 'library_rating', true );
+				$rating = Meta::get_rating( Meta::get_readings( $post_id, $reader ) );
 
-				if ( '' !== $rating ) {
+				if ( null !== $rating ) {
 					/* translators: %s: rating out of 10, e.g. 7.5/10. */
-					$title   = sprintf( __( 'Rated %s', 'library' ), Books::format_rating_out_of_ten( (float) $rating ) );
-					$output .= '<span class="library-rating-dot" title="' . esc_attr( $title ) . '" aria-hidden="true">' . esc_html( Books::format_rating( (float) $rating ) ) . '</span>';
+					$title   = sprintf( __( 'Rated %s', 'library' ), Books::format_rating_out_of_ten( $rating ) );
+					$output .= '<span class="library-rating-dot" title="' . esc_attr( $title ) . '" aria-hidden="true">' . esc_html( Books::format_rating( $rating ) ) . '</span>';
 				}
 
 				$output .= '<span class="library-thumbnail-cell">';
@@ -234,13 +239,8 @@ class Books_List {
 			return;
 		}
 
-		$read_dates = Meta::get_read_dates( $post->ID );
-
 		foreach ( Meta::QUICK_EDIT_KEYS as $key ) {
-			// Quick edit edits the latest reading, by its day, as its field takes it: its time stays once saved.
-			$value = 'library_read_date' === $key ? substr( (string) end( $read_dates ), 0, 10 ) : (string) get_post_meta( $post->ID, $key, true );
-
-			printf( '<div class="%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
+			printf( '<div class="%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( (string) get_post_meta( $post->ID, $key, true ) ) );
 		}
 	}
 
@@ -255,16 +255,13 @@ class Books_List {
 			return;
 		}
 
-		// Quick edit edits the end of the latest reading, which is no meta of its own.
-		$labels   = array( 'library_read_date' => __( 'Last read date', 'library' ) );
-		$controls = array( 'library_read_date' => '<input type="date" name="library_read_date">' );
 		?>
 		<fieldset class="inline-edit-col-right">
 			<div class="inline-edit-col">
 				<?php foreach ( Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
-						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Meta::get_label( $key ) ); ?></span>
-						<span class="input-text-wrap"><?php echo $controls[ $key ] ?? Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Written here, or built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
+						<span class="title"><?php echo esc_html( Meta::get_label( $key ) ); ?></span>
+						<span class="input-text-wrap"><?php echo Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>
@@ -273,12 +270,12 @@ class Books_List {
 	}
 
 	/**
-	 * Refuse the quick edit of a book whose ISBN is mistyped, as Meta::check_isbn() tells, before core saves
-	 * anything: quick edit shows the message in its row, which stays open on the values typed.
+	 * Refuse the quick edit of a book whose ISBN is mistyped, or another book has, as Meta::check_isbn() tells, before
+	 * core saves anything: quick edit shows the message in its row, which stays open on the values typed.
 	 *
 	 * @return void
 	 */
-	public function refuse_mistyped_isbn(): void {
+	public function refuse_isbn(): void {
 		check_ajax_referer( 'inlineeditnonce', '_inline_edit' );
 
 		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
@@ -310,32 +307,30 @@ class Books_List {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta.
 		$values = wp_unslash( $_POST );
 
-		if ( isset( $values['library_read_date'] ) ) {
-			$values['library_reading'] = Meta::replace_latest_read_date( $post_id, (string) $values['library_read_date'] );
-		}
-
-		Meta::save( $post_id, $values );
+		Meta::save( $post_id, array_intersect_key( $values, array_flip( Meta::QUICK_EDIT_KEYS ) ) );
 	}
 
 	/**
-	 * Add the sortable columns; the books list is sorted by printed date by default, the newest copies first.
+	 * Add the sortable columns; the books list is sorted by edition date by default, the newest editions first.
 	 *
 	 * @param array<string,string|array<int,string|bool>> $sortable_columns Sortable columns, each a query var or its arguments.
 	 *
 	 * @return array<string,string|array<int,string|bool>>
 	 */
 	public function add_sortable_columns( array $sortable_columns ): array {
-		$sortable_columns['library_printed_date'] = array( 'library_printed_date', true, '', __( 'Table ordered by printed date.', 'library' ), 'desc' );
+		$sortable_columns['library_edition_date'] = array( 'library_edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
+		$sortable_columns['library_printed_date'] = array( 'library_printed_date', true, '', __( 'Table ordered by printed date.', 'library' ) );
 		$sortable_columns['library_rating']       = array( 'library_rating', true, '', __( 'Table ordered by rating.', 'library' ) );
 
 		return $sortable_columns;
 	}
 
 	/**
-	 * Sort the books list by printed date, by default, or by rating; books without them come last.
+	 * Sort the books list by edition date, by default, or by the printed date or the rating of the copy of the reader;
+	 * books without them come last.
 	 *
-	 * The post date is the date added. A core meta query cannot keep the books without the meta
-	 * without mixing them in: its OR clauses join every other meta of these books and sort on one of them.
+	 * A core meta query cannot keep the books without the meta without mixing them in: its OR clauses join every other
+	 * meta of these books and sort on one of them.
 	 *
 	 * @param string[] $clauses Query clauses.
 	 * @param WP_Query $query   Query.
@@ -346,13 +341,14 @@ class Books_List {
 			return $clauses;
 		}
 
-		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_printed_date';
-		$values  = array(
-			'library_printed_date' => 'library_sort.meta_value',
-			'library_rating'       => 'library_sort.meta_value',
+		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_edition_date';
+		$keys    = array(
+			'library_edition_date' => 'library_edition_date',
+			'library_printed_date' => Shelf::key( 'library_printed_date', get_current_user_id() ),
+			'library_rating'       => 'library_rating',
 		);
 
-		if ( ! isset( $values[ $orderby ] ) ) {
+		if ( ! isset( $keys[ $orderby ] ) ) {
 			return $clauses;
 		}
 
@@ -366,9 +362,9 @@ class Books_List {
 		// The rating of a book is the one of its latest reading rated, no meta of its own.
 		$sort               = 'library_rating' === $orderby
 			? 'SELECT post_id, rating AS meta_value FROM ( ' . Query::get_ratings_sql() . ' ) AS library_ratings'
-			: $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $orderby );
+			: $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $keys[ $orderby ] );
 		$clauses['join']   .= " LEFT JOIN ( $sort ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID";
-		$clauses['orderby'] = "library_sort.meta_value IS NULL, {$values[ $orderby ]} $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
+		$clauses['orderby'] = "library_sort.meta_value IS NULL, library_sort.meta_value $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
 
 		return $clauses;
 	}
@@ -383,6 +379,35 @@ class Books_List {
 	 * @return array<string,string>
 	 */
 	public function add_list_table_views( array $views ): array {
+		// Every book of the catalogue is published: the view of core lists them all again.
+		unset( $views['publish'] );
+
+		$current = Query::get_shelf( $GLOBALS['wp_query'] );
+		$counts  = self::count_shelved();
+		$shelves = array(
+			implode( ',', Status::get_values() ) => array( __( 'My shelves', 'library' ), array_sum( $counts ) ),
+		);
+
+		foreach ( Status::cases() as $status ) {
+			$shelves[ $status->value ] = array( $status->label(), $counts[ $status->value ] ?? 0 );
+		}
+
+		if ( $current ) {
+			$views['all'] = str_replace( ' class="current" aria-current="page"', '', $views['all'] ?? '' );
+		}
+
+		foreach ( $shelves as $shelf => [ $label, $count ] ) {
+			$is_current = explode( ',', $shelf ) === $current;
+
+			$views[ "library-shelf-$shelf" ] = sprintf(
+				'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
+				esc_url( add_query_arg( 'library_shelf', $shelf, admin_url( 'edit.php?post_type=library_book' ) ) ),
+				$is_current ? ' class="current" aria-current="page"' : '',
+				esc_html( $label ),
+				esc_html( number_format_i18n( $count ) )
+			);
+		}
+
 		$stats = Stats::get_reading_stats();
 
 		/* translators: %s: reading percentage. */
@@ -398,33 +423,39 @@ class Books_List {
 	}
 
 	/**
-	 * Name the view of the published books after their status in the forms of a book: in the library.
+	 * Books on the shelves of the current reader, by status, in one query.
 	 *
-	 * The publish status belongs to core, which shares it with the posts and the pages: its label changes on the books list only.
-	 *
-	 * @param WP_Screen $screen Current screen.
-	 * @return void
+	 * @return array<string,int>
 	 */
-	public function label_published_view( WP_Screen $screen ): void {
-		if ( 'edit-library_book' !== $screen->id ) {
-			return;
-		}
+	private static function count_shelved(): array {
+		global $wpdb;
 
-		get_post_status_object( Status::In_Library->value )->label_count = Status::In_Library->label_count();
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin books list only.
+			$wpdb->prepare(
+				"SELECT pm.meta_value AS status, COUNT( * ) AS books
+				FROM {$wpdb->postmeta} AS pm
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status = 'publish'
+				WHERE pm.meta_key = %s
+				GROUP BY pm.meta_value",
+				Shelf::key( Shelf::STATUS, get_current_user_id() )
+			)
+		);
+
+		return array_map( 'intval', wp_list_pluck( $rows, 'books', 'status' ) );
 	}
 
 	/**
-	 * URL of the books of a term in the books list, in the view of a status, or else in the "All" view.
+	 * URL of the books of a term in the books list, on the shelves of a view, or else in the whole catalogue.
 	 *
-	 * @param WP_Term $term   Term of a book taxonomy.
-	 * @param string  $status Status of the view, empty for the "All" view.
+	 * @param WP_Term $term  Term of a book taxonomy.
+	 * @param string  $shelf Shelves of the view, statuses separated with commas, empty for the whole catalogue.
 	 * @return string
 	 */
-	public static function get_term_url( WP_Term $term, string $status = '' ): string {
+	public static function get_term_url( WP_Term $term, string $shelf = '' ): string {
 		$query_args = array_filter(
 			array(
 				'post_type'     => 'library_book',
-				'post_status'   => $status,
+				'library_shelf' => $shelf,
 				$term->taxonomy => $term->slug,
 			)
 		);
@@ -436,8 +467,8 @@ class Books_List {
 	 * Links of the people, publishers and languages columns of the books list.
 	 *
 	 * The people are those credited for the book, as its credits name them: its authors, or the publishing directors of
-	 * a collective work, else none. A collection shows as its publisher, once. The links keep the status of the current view:
-	 * core links to the "All" view, which leaves out the books not kept, so from their view they listed nothing.
+	 * a collective work, else none. A collection shows as its publisher, once. The links keep the shelves of the current
+	 * view: core links to the whole catalogue.
 	 *
 	 * @param string[]  $term_links Term links.
 	 * @param string    $taxonomy   Taxonomy.
@@ -445,8 +476,7 @@ class Books_List {
 	 * @return string[]
 	 */
 	public function link_column_terms( array $term_links, string $taxonomy, array $terms ): array {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view filter.
-		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
+		$shelf = implode( ',', Query::get_shelf( $GLOBALS['wp_query'] ) );
 
 		if ( ! in_array( $taxonomy, Taxonomies::TAXONOMIES, true ) ) {
 			return $term_links;
@@ -456,7 +486,7 @@ class Books_List {
 			$terms = Taxonomies::get_top_level_terms( $terms );
 		} elseif ( 'library_person' === $taxonomy ) {
 			$terms = Taxonomies::get_credited_people( (int) get_the_ID() );
-		} elseif ( '' === $status ) {
+		} elseif ( '' === $shelf ) {
 			return $term_links;
 		}
 
@@ -467,7 +497,7 @@ class Books_List {
 			return array( '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . esc_html( $no_terms ) . '</span>' );
 		}
 
-		$links = array_map( fn( WP_Term $term ) => sprintf( '<a href="%s">%s</a>', esc_url( self::get_term_url( $term, $status ) ), esc_html( $term->name ) ), $terms );
+		$links = array_map( fn( WP_Term $term ) => sprintf( '<a href="%s">%s</a>', esc_url( self::get_term_url( $term, $shelf ) ), esc_html( $term->name ) ), $terms );
 
 		if ( 'library_person' === $taxonomy && Posts::is_collective( (int) get_the_ID() ) ) {
 			$last_link = array_key_last( $links );

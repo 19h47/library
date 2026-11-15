@@ -29,6 +29,14 @@ class Books {
 	private static ?array $books = null;
 
 	/**
+	 * Reader the books of the current request are for, their user ID: a request that changes user, such as a test, reads
+	 * the books of the new one.
+	 *
+	 * @var int|null
+	 */
+	private static ?int $reader = null;
+
+	/**
 	 * Readings of the books of the current request, worked out once from them: see get_readings().
 	 *
 	 * @var list<Book>|null
@@ -36,12 +44,13 @@ class Books {
 	private static ?array $readings = null;
 
 	/**
-	 * All the books, kept, not kept or to buy.
+	 * All the books of the catalogue, with where each is for the current reader: in the library, not kept, to buy, or on
+	 * none of their shelves.
 	 *
 	 * A book without series but with a volume number is a volume of the series named by its title, e.g. "City Hunter".
 	 * Authors are counted under the name they are known by, and so are its contributors, its names with another role, such as a
 	 * colorist. The read dates go from the first reading to the latest.
-	 * The date added is the post date. The full title is the one to show.
+	 * The date added is the one of the reader. The full title is the one to show.
 	 * Original languages are their names keyed by their code, e.g. "it" => "Italien", and so are the edition languages, those
 	 * of its text; forms are their names, e.g. "Roman".
 	 * Collections are those of the book and the ones they are part of, named after them: "Folio, Science-fiction", "Folio".
@@ -49,17 +58,29 @@ class Books {
 	 * counted as authors are, a collection under its publisher, i.e. their widest ancestor: with the collections, they are
 	 * every term of the book and every one it is under.
 	 *
-	 * Kept until a book changes, as they take every book: see Cache.
+	 * Kept for each reader until a book changes, as they take every book: see Cache.
 	 *
 	 * @return array<int,Book>
 	 */
 	public static function get_books(): array {
-		if ( null === self::$books ) {
+		$reader = get_current_user_id();
+
+		if ( null === self::$books || $reader !== self::$reader ) {
 			self::$books    = Cache::remember( 'books', fn() => self::compute_books() );
 			self::$readings = null;
+			self::$reader   = $reader;
 		}
 
 		return self::$books;
+	}
+
+	/**
+	 * The books on the shelves of the current reader, in the library, not kept or to buy: see get_books().
+	 *
+	 * @return array<int,Book>
+	 */
+	public static function get_shelved(): array {
+		return array_filter( self::get_books(), fn( Book $book ) => null !== $book->status );
 	}
 
 	/**
@@ -72,7 +93,6 @@ class Books {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'library_book',
-				'post_status' => Status::get_values(),
 				'numberposts' => -1,
 			)
 		);
@@ -88,6 +108,7 @@ class Books {
 		$terms = is_array( $terms ) ? $terms : array();
 		// The languages by term ID, which the edition languages of a book are.
 		$language_terms = array_column( wp_list_filter( $terms, array( 'taxonomy' => 'library_language' ) ), null, 'term_id' );
+		$reader         = get_current_user_id();
 
 		foreach ( $posts as $post ) {
 			$volume_number  = (string) get_post_meta( $post->ID, 'library_volume_number', true );
@@ -102,11 +123,11 @@ class Books {
 					'library_subtitle'      => get_post_meta( $post->ID, 'library_subtitle', true ),
 				)
 			);
-			$readings       = Meta::get_readings( $post->ID );
+			$readings       = Meta::get_readings( $post->ID, $reader );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$published_date = (string) get_post_meta( $post->ID, 'library_published_date', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
-			$printed_date   = (string) get_post_meta( $post->ID, 'library_printed_date', true );
+			$printed_date   = Shelf::get_printed_date( $post->ID, $reader );
 			$authors        = Taxonomies::get_top_level_terms( Taxonomies::get_authors( $post->ID ) );
 			$contributors   = Taxonomies::get_top_level_terms( Taxonomies::get_contributors( $post->ID ) );
 			$translators    = Taxonomies::get_top_level_terms( Taxonomies::get_contributors( $post->ID, 'translator' ) );
@@ -120,7 +141,7 @@ class Books {
 				id:                 $post->ID,
 				title:              $post->post_title,
 				full_title:         $full_title,
-				status:             Status::from( $post->post_status ),
+				status:             Shelf::get_status( $post->ID, $reader ),
 				// From its cycle, as typed: "Star Wars, Young Jedi Knights"; a volume without series is one of its title.
 				series:             '' === $series && null !== $volume ? $post->post_title : $series,
 				// Its series comes first, before its cycles.
@@ -134,7 +155,7 @@ class Books {
 				published_date:     $published_date,
 				edition_date:       $edition_date,
 				printed_date:       $printed_date,
-				added:              $post->post_date,
+				added:              Shelf::get_added( $post->ID, $reader ),
 				authors:            wp_list_pluck( $authors, 'name' ),
 				author_ids:         wp_list_pluck( $authors, 'term_id' ),
 				contributor_ids:    wp_list_pluck( $contributors, 'term_id' ),
@@ -155,6 +176,30 @@ class Books {
 	}
 
 	/**
+	 * An image of a cover, of an edition or of the copy of a reader: its medium size, else the image itself, as for an AVIF
+	 * the server cannot resize, with its size, which gives the image its place before it loads, and its sizes of the same
+	 * shape, as WordPress lists them for a srcset, for the browser to take the one the width it shows needs: a list small,
+	 * the page of the book sharp. None without image.
+	 *
+	 * @param int $image_id Attachment ID, 0 for none.
+	 * @return array{url:string,width:int,height:int,srcset:string}|null
+	 */
+	public static function get_image( int $image_id ): ?array {
+		$image = $image_id ? wp_get_attachment_image_src( $image_id, 'medium' ) : false;
+
+		if ( ! $image ) {
+			return null;
+		}
+
+		return array(
+			'url'    => $image[0],
+			'width'  => (int) $image[1],
+			'height' => (int) $image[2],
+			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
+		);
+	}
+
+	/**
 	 * The number of a volume, its first number, as "Tome 08" or "3-4" give 8 and 3: null without one, such as "Chant II".
 	 *
 	 * @param string $volume Volume number, as typed or as the catalogue gives it.
@@ -165,21 +210,22 @@ class Books {
 	}
 
 	/**
-	 * Date of a book: when the work first came out, or else its edition, or else its copy was printed.
+	 * Date of a book: when the work first came out, or else its edition, the same for every reader, whatever their copy.
 	 *
 	 * @param Book $book Book, from get_books().
 	 * @return string
 	 */
 	public static function get_date( Book $book ): string {
-		return array_find( array( $book->published_date, $book->edition_date, $book->printed_date ), fn( string $date ) => '' !== $date ) ?? '';
+		return '' !== $book->published_date ? $book->published_date : $book->edition_date;
 	}
 
 	/**
 	 * The readings of books, one per read date, kept or not: each one a copy of its book with the date of the reading as
 	 * read date, see Book::with(). Those whose date is unknown come first, then by date, then by book. A book read again
-	 * counts once per reading. Those of all the books are worked out once a request, as the stats ask for them often.
+	 * counts once per reading. Those of the books on the shelves of the reader are worked out once a request, as the stats
+	 * ask for them often.
 	 *
-	 * @param array<int,Book>|null $books Books, all of them when null.
+	 * @param array<int,Book>|null $books Books, those on the shelves of the reader when null.
 	 * @return list<Book>
 	 */
 	public static function get_readings( ?array $books = null ): array {
@@ -187,9 +233,9 @@ class Books {
 			return self::compute_readings( $books );
 		}
 
-		$all_books = self::get_books();
+		$shelved = self::get_shelved();
 
-		self::$readings ??= self::compute_readings( $all_books );
+		self::$readings ??= self::compute_readings( $shelved );
 
 		return self::$readings;
 	}
@@ -392,8 +438,7 @@ class Books {
 
 	/**
 	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year", a sub-collection
-	 * after its collection: "Gallimard, Folio, Science-fiction no. 271". Without its edition date, the year its copy was
-	 * printed stands for it.
+	 * after its collection: "Gallimard, Folio, Science-fiction no. 271". The same for every reader, whatever their copy.
 	 *
 	 * A collective work is credited to its publishing directors, as catalogues have it, and to none of its authors:
 	 * "Benoît Mouchart (dir.) · Casterman · 2020", or "Casterman · 2020" without director.
@@ -427,7 +472,6 @@ class Books {
 
 		$names = implode( ', ', wp_list_pluck( Taxonomies::get_credited_people( $book_id ), 'name' ) );
 		$date  = (string) get_post_meta( $book_id, 'library_edition_date', true );
-		$date  = '' !== $date ? $date : (string) get_post_meta( $book_id, 'library_printed_date', true );
 
 		if ( '' !== $names && Posts::is_collective( $book_id ) ) {
 			$names = self::format_directors( $names );

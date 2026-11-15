@@ -10,6 +10,7 @@ export const { addQueryArgs } = window.wp.url;
 export const {
 	appUrl,
 	bookFields,
+	catalogue,
 	editUrl,
 	forms,
 	icons,

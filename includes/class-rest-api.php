@@ -39,10 +39,12 @@ class Rest_API {
 	public function hooks(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_fields' ) );
+		add_filter( 'rest_prepare_library_book', array( $this, 'hide_shelf' ), 10, 2 );
 	}
 
 	/**
-	 * Register the fields added to the books of the core REST API: its credits, its main title, its readings in order, and
+	 * Register the fields added to the books of the core REST API: its credits, its main title, its shelf for the reader,
+	 * their copy and their readings in order among them, and
 	 * what a list of books, or the page of a book, shows of its cover and terms, so that it needs to embed neither the
 	 * image nor the terms, whole; and to the series and the publishers, their path as a book types them, after their
 	 * cycles or their collections, and the ID of the publisher of a collection.
@@ -65,17 +67,12 @@ class Rest_API {
 					'type'        => 'string',
 				),
 			),
-			'readings'               => array(
-				'get_callback' => fn( array $book ) => array_map( fn( Reading $reading ) => $reading->to_array(), Meta::get_readings( $book['id'] ) ),
-				'schema'       => array(
-					'description' => __( 'Readings of the book, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}.', 'library' ),
-					'type'        => 'array',
-					'items'       => Rest_Schemas::get_reading(),
-					'readonly'    => true,
-				),
+			'shelf'                  => array(
+				'get_callback' => fn( array $book ) => Shelf::to_array( $book['id'], get_current_user_id() ),
+				'schema'       => array( 'description' => __( 'Shelf of the book for the current reader: where it is for them, since when, and their copy, with their readings.', 'library' ) ) + Rest_Schemas::get_shelf(),
 			),
 			'cover'                  => array(
-				'get_callback' => fn( array $book ) => $this->get_cover( $book['id'] ),
+				'get_callback' => fn( array $book ) => Books::get_image( (int) get_post_thumbnail_id( $book['id'] ) ),
 				'schema'       => array(
 					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover.', 'library' ),
 					'type'        => array( 'object', 'null' ),
@@ -171,30 +168,6 @@ class Rest_API {
 	}
 
 	/**
-	 * The cover of a book: its medium size, else the image itself, as for an AVIF the server cannot resize, with its size,
-	 * which gives the image its place before it loads, and its sizes of the same shape, as WordPress lists them for a
-	 * srcset, for the browser to take the one the width it shows needs: a list small, the page of the book sharp.
-	 *
-	 * @param int $book_id Book ID.
-	 * @return array{url:string,width:int,height:int,srcset:string}|null
-	 */
-	private function get_cover( int $book_id ): ?array {
-		$image_id = (int) get_post_thumbnail_id( $book_id );
-		$image    = wp_get_attachment_image_src( $image_id, 'medium' );
-
-		if ( ! $image ) {
-			return null;
-		}
-
-		return array(
-			'url'    => $image[0],
-			'width'  => (int) $image[1],
-			'height' => (int) $image[2],
-			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
-		);
-	}
-
-	/**
 	 * Publishers of a book, each followed by the collections it is in under it, from the widest, each once, with its term
 	 * ID, as its page in the app takes it: the terms of the book and the ones they are under.
 	 *
@@ -236,6 +209,27 @@ class Rest_API {
 	}
 
 	/**
+	 * Leave out of a book what only its readers see, its shelf, which a visitor, or a user who shelves no book, does not
+	 * get.
+	 *
+	 * @param WP_REST_Response $response Response of a book.
+	 * @param WP_Post          $post     Book.
+	 * @return WP_REST_Response
+	 */
+	public function hide_shelf( WP_REST_Response $response, WP_Post $post ): WP_REST_Response {
+		if ( current_user_can( 'shelve_book', $post->ID ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		unset( $data['shelf'] );
+		$response->set_data( $data );
+
+		return $response;
+	}
+
+	/**
 	 * Register the routes of the plugin, then the schema of each one, from Rest_Schemas, which the index gives asked for
 	 * help.
 	 *
@@ -255,7 +249,8 @@ class Rest_API {
 		);
 
 		// A book that does not exist is not found, before any right is checked, as core does: 404 rather than 403.
-		$can_edit_book = fn( WP_REST_Request $request ) => self::check_book( $request['id'] ) ?? current_user_can( 'edit_post', $request['id'] );
+		$can_edit_book   = fn( WP_REST_Request $request ) => self::check_book( $request['id'] ) ?? current_user_can( 'edit_post', $request['id'] );
+		$can_shelve_book = fn( WP_REST_Request $request ) => self::check_book( $request['id'] ) ?? current_user_can( 'shelve_book', $request['id'] );
 
 		register_rest_route(
 			'library/v1',
@@ -278,6 +273,31 @@ class Rest_API {
 					'callback'            => array( $this, 'update_book' ),
 					'permission_callback' => $can_edit_book,
 					'args'                => $this->get_book_args( false ),
+				),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
+			'books/(?P<id>\d+)/shelf',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'ID of the book.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'shelve_book' ),
+					'permission_callback' => $can_shelve_book,
+					'args'                => self::get_shelf_args(),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'shelve_book' ),
+					'permission_callback' => $can_shelve_book,
 				),
 			),
 		);
@@ -317,7 +337,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( Stats::get_reading_stats() + array( 'year_to_date' => Stats::get_reading_year_to_date() ) ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 			),
 		);
 
@@ -327,7 +347,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_readings' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'page'     => array(
 						'description' => __( 'Page of the months.', 'library' ),
@@ -352,7 +372,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_reading_idea' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'position' => array(
 						'description' => __( 'Position in the week\'s list of ideas, 0 for the idea of the week.', 'library' ),
@@ -370,7 +390,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( new Achievements()->get_achievements() ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 			),
 		);
 
@@ -380,7 +400,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn( WP_REST_Request $request ) => rest_ensure_response( Recap::get_recap( (int) $request['year'] ) ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'year' => array(
 						'description' => __( 'Year of the recap.', 'library' ),
@@ -397,7 +417,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_series' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Term ID of the series, or of the cycle.', 'library' ),
@@ -414,7 +434,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publisher' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Term ID of the collection, or of the publisher.', 'library' ),
@@ -431,7 +451,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_person' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Term ID of the person, or of one of their other names.', 'library' ),
@@ -469,11 +489,6 @@ class Rest_API {
 			),
 			'excerpt'        => array(
 				'description' => __( 'Summary of the book in a few words, its excerpt.', 'library' ),
-				'type'        => 'string',
-				'default'     => '',
-			),
-			'content'        => array(
-				'description' => __( 'Notes on the book, its content.', 'library' ),
 				'type'        => 'string',
 				'default'     => '',
 			),
@@ -518,31 +533,20 @@ class Rest_API {
 				'description' => __( 'Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them.', 'library' ),
 				'type'        => 'object',
 				'default'     => array(),
-				'properties'  => array(
-					'reading' => array(
-						'description' => __( 'Readings of the book, which replace its own, each with the rating it ended with, the one in progress last.', 'library' ),
-						'type'        => 'array',
-						'items'       => Rest_Schemas::get_reading(),
-					),
-					'rating'  => array(
-						'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
-						'type'        => array( 'number', 'null' ),
-						'minimum'     => Meta::RATING_LIMITS['minimum'],
-						'maximum'     => Meta::RATING_LIMITS['maximum'],
-						'multipleOf'  => Meta::RATING_LIMITS['multipleOf'],
-					),
-				),
-			),
-			'status'         => array(
-				'description' => __( 'Status of the book: in the library, i.e. published, not kept or to buy.', 'library' ),
-				'type'        => 'string',
-				'enum'        => array_keys( Status::get_choices() ),
-				'default'     => 'publish',
 			),
 		);
 
 		if ( $adding ) {
-			return $args;
+			// A book added is on a shelf of the reader who adds it, the library unless they say otherwise, with their copy; its
+			// shelf then changes through its own route, as the reader of a book may not edit it.
+			return $args + array(
+				'shelf' => array(
+					'description' => __( 'Shelf of the reader the book goes on, and their copy, as the route of its shelf takes them.', 'library' ),
+					'type'        => 'object',
+					'properties'  => self::get_shelf_args(),
+					'default'     => array( 'status' => Status::In_Library->value ),
+				),
+			);
 		}
 
 		return array_map( fn( array $arg ) => array_diff_key( $arg, array_flip( array( 'required', 'default' ) ) ), $args );
@@ -588,19 +592,24 @@ class Rest_API {
 		$terms = $this->get_terms( $request, $roles );
 		$post  = array(
 			'post_type'    => 'library_book',
-			'post_status'  => $request['status'],
+			'post_status'  => 'publish',
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
-			'post_content' => $request['content'],
 		) + Posts::get_slug_fields( 0, $meta );
 
-		$book_id = wp_insert_post( wp_slash( $post ), true );
+		// The hooks after the book is written wait for its meta and terms, as the REST API of core does: its revision among them.
+		$book_id = wp_insert_post( wp_slash( $post ), true, false );
 
 		if ( is_wp_error( $book_id ) ) {
 			return $book_id;
 		}
 
 		$this->save_book( $book_id, $request, $meta, $terms, $roles );
+		$shelf = (array) $request['shelf'];
+
+		Shelf::set_status( $book_id, get_current_user_id(), Status::tryFrom( (string) ( $shelf['status'] ?? '' ) ) ?? Status::In_Library );
+		Shelf::save( $book_id, get_current_user_id(), Shelf::from_names( $shelf ) );
+		wp_after_insert_post( $book_id, false, null );
 
 		$response = $this->get_book_response( $book_id );
 		$response->set_status( 201 );
@@ -609,9 +618,9 @@ class Rest_API {
 	}
 
 	/**
-	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them, its readings
-	 * apart, which their own form edits.
+	 * A book as its form edits it, as the route that edits it takes it back: its title and excerpt as typed, the names of
+	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them; the copy
+	 * of the reader apart, which the form of their reading edits.
 	 *
 	 * The form edits one publisher and one collection, after the collections it is part of: a book given more gives its first
 	 * collection, or else publisher.
@@ -631,15 +640,13 @@ class Rest_API {
 		$publisher  = current( Taxonomies::get_top_level_terms( $publishers ) );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
-		// The readings are the reading of the book, which its own form edits.
-		$meta = array_diff_key( Meta::get_values( $book->ID ), array( 'library_reading' => true ) );
+		$meta       = Meta::get_values( $book->ID );
 
 		return rest_ensure_response(
 			array(
 				'id'         => $book->ID,
 				'title'      => $book->post_title,
 				'excerpt'    => $book->post_excerpt,
-				'content'    => $book->post_content,
 				'people'     => self::get_names( $book->ID ),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
@@ -702,23 +709,95 @@ class Rest_API {
 			$post['post_excerpt'] = $request['excerpt'];
 		}
 
-		if ( $request->has_param( 'content' ) ) {
-			$post['post_content'] = $request['content'];
-		}
-
-		if ( $request->has_param( 'status' ) ) {
-			$post['post_status'] = $request['status'];
-		}
-
-		$updated = wp_update_post( wp_slash( $post ), true );
+		$before  = get_post( $book_id );
+		$updated = wp_update_post( wp_slash( $post ), true, false );
 
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
 
 		$this->save_book( $book_id, $request, $meta, $terms, $roles );
+		wp_after_insert_post( $book_id, true, $before );
 
 		return $this->get_book_response( $book_id );
+	}
+
+	/**
+	 * What the route of a shelf takes, each optional: where the book goes for the reader, and their copy, by the names of
+	 * Shelf::NAMES, as a book gives them in its shelf.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 */
+	private static function get_shelf_args(): array {
+		return array(
+			'status'       => array(
+				'description' => __( 'Where the book goes for the reader: in-library, not-kept or to-buy.', 'library' ),
+				'type'        => 'string',
+				'enum'        => Status::get_values(),
+			),
+			'printed_date' => array(
+				'description' => Meta::get_description( 'library_printed_date' ),
+				'type'        => 'string',
+				'pattern'     => '^$|' . Meta::get_pattern( 'library_printed_date' ),
+			),
+			'readings'     => array(
+				'description' => __( 'Readings of the book, which replace those of the reader, each with the rating it ended with, the one in progress last.', 'library' ),
+				'type'        => 'array',
+				'items'       => Rest_Schemas::get_reading(),
+			),
+			'read'         => array(
+				'description' => __( 'Whether the reader read it: false takes their readings ended away, true without one reads it now.', 'library' ),
+				'type'        => 'boolean',
+			),
+			'in_progress'  => array(
+				'description' => Meta::get_description( 'library_in_progress' ),
+				'type'        => 'boolean',
+			),
+			'notes'        => array(
+				'description' => __( 'Notes of the reader on the book, as typed, HTML as a post takes it.', 'library' ),
+				'type'        => 'string',
+			),
+			'cover'        => array(
+				'description'       => __( 'ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition.', 'library' ),
+				'type'              => 'integer',
+				'minimum'           => 0,
+				'validate_callback' => fn( $image_id ) => Shelf::can_cover( (int) $image_id, get_current_user_id() ),
+			),
+			'rating'       => array(
+				'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
+				'type'        => array( 'number', 'null' ),
+				'minimum'     => Meta::RATING_LIMITS['minimum'],
+				'maximum'     => Meta::RATING_LIMITS['maximum'],
+				'multipleOf'  => Meta::RATING_LIMITS['multipleOf'],
+			),
+		);
+	}
+
+	/**
+	 * Put a book on a shelf of the current reader with their copy, only what is sent changing, or take it off their
+	 * shelves with DELETE, unless they read it, and give it back, as `wp/v2/books` gives it: see Shelf.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function shelve_book( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$reader = get_current_user_id();
+
+		if ( WP_REST_Server::DELETABLE === $request->get_method() ) {
+			if ( ! Shelf::set_status( $request['id'], $reader, null ) ) {
+				return new WP_Error( 'library_book_read', __( 'A book you read stays on your shelves: say it is not kept instead.', 'library' ), array( 'status' => 409 ) );
+			}
+
+			return $this->get_book_response( $request['id'] );
+		}
+
+		if ( $request->has_param( 'status' ) ) {
+			Shelf::set_status( $request['id'], $reader, Status::from( $request['status'] ) );
+		}
+
+		Shelf::save( $request['id'], $reader, Shelf::from_names( $request->get_params() ) );
+
+		return $this->get_book_response( $request['id'] );
 	}
 
 	/**
@@ -815,7 +894,10 @@ class Rest_API {
 			return;
 		}
 
-		if ( wp_attachment_is_image( $cover_id ) && current_user_can( 'edit_post', $cover_id ) ) {
+		// A reader may not edit the posts, its cover included, which a cover they uploaded is: see Roles.
+		$can_cover = get_current_user_id() === (int) get_post_field( 'post_author', $cover_id ) || current_user_can( 'edit_post', $cover_id );
+
+		if ( wp_attachment_is_image( $cover_id ) && $can_cover ) {
 			wp_update_post(
 				array(
 					'ID'          => $cover_id,
