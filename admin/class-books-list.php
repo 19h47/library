@@ -342,28 +342,27 @@ class Books_List {
 			return $clauses;
 		}
 
-		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_edition_date';
-		$keys    = array(
-			'library_edition_date' => 'library_edition_date',
-			'library_printed_date' => Shelf::key( 'library_printed_date', get_current_user_id() ),
-			'library_rating'       => 'library_rating',
-		);
-
-		if ( ! isset( $keys[ $orderby ] ) ) {
-			return $clauses;
-		}
-
 		global $wpdb;
-
-		$order = 'ASC' === strtoupper( $query->get( 'order' ) ) ? 'ASC' : 'DESC';
 
 		// One row per book, even with the meta saved twice. The values and the titles are sorted on their first 191 characters,
 		// more than a date, a rating or a title needs: MySQL 5.7 writes on disk a temporary table with a TEXT column.
 		// The ID comes last, for the books of the same date and title to keep their place from one page to the next.
-		// The rating of a book is the one of its latest reading rated, no meta of its own.
-		$sort               = 'library_rating' === $orderby
-			? 'SELECT post_id, rating AS meta_value FROM ( ' . Query::get_ratings_sql() . ' ) AS library_ratings'
-			: $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $keys[ $orderby ] );
+		$by_meta = fn( string $key ): string => $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $key );
+		// The SQL of the values each order sorts on, by book: the rating of a book is the one of the latest reading the
+		// reader rated, no meta of its own.
+		$sorts   = array(
+			'library_edition_date' => fn() => $by_meta( 'library_edition_date' ),
+			'library_printed_date' => fn() => $by_meta( Shelf::key( 'library_printed_date', get_current_user_id() ) ),
+			'library_rating'       => fn() => 'SELECT post_id, rating AS meta_value FROM ( ' . Query::get_ratings_sql() . ' ) AS library_ratings',
+		);
+		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_edition_date';
+
+		if ( ! isset( $sorts[ $orderby ] ) ) {
+			return $clauses;
+		}
+
+		$order              = 'ASC' === strtoupper( $query->get( 'order' ) ) ? 'ASC' : 'DESC';
+		$sort               = $sorts[ $orderby ]();
 		$clauses['join']   .= " LEFT JOIN ( $sort ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID";
 		$clauses['orderby'] = "library_sort.meta_value IS NULL, library_sort.meta_value $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
 
@@ -386,7 +385,7 @@ class Books_List {
 		$current = Query::get_shelf( $GLOBALS['wp_query'] );
 		$counts  = self::count_shelved();
 		$shelves = array(
-			implode( ',', Status::get_values() ) => array( __( 'My shelves', 'library' ), array_sum( $counts ) ),
+			Status::get_list() => array( __( 'My shelves', 'library' ), array_sum( $counts ) ),
 		);
 
 		foreach ( Status::cases() as $status ) {

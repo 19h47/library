@@ -582,7 +582,7 @@ class Meta {
 		}
 
 		/* translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it. */
-		$message = sprintf( __( 'The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your shelves instead.', 'library' ), $isbn, get_the_title( $book_id ) );
+		$message = sprintf( __( 'The ISBN %1$s already belongs to “%2$s” in the catalogue. Add that book to your shelves instead.', 'library' ), $isbn, get_the_title( $book_id ) );
 
 		return new WP_Error(
 			'library_isbn_taken',

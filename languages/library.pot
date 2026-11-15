@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T17:01:03+00:00\n"
+"POT-Creation-Date: 2026-11-15T17:11:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -118,20 +118,20 @@ msgstr ""
 msgid "Table ordered by rating."
 msgstr ""
 
-#: admin/class-books-list.php:389
+#: admin/class-books-list.php:388
 #: admin/class-metaboxes.php:216
 #: app/partials/library-app.php:154
 msgid "My shelves"
 msgstr ""
 
 #. translators: %s: reading percentage.
-#: admin/class-books-list.php:415
+#: admin/class-books-list.php:414
 #: app/js/bricks/library-progress.js:18
 #, php-format,js-format
 msgid "%s%% read"
 msgstr ""
 
-#: admin/class-books-list.php:419
+#: admin/class-books-list.php:418
 msgid "Loading percent read..."
 msgstr ""
 
@@ -291,7 +291,7 @@ msgstr ""
 
 #: admin/class-metaboxes.php:296
 #: includes/class-rest-api.php:748
-msgid "A book you read stays on your shelves: say it is not kept instead."
+msgid "A book you have read stays on your shelves. Mark it as not kept instead."
 msgstr ""
 
 #: admin/class-reading-idea-widget.php:46
@@ -619,6 +619,7 @@ msgstr ""
 
 #: admin/partials/library-shelf.php:32
 #: app/partials/library-app.php:575
+#: app/js/lib/book-lines.js:105
 msgid "On none of my shelves"
 msgstr ""
 
@@ -1625,7 +1626,7 @@ msgstr ""
 #. translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it.
 #: includes/class-meta.php:585
 #, php-format
-msgid "The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your shelves instead."
+msgid "The ISBN %1$s already belongs to “%2$s” in the catalogue. Add that book to your shelves instead."
 msgstr ""
 
 #: includes/class-posts.php:145
@@ -1714,7 +1715,7 @@ msgid "Filter books list"
 msgstr ""
 
 #: includes/class-query.php:321
-msgid "Statuses of the books on the shelves of the reader to list, by the date they added them, latest first; the whole catalogue without."
+msgid "Limit results to books on the shelves of the current user with these statuses, latest added first. All books when omitted."
 msgstr ""
 
 #. translators: Search keyword with a form, such as a novel, as named in the library: the keyword form stays in English.
@@ -1918,11 +1919,11 @@ msgid "Main title of the book, its title but its subtitle, with its series and i
 msgstr ""
 
 #: includes/class-rest-api.php:72
-msgid "Shelf of the book for the current reader: where it is for them, since when, and their copy, with their readings."
+msgid "The shelf of the book for the current user, and their copy of it."
 msgstr ""
 
 #: includes/class-rest-api.php:76
-msgid "Cover of the edition of the book; null without cover."
+msgid "The cover of the edition of the book, or null."
 msgstr ""
 
 #: includes/class-rest-api.php:81
@@ -2040,7 +2041,7 @@ msgid "Book meta by their names, without the prefix of their keys, such as isbn,
 msgstr ""
 
 #: includes/class-rest-api.php:535
-msgid "Shelf of the reader the book goes on, and their copy, as the route of its shelf takes them."
+msgid "The shelf of the current user to put the book on, and their copy of it, as the shelf endpoint accepts them."
 msgstr ""
 
 #: includes/class-rest-api.php:563
@@ -2053,7 +2054,7 @@ msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
 #: includes/class-rest-api.php:725
-msgid "Where the book goes for the reader: in-library, not-kept or to-buy."
+msgid "The shelf to put the book on for the current user: in-library, not-kept or to-buy."
 msgstr ""
 
 #: includes/class-rest-api.php:894
@@ -2174,47 +2175,47 @@ msgid "Rating it ended with, out of 10, by half points; null without, and while 
 msgstr ""
 
 #: includes/class-rest-schemas.php:277
-msgid "Readings of the reader, from the first to the latest, each with its start, its end and the rating it ended with: {\"start\":\"2026-10-20\",\"end\":\"2026-11-02\",\"rating\":8}; sent, they replace theirs, the one in progress last."
+msgid "The readings of the current user, from the first to the latest, each with its start, end and rating. When sent, they replace the existing ones, a reading in progress last."
 msgstr ""
 
 #: includes/class-rest-schemas.php:278
-msgid "Whether the reader read it, whether they have a reading ended; sent false, it takes their readings ended away, true without one reads it now."
+msgid "Whether or not the current user has read the book. Sending false removes their completed readings; sending true without one adds a reading that ends now."
 msgstr ""
 
 #: includes/class-rest-schemas.php:280
-msgid "Rating of the reader, the one of their latest reading rated, null without; sent, it rates their latest reading ended, null takes it away."
+msgid "The rating of the current user, from their latest rated reading, or null. When sent, it rates their latest completed reading; null removes it."
 msgstr ""
 
 #: includes/class-rest-schemas.php:282
-msgid "Notes of the reader, HTML as a post takes it."
+msgid "The notes of the current user on the book, as HTML."
 msgstr ""
 
 #: includes/class-rest-schemas.php:285
-msgid "Notes of the reader, as typed and as HTML."
+msgid "The notes of the current user on the book."
 msgstr ""
 
 #: includes/class-rest-schemas.php:288
-msgid "As typed."
+msgid "Notes, as they exist in the database."
 msgstr ""
 
 #: includes/class-rest-schemas.php:289
-msgid "HTML, its paragraphs."
+msgid "Notes, transformed for display."
 msgstr ""
 
 #: includes/class-rest-schemas.php:294
-msgid "ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition."
+msgid "The ID of an image the current user uploaded of their copy, or 0 for none. It replaces the cover of the edition for them."
 msgstr ""
 
 #: includes/class-rest-schemas.php:296
-msgid "Photo of the copy of the reader, its ID and its image; null without, the cover of the edition shown instead."
+msgid "The photo of the copy of the current user, with its ID, or null to show the cover of the edition."
 msgstr ""
 
 #: includes/class-rest-schemas.php:316
-msgid "Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves."
+msgid "The shelf of the book for the current user: in-library, not-kept or to-buy, or null when it is on none of their shelves."
 msgstr ""
 
 #: includes/class-rest-schemas.php:317
-msgid "When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves."
+msgid "The date the current user added the book, in the site's timezone, or null."
 msgstr ""
 
 #: includes/class-rest-schemas.php:334
@@ -3139,7 +3140,7 @@ msgstr ""
 msgid "No barcode found in the photo: take it again, closer."
 msgstr ""
 
-#: app/js/lib/api.js:556
+#: app/js/lib/api.js:562
 msgid "The books could not be loaded."
 msgstr ""
 
@@ -3171,10 +3172,6 @@ msgstr ""
 #: app/js/lib/book-lines.js:86
 msgctxt "book in its original language, short tag"
 msgid "Original"
-msgstr ""
-
-#: app/js/lib/book-lines.js:105
-msgid "Not on your shelves"
 msgstr ""
 
 #. translators: %s: number of readings of a book, an unknown date included, 2 or more.

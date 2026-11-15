@@ -274,26 +274,26 @@ class Rest_Schemas {
 		foreach ( Shelf::NAMES as $name => $key ) {
 			$copy[ $name ] = match ( $name ) {
 				'printed_date' => self::property( 'string', Meta::get_description( $key ), $writing ? array( 'pattern' => '^$|' . Meta::get_pattern( $key ) ) : array() ),
-				'readings'     => self::property( 'array', __( 'Readings of the reader, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}; sent, they replace theirs, the one in progress last.', 'library' ), array( 'items' => self::get_reading() ) ),
-				'read'         => self::property( 'boolean', __( 'Whether the reader read it, whether they have a reading ended; sent false, it takes their readings ended away, true without one reads it now.', 'library' ) ),
+				'readings'     => self::property( 'array', __( 'The readings of the current user, from the first to the latest, each with its start, end and rating. When sent, they replace the existing ones, a reading in progress last.', 'library' ), array( 'items' => self::get_reading() ) ),
+				'read'         => self::property( 'boolean', __( 'Whether or not the current user has read the book. Sending false removes their completed readings; sending true without one adds a reading that ends now.', 'library' ) ),
 				'in_progress'  => self::property( 'boolean', Meta::get_description( $key ) ),
-				'rating'       => self::property( array( 'number', 'null' ), __( 'Rating of the reader, the one of their latest reading rated, null without; sent, it rates their latest reading ended, null takes it away.', 'library' ), Readings::RATING_LIMITS ),
+				'rating'       => self::property( array( 'number', 'null' ), __( 'The rating of the current user, from their latest rated reading, or null. When sent, it rates their latest completed reading; null removes it.', 'library' ), Readings::RATING_LIMITS ),
 				'notes'        => $writing
-					? self::property( 'string', __( 'Notes of the reader, HTML as a post takes it.', 'library' ) )
+					? self::property( 'string', __( 'The notes of the current user on the book, as HTML.', 'library' ) )
 					: self::property(
 						'object',
-						__( 'Notes of the reader, as typed and as HTML.', 'library' ),
+						__( 'The notes of the current user on the book.', 'library' ),
 						array(
 							'properties' => array(
-								'raw'      => self::property( 'string', __( 'As typed.', 'library' ) ),
-								'rendered' => self::property( 'string', __( 'HTML, its paragraphs.', 'library' ) ),
+								'raw'      => self::property( 'string', __( 'Notes, as they exist in the database.', 'library' ) ),
+								'rendered' => self::property( 'string', __( 'Notes, transformed for display.', 'library' ) ),
 							),
 						)
 					),
 				'cover'        => $writing
-					? self::property( 'integer', __( 'ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition.', 'library' ), array( 'minimum' => 0 ) )
+					? self::property( 'integer', __( 'The ID of an image the current user uploaded of their copy, or 0 for none. It replaces the cover of the edition for them.', 'library' ), array( 'minimum' => 0 ) )
 					: array_merge_recursive(
-						self::get_image( __( 'Photo of the copy of the reader, its ID and its image; null without, the cover of the edition shown instead.', 'library' ) ),
+						self::get_image( __( 'The photo of the copy of the current user, with its ID, or null to show the cover of the edition.', 'library' ) ),
 						array( 'properties' => array( 'id' => array( 'type' => 'integer' ) ) )
 					),
 			};
@@ -313,8 +313,8 @@ class Rest_Schemas {
 			'title'                => 'library-shelf',
 			'type'                 => 'object',
 			'properties'           => array(
-				'status' => self::property( array( 'string', 'null' ), __( 'Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
-				'added'  => self::property( array( 'string', 'null' ), __( 'When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves.', 'library' ) ),
+				'status' => self::property( array( 'string', 'null' ), __( 'The shelf of the book for the current user: in-library, not-kept or to-buy, or null when it is on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
+				'added'  => self::property( array( 'string', 'null' ), __( 'The date the current user added the book, in the site\'s timezone, or null.', 'library' ) ),
 			) + self::get_copy( false ),
 			'additionalProperties' => false,
 		);

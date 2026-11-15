@@ -56,4 +56,14 @@ enum Status: string {
 	public static function get_values(): array {
 		return array_column( self::cases(), 'value' );
 	}
+
+	/**
+	 * The values of every status, separated with commas: all the shelves of a reader, as the URLs and the queries of the
+	 * books ask for them.
+	 *
+	 * @return string
+	 */
+	public static function get_list(): string {
+		return implode( ',', self::get_values() );
+	}
 }

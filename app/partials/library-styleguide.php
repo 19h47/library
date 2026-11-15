@@ -838,7 +838,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<div class="library-book" data-sample="book">
 						<?php Markup::render_component( 'book-header', array( 'level' => 4 ) ); ?>
-						<div class="library-prose" data-html="content" hidden></div>
+						<div class="library-prose" data-html="notes" hidden></div>
 						<div class="library-form library-reading">
 							<div class="library-pills">
 								<?php

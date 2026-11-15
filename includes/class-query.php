@@ -318,7 +318,7 @@ class Query {
 	 */
 	public function add_shelf_param( array $params ): array {
 		$params['shelf'] = array(
-			'description' => __( 'Statuses of the books on the shelves of the reader to list, by the date they added them, latest first; the whole catalogue without.', 'library' ),
+			'description' => __( 'Limit results to books on the shelves of the current user with these statuses, latest added first. All books when omitted.', 'library' ),
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',

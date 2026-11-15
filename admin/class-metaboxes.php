@@ -51,8 +51,8 @@ class Metaboxes {
 	}
 
 	/**
-	 * Keep the classic edit screen for books: the block editor shows the boxes of a book apart from it, and its notes
-	 * stay text in paragraphs, which the reading app edits as typed.
+	 * Keep the classic edit screen for books: the block editor shows the boxes of a book, its record and the shelf of the
+	 * reader, apart from it.
 	 *
 	 * @param bool   $use_block_editor Whether the post type uses the block editor.
 	 * @param string $post_type        Post type.
@@ -293,7 +293,7 @@ class Metaboxes {
 			return;
 		}
 
-		wp_admin_notice( esc_html__( 'A book you read stays on your shelves: say it is not kept instead.', 'library' ), array( 'type' => 'warning' ) );
+		wp_admin_notice( esc_html__( 'A book you have read stays on your shelves. Mark it as not kept instead.', 'library' ), array( 'type' => 'warning' ) );
 	}
 
 	/**

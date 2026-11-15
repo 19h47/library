@@ -226,7 +226,7 @@ class Page {
 	 */
 	private function preload( string $view, int $id ): void {
 		// The paths of books with a space as %20, as wp.url encodes it: wp.apiFetch matches the paths once decoded, a + as itself.
-		$shelves = implode( ',', Status::get_values() );
+		$shelves = Status::get_list();
 		$books   = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args, '', '&', PHP_QUERY_RFC3986 );
 		$list    = fn( array $args ) => $books(
 			$args + array(
@@ -498,7 +498,7 @@ JS;
 		[ $favicon_dark_url ] = Plugin::get_asset( 'app/favicon-dark.svg' );
 
 		return array(
-			'statuses'         => implode( ',', Status::get_values() ),
+			'statuses'         => Status::get_list(),
 			'bookFields'       => self::BOOK_FIELDS,
 			'perPage'          => self::PER_PAGE,
 			'maxPerPage'       => self::MAX_PER_PAGE,

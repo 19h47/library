@@ -69,11 +69,11 @@ class Rest_API {
 			),
 			'shelf'                  => array(
 				'get_callback' => fn( array $book ) => Shelf::to_array( $book['id'], get_current_user_id() ),
-				'schema'       => array( 'description' => __( 'Shelf of the book for the current reader: where it is for them, since when, and their copy, with their readings.', 'library' ) ) + Rest_Schemas::get_shelf(),
+				'schema'       => array( 'description' => __( 'The shelf of the book for the current user, and their copy of it.', 'library' ) ) + Rest_Schemas::get_shelf(),
 			),
 			'cover'                  => array(
 				'get_callback' => fn( array $book ) => Books::get_image( (int) get_post_thumbnail_id( $book['id'] ) ),
-				'schema'       => Rest_Schemas::get_image( __( 'Cover of the edition of the book; null without cover.', 'library' ) ),
+				'schema'       => Rest_Schemas::get_image( __( 'The cover of the edition of the book, or null.', 'library' ) ),
 			),
 			'names'                  => array(
 				'get_callback' => fn( array $book ) => self::get_names( $book['id'] ),
@@ -532,7 +532,7 @@ class Rest_API {
 			// shelf then changes through its own route, as the reader of a book may not edit it.
 			return $args + array(
 				'shelf' => array(
-					'description' => __( 'Shelf of the reader the book goes on, and their copy, as the route of its shelf takes them.', 'library' ),
+					'description' => __( 'The shelf of the current user to put the book on, and their copy of it, as the shelf endpoint accepts them.', 'library' ),
 					'type'        => 'object',
 					'properties'  => self::get_shelf_args(),
 					'default'     => array( 'status' => Status::In_Library->value ),
@@ -722,7 +722,7 @@ class Rest_API {
 	private static function get_shelf_args(): array {
 		$args = array(
 			'status' => array(
-				'description' => __( 'Where the book goes for the reader: in-library, not-kept or to-buy.', 'library' ),
+				'description' => __( 'The shelf to put the book on for the current user: in-library, not-kept or to-buy.', 'library' ),
 				'type'        => 'string',
 				'enum'        => Status::get_values(),
 			),
@@ -745,7 +745,7 @@ class Rest_API {
 
 		if ( WP_REST_Server::DELETABLE === $request->get_method() ) {
 			if ( ! Shelf::set_status( $request['id'], $reader, null ) ) {
-				return new WP_Error( 'library_book_read', __( 'A book you read stays on your shelves: say it is not kept instead.', 'library' ), array( 'status' => 409 ) );
+				return new WP_Error( 'library_book_read', __( 'A book you have read stays on your shelves. Mark it as not kept instead.', 'library' ), array( 'status' => 409 ) );
 			}
 
 			return $this->get_book_response( $request['id'] );

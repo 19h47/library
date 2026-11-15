@@ -263,7 +263,7 @@ export function fillBookPage( $root, book ) {
 			linkPeople( $field, getPeople( book, role ) );
 		}
 	} );
-	fillHtml( $root.querySelector( '[data-html="content"]' ), book.content );
+	fillHtml( $root.querySelector( '[data-html="notes"]' ), book.notes_html );
 }
 
 /**
