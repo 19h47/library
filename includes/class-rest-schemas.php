@@ -255,6 +255,29 @@ class Rest_Schemas {
 				'read'         => self::property( 'boolean', __( 'Whether the reader read it: whether they have a reading ended.', 'library' ) ),
 				'in_progress'  => self::property( 'boolean', __( 'Whether the reader is reading it.', 'library' ) ),
 				'rating'       => self::property( array( 'number', 'null' ), __( 'Rating of the reader, the one of their latest reading rated; null without.', 'library' ) ),
+				'notes'        => self::property(
+					'object',
+					__( 'Notes of the reader, as typed and as HTML.', 'library' ),
+					array(
+						'properties' => array(
+							'raw'      => self::property( 'string', __( 'As typed.', 'library' ) ),
+							'rendered' => self::property( 'string', __( 'HTML, its paragraphs.', 'library' ) ),
+						),
+					)
+				),
+				'cover'        => self::property(
+					array( 'object', 'null' ),
+					__( 'Photo of the copy of the reader, its ID and its image, as the cover of a book gives it; null without, the cover of the edition shown instead.', 'library' ),
+					array(
+						'properties' => array(
+							'id'     => array( 'type' => 'integer' ),
+							'url'    => array( 'type' => 'string' ),
+							'width'  => array( 'type' => 'integer' ),
+							'height' => array( 'type' => 'integer' ),
+							'srcset' => array( 'type' => 'string' ),
+						),
+					)
+				),
 			),
 			'additionalProperties' => false,
 		);
@@ -311,7 +334,6 @@ class Rest_Schemas {
 				'id'         => self::property( 'integer', __( 'ID of the book, none for a book of the catalogue.', 'library' ) ),
 				'title'      => self::property( 'string', __( 'Title of the book.', 'library' ) ),
 				'excerpt'    => self::property( 'string', __( 'Summary of the book in a few words, its excerpt.', 'library' ) ),
-				'content'    => self::property( 'string', __( 'Notes on the book, its content.', 'library' ) ),
 				'people'     => self::property(
 					'array',
 					__( 'People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person.', 'library' ),

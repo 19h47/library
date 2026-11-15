@@ -19,7 +19,6 @@ import { join } from 'library-app/format';
  * @typedef {Object} EditFields
  * @property {HTMLInputElement}    title      Its title.
  * @property {HTMLTextAreaElement} excerpt    Its summary in a few words.
- * @property {HTMLTextAreaElement} content    Its notes.
  * @property {HTMLInputElement}    publisher  Its publisher.
  * @property {HTMLInputElement}    collection Its collection.
  * @property {HTMLInputElement}    series     Its series.
@@ -60,11 +59,12 @@ function renderOptions( terms ) {
 
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
- * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
- * publisher, collection and its number, form, its shelf when it is added, the one of the list shown (the reading of a
- * book changes it after, and the printed date of the copy of the reader); then more details, which few books have, folded, their summary counting
- * the ones filled in: subtitle, first published, edition date, pages, original languages, edition languages, collective work,
- * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
+ * The fields most books have, in the order a book in hand gives them: the cover of its edition, ISBN, title, people,
+ * series and volume, publisher, collection and its number, form, its shelf when it is added, the one of the list shown;
+ * then more details, which few books have, folded, their summary counting the ones filled in: subtitle, first
+ * published, edition date, pages, original languages, edition languages, collective work, excerpt. The copy of the
+ * reader, its shelf after, its printed date, their notes and its photo, is in the form of their reading. A book added is
+ * in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
  * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
@@ -82,7 +82,6 @@ class LibraryEditElement extends Brick {
 		const {
 			title: $title,
 			excerpt: $excerpt,
-			content: $content,
 			publisher: $publisher,
 			collection: $collection,
 			series: $series,
@@ -300,7 +299,6 @@ class LibraryEditElement extends Brick {
 				const book = {
 					title: /** @type {string} */ ( data.get( 'title' ) ),
 					excerpt: $excerpt.value,
-					content: $content.value,
 					// Each name with the role of its group.
 					people: $people.value
 						.map( ( { value, group } ) => ( {
@@ -388,7 +386,6 @@ class LibraryEditElement extends Brick {
 					if ( book ) {
 						$title.value = book.title;
 						$excerpt.value = book.excerpt;
-						$content.value = book.content;
 						$publisher.value = book.publisher;
 						$collection.value = book.collection;
 						$series.value = book.series;
@@ -408,8 +405,9 @@ class LibraryEditElement extends Brick {
 
 					$details.open = false;
 					countDetails();
-					// The cover the book has; the field shows a photo picked itself.
-					$coverField.cover = store.get().books[ id ]?.cover ?? null;
+					// The cover of its edition, whatever the photo of the copy of the reader; the field shows a photo picked itself.
+					$coverField.cover =
+						store.get().books[ id ]?.edition_cover ?? null;
 					suggestCollections();
 					$dialog.showModal();
 					$dialog.scrollTop = 0;

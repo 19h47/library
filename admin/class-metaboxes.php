@@ -236,8 +236,8 @@ class Metaboxes {
 	}
 
 	/**
-	 * Render the shelf of the book for the reader: in the library, not kept, to buy, or on none of their shelves. A book
-	 * added goes in the library.
+	 * Render the shelf of the book for the reader: in the library, not kept, to buy, or on none of their shelves, and their
+	 * notes. A book added goes in the library.
 	 *
 	 * @param WP_Post $post Post.
 	 * @return void
@@ -260,11 +260,15 @@ class Metaboxes {
 		<p class="description" id="library-shelf-description">
 			<?php esc_html_e( 'Not kept: read but not in my library. To buy: not in my library yet. The book stays in the catalogue for the other readers.', 'library' ); ?>
 		</p>
+		<p>
+			<label for="library-shelf-notes"><?php echo esc_html( Meta::get_label( 'library_notes' ) ); ?></label>
+			<textarea id="library-shelf-notes" class="widefat" name="library_shelf_notes" rows="5"><?php echo esc_textarea( Shelf::get_values( $post->ID, get_current_user_id() )['library_notes'] ); ?></textarea>
+		</p>
 		<?php
 	}
 
 	/**
-	 * Put the book on the shelf chosen in its box, for the reader, once it is in the catalogue.
+	 * Put the book on the shelf chosen in its box, for the reader, with their notes, once it is in the catalogue.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return void
@@ -279,6 +283,10 @@ class Metaboxes {
 		$status = Status::tryFrom( sanitize_key( wp_unslash( $_POST['library_shelf_status'] ?? '' ) ) );
 
 		Shelf::set_status( $post_id, get_current_user_id(), $status );
+
+		if ( isset( $_POST['library_shelf_notes'] ) ) {
+			Shelf::save( $post_id, get_current_user_id(), array( 'library_notes' => wp_kses_post( wp_unslash( $_POST['library_shelf_notes'] ) ) ) );
+		}
 	}
 
 	/**

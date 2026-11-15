@@ -167,9 +167,9 @@ class Query {
 	}
 
 	/**
-	 * Also match books whose text meta or terms contain the search phrase, and the issues of a magazine by the ISSN of its
-	 * series; a term matches by its ancestors too, so searching for the name of a person finds the books of their other
-	 * names and a publisher the books of its collections.
+	 * Also match books whose text meta, notes of the reader or terms contain the search phrase, and the issues of a
+	 * magazine by the ISSN of its series; a term matches by its ancestors too, so searching for the name of a person
+	 * finds the books of their other names and a publisher the books of its collections.
 	 *
 	 * @param string   $search Search SQL, starting with " AND ".
 	 * @param WP_Query $query  Query instance.
@@ -184,10 +184,12 @@ class Query {
 
 		global $wpdb;
 
-		$like         = '%' . $wpdb->esc_like( $query->get( 's' ) ) . '%';
-		$meta_values  = array( ...Meta::TEXT_KEYS, $like );
+		$like = '%' . $wpdb->esc_like( $query->get( 's' ) ) . '%';
+		// The notes of the reader too, which core searched in the content of the book.
+		$meta_keys    = array( ...Meta::TEXT_KEYS, Shelf::key( 'library_notes', get_current_user_id() ) );
+		$meta_values  = array( ...$meta_keys, $like );
 		$meta_matches = $wpdb->prepare(
-			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( Meta::TEXT_KEYS ), '%s' ) ) . ' ) AND meta_value LIKE %s',
+			"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) ) . ' ) AND meta_value LIKE %s',
 			$meta_values
 		);
 		$term_matches = self::build_term_matches( Taxonomies::TAXONOMIES, $query->get( 's' ) );

@@ -247,6 +247,58 @@ class Test_Shelves extends TestCase {
 	}
 
 	/**
+	 * Each reader has their own notes on a book, which their search finds, and nobody else's.
+	 *
+	 * @return void
+	 */
+	public function test_each_reader_has_their_own_notes(): void {
+		$book_id = $this->add_book( array( 'title' => 'Dune' ) );
+		$first   = get_current_user_id();
+
+		$this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'notes' => "Lent by Ada.\n\nRead in the train." ) );
+
+		$notes = $this->get_shelf( $book_id )['notes'];
+
+		$this->assertSame( "Lent by Ada.\n\nRead in the train.", $notes['raw'] );
+		$this->assertStringContainsString( '<p>Read in the train.</p>', $notes['rendered'] );
+		$this->assertSame( array( $book_id ), wp_list_pluck( $this->request( 'GET', '/wp/v2/books', array( 'search' => 'Ada' ) )->get_data(), 'id' ) );
+
+		$this->as_user( 'library_reader' );
+
+		$this->assertSame( '', $this->get_shelf( $book_id )['notes']['raw'] );
+		$this->assertSame( array(), $this->request( 'GET', '/wp/v2/books', array( 'search' => 'Ada' ) )->get_data() );
+
+		wp_set_current_user( $first );
+	}
+
+	/**
+	 * A reader gives a book the photo of their copy, an image they uploaded, never one of another; the book keeps the
+	 * cover of its edition for the others.
+	 *
+	 * @return void
+	 */
+	public function test_a_reader_gives_the_photo_of_their_copy(): void {
+		$book_id = $this->add_book();
+		$other   = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/canola.jpg' );
+		$reader  = $this->as_user( 'library_reader' );
+		$own     = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/canola.jpg' );
+
+		wp_update_post(
+			array(
+				'ID'          => $own,
+				'post_author' => $reader,
+			)
+		);
+
+		$this->assertSame( 400, $this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'cover' => $other ) )->get_status() );
+		$this->assertSame( $own, $this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'cover' => $own ) )->get_data()['shelf']['cover']['id'] );
+
+		$this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'cover' => 0 ) );
+
+		$this->assertNull( $this->get_shelf( $book_id )['cover'] );
+	}
+
+	/**
 	 * A reader deleted leaves the shelves, and the books in the catalogue.
 	 *
 	 * @return void

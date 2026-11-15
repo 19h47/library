@@ -72,7 +72,7 @@ class Rest_API {
 				'schema'       => array( 'description' => __( 'Shelf of the book for the current reader: where it is for them, since when, and their copy, with their readings.', 'library' ) ) + Rest_Schemas::get_shelf(),
 			),
 			'cover'                  => array(
-				'get_callback' => fn( array $book ) => $this->get_cover( $book['id'] ),
+				'get_callback' => fn( array $book ) => Books::get_image( (int) get_post_thumbnail_id( $book['id'] ) ),
 				'schema'       => array(
 					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover.', 'library' ),
 					'type'        => array( 'object', 'null' ),
@@ -165,30 +165,6 @@ class Rest_API {
 
 			register_rest_field( $taxonomy, $name, $field );
 		}
-	}
-
-	/**
-	 * The cover of a book: its medium size, else the image itself, as for an AVIF the server cannot resize, with its size,
-	 * which gives the image its place before it loads, and its sizes of the same shape, as WordPress lists them for a
-	 * srcset, for the browser to take the one the width it shows needs: a list small, the page of the book sharp.
-	 *
-	 * @param int $book_id Book ID.
-	 * @return array{url:string,width:int,height:int,srcset:string}|null
-	 */
-	private function get_cover( int $book_id ): ?array {
-		$image_id = (int) get_post_thumbnail_id( $book_id );
-		$image    = wp_get_attachment_image_src( $image_id, 'medium' );
-
-		if ( ! $image ) {
-			return null;
-		}
-
-		return array(
-			'url'    => $image[0],
-			'width'  => (int) $image[1],
-			'height' => (int) $image[2],
-			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
-		);
 	}
 
 	/**
@@ -516,11 +492,6 @@ class Rest_API {
 				'type'        => 'string',
 				'default'     => '',
 			),
-			'content'        => array(
-				'description' => __( 'Notes on the book, its content.', 'library' ),
-				'type'        => 'string',
-				'default'     => '',
-			),
 			'people'         => array(
 				'description' => __( 'People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person.', 'library' ),
 				'type'        => 'array',
@@ -624,7 +595,6 @@ class Rest_API {
 			'post_status'  => 'publish',
 			'post_title'   => $request['title'],
 			'post_excerpt' => $request['excerpt'],
-			'post_content' => $request['content'],
 		) + Posts::get_slug_fields( 0, $meta );
 
 		$book_id = wp_insert_post( wp_slash( $post ), true );
@@ -646,7 +616,7 @@ class Rest_API {
 	}
 
 	/**
-	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
+	 * A book as its form edits it, as the route that edits it takes it back: its title and excerpt as typed, the names of
 	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them; the copy
 	 * of the reader apart, which the form of their reading edits.
 	 *
@@ -675,7 +645,6 @@ class Rest_API {
 				'id'         => $book->ID,
 				'title'      => $book->post_title,
 				'excerpt'    => $book->post_excerpt,
-				'content'    => $book->post_content,
 				'people'     => self::get_names( $book->ID ),
 				'publisher'  => $publisher instanceof WP_Term ? $publisher->name : '',
 				'collection' => $collection ? Taxonomies::get_collection_name( $collection ) : '',
@@ -738,10 +707,6 @@ class Rest_API {
 			$post['post_excerpt'] = $request['excerpt'];
 		}
 
-		if ( $request->has_param( 'content' ) ) {
-			$post['post_content'] = $request['content'];
-		}
-
 		$updated = wp_update_post( wp_slash( $post ), true );
 
 		if ( is_wp_error( $updated ) ) {
@@ -783,6 +748,16 @@ class Rest_API {
 			'in_progress'  => array(
 				'description' => Meta::get_description( 'library_in_progress' ),
 				'type'        => 'boolean',
+			),
+			'notes'        => array(
+				'description' => __( 'Notes of the reader on the book, as typed, HTML as a post takes it.', 'library' ),
+				'type'        => 'string',
+			),
+			'cover'        => array(
+				'description'       => __( 'ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition.', 'library' ),
+				'type'              => 'integer',
+				'minimum'           => 0,
+				'validate_callback' => fn( $image_id ) => Shelf::can_cover( (int) $image_id, get_current_user_id() ),
 			),
 			'rating'       => array(
 				'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),

@@ -622,7 +622,8 @@ use Library\Meta;
 									?>
 								</details>
 								<?php
-								// The copy of the reader, theirs: the same book, another printing.
+								// The copy of the reader, theirs: the same book, another printing, their notes, and its photo, which shows instead
+								// of the cover of its edition.
 								Markup::render_component(
 									'field',
 									array(
@@ -636,6 +637,27 @@ use Library\Meta;
 												'autocomplete' => 'off',
 											)
 										),
+									)
+								);
+								Markup::render_component(
+									'field',
+									array(
+										'id'         => 'library-reading-notes',
+										'label'      => Meta::get_label( 'library_notes' ),
+										'control'    => '<textarea></textarea>',
+										'attributes' => array(
+											'name' => Meta::get_name( 'library_notes' ),
+											'rows' => 3,
+										),
+									)
+								);
+								Markup::render_component(
+									'image-field',
+									array(
+										'id'     => 'library-reading-cover',
+										'name'   => Meta::get_name( 'library_cover' ),
+										'label'  => __( 'Photograph my copy', 'library' ),
+										'remove' => __( 'Remove the photo of my copy', 'library' ),
 									)
 								);
 								?>
@@ -885,18 +907,6 @@ use Library\Meta;
 								'control'    => '<textarea></textarea>',
 								'attributes' => array(
 									'name' => 'excerpt',
-									'rows' => 3,
-								),
-							)
-						);
-						Markup::render_component(
-							'field',
-							array(
-								'id'         => 'library-edit-content',
-								'label'      => __( 'Notes', 'library' ),
-								'control'    => '<textarea></textarea>',
-								'attributes' => array(
-									'name' => 'content',
 									'rows' => 3,
 								),
 							)

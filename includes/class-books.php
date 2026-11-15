@@ -176,6 +176,30 @@ class Books {
 	}
 
 	/**
+	 * An image of a cover, of an edition or of the copy of a reader: its medium size, else the image itself, as for an AVIF
+	 * the server cannot resize, with its size, which gives the image its place before it loads, and its sizes of the same
+	 * shape, as WordPress lists them for a srcset, for the browser to take the one the width it shows needs: a list small,
+	 * the page of the book sharp. None without image.
+	 *
+	 * @param int $image_id Attachment ID, 0 for none.
+	 * @return array{url:string,width:int,height:int,srcset:string}|null
+	 */
+	public static function get_image( int $image_id ): ?array {
+		$image = $image_id ? wp_get_attachment_image_src( $image_id, 'medium' ) : false;
+
+		if ( ! $image ) {
+			return null;
+		}
+
+		return array(
+			'url'    => $image[0],
+			'width'  => (int) $image[1],
+			'height' => (int) $image[2],
+			'srcset' => (string) wp_get_attachment_image_srcset( $image_id, 'medium' ),
+		);
+	}
+
+	/**
 	 * The number of a volume, its first number, as "Tome 08" or "3-4" give 8 and 3: null without one, such as "Chant II".
 	 *
 	 * @param string $volume Volume number, as typed or as the catalogue gives it.
