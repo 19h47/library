@@ -24,7 +24,7 @@ WordPress updates the plugin from the latest [GitHub release](https://github.com
    - `Version` in `library.php`;
    - `Stable tag` in `README.txt`, with an entry in its changelog: one line per change, without prefix for a feature, `* Fixed: …` for a fix, `* Changed: …` for a change, `* Breaking: …` for a change that breaks the REST API or the data, with its migration, and `* Code only: …` for a change the reader does not see;
    - the translations, updated again by the script of step 3, which puts the version in `languages/library.pot`.
-6. Open a pull request titled `x.y.z`, then merge it once its checks pass: `main` takes a change through a pull request only, after the coding standards (`phpcs`), PHPStan (`phpstan`), the scripts (`scripts`), the tests (`phpunit (8.4)`, `phpunit (8.5)`, `playwright`) and the translations (`update-translations`):
+6. Open a pull request titled `x.y.z`, then merge it once its checks pass: `main` takes a change through a pull request only, after the coding standards (`phpcs`), PHPStan (`phpstan`), the scripts (`scripts`), the tests (`phpunit`, `playwright`) and the translations (`update-translations`):
 
    ```sh
    gh pr checks --watch

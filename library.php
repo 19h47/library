@@ -13,7 +13,7 @@
  * Description:       Catalogue your books and log your readings, from the admin or from an app on your phone.
  * Version:           10.0.1
  * Requires at least: 7.1
- * Requires PHP:      8.4
+ * Requires PHP:      8.5
  * Author:            Jérémy Levron
  * Author URI:        https://www.19h47.fr
  * License:           GPL v2 or later

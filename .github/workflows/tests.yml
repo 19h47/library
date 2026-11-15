@@ -11,67 +11,28 @@ permissions:
   contents: read
 
 jobs:
+  # The PHP and the database of the site.
   phpunit:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # The lowest PHP the plugin requires, and the one of the sites.
-        php: ['8.4', '8.5']
     services:
-      mysql:
-        image: mysql:8.0
+      mariadb:
+        image: mariadb:11.8
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: library_tests
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: library_tests
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-timeout=5s --health-retries=20
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=20
     steps:
       - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '8.5'
           coverage: none
           tools: composer
 
       # The dependencies of composer.lock, from the cache of Composer once downloaded.
-      - uses: ramsey/composer-install@v3
-
-      - run: composer test
-
-  # The oldest database the plugin requires, the one of the site, and MariaDB, which the sites may move to: the JSON of the
-  # readings, which the searches and the orders read, and the migrations, which run as SQL. One PHP, the lowest required.
-  databases:
-    name: phpunit (${{ matrix.database.image }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        database:
-          - image: mysql:5.7
-            health: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-timeout=5s --health-retries=20
-          - image: mariadb:11.8
-            health: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=20
-    services:
-      database:
-        image: ${{ matrix.database.image }}
-        env:
-          # MariaDB takes the variables of MySQL too.
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: library_tests
-        ports:
-          - 3306:3306
-        options: ${{ matrix.database.health }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          coverage: none
-          tools: composer
-
       - uses: ramsey/composer-install@v3
 
       - run: composer test
