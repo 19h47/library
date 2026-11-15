@@ -174,8 +174,8 @@ class Test_Shelves extends TestCase {
 	public function test_two_readers_read_the_same_book_their_own_way(): void {
 		$book_id = $this->add_book(
 			array(
-				'meta' => array(
-					'reading'      => array( '/2024-03-14#8' ),
+				'shelf' => array(
+					'readings'     => array( '/2024-03-14#8' ),
 					'printed_date' => '2014',
 				),
 			)

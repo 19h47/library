@@ -78,7 +78,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_hot_off_the_press_never_reads_the_printed_date(): void {
-		$this->add_read_book( 'New printing', '2024-06-01', array( 'printed_date' => '2024-02' ) );
+		$this->add_read_book( 'New printing', '2024-06-01', array(), '', array( 'printed_date' => '2024-02' ) );
 
 		$this->assertArrayNotHasKey( 'hot-off-the-press', $this->get_earned() );
 	}
@@ -89,14 +89,7 @@ class Test_Achievements_Discoveries extends TestCase {
 	 * @return void
 	 */
 	public function test_the_edition_wins_over_the_printed_date(): void {
-		$this->add_read_book(
-			'Reprint',
-			'2024-06-01',
-			array(
-				'edition_date' => '1990',
-				'printed_date' => '2024-02',
-			)
-		);
+		$this->add_read_book( 'Reprint', '2024-06-01', array( 'edition_date' => '1990' ), '', array( 'printed_date' => '2024-02' ) );
 
 		$this->assertArrayNotHasKey( 'hot-off-the-press', $this->get_earned() );
 	}
@@ -110,10 +103,8 @@ class Test_Achievements_Discoveries extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read twice',
-				'meta'  => array(
-					'published_date' => '2020',
-					'reading'        => array( '/2020-06-01', '/2024-01-01' ),
-				),
+				'meta'  => array( 'published_date' => '2020' ),
+				'shelf' => array( 'readings' => array( '/2020-06-01', '/2024-01-01' ) ),
 			)
 		);
 
@@ -283,7 +274,7 @@ class Test_Achievements_Discoveries extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read long ago',
-				'meta'  => array( 'reading' => array( '/' ) ),
+				'shelf' => array( 'readings' => array( '/' ) ),
 			),
 			'2024-01-01 10:00:00'
 		);
@@ -366,15 +357,17 @@ class Test_Achievements_Discoveries extends TestCase {
 	 *
 	 * @param string $title     Title.
 	 * @param string $read_date Read date, Y-m-d.
-	 * @param array  $meta      Other meta, such as library_published_date.
+	 * @param array  $meta      Other meta, such as published_date.
 	 * @param string $added     Date added, Y-m-d H:i:s, or empty for now.
+	 * @param array  $copy      Other fields of the copy of the reader, such as printed_date.
 	 * @return int Book ID.
 	 */
-	private function add_read_book( string $title, string $read_date, array $meta = array(), string $added = '' ): int {
+	private function add_read_book( string $title, string $read_date, array $meta = array(), string $added = '', array $copy = array() ): int {
 		return $this->add_book(
 			array(
 				'title' => $title,
-				'meta'  => array( 'reading' => array( "/$read_date" ) ) + $meta,
+				'meta'  => $meta,
+				'shelf' => array( 'readings' => array( "/$read_date" ) ) + $copy,
 			),
 			$added
 		);
