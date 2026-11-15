@@ -15,8 +15,8 @@ namespace Library;
 /**
  * Keeps on a book, in meta of their own, where it is for each reader, since when, when their copy was printed, their
  * readings, their notes and the photo of their copy: its key followed by their user ID, `library_status_12`. The catalogue is shared, its books published; a book
- * on none of the shelves of a reader has none of their rows. A book read is on a shelf: a reading puts a book on none of
- * them among the books not kept, and a book with readings stays on one.
+ * on none of the shelves of a reader has none of their rows. A copy is on a shelf: a reading, a printed date, notes or a
+ * photo put a book on none of them among the books not kept, and a book with readings stays on one.
  *
  * @since      10.0.0
  * @package    Library
@@ -150,10 +150,7 @@ class Shelf {
 	public static function set_status( int $book_id, int $reader, ?Status $status ): bool {
 		$before = self::get_status( $book_id, $reader );
 
-		if ( $status === $before ) {
-			return true;
-		}
-
+		// Taken off, even a book on none of their shelves loses the rows a reader may have kept, such as a copy of before.
 		if ( null === $status ) {
 			if ( Meta::get_readings( $book_id, $reader ) ) {
 				return false;
@@ -163,6 +160,10 @@ class Shelf {
 				delete_post_meta( $book_id, self::key( $key, $reader ) );
 			}
 
+			return true;
+		}
+
+		if ( $status === $before ) {
 			return true;
 		}
 
@@ -178,7 +179,7 @@ class Shelf {
 	/**
 	 * Save the copy of a reader, as given by meta key, see Meta::SHELF_KEYS: when it was printed, their notes and the photo
 	 * of their copy, an empty value deleting it, a photo they may not give left out, and its readings, see
-	 * Meta::save_readings(). A book read on none of their shelves goes among the books not kept.
+	 * Meta::save_readings(). A copy on a book on none of their shelves puts it among the books not kept: see has_copy().
 	 *
 	 * @param int                 $book_id Book ID.
 	 * @param int                 $reader  User ID of the reader.
@@ -206,9 +207,23 @@ class Shelf {
 
 		Meta::save_readings( $book_id, $reader, $values );
 
-		if ( null === self::get_status( $book_id, $reader ) && Meta::get_readings( $book_id, $reader ) ) {
+		if ( null === self::get_status( $book_id, $reader ) && self::has_copy( $book_id, $reader ) ) {
 			self::set_status( $book_id, $reader, Status::Not_Kept );
 		}
+	}
+
+	/**
+	 * Whether a reader has a copy of a book: a reading, the date it was printed, their notes or its photo, which only a
+	 * book on their shelves has.
+	 *
+	 * @param int $book_id Book ID.
+	 * @param int $reader  User ID of the reader.
+	 * @return bool
+	 */
+	private static function has_copy( int $book_id, int $reader ): bool {
+		$copy = self::get_values( $book_id, $reader );
+
+		return $copy['library_reading'] || '' !== $copy['library_printed_date'] || '' !== $copy['library_notes'] || 0 !== $copy['library_cover'];
 	}
 
 	/**

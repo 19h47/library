@@ -230,6 +230,40 @@ class Test_Shelves extends TestCase {
 	}
 
 	/**
+	 * A copy is on a shelf: notes, a printed date or a photo of their copy put a book on none of the shelves of the reader
+	 * among the books not kept, as a reading does.
+	 *
+	 * @return void
+	 */
+	public function test_a_copy_goes_on_a_shelf(): void {
+		$noted   = $this->add_book();
+		$printed = $this->add_book();
+
+		$this->as_user( 'library_reader' );
+		$this->request( 'POST', "/library/v1/books/$noted/shelf", array( 'notes' => 'Lent by Ada.' ) );
+		$this->request( 'POST', "/library/v1/books/$printed/shelf", array( 'printed_date' => '2014' ) );
+
+		$this->assertSame( Status::Not_Kept->value, $this->get_shelf( $noted )['status'] );
+		$this->assertSame( Status::Not_Kept->value, $this->get_shelf( $printed )['status'] );
+	}
+
+	/**
+	 * A book taken off the shelves loses every row of the reader, even one on none of them that kept some, as a copy of
+	 * before.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_taken_off_loses_every_row(): void {
+		$book_id = $this->add_book();
+		$reader  = $this->as_user( 'library_reader' );
+
+		update_post_meta( $book_id, Shelf::key( 'library_notes', $reader ), 'Lent by Ada.' );
+
+		$this->assertSame( 200, $this->request( 'DELETE', "/library/v1/books/$book_id/shelf" )->get_status() );
+		$this->assertSame( '', $this->get_shelf( $book_id )['notes']['raw'] );
+	}
+
+	/**
 	 * A book read stays on the shelves of the reader: taken off, it is refused, and stays where it was; unread, it goes.
 	 *
 	 * @return void

@@ -973,9 +973,17 @@ class LibraryStore extends Store {
 
 			return id;
 		} catch ( error ) {
+			// An ISBN the search had not found, such as one of a book added meanwhile: its book shows, as one found.
+			const duplicate = api.takenBook( error );
+
+			if ( duplicate ) {
+				await this.#fetchBooks( [ duplicate ] ).catch( () => {} );
+			}
+
 			this.#update( 'editing', () => ( {
 				loading: false,
 				error: api.errorMessage( error ),
+				...( duplicate && { duplicate } ),
 			} ) );
 
 			return 0;

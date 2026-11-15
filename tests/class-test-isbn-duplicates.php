@@ -95,6 +95,33 @@ class Test_Isbn_Duplicates extends TestCase {
 	}
 
 	/**
+	 * A draft is no book of the catalogue: its ISBN is free for a book added, which the readers may shelve.
+	 *
+	 * @return void
+	 */
+	public function test_a_draft_leaves_its_isbn(): void {
+		$draft = $this->add_book( array( 'meta' => array( 'isbn' => '978-2-07-036024-6' ) ) );
+
+		wp_update_post(
+			array(
+				'ID'          => $draft,
+				'post_status' => 'draft',
+			)
+		);
+
+		$this->assertSame(
+			201,
+			$this->send(
+				'/library/v1/books',
+				array(
+					'title' => 'Le Rivage des Syrtes',
+					'meta'  => array( 'isbn' => '978-2-07-036024-6' ),
+				)
+			)->get_status()
+		);
+	}
+
+	/**
 	 * A book says whether the reader may edit it, as core gives it, in the target hints of its link: the record they
 	 * added, not the one of another.
 	 *
