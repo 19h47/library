@@ -36,7 +36,7 @@ composer test
 
 ## Writing a test
 
-A test class, in the namespace `Library\Tests`, extends `TestCase` (`tests/class-testcase.php`), in a file `tests/class-test-*.php`; Composer loads them, as it loads the classes of the plugin. Each test starts with no book, adds the ones it needs with `add_book()`, `add_read()` or `add_reads()`, the terms with `get_language()` or `get_form()`, then reads what it checks, such as the achievements with `get_earned()` and `get_close()`.
+A test class, in the namespace `Library\Tests`, extends `TestCase` (`tests/class-testcase.php`), in a file `tests/class-test-*.php`; Composer loads them, as it loads the classes of the plugin. Each test starts with no book, adds the ones it needs with `add_book()`, `add_read()` or `add_reads()`, the terms with `get_language()` or `get_form()`, then reads what it checks, such as the achievements with `get_earned()` and `get_close()`. A test runs as an administrator, a reader of their own; `as_user()` logs in a new user of a role, such as `library_reader`, whose shelves are empty: the catalogue is shared, the shelves are each reader's. The meta of the plugin are registered again before each test, as the suite of WordPress unregisters them after each.
 
 ## Static analysis
 
