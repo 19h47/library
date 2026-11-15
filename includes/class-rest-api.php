@@ -597,7 +597,8 @@ class Rest_API {
 			'post_excerpt' => $request['excerpt'],
 		) + Posts::get_slug_fields( 0, $meta );
 
-		$book_id = wp_insert_post( wp_slash( $post ), true );
+		// The hooks after the book is written wait for its meta and terms, as the REST API of core does: its revision among them.
+		$book_id = wp_insert_post( wp_slash( $post ), true, false );
 
 		if ( is_wp_error( $book_id ) ) {
 			return $book_id;
@@ -608,6 +609,7 @@ class Rest_API {
 
 		Shelf::set_status( $book_id, get_current_user_id(), Status::tryFrom( (string) ( $shelf['status'] ?? '' ) ) ?? Status::In_Library );
 		Shelf::save( $book_id, get_current_user_id(), Shelf::from_names( $shelf ) );
+		wp_after_insert_post( $book_id, false, null );
 
 		$response = $this->get_book_response( $book_id );
 		$response->set_status( 201 );
@@ -707,13 +709,15 @@ class Rest_API {
 			$post['post_excerpt'] = $request['excerpt'];
 		}
 
-		$updated = wp_update_post( wp_slash( $post ), true );
+		$before  = get_post( $book_id );
+		$updated = wp_update_post( wp_slash( $post ), true, false );
 
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
 
 		$this->save_book( $book_id, $request, $meta, $terms, $roles );
+		wp_after_insert_post( $book_id, true, $before );
 
 		return $this->get_book_response( $book_id );
 	}

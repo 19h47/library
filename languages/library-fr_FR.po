@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-15T15:08:32+00:00\n"
+"POT-Creation-Date: 2026-11-15T15:20:13+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -165,7 +165,7 @@ msgid "Most present original languages"
 msgstr "Langues d’origine les plus présentes"
 
 #: admin/class-dashboard.php:224 includes/class-posts.php:144
-#: includes/class-posts.php:146 includes/class-posts.php:179
+#: includes/class-posts.php:146 includes/class-posts.php:180
 msgid "Books"
 msgstr "Livres"
 
@@ -231,7 +231,7 @@ msgid "%s/10"
 msgstr "%s/10"
 
 #. translators: %s: average rating, e.g. 7.5.
-#: admin/class-dashboard.php:370 includes/class-meta.php:526
+#: admin/class-dashboard.php:370 includes/class-meta.php:532
 msgid "No rating"
 msgstr "Pas de note"
 
@@ -488,7 +488,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1303
+#: includes/class-rest-api.php:1307
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -1462,6 +1462,14 @@ msgid_plural "%s books"
 msgstr[0] "%s livre"
 msgstr[1] "%s livres"
 
+#: includes/class-history.php:178
+msgid "Names"
+msgstr "Noms"
+
+#: includes/class-history.php:214
+msgid "Yes"
+msgstr "Oui"
+
 #: includes/class-meta.php:157
 msgid "Subtitle"
 msgstr "Sous-titre"
@@ -1632,44 +1640,44 @@ msgstr ""
 "dans sa langue d’origine quand elles sont toutes des langues d’origine du "
 "livre."
 
-#: includes/class-meta.php:389
+#: includes/class-meta.php:395
 msgctxt "role"
 msgid "Translator"
 msgstr "Traduction"
 
-#: includes/class-meta.php:390
+#: includes/class-meta.php:396
 msgctxt "role"
 msgid "Colorist"
 msgstr "Couleurs"
 
-#: includes/class-meta.php:391
+#: includes/class-meta.php:397
 msgctxt "role"
 msgid "Inker"
 msgstr "Encrage"
 
-#: includes/class-meta.php:392
+#: includes/class-meta.php:398
 msgctxt "role"
 msgid "Letterer"
 msgstr "Lettrage"
 
-#: includes/class-meta.php:393
+#: includes/class-meta.php:399
 msgctxt "role"
 msgid "Publishing director"
 msgstr "Direction de publication"
 
 #. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
-#: includes/class-meta.php:395
+#: includes/class-meta.php:401
 msgctxt "role"
 msgid "Adapted author"
 msgstr "D’après"
 
-#: includes/class-meta.php:397
+#: includes/class-meta.php:403
 msgctxt "role"
 msgid "Author"
 msgstr "Auteur/autrice"
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-meta.php:959
+#: includes/class-meta.php:965
 #, php-format
 msgid ""
 "The last digit of the ISBN %s, its check digit, does not match the others: "
@@ -1679,12 +1687,14 @@ msgstr ""
 "autres : vérifiez-les."
 
 #. translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it.
-#: includes/class-meta.php:971
+#: includes/class-meta.php:977
 #, php-format
 msgid ""
 "The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your "
 "shelves instead."
-msgstr "L’ISBN %1$s est celui de « %2$s », déjà au catalogue : range-le plutôt sur tes étagères."
+msgstr ""
+"L’ISBN %1$s est celui de « %2$s », déjà au catalogue : range-le plutôt sur "
+"tes étagères."
 
 #: includes/class-posts.php:145 includes/class-posts.php:147
 msgid "Book"
@@ -2179,15 +2189,15 @@ msgstr ""
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:671 app/js/bricks/library-edit.js:443
+#: includes/class-rest-api.php:673 app/js/bricks/library-edit.js:443
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
-#: includes/class-rest-api.php:730
+#: includes/class-rest-api.php:734
 msgid "Where the book goes for the reader: in-library, not-kept or to-buy."
 msgstr "Où va le livre pour le lecteur : in-library, not-kept ou to-buy."
 
-#: includes/class-rest-api.php:740
+#: includes/class-rest-api.php:744
 msgid ""
 "Readings of the book, which replace those of the reader, each with the "
 "rating it ended with, the one in progress last."
@@ -2195,7 +2205,7 @@ msgstr ""
 "Lectures du livre, qui remplacent celles du lecteur, chacune avec la note "
 "sur laquelle elle s’est terminée, celle en cours en dernier."
 
-#: includes/class-rest-api.php:745
+#: includes/class-rest-api.php:749
 msgid ""
 "Whether the reader read it: false takes their readings ended away, true "
 "without one reads it now."
@@ -2203,13 +2213,13 @@ msgstr ""
 "Si le lecteur l’a lu : false retire ses lectures terminées, true sans "
 "lecture le lit maintenant."
 
-#: includes/class-rest-api.php:753
+#: includes/class-rest-api.php:757
 msgid "Notes of the reader on the book, as typed, HTML as a post takes it."
 msgstr ""
 "Notes du lecteur sur le livre, telles que tapées, en HTML comme un article "
 "le prend."
 
-#: includes/class-rest-api.php:757
+#: includes/class-rest-api.php:761
 msgid ""
 "ID of the image of the photo of the copy of the reader, one they uploaded, 0 "
 "for none: the cover the book shows them, instead of the one of its edition."
@@ -2218,7 +2228,7 @@ msgstr ""
 "pour aucune : la couverture que le livre lui montre, à la place de celle de "
 "son édition."
 
-#: includes/class-rest-api.php:763
+#: includes/class-rest-api.php:767
 msgid ""
 "Rating of its latest reading ended, which a book not read has none of; null "
 "takes it away."
@@ -2226,13 +2236,13 @@ msgstr ""
 "Note de sa dernière lecture terminée, qu’un livre non lu n’a pas ; null la "
 "retire."
 
-#: includes/class-rest-api.php:784
+#: includes/class-rest-api.php:788
 msgid "A book you read stays on your shelves: say it is not kept instead."
 msgstr ""
 "Un livre que tu as lu reste sur tes étagères : indique plutôt qu’il est de "
 "passage."
 
-#: includes/class-rest-api.php:930
+#: includes/class-rest-api.php:934
 msgid "No photo was sent, in the file field."
 msgstr "Aucune photo n’a été envoyée dans le champ file."
 

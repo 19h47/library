@@ -60,6 +60,7 @@ class Plugin {
 		new Roles()->hooks();
 		new Posts()->hooks();
 		new Shelf()->hooks();
+		new History()->hooks();
 		new Taxonomies()->hooks();
 		new Meta()->hooks();
 		new Query()->hooks();
