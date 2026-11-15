@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-15T17:11:23+00:00\n"
+"POT-Creation-Date: 2026-11-15T17:28:51+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -277,7 +277,9 @@ msgstr "L’ISBN n’a pas été enregistré. %s"
 #: admin/class-metaboxes.php:296 includes/class-rest-api.php:748
 msgid ""
 "A book you have read stays on your shelves. Mark it as not kept instead."
-msgstr "Un livre que vous avez lu reste sur vos étagères. Indiquez plutôt qu’il est de passage."
+msgstr ""
+"Un livre que vous avez lu reste sur vos étagères. Indiquez plutôt qu’il est "
+"de passage."
 
 #: admin/class-reading-idea-widget.php:46 app/partials/library-app.php:113
 #: app/partials/library-app.php:241
@@ -1644,7 +1646,9 @@ msgstr ""
 msgid ""
 "The ISBN %1$s already belongs to “%2$s” in the catalogue. Add that book to "
 "your shelves instead."
-msgstr "L’ISBN %1$s appartient déjà à « %2$s » dans le catalogue. Ajoutez plutôt ce livre à vos étagères."
+msgstr ""
+"L’ISBN %1$s appartient déjà à « %2$s » dans le catalogue. Ajoutez plutôt ce "
+"livre à vos étagères."
 
 #: includes/class-posts.php:145 includes/class-posts.php:147
 msgid "Book"
@@ -1734,7 +1738,10 @@ msgstr "Filtrer la liste des livres"
 msgid ""
 "Limit results to books on the shelves of the current user with these "
 "statuses, latest added first. All books when omitted."
-msgstr "Limite les résultats aux livres des étagères de l’utilisateur ou de l’utilisatrice actuelle ayant ces statuts, les derniers ajoutés en premier. Tous les livres en son absence."
+msgstr ""
+"Limite les résultats aux livres des étagères de l’utilisateur ou de "
+"l’utilisatrice actuelle ayant ces statuts, les derniers ajoutés en premier. "
+"Tous les livres en son absence."
 
 #. translators: Search keyword with a form, such as a novel, as named in the library: the keyword form stays in English.
 #: includes/class-query.php:447
@@ -1830,7 +1837,8 @@ msgstr[1] "Suite de %1$s : vous en avez lu %2$s tomes, le dernier en %3$s."
 msgid ""
 "You gave %1$s %2$s/10 on average over %3$s books, the last one read in %4$s."
 msgstr ""
-"Vous avez mis %2$s/10 en moyenne à %1$s sur %3$s livres, le dernier lu en %4$s."
+"Vous avez mis %2$s/10 en moyenne à %1$s sur %3$s livres, le dernier lu en "
+"%4$s."
 
 #. translators: 1: author, 2: average rating, 3: number of books rated.
 #: includes/class-reading-idea.php:453
@@ -1949,7 +1957,8 @@ msgstr[1] "Envie de la suite de %1$s : vous en avez lu %2$s tomes."
 #, php-format
 msgid "To buy, by %1$s: you gave them %2$s/10 on average over %3$s books."
 msgstr ""
-"Envie d’un livre de %1$s : vous lui avez mis %2$s/10 en moyenne sur %3$s livres."
+"Envie d’un livre de %1$s : vous lui avez mis %2$s/10 en moyenne sur "
+"%3$s livres."
 
 #: includes/class-rest-api.php:59
 msgid ""
@@ -1971,7 +1980,9 @@ msgstr ""
 
 #: includes/class-rest-api.php:72
 msgid "The shelf of the book for the current user, and their copy of it."
-msgstr "L’étagère du livre pour l’utilisateur ou l’utilisatrice actuelle, et son exemplaire."
+msgstr ""
+"L’étagère du livre pour l’utilisateur ou l’utilisatrice actuelle, et son "
+"exemplaire."
 
 #: includes/class-rest-api.php:76
 msgid "The cover of the edition of the book, or null."
@@ -2121,7 +2132,9 @@ msgstr ""
 msgid ""
 "The shelf of the current user to put the book on, and their copy of it, as "
 "the shelf endpoint accepts them."
-msgstr "L’étagère de l’utilisateur ou de l’utilisatrice actuelle où ranger le livre, et son exemplaire, tels que les accepte la route de l’étagère."
+msgstr ""
+"L’étagère de l’utilisateur ou de l’utilisatrice actuelle où ranger le livre, "
+"et son exemplaire, tels que les accepte la route de l’étagère."
 
 #: includes/class-rest-api.php:563
 msgid "No book has this ID."
@@ -2135,7 +2148,9 @@ msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 msgid ""
 "The shelf to put the book on for the current user: in-library, not-kept or "
 "to-buy."
-msgstr "L’étagère où ranger le livre pour l’utilisateur ou l’utilisatrice actuelle : in-library, not-kept ou to-buy."
+msgstr ""
+"L’étagère où ranger le livre pour l’utilisateur ou l’utilisatrice actuelle : "
+"in-library, not-kept ou to-buy."
 
 #: includes/class-rest-api.php:894
 msgid "No photo was sent, in the file field."
@@ -2273,24 +2288,35 @@ msgid ""
 "The readings of the current user, from the first to the latest, each with "
 "its start, end and rating. When sent, they replace the existing ones, a "
 "reading in progress last."
-msgstr "Les lectures de l’utilisateur ou de l’utilisatrice actuelle, de la première à la dernière, chacune avec son début, sa fin et sa note. Envoyées, elles remplacent les lectures existantes, celle en cours en dernier."
+msgstr ""
+"Les lectures de l’utilisateur ou de l’utilisatrice actuelle, de la première "
+"à la dernière, chacune avec son début, sa fin et sa note. Envoyées, elles "
+"remplacent les lectures existantes, celle en cours en dernier."
 
 #: includes/class-rest-schemas.php:278
 msgid ""
 "Whether or not the current user has read the book. Sending false removes "
 "their completed readings; sending true without one adds a reading that ends "
 "now."
-msgstr "Indique si l’utilisateur ou l’utilisatrice actuelle a lu le livre. Envoyer false retire ses lectures terminées ; envoyer true sans lecture en ajoute une qui se termine maintenant."
+msgstr ""
+"Indique si l’utilisateur ou l’utilisatrice actuelle a lu le livre. Envoyer "
+"false retire ses lectures terminées ; envoyer true sans lecture en ajoute "
+"une qui se termine maintenant."
 
 #: includes/class-rest-schemas.php:280
 msgid ""
 "The rating of the current user, from their latest rated reading, or null. "
 "When sent, it rates their latest completed reading; null removes it."
-msgstr "La note de l’utilisateur ou de l’utilisatrice actuelle, celle de sa dernière lecture notée, ou null. Envoyée, elle note sa dernière lecture terminée ; null la retire."
+msgstr ""
+"La note de l’utilisateur ou de l’utilisatrice actuelle, celle de sa dernière "
+"lecture notée, ou null. Envoyée, elle note sa dernière lecture terminée ; "
+"null la retire."
 
 #: includes/class-rest-schemas.php:282
 msgid "The notes of the current user on the book, as HTML."
-msgstr "Les notes de l’utilisateur ou de l’utilisatrice actuelle sur le livre, en HTML."
+msgstr ""
+"Les notes de l’utilisateur ou de l’utilisatrice actuelle sur le livre, en "
+"HTML."
 
 #: includes/class-rest-schemas.php:285
 msgid "The notes of the current user on the book."
@@ -2308,24 +2334,34 @@ msgstr "Les notes, transformées pour l’affichage."
 msgid ""
 "The ID of an image the current user uploaded of their copy, or 0 for none. "
 "It replaces the cover of the edition for them."
-msgstr "L’ID d’une image de son exemplaire que l’utilisateur ou l’utilisatrice actuelle a envoyée, ou 0 pour aucune. Elle remplace pour lui ou elle la couverture de l’édition."
+msgstr ""
+"L’ID d’une image de son exemplaire que l’utilisateur ou l’utilisatrice "
+"actuelle a envoyée, ou 0 pour aucune. Elle remplace pour lui ou elle la "
+"couverture de l’édition."
 
 #: includes/class-rest-schemas.php:296
 msgid ""
 "The photo of the copy of the current user, with its ID, or null to show the "
 "cover of the edition."
-msgstr "La photo de l’exemplaire de l’utilisateur ou de l’utilisatrice actuelle, avec son ID, ou null pour montrer la couverture de l’édition."
+msgstr ""
+"La photo de l’exemplaire de l’utilisateur ou de l’utilisatrice actuelle, "
+"avec son ID, ou null pour montrer la couverture de l’édition."
 
 #: includes/class-rest-schemas.php:316
 msgid ""
 "The shelf of the book for the current user: in-library, not-kept or to-buy, "
 "or null when it is on none of their shelves."
-msgstr "L’étagère du livre pour l’utilisateur ou l’utilisatrice actuelle : in-library, not-kept ou to-buy, ou null quand il n’est sur aucune de ses étagères."
+msgstr ""
+"L’étagère du livre pour l’utilisateur ou l’utilisatrice actuelle : in-"
+"library, not-kept ou to-buy, ou null quand il n’est sur aucune de ses "
+"étagères."
 
 #: includes/class-rest-schemas.php:317
 msgid ""
 "The date the current user added the book, in the site's timezone, or null."
-msgstr "La date à laquelle l’utilisateur ou l’utilisatrice actuelle a ajouté le livre, dans le fuseau horaire du site, ou null."
+msgstr ""
+"La date à laquelle l’utilisateur ou l’utilisatrice actuelle a ajouté le "
+"livre, dans le fuseau horaire du site, ou null."
 
 #: includes/class-rest-schemas.php:334
 msgid "Term ID, of a publisher or of a collection: its page in the app."
@@ -2441,8 +2477,8 @@ msgid "Readings of the year before."
 msgstr "Lectures de l’année précédente."
 
 #: includes/class-rest-schemas.php:516
-msgid "Readings of a book read again in the year."
-msgstr "Lectures d’un livre relu dans l’année."
+msgid "The readings of the year of a book read before, in the year or earlier."
+msgstr "Les lectures de l’année d’un livre déjà lu, dans l’année ou avant."
 
 #: includes/class-rest-schemas.php:517
 msgid "IDs of the books read, in the order they were read."
@@ -3350,6 +3386,9 @@ msgstr "Lecture enregistrée."
 #: app/js/lib/store.js:1123
 msgid "Undo"
 msgstr "Annuler"
+
+#~ msgid "Readings of a book read again in the year."
+#~ msgstr "Lectures d’un livre relu dans l’année."
 
 #~ msgid "A book you read stays on your shelves: say it is not kept instead."
 #~ msgstr ""

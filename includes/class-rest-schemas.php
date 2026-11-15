@@ -513,7 +513,7 @@ class Rest_Schemas {
 				'day_count'              => self::property( 'integer', __( 'Days gone by: all of them for a year gone.', 'library' ) ),
 				'reading_count'          => self::property( 'integer', __( 'Readings of the year.', 'library' ) ),
 				'previous_reading_count' => self::property( 'integer', __( 'Readings of the year before.', 'library' ) ),
-				'reread_count'           => self::property( 'integer', __( 'Readings of a book read again in the year.', 'library' ) ),
+				'reread_count'           => self::property( 'integer', __( 'The readings of the year of a book read before, in the year or earlier.', 'library' ) ),
 				'books'                  => self::book_ids( __( 'IDs of the books read, in the order they were read.', 'library' ) ),
 				'pages'                  => self::property( 'object', __( 'Pages read, and the readings of a book with its number of pages.', 'library' ) ),
 				'months'                 => self::property( 'array', __( 'Readings of each month, from January.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
