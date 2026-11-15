@@ -11,10 +11,13 @@
 
 namespace Library;
 
+use WP_Term;
+
 /**
  * Keeps in transients what takes every book to compute, until a book changes: its post, its meta, its terms, or the
- * name of a term. A change makes a new generation, whose transients are new, the former ones expiring within a day. Each
- * reader has transients of their own: the books, the reading idea and the achievements are those of their shelves.
+ * name or a meta of a term. A change makes a new generation, whose transients are new, the former ones expiring within a
+ * day. Each reader has transients of their own: the books, the reading idea and the achievements are those of their
+ * shelves.
  *
  * @since      9.4.0
  * @package    Library
@@ -58,6 +61,9 @@ class Cache {
 		add_action( 'set_object_terms', array( $this, 'forget_terms' ), 10, 4 );
 		add_action( 'edited_term', array( $this, 'forget_term' ), 10, 3 );
 		add_action( 'delete_term', array( $this, 'forget_term' ), 10, 3 );
+		add_action( 'added_term_meta', array( $this, 'forget_term_meta' ), 10, 3 );
+		add_action( 'updated_term_meta', array( $this, 'forget_term_meta' ), 10, 3 );
+		add_action( 'deleted_term_meta', array( $this, 'forget_term_meta' ), 10, 3 );
 	}
 
 	/**
@@ -170,6 +176,22 @@ class Cache {
 	 */
 	public function forget_term( int $term_id, int $tt_id, string $taxonomy ): void {
 		if ( in_array( $taxonomy, Taxonomies::TAXONOMIES, true ) ) {
+			$this->forget();
+		}
+	}
+
+	/**
+	 * Forget once a meta of a term of the books changes, such as how the achievements of a form name its books read.
+	 *
+	 * @param int|int[] $meta_ids Meta ID(s).
+	 * @param int       $term_id  Term ID.
+	 * @param string    $meta_key Meta key.
+	 * @return void
+	 */
+	public function forget_term_meta( $meta_ids, int $term_id, string $meta_key ): void {
+		$term = get_term( $term_id );
+
+		if ( str_starts_with( $meta_key, 'library_' ) && $term instanceof WP_Term && in_array( $term->taxonomy, Taxonomies::TAXONOMIES, true ) ) {
 			$this->forget();
 		}
 	}

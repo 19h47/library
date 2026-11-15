@@ -32,4 +32,20 @@ class Test_Cache extends TestCase {
 
 		$this->assertSame( 'first', Cache::remember( 'shelves', fn() => 'computed again' ) );
 	}
+
+	/**
+	 * A meta of a term of the books changed, such as how the achievements of a form name its books read, the values kept
+	 * are computed again.
+	 *
+	 * @return void
+	 */
+	public function test_a_meta_of_a_term_forgets(): void {
+		$form_id = $this->get_form( 'Novel' );
+
+		$this->assertSame( 'before', Cache::remember( 'achievements', fn() => 'before' ) );
+
+		update_term_meta( $form_id, 'library_books_read', 'novels read' );
+
+		$this->assertSame( 'after', Cache::remember( 'achievements', fn() => 'after' ) );
+	}
 }

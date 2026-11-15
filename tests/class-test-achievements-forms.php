@@ -31,6 +31,20 @@ class Test_Achievements_Forms extends TestCase {
 	}
 
 	/**
+	 * A form that names its books read has achievements of its own name, earned and close.
+	 *
+	 * @return void
+	 */
+	public function test_a_form_names_its_books_read(): void {
+		$this->add_form_reads( 'Comic', 23 );
+
+		update_term_meta( $this->get_form( 'Comic' ), 'library_books_read', 'comics read' );
+
+		$this->assertSame( '10 comics read', $this->get_earned()['form'][0]['title'] );
+		$this->assertSame( '25 comics read', $this->get_close()['form'][0]['title'] );
+	}
+
+	/**
 	 * The tenth book is the tenth one read, whatever the order the books were added in.
 	 *
 	 * @return void
