@@ -67,8 +67,9 @@ function renderOptions( terms ) {
  * in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
- * a book has already shows it, which opens, and a book to buy is bought from there; else the catalogue of the BnF fills
- * in the fields left empty, the names as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
+ * a book of the catalogue has already shows it, which opens, a book to buy bought from there and one on none of the
+ * shelves of the reader put in their library; else the catalogue of the BnF fills in the fields left empty, the names
+ * as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
  * barcode of a book types its ISBN, as if typed: its component, barcode-scan, does it.
  * Closing the form drops it.
  */
@@ -124,7 +125,8 @@ class LibraryEditElement extends Brick {
 		/** @type {HTMLAnchorElement} */
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
 		/** @type {HTMLButtonElement} */
-		const $buy = this.querySelector( '[data-action="buy"]' );
+		/** @type {HTMLButtonElement} */
+		const $keep = this.querySelector( '[data-action="keep"]' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -281,11 +283,11 @@ class LibraryEditElement extends Brick {
 				),
 			{ signal }
 		);
-		$buy.addEventListener(
+		$keep.addEventListener(
 			'click',
 			async () =>
 				openBook(
-					await store.buyBook( store.get().editing.duplicate )
+					await store.keepBook( store.get().editing.duplicate )
 				),
 			{ signal }
 		);
@@ -462,7 +464,12 @@ class LibraryEditElement extends Brick {
 
 					fill( this, { duplicate: book?.title ?? '' } );
 					$duplicate.href = urlOf( { view: 'book', id } );
-					$buy.hidden = toBuy !== book?.status;
+					// A book to buy is bought, one on none of the shelves of the reader put in their library; the others are theirs.
+					$keep.hidden = ! [ toBuy, '' ].includes( book?.status );
+					$keep.textContent =
+						toBuy === book?.status
+							? $keep.dataset.toBuy
+							: $keep.dataset.catalogue;
 				}
 			),
 			store.select(

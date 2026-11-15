@@ -940,23 +940,67 @@ class Meta {
 	}
 
 	/**
-	 * Refuse an ISBN typed with a mistake, which its check digit tells, such as two digits swapped: a new one, or one
-	 * that changes, so that a book saved with a wrong ISBN before can still be edited. The forms of a book, in the
-	 * reading app and the admin, check it before anything is written.
+	 * Refuse an ISBN typed with a mistake, which its check digit tells, such as two digits swapped, or one another book of
+	 * the catalogue has, which the readers share: a reader puts that book on their shelves rather than adding it twice.
+	 * A new ISBN, or one that changes, so that a book saved with a wrong ISBN, or twice, before can still be edited. The
+	 * forms of a book, in the reading app and the admin, check it before anything is written.
 	 *
 	 * @param int    $post_id Book ID, 0 for a book to add.
 	 * @param string $isbn    ISBN sent.
-	 * @return WP_Error|null
+	 * @return WP_Error|null The error, with the book that has the ISBN, `book`, for one taken.
 	 */
 	public static function check_isbn( int $post_id, string $isbn ): ?WP_Error {
-		if ( ! ISBN::has_wrong_check_digit( $isbn ) || get_post_meta( $post_id, 'library_isbn', true ) === $isbn ) {
+		if ( '' === $isbn || get_post_meta( $post_id, 'library_isbn', true ) === $isbn ) {
 			return null;
 		}
 
-		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
-		$message = sprintf( __( 'The last digit of the ISBN %s, its check digit, does not match the others: check them.', 'library' ), $isbn );
+		if ( ISBN::has_wrong_check_digit( $isbn ) ) {
+			/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
+			$message = sprintf( __( 'The last digit of the ISBN %s, its check digit, does not match the others: check them.', 'library' ), $isbn );
 
-		return new WP_Error( 'library_isbn_check_digit', $message, array( 'status' => 400 ) );
+			return new WP_Error( 'library_isbn_check_digit', $message, array( 'status' => 400 ) );
+		}
+
+		$book_id = self::find_isbn( $isbn, $post_id );
+
+		if ( ! $book_id ) {
+			return null;
+		}
+
+		/* translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it. */
+		$message = sprintf( __( 'The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your shelves instead.', 'library' ), $isbn, get_the_title( $book_id ) );
+
+		return new WP_Error(
+			'library_isbn_taken',
+			$message,
+			array(
+				'status' => 409,
+				'book'   => $book_id,
+			)
+		);
+	}
+
+	/**
+	 * The book of the catalogue that has an ISBN, by its digits, whatever its hyphens, but the one given; 0 for none.
+	 *
+	 * @param string $isbn    ISBN.
+	 * @param int    $except  Book ID left out, 0 for none.
+	 * @return int Book ID.
+	 */
+	private static function find_isbn( string $isbn, int $except ): int {
+		global $wpdb;
+
+		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A book saved, once.
+			$wpdb->prepare(
+				"SELECT pm.post_id
+				FROM {$wpdb->postmeta} AS pm
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )
+				WHERE pm.meta_key = 'library_isbn' AND REPLACE( REPLACE( pm.meta_value, '-', '' ), ' ', '' ) = %s AND pm.post_id <> %d
+				LIMIT 1",
+				ISBN::get_digits( $isbn ),
+				$except
+			)
+		);
 	}
 
 	/**
