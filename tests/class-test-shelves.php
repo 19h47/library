@@ -7,7 +7,6 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
 use Library\Shelf;
 use Library\Status;
 use WP_REST_Request;
@@ -175,8 +174,8 @@ class Test_Shelves extends TestCase {
 	public function test_two_readers_read_the_same_book_their_own_way(): void {
 		$book_id = $this->add_book(
 			array(
-				'meta' => array(
-					'reading'      => array( '/2024-03-14#8' ),
+				'shelf' => array(
+					'readings'     => array( '/2024-03-14#8' ),
 					'printed_date' => '2014',
 				),
 			)
@@ -198,7 +197,7 @@ class Test_Shelves extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 6.0, $shelf['rating'] );
 		$this->assertSame( '2021-05', $shelf['printed_date'] );
-		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 
 		wp_set_current_user( $first );
 
@@ -227,6 +226,40 @@ class Test_Shelves extends TestCase {
 		$this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'read' => true ) );
 
 		$this->assertSame( Status::Not_Kept->value, $this->get_shelf( $book_id )['status'] );
+	}
+
+	/**
+	 * A copy is on a shelf: notes, a printed date or a photo of their copy put a book on none of the shelves of the reader
+	 * among the books not kept, as a reading does.
+	 *
+	 * @return void
+	 */
+	public function test_a_copy_goes_on_a_shelf(): void {
+		$noted   = $this->add_book();
+		$printed = $this->add_book();
+
+		$this->as_user( 'library_reader' );
+		$this->request( 'POST', "/library/v1/books/$noted/shelf", array( 'notes' => 'Lent by Ada.' ) );
+		$this->request( 'POST', "/library/v1/books/$printed/shelf", array( 'printed_date' => '2014' ) );
+
+		$this->assertSame( Status::Not_Kept->value, $this->get_shelf( $noted )['status'] );
+		$this->assertSame( Status::Not_Kept->value, $this->get_shelf( $printed )['status'] );
+	}
+
+	/**
+	 * A book taken off the shelves loses every row of the reader, even one on none of them that kept some, as a copy of
+	 * before.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_taken_off_loses_every_row(): void {
+		$book_id = $this->add_book();
+		$reader  = $this->as_user( 'library_reader' );
+
+		update_post_meta( $book_id, Shelf::key( 'library_notes', $reader ), 'Lent by Ada.' );
+
+		$this->assertSame( 200, $this->request( 'DELETE', "/library/v1/books/$book_id/shelf" )->get_status() );
+		$this->assertSame( '', $this->get_shelf( $book_id )['notes']['raw'] );
 	}
 
 	/**

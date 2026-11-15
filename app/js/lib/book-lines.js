@@ -102,7 +102,7 @@ export function formatStatus( book ) {
 	const labels = {
 		[ notKept ]: _x( 'Not kept', 'book status', 'library' ),
 		[ toBuy ]: _x( 'To buy', 'book status', 'library' ),
-		'': __( 'Not on your shelves', 'library' ),
+		'': __( 'On none of my shelves', 'library' ),
 	};
 
 	return labels[ book.status ] ?? '';

@@ -33,8 +33,7 @@ import {
  */
 
 /**
- * The meta of a book by their names, without the prefix of their keys, library_isbn its ISBN, and the copy of the
- * reader, from its shelf: when it was printed, whether it is read and being read, and its rating.
+ * The meta of a book by their names, without the prefix of their keys: library_isbn is its ISBN.
  *
  * @typedef {Object} BookMeta
  * @property {string}   subtitle          Its subtitle.
@@ -43,13 +42,20 @@ import {
  * @property {string}   collection_number Its number in its collection.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
  * @property {string}   edition_date      The date its edition, the one of its ISBN, first came out: a day, a month or a year.
- * @property {string}   printed_date      The date the copy of the reader was printed: a day, a month or a year, or empty.
  * @property {number}   pages             Its number of pages, 0 for unknown.
- * @property {number}   rating            The rating of the reader out of 10, the one of their latest reading rated, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
- * @property {boolean}  read              Whether the reader read it.
- * @property {boolean}  in_progress       Whether the reader is reading it.
  * @property {number[]} edition_languages The term IDs of the languages of its text.
+ */
+
+/**
+ * The copy of the reader, from the shelf of a book: when it was printed, whether they read it and are reading it, and
+ * their rating; their readings apart, see BookReadings.
+ *
+ * @typedef {Object} BookCopy
+ * @property {string}  printed_date When their copy was printed: a day, a month or a year, or empty.
+ * @property {boolean} read         Whether they read it.
+ * @property {boolean} in_progress  Whether they are reading it.
+ * @property {number}  rating       Their rating out of 10, the one of their latest reading rated, 0 for none.
  */
 
 /**
@@ -66,8 +72,8 @@ import {
  * @property {string}     title             Its title, with its series, its volume and its subtitle.
  * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
  * @property {string}     excerpt           Its summary in a few words.
- * @property {string}     content           The notes of the reader, HTML as the API renders them.
  * @property {string}     notes             The notes of the reader, as typed.
+ * @property {string}     notes_html        Their notes, HTML as the API renders them.
  * @property {string}     credits           Its authors, publisher and year, under its title.
  * @property {string}     status            Where it is for the reader: in the library, not kept, to buy, or empty on none of their shelves.
  * @property {Cover|null} cover             Its cover as the reader sees it, the photo of their copy, else the cover of its edition, none without either.
@@ -144,7 +150,7 @@ import {
  * A book as the app shows it: plain text but its notes, its meta by their names, its readings in order, its cover with
  * its size, its names with their roles, its original languages, those of its text and its form.
  *
- * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookReadings} Book
+ * @typedef {BookFields & Omit<BookMeta, 'edition_languages'> & BookCopy & BookReadings} Book
  */
 
 /**
@@ -557,6 +563,16 @@ export function errorMessage( error ) {
 }
 
 /**
+ * The book of the catalogue that has the ISBN a book was refused for, 409, as the API names it, else 0.
+ *
+ * @param {{code?: string, data?: {book?: number}}} error What the request threw.
+ * @return {number} The ID of the book.
+ */
+export function takenBook( error ) {
+	return 'library_isbn_taken' === error?.code ? error.data?.book ?? 0 : 0;
+}
+
+/**
  * A term the API gives, such as an author or a cycle, with its name in plain text; none stays none.
  *
  * @template {{name: string}} T
@@ -607,8 +623,8 @@ function toBook( item ) {
 		main_title: text( item.main_title ),
 		excerpt: text( item.excerpt.rendered ),
 		// HTML as the API renders it: its paragraphs and links.
-		content: item.shelf.notes.rendered,
 		notes: item.shelf.notes.raw,
+		notes_html: item.shelf.notes.rendered,
 		credits: text( item.credits ),
 		status: item.shelf.status ?? '',
 		// Its size gives the image its place before it loads. The photo of the copy of the reader shows instead of the cover of

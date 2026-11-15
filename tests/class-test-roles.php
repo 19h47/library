@@ -7,7 +7,7 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
+use Library\Shelf;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -116,7 +116,7 @@ class Test_Roles extends TestCase {
 		$book = $this->request( 'GET', "/wp/v2/books/$book_id" )->get_data();
 
 		$this->assertArrayNotHasKey( 'shelf', $book );
-		$this->assertSame( array(), array_intersect( array_keys( $book['meta'] ), Meta::SHELF_KEYS ) );
+		$this->assertSame( array(), array_intersect( array_keys( $book['meta'] ), Shelf::NAMES ) );
 		$this->assertSame( 401, $this->request( 'GET', '/library/v1/stats' )->get_status() );
 	}
 

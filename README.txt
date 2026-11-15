@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.0.0
+Stable tag: 10.0.1
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,7 +19,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 = Features =
 
 * **Books** – Cover, subtitle, series and volume, collection number, ISBN, pages, edition date, date first published and excerpt. Its form, such as a novel or a comic, its original languages and the languages of its edition. An ISBN is saved with its hyphens: 9782070360246 becomes 978-2-07-036024-6, and is the one of a single book of the catalogue. A book without ISBN takes its EAN-13.
-* **Shelves** – Each reader has their own: a book is in their library, “Not kept”, borrowed or passed on, “To buy”, or on none of their shelves, a book of the catalogue. Their readings, each with the rating it ended with, from 1 to 10 by half points, the date their copy was printed, their notes and a photo of their copy are theirs too: the rating of a book is the one of their latest reading rated, and the recap of a year shows the rating of each book then. A book read is on a shelf, among the books not kept unless they say otherwise. A book not kept stays on the reading pile until it is read.
+* **Shelves** – Each reader has their own: a book is in their library, “Not kept”, borrowed or passed on, “To buy”, or on none of their shelves, a book of the catalogue. Their readings, each with the rating it ended with, from 1 to 10 by half points, the date their copy was printed, their notes and a photo of their copy are theirs too: the rating of a book is the one of their latest reading rated, and the recap of a year shows the rating of each book then. A copy is on a shelf: a reading, a printed date, notes or a photo put a book among the books not kept unless they say otherwise, and a book read stays on one. A book not kept stays on the reading pile until it is read.
 * **Roles** – A reader, **Reader**, shelves the books, adds the ones the catalogue lacks and changes the records they added; a librarian, **Librarian**, refines every record and every name of the catalogue; the editors and the administrators delete them. The record of a book keeps its revisions, each by the reader who saved it.
 * **People** – Every name of a book is a person, the author unless another role is chosen: translator, colorist, inker, letterer, publishing director or adapted author. A magazine or an anthology is a collective work: it counts for none of its people.
 * **Cycles, collections and pseudonyms** – A series belongs to its cycle, a collection to its publisher, a sub-collection to its collection, as the BnF has them, and a pseudonym to the name the person is known by. Filtering by a cycle, a publisher or a person includes what belongs to them.
@@ -118,10 +118,10 @@ The books take these parameters, besides those of core:
 
 The routes of the plugin, under `/wp-json/library/v1`, to readers, the users who shelve books, unless said otherwise:
 
-* `POST /books` – adds a book as the book form does, on the shelf of the reader its `shelf` says, in the library by default, with their copy, as the route of its shelf takes it. It gives the book back as `wp/v2/books/<id>` does, `_fields` included. 409 for an ISBN another book has, that book in `data.book`.
+* `POST /books` – adds a book as the book form does, on the shelf of the reader its `shelf` says, in the library by default, with their copy, as the route of its shelf takes it. It gives the book back as `wp/v2/books/<id>` does, `_fields` included. 409 for an ISBN another book of the catalogue, published, has, that book in `data.book`.
 * `GET /books/<id>` – a book as its form edits it, its names as typed, to users who can edit it; 404 for an ID no book has.
 * `POST /books/<id>` – edits the record of a book, to users who can edit it: only the fields sent change, and a `featured_media` of 0 removes the cover of its edition. It gives the book back; 409 for an ISBN another book has.
-* `POST /books/<id>/shelf` – puts a book on the shelf of the reader its `status` says, and writes their copy: `printed_date`, `readings`, which replace theirs, `read`, `in_progress`, `rating`, `notes`, and `cover`, an image they uploaded, 0 to remove it. Only what is sent changes; a book read on none of their shelves goes among the books not kept. It gives the book back.
+* `POST /books/<id>/shelf` – puts a book on the shelf of the reader its `status` says, and writes their copy: `printed_date`, `readings`, which replace theirs, `read`, `in_progress`, `rating`, `notes`, and `cover`, an image they uploaded, 0 to remove it. Only what is sent changes; a copy on a book on none of their shelves puts it among the books not kept. It gives the book back.
 * `DELETE /books/<id>/shelf` – takes a book off the shelves of the reader, unless they read it: 409.
 * `GET /books/bnf?isbn=<isbn>` – the book of an ISBN in the catalogue of the BnF, as `GET /books/<id>` gives a book; 404 when the catalogue does not know it, 502 when it does not answer. To users who can publish posts.
 * `POST /covers` – uploads the photo of a cover, of an edition or of a copy, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
@@ -139,6 +139,14 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.0.1 =
+* Fixed: a copy is on a shelf. Notes, a printed date or a photo of the copy put a book on none of the shelves of the reader among the books not kept, as a reading does, and taking a book off deletes every row of the reader. Notes given to a book on none of the shelves, in the app or on the screen of the book, no longer go at once.
+* Fixed: a draft no longer holds its ISBN, only a book of the catalogue, published; the form of a book to add shows the book of an ISBN taken it had not found, with its action.
+* Fixed: the recap of a year counts as read again every reading of a book read before, in a year before or on a day unknown too, not only a book read twice in the year.
+* Changed: the screen of a book holds the copy of the reader in the box My shelves, its shelf, printed date, read state, readings and notes, and the record in the Information box.
+* Changed: the REST API describes itself, and its messages speak, as WordPress does; the French translation says vous.
+* Code only: the readings leave the meta of the record, for `Readings` and `Shelf`; the copy of a reader has one list of its fields, `Shelf::NAMES`, and one schema; the history reads the meta that WordPress revisions; the tests write the copy in its shelf, test the preloading of the app, and run on MySQL 5.7 and MariaDB 11.8 too.
 
 = 10.0.0 =
 * Several readers share the catalogue of a site, each with their own shelves: where a book is for them, in the library, not kept, to buy or on none of their shelves, since when, their readings and their ratings, the date their copy was printed, their notes and a photo of their copy, which shows instead of the cover of its edition. The stats, the recap, the achievements, the reading idea, the dashboard and the app read the shelves of the reader; the app and the books list filter by shelf, the whole catalogue a choice of its own. A book read is on a shelf, among the books not kept unless the reader says otherwise.

@@ -20,24 +20,27 @@ class Test_Recap extends TestCase {
 
 	/**
 	 * A reading is a read date of the year: a book read again counts once per reading, its books once each, in the order
-	 * they were read; the readings of the year before are counted, and each month has its own.
+	 * they were read; the readings of the year before are counted, and each month has its own. A reading again is one of
+	 * a book read before, in the year, in a year before or on a day unknown.
 	 *
 	 * @return void
 	 */
 	public function test_readings(): void {
 		$first  = $this->add_read( '2025-03-02' );
-		$again  = $this->add_book( array( 'meta' => array( 'reading' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
+		$again  = $this->add_book( array( 'shelf' => array( 'readings' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
 		$before = $this->add_read( '2024-12-31' );
 		$this->add_read( '2024-06-01' );
+		$earlier = $this->add_book( array( 'shelf' => array( 'readings' => array( '/2019-06-14', '/2025-05-01' ) ) ) );
+		$unknown = $this->add_book( array( 'shelf' => array( 'readings' => array( '/', '/2025-06-01' ) ) ) );
 
 		$recap = Recap::get_recap( 2025 );
 
-		$this->assertSame( 3, $recap['reading_count'] );
+		$this->assertSame( 5, $recap['reading_count'] );
 		$this->assertSame( 2, $recap['previous_reading_count'] );
-		$this->assertSame( 1, $recap['reread_count'] );
-		$this->assertSame( array( $again, $first ), $recap['books'] );
-		$this->assertSame( array( 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 ), $recap['months'] );
-		$this->assertSame( array( 2024, 2025 ), $recap['years'] );
+		$this->assertSame( 3, $recap['reread_count'] );
+		$this->assertSame( array( $again, $first, $earlier, $unknown ), $recap['books'] );
+		$this->assertSame( array( 1, 0, 2, 0, 1, 1, 0, 0, 0, 0, 0, 0 ), $recap['months'] );
+		$this->assertSame( array( 2019, 2024, 2025 ), $recap['years'] );
 		$this->assertSame( 365, $recap['day_count'] );
 		$this->assertNotContains( $before, $recap['books'] );
 	}
@@ -86,10 +89,10 @@ class Test_Recap extends TestCase {
 	 * @return void
 	 */
 	public function test_ratings(): void {
-		$good   = $this->add_read( '2025-01-01', array( 'meta' => array( 'rating' => 8 ) ) );
-		$better = $this->add_read( '2025-02-01', array( 'meta' => array( 'rating' => 8 ) ) );
-		$best   = $this->add_read( '2025-03-01', array( 'meta' => array( 'rating' => 10 ) ) );
-		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'meta' => array( 'rating' => 5 ) ) );
+		$good   = $this->add_read( '2025-01-01', array( 'shelf' => array( 'rating' => 8 ) ) );
+		$better = $this->add_read( '2025-02-01', array( 'shelf' => array( 'rating' => 8 ) ) );
+		$best   = $this->add_read( '2025-03-01', array( 'shelf' => array( 'rating' => 10 ) ) );
+		$lower  = $this->add_reads( array( '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05' ), array( 'shelf' => array( 'rating' => 5 ) ) );
 		$this->add_read( '2025-04-01' );
 
 		$recap = Recap::get_recap( 2025 );
@@ -105,7 +108,7 @@ class Test_Recap extends TestCase {
 	 * @return void
 	 */
 	public function test_a_book_read_again_has_the_rating_of_each_year(): void {
-		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-05-01#6', '/2025-05-01#9' ) ) ) );
+		$book_id = $this->add_book( array( 'shelf' => array( 'readings' => array( '/2024-05-01#6', '/2025-05-01#9' ) ) ) );
 
 		$this->assertSame( 6.0, Recap::get_recap( 2024 )['rating'] );
 		$this->assertSame( 9.0, Recap::get_recap( 2025 )['rating'] );
@@ -301,11 +304,11 @@ class Test_Recap extends TestCase {
 	 */
 	private function read_from( string $reading, int $pages, ?float $rating = null ): array {
 		return array(
-			'meta' => array_filter(
+			'meta'  => array( 'pages' => $pages ),
+			'shelf' => array_filter(
 				array(
-					'reading' => array( $reading ),
-					'pages'   => $pages,
-					'rating'  => $rating,
+					'readings' => array( $reading ),
+					'rating'   => $rating,
 				)
 			),
 		);

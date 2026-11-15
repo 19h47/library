@@ -90,10 +90,8 @@ class Test_Rest_Schemas extends TestCase {
 						'role' => 'author',
 					),
 				),
-				'meta'   => array(
-					'pages'  => 120,
-					'rating' => 8,
-				),
+				'meta'   => array( 'pages' => 120 ),
+				'shelf'  => array( 'rating' => 8 ),
 			)
 		);
 		$this->add_book( array( 'title' => 'To Read' ) );

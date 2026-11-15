@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 10.0.0\n"
+"Project-Id-Version: Library 10.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T15:46:30+00:00\n"
+"POT-Creation-Date: 2026-11-15T17:37:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -58,11 +58,11 @@ msgstr ""
 msgid "Achievements"
 msgstr ""
 
-#: admin/class-books-list.php:85
+#: admin/class-books-list.php:86
 msgid "Thumbnail"
 msgstr ""
 
-#: admin/class-books-list.php:88
+#: admin/class-books-list.php:89
 #: app/components/book-fields.php:23
 #: app/partials/library-app.php:355
 #: app/partials/library-app.php:407
@@ -70,30 +70,30 @@ msgstr ""
 msgid "Authors"
 msgstr ""
 
-#: admin/class-books-list.php:89
-#: admin/class-metaboxes.php:256
+#: admin/class-books-list.php:90
+#: admin/partials/library-shelf.php:28
 msgid "Shelf"
 msgstr ""
 
-#: admin/class-books-list.php:96
+#: admin/class-books-list.php:97
 #: admin/partials/library-reading.php:27
 #: app/components/reading-period.php:18
 msgid "Read date"
 msgstr ""
 
 #. translators: %s: book title.
-#: admin/class-books-list.php:124
+#: admin/class-books-list.php:125
 #, php-format
 msgid "Read: %s"
 msgstr ""
 
-#: admin/class-books-list.php:157
+#: admin/class-books-list.php:158
 #: app/partials/library-app.php:978
 msgid "Unknown date"
 msgstr ""
 
 #. translators: %s: number of readings of a book.
-#: admin/class-books-list.php:161
+#: admin/class-books-list.php:162
 #, php-format
 msgid "%s reading"
 msgid_plural "%s readings"
@@ -101,25 +101,25 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: rating out of 10, e.g. 7.5/10.
-#: admin/class-books-list.php:176
+#: admin/class-books-list.php:177
 #, php-format
 msgid "Rated %s"
 msgstr ""
 
-#: admin/class-books-list.php:321
+#: admin/class-books-list.php:322
 msgid "Table ordered by edition date."
 msgstr ""
 
-#: admin/class-books-list.php:322
+#: admin/class-books-list.php:323
 msgid "Table ordered by printed date."
 msgstr ""
 
-#: admin/class-books-list.php:323
+#: admin/class-books-list.php:324
 msgid "Table ordered by rating."
 msgstr ""
 
 #: admin/class-books-list.php:388
-#: admin/class-metaboxes.php:239
+#: admin/class-metaboxes.php:216
 #: app/partials/library-app.php:154
 msgid "My shelves"
 msgstr ""
@@ -228,7 +228,7 @@ msgid "Rating distribution"
 msgstr ""
 
 #: admin/class-dashboard.php:353
-#: includes/class-meta.php:167
+#: includes/class-shelf.php:112
 msgid "Rating"
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #: admin/class-dashboard.php:370
-#: includes/class-meta.php:532
+#: includes/class-meta.php:397
 msgid "No rating"
 msgstr ""
 
@@ -279,23 +279,19 @@ msgstr[1] ""
 msgid "%1$s, %2$s"
 msgstr ""
 
-#: admin/class-metaboxes.php:72
+#: admin/class-metaboxes.php:74
 msgid "Information"
 msgstr ""
 
 #. translators: %s: why, such as a check digit that does not match.
-#: admin/class-metaboxes.php:214
+#: admin/class-metaboxes.php:191
 #, php-format
 msgid "The ISBN was not saved. %s"
 msgstr ""
 
-#: admin/class-metaboxes.php:258
-#: app/partials/library-app.php:575
-msgid "On none of my shelves"
-msgstr ""
-
-#: admin/class-metaboxes.php:265
-msgid "Not kept: read but not in my library. To buy: not in my library yet. The book stays in the catalogue for the other readers."
+#: admin/class-metaboxes.php:296
+#: includes/class-rest-api.php:748
+msgid "A book you have read stays on your shelves. Mark it as not kept instead."
 msgstr ""
 
 #: admin/class-reading-idea-widget.php:46
@@ -506,7 +502,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1307
+#: includes/class-rest-api.php:1267
 msgid "No book to read."
 msgstr ""
 
@@ -599,26 +595,12 @@ msgstr[1] ""
 msgid "View all books"
 msgstr ""
 
-#: admin/partials/library-form.php:94
-#: app/partials/library-app.php:588
-msgid "Started"
-msgstr ""
-
-#: admin/partials/library-form.php:116
-#: app/partials/library-app.php:610
-msgid "Add a reading"
-msgstr ""
-
-#: admin/partials/library-form.php:127
-msgid "Optional. One line per reading, from its start to its end, each left empty when it is unknown, and the rating it ended with. Ending a reading marks the book as read; marking it as read without a reading ends one today. The rating of the book is the one of its latest reading rated."
-msgstr ""
-
-#: admin/partials/library-form.php:135
-#: admin/partials/library-form.php:138
+#: admin/partials/library-form.php:84
+#: admin/partials/library-form.php:87
 msgid "Roles"
 msgstr ""
 
-#: admin/partials/library-form.php:157
+#: admin/partials/library-form.php:106
 msgid "The role of each name of the book: a colorist, for instance, is not one of its authors. A name just added is an author: save the book to choose another role."
 msgstr ""
 
@@ -633,6 +615,30 @@ msgstr ""
 #: app/partials/library-app.php:984
 #: app/partials/library-app.php:985
 msgid "Remove this reading"
+msgstr ""
+
+#: admin/partials/library-shelf.php:32
+#: app/partials/library-app.php:575
+#: app/js/lib/book-lines.js:105
+msgid "On none of my shelves"
+msgstr ""
+
+#: admin/partials/library-shelf.php:38
+msgid "Not kept: read but not in my library. To buy: not in my library yet. The book stays in the catalogue for the other readers."
+msgstr ""
+
+#: admin/partials/library-shelf.php:62
+#: app/partials/library-app.php:588
+msgid "Started"
+msgstr ""
+
+#: admin/partials/library-shelf.php:84
+#: app/partials/library-app.php:610
+msgid "Add a reading"
+msgstr ""
+
+#: admin/partials/library-shelf.php:95
+msgid "Optional. One line per reading, from its start to its end, each left empty when it is unknown, and the rating it ended with. Ending a reading marks the book as read; marking it as read without a reading ends one today. The rating of the book is the one of its latest reading rated."
 msgstr ""
 
 #. translators: 1: what the page shows, such as a book or a view, 2: name of the app.
@@ -796,7 +802,7 @@ msgid "Reading state"
 msgstr ""
 
 #: app/partials/library-app.php:145
-#: includes/class-meta.php:169
+#: includes/class-shelf.php:101
 #: app/js/bricks/library-volumes.js:107
 #: app/js/lib/book-lines.js:126
 msgid "Read"
@@ -1479,186 +1485,148 @@ msgid_plural "%s books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-history.php:178
+#: includes/class-history.php:179
 msgid "Names"
 msgstr ""
 
-#: includes/class-history.php:214
+#: includes/class-history.php:215
 msgid "Yes"
 msgstr ""
 
-#: includes/class-meta.php:157
+#: includes/class-meta.php:129
 msgid "Subtitle"
 msgstr ""
 
-#: includes/class-meta.php:158
+#: includes/class-meta.php:130
 msgid "ISBN"
 msgstr ""
 
-#: includes/class-meta.php:159
+#: includes/class-meta.php:131
 msgid "Volume Number"
 msgstr ""
 
-#: includes/class-meta.php:160
+#: includes/class-meta.php:132
 msgid "Collection Number"
 msgstr ""
 
-#: includes/class-meta.php:161
+#: includes/class-meta.php:133
 msgid "Translators"
 msgstr ""
 
-#: includes/class-meta.php:162
+#: includes/class-meta.php:134
 msgid "Edition date"
 msgstr ""
 
-#: includes/class-meta.php:163
-msgid "Printed"
-msgstr ""
-
-#: includes/class-meta.php:164
-msgid "Readings"
-msgstr ""
-
-#: includes/class-meta.php:165
+#: includes/class-meta.php:135
 msgid "First published"
 msgstr ""
 
-#: includes/class-meta.php:166
+#: includes/class-meta.php:136
 msgid "Pages"
 msgstr ""
 
-#: includes/class-meta.php:168
+#: includes/class-meta.php:137
 msgid "Collective work"
 msgstr ""
 
-#: includes/class-meta.php:170
-#: app/js/bricks/library-volumes.js:104
-#: app/js/lib/book-lines.js:140
-msgid "In progress"
-msgstr ""
-
-#: includes/class-meta.php:171
+#: includes/class-meta.php:138
 msgid "Colorists"
 msgstr ""
 
-#: includes/class-meta.php:172
+#: includes/class-meta.php:139
 msgid "Inkers"
 msgstr ""
 
-#: includes/class-meta.php:173
+#: includes/class-meta.php:140
 msgid "Letterers"
 msgstr ""
 
-#: includes/class-meta.php:174
+#: includes/class-meta.php:141
 msgid "Publishing directors"
 msgstr ""
 
-#: includes/class-meta.php:175
+#: includes/class-meta.php:142
 msgid "Adapted authors"
 msgstr ""
 
-#: includes/class-meta.php:176
+#: includes/class-meta.php:143
 msgid "Edition languages"
 msgstr ""
 
-#: includes/class-meta.php:177
-msgid "Notes"
-msgstr ""
-
-#: includes/class-meta.php:178
-msgid "Photo of my copy"
-msgstr ""
-
-#: includes/class-meta.php:181
+#: includes/class-meta.php:146
 msgid "Shown after the title, such as “The Knife: Meditations After an Attempted Murder”."
 msgstr ""
 
-#: includes/class-meta.php:182
+#: includes/class-meta.php:147
 msgid "10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode."
 msgstr ""
 
-#: includes/class-meta.php:183
+#: includes/class-meta.php:148
 msgid "Shown after the collection, such as “Pocket Science-fiction no. 5667”."
 msgstr ""
 
-#: includes/class-meta.php:184
+#: includes/class-meta.php:149
 msgid "When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08."
 msgstr ""
 
-#: includes/class-meta.php:185
+#: includes/class-meta.php:150
 msgid "When this edition, the one of its ISBN, first came out, whatever the printing of the copy: a year, a year and month, or a date, such as 1972."
 msgstr ""
 
-#: includes/class-meta.php:186
-msgid "When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23."
-msgstr ""
-
-#: includes/class-meta.php:187
-msgid "From its start to its end, each one left empty when it is unknown, and the rating it ended with."
-msgstr ""
-
-#: includes/class-meta.php:188
-msgid "Being read, for the first time or again, since the day it started: a reading added ends it."
-msgstr ""
-
-#: includes/class-meta.php:189
-msgid "Rating from 1 to 10, the one of its latest reading rated; given, it rates its latest reading ended."
-msgstr ""
-
-#: includes/class-meta.php:190
+#: includes/class-meta.php:151
 msgid "A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them."
 msgstr ""
 
-#: includes/class-meta.php:191
+#: includes/class-meta.php:152
 msgid "The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book."
 msgstr ""
 
-#: includes/class-meta.php:395
+#: includes/class-meta.php:260
 msgctxt "role"
 msgid "Translator"
 msgstr ""
 
-#: includes/class-meta.php:396
+#: includes/class-meta.php:261
 msgctxt "role"
 msgid "Colorist"
 msgstr ""
 
-#: includes/class-meta.php:397
+#: includes/class-meta.php:262
 msgctxt "role"
 msgid "Inker"
 msgstr ""
 
-#: includes/class-meta.php:398
+#: includes/class-meta.php:263
 msgctxt "role"
 msgid "Letterer"
 msgstr ""
 
-#: includes/class-meta.php:399
+#: includes/class-meta.php:264
 msgctxt "role"
 msgid "Publishing director"
 msgstr ""
 
 #. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
-#: includes/class-meta.php:401
+#: includes/class-meta.php:266
 msgctxt "role"
 msgid "Adapted author"
 msgstr ""
 
-#: includes/class-meta.php:403
+#: includes/class-meta.php:268
 msgctxt "role"
 msgid "Author"
 msgstr ""
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-meta.php:965
+#: includes/class-meta.php:573
 #, php-format
 msgid "The last digit of the ISBN %s, its check digit, does not match the others: check them."
 msgstr ""
 
 #. translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it.
-#: includes/class-meta.php:977
+#: includes/class-meta.php:585
 #, php-format
-msgid "The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your shelves instead."
+msgid "The ISBN %1$s already belongs to “%2$s” in the catalogue. Add that book to your shelves instead."
 msgstr ""
 
 #: includes/class-posts.php:145
@@ -1747,7 +1715,7 @@ msgid "Filter books list"
 msgstr ""
 
 #: includes/class-query.php:321
-msgid "Statuses of the books on the shelves of the reader to list, by the date they added them, latest first; the whole catalogue without."
+msgid "Limit results to books on the shelves of the current user with these statuses, latest added first. All books when omitted."
 msgstr ""
 
 #. translators: Search keyword with a form, such as a novel, as named in the library: the keyword form stays in English.
@@ -1951,184 +1919,160 @@ msgid "Main title of the book, its title but its subtitle, with its series and i
 msgstr ""
 
 #: includes/class-rest-api.php:72
-msgid "Shelf of the book for the current reader: where it is for them, since when, and their copy, with their readings."
+msgid "The shelf of the book for the current user, and their copy of it."
 msgstr ""
 
-#: includes/class-rest-api.php:77
-msgid "Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover."
+#: includes/class-rest-api.php:76
+msgid "The cover of the edition of the book, or null."
 msgstr ""
 
-#: includes/class-rest-api.php:90
+#: includes/class-rest-api.php:81
 msgid "Names of the book, as named on it, each with its term ID and its role, as the route of the book form takes them; people gives their term IDs only."
 msgstr ""
 
-#: includes/class-rest-api.php:98
+#: includes/class-rest-api.php:89
 msgid "Original languages of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 
-#: includes/class-rest-api.php:106
+#: includes/class-rest-api.php:97
 msgid "Languages of the text of the book, as ISO 639 codes, the slugs of their terms."
 msgstr ""
 
-#: includes/class-rest-api.php:114
+#: includes/class-rest-api.php:105
 msgid "Series of the book, after its cycles, in plain text, such as “Star Wars, Young Jedi Knights”, or empty."
 msgstr ""
 
-#: includes/class-rest-api.php:121
+#: includes/class-rest-api.php:112
 msgid "Name of the form of the book, such as a novel, or empty."
 msgstr ""
 
-#: includes/class-rest-api.php:128
+#: includes/class-rest-api.php:119
 msgid "Publishers of the book, each followed by the collections it is in under it, from the widest, each once, with its term ID: a book of Folio’s Science-fiction gives Gallimard, Folio, then Science-fiction."
 msgstr ""
 
-#: includes/class-rest-api.php:261
-#: includes/class-rest-api.php:286
-#: includes/class-rest-schemas.php:409
-#: includes/class-rest-schemas.php:427
+#: includes/class-rest-api.php:252
+#: includes/class-rest-api.php:277
+#: includes/class-rest-schemas.php:446
+#: includes/class-rest-schemas.php:464
 msgid "ID of the book."
 msgstr ""
 
-#: includes/class-rest-api.php:325
+#: includes/class-rest-api.php:316
 msgid "ISBN of the book, with or without hyphens."
 msgstr ""
 
-#: includes/class-rest-api.php:353
+#: includes/class-rest-api.php:344
 msgid "Page of the months."
 msgstr ""
 
-#: includes/class-rest-api.php:359
+#: includes/class-rest-api.php:350
 msgid "Number of months per page."
 msgstr ""
 
-#: includes/class-rest-api.php:378
-#: includes/class-rest-schemas.php:429
+#: includes/class-rest-api.php:369
+#: includes/class-rest-schemas.php:466
 msgid "Position in the week's list of ideas, 0 for the idea of the week."
 msgstr ""
 
-#: includes/class-rest-api.php:406
-#: includes/class-rest-schemas.php:474
+#: includes/class-rest-api.php:397
+#: includes/class-rest-schemas.php:511
 msgid "Year of the recap."
 msgstr ""
 
-#: includes/class-rest-api.php:423
+#: includes/class-rest-api.php:414
 msgid "Term ID of the series, or of the cycle."
 msgstr ""
 
-#: includes/class-rest-api.php:440
+#: includes/class-rest-api.php:431
 msgid "Term ID of the collection, or of the publisher."
 msgstr ""
 
-#: includes/class-rest-api.php:457
+#: includes/class-rest-api.php:448
 msgid "Term ID of the person, or of one of their other names."
 msgstr ""
 
-#: includes/class-rest-api.php:482
-#: includes/class-rest-schemas.php:335
+#: includes/class-rest-api.php:473
+#: includes/class-rest-schemas.php:372
 msgid "Title of the book."
 msgstr ""
 
-#: includes/class-rest-api.php:491
-#: includes/class-rest-schemas.php:336
+#: includes/class-rest-api.php:482
+#: includes/class-rest-schemas.php:373
 msgid "Summary of the book in a few words, its excerpt."
 msgstr ""
 
-#: includes/class-rest-api.php:496
-#: includes/class-rest-schemas.php:339
+#: includes/class-rest-api.php:487
+#: includes/class-rest-schemas.php:376
 msgid "People of the book, by their name or another one, each with its role, such as colorist; a name not found adds a person."
 msgstr ""
 
-#: includes/class-rest-api.php:502
-#: includes/class-rest-schemas.php:342
+#: includes/class-rest-api.php:493
+#: includes/class-rest-schemas.php:379
 msgid "Name of the publisher; a name not found adds a publisher."
 msgstr ""
 
-#: includes/class-rest-api.php:507
-#: includes/class-rest-schemas.php:343
+#: includes/class-rest-api.php:498
+#: includes/class-rest-schemas.php:380
 msgid "Collection, under the publisher and sent with it, a sub-collection after its collection, separated with commas, such as “Folio, Science-fiction”; a name not found adds a collection."
 msgstr ""
 
-#: includes/class-rest-api.php:512
-#: includes/class-rest-schemas.php:344
+#: includes/class-rest-api.php:503
+#: includes/class-rest-schemas.php:381
 msgid "Series, after its cycles, separated with commas, such as “Star Wars, Young Jedi Knights”; a name not found adds a series, or a cycle."
 msgstr ""
 
-#: includes/class-rest-api.php:517
-#: includes/class-rest-schemas.php:345
+#: includes/class-rest-api.php:508
+#: includes/class-rest-schemas.php:382
 msgid "Term IDs of the original languages."
 msgstr ""
 
-#: includes/class-rest-api.php:523
-#: includes/class-rest-schemas.php:346
+#: includes/class-rest-api.php:514
+#: includes/class-rest-schemas.php:383
 msgid "Term ID of the form, such as a novel or a comic."
 msgstr ""
 
-#: includes/class-rest-api.php:528
+#: includes/class-rest-api.php:519
 msgid "ID of the image uploaded as the cover, 0 for none."
 msgstr ""
 
-#: includes/class-rest-api.php:533
-#: includes/class-rest-schemas.php:347
+#: includes/class-rest-api.php:524
+#: includes/class-rest-schemas.php:384
 msgid "Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them."
 msgstr ""
 
-#: includes/class-rest-api.php:544
-msgid "Shelf of the reader the book goes on, and their copy, as the route of its shelf takes them."
+#: includes/class-rest-api.php:535
+msgid "The shelf of the current user to put the book on, and their copy of it, as the shelf endpoint accepts them."
 msgstr ""
 
-#: includes/class-rest-api.php:572
+#: includes/class-rest-api.php:563
 msgid "No book has this ID."
 msgstr ""
 
-#: includes/class-rest-api.php:673
+#: includes/class-rest-api.php:664
 #: app/js/bricks/library-edit.js:443
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
-#: includes/class-rest-api.php:734
-msgid "Where the book goes for the reader: in-library, not-kept or to-buy."
+#: includes/class-rest-api.php:725
+msgid "The shelf to put the book on for the current user: in-library, not-kept or to-buy."
 msgstr ""
 
-#: includes/class-rest-api.php:744
-msgid "Readings of the book, which replace those of the reader, each with the rating it ended with, the one in progress last."
-msgstr ""
-
-#: includes/class-rest-api.php:749
-msgid "Whether the reader read it: false takes their readings ended away, true without one reads it now."
-msgstr ""
-
-#: includes/class-rest-api.php:757
-msgid "Notes of the reader on the book, as typed, HTML as a post takes it."
-msgstr ""
-
-#: includes/class-rest-api.php:761
-msgid "ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition."
-msgstr ""
-
-#: includes/class-rest-api.php:767
-msgid "Rating of its latest reading ended, which a book not read has none of; null takes it away."
-msgstr ""
-
-#: includes/class-rest-api.php:788
-msgid "A book you read stays on your shelves: say it is not kept instead."
-msgstr ""
-
-#: includes/class-rest-api.php:934
+#: includes/class-rest-api.php:894
 msgid "No photo was sent, in the file field."
 msgstr ""
 
 #: includes/class-rest-schemas.php:101
 #: includes/class-rest-schemas.php:157
 #: includes/class-rest-schemas.php:174
-#: includes/class-rest-schemas.php:463
-#: includes/class-rest-schemas.php:515
+#: includes/class-rest-schemas.php:500
+#: includes/class-rest-schemas.php:552
 msgid "Term ID."
 msgstr ""
 
 #: includes/class-rest-schemas.php:102
 #: includes/class-rest-schemas.php:158
 #: includes/class-rest-schemas.php:175
-#: includes/class-rest-schemas.php:464
+#: includes/class-rest-schemas.php:501
 msgid "Name, in plain text."
 msgstr ""
 
@@ -2186,7 +2130,7 @@ msgstr ""
 
 #: includes/class-rest-schemas.php:159
 #: includes/class-rest-schemas.php:176
-#: includes/class-rest-schemas.php:517
+#: includes/class-rest-schemas.php:554
 msgid "Description, HTML."
 msgstr ""
 
@@ -2230,280 +2174,280 @@ msgstr ""
 msgid "Rating it ended with, out of 10, by half points; null without, and while it is read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:251
-msgid "Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves."
+#: includes/class-rest-schemas.php:277
+msgid "The readings of the current user, from the first to the latest, each with its start, end and rating. When sent, they replace the existing ones, a reading in progress last."
 msgstr ""
 
-#: includes/class-rest-schemas.php:252
-msgid "When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves."
+#: includes/class-rest-schemas.php:278
+msgid "Whether or not the current user has read the book. Sending false removes their completed readings; sending true without one adds a reading that ends now."
 msgstr ""
 
-#: includes/class-rest-schemas.php:253
-msgid "When the copy of the reader was printed, Y, Y-m or Y-m-d, or empty."
+#: includes/class-rest-schemas.php:280
+msgid "The rating of the current user, from their latest rated reading, or null. When sent, it rates their latest completed reading; null removes it."
 msgstr ""
 
-#: includes/class-rest-schemas.php:254
-msgid "Readings of the reader, from the first to the latest, each with its start, its end and the rating it ended with: {\"start\":\"2026-10-20\",\"end\":\"2026-11-02\",\"rating\":8}."
+#: includes/class-rest-schemas.php:282
+msgid "The notes of the current user on the book, as HTML."
 msgstr ""
 
-#: includes/class-rest-schemas.php:255
-msgid "Whether the reader read it: whether they have a reading ended."
+#: includes/class-rest-schemas.php:285
+msgid "The notes of the current user on the book."
 msgstr ""
 
-#: includes/class-rest-schemas.php:256
-msgid "Whether the reader is reading it."
+#: includes/class-rest-schemas.php:288
+msgid "Notes, as they exist in the database."
 msgstr ""
 
-#: includes/class-rest-schemas.php:257
-msgid "Rating of the reader, the one of their latest reading rated; null without."
+#: includes/class-rest-schemas.php:289
+msgid "Notes, transformed for display."
 msgstr ""
 
-#: includes/class-rest-schemas.php:260
-msgid "Notes of the reader, as typed and as HTML."
+#: includes/class-rest-schemas.php:294
+msgid "The ID of an image the current user uploaded of their copy, or 0 for none. It replaces the cover of the edition for them."
 msgstr ""
 
-#: includes/class-rest-schemas.php:263
-msgid "As typed."
+#: includes/class-rest-schemas.php:296
+msgid "The photo of the copy of the current user, with its ID, or null to show the cover of the edition."
 msgstr ""
 
-#: includes/class-rest-schemas.php:264
-msgid "HTML, its paragraphs."
+#: includes/class-rest-schemas.php:316
+msgid "The shelf of the book for the current user: in-library, not-kept or to-buy, or null when it is on none of their shelves."
 msgstr ""
 
-#: includes/class-rest-schemas.php:270
-msgid "Photo of the copy of the reader, its ID and its image, as the cover of a book gives it; null without, the cover of the edition shown instead."
-msgstr ""
-
-#: includes/class-rest-schemas.php:297
-msgid "Term ID, of a publisher or of a collection: its page in the app."
-msgstr ""
-
-#: includes/class-rest-schemas.php:298
-msgid "Name, HTML, as saved."
+#: includes/class-rest-schemas.php:317
+msgid "The date the current user added the book, in the site's timezone, or null."
 msgstr ""
 
 #: includes/class-rest-schemas.php:334
-msgid "ID of the book, none for a book of the catalogue."
+msgid "Term ID, of a publisher or of a collection: its page in the app."
 msgstr ""
 
-#: includes/class-rest-schemas.php:370
-msgid "Books read, of those in the library."
+#: includes/class-rest-schemas.php:335
+msgid "Name, HTML, as saved."
 msgstr ""
 
 #: includes/class-rest-schemas.php:371
-msgid "Books in the library."
+msgid "ID of the book, none for a book of the catalogue."
 msgstr ""
 
-#: includes/class-rest-schemas.php:372
-msgid "Percentage of the books read."
-msgstr ""
-
-#: includes/class-rest-schemas.php:375
-msgid "This year to date, against the same date last year, and the pace."
-msgstr ""
-
-#: includes/class-rest-schemas.php:378
-msgid "This year."
-msgstr ""
-
-#: includes/class-rest-schemas.php:379
-msgid "Books read this year."
-msgstr ""
-
-#: includes/class-rest-schemas.php:380
-msgid "Books read by this date last year."
-msgstr ""
-
-#: includes/class-rest-schemas.php:381
-msgid "Books read by the end of the year at this pace, none without a pace."
-msgstr ""
-
-#: includes/class-rest-schemas.php:382
-msgid "Books to read."
-msgstr ""
-
-#: includes/class-rest-schemas.php:383
-msgid "Year they would all be read in at this pace, none without a pace."
-msgstr ""
-
-#: includes/class-rest-schemas.php:400
-msgid "Month, Y-m."
-msgstr ""
-
-#: includes/class-rest-schemas.php:403
-msgid "Readings of the month, latest first: a book read again comes once per reading."
+#: includes/class-rest-schemas.php:407
+msgid "Books read, of those in the library."
 msgstr ""
 
 #: includes/class-rest-schemas.php:408
+msgid "Books in the library."
+msgstr ""
+
+#: includes/class-rest-schemas.php:409
+msgid "Percentage of the books read."
+msgstr ""
+
+#: includes/class-rest-schemas.php:412
+msgid "This year to date, against the same date last year, and the pace."
+msgstr ""
+
+#: includes/class-rest-schemas.php:415
+msgid "This year."
+msgstr ""
+
+#: includes/class-rest-schemas.php:416
+msgid "Books read this year."
+msgstr ""
+
+#: includes/class-rest-schemas.php:417
+msgid "Books read by this date last year."
+msgstr ""
+
+#: includes/class-rest-schemas.php:418
+msgid "Books read by the end of the year at this pace, none without a pace."
+msgstr ""
+
+#: includes/class-rest-schemas.php:419
+msgid "Books to read."
+msgstr ""
+
+#: includes/class-rest-schemas.php:420
+msgid "Year they would all be read in at this pace, none without a pace."
+msgstr ""
+
+#: includes/class-rest-schemas.php:437
+msgid "Month, Y-m."
+msgstr ""
+
+#: includes/class-rest-schemas.php:440
+msgid "Readings of the month, latest first: a book read again comes once per reading."
+msgstr ""
+
+#: includes/class-rest-schemas.php:445
 msgid "Read date, Y-m-d."
 msgstr ""
 
-#: includes/class-rest-schemas.php:428
+#: includes/class-rest-schemas.php:465
 msgid "Why it is an idea."
 msgstr ""
 
-#: includes/class-rest-schemas.php:430
+#: includes/class-rest-schemas.php:467
 msgid "Ideas of the week."
 msgstr ""
 
-#: includes/class-rest-schemas.php:444
+#: includes/class-rest-schemas.php:481
 msgid "Achievements earned, latest first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:444
-#: includes/class-rest-schemas.php:491
+#: includes/class-rest-schemas.php:481
+#: includes/class-rest-schemas.php:528
 msgid "An achievement earned."
 msgstr ""
 
-#: includes/class-rest-schemas.php:445
+#: includes/class-rest-schemas.php:482
 msgid "Achievements close to be earned, closest first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:445
+#: includes/class-rest-schemas.php:482
 msgid "An achievement close to be earned."
 msgstr ""
 
-#: includes/class-rest-schemas.php:465
+#: includes/class-rest-schemas.php:502
 msgid "Readings in the year."
 msgstr ""
 
-#: includes/class-rest-schemas.php:475
+#: includes/class-rest-schemas.php:512
 msgid "Years with a reading, the earliest first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:476
+#: includes/class-rest-schemas.php:513
 msgid "Days gone by: all of them for a year gone."
 msgstr ""
 
-#: includes/class-rest-schemas.php:477
+#: includes/class-rest-schemas.php:514
 msgid "Readings of the year."
 msgstr ""
 
-#: includes/class-rest-schemas.php:478
+#: includes/class-rest-schemas.php:515
 msgid "Readings of the year before."
 msgstr ""
 
-#: includes/class-rest-schemas.php:479
-msgid "Readings of a book read again in the year."
+#: includes/class-rest-schemas.php:516
+msgid "The readings of the year of a book read before, in the year or earlier."
 msgstr ""
 
-#: includes/class-rest-schemas.php:480
+#: includes/class-rest-schemas.php:517
 msgid "IDs of the books read, in the order they were read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:481
+#: includes/class-rest-schemas.php:518
 msgid "Pages read, and the readings of a book with its number of pages."
 msgstr ""
 
-#: includes/class-rest-schemas.php:482
+#: includes/class-rest-schemas.php:519
 msgid "Readings of each month, from January."
 msgstr ""
 
-#: includes/class-rest-schemas.php:483
+#: includes/class-rest-schemas.php:520
 msgid "Forms read, the most read first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:484
+#: includes/class-rest-schemas.php:521
 msgid "People read the most, by the name they are known by."
 msgstr ""
 
-#: includes/class-rest-schemas.php:485
+#: includes/class-rest-schemas.php:522
 msgid "People read for the first time, in the order they were read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:485
+#: includes/class-rest-schemas.php:522
 msgid "A person."
 msgstr ""
 
-#: includes/class-rest-schemas.php:486
+#: includes/class-rest-schemas.php:523
 msgid "Original languages, as ISO 639 codes, the most read first, each with its readings."
 msgstr ""
 
-#: includes/class-rest-schemas.php:487
+#: includes/class-rest-schemas.php:524
 msgid "Series read, the most read first, each started in the year or finished, or not."
 msgstr ""
 
-#: includes/class-rest-schemas.php:488
+#: includes/class-rest-schemas.php:525
 msgid "Average rating of the books read, none without one."
 msgstr ""
 
-#: includes/class-rest-schemas.php:489
+#: includes/class-rest-schemas.php:526
 msgid "IDs of the books read with a rating, the highest first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:490
+#: includes/class-rest-schemas.php:527
 msgid "IDs of the longest, the shortest and the oldest books read, 0 for none."
 msgstr ""
 
-#: includes/class-rest-schemas.php:491
+#: includes/class-rest-schemas.php:528
 msgid "Achievements earned in the year."
 msgstr ""
 
-#: includes/class-rest-schemas.php:492
+#: includes/class-rest-schemas.php:529
 msgid "Books added in the year, but those to buy."
 msgstr ""
 
-#: includes/class-rest-schemas.php:493
+#: includes/class-rest-schemas.php:530
 msgid "Days of reading: the level of each day, the memorable ones, the days read, the longest streak, the best day and the readings dated."
 msgstr ""
 
-#: includes/class-rest-schemas.php:507
+#: includes/class-rest-schemas.php:544
 msgid "Other names, such as a pseudonym or their birth name."
 msgstr ""
 
-#: includes/class-rest-schemas.php:510
+#: includes/class-rest-schemas.php:547
 msgid "Series of their books, those with the most first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:516
+#: includes/class-rest-schemas.php:553
 msgid "Name, after its cycles."
 msgstr ""
 
-#: includes/class-rest-schemas.php:518
+#: includes/class-rest-schemas.php:555
 msgid "How many of their books it holds."
 msgstr ""
 
-#: includes/class-rest-schemas.php:519
+#: includes/class-rest-schemas.php:556
 msgid "How many of these are read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:524
+#: includes/class-rest-schemas.php:561
 msgid "Average rating of their books, none without one."
 msgstr ""
 
-#: includes/class-rest-schemas.php:525
+#: includes/class-rest-schemas.php:562
 msgid "Pages of their books, those with a number of pages."
 msgstr ""
 
-#: includes/class-rest-schemas.php:539
+#: includes/class-rest-schemas.php:576
 msgid "Cycle of the series, if any."
 msgstr ""
 
-#: includes/class-rest-schemas.php:540
+#: includes/class-rest-schemas.php:577
 msgid "ISSN of the magazine, or empty."
 msgstr ""
 
-#: includes/class-rest-schemas.php:541
+#: includes/class-rest-schemas.php:578
 msgid "Series of a cycle."
 msgstr ""
 
-#: includes/class-rest-schemas.php:541
+#: includes/class-rest-schemas.php:578
 msgid "A series."
 msgstr ""
 
-#: includes/class-rest-schemas.php:556
+#: includes/class-rest-schemas.php:593
 msgid "Publisher of a collection."
 msgstr ""
 
-#: includes/class-rest-schemas.php:557
+#: includes/class-rest-schemas.php:594
 msgid "Collection a sub-collection is part of."
 msgstr ""
 
-#: includes/class-rest-schemas.php:558
+#: includes/class-rest-schemas.php:595
 msgid "Its collections."
 msgstr ""
 
-#: includes/class-rest-schemas.php:558
+#: includes/class-rest-schemas.php:595
 msgid "A collection."
 msgstr ""
 
@@ -2515,6 +2459,44 @@ msgstr ""
 #: includes/class-roles.php:187
 msgctxt "User role"
 msgid "Librarian"
+msgstr ""
+
+#: includes/class-shelf.php:88
+msgid "Printed"
+msgstr ""
+
+#: includes/class-shelf.php:89
+msgid "When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23."
+msgstr ""
+
+#: includes/class-shelf.php:94
+msgid "Readings"
+msgstr ""
+
+#: includes/class-shelf.php:95
+msgid "From its start to its end, each one left empty when it is unknown, and the rating it ended with."
+msgstr ""
+
+#: includes/class-shelf.php:106
+#: app/js/bricks/library-volumes.js:104
+#: app/js/lib/book-lines.js:140
+msgid "In progress"
+msgstr ""
+
+#: includes/class-shelf.php:107
+msgid "Being read, for the first time or again, since the day it started: a reading added ends it."
+msgstr ""
+
+#: includes/class-shelf.php:113
+msgid "Rating from 1 to 10, the one of its latest reading rated; given, it rates its latest reading ended."
+msgstr ""
+
+#: includes/class-shelf.php:118
+msgid "Notes"
+msgstr ""
+
+#: includes/class-shelf.php:123
+msgid "Photo of my copy"
 msgstr ""
 
 #: includes/class-status.php:36
@@ -3158,12 +3140,12 @@ msgstr ""
 msgid "No barcode found in the photo: take it again, closer."
 msgstr ""
 
-#: app/js/lib/api.js:556
+#: app/js/lib/api.js:562
 msgid "The books could not be loaded."
 msgstr ""
 
 #: app/js/lib/behaviors.js:33
-#: app/js/lib/store.js:1384
+#: app/js/lib/store.js:1392
 msgid "No book found."
 msgstr ""
 
@@ -3190,10 +3172,6 @@ msgstr ""
 #: app/js/lib/book-lines.js:86
 msgctxt "book in its original language, short tag"
 msgid "Original"
-msgstr ""
-
-#: app/js/lib/book-lines.js:105
-msgid "Not on your shelves"
 msgstr ""
 
 #. translators: %s: number of readings of a book, an unknown date included, 2 or more.
@@ -3232,14 +3210,14 @@ msgid_plural "%s other authors"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/lib/store.js:1101
+#: app/js/lib/store.js:1109
 msgid "Reading undone."
 msgstr ""
 
-#: app/js/lib/store.js:1114
+#: app/js/lib/store.js:1122
 msgid "Reading saved."
 msgstr ""
 
-#: app/js/lib/store.js:1115
+#: app/js/lib/store.js:1123
 msgid "Undo"
 msgstr ""

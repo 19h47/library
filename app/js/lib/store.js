@@ -973,9 +973,17 @@ class LibraryStore extends Store {
 
 			return id;
 		} catch ( error ) {
+			// An ISBN the search had not found, such as one of a book added meanwhile: its book shows, as one found.
+			const duplicate = api.takenBook( error );
+
+			if ( duplicate ) {
+				await this.#fetchBooks( [ duplicate ] ).catch( () => {} );
+			}
+
 			this.#update( 'editing', () => ( {
 				loading: false,
 				error: api.errorMessage( error ),
+				...( duplicate && { duplicate } ),
 			} ) );
 
 			return 0;
@@ -1119,25 +1127,25 @@ class LibraryStore extends Store {
 
 	/**
 	 * Writes the reading of the book `id` through the route of its shelf, which a reader may use on a book they cannot
-	 * edit: their copy and where it goes at once, then off their shelves when it goes on none, once their readings are
-	 * written, as a book read stays on them. Returns the book as it is now.
+	 * edit: their copy and where it goes at once, then off their shelves when they took it off, once their readings are
+	 * written, as a book read stays on them; a copy given to a book on none of them puts it on one. Returns the book as it
+	 * is now.
 	 *
 	 * @param {number}      id      The book.
 	 * @param {BookReading} reading Its reading: the copy to write, and where it goes.
 	 * @return {Promise<Book>} The book.
 	 */
 	async #writeReading( id, { copy, status } ) {
-		let book = this.get().books[ id ];
+		const before = this.get().books[ id ];
 		const values = {
 			...copy,
-			...( status && status !== book.status && { status } ),
+			...( status && status !== before.status && { status } ),
 		};
+		const book = Object.keys( values ).length
+			? await api.saveShelf( id, values )
+			: before;
 
-		if ( Object.keys( values ).length ) {
-			book = await api.saveShelf( id, values );
-		}
-
-		return status || ! book.status ? book : api.removeShelf( id );
+		return status || ! before.status ? book : api.removeShelf( id );
 	}
 
 	/**

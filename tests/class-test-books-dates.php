@@ -23,11 +23,11 @@ class Test_Books_Dates extends TestCase {
 	public function test_each_date_is_a_year_a_month_or_a_day(): void {
 		$book_id = $this->add_book(
 			array(
-				'meta' => array(
+				'meta'  => array(
 					'published_date' => '1949',
 					'edition_date'   => '1972-11',
-					'printed_date'   => '2014-02-30',
 				),
+				'shelf' => array( 'printed_date' => '2014-02-30' ),
 			)
 		);
 
@@ -44,13 +44,11 @@ class Test_Books_Dates extends TestCase {
 	public function test_the_credits_give_the_edition_year_never_the_printing_year(): void {
 		$edition = $this->add_book(
 			array(
-				'meta' => array(
-					'edition_date' => '1972',
-					'printed_date' => '2014-04-23',
-				),
+				'meta'  => array( 'edition_date' => '1972' ),
+				'shelf' => array( 'printed_date' => '2014-04-23' ),
 			)
 		);
-		$printed = $this->add_book( array( 'meta' => array( 'printed_date' => '2014-04-23' ) ) );
+		$printed = $this->add_book( array( 'shelf' => array( 'printed_date' => '2014-04-23' ) ) );
 
 		$this->assertSame( '1972', Books::get_credits( $edition ) );
 		$this->assertSame( '', Books::get_credits( $printed ) );
@@ -64,22 +62,20 @@ class Test_Books_Dates extends TestCase {
 	public function test_the_date_of_a_book_is_the_oldest_record_it_has(): void {
 		$work    = $this->add_book(
 			array(
-				'meta' => array(
+				'meta'  => array(
 					'published_date' => '1949',
 					'edition_date'   => '1972',
-					'printed_date'   => '2014',
 				),
+				'shelf' => array( 'printed_date' => '2014' ),
 			)
 		);
 		$edition = $this->add_book(
 			array(
-				'meta' => array(
-					'edition_date' => '1972',
-					'printed_date' => '2014',
-				),
+				'meta'  => array( 'edition_date' => '1972' ),
+				'shelf' => array( 'printed_date' => '2014' ),
 			)
 		);
-		$printed = $this->add_book( array( 'meta' => array( 'printed_date' => '2014' ) ) );
+		$printed = $this->add_book( array( 'shelf' => array( 'printed_date' => '2014' ) ) );
 		$none    = $this->add_book();
 		$books   = Books::get_books();
 

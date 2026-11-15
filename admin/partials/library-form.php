@@ -1,6 +1,7 @@
 <?php
 /**
- * Book information metabox form fields, as the book meta are registered.
+ * Book information metabox form fields, as the book meta are registered: the record the readers share, their copy in
+ * the box of their shelf, see library-shelf.php.
  *
  * @link       https://github.com/19h47/library
  * @since      1.0.0
@@ -9,7 +10,7 @@
  * @subpackage Library/admin/partials
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
- * @var array             $values Values of the book, by meta key; the readings as a list.
+ * @var array             $values Values of the book, by meta key.
  * @var string            $series Series of the book, after its cycles, or empty.
  * @var string[]          $paths  Every series, after its cycles, to suggest.
  * @var WP_Term[]         $names  Names of the book, authors or with another role.
@@ -19,14 +20,13 @@
 
 use Library\Markup;
 use Library\Meta;
-use Library\Reading;
 
 ?>
 
 <table class="form-table" role="presentation">
 
 	<?php
-	// As the form of the reading app: the fields most books have, then the ones few have, then the reading.
+	// As the form of the book in the reading app: the fields most books have, then the ones few have.
 	$key = 'library_isbn';
 
 	require __DIR__ . '/library-form-field.php';
@@ -49,7 +49,7 @@ use Library\Reading;
 	</tr>
 
 	<?php
-	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_printed_date', 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
+	foreach ( array( 'library_volume_number', 'library_collection_number', 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
 		include __DIR__ . '/library-form-field.php';
 	}
 	?>
@@ -73,61 +73,10 @@ use Library\Reading;
 	</tr>
 
 	<?php
-	foreach ( array( 'library_collective', 'library_read' ) as $key ) {
-		include __DIR__ . '/library-form-field.php';
-	}
+	$key = 'library_collective';
 
-	// The reading in progress, since its start: today when it starts.
-	$in_progress = array_find( $values['library_reading'], fn( Reading $reading ) => ! $reading->is_ended() );
-	$started     = null !== $in_progress ? substr( $in_progress->start, 0, 10 ) : current_time( 'Y-m-d' );
+	require __DIR__ . '/library-form-field.php';
 	?>
-
-	<!-- In progress -->
-	<tr>
-		<th scope="row">
-			<label for="library-in-progress"><?php echo esc_html( Meta::get_label( 'library_in_progress' ) ); ?></label>
-		</th>
-		<td>
-			<input type="hidden" name="library_in_progress" value="0">
-			<input id="library-in-progress" type="checkbox" name="library_in_progress" value="1" <?php checked( null !== $in_progress ); ?> aria-describedby="library-in-progress-description">
-			<label>
-				<?php esc_html_e( 'Started', 'library' ); ?>
-				<input type="date" name="library_started" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" value="<?php echo esc_attr( $started ); ?>">
-			</label>
-			<p class="description" id="library-in-progress-description"><?php echo esc_html( Meta::get_description( 'library_in_progress' ) ); ?></p>
-		</td>
-	</tr>
-
-	<!-- Readings -->
-	<tr>
-		<th scope="row">
-			<?php echo esc_html( Meta::get_label( 'library_reading' ) ); ?>
-		</th>
-		<td>
-			<fieldset data-part="readings" aria-describedby="library-reading-description">
-				<legend class="screen-reader-text"><?php echo esc_html( Meta::get_label( 'library_reading' ) ); ?></legend>
-				<ul>
-					<?php foreach ( $values['library_reading'] as $reading ) : ?>
-						<?php if ( $reading !== $in_progress ) : ?>
-							<?php include __DIR__ . '/library-reading.php'; ?>
-						<?php endif; ?>
-					<?php endforeach; ?>
-				</ul>
-				<button class="button" type="button" data-action="add"><?php esc_html_e( 'Add a reading', 'library' ); ?></button>
-				<template>
-					<?php
-					// A reading added ends today, unless changed.
-					$reading = new Reading( end: current_time( 'Y-m-d' ) );
-
-					require __DIR__ . '/library-reading.php';
-					?>
-				</template>
-			</fieldset>
-			<p class="description" id="library-reading-description">
-				<?php esc_html_e( 'Optional. One line per reading, from its start to its end, each left empty when it is unknown, and the rating it ended with. Ending a reading marks the book as read; marking it as read without a reading ends one today. The rating of the book is the one of its latest reading rated.', 'library' ); ?>
-			</p>
-		</td>
-	</tr>
 
 	<?php if ( $names ) : ?>
 		<!-- Roles -->

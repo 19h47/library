@@ -151,7 +151,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Read again',
-				'meta'  => array( 'reading' => array( '/2023-05-01', '/2024-02-29' ) ),
+				'shelf' => array( 'readings' => array( '/2023-05-01', '/2024-02-29' ) ),
 			)
 		);
 
@@ -170,7 +170,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Twice',
-				'meta'  => array( 'reading' => array( '/2020-02-29', '/2024-02-29' ) ),
+				'shelf' => array( 'readings' => array( '/2020-02-29', '/2024-02-29' ) ),
 			)
 		);
 
@@ -287,8 +287,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-05-10',
 			array(
 				'title' => 'Gone',
-				'shelf' => array( 'status' => 'not-kept' ),
-				'meta'  => array( 'rating' => 9 ),
+				'shelf' => array(
+					'status' => 'not-kept',
+					'rating' => 9,
+				),
 			)
 		);
 
@@ -310,11 +312,13 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 		$this->add_read(
 			'2024-05-10',
 			array(
-				'shelf' => array( 'status' => 'not-kept' ),
-				'meta'  => array( 'rating' => 8.5 ),
+				'shelf' => array(
+					'status' => 'not-kept',
+					'rating' => 8.5,
+				),
 			)
 		);
-		$this->add_read( '2024-05-11', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-11', array( 'shelf' => array( 'rating' => 10 ) ) );
 
 		$this->assertArrayNotHasKey( 'one-that-got-away', $this->get_earned() );
 	}
@@ -789,13 +793,13 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_hat_trick(): void {
-		$this->add_read( '2024-05-01', array( 'meta' => array( 'rating' => 10 ) ) );
-		$this->add_read( '2024-05-02', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-01', array( 'shelf' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-02', array( 'shelf' => array( 'rating' => 10 ) ) );
 		$third_id = $this->add_read(
 			'2024-05-03',
 			array(
 				'title' => 'Third',
-				'meta'  => array( 'rating' => 10 ),
+				'shelf' => array( 'rating' => 10 ),
 			)
 		);
 
@@ -815,10 +819,10 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	 * @return void
 	 */
 	public function test_hat_trick_broken_by_a_lower_rating(): void {
-		$this->add_read( '2024-05-01', array( 'meta' => array( 'rating' => 10 ) ) );
-		$this->add_read( '2024-05-02', array( 'meta' => array( 'rating' => 10 ) ) );
-		$this->add_read( '2024-05-03', array( 'meta' => array( 'rating' => 9.5 ) ) );
-		$this->add_read( '2024-05-04', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-01', array( 'shelf' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-02', array( 'shelf' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-03', array( 'shelf' => array( 'rating' => 9.5 ) ) );
+		$this->add_read( '2024-05-04', array( 'shelf' => array( 'rating' => 10 ) ) );
 
 		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
 	}
@@ -831,9 +835,9 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	public function test_no_hat_trick_from_one_book_read_three_times(): void {
 		$this->add_book(
 			array(
-				'meta' => array(
-					'rating'  => 10,
-					'reading' => array( '/2024-05-01', '/2024-05-02', '/2024-05-03' ),
+				'shelf' => array(
+					'rating'   => 10,
+					'readings' => array( '/2024-05-01', '/2024-05-02', '/2024-05-03' ),
 				),
 			)
 		);
@@ -849,13 +853,13 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	public function test_a_book_read_again_in_a_hat_trick(): void {
 		$this->add_book(
 			array(
-				'meta' => array(
-					'rating'  => 10,
-					'reading' => array( '/2024-05-01', '/2024-05-02' ),
+				'shelf' => array(
+					'rating'   => 10,
+					'readings' => array( '/2024-05-01', '/2024-05-02' ),
 				),
 			)
 		);
-		$this->add_read( '2024-05-03', array( 'meta' => array( 'rating' => 10 ) ) );
+		$this->add_read( '2024-05-03', array( 'shelf' => array( 'rating' => 10 ) ) );
 
 		$this->assertArrayNotHasKey( 'hat-trick', $this->get_earned() );
 
@@ -863,7 +867,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 			'2024-05-04',
 			array(
 				'title' => 'Third',
-				'meta'  => array( 'rating' => 10 ),
+				'shelf' => array( 'rating' => 10 ),
 			)
 		);
 
@@ -989,7 +993,7 @@ class Test_Achievements_Easter_Eggs extends TestCase {
 	public function test_back_to_the_start_not_a_first_volume_read_again(): void {
 		$first = self::get_volume( 'Foundation', 'Tome 01', 'Foundation' );
 
-		$first['meta']['library_reading'] = array( '/2023-01-10', '/2025-01-10' );
+		$first['shelf']['readings'] = array( '/2023-01-10', '/2025-01-10' );
 
 		$this->add_book( $first );
 		$this->add_read( '2024-02-10', self::get_volume( 'Foundation', 'Tome 02', 'Foundation and Empire' ) );

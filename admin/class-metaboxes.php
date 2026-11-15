@@ -45,12 +45,14 @@ class Metaboxes {
 		add_action( 'save_post_library_book', array( $this, 'save_metabox' ) );
 		add_action( 'add_meta_boxes_library_book', array( $this, 'add_shelf_box' ) );
 		add_action( 'save_post_library_book', array( $this, 'save_shelf' ) );
+		add_action( 'admin_notices', array( $this, 'show_kept_book' ) );
+		add_filter( 'removable_query_args', array( $this, 'remove_kept_book_arg' ) );
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'keep_classic_editor' ), 10, 2 );
 	}
 
 	/**
-	 * Keep the classic edit screen for books: the block editor shows the boxes of a book apart from it, and its notes
-	 * stay text in paragraphs, which the reading app edits as typed.
+	 * Keep the classic edit screen for books: the block editor shows the boxes of a book, its record and the shelf of the
+	 * reader, apart from it.
 	 *
 	 * @param bool   $use_block_editor Whether the post type uses the block editor.
 	 * @param string $post_type        Post type.
@@ -91,8 +93,7 @@ class Metaboxes {
 	public function render_metabox( WP_Post $post ): void {
 		wp_nonce_field( 'library_metabox_nonce', 'library_metabox_nonce' );
 
-		// The record, then the copy of the reader, on their shelf.
-		$values       = Meta::get_values( $post->ID ) + Shelf::get_values( $post->ID, get_current_user_id() );
+		$values       = Meta::get_values( $post->ID );
 		$own_language = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 
 		// A book added is in the language of the reader, as in the form of the app.
@@ -126,34 +127,10 @@ class Metaboxes {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta.
 		$values = wp_unslash( $_POST );
 
-		// The readings ended, a start, an end and a rating each, then the one in progress, since its start; a book whose
-		// readings were all removed sends none, and so does one without edition language.
-		$starts  = (array) ( $values['library_reading_start'] ?? array() );
-		$ends    = (array) ( $values['library_reading_end'] ?? array() );
-		$ratings = (array) ( $values['library_reading_rating'] ?? array() );
-
-		$values['library_reading']             = array_map(
-			fn( $start, $end, $rating ) => array(
-				'start'  => $start,
-				'end'    => $end,
-				'rating' => $rating,
-			),
-			$starts,
-			$ends,
-			$ratings
-		);
+		// A book without edition language sends none.
 		$values['library_edition_languages'] ??= array();
 
-		if ( rest_sanitize_boolean( $values['library_in_progress'] ?? false ) ) {
-			$values['library_reading'][] = new Reading( (string) ( $values['library_started'] ?? '' ), Reading::IN_PROGRESS )->to_array();
-		}
-
 		Meta::save( $post_id, $values );
-
-		// The copy of the reader, once the book is in the catalogue: see Shelf::save().
-		if ( current_user_can( 'shelve_book', $post_id ) ) {
-			Shelf::save( $post_id, get_current_user_id(), array_intersect_key( $values, array_flip( Meta::SHELF_KEYS ) ) );
-		}
 
 		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.
 		if ( isset( $values['series'] ) ) {
@@ -236,12 +213,12 @@ class Metaboxes {
 			return;
 		}
 
-		add_meta_box( 'library_shelf', __( 'My shelves', 'library' ), array( $this, 'render_shelf_box' ), 'library_book', 'side', 'high' );
+		add_meta_box( 'library_shelf', __( 'My shelves', 'library' ), array( $this, 'render_shelf_box' ), 'library_book', 'normal', 'high' );
 	}
 
 	/**
 	 * Render the shelf of the book for the reader: in the library, not kept, to buy, or on none of their shelves, and their
-	 * notes. A book added goes in the library.
+	 * copy, as the form of their reading in the app. A book added goes in the library.
 	 *
 	 * @param WP_Post $post Post.
 	 * @return void
@@ -249,30 +226,17 @@ class Metaboxes {
 	public function render_shelf_box( WP_Post $post ): void {
 		$status   = 'auto-draft' === $post->post_status ? Status::In_Library : Shelf::get_status( $post->ID, get_current_user_id() );
 		$selected = $status->value ?? '';
+		$values   = Shelf::get_values( $post->ID, get_current_user_id() );
 
 		wp_nonce_field( 'library_shelf', 'library_shelf_nonce' );
-		?>
-		<p>
-			<label for="library-shelf" class="screen-reader-text"><?php esc_html_e( 'Shelf', 'library' ); ?></label>
-			<select id="library-shelf" name="library_shelf_status" aria-describedby="library-shelf-description">
-				<option value="" <?php selected( '', $selected ); ?>><?php esc_html_e( 'On none of my shelves', 'library' ); ?></option>
-				<?php foreach ( Status::get_choices() as $value => $label ) : ?>
-					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $selected ); ?>><?php echo esc_html( $label ); ?></option>
-				<?php endforeach; ?>
-			</select>
-		</p>
-		<p class="description" id="library-shelf-description">
-			<?php esc_html_e( 'Not kept: read but not in my library. To buy: not in my library yet. The book stays in the catalogue for the other readers.', 'library' ); ?>
-		</p>
-		<p>
-			<label for="library-shelf-notes"><?php echo esc_html( Meta::get_label( 'library_notes' ) ); ?></label>
-			<textarea id="library-shelf-notes" class="widefat" name="library_shelf_notes" rows="5"><?php echo esc_textarea( Shelf::get_values( $post->ID, get_current_user_id() )['library_notes'] ); ?></textarea>
-		</p>
-		<?php
+
+		include plugin_dir_path( __FILE__ ) . 'partials/library-shelf.php';
 	}
 
 	/**
-	 * Put the book on the shelf chosen in its box, for the reader, with their notes, once it is in the catalogue.
+	 * Save the shelf of the book for the reader from its box, once it is in the catalogue, as the route of its shelf does:
+	 * where it goes, then their copy, then off their shelves when they took it off, which a book read stays on, a notice
+	 * saying so. A copy given to a book on none of them puts it on one: see Shelf::save().
 	 *
 	 * @param int $post_id Post ID.
 	 * @return void
@@ -284,13 +248,62 @@ class Metaboxes {
 			return;
 		}
 
-		$status = Status::tryFrom( sanitize_key( wp_unslash( $_POST['library_shelf_status'] ?? '' ) ) );
+		$reader = get_current_user_id();
+		$before = Shelf::get_status( $post_id, $reader );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Shelf.
+		$values = wp_unslash( $_POST );
+		$status = Status::tryFrom( sanitize_key( (string) ( $values['library_shelf_status'] ?? '' ) ) );
 
-		Shelf::set_status( $post_id, get_current_user_id(), $status );
+		// The readings ended, a start, an end and a rating each, then the one in progress, since its start; a book whose
+		// readings were all removed sends none.
+		$values['library_reading'] = array_map(
+			fn( $start, $end, $rating ) => array(
+				'start'  => $start,
+				'end'    => $end,
+				'rating' => $rating,
+			),
+			(array) ( $values['library_reading_start'] ?? array() ),
+			(array) ( $values['library_reading_end'] ?? array() ),
+			(array) ( $values['library_reading_rating'] ?? array() )
+		);
 
-		if ( isset( $_POST['library_shelf_notes'] ) ) {
-			Shelf::save( $post_id, get_current_user_id(), array( 'library_notes' => wp_kses_post( wp_unslash( $_POST['library_shelf_notes'] ) ) ) );
+		if ( rest_sanitize_boolean( $values['library_in_progress'] ?? false ) ) {
+			$values['library_reading'][] = new Reading( (string) ( $values['library_started'] ?? '' ), Reading::IN_PROGRESS )->to_array();
 		}
+
+		if ( $status ) {
+			Shelf::set_status( $post_id, $reader, $status );
+		}
+
+		Shelf::save( $post_id, $reader, array_intersect_key( $values, array_flip( Shelf::NAMES ) ) );
+
+		if ( ! $status && $before && ! Shelf::set_status( $post_id, $reader, null ) ) {
+			add_filter( 'redirect_post_location', fn( string $location ): string => add_query_arg( 'library_kept_book', 1, $location ) );
+		}
+	}
+
+	/**
+	 * Say, on the screen of a book saved, that it stays on the shelves of the reader, who read it.
+	 *
+	 * @return void
+	 */
+	public function show_kept_book(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
+		if ( ! isset( $_GET['library_kept_book'] ) || 'library_book' !== get_current_screen()?->post_type ) {
+			return;
+		}
+
+		wp_admin_notice( esc_html__( 'A book you have read stays on your shelves. Mark it as not kept instead.', 'library' ), array( 'type' => 'warning' ) );
+	}
+
+	/**
+	 * Take the book kept out of the address once its notice shows, as core does with its messages.
+	 *
+	 * @param string[] $args Query arguments removed.
+	 * @return string[]
+	 */
+	public function remove_kept_book_arg( array $args ): array {
+		return array( ...$args, 'library_kept_book' );
 	}
 
 	/**

@@ -113,7 +113,7 @@ const BOOK_PAGE = /** @type {Book} */ ( {
 	main_title: 'The title of a book',
 	subtitle: 'Its subtitle',
 	excerpt: 'Its excerpt, as written on its back cover.',
-	content:
+	notes_html:
 		'<p>Its notes, written in its form.</p>\n<p>A second paragraph.</p>',
 	people: [
 		{ id: 1, name: 'An Author', role: 'author' },

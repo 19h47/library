@@ -7,7 +7,7 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
+use Library\Shelf;
 
 /**
  * Deleting the plugin deletes its roles and its caches, and keeps the books.
@@ -62,7 +62,7 @@ class Test_Uninstall extends TestCase {
 		$this->assertTrue( get_role( 'administrator' )->has_cap( 'read' ) );
 		$this->assertTrue( get_role( 'editor' )->has_cap( 'upload_files' ) );
 		$this->assertSame( 'library_book', get_post_type( $book_id ) );
-		$this->assertNotEmpty( Meta::get_readings( $book_id, get_current_user_id() ) );
+		$this->assertNotEmpty( Shelf::get_readings( $book_id, get_current_user_id() ) );
 		$this->assertNotEmpty( get_the_terms( $book_id, 'library_series' ) );
 	}
 }
