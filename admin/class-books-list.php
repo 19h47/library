@@ -87,9 +87,11 @@ class Books_List {
 		// The column of the people shows the ones credited, as the credits of a book do.
 		$columns['taxonomy-library_person'] = __( 'Authors', 'library' );
 		$columns['library_shelf']           = __( 'Shelf', 'library' );
-		$columns['library_printed_date']    = Meta::get_label( 'library_printed_date' );
-		$columns['library_isbn']            = Meta::get_label( 'library_isbn' );
-		$columns['library_read']            = Meta::get_label( 'library_read' );
+		$columns['library_edition_date']    = Meta::get_label( 'library_edition_date' );
+		// The columns of the copy of the reader, on their shelf.
+		$columns['library_printed_date'] = Meta::get_label( 'library_printed_date' );
+		$columns['library_isbn']         = Meta::get_label( 'library_isbn' );
+		$columns['library_read']         = Meta::get_label( 'library_read' );
 		// The latest one.
 		$columns['library_read_date'] = __( 'Read date', 'library' );
 		$columns['library_rating']    = Meta::get_label( 'library_rating' );
@@ -108,6 +110,7 @@ class Books_List {
 	 */
 	public function render_custom_columns( string $column_name, int $post_id ): void {
 		$output = '';
+		$reader = get_current_user_id();
 
 		switch ( $column_name ) {
 
@@ -124,18 +127,15 @@ class Books_List {
 					'<input type="checkbox" data-part="read" data-post-id="%1$d" aria-label="%2$s"%3$s>',
 					$post_id,
 					esc_attr( $label ),
-					checked( Posts::is_read( $post_id ), true, false )
+					checked( (bool) Meta::get_read_dates( $post_id, $reader ), true, false )
 				);
 
 				break;
+			case 'library_edition_date':
 			case 'library_printed_date':
-				$printed_date = (string) get_post_meta( $post_id, 'library_printed_date', true );
+				$date = 'library_printed_date' === $column_name ? Shelf::get_printed_date( $post_id, $reader ) : (string) get_post_meta( $post_id, $column_name, true );
 
-				if ( '' !== $printed_date ) {
-					$output .= Books::format_partial_date( $printed_date );
-				} else {
-					$output .= '—';
-				}
+				$output .= '' !== $date ? Books::format_partial_date( $date ) : '—';
 
 				break;
 			case 'library_isbn':
@@ -145,7 +145,7 @@ class Books_List {
 
 				break;
 			case 'library_read_date':
-				$read_dates = Meta::get_read_dates( $post_id );
+				$read_dates = Meta::get_read_dates( $post_id, $reader );
 				$readings   = count( $read_dates );
 
 				if ( ! $read_dates ) {
@@ -163,18 +163,18 @@ class Books_List {
 
 				break;
 			case 'library_rating':
-				$rating = get_post_meta( $post_id, 'library_rating', true );
+				$rating = Meta::get_rating( Meta::get_readings( $post_id, $reader ) );
 
-				$output .= '' !== $rating ? esc_html( Books::format_rating_out_of_ten( (float) $rating ) ) : '—';
+				$output .= null !== $rating ? esc_html( Books::format_rating_out_of_ten( $rating ) ) : '—';
 
 				break;
 			case 'thumbnail':
-				$rating = get_post_meta( $post_id, 'library_rating', true );
+				$rating = Meta::get_rating( Meta::get_readings( $post_id, $reader ) );
 
-				if ( '' !== $rating ) {
+				if ( null !== $rating ) {
 					/* translators: %s: rating out of 10, e.g. 7.5/10. */
-					$title   = sprintf( __( 'Rated %s', 'library' ), Books::format_rating_out_of_ten( (float) $rating ) );
-					$output .= '<span class="library-rating-dot" title="' . esc_attr( $title ) . '" aria-hidden="true">' . esc_html( Books::format_rating( (float) $rating ) ) . '</span>';
+					$title   = sprintf( __( 'Rated %s', 'library' ), Books::format_rating_out_of_ten( $rating ) );
+					$output .= '<span class="library-rating-dot" title="' . esc_attr( $title ) . '" aria-hidden="true">' . esc_html( Books::format_rating( $rating ) ) . '</span>';
 				}
 
 				$output .= '<span class="library-thumbnail-cell">';
@@ -239,13 +239,8 @@ class Books_List {
 			return;
 		}
 
-		$read_dates = Meta::get_read_dates( $post->ID );
-
 		foreach ( Meta::QUICK_EDIT_KEYS as $key ) {
-			// Quick edit edits the latest reading, by its day, as its field takes it: its time stays once saved.
-			$value = 'library_read_date' === $key ? substr( (string) end( $read_dates ), 0, 10 ) : (string) get_post_meta( $post->ID, $key, true );
-
-			printf( '<div class="%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( $value ) );
+			printf( '<div class="%1$s">%2$s</div>', esc_attr( $key ), esc_textarea( (string) get_post_meta( $post->ID, $key, true ) ) );
 		}
 	}
 
@@ -260,16 +255,13 @@ class Books_List {
 			return;
 		}
 
-		// Quick edit edits the end of the latest reading, which is no meta of its own.
-		$labels   = array( 'library_read_date' => __( 'Last read date', 'library' ) );
-		$controls = array( 'library_read_date' => '<input type="date" name="library_read_date">' );
 		?>
 		<fieldset class="inline-edit-col-right">
 			<div class="inline-edit-col">
 				<?php foreach ( Meta::QUICK_EDIT_KEYS as $key ) : ?>
 					<label>
-						<span class="title"><?php echo esc_html( $labels[ $key ] ?? Meta::get_label( $key ) ); ?></span>
-						<span class="input-text-wrap"><?php echo $controls[ $key ] ?? Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Written here, or built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
+						<span class="title"><?php echo esc_html( Meta::get_label( $key ) ); ?></span>
+						<span class="input-text-wrap"><?php echo Meta::get_control( $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes the attributes. ?></span>
 					</label>
 				<?php endforeach; ?>
 			</div>
@@ -315,32 +307,30 @@ class Books_List {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta.
 		$values = wp_unslash( $_POST );
 
-		if ( isset( $values['library_read_date'] ) ) {
-			$values['library_reading'] = Meta::replace_latest_read_date( $post_id, (string) $values['library_read_date'] );
-		}
-
-		Meta::save( $post_id, $values );
+		Meta::save( $post_id, array_intersect_key( $values, array_flip( Meta::QUICK_EDIT_KEYS ) ) );
 	}
 
 	/**
-	 * Add the sortable columns; the books list is sorted by printed date by default, the newest copies first.
+	 * Add the sortable columns; the books list is sorted by edition date by default, the newest editions first.
 	 *
 	 * @param array<string,string|array<int,string|bool>> $sortable_columns Sortable columns, each a query var or its arguments.
 	 *
 	 * @return array<string,string|array<int,string|bool>>
 	 */
 	public function add_sortable_columns( array $sortable_columns ): array {
-		$sortable_columns['library_printed_date'] = array( 'library_printed_date', true, '', __( 'Table ordered by printed date.', 'library' ), 'desc' );
+		$sortable_columns['library_edition_date'] = array( 'library_edition_date', true, '', __( 'Table ordered by edition date.', 'library' ), 'desc' );
+		$sortable_columns['library_printed_date'] = array( 'library_printed_date', true, '', __( 'Table ordered by printed date.', 'library' ) );
 		$sortable_columns['library_rating']       = array( 'library_rating', true, '', __( 'Table ordered by rating.', 'library' ) );
 
 		return $sortable_columns;
 	}
 
 	/**
-	 * Sort the books list by printed date, by default, or by rating; books without them come last.
+	 * Sort the books list by edition date, by default, or by the printed date or the rating of the copy of the reader;
+	 * books without them come last.
 	 *
-	 * The post date is the date added. A core meta query cannot keep the books without the meta
-	 * without mixing them in: its OR clauses join every other meta of these books and sort on one of them.
+	 * A core meta query cannot keep the books without the meta without mixing them in: its OR clauses join every other
+	 * meta of these books and sort on one of them.
 	 *
 	 * @param string[] $clauses Query clauses.
 	 * @param WP_Query $query   Query.
@@ -351,13 +341,14 @@ class Books_List {
 			return $clauses;
 		}
 
-		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_printed_date';
-		$values  = array(
-			'library_printed_date' => 'library_sort.meta_value',
-			'library_rating'       => 'library_sort.meta_value',
+		$orderby = $query->get( 'orderby' ) ? $query->get( 'orderby' ) : 'library_edition_date';
+		$keys    = array(
+			'library_edition_date' => 'library_edition_date',
+			'library_printed_date' => Shelf::key( 'library_printed_date', get_current_user_id() ),
+			'library_rating'       => 'library_rating',
 		);
 
-		if ( ! isset( $values[ $orderby ] ) ) {
+		if ( ! isset( $keys[ $orderby ] ) ) {
 			return $clauses;
 		}
 
@@ -371,9 +362,9 @@ class Books_List {
 		// The rating of a book is the one of its latest reading rated, no meta of its own.
 		$sort               = 'library_rating' === $orderby
 			? 'SELECT post_id, rating AS meta_value FROM ( ' . Query::get_ratings_sql() . ' ) AS library_ratings'
-			: $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $orderby );
+			: $wpdb->prepare( "SELECT post_id, MAX( LEFT( meta_value, 191 ) ) AS meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s GROUP BY post_id", $keys[ $orderby ] );
 		$clauses['join']   .= " LEFT JOIN ( $sort ) AS library_sort ON library_sort.post_id = {$wpdb->posts}.ID";
-		$clauses['orderby'] = "library_sort.meta_value IS NULL, {$values[ $orderby ]} $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
+		$clauses['orderby'] = "library_sort.meta_value IS NULL, library_sort.meta_value $order, LEFT( {$wpdb->posts}.post_title, 191 ) ASC, {$wpdb->posts}.ID ASC";
 
 		return $clauses;
 	}

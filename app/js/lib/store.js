@@ -26,7 +26,7 @@ import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
 
 /**
- * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ApiReading, EndedReading, Recap, SeriesData, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ApiReading, EndedReading, Recap, SeriesData, ShelfValues, Stats, Suggestions } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  */
 
@@ -126,14 +126,12 @@ import * as api from 'library-app/api';
  */
 
 /**
- * The reading of a book: its meta, as the route of its form takes them, and where it is for the reader.
+ * The reading of a book by the reader: their copy, as the route of its shelf takes it, the values that change only, and
+ * where it goes for them, empty to take it off their shelves.
  *
  * @typedef {Object} BookReading
- * @property {Object}       meta               Its meta, those that change only.
- * @property {boolean}      [meta.read]        Whether it is read.
- * @property {boolean}      [meta.in_progress] Whether it is being read.
- * @property {ApiReading[]} [meta.reading]     Its readings, by their days, each with its rating, the one in progress last.
- * @property {string}       status             Where it is for the reader, empty on none of their shelves.
+ * @property {ShelfValues} copy   Their copy, its readings by their days, each with its rating, the one in progress last.
+ * @property {string}      status Where it is for them, empty on none of their shelves.
  */
 
 /**
@@ -339,19 +337,20 @@ const sortedOf = ( readings ) =>
 
 /**
  * The reading of `book`, to put it back as it was: whether it is read and being read, its readings by their days, as the
- * form gives them, with their ratings, and where it is for the reader.
+ * form gives them, with their ratings, when its copy was printed, and where it is for the reader.
  *
  * @param {Book} book The book.
  * @return {BookReading} Its reading.
  */
 function readingOf( book ) {
-	const meta = {
+	const copy = {
 		read: book.read,
 		in_progress: book.in_progress,
-		reading: readingsOf( book ),
+		readings: readingsOf( book ),
+		printed_date: book.printed_date,
 	};
 
-	return { meta, status: book.status };
+	return { copy, status: book.status };
 }
 
 /**
@@ -963,7 +962,9 @@ class LibraryStore extends Store {
 		this.#update( 'editing', () => ( { loading: true, error: '' } ) );
 
 		try {
-			this.#addBooks( [ await api.saveShelf( id, inLibrary ) ] );
+			this.#addBooks( [
+				await api.saveShelf( id, { status: inLibrary } ),
+			] );
 			this.#reloadAdded();
 
 			return id;
@@ -1113,61 +1114,77 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * Writes the reading of the book `id`: its meta, if any, through the route of the book form, then where it is for
-	 * the reader, if it changed, through the route of its shelf, which a reader may use on a book they cannot edit.
-	 * Returns the book as it is now.
+	 * Writes the reading of the book `id` through the route of its shelf, which a reader may use on a book they cannot
+	 * edit: their copy and where it goes at once, then off their shelves when it goes on none, once their readings are
+	 * written, as a book read stays on them. Returns the book as it is now.
 	 *
 	 * @param {number}      id      The book.
-	 * @param {BookReading} reading Its reading: the meta to write, and where it goes.
+	 * @param {BookReading} reading Its reading: the copy to write, and where it goes.
 	 * @return {Promise<Book>} The book.
 	 */
-	async #writeReading( id, { meta, status } ) {
+	async #writeReading( id, { copy, status } ) {
 		let book = this.get().books[ id ];
+		const values = {
+			...copy,
+			...( status && status !== book.status && { status } ),
+		};
 
-		if ( Object.keys( meta ).length ) {
-			book = await api.saveBook( id, { meta } );
+		if ( Object.keys( values ).length ) {
+			book = await api.saveShelf( id, values );
 		}
 
-		return status === book.status ? book : api.saveShelf( id, status );
+		return status || ! book.status ? book : api.removeShelf( id );
 	}
 
 	/**
 	 * Saves the reading of the book open, which says so, with Undo. Only what changed is sent, so a value the form
 	 * cannot show stays as it is; marked as unread, the book loses its readings ended on the server.
-	 * It goes through the route of the book form, which writes the readings at once: the core API, which removes a
-	 * meta value by value, would remove two readings of unknown dates, the same, together.
+	 * It goes through the route of the shelf, which writes the readings at once: the core API, which removes a meta
+	 * value by value, would remove two readings of unknown dates, the same, together.
 	 *
-	 * @param {Object}         reading            The reading, as the form gives it.
-	 * @param {boolean}        reading.read       Whether the book is read.
-	 * @param {boolean}        reading.inProgress Whether it is being read.
-	 * @param {string}         reading.started    The day its reading in progress started, or empty.
-	 * @param {EndedReading[]} reading.readings   Its readings ended, by their days, each with its rating.
-	 * @param {string}         reading.status     Where it is for the reader, empty on none of their shelves.
+	 * @param {Object}         reading             The reading, as the form gives it.
+	 * @param {boolean}        reading.read        Whether the book is read.
+	 * @param {boolean}        reading.inProgress  Whether it is being read.
+	 * @param {string}         reading.started     The day its reading in progress started, or empty.
+	 * @param {EndedReading[]} reading.readings    Its readings ended, by their days, each with its rating.
+	 * @param {string}         reading.printedDate When the copy of the reader was printed, or empty.
+	 * @param {string}         reading.status      Where it is for the reader, empty on none of their shelves.
 	 */
-	async saveReading( { read, inProgress, started, readings, status } ) {
+	async saveReading( {
+		read,
+		inProgress,
+		started,
+		readings,
+		printedDate,
+		status,
+	} ) {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
 		const ended = readings.map( api.toApiReading );
 		const given = inProgress
 			? [ ...ended, api.toApiReadingInProgress( started ) ]
 			: ended;
-		/** @type {Object<string, unknown>} */
-		const meta = {};
+		/** @type {ShelfValues} */
+		const copy = {};
 
 		if ( read !== book.read ) {
-			meta.read = read;
+			copy.read = read;
 		}
 
 		if ( inProgress !== book.in_progress ) {
-			meta.in_progress = inProgress;
+			copy.in_progress = inProgress;
 		}
 
 		// By their days, as the form gives them, in any order.
 		if ( sortedOf( given ) !== sortedOf( readingsOf( book ) ) ) {
-			meta.reading = given;
+			copy.readings = given;
 		}
 
-		if ( ! Object.keys( meta ).length && status === book.status ) {
+		if ( printedDate !== book.printed_date ) {
+			copy.printed_date = printedDate;
+		}
+
+		if ( ! Object.keys( copy ).length && status === book.status ) {
 			return;
 		}
 
@@ -1175,7 +1192,7 @@ class LibraryStore extends Store {
 
 		try {
 			this.#addBooks( [
-				await this.#writeReading( id, { meta, status } ),
+				await this.#writeReading( id, { copy, status } ),
 			] );
 			this.set( ( state ) => ( { ...state, saving: saving() } ) );
 			this.#reloadLoaded( id );

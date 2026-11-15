@@ -8,6 +8,7 @@
 namespace Library\Tests;
 
 use Library\Books;
+use Library\Shelf;
 
 /**
  * Three dates, each a year, a month or a day: the work, the edition of its ISBN, then the copy in hand.
@@ -32,15 +33,15 @@ class Test_Books_Dates extends TestCase {
 
 		$this->assertSame( '1949', get_post_meta( $book_id, 'library_published_date', true ) );
 		$this->assertSame( '1972-11', get_post_meta( $book_id, 'library_edition_date', true ) );
-		$this->assertSame( '', get_post_meta( $book_id, 'library_printed_date', true ) );
+		$this->assertSame( '', Shelf::get_printed_date( $book_id, get_current_user_id() ) );
 	}
 
 	/**
-	 * The credits give the year of the edition, the year its copy was printed standing for it.
+	 * The credits give the year of the edition, never the year a copy was printed: they are the same for every reader.
 	 *
 	 * @return void
 	 */
-	public function test_the_credits_give_the_edition_year_else_the_printing_year(): void {
+	public function test_the_credits_give_the_edition_year_never_the_printing_year(): void {
 		$edition = $this->add_book(
 			array(
 				'meta' => array(
@@ -52,11 +53,11 @@ class Test_Books_Dates extends TestCase {
 		$printed = $this->add_book( array( 'meta' => array( 'printed_date' => '2014-04-23' ) ) );
 
 		$this->assertSame( '1972', Books::get_credits( $edition ) );
-		$this->assertSame( '2014', Books::get_credits( $printed ) );
+		$this->assertSame( '', Books::get_credits( $printed ) );
 	}
 
 	/**
-	 * The date of a book is the one of its work, else of its edition, else of its copy.
+	 * The date of a book is the one of its work, else of its edition, never of a copy: it is the same for every reader.
 	 *
 	 * @return void
 	 */
@@ -84,7 +85,7 @@ class Test_Books_Dates extends TestCase {
 
 		$this->assertSame( '1949', Books::get_date( $books[ $work ] ) );
 		$this->assertSame( '1972', Books::get_date( $books[ $edition ] ) );
-		$this->assertSame( '2014', Books::get_date( $books[ $printed ] ) );
+		$this->assertSame( '', Books::get_date( $books[ $printed ] ) );
 		$this->assertSame( '', Books::get_date( $books[ $none ] ) );
 	}
 

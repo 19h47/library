@@ -7,6 +7,7 @@
 
 namespace Library\Tests;
 
+use Library\Meta;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -100,25 +101,22 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
-	 * A visitor gets a book without its shelf, its readings, its read state or its rating, and none of the routes of the
-	 * readers.
+	 * A visitor gets a book without its shelf, its readings, its read state and its rating among them, and none of the
+	 * routes of the readers.
 	 *
 	 * @return void
 	 */
 	public function test_a_visitor_sees_no_reading(): void {
 		$book_id = $this->add_read( '2024-03-14' );
 
-		$this->assertArrayHasKey( 'readings', $this->request( 'GET', "/wp/v2/books/$book_id" )->get_data() );
+		$this->assertNotEmpty( $this->request( 'GET', "/wp/v2/books/$book_id" )->get_data()['shelf']['readings'] );
 
 		wp_set_current_user( 0 );
 
 		$book = $this->request( 'GET', "/wp/v2/books/$book_id" )->get_data();
 
 		$this->assertArrayNotHasKey( 'shelf', $book );
-		$this->assertArrayNotHasKey( 'readings', $book );
-		$this->assertArrayNotHasKey( 'library_read', $book['meta'] );
-		$this->assertArrayNotHasKey( 'library_in_progress', $book['meta'] );
-		$this->assertArrayNotHasKey( 'library_rating', $book['meta'] );
+		$this->assertSame( array(), array_intersect( array_keys( $book['meta'] ), Meta::SHELF_KEYS ) );
 		$this->assertSame( 401, $this->request( 'GET', '/library/v1/stats' )->get_status() );
 	}
 

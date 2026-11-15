@@ -43,8 +43,8 @@ class Rest_API {
 	}
 
 	/**
-	 * Register the fields added to the books of the core REST API: its credits, its main title, its readings in order, its
-	 * shelf for the reader, and
+	 * Register the fields added to the books of the core REST API: its credits, its main title, its shelf for the reader,
+	 * their copy and their readings in order among them, and
 	 * what a list of books, or the page of a book, shows of its cover and terms, so that it needs to embed neither the
 	 * image nor the terms, whole; and to the series and the publishers, their path as a book types them, after their
 	 * cycles or their collections, and the ID of the publisher of a collection.
@@ -67,18 +67,9 @@ class Rest_API {
 					'type'        => 'string',
 				),
 			),
-			'readings'               => array(
-				'get_callback' => fn( array $book ) => array_map( fn( Reading $reading ) => $reading->to_array(), Meta::get_readings( $book['id'] ) ),
-				'schema'       => array(
-					'description' => __( 'Readings of the book, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}.', 'library' ),
-					'type'        => 'array',
-					'items'       => Rest_Schemas::get_reading(),
-					'readonly'    => true,
-				),
-			),
 			'shelf'                  => array(
 				'get_callback' => fn( array $book ) => Shelf::to_array( $book['id'], get_current_user_id() ),
-				'schema'       => array( 'description' => __( 'Shelf of the book for the current reader: where it is for them, and since when.', 'library' ) ) + Rest_Schemas::get_shelf(),
+				'schema'       => array( 'description' => __( 'Shelf of the book for the current reader: where it is for them, since when, and their copy, with their readings.', 'library' ) ) + Rest_Schemas::get_shelf(),
 			),
 			'cover'                  => array(
 				'get_callback' => fn( array $book ) => $this->get_cover( $book['id'] ),
@@ -242,8 +233,8 @@ class Rest_API {
 	}
 
 	/**
-	 * Leave out of a book what only its readers see: its shelf, its readings, whether it is read and being read, and its
-	 * rating, which a visitor, or a user who shelves no book, does not get.
+	 * Leave out of a book what only its readers see, its shelf, which a visitor, or a user who shelves no book, does not
+	 * get.
 	 *
 	 * @param WP_REST_Response $response Response of a book.
 	 * @param WP_Post          $post     Book.
@@ -256,7 +247,7 @@ class Rest_API {
 
 		$data = $response->get_data();
 
-		unset( $data['shelf'], $data['readings'], $data['meta']['library_read'], $data['meta']['library_in_progress'], $data['meta']['library_rating'] );
+		unset( $data['shelf'] );
 		$response->set_data( $data );
 
 		return $response;
@@ -325,14 +316,7 @@ class Rest_API {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'shelve_book' ),
 					'permission_callback' => $can_shelve_book,
-					'args'                => array(
-						'status' => array(
-							'description' => __( 'Where the book goes for the reader: in-library, not-kept or to-buy.', 'library' ),
-							'type'        => 'string',
-							'enum'        => Status::get_values(),
-							'required'    => true,
-						),
-					),
+					'args'                => self::get_shelf_args(),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
@@ -578,36 +562,17 @@ class Rest_API {
 				'description' => __( 'Book meta by their names, without the prefix of their keys, such as isbn, as the book form saves them.', 'library' ),
 				'type'        => 'object',
 				'default'     => array(),
-				'properties'  => array(
-					'reading' => array(
-						'description' => __( 'Readings of the book, which replace its own, each with the rating it ended with, the one in progress last.', 'library' ),
-						'type'        => 'array',
-						'items'       => Rest_Schemas::get_reading(),
-					),
-					'rating'  => array(
-						'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
-						'type'        => array( 'number', 'null' ),
-						'minimum'     => Meta::RATING_LIMITS['minimum'],
-						'maximum'     => Meta::RATING_LIMITS['maximum'],
-						'multipleOf'  => Meta::RATING_LIMITS['multipleOf'],
-					),
-				),
 			),
 		);
 
 		if ( $adding ) {
-			// A book added is on a shelf of the reader who adds it, the library unless they say otherwise; its shelf then
-			// changes through its own route, as the reader of a book may not edit it.
+			// A book added is on a shelf of the reader who adds it, the library unless they say otherwise, with their copy; its
+			// shelf then changes through its own route, as the reader of a book may not edit it.
 			return $args + array(
 				'shelf' => array(
-					'description' => __( 'Shelf of the reader the book goes on.', 'library' ),
+					'description' => __( 'Shelf of the reader the book goes on, and their copy, as the route of its shelf takes them.', 'library' ),
 					'type'        => 'object',
-					'properties'  => array(
-						'status' => array(
-							'type' => 'string',
-							'enum' => Status::get_values(),
-						),
-					),
+					'properties'  => self::get_shelf_args(),
 					'default'     => array( 'status' => Status::In_Library->value ),
 				),
 			);
@@ -669,7 +634,10 @@ class Rest_API {
 		}
 
 		$this->save_book( $book_id, $request, $meta, $terms, $roles );
-		Shelf::set_status( $book_id, get_current_user_id(), Status::tryFrom( (string) ( $request['shelf']['status'] ?? '' ) ) ?? Status::In_Library );
+		$shelf = (array) $request['shelf'];
+
+		Shelf::set_status( $book_id, get_current_user_id(), Status::tryFrom( (string) ( $shelf['status'] ?? '' ) ) ?? Status::In_Library );
+		Shelf::save( $book_id, get_current_user_id(), Shelf::from_names( $shelf ) );
 
 		$response = $this->get_book_response( $book_id );
 		$response->set_status( 201 );
@@ -679,8 +647,8 @@ class Rest_API {
 
 	/**
 	 * A book as its form edits it, as the route that edits it takes it back: its title, excerpt and notes as typed, the names of
-	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them, its readings
-	 * apart, which their own form edits.
+	 * its names as the book gives them, each with its role, its publisher and collection, its original languages, its form and its meta by their names, its edition languages among them; the copy
+	 * of the reader apart, which the form of their reading edits.
 	 *
 	 * The form edits one publisher and one collection, after the collections it is part of: a book given more gives its first
 	 * collection, or else publisher.
@@ -700,8 +668,7 @@ class Rest_API {
 		$publisher  = current( Taxonomies::get_top_level_terms( $publishers ) );
 		$languages  = wp_get_post_terms( $book->ID, 'library_language', array( 'fields' => 'ids' ) );
 		$forms      = wp_get_post_terms( $book->ID, 'library_form', array( 'fields' => 'ids' ) );
-		// The readings are the reading of the book, which its own form edits.
-		$meta = array_diff_key( Meta::get_values( $book->ID ), array( 'library_reading' => true ) );
+		$meta       = Meta::get_values( $book->ID );
 
 		return rest_ensure_response(
 			array(
@@ -787,16 +754,69 @@ class Rest_API {
 	}
 
 	/**
-	 * Put a book on a shelf of the current reader, or take it off their shelves with DELETE, and give it back, as
-	 * `wp/v2/books` gives it: see Shelf::set_status().
+	 * What the route of a shelf takes, each optional: where the book goes for the reader, and their copy, by the names of
+	 * Shelf::NAMES, as a book gives them in its shelf.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 */
+	private static function get_shelf_args(): array {
+		return array(
+			'status'       => array(
+				'description' => __( 'Where the book goes for the reader: in-library, not-kept or to-buy.', 'library' ),
+				'type'        => 'string',
+				'enum'        => Status::get_values(),
+			),
+			'printed_date' => array(
+				'description' => Meta::get_description( 'library_printed_date' ),
+				'type'        => 'string',
+				'pattern'     => '^$|' . Meta::get_pattern( 'library_printed_date' ),
+			),
+			'readings'     => array(
+				'description' => __( 'Readings of the book, which replace those of the reader, each with the rating it ended with, the one in progress last.', 'library' ),
+				'type'        => 'array',
+				'items'       => Rest_Schemas::get_reading(),
+			),
+			'read'         => array(
+				'description' => __( 'Whether the reader read it: false takes their readings ended away, true without one reads it now.', 'library' ),
+				'type'        => 'boolean',
+			),
+			'in_progress'  => array(
+				'description' => Meta::get_description( 'library_in_progress' ),
+				'type'        => 'boolean',
+			),
+			'rating'       => array(
+				'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
+				'type'        => array( 'number', 'null' ),
+				'minimum'     => Meta::RATING_LIMITS['minimum'],
+				'maximum'     => Meta::RATING_LIMITS['maximum'],
+				'multipleOf'  => Meta::RATING_LIMITS['multipleOf'],
+			),
+		);
+	}
+
+	/**
+	 * Put a book on a shelf of the current reader with their copy, only what is sent changing, or take it off their
+	 * shelves with DELETE, unless they read it, and give it back, as `wp/v2/books` gives it: see Shelf.
 	 *
 	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function shelve_book( WP_REST_Request $request ): WP_REST_Response {
-		$status = WP_REST_Server::DELETABLE === $request->get_method() ? null : Status::from( $request['status'] );
+	public function shelve_book( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$reader = get_current_user_id();
 
-		Shelf::set_status( $request['id'], get_current_user_id(), $status );
+		if ( WP_REST_Server::DELETABLE === $request->get_method() ) {
+			if ( ! Shelf::set_status( $request['id'], $reader, null ) ) {
+				return new WP_Error( 'library_book_read', __( 'A book you read stays on your shelves: say it is not kept instead.', 'library' ), array( 'status' => 409 ) );
+			}
+
+			return $this->get_book_response( $request['id'] );
+		}
+
+		if ( $request->has_param( 'status' ) ) {
+			Shelf::set_status( $request['id'], $reader, Status::from( $request['status'] ) );
+		}
+
+		Shelf::save( $request['id'], $reader, Shelf::from_names( $request->get_params() ) );
 
 		return $this->get_book_response( $request['id'] );
 	}

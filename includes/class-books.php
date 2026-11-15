@@ -123,11 +123,11 @@ class Books {
 					'library_subtitle'      => get_post_meta( $post->ID, 'library_subtitle', true ),
 				)
 			);
-			$readings       = Meta::get_readings( $post->ID );
+			$readings       = Meta::get_readings( $post->ID, $reader );
 			$pages          = (int) get_post_meta( $post->ID, 'library_pages', true );
 			$published_date = (string) get_post_meta( $post->ID, 'library_published_date', true );
 			$edition_date   = (string) get_post_meta( $post->ID, 'library_edition_date', true );
-			$printed_date   = (string) get_post_meta( $post->ID, 'library_printed_date', true );
+			$printed_date   = Shelf::get_printed_date( $post->ID, $reader );
 			$authors        = Taxonomies::get_top_level_terms( Taxonomies::get_authors( $post->ID ) );
 			$contributors   = Taxonomies::get_top_level_terms( Taxonomies::get_contributors( $post->ID ) );
 			$translators    = Taxonomies::get_top_level_terms( Taxonomies::get_contributors( $post->ID, 'translator' ) );
@@ -186,13 +186,13 @@ class Books {
 	}
 
 	/**
-	 * Date of a book: when the work first came out, or else its edition, or else its copy was printed.
+	 * Date of a book: when the work first came out, or else its edition, the same for every reader, whatever their copy.
 	 *
 	 * @param Book $book Book, from get_books().
 	 * @return string
 	 */
 	public static function get_date( Book $book ): string {
-		return array_find( array( $book->published_date, $book->edition_date, $book->printed_date ), fn( string $date ) => '' !== $date ) ?? '';
+		return '' !== $book->published_date ? $book->published_date : $book->edition_date;
 	}
 
 	/**
@@ -414,8 +414,7 @@ class Books {
 
 	/**
 	 * Credits of a book, to show under its title: "Authors · Publisher, Collection no. 5667 · edition year", a sub-collection
-	 * after its collection: "Gallimard, Folio, Science-fiction no. 271". Without its edition date, the year its copy was
-	 * printed stands for it.
+	 * after its collection: "Gallimard, Folio, Science-fiction no. 271". The same for every reader, whatever their copy.
 	 *
 	 * A collective work is credited to its publishing directors, as catalogues have it, and to none of its authors:
 	 * "Benoît Mouchart (dir.) · Casterman · 2020", or "Casterman · 2020" without director.
@@ -449,7 +448,6 @@ class Books {
 
 		$names = implode( ', ', wp_list_pluck( Taxonomies::get_credited_people( $book_id ), 'name' ) );
 		$date  = (string) get_post_meta( $book_id, 'library_edition_date', true );
-		$date  = '' !== $date ? $date : (string) get_post_meta( $book_id, 'library_printed_date', true );
 
 		if ( '' !== $names && Posts::is_collective( $book_id ) ) {
 			$names = self::format_directors( $names );

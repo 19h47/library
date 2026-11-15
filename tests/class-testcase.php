@@ -10,6 +10,7 @@ namespace Library\Tests;
 use Library\Achievements;
 use Library\Books;
 use Library\Cache;
+use Library\Meta;
 use Library\Reading;
 use Library\Shelf;
 use ReflectionProperty;
@@ -55,7 +56,9 @@ abstract class TestCase extends WP_UnitTestCase {
 	 * unless `shelf` says otherwise, with the date they added it.
 	 *
 	 * Readings go in `meta.reading`, which also makes it read, as intervals, see reading(): `array( '/2024-03-14' )`, or
-	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today.
+	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today. The copy of the reader, its
+	 * readings, printed date, read state and rating, is written with the meta of the book, as the tests write them, and
+	 * goes in its shelf, as the route takes it.
 	 *
 	 * @param array  $book  Book, as the route takes it: title, people, series, meta… A title is made up when missing.
 	 * @param string $added Date added, Y-m-d H:i:s, or empty for now.
@@ -64,8 +67,13 @@ abstract class TestCase extends WP_UnitTestCase {
 	protected function add_book( array $book = array(), string $added = '' ): int {
 		$book += array( 'title' => 'Book ' . wp_generate_password( 6, false ) );
 
-		if ( isset( $book['meta']['reading'] ) ) {
-			$book['meta']['reading'] = self::readings( $book['meta']['reading'] );
+		foreach ( Shelf::NAMES as $name => $key ) {
+			$meta_name = Meta::get_name( $key );
+
+			if ( array_key_exists( $meta_name, $book['meta'] ?? array() ) ) {
+				$book['shelf'][ $name ] = 'reading' === $meta_name ? self::readings( $book['meta'][ $meta_name ] ) : $book['meta'][ $meta_name ];
+				unset( $book['meta'][ $meta_name ] );
+			}
 		}
 
 		$request = new WP_REST_Request( 'POST', '/library/v1/books' );

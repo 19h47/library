@@ -91,7 +91,8 @@ class Metaboxes {
 	public function render_metabox( WP_Post $post ): void {
 		wp_nonce_field( 'library_metabox_nonce', 'library_metabox_nonce' );
 
-		$values       = Meta::get_values( $post->ID );
+		// The record, then the copy of the reader, on their shelf.
+		$values       = Meta::get_values( $post->ID ) + Shelf::get_values( $post->ID, get_current_user_id() );
 		$own_language = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 
 		// A book added is in the language of the reader, as in the form of the app.
@@ -148,6 +149,11 @@ class Metaboxes {
 		}
 
 		Meta::save( $post_id, $values );
+
+		// The copy of the reader, once the book is in the catalogue: see Shelf::save().
+		if ( current_user_can( 'shelve_book', $post_id ) ) {
+			Shelf::save( $post_id, get_current_user_id(), array_intersect_key( $values, array_flip( Meta::SHELF_KEYS ) ) );
+		}
 
 		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.
 		if ( isset( $values['series'] ) ) {

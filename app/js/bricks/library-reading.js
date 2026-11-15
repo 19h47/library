@@ -14,10 +14,11 @@ import { formatReadings } from 'library-app/book-lines';
  * The fields of the reading of a book, by their names.
  *
  * @typedef {Object} ReadingFields
- * @property {HTMLInputElement}  read        Whether it is read.
- * @property {HTMLInputElement}  in_progress Whether it is being read.
- * @property {HTMLInputElement}  started     The day its reading in progress started.
- * @property {HTMLSelectElement} status      Whether it is in the library, not kept, to buy, or on none of the shelves.
+ * @property {HTMLInputElement}  read         Whether it is read.
+ * @property {HTMLInputElement}  in_progress  Whether it is being read.
+ * @property {HTMLInputElement}  started      The day its reading in progress started.
+ * @property {HTMLSelectElement} status       Whether it is in the library, not kept, to buy, or on none of the shelves.
+ * @property {HTMLInputElement}  printed_date When the copy of the reader was printed.
  */
 
 /**
@@ -54,7 +55,7 @@ const periodOf = ( /** @type {EndedReading} */ { start, end } ) =>
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
  * from their starts to their ends, each with the rating it ended with, folded under the line that sums them up, and
- * whether it is in the library, not kept or to buy. A reading added ends
+ * whether it is in the library, not kept or to buy, and when their copy was printed. A reading added ends
  * the one in progress, from its start, as the server does. Each change is saved at once, a date typed once left, a field
  * in error showing it without taking the focus, and the notice that says so offers Undo; a change made while the one
  * before saves waits for it, the form showing what was chosen until then rather than what the book was.
@@ -67,6 +68,7 @@ class LibraryReadingElement extends Brick {
 			in_progress: $inProgress,
 			started: $started,
 			status: $status,
+			printed_date: $printedDate,
 		} = /** @type {HTMLFormControlsCollection & ReadingFields} */ (
 			$form.elements
 		);
@@ -183,7 +185,8 @@ class LibraryReadingElement extends Brick {
 				( ! book.in_progress ||
 					data.get( 'started' ) === book.started.slice( 0, 10 ) ) &&
 				sortedOf( readingsOf( data ) ) === sortedOf( book.readings ) &&
-				data.get( 'status' ) === book.status
+				data.get( 'status' ) === book.status &&
+				data.get( 'printed_date' ) === book.printed_date
 			);
 		};
 
@@ -216,6 +219,9 @@ class LibraryReadingElement extends Brick {
 						data.get( 'started' ) ?? ''
 					),
 					readings: readingsOf( data ),
+					printedDate: /** @type {string} */ (
+						data.get( 'printed_date' )
+					),
 					status: /** @type {string} */ ( data.get( 'status' ) ),
 				} );
 			},
@@ -255,6 +261,7 @@ class LibraryReadingElement extends Brick {
 						} );
 					showReadings();
 					$status.value = book.status;
+					$printedDate.value = book.printed_date;
 				}
 			),
 			store.select(

@@ -62,19 +62,19 @@ export function intervalsOf( items ) {
  * Adds a book through the route of the book form, as the app adds one, and returns it as the route gives it back.
  *
  * @param {Object} requestUtils The request utils of WordPress.
- * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, shelf…; its
- *                              readings as intervals, see reading().
+ * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, shelf…; the
+ *                              readings of its shelf as intervals, see reading().
  * @return {Promise<Object>} The book.
  */
 export function addBook( requestUtils, book ) {
-	const meta = book.meta?.reading
-		? { ...book.meta, reading: readings( book.meta.reading ) }
-		: book.meta;
+	const shelf = book.shelf?.readings
+		? { ...book.shelf, readings: readings( book.shelf.readings ) }
+		: book.shelf;
 
 	return requestUtils.rest( {
 		method: 'POST',
 		path: '/library/v1/books',
-		data: meta ? { ...book, meta } : book,
+		data: shelf ? { ...book, shelf } : book,
 	} );
 }
 

@@ -33,7 +33,8 @@ import {
  */
 
 /**
- * The meta of a book by their names, without the prefix of their keys: library_rating is its rating.
+ * The meta of a book by their names, without the prefix of their keys, library_isbn its ISBN, and the copy of the
+ * reader, from its shelf: when it was printed, whether it is read and being read, and its rating.
  *
  * @typedef {Object} BookMeta
  * @property {string}   subtitle          Its subtitle.
@@ -42,12 +43,12 @@ import {
  * @property {string}   collection_number Its number in its collection.
  * @property {string}   published_date    The date it first came out: a day, a month or a year.
  * @property {string}   edition_date      The date its edition, the one of its ISBN, first came out: a day, a month or a year.
- * @property {string}   printed_date      The date its copy was printed: a day, a month or a year.
+ * @property {string}   printed_date      The date the copy of the reader was printed: a day, a month or a year, or empty.
  * @property {number}   pages             Its number of pages, 0 for unknown.
- * @property {number}   rating            Its rating out of 10, the one of its latest reading rated, 0 for none.
+ * @property {number}   rating            The rating of the reader out of 10, the one of their latest reading rated, 0 for none.
  * @property {boolean}  collective        Whether it is a collective work.
- * @property {boolean}  read              Whether it is read.
- * @property {boolean}  in_progress       Whether it is being read.
+ * @property {boolean}  read              Whether the reader read it.
+ * @property {boolean}  in_progress       Whether the reader is reading it.
  * @property {number[]} edition_languages The term IDs of the languages of its text.
  */
 
@@ -93,8 +94,24 @@ import {
  * The shelf of a book for the reader, as the API gives it: library-shelf.
  *
  * @typedef {Object} ApiShelf
- * @property {string|null} status Where it is for them: in-library, not-kept or to-buy; null on none of their shelves.
- * @property {string|null} added  When they added it, Y-m-d H:i:s; null on none of their shelves.
+ * @property {string|null}  status       Where it is for them: in-library, not-kept or to-buy; null on none of their shelves.
+ * @property {string|null}  added        When they added it, Y-m-d H:i:s; null on none of their shelves.
+ * @property {string}       printed_date When their copy was printed, Y, Y-m or Y-m-d, or empty.
+ * @property {ApiReading[]} readings     Their readings, in order, the one in progress last.
+ * @property {boolean}      read         Whether they read it.
+ * @property {boolean}      in_progress  Whether they are reading it.
+ * @property {number|null}  rating       Their rating, the one of their latest reading rated, or null.
+ */
+
+/**
+ * The copy of the reader as the route of its shelf takes it, only what changes, and where it goes for them: see ApiShelf.
+ *
+ * @typedef {Object} ShelfValues
+ * @property {string}       [status]       Where it goes: in-library, not-kept or to-buy.
+ * @property {string}       [printed_date] When their copy was printed, or empty.
+ * @property {ApiReading[]} [readings]     Their readings, which replace theirs.
+ * @property {boolean}      [read]         Whether they read it.
+ * @property {boolean}      [in_progress]  Whether they are reading it.
  */
 
 /**
@@ -431,7 +448,6 @@ import {
  * @property {string}                  credits                Its credits, HTML.
  * @property {ApiShelf}                shelf                  Its shelf for the reader.
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
- * @property {ApiReading[]}            readings               Its readings, in order, the one in progress last.
  * @property {Cover|null}              cover                  Its cover, none without one.
  * @property {Person[]}                names                  Its names, HTML, each with its term ID and its role.
  * @property {number[]}                series                 The term IDs of its series.
@@ -575,7 +591,11 @@ function toBook( item ) {
 
 	return {
 		...meta,
-		...toReadings( item.readings ),
+		...toReadings( item.shelf.readings ),
+		printed_date: item.shelf.printed_date,
+		read: item.shelf.read,
+		in_progress: item.shelf.in_progress,
+		rating: item.shelf.rating ?? 0,
 		id: item.id,
 		title: text( item.title.rendered ),
 		main_title: text( item.main_title ),
@@ -1019,19 +1039,34 @@ export async function saveBook( id, data ) {
 }
 
 /**
- * Puts the book `id` on the shelf `status` of the reader, or takes it off their shelves with an empty one, through the
- * route of its shelf, which a reader may use on a book they cannot edit, and returns the book as it is now.
+ * Saves `values` to the shelf of the reader for the book `id`, where it goes and their copy, through the route of its
+ * shelf, which a reader may use on a book they cannot edit, and returns the book as it is now.
  *
- * @param {number} id     Book ID.
- * @param {string} status Its status, empty for none of their shelves.
+ * @param {number}      id     Book ID.
+ * @param {ShelfValues} values What changes, as the route takes it.
  * @return {Promise<Book>} The book.
  */
-export async function saveShelf( id, status ) {
+export async function saveShelf( id, values ) {
 	return toBook(
 		await apiFetch( {
 			path: addQueryArgs( `/library/v1/books/${ id }/shelf`, BOOK_QUERY ),
-			method: status ? 'POST' : 'DELETE',
-			...( status && { data: { status } } ),
+			method: 'POST',
+			data: values,
+		} )
+	);
+}
+
+/**
+ * Takes the book `id` off the shelves of the reader, unless they read it, and returns the book as it is now.
+ *
+ * @param {number} id Book ID.
+ * @return {Promise<Book>} The book.
+ */
+export async function removeShelf( id ) {
+	return toBook(
+		await apiFetch( {
+			path: addQueryArgs( `/library/v1/books/${ id }/shelf`, BOOK_QUERY ),
+			method: 'DELETE',
 		} )
 	);
 }

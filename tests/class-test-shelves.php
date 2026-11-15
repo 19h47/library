@@ -7,6 +7,7 @@
 
 namespace Library\Tests;
 
+use Library\Meta;
 use Library\Shelf;
 use Library\Status;
 use WP_REST_Request;
@@ -65,13 +66,10 @@ class Test_Shelves extends TestCase {
 
 		$this->as_user( 'library_reader' );
 
-		$this->assertSame(
-			array(
-				'status' => null,
-				'added'  => null,
-			),
-			$this->get_shelf( $book_id )
-		);
+		$shelf = $this->get_shelf( $book_id );
+
+		$this->assertNull( $shelf['status'] );
+		$this->assertNull( $shelf['added'] );
 	}
 
 	/**
@@ -166,6 +164,86 @@ class Test_Shelves extends TestCase {
 		$this->assertSame( array( $earlier, $later ), $ids( array( 'shelf' => array( Status::In_Library->value ) ) ) );
 		$this->assertSame( array( $to_buy, $earlier, $later ), $ids( array( 'shelf' => Status::get_values() ) ) );
 		$this->assertEqualsCanonicalizing( array( $earlier, $later, $to_buy, $other ), $ids( array() ) );
+	}
+
+	/**
+	 * Two readers read the same book each their own way, their copies printed apart, though one of them cannot edit it:
+	 * neither gets the readings, the rating or the copy of the other, nor finds the book among their books read.
+	 *
+	 * @return void
+	 */
+	public function test_two_readers_read_the_same_book_their_own_way(): void {
+		$book_id = $this->add_book(
+			array(
+				'meta' => array(
+					'reading'      => array( '/2024-03-14#8' ),
+					'printed_date' => '2014',
+				),
+			)
+		);
+		$first   = get_current_user_id();
+
+		$this->as_user( 'library_reader' );
+
+		$response = $this->request(
+			'POST',
+			"/library/v1/books/$book_id/shelf",
+			array(
+				'readings'     => array( self::reading( '2025-01-02/2025-01-20#6' ) ),
+				'printed_date' => '2021-05',
+			)
+		);
+		$shelf    = $response->get_data()['shelf'];
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 6.0, $shelf['rating'] );
+		$this->assertSame( '2021-05', $shelf['printed_date'] );
+		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+
+		wp_set_current_user( $first );
+
+		$shelf = $this->get_shelf( $book_id );
+
+		$this->assertSame( 8.0, $shelf['rating'] );
+		$this->assertSame( '2014', $shelf['printed_date'] );
+		$this->assertSame( '2024-03-14', $shelf['readings'][0]['end'] );
+
+		$this->as_user( 'library_reader' );
+
+		$found = $this->request( 'GET', '/wp/v2/books', array( 'search' => 'read:yes' ) )->get_data();
+
+		$this->assertSame( array(), $found );
+	}
+
+	/**
+	 * A book read on none of the shelves of the reader goes among the books not kept: a reading is on a shelf.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_goes_on_a_shelf(): void {
+		$book_id = $this->add_book();
+
+		$this->as_user( 'library_reader' );
+		$this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'read' => true ) );
+
+		$this->assertSame( Status::Not_Kept->value, $this->get_shelf( $book_id )['status'] );
+	}
+
+	/**
+	 * A book read stays on the shelves of the reader: taken off, it is refused, and stays where it was; unread, it goes.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_read_stays_on_the_shelves(): void {
+		$book_id = $this->add_read( '2024-03-14' );
+
+		$this->assertSame( 409, $this->request( 'DELETE', "/library/v1/books/$book_id/shelf" )->get_status() );
+		$this->assertSame( Status::In_Library->value, $this->get_shelf( $book_id )['status'] );
+
+		$this->request( 'POST', "/library/v1/books/$book_id/shelf", array( 'read' => false ) );
+
+		$this->assertSame( 200, $this->request( 'DELETE', "/library/v1/books/$book_id/shelf" )->get_status() );
+		$this->assertNull( $this->get_shelf( $book_id )['status'] );
 	}
 
 	/**
