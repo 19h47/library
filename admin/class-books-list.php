@@ -49,7 +49,7 @@ class Books_List {
 		add_action( 'quick_edit_custom_box', array( $this, 'render_quick_edit' ) );
 		add_action( 'add_inline_data', array( $this, 'add_inline_data' ) );
 		// Before core saves a quick edit, at 1.
-		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_mistyped_isbn' ), 0 );
+		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_isbn' ), 0 );
 		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
 		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
@@ -270,12 +270,12 @@ class Books_List {
 	}
 
 	/**
-	 * Refuse the quick edit of a book whose ISBN is mistyped, as Meta::check_isbn() tells, before core saves
-	 * anything: quick edit shows the message in its row, which stays open on the values typed.
+	 * Refuse the quick edit of a book whose ISBN is mistyped, or another book has, as Meta::check_isbn() tells, before
+	 * core saves anything: quick edit shows the message in its row, which stays open on the values typed.
 	 *
 	 * @return void
 	 */
-	public function refuse_mistyped_isbn(): void {
+	public function refuse_isbn(): void {
 		check_ajax_referer( 'inlineeditnonce', '_inline_edit' );
 
 		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;

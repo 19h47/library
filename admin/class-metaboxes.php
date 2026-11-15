@@ -39,7 +39,7 @@ class Metaboxes {
 	public function hooks(): void {
 		add_action( 'add_meta_boxes_library_book', array( $this, 'add_metabox' ) );
 		add_action( 'add_meta_boxes_library_book', array( $this, 'register_person_box' ) );
-		add_action( 'admin_action_editpost', array( $this, 'refuse_mistyped_isbn' ) );
+		add_action( 'admin_action_editpost', array( $this, 'refuse_isbn' ) );
 		add_action( 'admin_notices', array( $this, 'show_refused_isbn' ) );
 		add_filter( 'removable_query_args', array( $this, 'remove_refused_isbn_arg' ) );
 		add_action( 'save_post_library_book', array( $this, 'save_metabox' ) );
@@ -167,14 +167,14 @@ class Metaboxes {
 	}
 
 	/**
-	 * Keep the ISBN of a book when the one typed in its form is mistyped, as Meta::check_isbn() tells, before
-	 * core writes the book: the rest of it is saved, its slug with the ISBN kept, and a notice says why.
+	 * Keep the ISBN of a book when the one typed in its form is mistyped, or another book has it, as Meta::check_isbn()
+	 * tells, before core writes the book: the rest of it is saved, its slug with the ISBN kept, and a notice says why.
 	 *
 	 * The ISBN sent is replaced by the one saved, which edit_post(), the slug and save_metabox() then read.
 	 *
 	 * @return void
 	 */
-	public function refuse_mistyped_isbn(): void {
+	public function refuse_isbn(): void {
 		$nonce   = isset( $_POST['library_metabox_nonce'] ) ? sanitize_key( wp_unslash( $_POST['library_metabox_nonce'] ) ) : '';
 		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
 
@@ -202,12 +202,16 @@ class Metaboxes {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
 		$isbn = isset( $_GET['library_refused_isbn'] ) ? sanitize_text_field( wp_unslash( $_GET['library_refused_isbn'] ) ) : '';
 
-		if ( '' === $isbn || 'library_book' !== get_current_screen()?->post_type ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shows a message, changes nothing.
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		$error   = '' !== $isbn ? Meta::check_isbn( $post_id, $isbn ) : null;
+
+		if ( ! $error || 'library_book' !== get_current_screen()?->post_type ) {
 			return;
 		}
 
-		/* translators: %s: ISBN typed, e.g. 978-2-07-036042-6. */
-		$message = sprintf( __( 'The ISBN %s was not saved, as its last digit, its check digit, does not match the others: check them.', 'library' ), $isbn );
+		/* translators: %s: why, such as a check digit that does not match. */
+		$message = sprintf( __( 'The ISBN was not saved. %s', 'library' ), $error->get_error_message() );
 
 		wp_admin_notice( esc_html( $message ), array( 'type' => 'error' ) );
 	}

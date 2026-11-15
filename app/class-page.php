@@ -77,11 +77,12 @@ class Page {
 	public const string RECAP_VIEW = 'recap';
 
 	/**
-	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded.
+	 * Fields of a book the app reads, from the core REST API: its cover and terms as the plugin gives them, nothing embedded,
+	 * and its links, whose target hints say whether the reader may edit it.
 	 *
 	 * @var string
 	 */
-	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,credits,shelf,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names';
+	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,credits,shelf,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names,_links';
 
 	/**
 	 * Value of the filter of the shelves for the whole catalogue, beside the shelves of the reader and each of them.

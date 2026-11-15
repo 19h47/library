@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-15T14:51:46+00:00\n"
+"POT-Creation-Date: 2026-11-15T15:08:32+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php:11 admin/class-dashboard.php:82 app/class-login.php:207
-#: app/class-page.php:154 app/class-page.php:367 app/class-page.php:368
+#: app/class-page.php:155 app/class-page.php:368 app/class-page.php:369
 #: app/partials/library-app.php:44 app/partials/library-app.php:63
 #: app/partials/library-app.php:153 app/partials/library-app.php:574
 #: app/partials/library-app.php:844
@@ -56,7 +56,7 @@ msgid "https://www.19h47.fr"
 msgstr "https://www.19h47.fr"
 
 #: admin/class-achievements-page.php:64 admin/class-achievements-page.php:71
-#: admin/partials/library-achievements.php:20 app/class-page.php:339
+#: admin/partials/library-achievements.php:20 app/class-page.php:340
 #: app/partials/library-app.php:269 app/partials/library-app.php:519
 msgid "Achievements"
 msgstr "Succès"
@@ -71,7 +71,7 @@ msgstr "Miniature"
 msgid "Authors"
 msgstr "Auteurs/autrices"
 
-#: admin/class-books-list.php:89 admin/class-metaboxes.php:252
+#: admin/class-books-list.php:89 admin/class-metaboxes.php:256
 msgid "Shelf"
 msgstr "Étagère"
 
@@ -116,7 +116,7 @@ msgstr "Tableau trié par date d’impression."
 msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
-#: admin/class-books-list.php:388 admin/class-metaboxes.php:235
+#: admin/class-books-list.php:388 admin/class-metaboxes.php:239
 #: app/partials/library-app.php:154
 msgid "My shelves"
 msgstr "Mes étagères"
@@ -268,21 +268,17 @@ msgstr "%1$s, %2$s"
 msgid "Information"
 msgstr "Informations"
 
-#. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: admin/class-metaboxes.php:210
+#. translators: %s: why, such as a check digit that does not match.
+#: admin/class-metaboxes.php:214
 #, php-format
-msgid ""
-"The ISBN %s was not saved, as its last digit, its check digit, does not "
-"match the others: check them."
-msgstr ""
-"L’ISBN %s n’a pas été enregistré, car son dernier chiffre, sa clé de "
-"contrôle, ne correspond pas aux autres : vérifiez-les."
+msgid "The ISBN was not saved. %s"
+msgstr "L’ISBN n’a pas été enregistré. %s"
 
-#: admin/class-metaboxes.php:254 app/partials/library-app.php:575
+#: admin/class-metaboxes.php:258 app/partials/library-app.php:575
 msgid "On none of my shelves"
 msgstr "Sur aucune de mes étagères"
 
-#: admin/class-metaboxes.php:261
+#: admin/class-metaboxes.php:265
 msgid ""
 "Not kept: read but not in my library. To buy: not in my library yet. The "
 "book stays in the catalogue for the other readers."
@@ -635,19 +631,19 @@ msgstr "Retirer cette lecture"
 msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
 
-#: app/class-page.php:155
+#: app/class-page.php:156
 msgid "App"
 msgstr "Application"
 
-#: app/class-page.php:337
+#: app/class-page.php:338
 msgid "Diary"
 msgstr "Journal"
 
-#: app/class-page.php:338
+#: app/class-page.php:339
 msgid "Idea"
 msgstr "Idée"
 
-#: app/class-page.php:340
+#: app/class-page.php:341
 msgid "To buy"
 msgstr "Envies"
 
@@ -701,13 +697,17 @@ msgctxt "one field"
 msgid "%s (required)"
 msgstr "%s (obligatoire)"
 
-#: app/components/isbn-status.php:17
+#: app/components/isbn-status.php:18
 msgid "Already added:"
 msgstr "Déjà ajouté :"
 
-#: app/components/isbn-status.php:19
+#: app/components/isbn-status.php:20
 msgid "I bought it"
 msgstr "Je l’ai acheté"
+
+#: app/components/isbn-status.php:20
+msgid "Put it in my library"
+msgstr "Le mettre dans ma bibliothèque"
 
 #: app/components/offline-status.php:14
 msgid ""
@@ -782,7 +782,7 @@ msgid "Latest readings"
 msgstr "Dernières lectures"
 
 #: app/partials/library-app.php:131 app/js/bricks/library-api.js:273
-#: app/js/bricks/library-book.js:39 app/js/bricks/library-recap.js:334
+#: app/js/bricks/library-book.js:40 app/js/bricks/library-recap.js:334
 #: app/js/lib/behaviors.js:21
 msgid "Loading…"
 msgstr "Chargement…"
@@ -1430,7 +1430,7 @@ msgstr "Retour aux sources"
 msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
-#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:445
+#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:447
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr "Le catalogue de la BnF ne répond pas : réessayez plus tard."
 
@@ -1669,7 +1669,7 @@ msgid "Author"
 msgstr "Auteur/autrice"
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-meta.php:957
+#: includes/class-meta.php:959
 #, php-format
 msgid ""
 "The last digit of the ISBN %s, its check digit, does not match the others: "
@@ -1677,6 +1677,14 @@ msgid ""
 msgstr ""
 "Le dernier chiffre de l’ISBN %s, sa clé de contrôle, ne correspond pas aux "
 "autres : vérifiez-les."
+
+#. translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it.
+#: includes/class-meta.php:971
+#, php-format
+msgid ""
+"The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your "
+"shelves instead."
+msgstr "L’ISBN %1$s est celui de « %2$s », déjà au catalogue : range-le plutôt sur tes étagères."
 
 #: includes/class-posts.php:145 includes/class-posts.php:147
 msgid "Book"
@@ -2171,7 +2179,7 @@ msgstr ""
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:671 app/js/bricks/library-edit.js:441
+#: includes/class-rest-api.php:671 app/js/bricks/library-edit.js:443
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
@@ -2197,13 +2205,18 @@ msgstr ""
 
 #: includes/class-rest-api.php:753
 msgid "Notes of the reader on the book, as typed, HTML as a post takes it."
-msgstr "Notes du lecteur sur le livre, telles que tapées, en HTML comme un article le prend."
+msgstr ""
+"Notes du lecteur sur le livre, telles que tapées, en HTML comme un article "
+"le prend."
 
 #: includes/class-rest-api.php:757
 msgid ""
 "ID of the image of the photo of the copy of the reader, one they uploaded, 0 "
 "for none: the cover the book shows them, instead of the one of its edition."
-msgstr "ID de l’image de la photo de l’exemplaire du lecteur, une qu’il a envoyée, 0 pour aucune : la couverture que le livre lui montre, à la place de celle de son édition."
+msgstr ""
+"ID de l’image de la photo de l’exemplaire du lecteur, une qu’il a envoyée, 0 "
+"pour aucune : la couverture que le livre lui montre, à la place de celle de "
+"son édition."
 
 #: includes/class-rest-api.php:763
 msgid ""
@@ -2409,7 +2422,10 @@ msgstr "En HTML, avec leurs paragraphes."
 msgid ""
 "Photo of the copy of the reader, its ID and its image, as the cover of a "
 "book gives it; null without, the cover of the edition shown instead."
-msgstr "Photo de l’exemplaire du lecteur, son ID et son image, comme la couverture d’un livre la donne ; null sans, la couverture de l’édition montrée à la place."
+msgstr ""
+"Photo de l’exemplaire du lecteur, son ID et son image, comme la couverture "
+"d’un livre la donne ; null sans, la couverture de l’édition montrée à la "
+"place."
 
 #: includes/class-rest-schemas.php:297
 msgid "Term ID, of a publisher or of a collection: its page in the app."
@@ -3124,11 +3140,11 @@ msgstr "Aucune lecture pour l’instant."
 msgid "Read again"
 msgstr "Relu"
 
-#: app/js/bricks/library-edit.js:433
+#: app/js/bricks/library-edit.js:435
 msgid "Searching the catalogue of the BnF…"
 msgstr "Recherche dans le catalogue de la BnF…"
 
-#: app/js/bricks/library-edit.js:437
+#: app/js/bricks/library-edit.js:439
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 
@@ -3308,11 +3324,11 @@ msgstr "Le plus ancien"
 msgid "No barcode found in the photo: take it again, closer."
 msgstr "Aucun code-barres sur la photo : reprenez-la, de plus près."
 
-#: app/js/lib/api.js:554
+#: app/js/lib/api.js:556
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1383
+#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1384
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
@@ -3373,17 +3389,25 @@ msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
 msgstr[1] "%s autres auteurs/autrices"
 
-#: app/js/lib/store.js:1100
+#: app/js/lib/store.js:1101
 msgid "Reading undone."
 msgstr "Lecture annulée."
 
-#: app/js/lib/store.js:1113
+#: app/js/lib/store.js:1114
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
 
-#: app/js/lib/store.js:1114
+#: app/js/lib/store.js:1115
 msgid "Undo"
 msgstr "Annuler"
+
+#, php-format
+#~ msgid ""
+#~ "The ISBN %s was not saved, as its last digit, its check digit, does not "
+#~ "match the others: check them."
+#~ msgstr ""
+#~ "L’ISBN %s n’a pas été enregistré, car son dernier chiffre, sa clé de "
+#~ "contrôle, ne correspond pas aux autres : vérifiez-les."
 
 #~ msgid "Notes on the book, its content."
 #~ msgstr "Notes sur le livre, son contenu."

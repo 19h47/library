@@ -10,12 +10,13 @@ import { focusTitle, showBusy } from 'library-app/behaviors';
  * translation as on its title page, its notes, its reading, its series and its fields, those of its work, of its
  * edition and of its copy; a book not loaded yet, such as one of an achievement, says it is loading, the page open
  * already. Another book opened from it, such as a volume of its series, takes the focus to its title, as the view does
- * when it opens. Its button Edit book opens the form of the book over it.
+ * when it opens. Its button Edit book opens the form of the book over it, for a reader who may edit it.
  */
 class LibraryBookElement extends Brick {
 	connect( signal ) {
 		/** @type {HTMLElement} */
 		const $title = this.querySelector( '[data-part="title"]' );
+		/** @type {HTMLButtonElement} */
 		const $edit = this.querySelector( '[data-action="edit"]' );
 		let shown = 0;
 		// The book drawn, drawn again only once changed: gone back to, its page keeps its links, and the focus one had.
@@ -46,6 +47,7 @@ class LibraryBookElement extends Brick {
 
 			if ( book !== drawn ) {
 				fillBookPage( this, book );
+				$edit.hidden = ! book.editable;
 				drawn = book;
 			}
 

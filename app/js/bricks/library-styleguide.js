@@ -304,7 +304,7 @@ class LibraryStyleguideElement extends Brick {
 		} );
 		/** @type {HTMLElement} */ (
 			this.querySelector(
-				'[data-sample="isbn-status-duplicate"] [data-action="buy"]'
+				'[data-sample="isbn-status-duplicate"] [data-action="keep"]'
 			)
 		).hidden = false;
 		fill( this.querySelector( '[data-sample="isbn-status-catalog"]' ), {

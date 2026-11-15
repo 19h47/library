@@ -73,6 +73,7 @@ import {
  * @property {Cover|null} cover             Its cover as the reader sees it, the photo of their copy, else the cover of its edition, none without either.
  * @property {Cover|null} edition_cover     The cover of its edition, none without one.
  * @property {number}     copy_cover        The ID of the image of the photo of the copy of the reader, 0 for none.
+ * @property {boolean}    editable          Whether the reader may edit it: the record they added, or any for a librarian.
  * @property {Person[]}   people            Its names, each with its role.
  * @property {string}     series            Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
  * @property {number}     series_id         The term ID of its series, 0 without one.
@@ -445,22 +446,23 @@ import {
  * A book as the REST API of core gives it, with the fields of the plugin, those the app asks for.
  *
  * @typedef {Object} ApiBook
- * @property {number}                  id                     Its ID.
- * @property {{rendered: string}}      title                  Its title, HTML.
- * @property {string}                  main_title             Its title but its subtitle, HTML.
- * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
- * @property {string}                  credits                Its credits, HTML.
- * @property {ApiShelf}                shelf                  Its shelf for the reader.
- * @property {Object<string, unknown>} meta                   Its meta, by their keys.
- * @property {Cover|null}              cover                  Its cover, none without one.
- * @property {Person[]}                names                  Its names, HTML, each with its term ID and its role.
- * @property {number[]}                series                 The term IDs of its series.
- * @property {string}                  series_name            Its series after its cycles, HTML.
- * @property {string[]}                language_codes         Its original languages, as their ISO 639 codes.
- * @property {string[]}                edition_language_codes The languages of its text, as their ISO 639 codes.
- * @property {string}                  form_name              The name of its form, HTML.
- * @property {Term[]}                  publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID: library-book-publisher.
- * @property {string}                  date                   The date it was added, its post date.
+ * @property {number}                                            id                     Its ID.
+ * @property {{rendered: string}}                                title                  Its title, HTML.
+ * @property {string}                                            main_title             Its title but its subtitle, HTML.
+ * @property {{rendered: string}}                                excerpt                Its excerpt, HTML.
+ * @property {string}                                            credits                Its credits, HTML.
+ * @property {ApiShelf}                                          shelf                  Its shelf for the reader.
+ * @property {{self: Array<{targetHints?: {allow?: string[]}}>}} _links                 Its links, the methods allowed on it among the hints of its own.
+ * @property {Object<string, unknown>}                           meta                   Its meta, by their keys.
+ * @property {Cover|null}                                        cover                  Its cover, none without one.
+ * @property {Person[]}                                          names                  Its names, HTML, each with its term ID and its role.
+ * @property {number[]}                                          series                 The term IDs of its series.
+ * @property {string}                                            series_name            Its series after its cycles, HTML.
+ * @property {string[]}                                          language_codes         Its original languages, as their ISO 639 codes.
+ * @property {string[]}                                          edition_language_codes The languages of its text, as their ISO 639 codes.
+ * @property {string}                                            form_name              The name of its form, HTML.
+ * @property {Term[]}                                            publisher_names        Its publishers, each followed by its collections, HTML, each with its term ID: library-book-publisher.
+ * @property {string}                                            date                   The date it was added, its post date.
  */
 
 /**
@@ -614,6 +616,10 @@ function toBook( item ) {
 		cover: item.shelf.cover ?? item.cover,
 		edition_cover: item.cover,
 		copy_cover: item.shelf.cover?.id ?? 0,
+		// As core tells it, which allows POST to whoever may edit it.
+		editable:
+			item._links.self[ 0 ].targetHints?.allow?.includes( 'POST' ) ??
+			false,
 		// As named on the book: another name opens the page of the person too.
 		people: item.names.map( toPlainName ),
 		// After its cycles, as typed, "Star Wars, Young Jedi Knights", and its ID, for its page.

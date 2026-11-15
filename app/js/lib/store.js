@@ -955,13 +955,14 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The book to buy `id`, bought: it joins the library. What was loaded loads again, in place, as after a book saved.
-	 * Returns its ID once bought, for its page to open, which then closes the form of a book to add, else 0.
+	 * The book `id`, to buy or on none of the shelves of the reader, kept: it joins their library. What was loaded loads
+	 * again, in place, as after a book saved. Returns its ID once kept, for its page to open, which then closes the form
+	 * of a book to add, else 0.
 	 *
-	 * @param {number} id The book to buy.
-	 * @return {Promise<number>} Its ID once bought, else 0.
+	 * @param {number} id The book to keep.
+	 * @return {Promise<number>} Its ID once kept, else 0.
 	 */
-	async buyBook( id ) {
+	async keepBook( id ) {
 		this.#update( 'editing', () => ( { loading: true, error: '' } ) );
 
 		try {
