@@ -90,7 +90,7 @@ test.describe( 'Preload', () => {
 					document
 						.getElementById( 'wp-api-fetch-js-after' )
 						.textContent.match(
-							/createPreloadingMiddleware\( (\{.*\}) \);/s
+							/createPreloadingMiddleware\( (\{.*?\}) \);\s*let isLoading/s
 						)[ 1 ]
 				)
 			)

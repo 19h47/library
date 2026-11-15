@@ -81,8 +81,10 @@ class Test_Achievements_Milestones extends TestCase {
 		$this->add_book(
 			array(
 				'title' => 'Given away',
-				'shelf' => array( 'status' => 'not-kept' ),
-				'shelf' => array( 'readings' => array( '/2024-12-01' ) ),
+				'shelf' => array(
+					'status'   => 'not-kept',
+					'readings' => array( '/2024-12-01' ),
+				),
 			)
 		);
 
