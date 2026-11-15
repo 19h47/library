@@ -215,7 +215,7 @@ class Rest_Schemas {
 	 * @return array<string,mixed>
 	 */
 	public static function get_reading(): array {
-		$date = array( 'pattern' => Meta::READING_DATE_PATTERN );
+		$date = array( 'pattern' => Readings::READING_DATE_PATTERN );
 
 		return array(
 			'title'                => 'library-reading',
@@ -227,9 +227,9 @@ class Rest_Schemas {
 					array( 'number', 'null' ),
 					__( 'Rating it ended with, out of 10, by half points; null without, and while it is read.', 'library' ),
 					array(
-						'minimum'    => Meta::RATING_LIMITS['minimum'],
-						'maximum'    => Meta::RATING_LIMITS['maximum'],
-						'multipleOf' => Meta::RATING_LIMITS['multipleOf'],
+						'minimum'    => Readings::RATING_LIMITS['minimum'],
+						'maximum'    => Readings::RATING_LIMITS['maximum'],
+						'multipleOf' => Readings::RATING_LIMITS['multipleOf'],
 					)
 				),
 			),
@@ -238,8 +238,73 @@ class Rest_Schemas {
 	}
 
 	/**
-	 * The shelf of a book for the current reader: what a book of `wp/v2/books` gives in its shelf, where it is for them,
-	 * since when, and their copy.
+	 * An image of a cover, of an edition or of the copy of a reader, as Books::get_image() gives it: its medium size, else
+	 * the image itself, with its width and height, and its sizes as a srcset.
+	 *
+	 * @param string $description Description.
+	 * @return array<string,mixed>
+	 */
+	public static function get_image( string $description ): array {
+		return self::property(
+			array( 'object', 'null' ),
+			$description,
+			array(
+				'properties'           => array(
+					'url'    => array( 'type' => 'string' ),
+					'width'  => array( 'type' => 'integer' ),
+					'height' => array( 'type' => 'integer' ),
+					'srcset' => array( 'type' => 'string' ),
+				),
+				'additionalProperties' => false,
+			)
+		);
+	}
+
+	/**
+	 * The copy of a reader, by the names of Shelf::NAMES, as a book gives it in its shelf, or as the route of its shelf
+	 * takes it, `$writing`: the same fields, but their notes, given as typed and as HTML, sent as typed, and the photo of
+	 * their copy, given as its image with its ID, sent as its ID.
+	 *
+	 * @param bool $writing Whether as the route takes it.
+	 * @return array<string,array<string,mixed>>
+	 */
+	public static function get_copy( bool $writing ): array {
+		$copy = array();
+
+		foreach ( Shelf::NAMES as $name => $key ) {
+			$copy[ $name ] = match ( $name ) {
+				'printed_date' => self::property( 'string', Meta::get_description( $key ), $writing ? array( 'pattern' => '^$|' . Meta::get_pattern( $key ) ) : array() ),
+				'readings'     => self::property( 'array', __( 'The readings of the current user, from the first to the latest, each with its start, end and rating. When sent, they replace the existing ones, a reading in progress last.', 'library' ), array( 'items' => self::get_reading() ) ),
+				'read'         => self::property( 'boolean', __( 'Whether or not the current user has read the book. Sending false removes their completed readings; sending true without one adds a reading that ends now.', 'library' ) ),
+				'in_progress'  => self::property( 'boolean', Meta::get_description( $key ) ),
+				'rating'       => self::property( array( 'number', 'null' ), __( 'The rating of the current user, from their latest rated reading, or null. When sent, it rates their latest completed reading; null removes it.', 'library' ), Readings::RATING_LIMITS ),
+				'notes'        => $writing
+					? self::property( 'string', __( 'The notes of the current user on the book, as HTML.', 'library' ) )
+					: self::property(
+						'object',
+						__( 'The notes of the current user on the book.', 'library' ),
+						array(
+							'properties' => array(
+								'raw'      => self::property( 'string', __( 'Notes, as they exist in the database.', 'library' ) ),
+								'rendered' => self::property( 'string', __( 'Notes, transformed for display.', 'library' ) ),
+							),
+						)
+					),
+				'cover'        => $writing
+					? self::property( 'integer', __( 'The ID of an image the current user uploaded of their copy, or 0 for none. It replaces the cover of the edition for them.', 'library' ), array( 'minimum' => 0 ) )
+					: array_merge_recursive(
+						self::get_image( __( 'The photo of the copy of the current user, with its ID, or null to show the cover of the edition.', 'library' ) ),
+						array( 'properties' => array( 'id' => array( 'type' => 'integer' ) ) )
+					),
+			};
+		}
+
+		return $copy;
+	}
+
+	/**
+	 * The shelf of a book for the current reader, what a book of `wp/v2/books` gives in its shelf: where it is for them,
+	 * since when, and their copy, see get_copy().
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -248,37 +313,9 @@ class Rest_Schemas {
 			'title'                => 'library-shelf',
 			'type'                 => 'object',
 			'properties'           => array(
-				'status'       => self::property( array( 'string', 'null' ), __( 'Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
-				'added'        => self::property( array( 'string', 'null' ), __( 'When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves.', 'library' ) ),
-				'printed_date' => self::property( 'string', __( 'When the copy of the reader was printed, Y, Y-m or Y-m-d, or empty.', 'library' ) ),
-				'readings'     => self::property( 'array', __( 'Readings of the reader, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}.', 'library' ), array( 'items' => self::get_reading() ) ),
-				'read'         => self::property( 'boolean', __( 'Whether the reader read it: whether they have a reading ended.', 'library' ) ),
-				'in_progress'  => self::property( 'boolean', __( 'Whether the reader is reading it.', 'library' ) ),
-				'rating'       => self::property( array( 'number', 'null' ), __( 'Rating of the reader, the one of their latest reading rated; null without.', 'library' ) ),
-				'notes'        => self::property(
-					'object',
-					__( 'Notes of the reader, as typed and as HTML.', 'library' ),
-					array(
-						'properties' => array(
-							'raw'      => self::property( 'string', __( 'As typed.', 'library' ) ),
-							'rendered' => self::property( 'string', __( 'HTML, its paragraphs.', 'library' ) ),
-						),
-					)
-				),
-				'cover'        => self::property(
-					array( 'object', 'null' ),
-					__( 'Photo of the copy of the reader, its ID and its image, as the cover of a book gives it; null without, the cover of the edition shown instead.', 'library' ),
-					array(
-						'properties' => array(
-							'id'     => array( 'type' => 'integer' ),
-							'url'    => array( 'type' => 'string' ),
-							'width'  => array( 'type' => 'integer' ),
-							'height' => array( 'type' => 'integer' ),
-							'srcset' => array( 'type' => 'string' ),
-						),
-					)
-				),
-			),
+				'status' => self::property( array( 'string', 'null' ), __( 'The shelf of the book for the current user: in-library, not-kept or to-buy, or null when it is on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
+				'added'  => self::property( array( 'string', 'null' ), __( 'The date the current user added the book, in the site\'s timezone, or null.', 'library' ) ),
+			) + self::get_copy( false ),
 			'additionalProperties' => false,
 		);
 	}
@@ -319,7 +356,7 @@ class Rest_Schemas {
 		$registered = get_registered_meta_keys( 'post', 'library_book' );
 		$meta       = array();
 
-		foreach ( array( ...Meta::KEYS, 'library_edition_languages' ) as $key ) {
+		foreach ( Meta::FORM_KEYS as $key ) {
 			$meta[ Meta::get_name( $key ) ] = array_filter(
 				array(
 					'type'        => $registered[ $key ]['type'] ?? 'string',

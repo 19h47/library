@@ -546,7 +546,7 @@ use Library\Meta;
 					<library-book class="library-book">
 						<p class="app-status" data-field="status" role="status" hidden></p>
 						<?php Markup::render_component( 'book-header' ); ?>
-						<div class="library-prose" data-html="content" hidden></div>
+						<div class="library-prose" data-html="notes" hidden></div>
 						<library-reading>
 							<form class="library-form library-reading">
 								<div class="library-pills">

@@ -142,7 +142,7 @@ class Test_Achievements_Languages extends TestCase {
 		$this->add_book(
 			array(
 				'languages' => array( $this->get_language( 'es', self::LANGUAGES['es'] ) ),
-				'meta'      => array( 'reading' => array( '/2024-04-04' ) ),
+				'shelf'     => array( 'readings' => array( '/2024-04-04' ) ),
 			)
 		);
 		$this->add_read_in( 'en', '2024-04-05' );
@@ -190,7 +190,7 @@ class Test_Achievements_Languages extends TestCase {
 			array(
 				'title'     => 'Read twice',
 				'languages' => array( $this->get_language( 'ja', self::LANGUAGES['ja'] ) ),
-				'meta'      => array( 'reading' => array( '/2024-01-01', '/2024-06-01' ) ),
+				'shelf'     => array( 'readings' => array( '/2024-01-01', '/2024-06-01' ) ),
 			)
 		);
 		$this->add_languages_read( array( 'it', 'de', 'es', 'ru' ), '2024-01-02' );
@@ -423,10 +423,8 @@ class Test_Achievements_Languages extends TestCase {
 			array_replace_recursive(
 				array(
 					'languages' => array( $language ),
-					'meta'      => array(
-						'reading'           => array( "/$read_date" ),
-						'edition_languages' => array( $language ),
-					),
+					'meta'      => array( 'edition_languages' => array( $language ) ),
+					'shelf'     => array( 'readings' => array( "/$read_date" ) ),
 				),
 				$book
 			)

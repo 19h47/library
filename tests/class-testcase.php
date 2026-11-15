@@ -35,6 +35,7 @@ abstract class TestCase extends WP_UnitTestCase {
 		new ReflectionProperty( Cache::class, 'changed' )->setValue( null, false );
 		// The suite unregisters every meta key after each test, those the plugin registers once, on init, among them.
 		new Meta()->register_meta();
+		new Shelf()->register_meta();
 
 		$this->as_user( 'administrator' );
 	}
@@ -57,10 +58,9 @@ abstract class TestCase extends WP_UnitTestCase {
 	 * Add a book through `POST library/v1/books`, as its form sends it, on a shelf of the current reader, the library
 	 * unless `shelf` says otherwise, with the date they added it.
 	 *
-	 * Readings go in `meta.reading`, which also makes it read, as intervals, see reading(): `array( '/2024-03-14' )`, or
-	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today. The copy of the reader, its
-	 * readings, printed date, read state and rating, is written with the meta of the book, as the tests write them, and
-	 * goes in its shelf, as the route takes it.
+	 * The copy of the reader goes in `shelf`, as the route takes it: its readings, `shelf.readings`, which also make it
+	 * read, as intervals, see reading(): `array( '/2024-03-14' )`, or `array( '/' )` for a reading on an unknown date;
+	 * `read` alone would date it today.
 	 *
 	 * @param array  $book  Book, as the route takes it: title, people, series, meta… A title is made up when missing.
 	 * @param string $added Date added, Y-m-d H:i:s, or empty for now.
@@ -69,13 +69,8 @@ abstract class TestCase extends WP_UnitTestCase {
 	protected function add_book( array $book = array(), string $added = '' ): int {
 		$book += array( 'title' => 'Book ' . wp_generate_password( 6, false ) );
 
-		foreach ( Shelf::NAMES as $name => $key ) {
-			$meta_name = Meta::get_name( $key );
-
-			if ( array_key_exists( $meta_name, $book['meta'] ?? array() ) ) {
-				$book['shelf'][ $name ] = 'reading' === $meta_name ? self::readings( $book['meta'][ $meta_name ] ) : $book['meta'][ $meta_name ];
-				unset( $book['meta'][ $meta_name ] );
-			}
+		if ( isset( $book['shelf']['readings'] ) ) {
+			$book['shelf']['readings'] = self::readings( $book['shelf']['readings'] );
 		}
 
 		$request = new WP_REST_Request( 'POST', '/library/v1/books' );
@@ -145,7 +140,7 @@ abstract class TestCase extends WP_UnitTestCase {
 	 * @return int Book ID.
 	 */
 	protected function add_read( string $read_date, array $book = array(), string $added = '' ): int {
-		return $this->add_book( array_replace_recursive( $book, array( 'meta' => array( 'reading' => array( "/$read_date" ) ) ) ), $added );
+		return $this->add_book( array_replace_recursive( $book, array( 'shelf' => array( 'readings' => array( "/$read_date" ) ) ) ), $added );
 	}
 
 	/**

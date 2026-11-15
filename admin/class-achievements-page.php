@@ -184,7 +184,7 @@ class Achievements_Page {
 		}
 
 		// The achievements count the books of the shelves of the reader.
-		$shelf = implode( ',', Status::get_values() );
+		$shelf = Status::get_list();
 
 		if ( 'search' === $target['type'] ) {
 			$url = add_query_arg( 'library_shelf', $shelf, admin_url( 'edit.php?post_type=library_book' ) );

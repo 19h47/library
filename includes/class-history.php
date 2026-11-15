@@ -154,13 +154,14 @@ class History {
 	public function show_fields(): void {
 		add_filter( '_wp_post_revision_fields', array( $this, 'add_fields' ), 10, 2 );
 
-		foreach ( array( ...Meta::KEYS, 'library_edition_languages', ...Meta::ROLE_KEYS, self::TERMS ) as $key ) {
+		foreach ( array( ...wp_post_revision_meta_keys( 'library_book' ), self::TERMS ) as $key ) {
 			add_filter( "_wp_post_revision_field_{$key}", array( $this, 'render_field' ), 10, 3 );
 		}
 	}
 
 	/**
-	 * The fields of a book its revisions compare, by key, with their labels: its meta, then its names.
+	 * The fields of a book its revisions compare, by key, with their labels: its meta, those Meta registers with their
+	 * revisions, then its names.
 	 *
 	 * @param array<string,string> $fields Fields, by key.
 	 * @param array<string,mixed>  $post   Post, as an array.
@@ -171,7 +172,7 @@ class History {
 			return $fields;
 		}
 
-		foreach ( array( ...Meta::KEYS, 'library_edition_languages', ...Meta::ROLE_KEYS ) as $key ) {
+		foreach ( wp_post_revision_meta_keys( 'library_book' ) as $key ) {
 			$fields[ $key ] = Meta::get_label( $key );
 		}
 

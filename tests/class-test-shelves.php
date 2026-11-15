@@ -7,7 +7,6 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
 use Library\Shelf;
 use Library\Status;
 use WP_REST_Request;
@@ -175,8 +174,8 @@ class Test_Shelves extends TestCase {
 	public function test_two_readers_read_the_same_book_their_own_way(): void {
 		$book_id = $this->add_book(
 			array(
-				'meta' => array(
-					'reading'      => array( '/2024-03-14#8' ),
+				'shelf' => array(
+					'readings'     => array( '/2024-03-14#8' ),
 					'printed_date' => '2014',
 				),
 			)
@@ -198,7 +197,7 @@ class Test_Shelves extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 6.0, $shelf['rating'] );
 		$this->assertSame( '2021-05', $shelf['printed_date'] );
-		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 
 		wp_set_current_user( $first );
 

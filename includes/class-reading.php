@@ -39,7 +39,7 @@ final class Reading {
 
 	/**
 	 * A reading from the object the REST API gives, or a row of the meta, its JSON: an unknown start or end is null or
-	 * empty, and anything else a reading of unknown dates without rating. It is not sanitized: see Meta::sanitize_reading().
+	 * empty, and anything else a reading of unknown dates without rating. It is not sanitized: see Readings::sanitize().
 	 *
 	 * @param mixed $value The reading, the object, as an array, or its JSON.
 	 * @return self

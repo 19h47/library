@@ -93,7 +93,7 @@ class Test_Achievements_Forms extends TestCase {
 			array(
 				'title' => 'Read twice',
 				'form'  => $this->get_form( 'Novel' ),
-				'meta'  => array( 'reading' => array( '/2024-03-01', '/2024-04-01' ) ),
+				'shelf' => array( 'readings' => array( '/2024-03-01', '/2024-04-01' ) ),
 			)
 		);
 
@@ -183,7 +183,7 @@ class Test_Achievements_Forms extends TestCase {
 			array(
 				'title' => 'Read twice',
 				'form'  => $this->get_form( 'Novel' ),
-				'meta'  => array( 'reading' => array( '/2024-01-05', '/2024-03-05' ) ),
+				'shelf' => array( 'readings' => array( '/2024-01-05', '/2024-03-05' ) ),
 			)
 		);
 		$this->add_form_reads( 'Comic', 1, '2024-03-10' );
@@ -326,7 +326,7 @@ class Test_Achievements_Forms extends TestCase {
 				array(
 					'title' => '' !== $title ? $title : $form . ' ' . $number,
 					'form'  => $this->get_form( $form ),
-					'meta'  => array( 'reading' => array( "/$read_date" ) ),
+					'shelf' => array( 'readings' => array( "/$read_date" ) ),
 				)
 			);
 		}

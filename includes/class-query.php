@@ -87,7 +87,7 @@ class Query {
 
 	/**
 	 * The SQL of the ratings of the books by the current reader, a table of their IDs, post_id, and their ratings, rating:
-	 * the rating of the latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
+	 * the rating of the latest reading rated of each book, its readings ordered as Shelf::get_readings() orders them, by their end, then by their
 	 * start. One pass over the readings, which MySQL 5.7 runs faster than a subquery for each book.
 	 *
 	 * @return string
@@ -318,7 +318,7 @@ class Query {
 	 */
 	public function add_shelf_param( array $params ): array {
 		$params['shelf'] = array(
-			'description' => __( 'Statuses of the books on the shelves of the reader to list, by the date they added them, latest first; the whole catalogue without.', 'library' ),
+			'description' => __( 'Limit results to books on the shelves of the current user with these statuses, latest added first. All books when omitted.', 'library' ),
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'string',
