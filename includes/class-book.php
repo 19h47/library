@@ -50,12 +50,12 @@ final readonly class Book {
 	 * @param int[]                $series_ids        Term IDs of its series and of the cycles it is part of, the widest last.
 	 * @param int|null             $volume            Volume number, null without.
 	 * @param bool                 $collective        Whether it is a collective work.
-	 * @param Reading[]            $readings          Readings, from the first to the latest: see Meta::get_readings().
+	 * @param Reading[]            $readings          Readings of the reader, from the first to the latest: see Meta::get_readings().
 	 * @param float|null           $rating            Rating out of 10, the one of its latest reading rated, or of the reading it stands for in a list of readings; null without.
 	 * @param int|null             $pages             Number of pages, null without.
 	 * @param string               $published_date    Date it first came out, Y, Y-m or Y-m-d, or empty.
 	 * @param string               $edition_date      Date its edition first came out, Y, Y-m or Y-m-d, or empty.
-	 * @param string               $printed_date      Date its copy was printed, Y, Y-m or Y-m-d, or empty.
+	 * @param string               $printed_date      Date the copy of the reader was printed, Y, Y-m or Y-m-d, or empty.
 	 * @param string               $added             Date the reader added it, Y-m-d H:i:s, or empty on none of their shelves.
 	 * @param string[]             $authors           Names of its authors, by the name they are known by.
 	 * @param int[]                $author_ids        Term IDs of its authors.

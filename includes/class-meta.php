@@ -40,12 +40,20 @@ class Meta {
 	public const array TEXT_KEYS = array( 'library_subtitle', 'library_isbn', 'library_volume_number', 'library_collection_number' );
 
 	/**
-	 * Date meta keys, often known by their year only: Y, Y-m or Y-m-d. The work, the edition of its ISBN, then the copy
-	 * in hand, a printing of that edition, as the catalogue of the BnF records the first two, and its colophon the last.
+	 * Date meta keys, often known by their year only: Y, Y-m or Y-m-d. The work, then the edition of its ISBN, as the
+	 * catalogue of the BnF records them; the copy in hand, a printing of that edition, is the one of each reader: see
+	 * SHELF_KEYS.
 	 *
 	 * @var string[]
 	 */
-	private const array DATE_KEYS = array( 'library_published_date', 'library_edition_date', 'library_printed_date' );
+	private const array DATE_KEYS = array( 'library_published_date', 'library_edition_date' );
+
+	/**
+	 * Pattern of a date often known by its year only: Y, Y-m or Y-m-d.
+	 *
+	 * @var string
+	 */
+	private const string DATE_PATTERN = '^\d{4}(-\d{2}(-\d{2})?)?$';
 
 	/**
 	 * Format of the start or the end of a reading with its time, which sorts after the day alone: 2026-11-01T21:40. A
@@ -107,20 +115,27 @@ class Meta {
 	);
 
 	/**
-	 * Book meta edited in quick edit, and the read date, the end of the latest reading, which is no meta of its own: see
-	 * replace_latest_read_date().
+	 * Book meta edited in quick edit: those of the record, which a reader of the book may not edit, are edited elsewhere.
 	 *
 	 * @var string[]
 	 */
-	public const array QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages', 'library_read_date', 'library_rating' );
+	public const array QUICK_EDIT_KEYS = array( 'library_isbn', 'library_pages' );
 
 	/**
-	 * All book meta keys, its readings among them, and whether it is read and being read and its rating, which are no meta
-	 * of their own but its readings: see get_reading_state() and save().
+	 * All book meta keys, those of the record the readers share.
 	 *
 	 * @var string[]
 	 */
-	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_pages', 'library_rating', 'library_collective', 'library_reading', 'library_read', 'library_in_progress' );
+	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_pages', 'library_collective' );
+
+	/**
+	 * Meta of the copy of a reader, on their shelf: when it was printed and its readings, stored for each reader, see
+	 * Shelf; whether it is read and being read and its rating, worked out from its readings, never stored. Registered
+	 * under these keys for their labels, descriptions and controls, never stored under them.
+	 *
+	 * @var string[]
+	 */
+	public const array SHELF_KEYS = array( 'library_printed_date', 'library_reading', 'library_read', 'library_in_progress', 'library_rating' );
 
 	/**
 	 * Register hooks.
@@ -129,7 +144,6 @@ class Meta {
 	 */
 	public function hooks(): void {
 		add_action( 'init', array( $this, 'register_meta' ) );
-		add_filter( 'get_post_metadata', array( $this, 'get_reading_state' ), 10, 4 );
 	}
 
 	/**
@@ -174,7 +188,6 @@ class Meta {
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 			'library_edition_languages' => __( 'The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book.', 'library' ),
 		);
-		$patterns     = array( 'library_isbn' => self::ISBN_PATTERN );
 		$sanitizers   = array( 'library_isbn' => array( self::class, 'sanitize_isbn' ) );
 
 		foreach ( self::TEXT_KEYS as $key ) {
@@ -186,7 +199,7 @@ class Meta {
 					'label'             => $labels[ $key ],
 					'description'       => $descriptions[ $key ] ?? '',
 					'single'            => true,
-					'show_in_rest'      => isset( $patterns[ $key ] ) ? array( 'schema' => array( 'pattern' => $patterns[ $key ] ) ) : true,
+					'show_in_rest'      => null !== self::get_pattern( $key ) ? array( 'schema' => array( 'pattern' => self::get_pattern( $key ) ) ) : true,
 					'sanitize_callback' => $sanitizers[ $key ] ?? 'sanitize_text_field',
 				)
 			);
@@ -202,16 +215,30 @@ class Meta {
 					'description'       => $descriptions[ $key ],
 					'single'            => true,
 					'show_in_rest'      => array(
-						'schema' => array( 'pattern' => '^\d{4}(-\d{2}(-\d{2})?)?$' ),
+						'schema' => array( 'pattern' => self::DATE_PATTERN ),
 					),
 					'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
 				)
 			);
 		}
 
-		// One row per reading, read again or not. The REST API gives them in order, as the readings of a book, rather than as
-		// their rows: see Rest_Api::register_rest_fields(). They are written at once, through Meta::save(), as the book route
-		// does: the core REST API removes a value by value, and two readings of unknown dates, the same, would go together.
+		// The copy of a reader, on their shelf: see SHELF_KEYS.
+		register_post_meta(
+			'library_book',
+			'library_printed_date',
+			array(
+				'type'              => 'string',
+				'label'             => $labels['library_printed_date'],
+				'description'       => $descriptions['library_printed_date'],
+				'single'            => true,
+				'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
+				'auth_callback'     => '__return_false',
+			)
+		);
+
+		// One row per reading, read again or not. The REST API gives them in order, in the shelf of a book, rather than as their
+		// rows: see Shelf::to_array(). They are written at once, through Meta::save_readings(), as the route of the shelf does:
+		// the core REST API removes a value by value, and two readings of unknown dates, the same, would go together.
 		register_post_meta(
 			'library_book',
 			'library_reading',
@@ -248,9 +275,6 @@ class Meta {
 				'label'             => $labels['library_rating'],
 				'description'       => $descriptions['library_rating'],
 				'single'            => true,
-				'show_in_rest'      => array(
-					'schema' => self::RATING_LIMITS,
-				),
 				'sanitize_callback' => array( self::class, 'sanitize_rating' ),
 				'auth_callback'     => '__return_false',
 			)
@@ -278,7 +302,6 @@ class Meta {
 				'type'              => 'boolean',
 				'label'             => $labels['library_read'],
 				'single'            => true,
-				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'auth_callback'     => '__return_false',
 			)
@@ -293,7 +316,6 @@ class Meta {
 				'label'             => $labels['library_in_progress'],
 				'description'       => $descriptions['library_in_progress'],
 				'single'            => true,
-				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'auth_callback'     => '__return_false',
 			)
@@ -517,7 +539,7 @@ class Meta {
 			$attributes + array(
 				'type'    => $type,
 				'name'    => $key,
-				'pattern' => 'text' === $type && isset( $schema['pattern'] ) ? trim( $schema['pattern'], '^$' ) : null,
+				'pattern' => 'text' === $type && null !== self::get_pattern( $key ) ? trim( self::get_pattern( $key ), '^$' ) : null,
 				'min'     => $schema['minimum'] ?? null,
 				'max'     => $schema['maximum'] ?? null,
 				'step'    => $schema['multipleOf'] ?? null,
@@ -526,58 +548,47 @@ class Meta {
 	}
 
 	/**
-	 * Whether a book is read, whether it is being read and its rating, from its readings: read once it has a reading ended,
-	 * of a known date or not, being read while it has one in progress, rated as its latest reading rated. Its readings are
-	 * its one record: library_read, library_in_progress and library_rating are never stored.
+	 * Pattern of the text of a book meta, as its schema and its control state it, none without: an ISBN, or a date
+	 * often known by its year only.
 	 *
-	 * @param mixed  $value     Value, null to read the meta stored.
-	 * @param int    $object_id Post ID.
-	 * @param string $meta_key  Meta key, empty for every meta.
-	 * @param bool   $single    Whether one value is asked for.
-	 * @return mixed
+	 * @param string $key Meta key.
+	 * @return string|null
 	 */
-	public function get_reading_state( $value, int $object_id, string $meta_key, bool $single ) {
-		if ( ! in_array( $meta_key, array( 'library_read', 'library_in_progress', 'library_rating' ), true ) || 'library_book' !== get_post_type( $object_id ) ) {
-			return $value;
-		}
-
-		$readings = self::get_readings( $object_id );
-
-		if ( 'library_rating' === $meta_key ) {
-			$rating = self::get_rating( $readings );
-
-			return $single ? $rating ?? '' : ( null !== $rating ? array( $rating ) : array() );
-		}
-
-		$state = 'library_read' === $meta_key ? (bool) self::get_ended( $readings ) : null !== self::get_in_progress( $readings );
-
-		return $single ? $state : array( $state );
+	public static function get_pattern( string $key ): ?string {
+		return match ( true ) {
+			'library_isbn' === $key => self::ISBN_PATTERN,
+			in_array( $key, array( ...self::DATE_KEYS, 'library_printed_date' ), true ) => self::DATE_PATTERN,
+			default => null,
+		};
 	}
 
 	/**
-	 * Readings of a book, from the first to the latest: the ones ended, by their end, the unknown ones first, then the one
-	 * in progress.
+	 * Readings of a book by a reader, from the first to the latest: the ones ended, by their end, the unknown ones first,
+	 * then the one in progress.
 	 *
 	 * @param int $post_id Post ID.
+	 * @param int $reader  User ID of the reader.
 	 * @return Reading[]
 	 */
-	public static function get_readings( int $post_id ): array {
-		return self::sort_readings( array_map( fn( $row ) => Reading::from( $row ), get_post_meta( $post_id, 'library_reading', false ) ) );
+	public static function get_readings( int $post_id, int $reader ): array {
+		return self::sort_readings( array_map( fn( $row ) => Reading::from( $row ), get_post_meta( $post_id, Shelf::key( 'library_reading', $reader ), false ) ) );
 	}
 
 	/**
-	 * Read dates of a book, the ends of its readings ended, from the first to the latest: the unknown ones, empty, come first.
+	 * Read dates of a book by a reader, the ends of their readings ended, from the first to the latest: the unknown ones,
+	 * empty, come first.
 	 *
 	 * @param int $post_id Post ID.
+	 * @param int $reader  User ID of the reader.
 	 * @return string[]
 	 */
-	public static function get_read_dates( int $post_id ): array {
-		return array_map( fn( Reading $reading ) => $reading->end, self::get_ended( self::get_readings( $post_id ) ) );
+	public static function get_read_dates( int $post_id, int $reader ): array {
+		return array_map( fn( Reading $reading ) => $reading->end, self::get_ended( self::get_readings( $post_id, $reader ) ) );
 	}
 
 	/**
 	 * Values of a book as its forms edit them, by meta key, in the order of KEYS, then its edition languages: one value
-	 * each, a boolean as a boolean, as a checkbox gives it back, the readings and the edition languages as lists.
+	 * each, a boolean as a boolean, as a checkbox gives it back, the edition languages as a list.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return array<string,mixed>
@@ -587,7 +598,7 @@ class Meta {
 		$values = array();
 
 		foreach ( self::KEYS as $key ) {
-			$value          = 'library_reading' === $key ? self::get_readings( $post_id ) : get_post_meta( $post_id, $key, true );
+			$value          = get_post_meta( $post_id, $key, true );
 			$values[ $key ] = 'boolean' === ( $types[ $key ] ?? '' ) ? rest_sanitize_boolean( $value ) : $value;
 		}
 
@@ -662,29 +673,6 @@ class Meta {
 	}
 
 	/**
-	 * Readings of a book with the end of its latest one ended replaced by the given date, empty when it is unknown, its start
-	 * and its rating kept: quick edit edits the read date of the latest reading. A book without reading ended gets one only
-	 * when a date is given, which ends the one in progress.
-	 *
-	 * @param int    $post_id   Post ID.
-	 * @param string $read_date Date of the latest reading, Y-m-d, or empty.
-	 * @return Reading[]
-	 */
-	public static function replace_latest_read_date( int $post_id, string $read_date ): array {
-		$readings    = self::get_readings( $post_id );
-		$ended       = self::get_ended( $readings );
-		$in_progress = array_values( array_filter( $readings, fn( Reading $reading ) => ! $reading->is_ended() ) );
-
-		if ( ! $ended ) {
-			return array( ...( '' !== $read_date ? array( new Reading( end: $read_date ) ) : array() ), ...$in_progress );
-		}
-
-		$latest = array_pop( $ended );
-
-		return array( ...$ended, $latest->with( end: $read_date ), ...$in_progress );
-	}
-
-	/**
 	 * Readings with the rating of the latest one ended replaced, none for an empty one: the rating of a book is the one of
 	 * its latest reading. A book without reading ended has none to rate.
 	 *
@@ -705,22 +693,18 @@ class Meta {
 	}
 
 	/**
-	 * Save the given meta values; an empty value deletes the meta, the readings replace the former ones.
+	 * Save the given meta values of the record; an empty value deletes the meta.
 	 *
 	 * Keys that are not book meta are ignored, so a whole form submission can be passed.
 	 * Values are saved in the order of KEYS, whatever the order of the form fields, then the edition languages, a list.
-	 * Whether the book is read and being read, library_read and library_in_progress, are written as readings: see
-	 * apply_reading_state(); its rating, library_rating, as the rating of its latest reading ended.
 	 *
 	 * @param int                 $post_id Post ID.
 	 * @param array<string,mixed> $values  Unslashed values keyed by meta key.
 	 * @return void
 	 */
 	public static function save( int $post_id, array $values ): void {
-		$before = self::get_readings( $post_id );
-
 		foreach ( self::KEYS as $key ) {
-			if ( ! array_key_exists( $key, $values ) || in_array( $key, array( 'library_reading', 'library_read', 'library_in_progress', 'library_rating' ), true ) ) {
+			if ( ! array_key_exists( $key, $values ) ) {
 				continue;
 			}
 
@@ -737,7 +721,21 @@ class Meta {
 		if ( array_key_exists( 'library_edition_languages', $values ) ) {
 			self::save_edition_languages( $post_id, (array) $values['library_edition_languages'] );
 		}
+	}
 
+	/**
+	 * Save the readings of a book by a reader, which replace the former ones, as given: library_reading the readings,
+	 * library_read and library_in_progress whether the book is read and being read, written as readings, see
+	 * apply_reading_state(); library_rating the rating of its latest reading ended. None given keeps them.
+	 *
+	 * @param int                 $post_id Post ID.
+	 * @param int                 $reader  User ID of the reader.
+	 * @param array<string,mixed> $values  Unslashed values keyed by meta key.
+	 * @return void
+	 */
+	public static function save_readings( int $post_id, int $reader, array $values ): void {
+		$key      = Shelf::key( 'library_reading', $reader );
+		$before   = self::get_readings( $post_id, $reader );
 		$readings = array_key_exists( 'library_reading', $values ) ? self::keep_times( $before, (array) $values['library_reading'] ) : $before;
 		$readings = self::sort_readings( self::apply_reading_state( $before, $readings, $values ) );
 
@@ -751,10 +749,10 @@ class Meta {
 			return;
 		}
 
-		delete_post_meta( $post_id, 'library_reading' );
+		delete_post_meta( $post_id, $key );
 
 		foreach ( $rows as $row ) {
-			add_post_meta( $post_id, 'library_reading', wp_slash( $row ) );
+			add_post_meta( $post_id, $key, wp_slash( $row ) );
 		}
 	}
 

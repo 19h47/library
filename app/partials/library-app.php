@@ -621,6 +621,24 @@ use Library\Meta;
 									);
 									?>
 								</details>
+								<?php
+								// The copy of the reader, theirs: the same book, another printing.
+								Markup::render_component(
+									'field',
+									array(
+										'id'          => 'library-reading-printed-date',
+										'label'       => Meta::get_label( 'library_printed_date' ),
+										'description' => Meta::get_description( 'library_printed_date' ),
+										'control'     => Meta::get_control(
+											'library_printed_date',
+											array(
+												'name' => Meta::get_name( 'library_printed_date' ),
+												'autocomplete' => 'off',
+											)
+										),
+									)
+								);
+								?>
 								<p class="app-status" data-field="error" role="alert" hidden></p>
 							</form>
 						</library-reading>
@@ -797,7 +815,6 @@ use Library\Meta;
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
-					Markup::render_component( 'meta-field', array( 'key' => 'library_printed_date' ) );
 					Markup::render_component(
 						'field',
 						array(

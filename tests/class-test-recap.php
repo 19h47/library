@@ -8,6 +8,7 @@
 namespace Library\Tests;
 
 use DateTimeImmutable;
+use Library\Books;
 use Library\Recap;
 use Library\Status;
 
@@ -109,7 +110,7 @@ class Test_Recap extends TestCase {
 		$this->assertSame( 6.0, Recap::get_recap( 2024 )['rating'] );
 		$this->assertSame( 9.0, Recap::get_recap( 2025 )['rating'] );
 		$this->assertSame( array( $book_id ), Recap::get_recap( 2024 )['best'] );
-		$this->assertSame( 9.0, get_post_meta( $book_id, 'library_rating', true ) );
+		$this->assertSame( 9.0, Books::get_books()[ $book_id ]->rating );
 	}
 
 	/**

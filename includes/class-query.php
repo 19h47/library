@@ -77,8 +77,17 @@ class Query {
 	}
 
 	/**
-	 * The SQL of the ratings of the books, a table of their IDs, post_id, and their ratings, rating: the rating of the
-	 * latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
+	 * The SQL of the key of the readings of the current reader, quoted: a key of the plugin and a user ID, nothing typed.
+	 *
+	 * @return string
+	 */
+	private static function get_readings_key_sql(): string {
+		return "'" . Shelf::key( 'library_reading', get_current_user_id() ) . "'";
+	}
+
+	/**
+	 * The SQL of the ratings of the books by the current reader, a table of their IDs, post_id, and their ratings, rating:
+	 * the rating of the latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
 	 * start. One pass over the readings, which MySQL 5.7 runs faster than a subquery for each book.
 	 *
 	 * @return string
@@ -90,7 +99,7 @@ class Query {
 		$end    = self::get_reading_sql( 'end' );
 		$rating = "JSON_EXTRACT( meta_value, '$.rating' )";
 
-		return "SELECT post_id, CAST( SUBSTRING_INDEX( MAX( CONCAT( $end, '|', $start, '|', $rating ) ), '|', -1 ) AS DECIMAL(3,1) ) AS rating FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND JSON_TYPE( $rating ) <> 'NULL' GROUP BY post_id";
+		return "SELECT post_id, CAST( SUBSTRING_INDEX( MAX( CONCAT( $end, '|', $start, '|', $rating ) ), '|', -1 ) AS DECIMAL(3,1) ) AS rating FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND JSON_TYPE( $rating ) <> 'NULL' GROUP BY post_id";
 	}
 
 	/**
@@ -274,13 +283,13 @@ class Query {
 
 		if ( 'read' === $order ) {
 			$end                = self::get_reading_sql( 'end' );
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $end ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end NOT IN ( '', '..' ) GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $end ) AS read_date FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND $end NOT IN ( '', '..' ) GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.read_date IS NULL, library_order.read_date DESC, {$wpdb->posts}.post_date DESC";
 		}
 
 		if ( 'started' === $order ) {
 			$start              = self::get_reading_sql( 'start' );
-			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $start ) AS started FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND " . self::get_reading_sql( 'end' ) . " = '..' AND $start <> '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
+			$clauses['join']   .= " LEFT JOIN ( SELECT post_id, MAX( $start ) AS started FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . ' AND ' . self::get_reading_sql( 'end' ) . " = '..' AND $start <> '' GROUP BY post_id ) AS library_order ON library_order.post_id = {$wpdb->posts}.ID";
 			$clauses['orderby'] = "library_order.started IS NULL, library_order.started DESC, {$wpdb->posts}.post_date DESC";
 		}
 
@@ -526,7 +535,7 @@ class Query {
 			case 'read':
 				// A book is read once it has a reading ended, of a known date or not.
 				$end  = self::get_reading_sql( 'end' );
-				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end <> '..'";
+				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND $end <> '..'";
 
 				if ( 'yes' === $value ) {
 					return $read;
@@ -541,9 +550,9 @@ class Query {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND $end LIKE %s", $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end holds no value given.
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND $end LIKE %s", Shelf::key( 'library_reading', get_current_user_id() ), $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end holds no value given.
 			case 'progress':
-				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_reading' AND " . self::get_reading_sql( 'end' ) . " = '..'";
+				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . ' AND ' . self::get_reading_sql( 'end' ) . " = '..'";
 
 				if ( 'yes' === $value ) {
 					return $in_progress;

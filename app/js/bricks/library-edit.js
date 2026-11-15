@@ -61,8 +61,8 @@ function renderOptions( terms ) {
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
  * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
- * publisher, collection and its number, form and printed date, its shelf when it is added, the one of the list shown
- * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
+ * publisher, collection and its number, form, its shelf when it is added, the one of the list shown (the reading of a
+ * book changes it after, and the printed date of the copy of the reader); then more details, which few books have, folded, their summary counting
  * the ones filled in: subtitle, first published, edition date, pages, original languages, edition languages, collective work,
  * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
  * The names typed are suggested among those of the library, the collections among those of the publisher, after the

@@ -238,7 +238,8 @@ class Rest_Schemas {
 	}
 
 	/**
-	 * The shelf of a book for the current reader: what a book of `wp/v2/books` gives in its shelf.
+	 * The shelf of a book for the current reader: what a book of `wp/v2/books` gives in its shelf, where it is for them,
+	 * since when, and their copy.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -247,8 +248,13 @@ class Rest_Schemas {
 			'title'                => 'library-shelf',
 			'type'                 => 'object',
 			'properties'           => array(
-				'status' => self::property( array( 'string', 'null' ), __( 'Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
-				'added'  => self::property( array( 'string', 'null' ), __( 'When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves.', 'library' ) ),
+				'status'       => self::property( array( 'string', 'null' ), __( 'Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
+				'added'        => self::property( array( 'string', 'null' ), __( 'When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves.', 'library' ) ),
+				'printed_date' => self::property( 'string', __( 'When the copy of the reader was printed, Y, Y-m or Y-m-d, or empty.', 'library' ) ),
+				'readings'     => self::property( 'array', __( 'Readings of the reader, from the first to the latest, each with its start, its end and the rating it ended with: {"start":"2026-10-20","end":"2026-11-02","rating":8}.', 'library' ), array( 'items' => self::get_reading() ) ),
+				'read'         => self::property( 'boolean', __( 'Whether the reader read it: whether they have a reading ended.', 'library' ) ),
+				'in_progress'  => self::property( 'boolean', __( 'Whether the reader is reading it.', 'library' ) ),
+				'rating'       => self::property( array( 'number', 'null' ), __( 'Rating of the reader, the one of their latest reading rated; null without.', 'library' ) ),
 			),
 			'additionalProperties' => false,
 		);
@@ -290,8 +296,7 @@ class Rest_Schemas {
 		$registered = get_registered_meta_keys( 'post', 'library_book' );
 		$meta       = array();
 
-		// The readings are written through the route, but edited by their own form: the book form gives none.
-		foreach ( array_diff( array( ...Meta::KEYS, 'library_edition_languages' ), array( 'library_reading' ) ) as $key ) {
+		foreach ( array( ...Meta::KEYS, 'library_edition_languages' ) as $key ) {
 			$meta[ Meta::get_name( $key ) ] = array_filter(
 				array(
 					'type'        => $registered[ $key ]['type'] ?? 'string',

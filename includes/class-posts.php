@@ -212,16 +212,6 @@ class Posts {
 	}
 
 	/**
-	 * Whether a book has been read: whether it has a reading, of a known date or not.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return bool
-	 */
-	public static function is_read( int $post_id ): bool {
-		return (bool) Meta::get_read_dates( $post_id );
-	}
-
-	/**
 	 * Whether a book is collective, such as a magazine or an anthology: its authors are contributors, none of them the
 	 * author of the book.
 	 *
