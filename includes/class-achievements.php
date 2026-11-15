@@ -35,8 +35,8 @@ use WP_Term;
  * @phpstan-type Completion_Kind 'author'|'series'|'collection'
  * @phpstan-type Completion_Group non-empty-array<Completion_Kind,non-empty-array<int,non-empty-list<Book>>>
  * @phpstan-type Book_Target array{type:'book',id:int}
- * @phpstan-type Search_Target array{type:'search',search:string,not_kept:bool}
- * @phpstan-type Term_Target array{type:Completion_Kind,id:int,not_kept:bool}
+ * @phpstan-type Search_Target array{type:'search',search:string}
+ * @phpstan-type Term_Target array{type:Completion_Kind,id:int}
  * @phpstan-type Target Book_Target|Search_Target|Term_Target
  * @phpstan-type Achievement array{kind:string,title:string,subject:string,detail:string,target:Target|null,date:string,easter_egg:bool}
  * @phpstan-type Close_Achievement array{kind:string,title:string,subject:string,detail:string,target:Target|null,date:string,easter_egg:bool,done:int,total:int}
@@ -303,7 +303,8 @@ class Achievements {
 	}
 
 	/**
-	 * Every book, dated by its first reading, by its day: the achievements count days, such as a Friday the 13th.
+	 * Every book on the shelves of the reader, dated by its first reading, by its day: the achievements count days, such as
+	 * a Friday the 13th.
 	 *
 	 * @return array<int,Book>
 	 */
@@ -314,7 +315,7 @@ class Achievements {
 
 				return $book->with( readings: $readings, read_date: substr( $book->get_first_read_date(), 0, 10 ) );
 			},
-			Books::get_books()
+			Books::get_shelved()
 		);
 	}
 
@@ -381,44 +382,30 @@ class Achievements {
 	/**
 	 * The books a search finds as the target of an achievement, e.g. a series or a translator with a keyword.
 	 *
-	 * @param string          $search Search.
-	 * @param array<int,Book> $books  Books found.
+	 * @param string $search Search.
 	 * @return Search_Target
 	 */
-	private static function build_search_target( string $search, array $books ): array {
+	private static function build_search_target( string $search ): array {
 		return array(
-			'type'     => 'search',
-			'search'   => $search,
-			'not_kept' => self::is_none_kept( $books ),
+			'type'   => 'search',
+			'search' => $search,
 		);
 	}
 
 	/**
 	 * The books of an author, a series or a collection as the target of an achievement.
 	 *
-	 * @param string          $type    "author", "series" or "collection".
-	 * @param int             $term_id Term ID.
-	 * @param array<int,Book> $books   Books of the term.
+	 * @param string $type    "author", "series" or "collection".
+	 * @param int    $term_id Term ID.
 	 * @return Term_Target
 	 *
 	 * @phpstan-param Completion_Kind $type
 	 */
-	private static function build_term_target( string $type, int $term_id, array $books ): array {
+	private static function build_term_target( string $type, int $term_id ): array {
 		return array(
-			'type'     => $type,
-			'id'       => $term_id,
-			'not_kept' => self::is_none_kept( $books ),
+			'type' => $type,
+			'id'   => $term_id,
 		);
-	}
-
-	/**
-	 * Whether none of the books is kept: the books list leaves them out of its "All" view.
-	 *
-	 * @param array<int,Book> $books Books.
-	 * @return bool
-	 */
-	private static function is_none_kept( array $books ): bool {
-		return $books && array_all( $books, fn( Book $book ) => Status::Not_Kept === $book->status );
 	}
 
 	/**
@@ -582,7 +569,7 @@ class Achievements {
 		$term_ids = 'author' === $kind ? array_keys( $kinds[ $kind ] ) : array( $key );
 		$terms    = array_filter( array_map( fn( int $term_id ) => get_term( $term_id, self::COMPLETION_TAXONOMIES[ $kind ] ), $term_ids ), fn( $term ) => $term instanceof WP_Term );
 		$subject  = wp_sprintf( '%l', array_map( $names[ $kind ], $terms ) );
-		$target   = self::build_term_target( $kind, (int) $key, $group );
+		$target   = self::build_term_target( $kind, (int) $key );
 
 		if ( 0 === $left ) {
 			return self::build_achievement( Achievement_Kind::from( $kind ), $titles[ $kind ], $subject, Books::format_books( $total ), $target, self::get_latest_read_date( $read ) );
@@ -665,7 +652,7 @@ class Achievements {
 				$term instanceof WP_Term ? Taxonomies::get_collection_name( $term ) : '',
 				/* translators: 1: number of books read, 2: number of books. */
 				sprintf( __( '%1$s read of %2$s', 'library' ), number_format_i18n( count( $reads ) ), number_format_i18n( $total ) ),
-				self::build_term_target( 'collection', $collection_id, $group ),
+				self::build_term_target( 'collection', $collection_id ),
 				$reads[ $half - 1 ]->read_date
 			);
 		}
@@ -1058,7 +1045,7 @@ class Achievements {
 		}
 
 		foreach ( $by_form as $form => $books ) {
-			$target  = self::build_search_target( Query::build_keyword_search( 'form', $form ) . ' read:yes', $books );
+			$target  = self::build_search_target( Query::build_keyword_search( 'form', $form ) . ' read:yes' );
 			$reached = array_filter( self::FORM_MILESTONES, fn( int $milestone ) => count( $books ) >= $milestone );
 			$next    = current( array_diff( self::FORM_MILESTONES, $reached ) );
 
@@ -1152,7 +1139,7 @@ class Achievements {
 			'total' => count( $forms ),
 		);
 
-		return array( array(), array( self::build_achievement( Achievement_Kind::Library_Tour, $title, '', $detail, self::build_search_target( "form:{$values} read:no", array_values( $unread ) ), '' ) + $progress ) );
+		return array( array(), array( self::build_achievement( Achievement_Kind::Library_Tour, $title, '', $detail, self::build_search_target( "form:{$values} read:no" ), '' ) + $progress ) );
 	}
 
 	/**
@@ -1180,9 +1167,9 @@ class Achievements {
 			$detail     = Books::format_books( count( $books ) );
 
 			if ( $left <= 0 ) {
-				$earned[] = self::build_achievement( Achievement_Kind::Translator, '', $translator, $detail, self::build_search_target( Query::build_keyword_search( 'translator', $translator ), $books ), $books[ self::TRANSLATOR_BOOKS - 1 ]->read_date );
+				$earned[] = self::build_achievement( Achievement_Kind::Translator, '', $translator, $detail, self::build_search_target( Query::build_keyword_search( 'translator', $translator ) ), $books[ self::TRANSLATOR_BOOKS - 1 ]->read_date );
 			} elseif ( $left <= self::CLOSE_BOOKS ) {
-				$close[] = self::build_achievement( Achievement_Kind::Translator, __( 'Faithful to a translator', 'library' ), $translator, $detail, self::build_search_target( Query::build_keyword_search( 'translator', $translator ), $books ), '' ) + array(
+				$close[] = self::build_achievement( Achievement_Kind::Translator, __( 'Faithful to a translator', 'library' ), $translator, $detail, self::build_search_target( Query::build_keyword_search( 'translator', $translator ) ), '' ) + array(
 					'done'  => count( $books ),
 					'total' => self::TRANSLATOR_BOOKS,
 				);
@@ -1331,7 +1318,7 @@ class Achievements {
 				$translator,
 				/* translators: %s: original languages, e.g. "Japanese, English". */
 				sprintf( __( 'Translated from %s', 'library' ), implode( ', ', array_keys( $languages ) ) ),
-				self::build_search_target( Query::build_keyword_search( 'translator', $translator ), $books[ $key ] ),
+				self::build_search_target( Query::build_keyword_search( 'translator', $translator ) ),
 				array_values( $languages )[1]->read_date
 			);
 		}
@@ -1760,7 +1747,7 @@ class Achievements {
 		$books = $titles[ Taxonomies::get_name_key( $found->title ) ];
 		$title = $books[0]->title;
 
-		return array( self::build_achievement( Achievement_Kind::Namesakes, __( 'Namesakes', 'library' ), $title, __( 'The same title, different authors', 'library' ), self::build_search_target( $title, $books ), $found->read_date ) );
+		return array( self::build_achievement( Achievement_Kind::Namesakes, __( 'Namesakes', 'library' ), $title, __( 'The same title, different authors', 'library' ), self::build_search_target( $title ), $found->read_date ) );
 	}
 
 	/**

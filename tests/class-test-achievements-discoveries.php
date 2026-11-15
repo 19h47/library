@@ -240,8 +240,8 @@ class Test_Achievements_Discoveries extends TestCase {
 	public function test_a_book_waits_for_the_one_on_the_pile( string $status, bool $is_on_the_pile ): void {
 		$this->add_book(
 			array(
-				'title'  => 'Not read',
-				'status' => $status,
+				'title' => 'Not read',
+				'shelf' => array( 'status' => $status ),
 			),
 			'2024-01-01 10:00:00'
 		);

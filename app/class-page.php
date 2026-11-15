@@ -81,7 +81,14 @@ class Page {
 	 *
 	 * @var string
 	 */
-	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,content,credits,status,meta,readings,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names,date';
+	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,content,credits,shelf,meta,readings,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names';
+
+	/**
+	 * Value of the filter of the shelves for the whole catalogue, beside the shelves of the reader and each of them.
+	 *
+	 * @var string
+	 */
+	public const string CATALOGUE = 'catalogue';
 
 	/**
 	 * Books a list of the app loads at once, then as its end comes.
@@ -218,26 +225,26 @@ class Page {
 	 */
 	private function preload( string $view, int $id ): void {
 		// The paths of books with a space as %20, as wp.url encodes it: wp.apiFetch matches the paths once decoded, a + as itself.
-		$statuses = implode( ',', Status::get_values() );
-		$books    = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args, '', '&', PHP_QUERY_RFC3986 );
-		$list     = fn( array $args ) => $books(
+		$shelves = implode( ',', Status::get_values() );
+		$books   = fn( array $args ) => '/wp/v2/books?' . http_build_query( array( '_fields' => self::BOOK_FIELDS ) + $args, '', '&', PHP_QUERY_RFC3986 );
+		$list    = fn( array $args ) => $books(
 			$args + array(
 				'per_page' => self::PER_PAGE,
 				'offset'   => 0,
 			)
 		);
-		$paths    = array( '/library/v1/stats', $list( array( 'status' => Status::To_Buy->value ) ) );
+		$paths   = array( '/library/v1/stats', $list( array( 'shelf' => Status::To_Buy->value ) ) );
 
 		if ( 'books' === $view ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads the search shown, changes nothing.
 			$query   = trim( sanitize_text_field( wp_unslash( $_GET['q'] ?? '' ) ) );
-			$paths[] = $list( ( '' !== $query ? array( 'search' => $query ) : array() ) + array( 'status' => $statuses ) );
+			$paths[] = $list( ( '' !== $query ? array( 'search' => $query ) : array() ) + array( 'shelf' => $shelves ) );
 
 			if ( '' === $query ) {
 				$paths[] = $list(
 					array(
 						'search'  => 'progress:yes',
-						'status'  => $statuses,
+						'shelf'   => $shelves,
 						'orderby' => 'started',
 					)
 				);
@@ -246,7 +253,7 @@ class Page {
 		}
 
 		if ( self::BOOK_VIEW === $view ) {
-			$paths[] = $this->get_books_path( $books, array( $id ), $statuses );
+			$paths[] = $this->get_books_path( $books, array( $id ) );
 		}
 
 		// The page of a person, a series or a collection, or the recap of a year, by the route of its view, as the store asks for it.
@@ -268,7 +275,7 @@ class Page {
 		$read   = array_merge( ...array_map( fn( array $month ) => array_column( $month['readings'], 'book_id' ), $months ) );
 
 		if ( $read ) {
-			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $read, $statuses ) );
+			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $read ) );
 		}
 
 		// The books read in the year of the recap, a page of the REST API at a time, as the store asks for them.
@@ -277,7 +284,7 @@ class Page {
 		sort( $recap_books );
 
 		foreach ( self::RECAP_VIEW === $view ? array_chunk( $recap_books, self::MAX_PER_PAGE ) : array() as $chunk ) {
-			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $chunk, $statuses ) );
+			$data = rest_preload_api_request( $data, $this->get_books_path( $books, $chunk ) );
 		}
 
 		// Only the first requests of the page, until it has loaded: a request after, such as a search again without a filter
@@ -298,21 +305,20 @@ JS;
 	}
 
 	/**
-	 * The path the store asks for books with: their IDs once each and in order, of any status, as many as they are.
+	 * The path the store asks for books with: their IDs once each and in order, on the shelves of the reader or not, as
+	 * many as they are.
 	 *
 	 * @param callable $books    Path of books, from its arguments.
 	 * @param int[]    $book_ids Book IDs.
-	 * @param string   $statuses Statuses, separated with commas.
 	 * @return string
 	 */
-	private function get_books_path( callable $books, array $book_ids, string $statuses ): string {
+	private function get_books_path( callable $books, array $book_ids ): string {
 		$book_ids = array_unique( array_map( 'intval', $book_ids ) );
 
 		sort( $book_ids );
 
 		return $books(
 			array(
-				'status'   => $statuses,
 				'include'  => implode( ',', $book_ids ),
 				'per_page' => count( $book_ids ),
 			)
@@ -499,6 +505,7 @@ JS;
 			'inLibrary'        => Status::In_Library->value,
 			'notKept'          => Status::Not_Kept->value,
 			'toBuy'            => Status::To_Buy->value,
+			'catalogue'        => self::CATALOGUE,
 			// The roles other than author, as the people of a book name them: translator, colorist and the others.
 			'roles'            => array_keys( Meta::ROLE_KEYS ),
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),

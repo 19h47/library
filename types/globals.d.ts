@@ -27,15 +27,13 @@ declare global {
 			inLibrary: string;
 			notKept: string;
 			toBuy: string;
+			catalogue: string;
 			roles: string[];
 			editUrl: string;
 			appUrl: string;
 			serviceWorkerUrl: string;
 			storageKey: string;
 			icons: { light: string; dark: string };
-		};
-		libraryInlineEdit: {
-			statusChoices: Record< string, string >;
 		};
 	}
 

@@ -7,8 +7,8 @@
 export const APP_PATH =
 	'/wp-admin/edit.php?post_type=library_book&page=library';
 
-// The statuses a book of the tests may have, as the app lists them, and a draft.
-const STATUSES = 'publish,library-not-kept,library-to-buy,draft';
+// The statuses of the post of a book of the tests: published, in the catalogue, or a draft.
+const STATUSES = 'publish,draft';
 
 // More books than a site of the tests ever has: a site with a library is never emptied.
 const MOST_BOOKS = 100;
@@ -62,7 +62,7 @@ export function intervalsOf( items ) {
  * Adds a book through the route of the book form, as the app adds one, and returns it as the route gives it back.
  *
  * @param {Object} requestUtils The request utils of WordPress.
- * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, status…; its
+ * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, shelf…; its
  *                              readings as intervals, see reading().
  * @return {Promise<Object>} The book.
  */
@@ -93,7 +93,7 @@ export function getBook( requestUtils, id ) {
 }
 
 /**
- * Removes every book of the site, whatever its status. Throws on a site with a library, which the tests must not touch.
+ * Removes every book of the site, whoever shelved it. Throws on a site with a library, which the tests must not touch.
  *
  * @param {Object} requestUtils The request utils of WordPress.
  * @return {Promise<void>}

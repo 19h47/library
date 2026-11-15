@@ -1,4 +1,4 @@
-import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
+import { __, catalogue, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
@@ -25,7 +25,7 @@ import { join } from 'library-app/format';
  * @property {HTMLInputElement}    series     Its series.
  * @property {HTMLSelectElement}   form       Its form.
  * @property {HTMLInputElement}    cover      The photo of its cover.
- * @property {HTMLSelectElement}   status     The status of a book to add.
+ * @property {HTMLSelectElement}   status     The shelf of the reader a book to add goes on.
  * @property {HTMLInputElement}    isbn       Its ISBN.
  */
 
@@ -61,7 +61,7 @@ function renderOptions( terms ) {
 /**
  * The form of a book, in a modal dialog: empty for a book to add, else with the values of the book open, over it.
  * The fields most books have, in the order a book in hand gives them: its cover, ISBN, title, people, series and volume,
- * publisher, collection and its number, form and printed date, its status when it is added, the one of the list shown
+ * publisher, collection and its number, form and printed date, its shelf when it is added, the one of the list shown
  * (the reading of a book changes it after); then more details, which few books have, folded, their summary counting
  * the ones filled in: subtitle, first published, edition date, pages, original languages, edition languages, collective work,
  * excerpt and notes. A book added is in the language of the reader, unless the catalogue says otherwise.
@@ -344,7 +344,11 @@ class LibraryEditElement extends Brick {
 					} );
 				} else {
 					store
-						.addBook( { ...book, cover, status: $status.value } )
+						.addBook( {
+							...book,
+							cover,
+							shelf: { status: $status.value },
+						} )
 						.then( openBook );
 				}
 			},
@@ -360,12 +364,11 @@ class LibraryEditElement extends Brick {
 						return;
 					}
 
-					const { editing, view, status, form } = store.get();
+					const { editing, view, shelf, form } = store.get();
 					const { id, book } = editing;
-					// A book added joins the list shown: to buy from the books to buy, of the status and form chosen from the books.
-					const listedStatus = { books: status, 'to-buy': toBuy }[
-						view
-					];
+					// A book added joins the list shown: to buy from the books to buy, on the shelf and of the form chosen from the
+					// books, else in the library.
+					const listed = { books: shelf, 'to-buy': toBuy }[ view ];
 
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();
@@ -377,7 +380,8 @@ class LibraryEditElement extends Brick {
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
-					$status.value = listedStatus || inLibrary;
+					$status.value =
+						listed && catalogue !== listed ? listed : inLibrary;
 					$bookForm.value = 'books' === view ? form : '';
 					showPeople( book?.people ?? [] );
 

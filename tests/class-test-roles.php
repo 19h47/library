@@ -100,7 +100,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
-	 * A visitor gets a book without its readings, its read state or its rating, and none of the routes of the readers.
+	 * A visitor gets a book without its shelf, its readings, its read state or its rating, and none of the routes of the
+	 * readers.
 	 *
 	 * @return void
 	 */
@@ -113,6 +114,7 @@ class Test_Roles extends TestCase {
 
 		$book = $this->request( 'GET', "/wp/v2/books/$book_id" )->get_data();
 
+		$this->assertArrayNotHasKey( 'shelf', $book );
 		$this->assertArrayNotHasKey( 'readings', $book );
 		$this->assertArrayNotHasKey( 'library_read', $book['meta'] );
 		$this->assertArrayNotHasKey( 'library_in_progress', $book['meta'] );

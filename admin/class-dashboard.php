@@ -16,6 +16,7 @@ use Library\Books;
 use Library\Plugin;
 use Library\Posts;
 use Library\Stats;
+use Library\Status;
 use Library\Taxonomies;
 
 /**
@@ -329,7 +330,7 @@ class Dashboard {
 	 * @return array{count:int,average:float|null,chart:Chart}
 	 */
 	private function get_ratings(): array {
-		$books          = Books::get_books();
+		$books          = Books::get_shelved();
 		$ratings        = array_filter( array_column( $books, 'rating' ), 'is_float' );
 		$books_by_point = array_fill( 1, 10, 0 );
 
@@ -462,7 +463,8 @@ class Dashboard {
 	}
 
 	/**
-	 * Ranking items of the first terms counted, each one linked to its books.
+	 * Ranking items of the first terms counted, each one linked to its books in the library of the reader, which they
+	 * count.
 	 *
 	 * @param string                                     $taxonomy Taxonomy.
 	 * @param array<int,array{books:int,books_read:int}> $counts   Books and books read, by term ID, in their order.
@@ -490,7 +492,7 @@ class Dashboard {
 
 			$items[] = array(
 				'name' => 'library_publisher' === $taxonomy ? Taxonomies::get_collection_name( $term ) : $term->name,
-				'url'  => Books_List::get_term_url( $term ),
+				'url'  => Books_List::get_term_url( $term, Status::In_Library->value ),
 				'text' => self::format_books_read( $count ),
 			);
 		}
@@ -499,13 +501,13 @@ class Dashboard {
 	}
 
 	/**
-	 * Add the number of books in the library to the "At a Glance" dashboard widget.
+	 * Add the number of books of the catalogue, shared by the readers, to the "At a Glance" dashboard widget.
 	 *
 	 * @param string[] $items Items.
 	 * @return string[]
 	 */
 	public function add_books_at_a_glance( array $items ): array {
-		$count = count( Stats::get_kept_books() );
+		$count = (int) wp_count_posts( 'library_book' )->publish;
 
 		if ( ! $count ) {
 			return $items;

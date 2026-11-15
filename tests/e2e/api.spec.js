@@ -52,9 +52,12 @@ test.describe( 'API reference', () => {
 		// Hidden with the view of the books, the field leaves the tree of accessibility: found by its ID.
 		await expect( page.locator( '#library-search' ) ).toHaveValue( '' );
 
-		const route = page
-			.locator( '.library-api__route' )
-			.filter( { hasText: '/library/v1/books/{id}' } );
+		// The route of a book, not the one of its shelf under it.
+		const route = page.locator( '.library-api__route' ).filter( {
+			has: page.locator( '[data-field="path"]', {
+				hasText: /^\/library\/v1\/books\/\{id\}$/,
+			} ),
+		} );
 
 		await expect( page.locator( '.library-api__route' ) ).not.toHaveCount(
 			0

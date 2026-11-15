@@ -147,7 +147,7 @@ class Roles {
 
 	/**
 	 * Shelving a book, `shelve_book` with its ID, takes the capability of shelving the books, for a book of the
-	 * catalogue: neither in the trash nor a draft never saved.
+	 * catalogue, published: neither in the trash nor a draft.
 	 *
 	 * @param string[] $caps    Primitive capabilities the user needs.
 	 * @param string   $cap     Capability checked.
@@ -162,7 +162,7 @@ class Roles {
 
 		$book_id = (int) ( $args[0] ?? 0 );
 
-		if ( 'library_book' !== get_post_type( $book_id ) || ! in_array( get_post_status( $book_id ), Status::get_values(), true ) ) {
+		if ( 'library_book' !== get_post_type( $book_id ) || 'publish' !== get_post_status( $book_id ) ) {
 			return array( 'do_not_allow' );
 		}
 

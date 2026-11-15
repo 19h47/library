@@ -24,7 +24,7 @@
  * @var array<int,string>                             $form_choices     Forms the filter of the books and the form of a book offer, by term ID.
  * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
  * @var int                                           $own_language_id  Term ID of the language of the reader, 0 when the library has none.
- * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the books offer, with their label.
+ * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the shelves offer, with their label.
  * @var array<string,array{label:string,url:string}> $views          Views of the app.
  * @var string                                        $view           View shown.
  */
@@ -138,7 +138,7 @@ use Library\Meta;
 						<?php
 						// The filters of the books and their choices: their fields in a dialog, the choices made as pills that remove them.
 						$book_filters = array(
-							'read'   => array(
+							'read'  => array(
 								'label'   => __( 'Reading state', 'library' ),
 								'options' => array(
 									''         => $labels->all_items,
@@ -148,9 +148,10 @@ use Library\Meta;
 									'progress' => Meta::get_label( 'library_in_progress' ),
 								),
 							),
-							'status' => array(
+							// The shelves of the reader, each of them, or the whole catalogue, which the other readers share.
+							'shelf' => array(
 								'label'   => __( 'Library', 'library' ),
-								'options' => array( '' => _x( 'Everywhere', 'books of any status', 'library' ) ) + $status_choices,
+								'options' => array( '' => __( 'My shelves', 'library' ) ) + $status_choices + array( Page::CATALOGUE => __( 'All the catalogue', 'library' ) ),
 							),
 						);
 
@@ -571,7 +572,7 @@ use Library\Meta;
 										array(
 											'id'         => 'library-reading-status',
 											'label'      => __( 'Library', 'library' ),
-											'options'    => $status_choices,
+											'options'    => $status_choices + array( '' => __( 'On none of my shelves', 'library' ) ),
 											'attributes' => array( 'name' => 'status' ),
 										)
 									);
