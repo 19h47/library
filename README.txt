@@ -37,6 +37,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_series`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn`, `library_reading` and so on, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
 * The hyphens of an ISBN come from the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation), in `includes/isbn-ranges.json`. An ISBN outside them, or with a wrong check digit, is kept as typed.
+* The database needs the JSON functions of MySQL 5.7.8 or MariaDB 10.2.3 at least: a reading is a row of JSON, which the searches and the orders by rating or by reading read.
 * The reading app needs the Navigation API: Safari 26.2, Firefox 147 or Chrome 135 at least. How it is built: see [ARCHITECTURE.md](https://github.com/19h47/library/blob/main/ARCHITECTURE.md).
 
 == Installation ==
@@ -44,6 +45,10 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 1. Upload the `library` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** screen.
 3. Use **Books** in the admin menu to add and manage books, people and publishers.
+
+= Uninstalling =
+
+Deleting the plugin from the **Plugins** screen deletes its caches, never the books: their posts, meta and terms stay in the database, for a later install to find them.
 
 = Updates =
 
