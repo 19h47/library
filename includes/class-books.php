@@ -29,6 +29,14 @@ class Books {
 	private static ?array $books = null;
 
 	/**
+	 * Reader the books of the current request are for, their user ID: a request that changes user, such as a test, reads
+	 * the books of the new one.
+	 *
+	 * @var int|null
+	 */
+	private static ?int $reader = null;
+
+	/**
 	 * Readings of the books of the current request, worked out once from them: see get_readings().
 	 *
 	 * @var list<Book>|null
@@ -49,14 +57,17 @@ class Books {
 	 * counted as authors are, a collection under its publisher, i.e. their widest ancestor: with the collections, they are
 	 * every term of the book and every one it is under.
 	 *
-	 * Kept until a book changes, as they take every book: see Cache.
+	 * Kept for each reader until a book changes, as they take every book: see Cache.
 	 *
 	 * @return array<int,Book>
 	 */
 	public static function get_books(): array {
-		if ( null === self::$books ) {
+		$reader = get_current_user_id();
+
+		if ( null === self::$books || $reader !== self::$reader ) {
 			self::$books    = Cache::remember( 'books', fn() => self::compute_books() );
 			self::$readings = null;
+			self::$reader   = $reader;
 		}
 
 		return self::$books;

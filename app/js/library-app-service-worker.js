@@ -10,13 +10,21 @@
  *
  * The app itself, its page, scripts and styles, is kept apart from what it loads, the REST API and the covers: the
  * covers of a long scroll never push the app out, so it opens without network.
+ *
+ * Each reader has caches of their own, named after their user ID, which the URL of the worker gives: a reader who logs
+ * in on the device of another opens their own app, a new worker, which drops the caches of the other as it activates.
  */
 
+// The reader the worker keeps the app of, their user ID.
+const READER = new URL( self.location.href ).searchParams.get( 'reader' );
+// The app itself, and what it loads.
+const SHELL_CACHE = `library-app-shell-${ READER }`;
+const DATA_CACHE = `library-app-data-${ READER }`;
 // What is kept, and how many responses each cache keeps at most, the oldest dropped beyond, each time the app opens:
 // the app as many versions of its files as a few releases bring, what it loads as many as the searches typed add.
 const CACHES = {
-	'library-app-shell': 200,
-	'library-app-data': 500,
+	[ SHELL_CACHE ]: 200,
+	[ DATA_CACHE ]: 500,
 };
 // The requests of the app itself, by what they are for.
 const SHELL_DESTINATIONS = [
@@ -31,7 +39,7 @@ const NAVIGATION_TIMEOUT_MS = 4000;
 
 self.addEventListener( 'install', () => self.skipWaiting() );
 
-// The caches of an earlier version of the worker go.
+// The caches of an earlier version of the worker go, and those of another reader.
 self.addEventListener( 'activate', ( event ) => {
 	const removeOthers = async () => {
 		const names = await caches.keys();
@@ -78,8 +86,8 @@ async function respond( event ) {
 
 	const isNavigation = 'navigate' === request.mode;
 	const name = SHELL_DESTINATIONS.includes( request.destination )
-		? 'library-app-shell'
-		: 'library-app-data';
+		? SHELL_CACHE
+		: DATA_CACHE;
 	const cache = await caches.open( name );
 	const network = fetch( request );
 	// Kept before the page reads it: its clone comes first. A redirect, such as to the login, is not the app.

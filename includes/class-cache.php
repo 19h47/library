@@ -13,7 +13,8 @@ namespace Library;
 
 /**
  * Keeps in transients what takes every book to compute, until a book changes: its post, its meta, its terms, or the
- * name of a term. A change makes a new generation, whose transients are new, the former ones expiring within a day.
+ * name of a term. A change makes a new generation, whose transients are new, the former ones expiring within a day. Each
+ * reader has transients of their own: the books, the reading idea and the achievements are those of their shelves.
  *
  * @since      9.4.0
  * @package    Library
@@ -60,11 +61,11 @@ class Cache {
 	}
 
 	/**
-	 * The value of `$key`, as `$compute` returns it, kept until a book changes, in the language of the request and for the
-	 * version of the plugin: the reading idea and the achievements say their reasons and titles in it, and a new version
-	 * may change what a value holds. A value of the day, such as the reading idea, which reads the date, has the day in its
-	 * key. A request that changed a book keeps nothing: the generation changes once, at its first change, and the value may
-	 * predate the next ones.
+	 * The value of `$key`, as `$compute` returns it, kept until a book changes, for the current reader, in the language of
+	 * the request and for the version of the plugin: the reading idea and the achievements say their reasons and titles
+	 * in it, and a new version may change what a value holds. A value of the day, such as the reading idea, which reads
+	 * the date, has the day in its key. A request that changed a book keeps nothing: the generation changes once, at its
+	 * first change, and the value may predate the next ones.
 	 *
 	 * @template T
 	 *
@@ -74,7 +75,8 @@ class Cache {
 	 */
 	public static function remember( string $key, callable $compute ) {
 		$generation = (int) get_option( self::GENERATION, 0 );
-		$name       = sprintf( 'library_%s_%s', $key, md5( $generation . determine_locale() . self::get_version() ) );
+		$variant    = implode( '|', array( $generation, get_current_user_id(), determine_locale(), self::get_version() ) );
+		$name       = sprintf( 'library_%s_%s', $key, md5( $variant ) );
 		$value      = get_transient( $name );
 
 		if ( false !== $value ) {
