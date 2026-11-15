@@ -20,7 +20,8 @@ class Test_Recap extends TestCase {
 
 	/**
 	 * A reading is a read date of the year: a book read again counts once per reading, its books once each, in the order
-	 * they were read; the readings of the year before are counted, and each month has its own.
+	 * they were read; the readings of the year before are counted, and each month has its own. A reading again is one of
+	 * a book read before, in the year, in a year before or on a day unknown.
 	 *
 	 * @return void
 	 */
@@ -29,15 +30,17 @@ class Test_Recap extends TestCase {
 		$again  = $this->add_book( array( 'shelf' => array( 'readings' => array( '/2025-01-10', '/2025-03-20' ) ) ) );
 		$before = $this->add_read( '2024-12-31' );
 		$this->add_read( '2024-06-01' );
+		$earlier = $this->add_book( array( 'shelf' => array( 'readings' => array( '/2019-06-14', '/2025-05-01' ) ) ) );
+		$unknown = $this->add_book( array( 'shelf' => array( 'readings' => array( '/', '/2025-06-01' ) ) ) );
 
 		$recap = Recap::get_recap( 2025 );
 
-		$this->assertSame( 3, $recap['reading_count'] );
+		$this->assertSame( 5, $recap['reading_count'] );
 		$this->assertSame( 2, $recap['previous_reading_count'] );
-		$this->assertSame( 1, $recap['reread_count'] );
-		$this->assertSame( array( $again, $first ), $recap['books'] );
-		$this->assertSame( array( 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 ), $recap['months'] );
-		$this->assertSame( array( 2024, 2025 ), $recap['years'] );
+		$this->assertSame( 3, $recap['reread_count'] );
+		$this->assertSame( array( $again, $first, $earlier, $unknown ), $recap['books'] );
+		$this->assertSame( array( 1, 0, 2, 0, 1, 1, 0, 0, 0, 0, 0, 0 ), $recap['months'] );
+		$this->assertSame( array( 2019, 2024, 2025 ), $recap['years'] );
 		$this->assertSame( 365, $recap['day_count'] );
 		$this->assertNotContains( $before, $recap['books'] );
 	}

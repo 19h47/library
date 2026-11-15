@@ -64,7 +64,9 @@ class Recap {
 			'day_count'              => Stats::count_days( $year ),
 			'reading_count'          => count( $readings ),
 			'previous_reading_count' => count( Stats::get_year_readings( $year - 1 ) ),
-			'reread_count'           => count( $readings ) - count( $read ),
+			// A reading of the year is one again unless it is the first of its book: a book read in a year before, or on a day
+			// unknown, is read again.
+			'reread_count'           => count( $readings ) - count( array_filter( $read, fn( Book $book ) => str_starts_with( $book->read_dates[0], "$year-" ) ) ),
 			'books'                  => array_map( fn( Book $book ) => $book->id, $read ),
 			'pages'                  => Stats::count_pages( $readings ),
 			'months'                 => array_values( Stats::count_by_month( $readings ) ),
