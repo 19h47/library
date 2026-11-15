@@ -39,3 +39,39 @@ jobs:
       - uses: ramsey/composer-install@v3
 
       - run: composer test
+
+  # The oldest database the plugin requires, the one of the site, and MariaDB, which the sites may move to: the JSON of the
+  # readings, which the searches and the orders read, and the migrations, which run as SQL. One PHP, the lowest required.
+  databases:
+    name: phpunit (${{ matrix.database.image }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database:
+          - image: mysql:5.7
+            health: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-timeout=5s --health-retries=20
+          - image: mariadb:11.8
+            health: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=20
+    services:
+      database:
+        image: ${{ matrix.database.image }}
+        env:
+          # MariaDB takes the variables of MySQL too.
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: library_tests
+        ports:
+          - 3306:3306
+        options: ${{ matrix.database.health }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+
+      - uses: ramsey/composer-install@v3
+
+      - run: composer test
