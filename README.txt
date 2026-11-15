@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 9.46.1
+Stable tag: 9.47.0
 Requires PHP: 8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -37,6 +37,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * Registers the `library_book` post type, edited in the classic screen, the `library_person`, `library_series`, `library_publisher`, `library_language` and `library_form` taxonomies and the book meta, `library_isbn`, `library_reading` and so on, all in the REST API.
 * No shortcodes or front-end templates: display books with your theme or blocks.
 * The hyphens of an ISBN come from the ranges of the [International ISBN Agency](https://www.isbn-international.org/range_file_generation), in `includes/isbn-ranges.json`. An ISBN outside them, or with a wrong check digit, is kept as typed.
+* The database needs the JSON functions of MySQL 5.7.8 or MariaDB 10.2.3 at least: a reading is a row of JSON, which the searches and the orders by rating or by reading read.
 * The reading app needs the Navigation API: Safari 26.2, Firefox 147 or Chrome 135 at least. How it is built: see [ARCHITECTURE.md](https://github.com/19h47/library/blob/main/ARCHITECTURE.md).
 
 == Installation ==
@@ -44,6 +45,10 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 1. Upload the `library` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** screen.
 3. Use **Books** in the admin menu to add and manage books, people and publishers.
+
+= Uninstalling =
+
+Deleting the plugin from the **Plugins** screen deletes its caches, never the books: their posts, meta and terms stay in the database, for a later install to find them.
 
 = Updates =
 
@@ -130,6 +135,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 9.47.0 =
+* Deleting the plugin deletes its caches, never the books: their posts, their meta and their terms stay in the database.
+* The database the plugin needs: the JSON functions of MySQL 5.7.8 or MariaDB 10.2.3 at least, which the searches and the orders by reading read.
+* Code only: loading every book, once a book changed, takes 7 queries whatever their number, rather than about three per book: the terms they are under, the cycle of a series or the publisher of a collection, are read at once.
 
 = 9.46.1 =
 * Fixed: REST API: the route of a book checks the readings it takes, `meta.reading`, objects `library-reading`, and the rating, `meta.rating`, against their schema, which the reference of the API now shows: a reading malformed is refused, rather than saved as one of unknown dates. The rating of a book, `library_rating`, says it is the one of its latest reading rated.

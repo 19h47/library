@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-14T11:47:34+00:00\n"
+"POT-Creation-Date: 2026-11-15T10:35:40+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -215,7 +215,7 @@ msgstr "Note"
 
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
-#: admin/class-dashboard.php:369 includes/class-books.php:503
+#: admin/class-dashboard.php:369 includes/class-books.php:507
 #: app/js/lib/format.js:126
 #, php-format
 msgid "%s/10"
@@ -250,7 +250,7 @@ msgstr[1] "%s lus"
 
 #. translators: 1: number of books, 2: number of books read.
 #. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
-#: admin/class-dashboard.php:432 includes/class-books.php:333
+#: admin/class-dashboard.php:432 includes/class-books.php:337
 #, php-format
 msgid "%1$s, %2$s"
 msgstr "%1$s, %2$s"
@@ -451,8 +451,8 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: title, 2: subtitle.
 #. translators: 1: series, 2: title.
 #. translators: 1: name of a month, 2: number of books read in it.
-#: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:319
-#: includes/class-books.php:324 includes/class-books.php:342
+#: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:323
+#: includes/class-books.php:328 includes/class-books.php:346
 #: app/js/lib/render.js:643
 #, php-format
 msgid "%1$s: %2$s"
@@ -1419,27 +1419,27 @@ msgid "The catalogue of the BnF does not answer: try again later."
 msgstr "Le catalogue de la BnF ne répond pas : réessayez plus tard."
 
 #. translators: %s: volume number.
-#: includes/class-books.php:329
+#: includes/class-books.php:333
 #, php-format
 msgid "vol. %s"
 msgstr "t. %s"
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-books.php:329 includes/class-books.php:421
+#: includes/class-books.php:333 includes/class-books.php:425
 #: app/js/lib/render.js:242
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
 
 #. translators: %s: names of the publishing directors of a collective work.
-#: includes/class-books.php:386
+#: includes/class-books.php:390
 #, php-format
 msgid "%s (dir.)"
 msgstr "%s (dir.)"
 
 #. translators: %s: number of books.
-#: includes/class-books.php:449 app/js/lib/format.js:46
+#: includes/class-books.php:453 app/js/lib/format.js:46
 #, php-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -1587,7 +1587,9 @@ msgstr ""
 msgid ""
 "Rating from 1 to 10, the one of its latest reading rated; given, it rates "
 "its latest reading ended."
-msgstr "Note de 1 à 10, celle de sa dernière lecture notée ; donnée, elle note sa dernière lecture terminée."
+msgstr ""
+"Note de 1 à 10, celle de sa dernière lecture notée ; donnée, elle note sa "
+"dernière lecture terminée."
 
 #: includes/class-meta.php:174
 msgid ""
@@ -2135,13 +2137,17 @@ msgstr ""
 msgid ""
 "Readings of the book, which replace its own, each with the rating it ended "
 "with, the one in progress last."
-msgstr "Lectures du livre, qui remplacent les siennes, chacune avec la note donnée en la terminant, celle en cours en dernier."
+msgstr ""
+"Lectures du livre, qui remplacent les siennes, chacune avec la note donnée "
+"en la terminant, celle en cours en dernier."
 
 #: includes/class-rest-api.php:528
 msgid ""
 "Rating of its latest reading ended, which a book not read has none of; null "
 "takes it away."
-msgstr "Note de sa dernière lecture terminée, qu’un livre non lu n’a pas ; null la retire."
+msgstr ""
+"Note de sa dernière lecture terminée, qu’un livre non lu n’a pas ; null la "
+"retire."
 
 #: includes/class-rest-api.php:537
 msgid "Status of the book: in the library, i.e. published, not kept or to buy."

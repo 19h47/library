@@ -5,6 +5,7 @@ parameters:
 	phpVersion: 80400
 	paths:
 		- library.php
+		- uninstall.php
 		- includes
 		- admin
 		- app

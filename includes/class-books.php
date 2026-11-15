@@ -68,22 +68,26 @@ class Books {
 	 * @return array<int,Book>
 	 */
 	private static function compute_books(): array {
-		$books          = array();
-		$posts          = get_posts(
+		$books = array();
+		$posts = get_posts(
 			array(
 				'post_type'   => 'library_book',
 				'post_status' => Status::get_values(),
 				'numberposts' => -1,
 			)
 		);
-		$language_terms = get_terms(
+		// Every term at once: the query of the books caches the terms of each book, not the ones they are under, such as the
+		// cycle of a series or the publisher of a collection, which would take a query each.
+		$terms = get_terms(
 			array(
-				'taxonomy'   => 'library_language',
-				'hide_empty' => false,
+				'taxonomy'               => Taxonomies::TAXONOMIES,
+				'hide_empty'             => false,
+				'update_term_meta_cache' => false,
 			)
 		);
+		$terms = is_array( $terms ) ? $terms : array();
 		// The languages by term ID, which the edition languages of a book are.
-		$language_terms = array_column( is_array( $language_terms ) ? $language_terms : array(), null, 'term_id' );
+		$language_terms = array_column( wp_list_filter( $terms, array( 'taxonomy' => 'library_language' ) ), null, 'term_id' );
 
 		foreach ( $posts as $post ) {
 			$volume_number  = (string) get_post_meta( $post->ID, 'library_volume_number', true );
