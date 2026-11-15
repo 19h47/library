@@ -5,8 +5,8 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.0.1
-Requires PHP: 8.4
+Stable tag: 10.1.0
+Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,12 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.1.0 =
+* Forms: a form names its books read for its achievements, in the field Books read of its screen, in the plural, such as “novels read”: 250 novels read rather than 250 books read. A form without it says books read.
+* Changed: the books list opens on the books in the library of the reader, the ones they have at hand; its view All lists the whole catalogue, where the books of the dashboard lead.
+* Changed: the plugin requires PHP 8.5.
+* Code only: the tests run with PHP 8.5 on MariaDB 11.8, as the site does; a change of a meta of a term, such as the books read of a form, makes the achievements computed again.
 
 = 10.0.1 =
 * Fixed: a copy is on a shelf. Notes, a printed date or a photo of the copy put a book on none of the shelves of the reader among the books not kept, as a reading does, and taking a book off deletes every row of the reader. Notes given to a book on none of the shelves, in the app or on the screen of the book, no longer go at once.

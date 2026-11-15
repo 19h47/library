@@ -2,7 +2,7 @@
 parameters:
 	# Raised level by level as the code takes its types: see TESTING.md.
 	level: 8
-	phpVersion: 80400
+	phpVersion: 80500
 	paths:
 		- library.php
 		- uninstall.php

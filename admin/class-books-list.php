@@ -52,6 +52,7 @@ class Books_List {
 		// Before core saves a quick edit, at 1.
 		add_action( 'wp_ajax_inline-save', array( $this, 'refuse_isbn' ), 0 );
 		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
+		add_action( 'load-edit.php', array( $this, 'open_on_library' ) );
 		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
 		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
 	}
@@ -370,6 +371,33 @@ class Books_List {
 	}
 
 	/**
+	 * URL of the books list on the shelves of a view, or else on the whole catalogue, its view All, with `all_posts` as
+	 * core links it once it has another view to open on.
+	 *
+	 * @param string $shelf Shelves of the view, statuses separated with commas, empty for the whole catalogue.
+	 * @return string
+	 */
+	public static function get_url( string $shelf = '' ): string {
+		$view = $shelf ? array( 'library_shelf' => $shelf ) : array( 'all_posts' => 1 );
+
+		return add_query_arg( $view, admin_url( 'edit.php?post_type=library_book' ) );
+	}
+
+	/**
+	 * Open the books list, from the menu, on the books in the library of the reader, the ones they have at hand, rather
+	 * than on the whole catalogue, which its view All lists.
+	 *
+	 * @return void
+	 */
+	public function open_on_library(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The view of the list, which changes nothing.
+		if ( array( 'post_type' => 'library_book' ) === $_GET ) {
+			wp_safe_redirect( self::get_url( Status::In_Library->value ) );
+			exit;
+		}
+	}
+
+	/**
 	 * Add list table views
 	 *
 	 * @param array<string,string> $views An array of available list table views.
@@ -392,16 +420,21 @@ class Books_List {
 			$shelves[ $status->value ] = array( $status->label(), $counts[ $status->value ] ?? 0 );
 		}
 
-		if ( $current ) {
-			$views['all'] = str_replace( ' class="current" aria-current="page"', '', $views['all'] ?? '' );
+		// Core links the whole catalogue as the list opened without a view, which open_on_library() leads to the library.
+		$all = new WP_HTML_Tag_Processor( $views['all'] ?? '' );
+
+		if ( $all->next_tag( array( 'tag_name' => 'a' ) ) ) {
+			$all->set_attribute( 'href', self::get_url() );
 		}
+
+		$views['all'] = $all->get_updated_html();
 
 		foreach ( $shelves as $shelf => [ $label, $count ] ) {
 			$is_current = explode( ',', $shelf ) === $current;
 
 			$views[ "library-shelf-$shelf" ] = sprintf(
 				'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
-				esc_url( add_query_arg( 'library_shelf', $shelf, admin_url( 'edit.php?post_type=library_book' ) ) ),
+				esc_url( self::get_url( $shelf ) ),
 				$is_current ? ' class="current" aria-current="page"' : '',
 				esc_html( $label ),
 				esc_html( number_format_i18n( $count ) )
@@ -452,15 +485,7 @@ class Books_List {
 	 * @return string
 	 */
 	public static function get_term_url( WP_Term $term, string $shelf = '' ): string {
-		$query_args = array_filter(
-			array(
-				'post_type'     => 'library_book',
-				'library_shelf' => $shelf,
-				$term->taxonomy => $term->slug,
-			)
-		);
-
-		return add_query_arg( $query_args, admin_url( 'edit.php' ) );
+		return add_query_arg( $term->taxonomy, $term->slug, self::get_url( $shelf ) );
 	}
 
 	/**

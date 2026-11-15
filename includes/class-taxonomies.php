@@ -620,6 +620,30 @@ class Taxonomies {
 		);
 
 		register_taxonomy( 'library_form', 'library_book', $args );
+
+		// The achievements of a form name its books read as the library names the form, in its language, which agrees them.
+		register_term_meta(
+			'library_form',
+			'library_books_read',
+			array(
+				'type'              => 'string',
+				'label'             => __( 'Books read', 'library' ),
+				'description'       => __( 'How the achievements of this form name its books read, in the plural, such as “novels read” or “comics read”. Without it, they say “books read”.', 'library' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+	}
+
+	/**
+	 * How the achievements of a form name its books read, such as “novels read”, or empty.
+	 *
+	 * @param int $form_id Term ID of the form.
+	 * @return string
+	 */
+	public static function get_books_read( int $form_id ): string {
+		return (string) get_term_meta( $form_id, 'library_books_read', true );
 	}
 
 	/**

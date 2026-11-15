@@ -1032,15 +1032,20 @@ class Achievements {
 	 * @return array{0:list<Achievement>,1:list<Close_Achievement>} Earned, then close.
 	 */
 	private function get_form_milestones( array $reads ): array {
-		/* translators: %s: number of books read. */
-		$title   = fn( int $milestone ) => sprintf( __( '%s books read', 'library' ), number_format_i18n( $milestone ) );
-		$by_form = array();
-		$earned  = array();
-		$close   = array();
+		$title      = fn( int $milestone, string $books_read ) => '' !== $books_read
+			/* translators: 1: number of books read, 2: books read of a form, in the plural, such as “novels read”. */
+			? sprintf( _x( '%1$s %2$s', 'books read of a form', 'library' ), number_format_i18n( $milestone ), $books_read )
+			/* translators: %s: number of books read. */
+			: sprintf( __( '%s books read', 'library' ), number_format_i18n( $milestone ) );
+		$by_form    = array();
+		$books_read = array();
+		$earned     = array();
+		$close      = array();
 
 		foreach ( $reads as $book ) {
-			foreach ( $book->forms as $form ) {
-				$by_form[ $form ][] = $book;
+			foreach ( array_combine( $book->forms, $book->form_ids ) as $form => $form_id ) {
+				$by_form[ $form ][]    = $book;
+				$books_read[ $form ] ??= Taxonomies::get_books_read( $form_id );
 			}
 		}
 
@@ -1051,11 +1056,11 @@ class Achievements {
 
 			if ( $reached ) {
 				$book     = $books[ max( $reached ) - 1 ];
-				$earned[] = self::build_achievement( Achievement_Kind::Form, $title( max( $reached ) ), $form, $book->full_title, $target, $book->read_date );
+				$earned[] = self::build_achievement( Achievement_Kind::Form, $title( max( $reached ), $books_read[ $form ] ), $form, $book->full_title, $target, $book->read_date );
 			}
 
 			if ( false !== $next && $next - count( $books ) <= self::CLOSE_BOOKS ) {
-				$close[] = self::build_achievement( Achievement_Kind::Form, $title( $next ), $form, '', $target, '' ) + array(
+				$close[] = self::build_achievement( Achievement_Kind::Form, $title( $next, $books_read[ $form ] ), $form, '', $target, '' ) + array(
 					'done'  => count( $books ),
 					'total' => $next,
 				);
