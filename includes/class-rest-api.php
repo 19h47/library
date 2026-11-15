@@ -73,16 +73,7 @@ class Rest_API {
 			),
 			'cover'                  => array(
 				'get_callback' => fn( array $book ) => Books::get_image( (int) get_post_thumbnail_id( $book['id'] ) ),
-				'schema'       => array(
-					'description' => __( 'Cover of the book, its medium size, else the image itself, with its width and height, and its sizes as a srcset; null without cover.', 'library' ),
-					'type'        => array( 'object', 'null' ),
-					'properties'  => array(
-						'url'    => array( 'type' => 'string' ),
-						'width'  => array( 'type' => 'integer' ),
-						'height' => array( 'type' => 'integer' ),
-						'srcset' => array( 'type' => 'string' ),
-					),
-				),
+				'schema'       => Rest_Schemas::get_image( __( 'Cover of the edition of the book; null without cover.', 'library' ) ),
 			),
 			'names'                  => array(
 				'get_callback' => fn( array $book ) => self::get_names( $book['id'] ),
@@ -729,48 +720,17 @@ class Rest_API {
 	 * @return array<string,array<string,mixed>>
 	 */
 	private static function get_shelf_args(): array {
-		return array(
-			'status'       => array(
+		$args = array(
+			'status' => array(
 				'description' => __( 'Where the book goes for the reader: in-library, not-kept or to-buy.', 'library' ),
 				'type'        => 'string',
 				'enum'        => Status::get_values(),
 			),
-			'printed_date' => array(
-				'description' => Meta::get_description( 'library_printed_date' ),
-				'type'        => 'string',
-				'pattern'     => '^$|' . Meta::get_pattern( 'library_printed_date' ),
-			),
-			'readings'     => array(
-				'description' => __( 'Readings of the book, which replace those of the reader, each with the rating it ended with, the one in progress last.', 'library' ),
-				'type'        => 'array',
-				'items'       => Rest_Schemas::get_reading(),
-			),
-			'read'         => array(
-				'description' => __( 'Whether the reader read it: false takes their readings ended away, true without one reads it now.', 'library' ),
-				'type'        => 'boolean',
-			),
-			'in_progress'  => array(
-				'description' => Meta::get_description( 'library_in_progress' ),
-				'type'        => 'boolean',
-			),
-			'notes'        => array(
-				'description' => __( 'Notes of the reader on the book, as typed, HTML as a post takes it.', 'library' ),
-				'type'        => 'string',
-			),
-			'cover'        => array(
-				'description'       => __( 'ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition.', 'library' ),
-				'type'              => 'integer',
-				'minimum'           => 0,
-				'validate_callback' => fn( $image_id ) => Shelf::can_cover( (int) $image_id, get_current_user_id() ),
-			),
-			'rating'       => array(
-				'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
-				'type'        => array( 'number', 'null' ),
-				'minimum'     => Readings::RATING_LIMITS['minimum'],
-				'maximum'     => Readings::RATING_LIMITS['maximum'],
-				'multipleOf'  => Readings::RATING_LIMITS['multipleOf'],
-			),
-		);
+		) + Rest_Schemas::get_copy( true );
+
+		$args['cover']['validate_callback'] = fn( $image_id ) => Shelf::can_cover( (int) $image_id, get_current_user_id() );
+
+		return $args;
 	}
 
 	/**

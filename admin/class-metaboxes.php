@@ -152,7 +152,7 @@ class Metaboxes {
 
 		// The copy of the reader, once the book is in the catalogue: see Shelf::save().
 		if ( current_user_can( 'shelve_book', $post_id ) ) {
-			Shelf::save( $post_id, get_current_user_id(), array_intersect_key( $values, array_flip( Meta::SHELF_KEYS ) ) );
+			Shelf::save( $post_id, get_current_user_id(), array_intersect_key( $values, array_flip( Shelf::NAMES ) ) );
 		}
 
 		// A series typed after its cycles, as the form of the reading app sends it: a name not found adds it.

@@ -42,7 +42,7 @@ class Meta {
 	/**
 	 * Date meta keys, often known by their year only: Y, Y-m or Y-m-d. The work, then the edition of its ISBN, as the
 	 * catalogue of the BnF records them; the copy in hand, a printing of that edition, is the one of each reader: see
-	 * SHELF_KEYS.
+	 * Shelf.
 	 *
 	 * @var string[]
 	 */
@@ -103,13 +103,11 @@ class Meta {
 	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_pages', 'library_collective' );
 
 	/**
-	 * Meta of the copy of a reader, on their shelf: when it was printed, its readings, their notes and the photo of their
-	 * copy, stored for each reader, see Shelf; whether it is read and being read and its rating, worked out from its readings, never stored. Registered
-	 * under these keys for their labels, descriptions and controls, never stored under them.
+	 * Book meta keys its forms edit: KEYS, then its edition languages, a list.
 	 *
 	 * @var string[]
 	 */
-	public const array SHELF_KEYS = array( 'library_printed_date', 'library_reading', 'library_read', 'library_in_progress', 'library_rating', 'library_notes', 'library_cover' );
+	public const array FORM_KEYS = array( ...self::KEYS, 'library_edition_languages' );
 
 	/**
 	 * Register hooks.
@@ -134,22 +132,15 @@ class Meta {
 			'library_collection_number' => __( 'Collection Number', 'library' ),
 			'library_translators'       => __( 'Translators', 'library' ),
 			'library_edition_date'      => __( 'Edition date', 'library' ),
-			'library_printed_date'      => __( 'Printed', 'library' ),
-			'library_reading'           => __( 'Readings', 'library' ),
 			'library_published_date'    => __( 'First published', 'library' ),
 			'library_pages'             => __( 'Pages', 'library' ),
-			'library_rating'            => __( 'Rating', 'library' ),
 			'library_collective'        => __( 'Collective work', 'library' ),
-			'library_read'              => __( 'Read', 'library' ),
-			'library_in_progress'       => __( 'In progress', 'library' ),
 			'library_colorists'         => __( 'Colorists', 'library' ),
 			'library_inkers'            => __( 'Inkers', 'library' ),
 			'library_letterers'         => __( 'Letterers', 'library' ),
 			'library_directors'         => __( 'Publishing directors', 'library' ),
 			'library_adapted_authors'   => __( 'Adapted authors', 'library' ),
 			'library_edition_languages' => __( 'Edition languages', 'library' ),
-			'library_notes'             => __( 'Notes', 'library' ),
-			'library_cover'             => __( 'Photo of my copy', 'library' ),
 		);
 		$descriptions = array(
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
@@ -157,10 +148,6 @@ class Meta {
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
 			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
 			'library_edition_date'      => __( 'When this edition, the one of its ISBN, first came out, whatever the printing of the copy: a year, a year and month, or a date, such as 1972.', 'library' ),
-			'library_printed_date'      => __( 'When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23.', 'library' ),
-			'library_reading'           => __( 'From its start to its end, each one left empty when it is unknown, and the rating it ended with.', 'library' ),
-			'library_in_progress'       => __( 'Being read, for the first time or again, since the day it started: a reading added ends it.', 'library' ),
-			'library_rating'            => __( 'Rating from 1 to 10, the one of its latest reading rated; given, it rates its latest reading ended.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 			'library_edition_languages' => __( 'The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book.', 'library' ),
 		);
@@ -200,36 +187,6 @@ class Meta {
 			);
 		}
 
-		// The copy of a reader, on their shelf: see SHELF_KEYS.
-		register_post_meta(
-			'library_book',
-			'library_printed_date',
-			array(
-				'type'              => 'string',
-				'label'             => $labels['library_printed_date'],
-				'description'       => $descriptions['library_printed_date'],
-				'single'            => true,
-				'sanitize_callback' => array( self::class, 'sanitize_partial_date' ),
-				'auth_callback'     => '__return_false',
-			)
-		);
-
-		// One row per reading, read again or not. The REST API gives them in order, in the shelf of a book, rather than as their
-		// rows: see Shelf::to_array(). They are written at once, through Shelf::save_readings(), as the route of the shelf does:
-		// the core REST API removes a value by value, and two readings of unknown dates, the same, would go together.
-		register_post_meta(
-			'library_book',
-			'library_reading',
-			array(
-				'type'              => 'string',
-				'label'             => $labels['library_reading'],
-				'description'       => $descriptions['library_reading'],
-				'single'            => false,
-				'sanitize_callback' => array( Readings::class, 'sanitize' ),
-				'auth_callback'     => '__return_false',
-			)
-		);
-
 		register_post_meta(
 			'library_book',
 			'library_pages',
@@ -245,20 +202,6 @@ class Meta {
 			)
 		);
 
-		// Read from the readings, never stored: the rating of the latest reading rated, which save() writes on that reading.
-		register_post_meta(
-			'library_book',
-			'library_rating',
-			array(
-				'type'              => 'number',
-				'label'             => $labels['library_rating'],
-				'description'       => $descriptions['library_rating'],
-				'single'            => true,
-				'sanitize_callback' => array( Readings::class, 'sanitize_rating' ),
-				'auth_callback'     => '__return_false',
-			)
-		);
-
 		// A magazine or an anthology, as catalogues tell a compilation from a work its authors made together.
 		register_post_meta(
 			'library_book',
@@ -271,58 +214,6 @@ class Meta {
 				'revisions_enabled' => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
-			)
-		);
-
-		// Read from the readings, never stored: the forms send it, and save() writes the readings it means.
-		register_post_meta(
-			'library_book',
-			'library_read',
-			array(
-				'type'              => 'boolean',
-				'label'             => $labels['library_read'],
-				'single'            => true,
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'auth_callback'     => '__return_false',
-			)
-		);
-
-		// Apart from the read state, a book read may be read again: read from its reading in progress, never stored either.
-		register_post_meta(
-			'library_book',
-			'library_in_progress',
-			array(
-				'type'              => 'boolean',
-				'label'             => $labels['library_in_progress'],
-				'description'       => $descriptions['library_in_progress'],
-				'single'            => true,
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'auth_callback'     => '__return_false',
-			)
-		);
-
-		// The notes of a reader, HTML as a post takes it, and the photo of their copy, an image they uploaded: see SHELF_KEYS.
-		register_post_meta(
-			'library_book',
-			'library_notes',
-			array(
-				'type'              => 'string',
-				'label'             => $labels['library_notes'],
-				'single'            => true,
-				'sanitize_callback' => 'wp_kses_post',
-				'auth_callback'     => '__return_false',
-			)
-		);
-
-		register_post_meta(
-			'library_book',
-			'library_cover',
-			array(
-				'type'              => 'integer',
-				'label'             => $labels['library_cover'],
-				'single'            => true,
-				'sanitize_callback' => 'absint',
-				'auth_callback'     => '__return_false',
 			)
 		);
 
@@ -467,7 +358,7 @@ class Meta {
 	 * @return array<string,mixed>
 	 */
 	public static function from_names( array $values ): array {
-		$keys = array( ...self::KEYS, 'library_edition_languages' );
+		$keys = self::FORM_KEYS;
 		$keys = array_combine( array_map( array( self::class, 'get_name' ), $keys ), $keys );
 
 		return array_combine(
@@ -771,5 +662,4 @@ class Meta {
 
 		return (int) $value;
 	}
-
 }

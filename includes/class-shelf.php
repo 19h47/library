@@ -40,14 +40,8 @@ class Shelf {
 	public const string ADDED = 'library_added';
 
 	/**
-	 * Keys of a shelf, each reader having a row of their own, or one per reading.
-	 *
-	 * @var list<string>
-	 */
-	private const array KEYS = array( self::STATUS, self::ADDED, 'library_printed_date', 'library_reading', 'library_notes', 'library_cover' );
-
-	/**
-	 * Meta keys of the copy of a reader by their names in the REST API: see Meta::SHELF_KEYS.
+	 * The copy of a reader, its meta keys by their names in the REST API: the one list of its fields, which
+	 * register_meta() registers, and the keys stored, the REST API and the forms read.
 	 *
 	 * @var array<string,string>
 	 */
@@ -62,13 +56,95 @@ class Shelf {
 	);
 
 	/**
+	 * Fields of the copy worked out from the readings, never stored: whether it is read and being read, and its rating.
+	 *
+	 * @var list<string>
+	 */
+	private const array WORKED_OUT = array( 'library_read', 'library_in_progress', 'library_rating' );
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
 	 */
 	public function hooks(): void {
+		add_action( 'init', array( $this, 'register_meta' ) );
 		add_filter( 'is_protected_meta', array( $this, 'protect' ), 10, 2 );
 		add_action( 'deleted_user', array( $this, 'forget_reader' ) );
+	}
+
+	/**
+	 * Register the fields of the copy, see NAMES, under their keys, never stored under them: their labels, descriptions,
+	 * sanitizers and controls, which their forms take, and the REST API with them. A reading is a row of its own, read
+	 * again or not, written at once, through save_readings(): the core REST API removes a value by value, and two
+	 * readings of unknown dates, the same, would go together.
+	 *
+	 * @return void
+	 */
+	public function register_meta(): void {
+		$fields = array(
+			'library_printed_date' => array(
+				'type'              => 'string',
+				'label'             => __( 'Printed', 'library' ),
+				'description'       => __( 'When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23.', 'library' ),
+				'sanitize_callback' => array( Meta::class, 'sanitize_partial_date' ),
+			),
+			'library_reading'      => array(
+				'type'              => 'string',
+				'label'             => __( 'Readings', 'library' ),
+				'description'       => __( 'From its start to its end, each one left empty when it is unknown, and the rating it ended with.', 'library' ),
+				'single'            => false,
+				'sanitize_callback' => array( Readings::class, 'sanitize' ),
+			),
+			'library_read'         => array(
+				'type'              => 'boolean',
+				'label'             => __( 'Read', 'library' ),
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'library_in_progress'  => array(
+				'type'              => 'boolean',
+				'label'             => __( 'In progress', 'library' ),
+				'description'       => __( 'Being read, for the first time or again, since the day it started: a reading added ends it.', 'library' ),
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'library_rating'       => array(
+				'type'              => 'number',
+				'label'             => __( 'Rating', 'library' ),
+				'description'       => __( 'Rating from 1 to 10, the one of its latest reading rated; given, it rates its latest reading ended.', 'library' ),
+				'sanitize_callback' => array( Readings::class, 'sanitize_rating' ),
+			),
+			'library_notes'        => array(
+				'type'              => 'string',
+				'label'             => __( 'Notes', 'library' ),
+				'sanitize_callback' => 'wp_kses_post',
+			),
+			'library_cover'        => array(
+				'type'              => 'integer',
+				'label'             => __( 'Photo of my copy', 'library' ),
+				'sanitize_callback' => 'absint',
+			),
+		);
+
+		foreach ( self::NAMES as $key ) {
+			register_post_meta(
+				'library_book',
+				$key,
+				$fields[ $key ] + array(
+					'single'        => true,
+					'auth_callback' => '__return_false',
+				)
+			);
+		}
+	}
+
+	/**
+	 * Keys of a shelf, stored, each reader having a row of their own, or one per reading: where a book is, since when,
+	 * and their copy, but what is worked out from their readings.
+	 *
+	 * @return list<string>
+	 */
+	private static function get_keys(): array {
+		return array( self::STATUS, self::ADDED, ...array_values( array_diff( self::NAMES, self::WORKED_OUT ) ) );
 	}
 
 	/**
@@ -213,7 +289,7 @@ class Shelf {
 				return false;
 			}
 
-			foreach ( self::KEYS as $key ) {
+			foreach ( self::get_keys() as $key ) {
 				delete_post_meta( $book_id, self::key( $key, $reader ) );
 			}
 
@@ -234,7 +310,7 @@ class Shelf {
 	}
 
 	/**
-	 * Save the copy of a reader, as given by meta key, see Meta::SHELF_KEYS: when it was printed, their notes and the photo
+	 * Save the copy of a reader, as given by meta key, see NAMES: when it was printed, their notes and the photo
 	 * of their copy, an empty value deleting it, a photo they may not give left out, and its readings, see
 	 * self::save_readings(). A copy on a book on none of their shelves puts it among the books not kept: see has_copy().
 	 *
@@ -248,7 +324,8 @@ class Shelf {
 			unset( $values['library_cover'] );
 		}
 
-		foreach ( array( 'library_printed_date', 'library_notes', 'library_cover' ) as $key ) {
+		// The readings apart: see save_readings().
+		foreach ( array_diff( self::NAMES, self::WORKED_OUT, array( 'library_reading' ) ) as $key ) {
 			if ( ! array_key_exists( $key, $values ) ) {
 				continue;
 			}
@@ -343,7 +420,7 @@ class Shelf {
 	 * @return bool
 	 */
 	public function protect( bool $is_protected, string $meta_key ): bool {
-		return $is_protected || (bool) preg_match( '/^(' . implode( '|', self::KEYS ) . ')_\d+$/', $meta_key );
+		return $is_protected || (bool) preg_match( '/^(' . implode( '|', self::get_keys() ) . ')_\d+$/', $meta_key );
 	}
 
 	/**
@@ -353,7 +430,7 @@ class Shelf {
 	 * @return void
 	 */
 	public function forget_reader( int $user_id ): void {
-		foreach ( self::KEYS as $key ) {
+		foreach ( self::get_keys() as $key ) {
 			delete_metadata( 'post', 0, self::key( $key, $user_id ), '', true );
 		}
 	}

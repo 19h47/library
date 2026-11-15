@@ -35,6 +35,7 @@ abstract class TestCase extends WP_UnitTestCase {
 		new ReflectionProperty( Cache::class, 'changed' )->setValue( null, false );
 		// The suite unregisters every meta key after each test, those the plugin registers once, on init, among them.
 		new Meta()->register_meta();
+		new Shelf()->register_meta();
 
 		$this->as_user( 'administrator' );
 	}
