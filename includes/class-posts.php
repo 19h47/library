@@ -242,7 +242,9 @@ class Posts {
 			'rewrite'             => $rewrite,
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
-			'capability_type'     => 'post',
+			// Capabilities of their own, which the roles of the readers give: see Roles.
+			'capability_type'     => array( 'library_book', 'library_books' ),
+			'map_meta_cap'        => true,
 			'show_in_rest'        => true,
 			'rest_base'           => 'books',
 		);

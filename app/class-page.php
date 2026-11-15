@@ -15,6 +15,7 @@ use Library\Books;
 use Library\Meta;
 use Library\Plugin;
 use Library\Posts;
+use Library\Roles;
 use Library\Status;
 use Library\Taxonomies;
 use WP_Term;
@@ -145,7 +146,7 @@ class Page {
 			'edit.php?post_type=library_book',
 			__( 'Library', 'library' ),
 			__( 'App', 'library' ),
-			'edit_posts',
+			Roles::SHELVE,
 			self::SLUG,
 			'__return_null'
 		);

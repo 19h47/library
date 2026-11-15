@@ -36,6 +36,19 @@ class Taxonomies {
 	public const array TAXONOMIES = array( 'library_person', 'library_publisher', 'library_series', 'library_language', 'library_form' );
 
 	/**
+	 * Capabilities of the terms of the books: a reader gives a book its names, new ones included, as the book form adds
+	 * them; a librarian renames, moves and deletes them. See Roles.
+	 *
+	 * @var array<string,string>
+	 */
+	private const array CAPABILITIES = array(
+		'manage_terms' => 'manage_library_terms',
+		'edit_terms'   => 'manage_library_terms',
+		'delete_terms' => 'manage_library_terms',
+		'assign_terms' => 'edit_library_books',
+	);
+
+	/**
 	 * Pattern of an ISSN, as the BnF writes it: four digits, a hyphen, three digits and a check digit, which may be X, such
 	 * as 1168-9188.
 	 *
@@ -133,6 +146,7 @@ class Taxonomies {
 		$args = array(
 			'labels'               => $labels,
 			'hierarchical'         => true, // Parent = nom sous lequel la personne est connue, enfants = ses autres noms.
+			'capabilities'         => self::CAPABILITIES,
 			'public'               => true,
 			'publicly_queryable'   => true,
 			'show_ui'              => true,
@@ -248,6 +262,7 @@ class Taxonomies {
 		$args = array(
 			'labels'             => $labels,
 			'hierarchical'       => true, // Parent = publisher, children = collections, their children sub-collections, shown as a tree in the core checklist box.
+			'capabilities'       => self::CAPABILITIES,
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
@@ -298,6 +313,7 @@ class Taxonomies {
 			// Typed in the Information box of a book, from its cycle to its series, rather than ticked in a box.
 			'description'        => __( 'From the cycle, if any, to the series, separated with commas, such as “Star Wars, Young Jedi Knights”; the volume number goes with the series.', 'library' ),
 			'hierarchical'       => true, // Parent = cycle, children = its series.
+			'capabilities'       => self::CAPABILITIES,
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
@@ -546,6 +562,7 @@ class Taxonomies {
 		$args = array(
 			'labels'             => $labels,
 			'hierarchical'       => true, // For the checklist box, in quick and bulk edit too.
+			'capabilities'       => self::CAPABILITIES,
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
@@ -589,6 +606,7 @@ class Taxonomies {
 		$args = array(
 			'labels'             => $labels,
 			'hierarchical'       => true, // For the checklist box, in quick and bulk edit too.
+			'capabilities'       => self::CAPABILITIES,
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
