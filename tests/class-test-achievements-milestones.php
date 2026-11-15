@@ -44,7 +44,7 @@ class Test_Achievements_Milestones extends TestCase {
 	public function test_ninety_nine_books_read(): void {
 		$this->add_read_books( 99, '2024-01-01' );
 		$this->add_book( array() );
-		$this->add_book( array( 'status' => 'library-to-buy' ) );
+		$this->add_book( array( 'shelf' => array( 'status' => 'to-buy' ) ) );
 
 		$this->assertArrayNotHasKey( 'read', $this->get_earned() );
 
@@ -80,9 +80,9 @@ class Test_Achievements_Milestones extends TestCase {
 		$this->add_read_books( 99, '2024-01-01' );
 		$this->add_book(
 			array(
-				'title'  => 'Given away',
-				'status' => 'library-not-kept',
-				'meta'   => array( 'reading' => array( '/2024-12-01' ) ),
+				'title' => 'Given away',
+				'shelf' => array( 'status' => 'not-kept' ),
+				'meta'  => array( 'reading' => array( '/2024-12-01' ) ),
 			)
 		);
 

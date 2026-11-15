@@ -11,6 +11,7 @@ use Library\Achievements;
 use Library\Books;
 use Library\Cache;
 use Library\Reading;
+use Library\Shelf;
 use ReflectionProperty;
 use WP_REST_Request;
 use WP_UnitTestCase;
@@ -50,7 +51,8 @@ abstract class TestCase extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Add a book through `POST library/v1/books`, as its form sends it, with its date added.
+	 * Add a book through `POST library/v1/books`, as its form sends it, on a shelf of the current reader, the library
+	 * unless `shelf` says otherwise, with the date they added it.
 	 *
 	 * Readings go in `meta.reading`, which also makes it read, as intervals, see reading(): `array( '/2024-03-14' )`, or
 	 * `array( '/' )` for a reading on an unknown date; `read` alone would date it today.
@@ -77,13 +79,7 @@ abstract class TestCase extends WP_UnitTestCase {
 		$book_id = $response->get_data()['id'];
 
 		if ( $added ) {
-			wp_update_post(
-				array(
-					'ID'            => $book_id,
-					'post_date'     => $added,
-					'post_date_gmt' => get_gmt_from_date( $added ),
-				)
-			);
+			update_post_meta( $book_id, Shelf::key( Shelf::ADDED, get_current_user_id() ), $added );
 		}
 
 		self::forget_books();

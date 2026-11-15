@@ -11,7 +11,6 @@ import {
 	bookFields,
 	maxPerPage,
 	perPage,
-	statuses,
 } from 'library-app/app';
 
 /**
@@ -68,7 +67,7 @@ import {
  * @property {string}     excerpt           Its summary in a few words.
  * @property {string}     content           Its notes, HTML as the API renders them.
  * @property {string}     credits           Its authors, publisher and year, under its title.
- * @property {string}     status            Its status: in the library, not kept, to buy, or another one, such as a draft.
+ * @property {string}     status            Where it is for the reader: in the library, not kept, to buy, or empty on none of their shelves.
  * @property {Cover|null} cover             Its cover, none without one.
  * @property {Person[]}   people            Its names, each with its role.
  * @property {string}     series            Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
@@ -77,7 +76,7 @@ import {
  * @property {string[]}   edition_languages The languages of its text, as their ISO 639 codes.
  * @property {string}     form              The name of its form, such as a novel, or empty.
  * @property {Term[]}     publishers        Its publishers, each followed by the collections it is in under it, from the widest.
- * @property {string}     added_date        The date it was added to the library.
+ * @property {string}     added_date        The date the reader added it, or empty on none of their shelves.
  */
 
 /**
@@ -88,6 +87,14 @@ import {
  * @property {string|null} start  Its start, or null.
  * @property {string|null} end    Its end, “..” while it is read, or null.
  * @property {number|null} rating The rating it ended with, or null.
+ */
+
+/**
+ * The shelf of a book for the reader, as the API gives it: library-shelf.
+ *
+ * @typedef {Object} ApiShelf
+ * @property {string|null} status Where it is for them: in-library, not-kept or to-buy; null on none of their shelves.
+ * @property {string|null} added  When they added it, Y-m-d H:i:s; null on none of their shelves.
  */
 
 /**
@@ -137,7 +144,7 @@ import {
  * @property {number[]}                languages        The term IDs of its original languages.
  * @property {number}                  form             The term ID of its form, 0 for none.
  * @property {Object<string, unknown>} meta             Its meta, by their names, isbn… and its edition languages.
- * @property {string}                  [status]         The status of a book to add.
+ * @property {{status: string}}        [shelf]          The shelf of the reader a book to add goes on.
  * @property {number}                  [featured_media] The ID of the image of its cover, 0 for none.
  */
 
@@ -422,7 +429,7 @@ import {
  * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
  * @property {{rendered: string}}      content                Its notes, HTML.
  * @property {string}                  credits                Its credits, HTML.
- * @property {string}                  status                 Its status.
+ * @property {ApiShelf}                shelf                  Its shelf for the reader.
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
  * @property {ApiReading[]}            readings               Its readings, in order, the one in progress last.
  * @property {Cover|null}              cover                  Its cover, none without one.
@@ -576,7 +583,7 @@ function toBook( item ) {
 		// HTML as the API renders it: its paragraphs and links.
 		content: item.content.rendered,
 		credits: text( item.credits ),
-		status: item.status,
+		status: item.shelf.status ?? '',
 		// Its size gives the image its place before it loads.
 		cover: item.cover,
 		// As named on the book: another name opens the page of the person too.
@@ -591,7 +598,7 @@ function toBook( item ) {
 		form: text( item.form_name ),
 		// From the widest, each to its page.
 		publishers: item.publisher_names.map( toPlainName ),
-		added_date: item.date,
+		added_date: item.shelf.added ?? '',
 	};
 }
 
@@ -710,7 +717,6 @@ export async function getBooks( ids, { signal } = {} ) {
 		chunks.map( ( chunk ) => {
 			const path = addQueryArgs( '/wp/v2/books', {
 				...BOOK_QUERY,
-				status: statuses,
 				include: chunk.join( ',' ),
 				per_page: chunk.length,
 			} );
@@ -738,7 +744,7 @@ export async function getBook( id ) {
 
 /**
  * The books `query` finds from `offset`, `count` of them, and how many it finds in all: `query` as the API reads it, its
- * search, statuses, forms and order.
+ * search, shelves, forms and order.
  *
  * @param {Object<string, string>} query            The query of the books.
  * @param {Object}                 [options]        Options.
@@ -794,7 +800,6 @@ export async function getVolumes( name, { signal } = {} ) {
 	const path = addQueryArgs( '/wp/v2/books', {
 		...BOOK_QUERY,
 		search: `series:"${ name }"`,
-		status: statuses,
 		// Every page, however many volumes: apiFetch loads the first one, as the page preloads it, then the others.
 		per_page: -1,
 	} );
@@ -813,7 +818,6 @@ export async function getVolumes( name, { signal } = {} ) {
 export async function findIsbn( digits ) {
 	const path = addQueryArgs( '/wp/v2/books', {
 		search: `isbn:${ digits }`,
-		status: statuses,
 		per_page: 1,
 		_fields: 'id',
 	} );
@@ -1010,6 +1014,24 @@ export async function saveBook( id, data ) {
 			path: addQueryArgs( `/library/v1/books/${ id }`, BOOK_QUERY ),
 			method: 'POST',
 			data,
+		} )
+	);
+}
+
+/**
+ * Puts the book `id` on the shelf `status` of the reader, or takes it off their shelves with an empty one, through the
+ * route of its shelf, which a reader may use on a book they cannot edit, and returns the book as it is now.
+ *
+ * @param {number} id     Book ID.
+ * @param {string} status Its status, empty for none of their shelves.
+ * @return {Promise<Book>} The book.
+ */
+export async function saveShelf( id, status ) {
+	return toBook(
+		await apiFetch( {
+			path: addQueryArgs( `/library/v1/books/${ id }/shelf`, BOOK_QUERY ),
+			method: status ? 'POST' : 'DELETE',
+			...( status && { data: { status } } ),
 		} )
 	);
 }

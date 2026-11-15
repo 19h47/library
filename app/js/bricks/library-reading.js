@@ -1,4 +1,4 @@
-import { statusOf, store } from 'library-app/store';
+import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { toDays } from 'library-app/api';
 import { fill } from 'library-app/dom';
@@ -17,7 +17,7 @@ import { formatReadings } from 'library-app/book-lines';
  * @property {HTMLInputElement}  read        Whether it is read.
  * @property {HTMLInputElement}  in_progress Whether it is being read.
  * @property {HTMLInputElement}  started     The day its reading in progress started.
- * @property {HTMLSelectElement} status      Whether it is in the library, not kept or to buy.
+ * @property {HTMLSelectElement} status      Whether it is in the library, not kept, to buy, or on none of the shelves.
  */
 
 /**
@@ -183,7 +183,7 @@ class LibraryReadingElement extends Brick {
 				( ! book.in_progress ||
 					data.get( 'started' ) === book.started.slice( 0, 10 ) ) &&
 				sortedOf( readingsOf( data ) ) === sortedOf( book.readings ) &&
-				data.get( 'status' ) === statusOf( book )
+				data.get( 'status' ) === book.status
 			);
 		};
 
@@ -254,7 +254,7 @@ class LibraryReadingElement extends Brick {
 								).toString();
 						} );
 					showReadings();
-					$status.value = statusOf( book );
+					$status.value = book.status;
 				}
 			),
 			store.select(

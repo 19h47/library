@@ -139,7 +139,7 @@ class Reading_Idea {
 	 */
 	private function get_ideas(): array {
 		$week           = wp_date( 'o-W' );
-		$books          = Books::get_books();
+		$books          = Books::get_shelved();
 		$to_read        = self::get_books_to_read( $books );
 		$read_by_series = self::get_read_by_series( $books );
 		$next_parts     = self::get_next_parts( $books );

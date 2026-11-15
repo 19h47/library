@@ -15,13 +15,13 @@ use Library\Books;
 use Library\Meta;
 use Library\Posts;
 use Library\Query;
+use Library\Shelf;
 use Library\Stats;
 use Library\Status;
 use Library\Taxonomies;
 use WP_HTML_Tag_Processor;
 use WP_Post;
 use WP_Query;
-use WP_Screen;
 use WP_Term;
 
 /**
@@ -53,7 +53,6 @@ class Books_List {
 		add_action( 'save_post_library_book', array( $this, 'save_quick_edit' ) );
 		add_filter( 'views_edit-library_book', array( $this, 'add_list_table_views' ) );
 		add_filter( 'the_posts', array( $this, 'load_covers' ), 10, 2 );
-		add_action( 'current_screen', array( $this, 'label_published_view' ) );
 	}
 
 	/**
@@ -87,6 +86,7 @@ class Books_List {
 
 		// The column of the people shows the ones credited, as the credits of a book do.
 		$columns['taxonomy-library_person'] = __( 'Authors', 'library' );
+		$columns['library_shelf']           = __( 'Shelf', 'library' );
 		$columns['library_printed_date']    = Meta::get_label( 'library_printed_date' );
 		$columns['library_isbn']            = Meta::get_label( 'library_isbn' );
 		$columns['library_read']            = Meta::get_label( 'library_read' );
@@ -111,6 +111,11 @@ class Books_List {
 
 		switch ( $column_name ) {
 
+			case 'library_shelf':
+				$status  = Shelf::get_status( $post_id, get_current_user_id() );
+				$output .= $status ? esc_html( $status->label() ) : '—';
+
+				break;
 			case 'library_read':
 				/* translators: %s: book title. */
 				$label = sprintf( __( 'Read: %s', 'library' ), get_the_title( $post_id ) );
@@ -383,6 +388,35 @@ class Books_List {
 	 * @return array<string,string>
 	 */
 	public function add_list_table_views( array $views ): array {
+		// Every book of the catalogue is published: the view of core lists them all again.
+		unset( $views['publish'] );
+
+		$current = Query::get_shelf( $GLOBALS['wp_query'] );
+		$counts  = self::count_shelved();
+		$shelves = array(
+			implode( ',', Status::get_values() ) => array( __( 'My shelves', 'library' ), array_sum( $counts ) ),
+		);
+
+		foreach ( Status::cases() as $status ) {
+			$shelves[ $status->value ] = array( $status->label(), $counts[ $status->value ] ?? 0 );
+		}
+
+		if ( $current ) {
+			$views['all'] = str_replace( ' class="current" aria-current="page"', '', $views['all'] ?? '' );
+		}
+
+		foreach ( $shelves as $shelf => [ $label, $count ] ) {
+			$is_current = explode( ',', $shelf ) === $current;
+
+			$views[ "library-shelf-$shelf" ] = sprintf(
+				'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
+				esc_url( add_query_arg( 'library_shelf', $shelf, admin_url( 'edit.php?post_type=library_book' ) ) ),
+				$is_current ? ' class="current" aria-current="page"' : '',
+				esc_html( $label ),
+				esc_html( number_format_i18n( $count ) )
+			);
+		}
+
 		$stats = Stats::get_reading_stats();
 
 		/* translators: %s: reading percentage. */
@@ -398,33 +432,39 @@ class Books_List {
 	}
 
 	/**
-	 * Name the view of the published books after their status in the forms of a book: in the library.
+	 * Books on the shelves of the current reader, by status, in one query.
 	 *
-	 * The publish status belongs to core, which shares it with the posts and the pages: its label changes on the books list only.
-	 *
-	 * @param WP_Screen $screen Current screen.
-	 * @return void
+	 * @return array<string,int>
 	 */
-	public function label_published_view( WP_Screen $screen ): void {
-		if ( 'edit-library_book' !== $screen->id ) {
-			return;
-		}
+	private static function count_shelved(): array {
+		global $wpdb;
 
-		get_post_status_object( Status::In_Library->value )->label_count = Status::In_Library->label_count();
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin books list only.
+			$wpdb->prepare(
+				"SELECT pm.meta_value AS status, COUNT( * ) AS books
+				FROM {$wpdb->postmeta} AS pm
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status = 'publish'
+				WHERE pm.meta_key = %s
+				GROUP BY pm.meta_value",
+				Shelf::key( Shelf::STATUS, get_current_user_id() )
+			)
+		);
+
+		return array_map( 'intval', wp_list_pluck( $rows, 'books', 'status' ) );
 	}
 
 	/**
-	 * URL of the books of a term in the books list, in the view of a status, or else in the "All" view.
+	 * URL of the books of a term in the books list, on the shelves of a view, or else in the whole catalogue.
 	 *
-	 * @param WP_Term $term   Term of a book taxonomy.
-	 * @param string  $status Status of the view, empty for the "All" view.
+	 * @param WP_Term $term  Term of a book taxonomy.
+	 * @param string  $shelf Shelves of the view, statuses separated with commas, empty for the whole catalogue.
 	 * @return string
 	 */
-	public static function get_term_url( WP_Term $term, string $status = '' ): string {
+	public static function get_term_url( WP_Term $term, string $shelf = '' ): string {
 		$query_args = array_filter(
 			array(
 				'post_type'     => 'library_book',
-				'post_status'   => $status,
+				'library_shelf' => $shelf,
 				$term->taxonomy => $term->slug,
 			)
 		);
@@ -436,8 +476,8 @@ class Books_List {
 	 * Links of the people, publishers and languages columns of the books list.
 	 *
 	 * The people are those credited for the book, as its credits name them: its authors, or the publishing directors of
-	 * a collective work, else none. A collection shows as its publisher, once. The links keep the status of the current view:
-	 * core links to the "All" view, which leaves out the books not kept, so from their view they listed nothing.
+	 * a collective work, else none. A collection shows as its publisher, once. The links keep the shelves of the current
+	 * view: core links to the whole catalogue.
 	 *
 	 * @param string[]  $term_links Term links.
 	 * @param string    $taxonomy   Taxonomy.
@@ -445,8 +485,7 @@ class Books_List {
 	 * @return string[]
 	 */
 	public function link_column_terms( array $term_links, string $taxonomy, array $terms ): array {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view filter.
-		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
+		$shelf = implode( ',', Query::get_shelf( $GLOBALS['wp_query'] ) );
 
 		if ( ! in_array( $taxonomy, Taxonomies::TAXONOMIES, true ) ) {
 			return $term_links;
@@ -456,7 +495,7 @@ class Books_List {
 			$terms = Taxonomies::get_top_level_terms( $terms );
 		} elseif ( 'library_person' === $taxonomy ) {
 			$terms = Taxonomies::get_credited_people( (int) get_the_ID() );
-		} elseif ( '' === $status ) {
+		} elseif ( '' === $shelf ) {
 			return $term_links;
 		}
 
@@ -467,7 +506,7 @@ class Books_List {
 			return array( '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . esc_html( $no_terms ) . '</span>' );
 		}
 
-		$links = array_map( fn( WP_Term $term ) => sprintf( '<a href="%s">%s</a>', esc_url( self::get_term_url( $term, $status ) ), esc_html( $term->name ) ), $terms );
+		$links = array_map( fn( WP_Term $term ) => sprintf( '<a href="%s">%s</a>', esc_url( self::get_term_url( $term, $shelf ) ), esc_html( $term->name ) ), $terms );
 
 		if ( 'library_person' === $taxonomy && Posts::is_collective( (int) get_the_ID() ) ) {
 			$last_link = array_key_last( $links );

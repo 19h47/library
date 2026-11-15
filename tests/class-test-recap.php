@@ -181,7 +181,7 @@ class Test_Recap extends TestCase {
 		$this->add_book(
 			array(
 				'series' => 'Started',
-				'status' => Status::To_Buy->value,
+				'shelf'  => array( 'status' => Status::To_Buy->value ),
 			)
 		);
 		$this->add_read( '2025-05-01', array( 'series' => 'Alone' ) );
@@ -222,8 +222,8 @@ class Test_Recap extends TestCase {
 	 */
 	public function test_books_added(): void {
 		$this->add_book( array(), '2025-03-01 10:00:00' );
-		$this->add_book( array( 'status' => Status::Not_Kept->value ), '2025-04-01 10:00:00' );
-		$this->add_book( array( 'status' => Status::To_Buy->value ), '2025-05-01 10:00:00' );
+		$this->add_book( array( 'shelf' => array( 'status' => Status::Not_Kept->value ) ), '2025-04-01 10:00:00' );
+		$this->add_book( array( 'shelf' => array( 'status' => Status::To_Buy->value ) ), '2025-05-01 10:00:00' );
 		$this->add_book( array(), '2024-12-31 10:00:00' );
 
 		$this->assertSame( 2, Recap::get_recap( 2025 )['added_count'] );

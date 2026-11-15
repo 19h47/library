@@ -688,7 +688,7 @@ class BnF {
 	}
 
 	/**
-	 * IDs of 20 books of the library, of any status, among those a query finds: enough to tell what most of them have.
+	 * IDs of 20 books of the catalogue among those a query finds: enough to tell what most of them have.
 	 *
 	 * @param array{meta_query?:array<mixed>,tax_query?:array<mixed>} $query Meta or tax query of get_posts() that finds the books.
 	 * @return int[]
@@ -697,7 +697,6 @@ class BnF {
 		return get_posts(
 			array(
 				'post_type'      => 'library_book',
-				'post_status'    => Status::get_values(),
 				'posts_per_page' => 20,
 				'fields'         => 'ids',
 			) + $query

@@ -29,18 +29,19 @@ class Rest_Schemas {
 	 */
 	public static function get_schemas(): array {
 		return array(
-			'books'                  => array( self::class, 'get_book' ),
-			'books/(?P<id>\d+)'      => array( self::class, 'get_book_form' ),
-			'books/bnf'              => array( self::class, 'get_book_form' ),
-			'covers'                 => array( self::class, 'get_cover' ),
-			'stats'                  => array( self::class, 'get_stats' ),
-			'readings'               => array( self::class, 'get_readings' ),
-			'idea'                   => array( self::class, 'get_idea' ),
-			'achievements'           => array( self::class, 'get_achievements' ),
-			'recaps/(?P<year>\d{4})' => array( self::class, 'get_recap' ),
-			'people/(?P<id>\d+)'     => array( self::class, 'get_person' ),
-			'series/(?P<id>\d+)'     => array( self::class, 'get_series' ),
-			'publishers/(?P<id>\d+)' => array( self::class, 'get_publisher' ),
+			'books'                   => array( self::class, 'get_book' ),
+			'books/(?P<id>\d+)'       => array( self::class, 'get_book_form' ),
+			'books/(?P<id>\d+)/shelf' => array( self::class, 'get_book' ),
+			'books/bnf'               => array( self::class, 'get_book_form' ),
+			'covers'                  => array( self::class, 'get_cover' ),
+			'stats'                   => array( self::class, 'get_stats' ),
+			'readings'                => array( self::class, 'get_readings' ),
+			'idea'                    => array( self::class, 'get_idea' ),
+			'achievements'            => array( self::class, 'get_achievements' ),
+			'recaps/(?P<year>\d{4})'  => array( self::class, 'get_recap' ),
+			'people/(?P<id>\d+)'      => array( self::class, 'get_person' ),
+			'series/(?P<id>\d+)'      => array( self::class, 'get_series' ),
+			'publishers/(?P<id>\d+)'  => array( self::class, 'get_publisher' ),
 		);
 	}
 
@@ -125,10 +126,9 @@ class Rest_Schemas {
 						__( 'What it leads to: a book, a search, or an author, a series or a collection, by its type; none for nothing.', 'library' ),
 						array(
 							'properties' => array(
-								'type'     => self::property( 'string', __( 'Type: book, search, author, series or collection.', 'library' ) ),
-								'id'       => self::property( 'integer', __( 'ID of the book, or term ID.', 'library' ) ),
-								'search'   => self::property( 'string', __( 'Search of the books, for a search.', 'library' ) ),
-								'not_kept' => self::property( 'boolean', __( 'Whether its books include books not kept.', 'library' ) ),
+								'type'   => self::property( 'string', __( 'Type: book, search, author, series or collection.', 'library' ) ),
+								'id'     => self::property( 'integer', __( 'ID of the book, or term ID.', 'library' ) ),
+								'search' => self::property( 'string', __( 'Search of the books, for a search.', 'library' ) ),
 							),
 						)
 					),
@@ -232,6 +232,23 @@ class Rest_Schemas {
 						'multipleOf' => Meta::RATING_LIMITS['multipleOf'],
 					)
 				),
+			),
+			'additionalProperties' => false,
+		);
+	}
+
+	/**
+	 * The shelf of a book for the current reader: what a book of `wp/v2/books` gives in its shelf.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_shelf(): array {
+		return array(
+			'title'                => 'library-shelf',
+			'type'                 => 'object',
+			'properties'           => array(
+				'status' => self::property( array( 'string', 'null' ), __( 'Where the book is for the reader: in-library, not-kept or to-buy; null on none of their shelves.', 'library' ), array( 'enum' => array( ...Status::get_values(), null ) ) ),
+				'added'  => self::property( array( 'string', 'null' ), __( 'When the reader added it, Y-m-d H:i:s, in the time zone of the site; null on none of their shelves.', 'library' ) ),
 			),
 			'additionalProperties' => false,
 		);

@@ -65,14 +65,14 @@ class Test_Dashboard_Collection extends TestCase {
 		$this->add_book( array( 'form' => $this->get_form( 'Novel' ) ) );
 		$this->add_book(
 			array(
-				'form'   => $this->get_form( 'Novel' ),
-				'status' => Status::Not_Kept->value,
+				'form'  => $this->get_form( 'Novel' ),
+				'shelf' => array( 'status' => Status::Not_Kept->value ),
 			)
 		);
 		$this->add_book(
 			array(
-				'form'   => $this->get_form( 'Comic' ),
-				'status' => Status::To_Buy->value,
+				'form'  => $this->get_form( 'Comic' ),
+				'shelf' => array( 'status' => Status::To_Buy->value ),
 			)
 		);
 

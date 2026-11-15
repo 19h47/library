@@ -1,4 +1,4 @@
-import { notKept, toBuy } from 'library-app/app';
+import { inLibrary, notKept, toBuy } from 'library-app/app';
 import { Brick } from 'library-app/brick';
 import {
 	fillBookPage,
@@ -87,6 +87,13 @@ const BOOKS = [
 		cover: COVER,
 	},
 	{ title: 'A title alone' },
+	{
+		title: 'A book of the catalogue',
+		credits: 'An Author · A Publisher · 2024',
+		cover: COVER,
+		// On none of the shelves of the reader.
+		status: '',
+	},
 ].map(
 	( book, index ) =>
 		/** @type {Book} */ ( {
@@ -94,7 +101,7 @@ const BOOKS = [
 			credits: '',
 			excerpt: '',
 			cover: null,
-			status: '',
+			status: inLibrary,
 			read: false,
 			readings: [],
 			started: '',
@@ -132,7 +139,7 @@ const BOOK_PAGE = /** @type {Book} */ ( {
 	isbn: '978-2-07-036024-6',
 	pages: 320,
 	printed_date: '2014-04-23',
-	added_date: '2024-05-12T10:00:00',
+	added_date: '2024-05-12 10:00:00',
 } );
 
 const AUTHORS = [
