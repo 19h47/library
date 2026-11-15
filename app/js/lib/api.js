@@ -557,6 +557,16 @@ export function errorMessage( error ) {
 }
 
 /**
+ * The book of the catalogue that has the ISBN a book was refused for, 409, as the API names it, else 0.
+ *
+ * @param {{code?: string, data?: {book?: number}}} error What the request threw.
+ * @return {number} The ID of the book.
+ */
+export function takenBook( error ) {
+	return 'library_isbn_taken' === error?.code ? error.data?.book ?? 0 : 0;
+}
+
+/**
  * A term the API gives, such as an author or a cycle, with its name in plain text; none stays none.
  *
  * @template {{name: string}} T

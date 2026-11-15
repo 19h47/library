@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T15:46:30+00:00\n"
+"POT-Creation-Date: 2026-11-15T16:43:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -3163,7 +3163,7 @@ msgid "The books could not be loaded."
 msgstr ""
 
 #: app/js/lib/behaviors.js:33
-#: app/js/lib/store.js:1384
+#: app/js/lib/store.js:1392
 msgid "No book found."
 msgstr ""
 
@@ -3232,14 +3232,14 @@ msgid_plural "%s other authors"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/lib/store.js:1101
+#: app/js/lib/store.js:1109
 msgid "Reading undone."
 msgstr ""
 
-#: app/js/lib/store.js:1114
+#: app/js/lib/store.js:1122
 msgid "Reading saved."
 msgstr ""
 
-#: app/js/lib/store.js:1115
+#: app/js/lib/store.js:1123
 msgid "Undo"
 msgstr ""

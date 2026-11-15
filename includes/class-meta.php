@@ -987,7 +987,8 @@ class Meta {
 	}
 
 	/**
-	 * The book of the catalogue that has an ISBN, by its digits, whatever its hyphens, but the one given; 0 for none.
+	 * The book of the catalogue, published, that has an ISBN, by its digits, whatever its hyphens, but the one given; 0
+	 * for none. A draft is no book of the catalogue: the readers do not find it, nor shelve it.
 	 *
 	 * @param string $isbn    ISBN.
 	 * @param int    $except  Book ID left out, 0 for none.
@@ -1000,7 +1001,7 @@ class Meta {
 			$wpdb->prepare(
 				"SELECT pm.post_id
 				FROM {$wpdb->postmeta} AS pm
-				INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status NOT IN ( 'trash', 'auto-draft' )
+				INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id AND p.post_type = 'library_book' AND p.post_status = 'publish'
 				WHERE pm.meta_key = 'library_isbn' AND REPLACE( REPLACE( pm.meta_value, '-', '' ), ' ', '' ) = %s AND pm.post_id <> %d
 				LIMIT 1",
 				ISBN::get_digits( $isbn ),
