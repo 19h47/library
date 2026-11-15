@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T15:08:32+00:00\n"
+"POT-Creation-Date: 2026-11-15T15:20:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -172,7 +172,7 @@ msgstr ""
 #: admin/class-dashboard.php:224
 #: includes/class-posts.php:144
 #: includes/class-posts.php:146
-#: includes/class-posts.php:179
+#: includes/class-posts.php:180
 msgid "Books"
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 
 #. translators: %s: average rating, e.g. 7.5.
 #: admin/class-dashboard.php:370
-#: includes/class-meta.php:526
+#: includes/class-meta.php:532
 msgid "No rating"
 msgstr ""
 
@@ -506,7 +506,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1303
+#: includes/class-rest-api.php:1307
 msgid "No book to read."
 msgstr ""
 
@@ -1479,6 +1479,14 @@ msgid_plural "%s books"
 msgstr[0] ""
 msgstr[1] ""
 
+#: includes/class-history.php:178
+msgid "Names"
+msgstr ""
+
+#: includes/class-history.php:214
+msgid "Yes"
+msgstr ""
+
 #: includes/class-meta.php:157
 msgid "Subtitle"
 msgstr ""
@@ -1605,50 +1613,50 @@ msgstr ""
 msgid "The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book."
 msgstr ""
 
-#: includes/class-meta.php:389
+#: includes/class-meta.php:395
 msgctxt "role"
 msgid "Translator"
 msgstr ""
 
-#: includes/class-meta.php:390
+#: includes/class-meta.php:396
 msgctxt "role"
 msgid "Colorist"
 msgstr ""
 
-#: includes/class-meta.php:391
+#: includes/class-meta.php:397
 msgctxt "role"
 msgid "Inker"
 msgstr ""
 
-#: includes/class-meta.php:392
+#: includes/class-meta.php:398
 msgctxt "role"
 msgid "Letterer"
 msgstr ""
 
-#: includes/class-meta.php:393
+#: includes/class-meta.php:399
 msgctxt "role"
 msgid "Publishing director"
 msgstr ""
 
 #. translators: Role of the author of the work a book is adapted from or continues, as the BnF names it: Goscinny for an Asterix by Ferri.
-#: includes/class-meta.php:395
+#: includes/class-meta.php:401
 msgctxt "role"
 msgid "Adapted author"
 msgstr ""
 
-#: includes/class-meta.php:397
+#: includes/class-meta.php:403
 msgctxt "role"
 msgid "Author"
 msgstr ""
 
 #. translators: %s: ISBN typed, e.g. 978-2-07-036042-6.
-#: includes/class-meta.php:959
+#: includes/class-meta.php:965
 #, php-format
 msgid "The last digit of the ISBN %s, its check digit, does not match the others: check them."
 msgstr ""
 
 #. translators: 1: ISBN typed, e.g. 978-2-07-036042-6, 2: title of the book that has it.
-#: includes/class-meta.php:971
+#: includes/class-meta.php:977
 #, php-format
 msgid "The ISBN %1$s is the one of “%2$s”, in the catalogue already: put it on your shelves instead."
 msgstr ""
@@ -2072,40 +2080,40 @@ msgstr ""
 msgid "No book has this ID."
 msgstr ""
 
-#: includes/class-rest-api.php:671
+#: includes/class-rest-api.php:673
 #: app/js/bricks/library-edit.js:443
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr ""
 
-#: includes/class-rest-api.php:730
+#: includes/class-rest-api.php:734
 msgid "Where the book goes for the reader: in-library, not-kept or to-buy."
 msgstr ""
 
-#: includes/class-rest-api.php:740
+#: includes/class-rest-api.php:744
 msgid "Readings of the book, which replace those of the reader, each with the rating it ended with, the one in progress last."
 msgstr ""
 
-#: includes/class-rest-api.php:745
+#: includes/class-rest-api.php:749
 msgid "Whether the reader read it: false takes their readings ended away, true without one reads it now."
 msgstr ""
 
-#: includes/class-rest-api.php:753
+#: includes/class-rest-api.php:757
 msgid "Notes of the reader on the book, as typed, HTML as a post takes it."
 msgstr ""
 
-#: includes/class-rest-api.php:757
+#: includes/class-rest-api.php:761
 msgid "ID of the image of the photo of the copy of the reader, one they uploaded, 0 for none: the cover the book shows them, instead of the one of its edition."
 msgstr ""
 
-#: includes/class-rest-api.php:763
+#: includes/class-rest-api.php:767
 msgid "Rating of its latest reading ended, which a book not read has none of; null takes it away."
 msgstr ""
 
-#: includes/class-rest-api.php:784
+#: includes/class-rest-api.php:788
 msgid "A book you read stays on your shelves: say it is not kept instead."
 msgstr ""
 
-#: includes/class-rest-api.php:930
+#: includes/class-rest-api.php:934
 msgid "No photo was sent, in the file field."
 msgstr ""
 

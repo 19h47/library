@@ -201,6 +201,7 @@ class Meta {
 					'label'             => $labels[ $key ],
 					'description'       => $descriptions[ $key ] ?? '',
 					'single'            => true,
+					'revisions_enabled' => true,
 					'show_in_rest'      => null !== self::get_pattern( $key ) ? array( 'schema' => array( 'pattern' => self::get_pattern( $key ) ) ) : true,
 					'sanitize_callback' => $sanitizers[ $key ] ?? 'sanitize_text_field',
 				)
@@ -216,6 +217,7 @@ class Meta {
 					'label'             => $labels[ $key ],
 					'description'       => $descriptions[ $key ],
 					'single'            => true,
+					'revisions_enabled' => true,
 					'show_in_rest'      => array(
 						'schema' => array( 'pattern' => self::DATE_PATTERN ),
 					),
@@ -261,6 +263,7 @@ class Meta {
 				'type'              => 'integer',
 				'label'             => $labels['library_pages'],
 				'single'            => true,
+				'revisions_enabled' => true,
 				'show_in_rest'      => array(
 					'schema' => array( 'minimum' => self::MIN_PAGES ),
 				),
@@ -291,6 +294,7 @@ class Meta {
 				'label'             => $labels['library_collective'],
 				'description'       => $descriptions['library_collective'],
 				'single'            => true,
+				'revisions_enabled' => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			)
@@ -357,6 +361,7 @@ class Meta {
 				'label'             => $labels['library_edition_languages'],
 				'description'       => $descriptions['library_edition_languages'],
 				'single'            => false,
+				'revisions_enabled' => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'absint',
 			)
@@ -371,6 +376,7 @@ class Meta {
 					'type'              => 'integer',
 					'label'             => $labels[ $key ],
 					'single'            => false,
+					'revisions_enabled' => true,
 					'show_in_rest'      => false,
 					'sanitize_callback' => 'absint',
 				)
