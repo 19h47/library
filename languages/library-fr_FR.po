@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-15T16:57:53+00:00\n"
+"POT-Creation-Date: 2026-11-15T17:01:03+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -71,7 +71,7 @@ msgstr "Miniature"
 msgid "Authors"
 msgstr "Auteurs/autrices"
 
-#: admin/class-books-list.php:90 admin/class-metaboxes.php:256
+#: admin/class-books-list.php:90 admin/partials/library-shelf.php:28
 msgid "Shelf"
 msgstr "Étagère"
 
@@ -116,7 +116,7 @@ msgstr "Tableau trié par date d’impression."
 msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
-#: admin/class-books-list.php:389 admin/class-metaboxes.php:239
+#: admin/class-books-list.php:389 admin/class-metaboxes.php:216
 #: app/partials/library-app.php:154
 msgid "My shelves"
 msgstr "Mes étagères"
@@ -264,27 +264,21 @@ msgstr[1] "%s lus"
 msgid "%1$s, %2$s"
 msgstr "%1$s, %2$s"
 
-#: admin/class-metaboxes.php:72
+#: admin/class-metaboxes.php:74
 msgid "Information"
 msgstr "Informations"
 
 #. translators: %s: why, such as a check digit that does not match.
-#: admin/class-metaboxes.php:214
+#: admin/class-metaboxes.php:191
 #, php-format
 msgid "The ISBN was not saved. %s"
 msgstr "L’ISBN n’a pas été enregistré. %s"
 
-#: admin/class-metaboxes.php:258 app/partials/library-app.php:575
-msgid "On none of my shelves"
-msgstr "Sur aucune de mes étagères"
-
-#: admin/class-metaboxes.php:265
-msgid ""
-"Not kept: read but not in my library. To buy: not in my library yet. The "
-"book stays in the catalogue for the other readers."
+#: admin/class-metaboxes.php:296 includes/class-rest-api.php:748
+msgid "A book you read stays on your shelves: say it is not kept instead."
 msgstr ""
-"De passage : lu mais pas dans ma bibliothèque. Envie : pas encore dans ma "
-"bibliothèque. Le livre reste au catalogue pour les autres lecteurs."
+"Un livre que tu as lu reste sur tes étagères : indique plutôt qu’il est de "
+"passage."
 
 #: admin/class-reading-idea-widget.php:46 app/partials/library-app.php:113
 #: app/partials/library-app.php:241
@@ -580,32 +574,11 @@ msgstr[1] "%1$s pages lues en %2$d, sur %3$s livres renseignés"
 msgid "View all books"
 msgstr "Voir tous les livres"
 
-#: admin/partials/library-form.php:94 app/partials/library-app.php:588
-msgid "Started"
-msgstr "Commencé le"
-
-#: admin/partials/library-form.php:116 app/partials/library-app.php:610
-msgid "Add a reading"
-msgstr "Ajouter une lecture"
-
-#: admin/partials/library-form.php:127
-msgid ""
-"Optional. One line per reading, from its start to its end, each left empty "
-"when it is unknown, and the rating it ended with. Ending a reading marks the "
-"book as read; marking it as read without a reading ends one today. The "
-"rating of the book is the one of its latest reading rated."
-msgstr ""
-"Facultatives. Une ligne par lecture, de son début à sa fin, chacun laissé "
-"vide quand il est inconnu, et la note donnée en la terminant. Terminer une "
-"lecture marque le livre comme lu ; le marquer comme lu sans lecture en "
-"termine une aujourd’hui. La note du livre est celle de sa dernière lecture "
-"notée."
-
-#: admin/partials/library-form.php:135 admin/partials/library-form.php:138
+#: admin/partials/library-form.php:84 admin/partials/library-form.php:87
 msgid "Roles"
 msgstr "Rôles"
 
-#: admin/partials/library-form.php:157
+#: admin/partials/library-form.php:106
 msgid ""
 "The role of each name of the book: a colorist, for instance, is not one of "
 "its authors. A name just added is an author: save the book to choose another "
@@ -624,6 +597,39 @@ msgstr "Début de la lecture"
 #: app/partials/library-app.php:985
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
+
+#: admin/partials/library-shelf.php:32 app/partials/library-app.php:575
+msgid "On none of my shelves"
+msgstr "Sur aucune de mes étagères"
+
+#: admin/partials/library-shelf.php:38
+msgid ""
+"Not kept: read but not in my library. To buy: not in my library yet. The "
+"book stays in the catalogue for the other readers."
+msgstr ""
+"De passage : lu mais pas dans ma bibliothèque. Envie : pas encore dans ma "
+"bibliothèque. Le livre reste au catalogue pour les autres lecteurs."
+
+#: admin/partials/library-shelf.php:62 app/partials/library-app.php:588
+msgid "Started"
+msgstr "Commencé le"
+
+#: admin/partials/library-shelf.php:84 app/partials/library-app.php:610
+msgid "Add a reading"
+msgstr "Ajouter une lecture"
+
+#: admin/partials/library-shelf.php:95
+msgid ""
+"Optional. One line per reading, from its start to its end, each left empty "
+"when it is unknown, and the rating it ended with. Ending a reading marks the "
+"book as read; marking it as read without a reading ends one today. The "
+"rating of the book is the one of its latest reading rated."
+msgstr ""
+"Facultatives. Une ligne par lecture, de son début à sa fin, chacun laissé "
+"vide quand il est inconnu, et la note donnée en la terminant. Terminer une "
+"lecture marque le livre comme lu ; le marquer comme lu sans lecture en "
+"termine une aujourd’hui. La note du livre est celle de sa dernière lecture "
+"notée."
 
 #. translators: 1: what the page shows, such as a book or a view, 2: name of the app.
 #: app/class-login.php:198 app/js/bricks/library-nav.js:55
@@ -1462,11 +1468,11 @@ msgid_plural "%s books"
 msgstr[0] "%s livre"
 msgstr[1] "%s livres"
 
-#: includes/class-history.php:178
+#: includes/class-history.php:179
 msgid "Names"
 msgstr "Noms"
 
-#: includes/class-history.php:214
+#: includes/class-history.php:215
 msgid "Yes"
 msgstr "Oui"
 
@@ -2138,12 +2144,6 @@ msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 #: includes/class-rest-api.php:725
 msgid "Where the book goes for the reader: in-library, not-kept or to-buy."
 msgstr "Où va le livre pour le lecteur : in-library, not-kept ou to-buy."
-
-#: includes/class-rest-api.php:748
-msgid "A book you read stays on your shelves: say it is not kept instead."
-msgstr ""
-"Un livre que tu as lu reste sur tes étagères : indique plutôt qu’il est de "
-"passage."
 
 #: includes/class-rest-api.php:894
 msgid "No photo was sent, in the file field."
