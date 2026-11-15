@@ -32,7 +32,21 @@ abstract class TestCase extends WP_UnitTestCase {
 		self::forget_books();
 		new ReflectionProperty( Cache::class, 'changed' )->setValue( null, false );
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$this->as_user( 'administrator' );
+	}
+
+	/**
+	 * Log in as a new user of a role, such as a reader, library_reader.
+	 *
+	 * @param string $role Role.
+	 * @return int User ID.
+	 */
+	protected function as_user( string $role ): int {
+		$user_id = self::factory()->user->create( array( 'role' => $role ) );
+
+		wp_set_current_user( $user_id );
+
+		return $user_id;
 	}
 
 	/**

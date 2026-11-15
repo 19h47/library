@@ -39,6 +39,7 @@ class Rest_API {
 	public function hooks(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_fields' ) );
+		add_filter( 'rest_prepare_library_book', array( $this, 'hide_shelf' ), 10, 2 );
 	}
 
 	/**
@@ -236,6 +237,27 @@ class Rest_API {
 	}
 
 	/**
+	 * Leave out of a book what only its readers see: its readings, whether it is read and being read, and its rating, which
+	 * a visitor, or a user who shelves no book, does not get.
+	 *
+	 * @param WP_REST_Response $response Response of a book.
+	 * @param WP_Post          $post     Book.
+	 * @return WP_REST_Response
+	 */
+	public function hide_shelf( WP_REST_Response $response, WP_Post $post ): WP_REST_Response {
+		if ( current_user_can( 'shelve_book', $post->ID ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		unset( $data['readings'], $data['meta']['library_read'], $data['meta']['library_in_progress'], $data['meta']['library_rating'] );
+		$response->set_data( $data );
+
+		return $response;
+	}
+
+	/**
 	 * Register the routes of the plugin, then the schema of each one, from Rest_Schemas, which the index gives asked for
 	 * help.
 	 *
@@ -317,7 +339,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( Stats::get_reading_stats() + array( 'year_to_date' => Stats::get_reading_year_to_date() ) ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 			),
 		);
 
@@ -327,7 +349,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_readings' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'page'     => array(
 						'description' => __( 'Page of the months.', 'library' ),
@@ -352,7 +374,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_reading_idea' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'position' => array(
 						'description' => __( 'Position in the week\'s list of ideas, 0 for the idea of the week.', 'library' ),
@@ -370,7 +392,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn() => rest_ensure_response( new Achievements()->get_achievements() ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 			),
 		);
 
@@ -380,7 +402,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => fn( WP_REST_Request $request ) => rest_ensure_response( Recap::get_recap( (int) $request['year'] ) ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'year' => array(
 						'description' => __( 'Year of the recap.', 'library' ),
@@ -397,7 +419,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_series' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Term ID of the series, or of the cycle.', 'library' ),
@@ -414,7 +436,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publisher' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Term ID of the collection, or of the publisher.', 'library' ),
@@ -431,7 +453,7 @@ class Rest_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_person' ),
-				'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 				'args'                => array(
 					'id' => array(
 						'description' => __( 'Term ID of the person, or of one of their other names.', 'library' ),
@@ -815,7 +837,10 @@ class Rest_API {
 			return;
 		}
 
-		if ( wp_attachment_is_image( $cover_id ) && current_user_can( 'edit_post', $cover_id ) ) {
+		// A reader may not edit the posts, its cover included, which a cover they uploaded is: see Roles.
+		$can_cover = get_current_user_id() === (int) get_post_field( 'post_author', $cover_id ) || current_user_can( 'edit_post', $cover_id );
+
+		if ( wp_attachment_is_image( $cover_id ) && $can_cover ) {
 			wp_update_post(
 				array(
 					'ID'          => $cover_id,

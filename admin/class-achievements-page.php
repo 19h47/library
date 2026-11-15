@@ -15,6 +15,7 @@ use Library\Achievement_Family;
 use Library\Achievement_Kind;
 use Library\Achievements;
 use Library\Posts;
+use Library\Roles;
 use Library\Status;
 use WP_Term;
 
@@ -67,7 +68,7 @@ class Achievements_Page {
 	 * Add the achievements page under the books menu, with the dashboard styles.
 	 */
 	public function add_page(): void {
-		$hook = add_submenu_page( 'edit.php?post_type=library_book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), 'edit_posts', self::PAGE, array( $this, 'render_page' ) );
+		$hook = add_submenu_page( 'edit.php?post_type=library_book', __( 'Achievements', 'library' ), __( 'Achievements', 'library' ), Roles::SHELVE, self::PAGE, array( $this, 'render_page' ) );
 
 		add_action( "admin_print_styles-$hook", array( Dashboard::class, 'enqueue_style' ) );
 	}

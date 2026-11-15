@@ -8,17 +8,31 @@
 namespace Library\Tests;
 
 /**
- * Deleting the plugin deletes its caches and keeps the books.
+ * Deleting the plugin deletes its roles and its caches, and keeps the books.
  */
 class Test_Uninstall extends TestCase {
 
 	/**
-	 * The generation of the cache, its transients, those of the BnF and of the latest release go; the books, their meta and
-	 * their terms stay, and so do the transients of other plugins.
+	 * Read the roles again from the database, as the test left it: uninstalling took them out of the roles of the request.
 	 *
 	 * @return void
 	 */
-	public function test_deletes_the_caches_and_keeps_the_books(): void {
+	#[\Override]
+	public function tear_down(): void {
+		parent::tear_down();
+
+		wp_cache_flush();
+		wp_roles()->for_site();
+	}
+
+	/**
+	 * The roles of the readers, the capabilities of the books, the generation of the cache, its transients, those of the BnF
+	 * and of the latest release go; the books, their meta and their terms stay, and so do the transients of other plugins
+	 * and the capabilities of WordPress.
+	 *
+	 * @return void
+	 */
+	public function test_deletes_the_roles_and_the_caches_and_keeps_the_books(): void {
 		$book_id = $this->add_read( '2024-03-14', array( 'series' => 'Dune' ) );
 
 		update_option( 'library_cache_generation', 3, true );
@@ -40,6 +54,11 @@ class Test_Uninstall extends TestCase {
 		$this->assertFalse( get_transient( 'library_bnf_9782070360246' ) );
 		$this->assertFalse( get_site_transient( 'library_github_release' ) );
 		$this->assertSame( 'kept', get_transient( 'other_plugin' ) );
+		$this->assertNull( get_role( 'library_reader' ) );
+		$this->assertNull( get_role( 'library_librarian' ) );
+		$this->assertFalse( get_role( 'administrator' )->has_cap( 'edit_library_books' ) );
+		$this->assertTrue( get_role( 'administrator' )->has_cap( 'read' ) );
+		$this->assertTrue( get_role( 'editor' )->has_cap( 'upload_files' ) );
 		$this->assertSame( 'library_book', get_post_type( $book_id ) );
 		$this->assertNotEmpty( get_post_meta( $book_id, 'library_reading', false ) );
 		$this->assertNotEmpty( get_the_terms( $book_id, 'library_series' ) );

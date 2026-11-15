@@ -57,6 +57,7 @@ class Plugin {
 		$plugin_file = plugin_basename( LIBRARY_FILE );
 
 		new Cache()->hooks();
+		new Roles()->hooks();
 		new Posts()->hooks();
 		new Taxonomies()->hooks();
 		new Meta()->hooks();
