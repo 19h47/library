@@ -504,8 +504,14 @@ JS;
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),
 			// The router builds the URLs of the views from it.
 			'appUrl'           => self::get_url(),
-			// The URL of the app is the scope of its service worker.
-			'serviceWorkerUrl' => add_query_arg( 'service-worker', '1', self::get_url() ),
+			// The URL of the app is the scope of its service worker, which keeps the caches of the reader it names.
+			'serviceWorkerUrl' => add_query_arg(
+				array(
+					'service-worker' => '1',
+					'reader'         => get_current_user_id(),
+				),
+				self::get_url()
+			),
 			'storageKey'       => self::STORAGE_KEY,
 			'icons'            => array(
 				'light' => $favicon_url,
