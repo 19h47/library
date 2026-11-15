@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T12:12:49+00:00\n"
+"POT-Creation-Date: 2026-11-15T13:47:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: library.php:11
 #: admin/class-dashboard.php:81
 #: admin/class-metaboxes.php:235
-#: app/class-login.php:206
+#: app/class-login.php:207
 #: app/class-page.php:147
 #: app/class-page.php:361
 #: app/class-page.php:362
@@ -225,7 +225,7 @@ msgstr ""
 #. translators: %s: average rating, e.g. 7.5.
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-dashboard.php:369
-#: includes/class-books.php:507
+#: includes/class-books.php:518
 #: app/js/lib/format.js:126
 #, php-format,js-format
 msgid "%s/10"
@@ -264,7 +264,7 @@ msgstr[1] ""
 #. translators: 1: number of books, 2: number of books read.
 #. translators: 1: series, or the title of a volume without series, 2: volume, e.g. "vol. 3".
 #: admin/class-dashboard.php:432
-#: includes/class-books.php:337
+#: includes/class-books.php:348
 #, php-format
 msgid "%1$s, %2$s"
 msgstr ""
@@ -462,9 +462,9 @@ msgstr ""
 #. translators: 1: series, 2: title.
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41
-#: includes/class-books.php:323
-#: includes/class-books.php:328
-#: includes/class-books.php:346
+#: includes/class-books.php:334
+#: includes/class-books.php:339
+#: includes/class-books.php:357
 #: app/js/lib/render.js:643
 #, php-format,js-format
 msgid "%1$s: %2$s"
@@ -621,7 +621,7 @@ msgid "Remove this reading"
 msgstr ""
 
 #. translators: 1: what the page shows, such as a book or a view, 2: name of the app.
-#: app/class-login.php:197
+#: app/class-login.php:198
 #: app/js/bricks/library-nav.js:55
 #, php-format,js-format
 msgid "%1$s – %2$s"
@@ -1428,28 +1428,28 @@ msgid "The catalogue of the BnF does not answer: try again later."
 msgstr ""
 
 #. translators: %s: volume number.
-#: includes/class-books.php:333
+#: includes/class-books.php:344
 #, php-format
 msgid "vol. %s"
 msgstr ""
 
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
-#: includes/class-books.php:333
-#: includes/class-books.php:425
+#: includes/class-books.php:344
+#: includes/class-books.php:436
 #: app/js/lib/render.js:242
 #, php-format,js-format
 msgid "no. %s"
 msgstr ""
 
 #. translators: %s: names of the publishing directors of a collective work.
-#: includes/class-books.php:390
+#: includes/class-books.php:401
 #, php-format
 msgid "%s (dir.)"
 msgstr ""
 
 #. translators: %s: number of books.
-#: includes/class-books.php:453
+#: includes/class-books.php:464
 #: app/js/lib/format.js:46
 #, php-format,js-format
 msgid "%s book"
