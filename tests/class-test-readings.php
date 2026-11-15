@@ -8,8 +8,8 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
 use Library\Reading;
+use Library\Readings;
 use Library\Shelf;
 use WP_REST_Request;
 
@@ -73,7 +73,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'in_progress' => true ) );
 
-		[ $reading ] = Meta::get_readings( $book_id, get_current_user_id() );
+		[ $reading ] = Shelf::get_readings( $book_id, get_current_user_id() );
 		$start       = $reading->start;
 
 		$this->assertSame( Reading::IN_PROGRESS, $reading->end );
@@ -83,7 +83,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'read' => true ) );
 
-		[ $reading ] = Meta::get_readings( $book_id, get_current_user_id() );
+		[ $reading ] = Shelf::get_readings( $book_id, get_current_user_id() );
 
 		$this->assertSame( $start, $reading->start );
 		$this->assertStringStartsWith( current_time( 'Y-m-d' ) . 'T', $reading->end );
@@ -101,7 +101,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'reading' => array( '/2019-06-14', '/2024-11-02', '2024-10-20/..' ) ) );
 
-		$this->assertSame( array( '/2019-06-14', '2024-10-20/2024-11-02' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '/2019-06-14', '2024-10-20/2024-11-02' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 	}
 
 	/**
@@ -112,13 +112,13 @@ class Test_Readings extends TestCase {
 	public function test_a_book_read_again_keeps_its_readings(): void {
 		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '2024-03-02/2024-03-20', '2026-11-01/..' ) ) ) );
 
-		$this->assertSame( array( '2024-03-20' ), Meta::get_read_dates( $book_id, get_current_user_id() ) );
+		$this->assertSame( array( '2024-03-20' ), Shelf::get_read_dates( $book_id, get_current_user_id() ) );
 		$this->assertTrue( $this->copy( $book_id )['library_read'] );
 		$this->assertTrue( $this->copy( $book_id )['library_in_progress'] );
 
 		$this->save( $book_id, array( 'read' => false ) );
 
-		$this->assertSame( array( '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '2026-11-01/..' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'reading' => array( '2026-11-01/2026-11-01' ) ) );
 
-		$this->assertSame( array( '2026-11-01T09:15/2026-11-01T21:40' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '2026-11-01T09:15/2026-11-01T21:40' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Test_Readings extends TestCase {
 	 * @return void
 	 */
 	public function test_readings_are_sanitized_and_in_order(): void {
-		$sanitized = fn( $reading ) => self::intervals( array( Reading::from( Meta::sanitize_reading( is_string( $reading ) ? self::reading( $reading ) : $reading ) ) ) )[0];
+		$sanitized = fn( $reading ) => self::intervals( array( Reading::from( Readings::sanitize( is_string( $reading ) ? self::reading( $reading ) : $reading ) ) ) )[0];
 
 		$this->assertSame( '/2024-03-01', $sanitized( '2024-04-01/2024-03-01' ) );
 		$this->assertSame( '/2024-03-01', $sanitized( 'soon/2024-03-01' ) );
@@ -154,8 +154,8 @@ class Test_Readings extends TestCase {
 
 		$book_id = $this->add_book( array( 'meta' => array( 'reading' => array( '/2024-03-01', '2026-11-01/..', '/', '2023-01-01/2023-02-01' ) ) ) );
 
-		$this->assertSame( array( '/', '2023-01-01/2023-02-01', '/2024-03-01', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
-		$this->assertSame( array( '', '2023-02-01', '2024-03-01' ), Meta::get_read_dates( $book_id, get_current_user_id() ) );
+		$this->assertSame( array( '/', '2023-01-01/2023-02-01', '/2024-03-01', '2026-11-01/..' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '', '2023-02-01', '2024-03-01' ), Shelf::get_read_dates( $book_id, get_current_user_id() ) );
 	}
 
 	/**
@@ -196,7 +196,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'reading' => array( '/2019-06-14#6', '2024-03-02/2024-03-20#9', '2026-11-01/..#7' ) ) );
 
-		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#9', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#9', '2026-11-01/..' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 		$this->assertSame( 9.0, $this->copy( $book_id )['library_rating'] );
 		$this->assertNull( $this->copy( $this->add_book() )['library_rating'] );
 	}
@@ -212,7 +212,7 @@ class Test_Readings extends TestCase {
 
 		$this->save( $book_id, array( 'rating' => 8.5 ) );
 
-		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#8.5', '2026-11-01/..' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '/2019-06-14#6', '2024-03-02/2024-03-20#8.5', '2026-11-01/..' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 
 		$this->save( $book_id, array( 'rating' => null ) );
 
@@ -220,7 +220,7 @@ class Test_Readings extends TestCase {
 
 		$unread = $this->add_book( array( 'meta' => array( 'rating' => 8 ) ) );
 
-		$this->assertSame( array(), Meta::get_readings( $unread, get_current_user_id() ) );
+		$this->assertSame( array(), Shelf::get_readings( $unread, get_current_user_id() ) );
 		$this->assertFalse( $this->copy( $unread )['library_read'] );
 	}
 
@@ -287,7 +287,7 @@ class Test_Readings extends TestCase {
 		$request->set_body( (string) wp_json_encode( array( 'readings' => array( self::reading( 'soon/2024-03-01#11' ) ) ) ) );
 
 		$this->assertSame( 400, rest_do_request( $request )->get_status() );
-		$this->assertSame( array(), Meta::get_readings( $book_id, get_current_user_id() ) );
+		$this->assertSame( array(), Shelf::get_readings( $book_id, get_current_user_id() ) );
 
 		$route = rest_get_server()->get_routes()['/library/v1/books/(?P<id>\\d+)/shelf'];
 		$args  = array_merge( ...array_column( $route, 'args' ) );

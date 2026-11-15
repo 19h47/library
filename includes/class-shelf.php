@@ -116,6 +116,63 @@ class Shelf {
 	}
 
 	/**
+	 * Readings of a book by a reader, from the first to the latest: the ones ended, by their end, the unknown ones first,
+	 * then the one in progress.
+	 *
+	 * @param int $post_id Post ID.
+	 * @param int $reader  User ID of the reader.
+	 * @return Reading[]
+	 */
+	public static function get_readings( int $post_id, int $reader ): array {
+		return Readings::sort( array_map( fn( $row ) => Reading::from( $row ), get_post_meta( $post_id, self::key( 'library_reading', $reader ), false ) ) );
+	}
+
+	/**
+	 * Read dates of a book by a reader, the ends of their readings ended, from the first to the latest: the unknown ones,
+	 * empty, come first.
+	 *
+	 * @param int $post_id Post ID.
+	 * @param int $reader  User ID of the reader.
+	 * @return string[]
+	 */
+	public static function get_read_dates( int $post_id, int $reader ): array {
+		return array_map( fn( Reading $reading ) => $reading->end, Readings::get_ended( self::get_readings( $post_id, $reader ) ) );
+	}
+
+	/**
+	 * Save the readings of a book by a reader, which replace the former ones, as given: library_reading the readings,
+	 * library_read and library_in_progress whether the book is read and being read, written as readings, see
+	 * apply_reading_state(); library_rating the rating of its latest reading ended. None given keeps them.
+	 *
+	 * @param int                 $post_id Post ID.
+	 * @param int                 $reader  User ID of the reader.
+	 * @param array<string,mixed> $values  Unslashed values keyed by meta key.
+	 * @return void
+	 */
+	public static function save_readings( int $post_id, int $reader, array $values ): void {
+		$key      = self::key( 'library_reading', $reader );
+		$before   = self::get_readings( $post_id, $reader );
+		$readings = array_key_exists( 'library_reading', $values ) ? Readings::keep_times( $before, (array) $values['library_reading'] ) : $before;
+		$readings = Readings::sort( Readings::apply_state( $before, $readings, $values ) );
+
+		if ( array_key_exists( 'library_rating', $values ) ) {
+			$readings = Readings::rate_latest( $readings, Readings::sanitize_rating( $values['library_rating'] ) );
+		}
+
+		$rows = array_map( fn( Reading $reading ) => $reading->to_json(), $readings );
+
+		if ( array_map( fn( Reading $reading ) => $reading->to_json(), $before ) === $rows ) {
+			return;
+		}
+
+		delete_post_meta( $post_id, $key );
+
+		foreach ( $rows as $row ) {
+			add_post_meta( $post_id, $key, wp_slash( $row ) );
+		}
+	}
+
+	/**
 	 * The copy of a reader as its forms edit it, by meta key: when it was printed, its readings, whether it is read and
 	 * being read, its rating, their notes and the image of its photo, 0 for none.
 	 *
@@ -124,14 +181,14 @@ class Shelf {
 	 * @return array{library_printed_date:string,library_reading:Reading[],library_read:bool,library_in_progress:bool,library_rating:float|null,library_notes:string,library_cover:int}
 	 */
 	public static function get_values( int $book_id, int $reader ): array {
-		$readings = Meta::get_readings( $book_id, $reader );
+		$readings = self::get_readings( $book_id, $reader );
 
 		return array(
 			'library_printed_date' => self::get_printed_date( $book_id, $reader ),
 			'library_reading'      => $readings,
-			'library_read'         => (bool) Meta::get_ended( $readings ),
-			'library_in_progress'  => count( Meta::get_ended( $readings ) ) < count( $readings ),
-			'library_rating'       => Meta::get_rating( $readings ),
+			'library_read'         => (bool) Readings::get_ended( $readings ),
+			'library_in_progress'  => count( Readings::get_ended( $readings ) ) < count( $readings ),
+			'library_rating'       => Readings::get_rating( $readings ),
 			'library_notes'        => (string) get_post_meta( $book_id, self::key( 'library_notes', $reader ), true ),
 			'library_cover'        => (int) get_post_meta( $book_id, self::key( 'library_cover', $reader ), true ),
 		);
@@ -152,7 +209,7 @@ class Shelf {
 
 		// Taken off, even a book on none of their shelves loses the rows a reader may have kept, such as a copy of before.
 		if ( null === $status ) {
-			if ( Meta::get_readings( $book_id, $reader ) ) {
+			if ( self::get_readings( $book_id, $reader ) ) {
 				return false;
 			}
 
@@ -179,7 +236,7 @@ class Shelf {
 	/**
 	 * Save the copy of a reader, as given by meta key, see Meta::SHELF_KEYS: when it was printed, their notes and the photo
 	 * of their copy, an empty value deleting it, a photo they may not give left out, and its readings, see
-	 * Meta::save_readings(). A copy on a book on none of their shelves puts it among the books not kept: see has_copy().
+	 * self::save_readings(). A copy on a book on none of their shelves puts it among the books not kept: see has_copy().
 	 *
 	 * @param int                 $book_id Book ID.
 	 * @param int                 $reader  User ID of the reader.
@@ -205,7 +262,7 @@ class Shelf {
 			}
 		}
 
-		Meta::save_readings( $book_id, $reader, $values );
+		self::save_readings( $book_id, $reader, $values );
 
 		if ( null === self::get_status( $book_id, $reader ) && self::has_copy( $book_id, $reader ) ) {
 			self::set_status( $book_id, $reader, Status::Not_Kept );

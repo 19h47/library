@@ -215,7 +215,7 @@ class Rest_Schemas {
 	 * @return array<string,mixed>
 	 */
 	public static function get_reading(): array {
-		$date = array( 'pattern' => Meta::READING_DATE_PATTERN );
+		$date = array( 'pattern' => Readings::READING_DATE_PATTERN );
 
 		return array(
 			'title'                => 'library-reading',
@@ -227,9 +227,9 @@ class Rest_Schemas {
 					array( 'number', 'null' ),
 					__( 'Rating it ended with, out of 10, by half points; null without, and while it is read.', 'library' ),
 					array(
-						'minimum'    => Meta::RATING_LIMITS['minimum'],
-						'maximum'    => Meta::RATING_LIMITS['maximum'],
-						'multipleOf' => Meta::RATING_LIMITS['multipleOf'],
+						'minimum'    => Readings::RATING_LIMITS['minimum'],
+						'maximum'    => Readings::RATING_LIMITS['maximum'],
+						'multipleOf' => Readings::RATING_LIMITS['multipleOf'],
 					)
 				),
 			),

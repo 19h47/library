@@ -87,7 +87,7 @@ class Query {
 
 	/**
 	 * The SQL of the ratings of the books by the current reader, a table of their IDs, post_id, and their ratings, rating:
-	 * the rating of the latest reading rated of each book, its readings ordered as Meta::get_readings() orders them, by their end, then by their
+	 * the rating of the latest reading rated of each book, its readings ordered as Shelf::get_readings() orders them, by their end, then by their
 	 * start. One pass over the readings, which MySQL 5.7 runs faster than a subquery for each book.
 	 *
 	 * @return string

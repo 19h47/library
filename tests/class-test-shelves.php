@@ -7,7 +7,6 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
 use Library\Shelf;
 use Library\Status;
 use WP_REST_Request;
@@ -198,7 +197,7 @@ class Test_Shelves extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 6.0, $shelf['rating'] );
 		$this->assertSame( '2021-05', $shelf['printed_date'] );
-		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Meta::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertSame( array( '2025-01-02/2025-01-20#6' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
 
 		wp_set_current_user( $first );
 

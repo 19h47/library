@@ -7,7 +7,7 @@
 
 namespace Library\Tests;
 
-use Library\Meta;
+use Library\Readings;
 use Library\Shelf;
 use Library\Status;
 
@@ -96,7 +96,7 @@ class Test_Migration extends TestCase {
 
 		$this->assertSame( Status::In_Library, Shelf::get_status( $kept, $reader ) );
 		$this->assertSame( '2020-05-01 10:00:00', Shelf::get_added( $kept, $reader ) );
-		$this->assertSame( 8.0, Meta::get_rating( Meta::get_readings( $kept, $reader ) ) );
+		$this->assertSame( 8.0, Readings::get_rating( Shelf::get_readings( $kept, $reader ) ) );
 		$this->assertSame( '2014-04', Shelf::get_printed_date( $kept, $reader ) );
 		$this->assertSame( 'Lent by Ada.', Shelf::get_values( $kept, $reader )['library_notes'] );
 		$this->assertSame( '', get_post_field( 'post_content', $kept ) );

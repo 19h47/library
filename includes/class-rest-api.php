@@ -766,9 +766,9 @@ class Rest_API {
 			'rating'       => array(
 				'description' => __( 'Rating of its latest reading ended, which a book not read has none of; null takes it away.', 'library' ),
 				'type'        => array( 'number', 'null' ),
-				'minimum'     => Meta::RATING_LIMITS['minimum'],
-				'maximum'     => Meta::RATING_LIMITS['maximum'],
-				'multipleOf'  => Meta::RATING_LIMITS['multipleOf'],
+				'minimum'     => Readings::RATING_LIMITS['minimum'],
+				'maximum'     => Readings::RATING_LIMITS['maximum'],
+				'multipleOf'  => Readings::RATING_LIMITS['multipleOf'],
 			),
 		);
 	}

@@ -15,6 +15,7 @@ use Library\Books;
 use Library\Meta;
 use Library\Posts;
 use Library\Query;
+use Library\Readings;
 use Library\Shelf;
 use Library\Stats;
 use Library\Status;
@@ -127,7 +128,7 @@ class Books_List {
 					'<input type="checkbox" data-part="read" data-post-id="%1$d" aria-label="%2$s"%3$s>',
 					$post_id,
 					esc_attr( $label ),
-					checked( (bool) Meta::get_read_dates( $post_id, $reader ), true, false )
+					checked( (bool) Shelf::get_read_dates( $post_id, $reader ), true, false )
 				);
 
 				break;
@@ -145,7 +146,7 @@ class Books_List {
 
 				break;
 			case 'library_read_date':
-				$read_dates = Meta::get_read_dates( $post_id, $reader );
+				$read_dates = Shelf::get_read_dates( $post_id, $reader );
 				$readings   = count( $read_dates );
 
 				if ( ! $read_dates ) {
@@ -163,13 +164,13 @@ class Books_List {
 
 				break;
 			case 'library_rating':
-				$rating = Meta::get_rating( Meta::get_readings( $post_id, $reader ) );
+				$rating = Readings::get_rating( Shelf::get_readings( $post_id, $reader ) );
 
 				$output .= null !== $rating ? esc_html( Books::format_rating_out_of_ten( $rating ) ) : '—';
 
 				break;
 			case 'thumbnail':
-				$rating = Meta::get_rating( Meta::get_readings( $post_id, $reader ) );
+				$rating = Readings::get_rating( Shelf::get_readings( $post_id, $reader ) );
 
 				if ( null !== $rating ) {
 					/* translators: %s: rating out of 10, e.g. 7.5/10. */
