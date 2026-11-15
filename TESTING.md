@@ -32,7 +32,7 @@ composer install
 composer test
 ```
 
-`composer test -- --filter Test_Reading_Idea` runs one class. A pull request runs them on MySQL 8.0, with PHP 8.4 and 8.5.
+`composer test -- --filter Test_Reading_Idea` runs one class. A pull request runs them on MySQL 8.0, with PHP 8.4 and 8.5, and with PHP 8.4 on MySQL 5.7, the oldest the plugin requires, and on MariaDB 11.8.
 
 ## Writing a test
 
