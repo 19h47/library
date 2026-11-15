@@ -66,10 +66,13 @@ import {
  * @property {string}     title             Its title, with its series, its volume and its subtitle.
  * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
  * @property {string}     excerpt           Its summary in a few words.
- * @property {string}     content           Its notes, HTML as the API renders them.
+ * @property {string}     content           The notes of the reader, HTML as the API renders them.
+ * @property {string}     notes             The notes of the reader, as typed.
  * @property {string}     credits           Its authors, publisher and year, under its title.
  * @property {string}     status            Where it is for the reader: in the library, not kept, to buy, or empty on none of their shelves.
- * @property {Cover|null} cover             Its cover, none without one.
+ * @property {Cover|null} cover             Its cover as the reader sees it, the photo of their copy, else the cover of its edition, none without either.
+ * @property {Cover|null} edition_cover     The cover of its edition, none without one.
+ * @property {number}     copy_cover        The ID of the image of the photo of the copy of the reader, 0 for none.
  * @property {Person[]}   people            Its names, each with its role.
  * @property {string}     series            Its series after its cycles, "Star Wars, Young Jedi Knights", or empty.
  * @property {number}     series_id         The term ID of its series, 0 without one.
@@ -94,13 +97,15 @@ import {
  * The shelf of a book for the reader, as the API gives it: library-shelf.
  *
  * @typedef {Object} ApiShelf
- * @property {string|null}  status       Where it is for them: in-library, not-kept or to-buy; null on none of their shelves.
- * @property {string|null}  added        When they added it, Y-m-d H:i:s; null on none of their shelves.
- * @property {string}       printed_date When their copy was printed, Y, Y-m or Y-m-d, or empty.
- * @property {ApiReading[]} readings     Their readings, in order, the one in progress last.
- * @property {boolean}      read         Whether they read it.
- * @property {boolean}      in_progress  Whether they are reading it.
- * @property {number|null}  rating       Their rating, the one of their latest reading rated, or null.
+ * @property {string|null}                     status       Where it is for them: in-library, not-kept or to-buy; null on none of their shelves.
+ * @property {string|null}                     added        When they added it, Y-m-d H:i:s; null on none of their shelves.
+ * @property {string}                          printed_date When their copy was printed, Y, Y-m or Y-m-d, or empty.
+ * @property {ApiReading[]}                    readings     Their readings, in order, the one in progress last.
+ * @property {boolean}                         read         Whether they read it.
+ * @property {boolean}                         in_progress  Whether they are reading it.
+ * @property {number|null}                     rating       Their rating, the one of their latest reading rated, or null.
+ * @property {{raw: string, rendered: string}} notes        Their notes, as typed and as HTML.
+ * @property {(Cover & {id: number})|null}     cover        The photo of their copy, with the ID of its image, or null.
  */
 
 /**
@@ -112,6 +117,8 @@ import {
  * @property {ApiReading[]} [readings]     Their readings, which replace theirs.
  * @property {boolean}      [read]         Whether they read it.
  * @property {boolean}      [in_progress]  Whether they are reading it.
+ * @property {string}       [notes]        Their notes, as typed.
+ * @property {number}       [cover]        The ID of the image of the photo of their copy, 0 for none.
  */
 
 /**
@@ -153,7 +160,6 @@ import {
  * @typedef {Object} BookValues
  * @property {string}                  title            Its title.
  * @property {string}                  excerpt          Its summary in a few words.
- * @property {string}                  content          Its notes.
  * @property {Credit[]}                people           Its names, each with its role.
  * @property {string}                  publisher        The name of its publisher.
  * @property {string}                  collection       Its collection, after the collections it is part of.
@@ -172,7 +178,6 @@ import {
  * @property {number}   id         Its ID.
  * @property {string}   title      Its title.
  * @property {string}   excerpt    Its summary in a few words.
- * @property {string}   content    Its notes.
  * @property {Credit[]} people     Its names, each with its role.
  * @property {string}   publisher  The name of its publisher.
  * @property {string}   collection Its collection, after the collections it is part of.
@@ -192,7 +197,7 @@ import {
 /**
  * A book to add as the catalogue of the BnF describes it, as its form takes it, with the names of the library.
  *
- * @typedef {Omit<BookForm, 'id'|'excerpt'|'content'>} CatalogBook
+ * @typedef {Omit<BookForm, 'id'|'excerpt'>} CatalogBook
  */
 
 /**
@@ -444,7 +449,6 @@ import {
  * @property {{rendered: string}}      title                  Its title, HTML.
  * @property {string}                  main_title             Its title but its subtitle, HTML.
  * @property {{rendered: string}}      excerpt                Its excerpt, HTML.
- * @property {{rendered: string}}      content                Its notes, HTML.
  * @property {string}                  credits                Its credits, HTML.
  * @property {ApiShelf}                shelf                  Its shelf for the reader.
  * @property {Object<string, unknown>} meta                   Its meta, by their keys.
@@ -601,11 +605,15 @@ function toBook( item ) {
 		main_title: text( item.main_title ),
 		excerpt: text( item.excerpt.rendered ),
 		// HTML as the API renders it: its paragraphs and links.
-		content: item.content.rendered,
+		content: item.shelf.notes.rendered,
+		notes: item.shelf.notes.raw,
 		credits: text( item.credits ),
 		status: item.shelf.status ?? '',
-		// Its size gives the image its place before it loads.
-		cover: item.cover,
+		// Its size gives the image its place before it loads. The photo of the copy of the reader shows instead of the cover of
+		// its edition, which the form of the book edits.
+		cover: item.shelf.cover ?? item.cover,
+		edition_cover: item.cover,
+		copy_cover: item.shelf.cover?.id ?? 0,
 		// As named on the book: another name opens the page of the person too.
 		people: item.names.map( toPlainName ),
 		// After its cycles, as typed, "Star Wars, Young Jedi Knights", and its ID, for its page.

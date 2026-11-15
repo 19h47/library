@@ -81,7 +81,7 @@ class Page {
 	 *
 	 * @var string
 	 */
-	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,content,credits,shelf,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names';
+	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,credits,shelf,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names';
 
 	/**
 	 * Value of the filter of the shelves for the whole catalogue, beside the shelves of the reader and each of them.

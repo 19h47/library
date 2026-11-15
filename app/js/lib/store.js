@@ -337,7 +337,8 @@ const sortedOf = ( readings ) =>
 
 /**
  * The reading of `book`, to put it back as it was: whether it is read and being read, its readings by their days, as the
- * form gives them, with their ratings, when its copy was printed, and where it is for the reader.
+ * form gives them, with their ratings, when its copy was printed, their notes, the photo of their copy, and where it is
+ * for the reader.
  *
  * @param {Book} book The book.
  * @return {BookReading} Its reading.
@@ -348,6 +349,8 @@ function readingOf( book ) {
 		in_progress: book.in_progress,
 		readings: readingsOf( book ),
 		printed_date: book.printed_date,
+		notes: book.notes,
+		cover: book.copy_cover,
 	};
 
 	return { copy, status: book.status };
@@ -1046,7 +1049,7 @@ class LibraryStore extends Store {
 			changes.meta = changedMeta;
 		}
 
-		if ( coverRemoved && ! cover && books[ id ].cover ) {
+		if ( coverRemoved && ! cover && books[ id ].edition_cover ) {
 			changes.featured_media = 0;
 		}
 
@@ -1142,13 +1145,16 @@ class LibraryStore extends Store {
 	 * It goes through the route of the shelf, which writes the readings at once: the core API, which removes a meta
 	 * value by value, would remove two readings of unknown dates, the same, together.
 	 *
-	 * @param {Object}         reading             The reading, as the form gives it.
-	 * @param {boolean}        reading.read        Whether the book is read.
-	 * @param {boolean}        reading.inProgress  Whether it is being read.
-	 * @param {string}         reading.started     The day its reading in progress started, or empty.
-	 * @param {EndedReading[]} reading.readings    Its readings ended, by their days, each with its rating.
-	 * @param {string}         reading.printedDate When the copy of the reader was printed, or empty.
-	 * @param {string}         reading.status      Where it is for the reader, empty on none of their shelves.
+	 * @param {Object}         reading              The reading, as the form gives it.
+	 * @param {boolean}        reading.read         Whether the book is read.
+	 * @param {boolean}        reading.inProgress   Whether it is being read.
+	 * @param {string}         reading.started      The day its reading in progress started, or empty.
+	 * @param {EndedReading[]} reading.readings     Its readings ended, by their days, each with its rating.
+	 * @param {string}         reading.printedDate  When the copy of the reader was printed, or empty.
+	 * @param {string}         reading.notes        Their notes, as typed.
+	 * @param {File|null}      reading.photo        The photo of their copy picked, uploaded first, if any.
+	 * @param {boolean}        reading.photoRemoved Whether the photo of their copy is removed.
+	 * @param {string}         reading.status       Where it is for the reader, empty on none of their shelves.
 	 */
 	async saveReading( {
 		read,
@@ -1156,6 +1162,9 @@ class LibraryStore extends Store {
 		started,
 		readings,
 		printedDate,
+		notes,
+		photo,
+		photoRemoved,
 		status,
 	} ) {
 		const { book: id, books } = this.get();
@@ -1184,13 +1193,35 @@ class LibraryStore extends Store {
 			copy.printed_date = printedDate;
 		}
 
-		if ( ! Object.keys( copy ).length && status === book.status ) {
+		if ( notes !== book.notes ) {
+			copy.notes = notes;
+		}
+
+		if ( photoRemoved && ! photo && book.copy_cover ) {
+			copy.cover = 0;
+		}
+
+		if (
+			! photo &&
+			! Object.keys( copy ).length &&
+			status === book.status
+		) {
 			return;
 		}
 
 		this.#update( 'saving', () => ( { loading: true, error: '' } ) );
 
 		try {
+			// Named after the book, as the cover of its edition.
+			if ( photo ) {
+				copy.cover = await api.uploadCover( photo, {
+					title: book.title,
+					people: book.people,
+					series: '',
+					meta: { isbn: book.isbn },
+				} );
+			}
+
 			this.#addBooks( [
 				await this.#writeReading( id, { copy, status } ),
 			] );

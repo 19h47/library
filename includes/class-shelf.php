@@ -1,6 +1,7 @@
 <?php
 /**
- * The shelves of a reader: where each book is for them, since when, and their copy, its printed date and its readings.
+ * The shelves of a reader: where each book is for them, since when, and their copy, its printed date, its readings, their
+ * notes and its photo.
  *
  * @link       https://github.com/19h47/library
  * @since      10.0.0
@@ -12,8 +13,8 @@
 namespace Library;
 
 /**
- * Keeps on a book, in meta of their own, where it is for each reader, since when, when their copy was printed and their
- * readings: its key followed by their user ID, `library_status_12`. The catalogue is shared, its books published; a book
+ * Keeps on a book, in meta of their own, where it is for each reader, since when, when their copy was printed, their
+ * readings, their notes and the photo of their copy: its key followed by their user ID, `library_status_12`. The catalogue is shared, its books published; a book
  * on none of the shelves of a reader has none of their rows. A book read is on a shelf: a reading puts a book on none of
  * them among the books not kept, and a book with readings stays on one.
  *
@@ -43,7 +44,7 @@ class Shelf {
 	 *
 	 * @var list<string>
 	 */
-	private const array KEYS = array( self::STATUS, self::ADDED, 'library_printed_date', 'library_reading' );
+	private const array KEYS = array( self::STATUS, self::ADDED, 'library_printed_date', 'library_reading', 'library_notes', 'library_cover' );
 
 	/**
 	 * Meta keys of the copy of a reader by their names in the REST API: see Meta::SHELF_KEYS.
@@ -56,6 +57,8 @@ class Shelf {
 		'read'         => 'library_read',
 		'in_progress'  => 'library_in_progress',
 		'rating'       => 'library_rating',
+		'notes'        => 'library_notes',
+		'cover'        => 'library_cover',
 	);
 
 	/**
@@ -114,11 +117,11 @@ class Shelf {
 
 	/**
 	 * The copy of a reader as its forms edit it, by meta key: when it was printed, its readings, whether it is read and
-	 * being read, and its rating.
+	 * being read, its rating, their notes and the image of its photo, 0 for none.
 	 *
 	 * @param int $book_id Book ID.
 	 * @param int $reader  User ID of the reader.
-	 * @return array{library_printed_date:string,library_reading:Reading[],library_read:bool,library_in_progress:bool,library_rating:float|null}
+	 * @return array{library_printed_date:string,library_reading:Reading[],library_read:bool,library_in_progress:bool,library_rating:float|null,library_notes:string,library_cover:int}
 	 */
 	public static function get_values( int $book_id, int $reader ): array {
 		$readings = Meta::get_readings( $book_id, $reader );
@@ -129,6 +132,8 @@ class Shelf {
 			'library_read'         => (bool) Meta::get_ended( $readings ),
 			'library_in_progress'  => count( Meta::get_ended( $readings ) ) < count( $readings ),
 			'library_rating'       => Meta::get_rating( $readings ),
+			'library_notes'        => (string) get_post_meta( $book_id, self::key( 'library_notes', $reader ), true ),
+			'library_cover'        => (int) get_post_meta( $book_id, self::key( 'library_cover', $reader ), true ),
 		);
 	}
 
@@ -171,8 +176,9 @@ class Shelf {
 	}
 
 	/**
-	 * Save the copy of a reader, as given by meta key, see Meta::SHELF_KEYS: when it was printed, an empty date deleting
-	 * it, and its readings, see Meta::save_readings(). A book read on none of their shelves goes among the books not kept.
+	 * Save the copy of a reader, as given by meta key, see Meta::SHELF_KEYS: when it was printed, their notes and the photo
+	 * of their copy, an empty value deleting it, a photo they may not give left out, and its readings, see
+	 * Meta::save_readings(). A book read on none of their shelves goes among the books not kept.
 	 *
 	 * @param int                 $book_id Book ID.
 	 * @param int                 $reader  User ID of the reader.
@@ -180,14 +186,21 @@ class Shelf {
 	 * @return void
 	 */
 	public static function save( int $book_id, int $reader, array $values ): void {
-		if ( array_key_exists( 'library_printed_date', $values ) ) {
-			$key          = self::key( 'library_printed_date', $reader );
-			$printed_date = sanitize_meta( 'library_printed_date', $values['library_printed_date'], 'post', 'library_book' );
+		if ( isset( $values['library_cover'] ) && ! self::can_cover( (int) $values['library_cover'], $reader ) ) {
+			unset( $values['library_cover'] );
+		}
 
-			if ( '' === $printed_date ) {
-				delete_post_meta( $book_id, $key );
+		foreach ( array( 'library_printed_date', 'library_notes', 'library_cover' ) as $key ) {
+			if ( ! array_key_exists( $key, $values ) ) {
+				continue;
+			}
+
+			$value = sanitize_meta( $key, $values[ $key ], 'post', 'library_book' );
+
+			if ( '' === $value || 0 === $value ) {
+				delete_post_meta( $book_id, self::key( $key, $reader ) );
 			} else {
-				update_post_meta( $book_id, $key, wp_slash( $printed_date ) );
+				update_post_meta( $book_id, self::key( $key, $reader ), wp_slash( $value ) );
 			}
 		}
 
@@ -196,6 +209,19 @@ class Shelf {
 		if ( null === self::get_status( $book_id, $reader ) && Meta::get_readings( $book_id, $reader ) ) {
 			self::set_status( $book_id, $reader, Status::Not_Kept );
 		}
+	}
+
+	/**
+	 * Whether a reader may give the photo of their copy an image: one they uploaded, or none, 0.
+	 *
+	 * @param int $image_id Attachment ID, 0 for none.
+	 * @param int $reader   User ID of the reader.
+	 * @return bool
+	 */
+	public static function can_cover( int $image_id, int $reader ): bool {
+		$author = (int) get_post_field( 'post_author', $image_id );
+
+		return 0 === $image_id || ( wp_attachment_is_image( $image_id ) && $author === $reader );
 	}
 
 	/**
@@ -212,7 +238,8 @@ class Shelf {
 
 	/**
 	 * The shelf of a book for a reader, as the REST API gives it: its status and the date added, null on none of their
-	 * shelves, and their copy by its names, see NAMES: its readings in order, each with its start, its end and its rating.
+	 * shelves, and their copy by its names, see NAMES: its readings in order, each with its start, its end and its rating,
+	 * their notes as typed and as HTML, and the image of its photo with its ID, none without.
 	 *
 	 * @param int $book_id Book ID.
 	 * @param int $reader  User ID of the reader.
@@ -223,6 +250,12 @@ class Shelf {
 		$copy  = self::get_values( $book_id, $reader );
 
 		$copy['library_reading'] = array_map( fn( Reading $reading ) => $reading->to_array(), $copy['library_reading'] );
+		$copy['library_notes']   = array(
+			'raw'      => $copy['library_notes'],
+			'rendered' => wpautop( $copy['library_notes'] ),
+		);
+		$image                   = Books::get_image( $copy['library_cover'] );
+		$copy['library_cover']   = $image ? array( 'id' => $copy['library_cover'] ) + $image : null;
 
 		return array(
 			'status' => self::get_status( $book_id, $reader )?->value,

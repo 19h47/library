@@ -167,8 +167,8 @@ class Posts {
 			'filter_items_list'     => __( 'Filter books list', 'library' ),
 		);
 
-		// The excerpt is a summary of the book in a few words, the content its notes.
-		$supports = array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' );
+		// The excerpt is a summary of the book in a few words; no editor, the notes on a book being those of each reader.
+		$supports = array( 'title', 'excerpt', 'thumbnail', 'custom-fields' );
 
 		$rewrite = array(
 			'slug'       => 'books',

@@ -14,11 +14,14 @@ import { formatReadings } from 'library-app/book-lines';
  * The fields of the reading of a book, by their names.
  *
  * @typedef {Object} ReadingFields
- * @property {HTMLInputElement}  read         Whether it is read.
- * @property {HTMLInputElement}  in_progress  Whether it is being read.
- * @property {HTMLInputElement}  started      The day its reading in progress started.
- * @property {HTMLSelectElement} status       Whether it is in the library, not kept, to buy, or on none of the shelves.
- * @property {HTMLInputElement}  printed_date When the copy of the reader was printed.
+ * @property {HTMLInputElement}    read          Whether it is read.
+ * @property {HTMLInputElement}    in_progress   Whether it is being read.
+ * @property {HTMLInputElement}    started       The day its reading in progress started.
+ * @property {HTMLSelectElement}   status        Whether it is in the library, not kept, to buy, or on none of the shelves.
+ * @property {HTMLInputElement}    printed_date  When the copy of the reader was printed.
+ * @property {HTMLTextAreaElement} notes         The notes of the reader.
+ * @property {HTMLInputElement}    cover         The photo of their copy picked.
+ * @property {HTMLInputElement}    cover_removed Whether the photo of their copy is removed.
  */
 
 /**
@@ -55,7 +58,8 @@ const periodOf = ( /** @type {EndedReading} */ { start, end } ) =>
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
  * from their starts to their ends, each with the rating it ended with, folded under the line that sums them up, and
- * whether it is in the library, not kept or to buy, and when their copy was printed. A reading added ends
+ * whether it is in the library, not kept or to buy, when their copy was printed, their notes and the photo of their copy,
+ * uploaded as it is picked. A reading added ends
  * the one in progress, from its start, as the server does. Each change is saved at once, a date typed once left, a field
  * in error showing it without taking the focus, and the notice that says so offers Undo; a change made while the one
  * before saves waits for it, the form showing what was chosen until then rather than what the book was.
@@ -69,9 +73,13 @@ class LibraryReadingElement extends Brick {
 			started: $started,
 			status: $status,
 			printed_date: $printedDate,
+			notes: $notes,
+			cover: $cover,
+			cover_removed: $coverRemoved,
 		} = /** @type {HTMLFormControlsCollection & ReadingFields} */ (
 			$form.elements
 		);
+		const $coverField = this.querySelector( 'image-field' );
 		/** @type {HTMLElement} */
 		const $startedField = this.querySelector( '[data-part="started"]' );
 		/** @type {HTMLDetailsElement} */
@@ -142,6 +150,20 @@ class LibraryReadingElement extends Brick {
 		);
 
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
+		// The photo of their copy removed goes at once: its field checks its checkbox, which changes nothing the form hears.
+		$form.addEventListener(
+			'click',
+			( event ) => {
+				if (
+					/** @type {Element} */ ( event.target ).closest(
+						'image-field [data-action="remove"]'
+					)
+				) {
+					save();
+				}
+			},
+			{ signal }
+		);
 		// A field changed, or the list of readings, one removed.
 		$form.addEventListener(
 			'change',
@@ -186,7 +208,10 @@ class LibraryReadingElement extends Brick {
 					data.get( 'started' ) === book.started.slice( 0, 10 ) ) &&
 				sortedOf( readingsOf( data ) ) === sortedOf( book.readings ) &&
 				data.get( 'status' ) === book.status &&
-				data.get( 'printed_date' ) === book.printed_date
+				data.get( 'printed_date' ) === book.printed_date &&
+				data.get( 'notes' ) === book.notes &&
+				! $cover.files.length &&
+				! data.has( 'cover_removed' )
 			);
 		};
 
@@ -222,6 +247,9 @@ class LibraryReadingElement extends Brick {
 					printedDate: /** @type {string} */ (
 						data.get( 'printed_date' )
 					),
+					notes: $notes.value,
+					photo: $cover.files[ 0 ] ?? null,
+					photoRemoved: data.has( 'cover_removed' ),
 					status: /** @type {string} */ ( data.get( 'status' ) ),
 				} );
 			},
@@ -262,6 +290,11 @@ class LibraryReadingElement extends Brick {
 					showReadings();
 					$status.value = book.status;
 					$printedDate.value = book.printed_date;
+					$notes.value = book.notes;
+					// The photo of their copy, the cover of the edition aside; a photo picked or removed is sent, then forgotten.
+					$cover.value = '';
+					$coverRemoved.checked = false;
+					$coverField.cover = book.copy_cover ? book.cover : null;
 				}
 			),
 			store.select(

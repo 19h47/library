@@ -129,13 +129,13 @@ class Meta {
 	public const array KEYS = array( ...self::TEXT_KEYS, ...self::DATE_KEYS, 'library_pages', 'library_collective' );
 
 	/**
-	 * Meta of the copy of a reader, on their shelf: when it was printed and its readings, stored for each reader, see
-	 * Shelf; whether it is read and being read and its rating, worked out from its readings, never stored. Registered
+	 * Meta of the copy of a reader, on their shelf: when it was printed, its readings, their notes and the photo of their
+	 * copy, stored for each reader, see Shelf; whether it is read and being read and its rating, worked out from its readings, never stored. Registered
 	 * under these keys for their labels, descriptions and controls, never stored under them.
 	 *
 	 * @var string[]
 	 */
-	public const array SHELF_KEYS = array( 'library_printed_date', 'library_reading', 'library_read', 'library_in_progress', 'library_rating' );
+	public const array SHELF_KEYS = array( 'library_printed_date', 'library_reading', 'library_read', 'library_in_progress', 'library_rating', 'library_notes', 'library_cover' );
 
 	/**
 	 * Register hooks.
@@ -174,6 +174,8 @@ class Meta {
 			'library_directors'         => __( 'Publishing directors', 'library' ),
 			'library_adapted_authors'   => __( 'Adapted authors', 'library' ),
 			'library_edition_languages' => __( 'Edition languages', 'library' ),
+			'library_notes'             => __( 'Notes', 'library' ),
+			'library_cover'             => __( 'Photo of my copy', 'library' ),
 		);
 		$descriptions = array(
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
@@ -317,6 +319,31 @@ class Meta {
 				'description'       => $descriptions['library_in_progress'],
 				'single'            => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
+				'auth_callback'     => '__return_false',
+			)
+		);
+
+		// The notes of a reader, HTML as a post takes it, and the photo of their copy, an image they uploaded: see SHELF_KEYS.
+		register_post_meta(
+			'library_book',
+			'library_notes',
+			array(
+				'type'              => 'string',
+				'label'             => $labels['library_notes'],
+				'single'            => true,
+				'sanitize_callback' => 'wp_kses_post',
+				'auth_callback'     => '__return_false',
+			)
+		);
+
+		register_post_meta(
+			'library_book',
+			'library_cover',
+			array(
+				'type'              => 'integer',
+				'label'             => $labels['library_cover'],
+				'single'            => true,
+				'sanitize_callback' => 'absint',
 				'auth_callback'     => '__return_false',
 			)
 		);
