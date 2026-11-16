@@ -9,6 +9,7 @@ import type { ImageFieldElement } from '../app/js/components/image-field.js';
 import type { InputGroupsElement } from '../app/js/components/input-groups.js';
 import type { InputsListElement } from '../app/js/components/inputs-list.js';
 import type { OfflineStatusElement } from '../app/js/components/offline-status.js';
+import type { PartialDateElement } from '../app/js/components/partial-date.js';
 import type { ReadingPeriodElement } from '../app/js/components/reading-period.js';
 
 declare global {
@@ -19,6 +20,7 @@ declare global {
 		'input-groups': InputGroupsElement;
 		'inputs-list': InputsListElement;
 		'offline-status': OfflineStatusElement;
+		'partial-date': PartialDateElement;
 		'reading-period': ReadingPeriodElement;
 	}
 }

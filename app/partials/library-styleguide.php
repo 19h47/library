@@ -514,6 +514,27 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>partial-date</code></h4>
+					<p>A date often known by its year only, such as the first publication of a book: its legend, then its day, its month in words and its year side by side, then its description; its root is its custom element, <code>partial-date</code>, named as its field, whose form sends its value, <code>1972</code>, <code>1972-11</code> or <code>1972-11-08</code>. The day waits for a month and lists its days; the year is required once a month is chosen. Here empty, then a month of a year</p>
+				</figcaption>
+				<div class="library-styleguide__frame library-form" data-sample="partial-date">
+					<?php
+					foreach ( array( 'empty', 'month' ) as $variant ) {
+						Markup::render_component(
+							'partial-date',
+							array(
+								'id'          => "library-styleguide-date-$variant",
+								'label'       => 'Edition date',
+								'description' => 'When this edition first came out.',
+								'name'        => "date_$variant",
+							)
+						);
+					}
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>barcode-scan</code></h4>
 					<p>The scan of the barcode of a book, under the field it types, <code>for</code>: the pill that takes its photo, then what the photo told, a status; its root is its custom element, <code>barcode-scan</code>, which shows it where the browser reads EAN-13 barcodes, here a photo without one</p>
 				</figcaption>

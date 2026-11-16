@@ -271,6 +271,8 @@ class LibraryStyleguideElement extends Brick {
 		this.querySelector( '[data-sample="reading-period"]' ).querySelector(
 			'reading-period'
 		).value = '2026-10-20/2026-10-28';
+		// A date known by its month, the second one.
+		this.querySelectorAll( 'partial-date' )[ 1 ].value = '1972-11';
 		// The status of the app offline, shown whatever the network.
 		this.querySelector( 'offline-status' ).hidden = false;
 		// The scan of a barcode, shown whatever the browser reads, a photo without one.

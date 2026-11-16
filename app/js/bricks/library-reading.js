@@ -18,7 +18,6 @@ import { formatReadings } from 'library-app/book-lines';
  * @property {HTMLInputElement}    in_progress   Whether it is being read.
  * @property {HTMLInputElement}    started       The day its reading in progress started.
  * @property {HTMLSelectElement}   status        Whether it is in the library, not kept, to buy, or on none of the shelves.
- * @property {HTMLInputElement}    printed_date  When the copy of the reader was printed.
  * @property {HTMLTextAreaElement} notes         The notes of the reader.
  * @property {HTMLInputElement}    cover         The photo of their copy picked.
  * @property {HTMLInputElement}    cover_removed Whether the photo of their copy is removed.
@@ -72,7 +71,6 @@ class LibraryReadingElement extends Brick {
 			in_progress: $inProgress,
 			started: $started,
 			status: $status,
-			printed_date: $printedDate,
 			notes: $notes,
 			cover: $cover,
 			cover_removed: $coverRemoved,
@@ -80,6 +78,8 @@ class LibraryReadingElement extends Brick {
 			$form.elements
 		);
 		const $coverField = this.querySelector( 'image-field' );
+		// When the copy of the reader was printed.
+		const $printedDate = this.querySelector( 'partial-date' );
 		/** @type {HTMLElement} */
 		const $startedField = this.querySelector( '[data-part="started"]' );
 		/** @type {HTMLDetailsElement} */

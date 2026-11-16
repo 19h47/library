@@ -1,0 +1,26 @@
+/**
+ * A date often known by its year only, a molecule, its custom element its root: its legend, then its day, its month and
+ * its year side by side, closer to each other than to the fields around, the day and the year as wide as their content,
+ * the month the rest, never narrower than its name in words: where the three do not fit, as on a small phone, the year
+ * goes under them. Its description and its error then take a line of their own.
+ */
+
+@layer app.components {
+	partial-date {
+		display: block;
+	}
+
+	partial-date > .library-field {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--app-space-xs);
+	}
+
+	partial-date [data-part="month"] {
+		flex: 1 0 auto;
+	}
+
+	partial-date :is(small, .library-error) {
+		flex-basis: 100%;
+	}
+}
