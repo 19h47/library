@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.2.0
+Stable tag: 10.3.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.3.0 =
+* A date often known by its year only, the first publication and the edition date of a book and the printing of the copy, is chosen in the app by its day, its month in words and its year, side by side, rather than typed as 1929-11-08: the day lists the days of the month chosen, and the year is required once a month is. The screen of the book still takes it typed, its description saying how.
+* Fixed: a search typed in the app, as the next books of the list before loaded during the pause it waits for, was never sent: it said no book found over the books before, until typed again.
+* Fixed: the readings of a book open folded in the app, whatever the book before left.
 
 = 10.2.0 =
 * The form of a book to add without ISBN, such as a book printed before ISBNs, shows the book of the catalogue with the title typed, as it shows the book of an ISBN, to put in the library rather than add twice; a book on none of the shelves of the reader says it is in the catalogue. The search takes the keyword `title:`, a whole title, whatever its case, its accents and its apostrophes.

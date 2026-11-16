@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-16T13:58:31+00:00\n"
+"POT-Creation-Date: 2026-11-16T14:40:55+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -3343,7 +3343,7 @@ msgstr "Aucun code-barres sur la photo : reprenez-la, de plus près."
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1428
+#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1435
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
@@ -3400,15 +3400,15 @@ msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
 msgstr[1] "%s autres auteurs/autrices"
 
-#: app/js/lib/store.js:1145
+#: app/js/lib/store.js:1152
 msgid "Reading undone."
 msgstr "Lecture annulée."
 
-#: app/js/lib/store.js:1158
+#: app/js/lib/store.js:1165
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
 
-#: app/js/lib/store.js:1159
+#: app/js/lib/store.js:1166
 msgid "Undo"
 msgstr "Annuler"
 
