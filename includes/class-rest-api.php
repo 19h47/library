@@ -958,8 +958,9 @@ class Rest_API {
 	 *
 	 * The pages add up those of the books with a number of pages, read or not, each book once: 0 when none has one.
 	 *
-	 * The books are those of the person under any of their names, kept or not, whatever their role, author or another one,
-	 * such as colorist, as IDs of the core API: in the order they first came out, then by title, those without date last.
+	 * The books are those of the person on the shelves of the reader, under any of their names, whatever their role, author
+	 * or another one, such as colorist, as IDs of the core API: in the order they first came out, then by title, those
+	 * without date last.
 	 *
 	 * The series are those of these books, each one the narrowest, named after its cycles, with its description and how
 	 * many of these books it holds and are read: those with the most first, then by name.
@@ -975,7 +976,7 @@ class Rest_API {
 			return new WP_Error( 'library_no_person', get_taxonomy( 'library_person' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books       = array_filter( Books::get_books(), fn( Book $book ) => in_array( $person->term_id, array( ...$book->author_ids, ...$book->contributor_ids ), true ) );
+		$books       = array_filter( Books::get_shelved(), fn( Book $book ) => in_array( $person->term_id, array( ...$book->author_ids, ...$book->contributor_ids ), true ) );
 		$other_names = get_terms(
 			array(
 				'taxonomy'   => 'library_person',
@@ -1042,8 +1043,8 @@ class Rest_API {
 
 	/**
 	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its parts, the
-	 * series of a cycle, its authors, its books in reading order, those of its series with them, how many are read, and the
-	 * completion they count for.
+	 * series of a cycle, its authors, its books on the shelves of the reader in reading order, those of its series with them,
+	 * how many are read, and the completion they count for.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -1055,7 +1056,7 @@ class Rest_API {
 			return new WP_Error( 'library_no_series', get_taxonomy( 'library_series' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books = array_filter( Books::get_books(), fn( Book $book ) => in_array( $series->term_id, $book->series_ids, true ) );
+		$books = array_filter( Books::get_shelved(), fn( Book $book ) => in_array( $series->term_id, $book->series_ids, true ) );
 		$cycle = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
 		$parts = get_terms(
 			array(
@@ -1083,8 +1084,8 @@ class Rest_API {
 
 	/**
 	 * A collection, or a publisher: its name, a sub-collection after the collections it is part of, its publisher and the
-	 * collection it is part of, its description, its collections, its authors, its books, those of its collections with
-	 * them, how many are read, and the completion they count for.
+	 * collection it is part of, its description, its collections, its authors, its books on the shelves of the reader, those
+	 * of its collections with them, how many are read, and the completion they count for.
 	 *
 	 * The books are grouped by collection, each one followed by its own collections, by name: those of the publisher, or of
 	 * the collection, first; in each one, in the order of their number in it, those without number last, in reading order.
@@ -1102,7 +1103,7 @@ class Rest_API {
 		$places = array_flip( self::get_collection_order( $publisher ) );
 		// Every term of a book and every one it is under: its publishers and its collections.
 		$terms_of    = fn( Book $book ): array => array( ...$book->publisher_ids, ...$book->collection_ids );
-		$books       = array_filter( Books::get_books(), fn( Book $book ) => in_array( $publisher->term_id, $terms_of( $book ), true ) );
+		$books       = array_filter( Books::get_shelved(), fn( Book $book ) => in_array( $publisher->term_id, $terms_of( $book ), true ) );
 		$books       = Books::sort_in_reading_order( $books );
 		$ancestors   = array_map( fn( int $term_id ) => get_term( $term_id, 'library_publisher' ), get_ancestors( $publisher->term_id, 'library_publisher', 'taxonomy' ) );
 		$top         = end( $ancestors );
@@ -1220,7 +1221,7 @@ class Rest_API {
 	 * The authors of books under the name they are known by, other roles left out, with their description and how many
 	 * of the books they wrote: those who wrote the most first, then by name.
 	 *
-	 * @param array<int,Book> $books Books, from Books::get_books().
+	 * @param array<int,Book> $books Books, from Books::get_shelved().
 	 * @return array<int,array{id:int,name:string,description:string,book_count:int}>
 	 */
 	private static function get_authors_of( array $books ): array {

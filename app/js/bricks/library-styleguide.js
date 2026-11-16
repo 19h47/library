@@ -293,24 +293,34 @@ class LibraryStyleguideElement extends Brick {
 			)[ 1 ]
 		).value = '8';
 
-		// The book open, the link to the recap, the status of an ISBN and the keywords of a search, filled as their bricks
-		// fill them.
+		// The book open, the link to the recap, what the catalogue tells of a book to add and the keywords of a search, filled
+		// as their bricks fill them: a book of the catalogue on none of the shelves of the reader.
 		fillBookPage( this.querySelector( '[data-sample="book"]' ), BOOK_PAGE );
 		fill( this.querySelector( '[data-sample="recap-link"]' ), {
 			year: '2025',
 		} );
-		fill( this.querySelector( '[data-sample="isbn-status-duplicate"]' ), {
+		/** @type {HTMLElement} */
+		const $found = this.querySelector(
+			'[data-sample="catalogue-status-duplicate"]'
+		);
+		/** @type {HTMLElement} */
+		const $keep = $found.querySelector( '[data-action="keep"]' );
+
+		fill( $found, {
+			found: /** @type {HTMLElement} */ (
+				$found.querySelector( '[data-field="found"]' )
+			).dataset.catalogue,
 			duplicate: 'A title',
 		} );
-		/** @type {HTMLElement} */ (
-			this.querySelector(
-				'[data-sample="isbn-status-duplicate"] [data-action="keep"]'
-			)
-		).hidden = false;
-		fill( this.querySelector( '[data-sample="isbn-status-catalog"]' ), {
-			catalog:
-				'Filled in from the catalogue of the BnF: check what it gives.',
-		} );
+		$keep.textContent = $keep.dataset.catalogue;
+		$keep.hidden = false;
+		fill(
+			this.querySelector( '[data-sample="catalogue-status-catalog"]' ),
+			{
+				catalog:
+					'Filled in from the catalogue of the BnF: check what it gives.',
+			}
+		);
 		/** @type {HTMLElement} */ (
 			this.querySelector(
 				'[data-sample="keywords"] [data-list="keywords"]'

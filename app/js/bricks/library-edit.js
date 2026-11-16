@@ -1,4 +1,4 @@
-import { __, catalogue, editUrl, inLibrary, toBuy } from 'library-app/app';
+import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
@@ -69,8 +69,9 @@ function renderOptions( terms ) {
  * ones they are part of, the series after their cycles; a name not found is added. For a book to add, an ISBN typed that
  * a book of the catalogue has already shows it, which opens, a book to buy bought from there and one on none of the
  * shelves of the reader put in their library; else the catalogue of the BnF fills in the fields left empty, the names
- * as the library gives them. Where the browser reads EAN-13 barcodes, a photo of the
- * barcode of a book types its ISBN, as if typed: its component, barcode-scan, does it.
+ * as the library gives them. Without ISBN, a title typed that a book of the catalogue has shows it the same way. Where
+ * the browser reads EAN-13 barcodes, a photo of the barcode of a book types its ISBN, as if typed: its component,
+ * barcode-scan, does it.
  * Closing the form drops it.
  */
 class LibraryEditElement extends Brick {
@@ -122,9 +123,10 @@ class LibraryEditElement extends Brick {
 		const $admin = this.querySelector( '[data-link="admin"]' );
 		/** @type {HTMLButtonElement} */
 		const $submit = $form.querySelector( '[type="submit"]' );
+		/** @type {HTMLElement} */
+		const $found = this.querySelector( '[data-field="found"]' );
 		/** @type {HTMLAnchorElement} */
 		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
-		/** @type {HTMLButtonElement} */
 		/** @type {HTMLButtonElement} */
 		const $keep = this.querySelector( '[data-action="keep"]' );
 		const $suggestions = {
@@ -271,6 +273,17 @@ class LibraryEditElement extends Brick {
 			{ signal }
 		);
 
+		// Without ISBN, such as a book printed before ISBNs, the title typed tells a book of the catalogue.
+		$title.addEventListener(
+			'change',
+			() => {
+				if ( ! store.get().editing.id && ! $isbn.value.trim() ) {
+					store.checkTitle( $title.value );
+				}
+			},
+			{ signal }
+		);
+
 		// The link to the book opens it under the form, then closes the form over it, as openBook() does: closed at the
 		// click, the form would forget the book, and the link with it, before the browser follows it.
 		$duplicate.addEventListener(
@@ -380,8 +393,7 @@ class LibraryEditElement extends Brick {
 					$admin.parentElement.hidden = ! id;
 					$status.disabled = Boolean( id );
 					$status.parentElement.hidden = Boolean( id );
-					$status.value =
-						listed && catalogue !== listed ? listed : inLibrary;
+					$status.value = listed || inLibrary;
 					$bookForm.value = 'books' === view ? form : '';
 					showPeople( book?.people ?? [] );
 
@@ -461,15 +473,21 @@ class LibraryEditElement extends Brick {
 				( state ) => state.editing.duplicate,
 				( id ) => {
 					const book = store.get().books[ id ];
+					// A book on none of the shelves of the reader is one of the catalogue, to put in their library.
+					const isInCatalogue = '' === book?.status;
 
-					fill( this, { duplicate: book?.title ?? '' } );
+					fill( this, {
+						found: isInCatalogue
+							? $found.dataset.catalogue
+							: $found.dataset.added,
+						duplicate: book?.title ?? '',
+					} );
 					$duplicate.href = urlOf( { view: 'book', id } );
 					// A book to buy is bought, one on none of the shelves of the reader put in their library; the others are theirs.
-					$keep.hidden = ! [ toBuy, '' ].includes( book?.status );
-					$keep.textContent =
-						toBuy === book?.status
-							? $keep.dataset.toBuy
-							: $keep.dataset.catalogue;
+					$keep.hidden = toBuy !== book?.status && ! isInCatalogue;
+					$keep.textContent = isInCatalogue
+						? $keep.dataset.catalogue
+						: $keep.dataset.toBuy;
 				}
 			),
 			store.select(

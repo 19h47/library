@@ -27,7 +27,6 @@ declare global {
 			inLibrary: string;
 			notKept: string;
 			toBuy: string;
-			catalogue: string;
 			roles: string[];
 			editUrl: string;
 			appUrl: string;

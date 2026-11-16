@@ -31,7 +31,7 @@ class Query {
 	 *
 	 * @var string[]
 	 */
-	public const array KEYWORDS = array( 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'progress', 'rating' );
+	public const array KEYWORDS = array( 'title', 'series', 'author', 'publisher', 'translator', 'language', 'form', 'isbn', 'read', 'progress', 'rating' );
 
 	/**
 	 * Orders of the books the REST API takes besides those of core, highest or latest first: by rating, by latest read date.
@@ -446,6 +446,7 @@ class Query {
 		/* translators: Search keyword with a form, such as a novel, as named in the library: the keyword form stays in English. */
 		$form_example = _x( 'form:novel', 'search example', 'library' );
 		$keywords     = array(
+			array( array( 'title:"Le Rouge et le Noir"' ), __( 'a title, by its exact name', 'library' ) ),
 			array( array( 'series:SAS' ), __( 'a series, or a cycle with its series, by its exact name', 'library' ) ),
 			array( array( 'author:Tabucchi' ), __( 'an author, with their other names', 'library' ) ),
 			array( array( 'publisher:Gallimard' ), __( 'a publisher, with its collections', 'library' ) ),
@@ -497,6 +498,11 @@ class Query {
 		$value = mb_strtolower( $value );
 
 		switch ( $keyword ) {
+			case 'title':
+				// The whole title, whatever its case, its accents and its apostrophes, straight or curly.
+				$apostrophe = "REPLACE( post_title, '’', '''' )";
+
+				return $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'library_book' AND $apostrophe = %s", str_replace( '’', "'", $value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the apostrophe holds no value given.
 			case 'series':
 				// A series by its name, or after its cycles, with the series of a cycle: "Star Wars" finds those of
 				// "Star Wars, Young Jedi Knights".

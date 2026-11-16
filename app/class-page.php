@@ -85,13 +85,6 @@ class Page {
 	public const string BOOK_FIELDS = 'id,title,main_title,excerpt,credits,shelf,meta,cover,names,series,series_name,language_codes,edition_language_codes,form_name,publisher_names,_links';
 
 	/**
-	 * Value of the filter of the shelves for the whole catalogue, beside the shelves of the reader and each of them.
-	 *
-	 * @var string
-	 */
-	public const string CATALOGUE = 'catalogue';
-
-	/**
 	 * Books a list of the app loads at once, then as its end comes.
 	 *
 	 * @var int
@@ -506,7 +499,6 @@ JS;
 			'inLibrary'        => Status::In_Library->value,
 			'notKept'          => Status::Not_Kept->value,
 			'toBuy'            => Status::To_Buy->value,
-			'catalogue'        => self::CATALOGUE,
 			// The roles other than author, as the people of a book name them: translator, colorist and the others.
 			'roles'            => array_keys( Meta::ROLE_KEYS ),
 			'editUrl'          => admin_url( 'post.php?action=edit&post=' ),

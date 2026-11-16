@@ -148,10 +148,10 @@ use Library\Meta;
 									'progress' => Meta::get_label( 'library_in_progress' ),
 								),
 							),
-							// The shelves of the reader, each of them, or the whole catalogue, which the other readers share.
+							// The shelves of the reader, or each of them: the app lists their books, never the whole catalogue.
 							'shelf' => array(
 								'label'   => __( 'Library', 'library' ),
-								'options' => array( '' => __( 'My shelves', 'library' ) ) + $status_choices + array( Page::CATALOGUE => __( 'All the catalogue', 'library' ) ),
+								'options' => array( '' => __( 'My shelves', 'library' ) ) + $status_choices,
 							),
 						);
 
@@ -756,7 +756,7 @@ use Library\Meta;
 							'for' => 'library-edit-library-isbn',
 						)
 					);
-					Markup::render_component( 'isbn-status' );
+					Markup::render_component( 'catalogue-status' );
 					Markup::render_component(
 						'field',
 						array(

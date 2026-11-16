@@ -11,6 +11,7 @@ import {
 	bookFields,
 	maxPerPage,
 	perPage,
+	statuses,
 } from 'library-app/app';
 
 /**
@@ -839,7 +840,8 @@ export async function finds( query, id ) {
 }
 
 /**
- * The books of the series `name`, all of them, in reading order, as a search for it lists them.
+ * The books of the series `name` on the shelves of the reader, all of them, in reading order, as a search for it lists
+ * them.
  *
  * @param {string}      name             The series, after its cycles.
  * @param {Object}      [options]        Options.
@@ -850,6 +852,7 @@ export async function getVolumes( name, { signal } = {} ) {
 	const path = addQueryArgs( '/wp/v2/books', {
 		...BOOK_QUERY,
 		search: `series:"${ name }"`,
+		shelf: statuses,
 		// Every page, however many volumes: apiFetch loads the first one, as the page preloads it, then the others.
 		per_page: -1,
 	} );
@@ -868,6 +871,26 @@ export async function getVolumes( name, { signal } = {} ) {
 export async function findIsbn( digits ) {
 	const path = addQueryArgs( '/wp/v2/books', {
 		search: `isbn:${ digits }`,
+		per_page: 1,
+		_fields: 'id',
+	} );
+	/** @type {Array<{id: number}>} */
+	const [ found ] = await apiFetch( { path } );
+
+	return found?.id ?? 0;
+}
+
+/**
+ * A book of the catalogue whose title is `title`, whatever its case, its accents and its apostrophes, or none: the one
+ * added last of those that have it.
+ *
+ * @param {string} title A title.
+ * @return {Promise<number>} The ID of the book, 0 for none.
+ */
+export async function findTitle( title ) {
+	const path = addQueryArgs( '/wp/v2/books', {
+		// Its quotes keep its spaces and its commas; a title has none of them.
+		search: `title:"${ title.replaceAll( '"', '' ) }"`,
 		per_page: 1,
 		_fields: 'id',
 	} );
