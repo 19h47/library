@@ -257,6 +257,13 @@ class LibraryReadingElement extends Brick {
 		);
 
 		return [
+			// Another book opens with its readings folded, whatever the one before left.
+			store.select(
+				( state ) => state.book,
+				() => {
+					$details.open = false;
+				}
+			),
 			store.select(
 				( state ) => state.books[ state.book ] ?? null,
 				( book ) => {

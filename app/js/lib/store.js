@@ -597,6 +597,11 @@ function page( view, id = 0 ) {
  * @augments {Store<State>}
  */
 class LibraryStore extends Store {
+	/**
+	 * The search waiting for a pause in the typing, 0 for none.
+	 *
+	 * @type {number}
+	 */
 	#timeout = 0;
 	/**
 	 * The request running of each resource: another one cancels it.
@@ -825,8 +830,10 @@ class LibraryStore extends Store {
 	 */
 	loadMoreBooks( list ) {
 		const { loading, items, total } = this.get()[ list ];
+		// The books found are those of the search before the one typed, which replaces them: none loads after them.
+		const isWaiting = 'search' === list && this.#timeout;
 
-		if ( ! loading && items.length < total ) {
+		if ( ! loading && ! isWaiting && items.length < total ) {
 			this.#fetchList( list, { offset: items.length } );
 		}
 	}
@@ -1635,6 +1642,7 @@ class LibraryStore extends Store {
 	#fetchList( list, { offset = 0, count = perPage, inPlace = false } = {} ) {
 		if ( 'search' === list ) {
 			clearTimeout( this.#timeout );
+			this.#timeout = 0;
 		}
 
 		const signal = this.#signal( list );
