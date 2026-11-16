@@ -53,7 +53,7 @@ class Meta {
 	 *
 	 * @var string
 	 */
-	private const string DATE_PATTERN = '^\d{4}(-\d{2}(-\d{2})?)?$';
+	public const string DATE_PATTERN = '^\d{4}(-\d{2}(-\d{2})?)?$';
 
 	/**
 	 * Pattern of an ISBN-10 or ISBN-13, with or without hyphens or spaces, or of another EAN-13, the barcode of a book
@@ -146,8 +146,8 @@ class Meta {
 			'library_subtitle'          => __( 'Shown after the title, such as “The Knife: Meditations After an Attempted Murder”.', 'library' ),
 			'library_isbn'              => __( '10 or 13 digits, with or without hyphens, such as 9782070360246, which becomes 978-2-07-036024-6; for a book without ISBN, the 13 digits of its barcode.', 'library' ),
 			'library_collection_number' => __( 'Shown after the collection, such as “Pocket Science-fiction no. 5667”.', 'library' ),
-			'library_published_date'    => __( 'When the work first came out, whatever the edition: a year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' ),
-			'library_edition_date'      => __( 'When this edition, the one of its ISBN, first came out, whatever the printing of the copy: a year, a year and month, or a date, such as 1972.', 'library' ),
+			'library_published_date'    => __( 'When the work first came out, whatever the edition.', 'library' ),
+			'library_edition_date'      => __( 'When this edition, the one of its ISBN, first came out, whatever the printing of the copy.', 'library' ),
 			'library_collective'        => __( 'A magazine or an anthology, whose authors each give a part: it does not count among the books of any of them.', 'library' ),
 			'library_edition_languages' => __( 'The languages of its text, several for a multilingual edition: it is read in its original language when they all are original languages of the book.', 'library' ),
 		);

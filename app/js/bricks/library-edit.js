@@ -11,6 +11,7 @@ import { join } from 'library-app/format';
  * @import { CatalogBook, Credit } from 'library-app/api'
  * @import { Catalog } from 'library-app/store'
  * @import { CheckboxesFieldElement } from '../components/checkboxes-field.js'
+ * @import { PartialDateElement } from '../components/partial-date.js'
  */
 
 /**
@@ -94,10 +95,11 @@ class LibraryEditElement extends Brick {
 		} = /** @type {HTMLFormControlsCollection & EditFields} */ (
 			$form.elements
 		);
-		// The fields of the meta are named after them.
-		const $meta = /** @type {HTMLInputElement[]} */ ( [
-			...$form.querySelectorAll( '[data-meta]' ),
-		] );
+		// The fields of the meta are named after them: an input, or a date by its parts.
+		const $meta =
+			/** @type {Array<HTMLInputElement|PartialDateElement>} */ ( [
+				...$form.querySelectorAll( '[data-meta]' ),
+			] );
 		// The languages, a checkbox each, its value a term ID.
 		/** @type {CheckboxesFieldElement} */
 		const $languages = $form.querySelector(
@@ -108,10 +110,10 @@ class LibraryEditElement extends Brick {
 			'checkboxes-field[name="edition_languages"]'
 		);
 		// A checkbox stands for a boolean, its value being the one it sends once checked.
-		/** @type {( $field: Field ) => string|boolean} */
+		/** @type {( $field: Field|PartialDateElement ) => string|boolean} */
 		const getValue = ( $field ) =>
-			'checkbox' === $field.type
-				? /** @type {HTMLInputElement} */ ( $field ).checked
+			$field instanceof HTMLInputElement && 'checkbox' === $field.type
+				? $field.checked
 				: $field.value;
 		// The names, each in the group of its role.
 		const $people = this.querySelector( 'input-groups' );
@@ -138,13 +140,16 @@ class LibraryEditElement extends Brick {
 
 		const clearErrors = showErrors( $form, signal );
 
-		// The summary of the details counts the fields filled in, as the button of the filters does: the checkboxes of a field once.
+		// The summary of the details counts the fields filled in, as the button of the filters does: the checkboxes of a field
+		// once, a date once, its parts sending nothing.
 		const countDetails = () => {
 			const filled = new Set(
-				/** @type {Field[]} */ ( [
-					...$details.querySelectorAll( 'input, select, textarea' ),
+				/** @type {Array<Field|PartialDateElement>} */ ( [
+					...$details.querySelectorAll(
+						'input, select, textarea, partial-date'
+					),
 				] )
-					.filter( getValue )
+					.filter( ( $field ) => $field.name && getValue( $field ) )
 					.map( ( $field ) => $field.name )
 			).size;
 
@@ -205,7 +210,7 @@ class LibraryEditElement extends Brick {
 		 * @param {CatalogBook} book The book of the catalogue.
 		 */
 		const fillEmpty = ( book ) => {
-			/** @type {Array<[Field, string]>} */
+			/** @type {Array<[Field|PartialDateElement, string]>} */
 			const values = [
 				[ $title, book.title ],
 				[ $publisher, book.publisher ],
@@ -214,7 +219,10 @@ class LibraryEditElement extends Brick {
 				...$meta.map( ( $field ) => {
 					const value = ( book.meta[ $field.name ] ?? '' ).toString();
 
-					return /** @type {[Field, string]} */ ( [ $field, value ] );
+					return /** @type {[PartialDateElement, string]} */ ( [
+						$field,
+						value,
+					] );
 				} ),
 			];
 			values
@@ -409,7 +417,10 @@ class LibraryEditElement extends Brick {
 						$meta.forEach( ( $field ) => {
 							const value = book.meta[ $field.name ] ?? '';
 
-							if ( 'checkbox' === $field.type ) {
+							if (
+								$field instanceof HTMLInputElement &&
+								'checkbox' === $field.type
+							) {
 								$field.checked = Boolean( value );
 							} else {
 								$field.value = value.toString();

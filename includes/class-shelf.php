@@ -86,7 +86,7 @@ class Shelf {
 			'library_printed_date' => array(
 				'type'              => 'string',
 				'label'             => __( 'Printed', 'library' ),
-				'description'       => __( 'When the copy in hand was printed, as its colophon says: a year, a year and month, or a date, such as 2014-04 or 2014-04-23.', 'library' ),
+				'description'       => __( 'When the copy in hand was printed, as its colophon says.', 'library' ),
 				'sanitize_callback' => array( Meta::class, 'sanitize_partial_date' ),
 			),
 			'library_reading'      => array(

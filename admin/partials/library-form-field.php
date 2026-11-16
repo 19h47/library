@@ -19,8 +19,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$field_id    = str_replace( '_', '-', $key );
-$description = Meta::get_description( $key );
+$field_id = str_replace( '_', '-', $key );
+// A date is typed here as ISO 8601 writes it, rather than by its parts as in the app: its description says how.
+$description = Meta::DATE_PATTERN === Meta::get_pattern( $key )
+	? Meta::get_description( $key ) . ' ' . __( 'A year, a year and month, or a date, such as 1929, 1929-11 or 1929-11-08.', 'library' )
+	: Meta::get_description( $key );
 $is_boolean  = 'boolean' === get_registered_meta_keys( 'post', 'library_book' )[ $key ]['type'];
 // The select of a rating keeps the width of its choices.
 $widths = array(

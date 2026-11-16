@@ -27,6 +27,7 @@
 #1741f9acbe | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); oklch(0.76 0.06 45); 1px; rgb(58, 56, 52); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #177bb302ee | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(92, 92, 92); rgba(0, 0, 0, 0); 0px; rgb(92, 92, 92); 0px; -1px; -1px; -1px; -1px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #1783060db9 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 20.35px; 400; 32.93px; -0.41px; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
+#19a67c1f2d | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 0px; 34.33px; 0px; 16px; normal; normal; none; 0.62
 #19f6f01c99 | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgb(26, 26, 26); 1px; rgb(58, 56, 52); 9.89px; 0px; 0px; 0px; 0px; 83.78px; 25.89px; 25.89px; 25.89px; 16px; 16px; none; 1
 #1aea44b315 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; -4px; 0px; -4px; 0px; 4px; 0px; 4px; 0px; 9.89px; 9.89px; none; 1
 #1b52cac136 | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 9.89px; 0px; 9.89px; 0px; 0px; 0px; 0px; 0px; 16px; 16px; none; 1
@@ -113,6 +114,7 @@
 #780ec72c98 | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; none; none; rgb(154, 151, 144); rgba(0, 0, 0, 0); 0px; rgb(154, 151, 144); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #792bd6f500 | inline-flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(69, 69, 69); color(srgb 0.79 0.77 0.72 / 0.08); 1px; rgb(201, 196, 184); 3.36e+07px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 9.89px; 9.89px; none; 1
 #793018797d | flow-root; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
+#7953285326 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 0px; 34.33px; 0px; 16px; normal; normal; none; 0.62
 #7979a43f96 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 700; 41.89px; -0.66px; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #799673025c | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 16px; 16px; none; 1
 #7a5b8be307 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
@@ -199,6 +201,7 @@
 #c7b96ad43d | inline; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; underline; rgb(154, 151, 144); rgba(0, 0, 0, 0); 0px; rgb(154, 151, 144); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #c7febf041c | inline-flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(186, 186, 186); color(srgb 0.23 0.22 0.2 / 0.08); 1px; rgb(58, 56, 52); 3.36e+07px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 9.89px; 9.89px; none; 1
 #c83ada9454 | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(92, 92, 92); rgba(0, 0, 0, 0); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 3.36e+07px; 0px; 0px; 0px; 0px; 4.8px; 7.77px; 4.8px; 7.77px; 9.89px; 9.89px; none; 1
+#c8654f2168 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 8px; 8px; none; 1
 #cbc2b30d7e | inline-flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(154, 151, 144); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 3.36e+07px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 9.89px; 9.89px; none; 1
 #cbd157aa9a | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(92, 92, 92); rgba(0, 0, 0, 0); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 3.36e+07px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 9.89px; 9.89px; none; 1
 #cbe2726b93 | none; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(92, 92, 92); rgba(0, 0, 0, 0); 0px; rgb(92, 92, 92); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 6.11px; 9.89px; none; 1
@@ -240,6 +243,7 @@
 #ea1a955919 | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; underline; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #ea1e4e7e05 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #ea85579336 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 400; 53.28px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
+#eb0d2dd9a8 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 8px; 8px; none; 1
 #ebeca59974 | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 9.89px; 16px; none; 1
 #ecf24d7f24 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 6.11px; 16px; none; 1
 #ed9ef7f915 | flex; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; rgb(58, 56, 52); 9.89px; 0px; 0px; 0px; 0px; 16px; 16px; 16px; 16px; 9.89px; 9.89px; none; 1
@@ -743,6 +747,120 @@ phone light | reading-period > div:1 | #7665ec1129
 phone light | reading-period > div:1>reading-period:0 | #b0b9041b14
 phone light | reading-period > div:1>reading-period:0>input:0 | #2ed6aea798
 phone light | reading-period > div:1>reading-period:0>input:2 | #2ed6aea798
+phone light | partial-date >  | #21099a2d4f
+phone light | partial-date > figcaption:0 | #3b31681e54
+phone light | partial-date > figcaption:0>h4:0 | #ee4e620dd5
+phone light | partial-date > figcaption:0>h4:0>code:0 | #dbdf5b1996
+phone light | partial-date > figcaption:0>p:1 | #f32e27d3ba
+phone light | partial-date > figcaption:0>p:1>code:0 | #e00eee4ef4
+phone light | partial-date > figcaption:0>p:1>code:1 | #e00eee4ef4
+phone light | partial-date > figcaption:0>p:1>code:2 | #e00eee4ef4
+phone light | partial-date > figcaption:0>p:1>code:3 | #e00eee4ef4
+phone light | partial-date > div:1 | #7665ec1129
+phone light | partial-date > div:1>partial-date:0 | #7a5b8be307
+phone light | partial-date > div:1>partial-date:0>fieldset:0 | #da08901de0
+phone light | partial-date > div:1>partial-date:0>fieldset:0>legend:0 | #e35d9f74b4
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1 | #7953285326
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:0 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:1 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:2 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:3 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:4 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:5 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:6 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:7 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:8 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:9 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:10 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:11 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:12 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:13 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:14 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:15 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:16 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:17 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:18 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:19 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:20 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:21 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:22 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:23 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:24 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:25 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:26 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:27 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:28 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:29 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:30 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:31 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2 | #bb221247ae
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:0 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:1 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:2 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:3 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:4 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:5 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:6 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:7 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:8 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:9 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:10 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:11 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:12 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:0>fieldset:0>input:3 | #2ed6aea798
+phone light | partial-date > div:1>partial-date:0>fieldset:0>small:4 | #f93c5a365e
+phone light | partial-date > div:1>partial-date:1 | #7a5b8be307
+phone light | partial-date > div:1>partial-date:1>fieldset:0 | #da08901de0
+phone light | partial-date > div:1>partial-date:1>fieldset:0>legend:0 | #e35d9f74b4
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1 | #bb221247ae
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:0 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:1 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:2 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:3 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:4 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:5 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:6 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:7 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:8 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:9 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:10 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:11 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:12 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:13 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:14 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:15 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:16 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:17 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:18 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:19 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:20 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:21 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:22 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:23 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:24 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:25 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:26 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:27 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:28 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:29 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:30 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:31 | #eb0d2dd9a8
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2 | #bb221247ae
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:0 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:1 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:2 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:3 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:4 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:5 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:6 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:7 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:8 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:9 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:10 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:11 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:12 | #dd8fe579bb
+phone light | partial-date > div:1>partial-date:1>fieldset:0>input:3 | #2ed6aea798
+phone light | partial-date > div:1>partial-date:1>fieldset:0>small:4 | #f93c5a365e
 phone light | barcode-scan >  | #21099a2d4f
 phone light | barcode-scan > figcaption:0 | #3b31681e54
 phone light | barcode-scan > figcaption:0>h4:0 | #ee4e620dd5
@@ -2333,6 +2451,120 @@ phone dark | reading-period > div:1 | #cd09adf1d8
 phone dark | reading-period > div:1>reading-period:0 | #f3e118a00f
 phone dark | reading-period > div:1>reading-period:0>input:0 | #7b366bf6d0
 phone dark | reading-period > div:1>reading-period:0>input:2 | #7b366bf6d0
+phone dark | partial-date >  | #2d88a2661e
+phone dark | partial-date > figcaption:0 | #7a7a09ffad
+phone dark | partial-date > figcaption:0>h4:0 | #39ad583df4
+phone dark | partial-date > figcaption:0>h4:0>code:0 | #22cc5d16f1
+phone dark | partial-date > figcaption:0>p:1 | #780ec72c98
+phone dark | partial-date > figcaption:0>p:1>code:0 | #da82be0cbf
+phone dark | partial-date > figcaption:0>p:1>code:1 | #da82be0cbf
+phone dark | partial-date > figcaption:0>p:1>code:2 | #da82be0cbf
+phone dark | partial-date > figcaption:0>p:1>code:3 | #da82be0cbf
+phone dark | partial-date > div:1 | #cd09adf1d8
+phone dark | partial-date > div:1>partial-date:0 | #9270eec119
+phone dark | partial-date > div:1>partial-date:0>fieldset:0 | #f45733e855
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>legend:0 | #07e4467ed6
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1 | #19a67c1f2d
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:0 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:1 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:2 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:3 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:4 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:5 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:6 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:7 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:8 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:9 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:10 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:11 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:12 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:13 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:14 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:15 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:16 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:17 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:18 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:19 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:20 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:21 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:22 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:23 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:24 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:25 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:26 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:27 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:28 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:29 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:30 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:31 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2 | #0d76026c2c
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:0 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:1 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:2 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:3 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:4 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:5 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:6 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:7 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:8 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:9 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:10 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:11 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:12 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>input:3 | #7b366bf6d0
+phone dark | partial-date > div:1>partial-date:0>fieldset:0>small:4 | #a2680ab512
+phone dark | partial-date > div:1>partial-date:1 | #9270eec119
+phone dark | partial-date > div:1>partial-date:1>fieldset:0 | #f45733e855
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>legend:0 | #07e4467ed6
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1 | #0d76026c2c
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:0 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:1 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:2 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:3 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:4 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:5 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:6 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:7 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:8 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:9 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:10 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:11 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:12 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:13 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:14 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:15 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:16 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:17 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:18 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:19 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:20 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:21 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:22 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:23 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:24 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:25 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:26 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:27 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:28 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:29 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:30 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:31 | #c8654f2168
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2 | #0d76026c2c
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:0 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:1 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:2 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:3 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:4 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:5 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:6 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:7 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:8 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:9 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:10 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:11 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:12 | #b1eb411d5b
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>input:3 | #7b366bf6d0
+phone dark | partial-date > div:1>partial-date:1>fieldset:0>small:4 | #a2680ab512
 phone dark | barcode-scan >  | #2d88a2661e
 phone dark | barcode-scan > figcaption:0 | #7a7a09ffad
 phone dark | barcode-scan > figcaption:0>h4:0 | #39ad583df4
@@ -3923,6 +4155,120 @@ wide light | reading-period > div:1 | #7665ec1129
 wide light | reading-period > div:1>reading-period:0 | #21099a2d4f
 wide light | reading-period > div:1>reading-period:0>input:0 | #2ed6aea798
 wide light | reading-period > div:1>reading-period:0>input:2 | #2ed6aea798
+wide light | partial-date >  | #21099a2d4f
+wide light | partial-date > figcaption:0 | #3b31681e54
+wide light | partial-date > figcaption:0>h4:0 | #ee4e620dd5
+wide light | partial-date > figcaption:0>h4:0>code:0 | #dbdf5b1996
+wide light | partial-date > figcaption:0>p:1 | #f32e27d3ba
+wide light | partial-date > figcaption:0>p:1>code:0 | #e00eee4ef4
+wide light | partial-date > figcaption:0>p:1>code:1 | #e00eee4ef4
+wide light | partial-date > figcaption:0>p:1>code:2 | #e00eee4ef4
+wide light | partial-date > figcaption:0>p:1>code:3 | #e00eee4ef4
+wide light | partial-date > div:1 | #7665ec1129
+wide light | partial-date > div:1>partial-date:0 | #7a5b8be307
+wide light | partial-date > div:1>partial-date:0>fieldset:0 | #da08901de0
+wide light | partial-date > div:1>partial-date:0>fieldset:0>legend:0 | #e35d9f74b4
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1 | #7953285326
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:0 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:1 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:2 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:3 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:4 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:5 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:6 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:7 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:8 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:9 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:10 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:11 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:12 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:13 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:14 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:15 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:16 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:17 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:18 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:19 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:20 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:21 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:22 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:23 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:24 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:25 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:26 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:27 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:28 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:29 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:30 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:1>option:31 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2 | #bb221247ae
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:0 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:1 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:2 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:3 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:4 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:5 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:6 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:7 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:8 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:9 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:10 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:11 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>select:2>option:12 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:0>fieldset:0>input:3 | #2ed6aea798
+wide light | partial-date > div:1>partial-date:0>fieldset:0>small:4 | #f93c5a365e
+wide light | partial-date > div:1>partial-date:1 | #7a5b8be307
+wide light | partial-date > div:1>partial-date:1>fieldset:0 | #da08901de0
+wide light | partial-date > div:1>partial-date:1>fieldset:0>legend:0 | #e35d9f74b4
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1 | #bb221247ae
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:0 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:1 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:2 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:3 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:4 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:5 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:6 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:7 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:8 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:9 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:10 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:11 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:12 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:13 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:14 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:15 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:16 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:17 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:18 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:19 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:20 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:21 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:22 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:23 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:24 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:25 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:26 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:27 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:28 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:29 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:30 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:1>option:31 | #eb0d2dd9a8
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2 | #bb221247ae
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:0 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:1 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:2 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:3 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:4 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:5 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:6 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:7 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:8 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:9 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:10 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:11 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>select:2>option:12 | #dd8fe579bb
+wide light | partial-date > div:1>partial-date:1>fieldset:0>input:3 | #2ed6aea798
+wide light | partial-date > div:1>partial-date:1>fieldset:0>small:4 | #f93c5a365e
 wide light | barcode-scan >  | #21099a2d4f
 wide light | barcode-scan > figcaption:0 | #3b31681e54
 wide light | barcode-scan > figcaption:0>h4:0 | #ee4e620dd5

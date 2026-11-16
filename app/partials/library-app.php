@@ -625,18 +625,12 @@ use Library\Meta;
 								// The copy of the reader, theirs: the same book, another printing, their notes, and its photo, which shows instead
 								// of the cover of its edition.
 								Markup::render_component(
-									'field',
+									'partial-date',
 									array(
 										'id'          => 'library-reading-printed-date',
 										'label'       => Meta::get_label( 'library_printed_date' ),
 										'description' => Meta::get_description( 'library_printed_date' ),
-										'control'     => Meta::get_control(
-											'library_printed_date',
-											array(
-												'name' => Meta::get_name( 'library_printed_date' ),
-												'autocomplete' => 'off',
-											)
-										),
+										'name'        => Meta::get_name( 'library_printed_date' ),
 									)
 								);
 								Markup::render_component(
@@ -851,16 +845,30 @@ use Library\Meta;
 					<details class="library-disclosure library-edit__details" data-part="details">
 						<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
 						<?php
-						foreach ( array( 'library_subtitle', 'library_published_date', 'library_edition_date', 'library_pages' ) as $key ) {
+						Markup::render_component( 'meta-field', array( 'key' => 'library_subtitle' ) );
+
+						// A date by its day, its month in words and its year, rather than typed in the order of ISO 8601.
+						foreach ( array( 'library_published_date', 'library_edition_date' ) as $key ) {
 							Markup::render_component(
-								'meta-field',
+								'partial-date',
 								array(
-									'key'        => $key,
-									// A number of pages is typed with the digits only; a date takes hyphens, which a numeric keyboard may not have.
-									'attributes' => 'library_pages' === $key ? array( 'inputmode' => 'numeric' ) : array(),
+									'id'          => 'library-edit-' . str_replace( '_', '-', $key ),
+									'label'       => Meta::get_label( $key ),
+									'description' => Meta::get_description( $key ),
+									'name'        => Meta::get_name( $key ),
+									'attributes'  => array( 'data-meta' => true ),
 								)
 							);
 						}
+
+						// A number of pages is typed with the digits only.
+						Markup::render_component(
+							'meta-field',
+							array(
+								'key'        => 'library_pages',
+								'attributes' => array( 'inputmode' => 'numeric' ),
+							)
+						);
 
 						Markup::render_component(
 							'checkboxes-field',
