@@ -1,0 +1,16 @@
+/**
+ * What the catalogue tells of a book to add: the book that has its ISBN or its title already, or the search of the
+ * catalogue of the BnF.
+ */
+
+@layer app.components {
+	/* Its messages stay in the page, to be read once one shows, out of the flow while none does */
+	.library-catalogue-status:not(:has(> :not([hidden]))) {
+		position: absolute;
+	}
+
+	/* The button that buys the book to buy, or puts the book of the catalogue in the library, after its title */
+	.library-catalogue-status__duplicate > .app-pill {
+		margin-inline-start: var(--app-space-s);
+	}
+}

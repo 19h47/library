@@ -894,15 +894,15 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>isbn-status</code></h4>
-					<p>Under the ISBN of a book to add, a status: the book that has it already, a book to buy bought from there; else what the catalogue of the BnF answered</p>
+					<h4 class="library-styleguide__name"><code>catalogue-status</code></h4>
+					<p>Under the ISBN of a book to add, a status: the book of the catalogue that has its ISBN or its title already, added, a book to buy bought from there, or put in the library from there; else what the catalogue of the BnF answered</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<div data-sample="isbn-status-duplicate">
-						<?php Markup::render_component( 'isbn-status' ); ?>
+					<div data-sample="catalogue-status-duplicate">
+						<?php Markup::render_component( 'catalogue-status' ); ?>
 					</div>
-					<div data-sample="isbn-status-catalog">
-						<?php Markup::render_component( 'isbn-status' ); ?>
+					<div data-sample="catalogue-status-catalog">
+						<?php Markup::render_component( 'catalogue-status' ); ?>
 					</div>
 				</div>
 			</figure>

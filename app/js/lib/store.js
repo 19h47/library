@@ -11,7 +11,6 @@
 import {
 	__,
 	appUrl,
-	catalogue,
 	forms,
 	icons,
 	inLibrary,
@@ -151,7 +150,7 @@ import * as api from 'library-app/api';
  * @property {'light'|'dark'}         theme        The theme shown.
  * @property {boolean}                themeChosen  Whether the theme was chosen over the system one.
  * @property {string}                 read         The read state of the books shown: "", "yes", "no" or "progress".
- * @property {string}                 shelf        The shelf of the books shown: "" for any of the reader, a status, or the catalogue.
+ * @property {string}                 shelf        The shelf of the books shown: "" for any of the reader, or a status.
  * @property {string}                 form         The term ID of the form of the books shown, "" for any.
  * @property {string}                 sort         The order of the books, "" for the latest added.
  * @property {boolean}                covers       Whether the lists of books show as a grid of their covers.
@@ -251,10 +250,8 @@ function load() {
 		read: [ 'yes', 'no', 'progress' ].includes( saved?.read )
 			? saved.read
 			: '',
-		// "" for any shelf of the reader, the status of the books shown, such as not kept, or the whole catalogue.
-		shelf: [ ...STATUSES, catalogue ].includes( saved?.shelf )
-			? saved.shelf
-			: '',
+		// "" for any shelf of the reader, or the status of the books shown, such as not kept.
+		shelf: STATUSES.includes( saved?.shelf ) ? saved.shelf : '',
 		// "" for any, or the term ID of the form of the books shown, such as comics.
 		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
 		// "" for the latest added, or one of SORTS.
@@ -358,8 +355,9 @@ function readingOf( book ) {
 
 /**
  * What a list asks the API for: `search` the books the search finds on the shelf chosen, else on any shelf of the
- * reader but the books to buy for the books to read, which are not at hand, or in the whole catalogue, and of the form
- * chosen, in the order chosen; `toBuy` the books to buy; `inProgress` the books being read, the latest started first.
+ * reader but the books to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen;
+ * `toBuy` the books to buy; `inProgress` the books being read, the latest started first. The app lists the books of the
+ * reader, never the whole catalogue.
  *
  * @param {List}  list  The list.
  * @param {State} state The state, its search and filters.
@@ -384,7 +382,7 @@ function queryOf( list, state ) {
 
 	return {
 		...( search && { search } ),
-		...( catalogue !== shelf && { shelf } ),
+		shelf,
 		...( state.form && { forms: state.form } ),
 		...order,
 	};
@@ -612,6 +610,12 @@ class LibraryStore extends Store {
 	 * @type {Set<string>}
 	 */
 	#stale = new Set();
+	/**
+	 * The title typed last in the form of a book to add, whose search alone fills it.
+	 *
+	 * @type {string}
+	 */
+	#title = '';
 
 	/**
 	 * The resources: the parts of the state the API fills, each with its state `empty`, how it loads the first time, and
@@ -950,6 +954,38 @@ class LibraryStore extends Store {
 		this.#update( 'editing', ( current ) =>
 			current.open && ! current.id && digits === current.catalog.isbn
 				? { catalog }
+				: {}
+		);
+	}
+
+	/**
+	 * Looks for a book of the catalogue with the title typed in the form of a book to add without ISBN, such as a book
+	 * printed before ISBNs: the reader puts it on their shelves rather than adding it twice. A title typed again leaves
+	 * the search of the one before.
+	 *
+	 * @param {string} title The title typed.
+	 */
+	async checkTitle( title ) {
+		const typed = title.trim();
+		let duplicate = 0;
+
+		this.#title = typed;
+
+		if ( typed ) {
+			try {
+				duplicate = await api.findTitle( typed );
+				await this.#fetchBooks( duplicate ? [ duplicate ] : [] );
+			} catch {
+				duplicate = 0;
+			}
+		}
+
+		this.#update( 'editing', ( current ) =>
+			current.open &&
+			! current.id &&
+			! current.catalog.isbn &&
+			typed === this.#title
+				? { duplicate }
 				: {}
 		);
 	}
@@ -1636,16 +1672,6 @@ class LibraryStore extends Store {
 	 */
 	async #refreshList( list, id ) {
 		const query = queryOf( list, this.get() );
-
-		// Every book is found in the whole catalogue without a search or a form chosen.
-		if (
-			'search' === list &&
-			! query.search &&
-			! query.shelf &&
-			! query.forms
-		) {
-			return;
-		}
 
 		try {
 			const isFound = await api.finds( query, id );

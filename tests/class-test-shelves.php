@@ -166,6 +166,72 @@ class Test_Shelves extends TestCase {
 	}
 
 	/**
+	 * The page of a person, of a series and of a collection lists the books on the shelves of the reader, to buy too,
+	 * never a book of the catalogue on none of them, such as one another reader added.
+	 *
+	 * @return void
+	 */
+	public function test_the_pages_of_a_term_list_the_books_of_the_reader(): void {
+		$book   = array(
+			'people'    => array(
+				array(
+					'name' => 'Ada Palmer',
+					'role' => 'author',
+				),
+			),
+			'series'    => 'Terra Ignota',
+			'publisher' => 'Tor',
+		);
+		$kept   = $this->add_book( $book );
+		$to_buy = $this->add_book( $book + array( 'shelf' => array( 'status' => Status::To_Buy->value ) ) );
+		$reader = get_current_user_id();
+		$terms  = array(
+			'people'     => get_term_by( 'name', 'Ada Palmer', 'library_person' )->term_id,
+			'series'     => get_term_by( 'name', 'Terra Ignota', 'library_series' )->term_id,
+			'publishers' => get_term_by( 'name', 'Tor', 'library_publisher' )->term_id,
+		);
+
+		$this->as_user( 'library_reader' );
+
+		$other = $this->add_book( $book );
+
+		foreach ( $terms as $route => $term_id ) {
+			$this->assertSame( array( $other ), $this->request( 'GET', "/library/v1/$route/$term_id" )->get_data()['books'], $route );
+		}
+
+		wp_set_current_user( $reader );
+
+		foreach ( $terms as $route => $term_id ) {
+			$this->assertEqualsCanonicalizing( array( $kept, $to_buy ), $this->request( 'GET', "/library/v1/$route/$term_id" )->get_data()['books'], $route );
+		}
+	}
+
+	/**
+	 * The keyword title: finds a book of the catalogue by its whole title, whatever its case, its accents and its
+	 * apostrophes, straight or curly; a part of it finds none.
+	 *
+	 * @return void
+	 */
+	public function test_a_title_finds_a_book_of_the_catalogue(): void {
+		$book_id = $this->add_book( array( 'title' => 'L’Écume des jours' ) );
+
+		$this->as_user( 'library_reader' );
+
+		$ids = function ( string $title ): array {
+			$params = array(
+				'search'  => "title:\"$title\"",
+				'_fields' => 'id',
+			);
+
+			return wp_list_pluck( $this->request( 'GET', '/wp/v2/books', $params )->get_data(), 'id' );
+		};
+
+		$this->assertSame( array( $book_id ), $ids( "l'ecume des jours" ) );
+		$this->assertSame( array( $book_id ), $ids( 'L’Écume des jours' ) );
+		$this->assertSame( array(), $ids( 'Écume' ) );
+	}
+
+	/**
 	 * Two readers read the same book each their own way, their copies printed apart, though one of them cannot edit it:
 	 * neither gets the readings, the rating or the copy of the other, nor finds the book among their books read.
 	 *

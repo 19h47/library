@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-15T19:11:18+00:00\n"
+"POT-Creation-Date: 2026-11-16T07:57:26+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php:11 admin/class-dashboard.php:82 app/class-login.php:207
-#: app/class-page.php:155 app/class-page.php:368 app/class-page.php:369
+#: app/class-page.php:148 app/class-page.php:361 app/class-page.php:362
 #: app/partials/library-app.php:44 app/partials/library-app.php:63
 #: app/partials/library-app.php:153 app/partials/library-app.php:574
 #: app/partials/library-app.php:844
@@ -56,7 +56,7 @@ msgid "https://www.19h47.fr"
 msgstr "https://www.19h47.fr"
 
 #: admin/class-achievements-page.php:64 admin/class-achievements-page.php:71
-#: admin/partials/library-achievements.php:20 app/class-page.php:340
+#: admin/partials/library-achievements.php:20 app/class-page.php:333
 #: app/partials/library-app.php:269 app/partials/library-app.php:519
 msgid "Achievements"
 msgstr "Succès"
@@ -483,7 +483,7 @@ msgstr[0] "%s langue d’origine"
 msgstr[1] "%s langues d’origine"
 
 #: admin/partials/library-dashboard-idea.php:24
-#: includes/class-rest-api.php:1267
+#: includes/class-rest-api.php:1268
 msgid "No book to read."
 msgstr "Aucun livre à lire."
 
@@ -639,19 +639,19 @@ msgstr ""
 msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
 
-#: app/class-page.php:156
+#: app/class-page.php:149
 msgid "App"
 msgstr "Application"
 
-#: app/class-page.php:338
+#: app/class-page.php:331
 msgid "Diary"
 msgstr "Journal"
 
-#: app/class-page.php:339
+#: app/class-page.php:332
 msgid "Idea"
 msgstr "Idée"
 
-#: app/class-page.php:341
+#: app/class-page.php:334
 msgid "To buy"
 msgstr "Envies"
 
@@ -682,6 +682,22 @@ msgstr "L’exemplaire"
 msgid "Added"
 msgstr "Ajouté le"
 
+#: app/components/catalogue-status.php:18
+msgid "Already added:"
+msgstr "Déjà ajouté :"
+
+#: app/components/catalogue-status.php:18
+msgid "This book is in the catalogue:"
+msgstr "Ce livre est au catalogue :"
+
+#: app/components/catalogue-status.php:20
+msgid "I bought it"
+msgstr "Je l’ai acheté"
+
+#: app/components/catalogue-status.php:20
+msgid "Put it in my library"
+msgstr "Le mettre dans ma bibliothèque"
+
 #: app/components/checkboxes-field.php:47
 msgid "Remove:"
 msgstr "Retirer :"
@@ -704,18 +720,6 @@ msgstr "Fermer"
 msgctxt "one field"
 msgid "%s (required)"
 msgstr "%s (obligatoire)"
-
-#: app/components/isbn-status.php:18
-msgid "Already added:"
-msgstr "Déjà ajouté :"
-
-#: app/components/isbn-status.php:20
-msgid "I bought it"
-msgstr "Je l’ai acheté"
-
-#: app/components/isbn-status.php:20
-msgid "Put it in my library"
-msgstr "Le mettre dans ma bibliothèque"
 
 #: app/components/offline-status.php:14
 msgid ""
@@ -807,10 +811,6 @@ msgstr "Lu"
 #: app/partials/library-app.php:146 app/js/lib/book-lines.js:136
 msgid "To read"
 msgstr "À lire"
-
-#: app/partials/library-app.php:154
-msgid "All the catalogue"
-msgstr "Tout le catalogue"
 
 #: app/partials/library-app.php:167 app/partials/library-app.php:182
 msgid "Filters"
@@ -1445,7 +1445,7 @@ msgstr "Retour aux sources"
 msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
-#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:447
+#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:459
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr "Le catalogue de la BnF ne répond pas : réessayez plus tard."
 
@@ -1757,50 +1757,54 @@ msgid "form:novel"
 msgstr "form:roman"
 
 #: includes/class-query.php:449
+msgid "a title, by its exact name"
+msgstr "un titre, par son nom exact"
+
+#: includes/class-query.php:450
 msgid "a series, or a cycle with its series, by its exact name"
 msgstr "une série, ou un cycle avec ses séries, par son nom exact"
 
-#: includes/class-query.php:450
+#: includes/class-query.php:451
 msgid "an author, with their other names"
 msgstr "un auteur ou une autrice, avec ses autres noms"
 
-#: includes/class-query.php:451
+#: includes/class-query.php:452
 msgid "a publisher, with its collections"
 msgstr "un éditeur, avec ses collections"
 
-#: includes/class-query.php:452
+#: includes/class-query.php:453
 msgid "a translator"
 msgstr "un traducteur ou une traductrice"
 
-#: includes/class-query.php:453
+#: includes/class-query.php:454
 msgid "the original language, by its code or the start of its name"
 msgstr "la langue originale, par son code ou le début de son nom"
 
-#: includes/class-query.php:454
+#: includes/class-query.php:455
 msgid "the form, by its name"
 msgstr "la forme, par son nom"
 
-#: includes/class-query.php:455
+#: includes/class-query.php:456
 msgid "the ISBN, with or without hyphens"
 msgstr "l’ISBN, avec ou sans tirets"
 
-#: includes/class-query.php:456
+#: includes/class-query.php:457
 msgid "read or not, or read in a year or a month, rereads included"
 msgstr "lu ou non, ou lu une année ou un mois, relectures comprises"
 
-#: includes/class-query.php:457
+#: includes/class-query.php:458
 msgid "being read or not, for the first time or again"
 msgstr "en cours de lecture ou non, une première fois ou de nouveau"
 
-#: includes/class-query.php:458
+#: includes/class-query.php:459
 msgid "rated 9 or more; a half point with a dot: 8.5"
 msgstr "noté 9 ou plus ; un demi-point avec un point : 8.5"
 
-#: includes/class-query.php:470
+#: includes/class-query.php:471
 msgid "Search"
 msgstr "Recherche"
 
-#: includes/class-query.php:472
+#: includes/class-query.php:473
 msgid ""
 "The search finds the text in the title, subtitle, series, ISBN, ISSN, volume "
 "number, collection number, people, publishers, collections, original "
@@ -1812,7 +1816,7 @@ msgstr ""
 "clés la limitent à un champ :"
 
 #. translators: 1: search with a keyword and a word, 2: keyword with two values, 3: keyword excluded, 4: value with spaces.
-#: includes/class-query.php:476
+#: includes/class-query.php:477
 #, php-format
 msgid ""
 "Keywords add up, with the rest of the search: %1$s. A comma gives a choice, "
@@ -2147,7 +2151,7 @@ msgstr ""
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:664 app/js/bricks/library-edit.js:443
+#: includes/class-rest-api.php:664 app/js/bricks/library-edit.js:455
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
@@ -2242,8 +2246,8 @@ msgid "How many of these books they wrote."
 msgstr "Combien de ces livres ils ou elles ont écrits."
 
 #: includes/class-rest-schemas.php:177
-msgid "IDs of its books, in order."
-msgstr "ID de ses livres, dans l’ordre."
+msgid "IDs of its books on the shelves of the reader, in order."
+msgstr "ID de ses livres sur les étagères du lecteur, dans l’ordre."
 
 #: includes/class-rest-schemas.php:178
 msgid "How many of its books are read."
@@ -3088,8 +3092,9 @@ msgid ""
 "How the achievements of this form name its books read, in the plural, such "
 "as “novels read” or “comics read”. Without it, they say “books read”."
 msgstr ""
-"Le nom des livres lus de cette forme dans ses succès, au pluriel, comme « romans "
-"lus » ou « bandes dessinées lues ». Sans lui, ils disent « livres lus »."
+"Le nom des livres lus de cette forme dans ses succès, au pluriel, comme "
+"« romans lus » ou « bandes dessinées lues ». Sans lui, ils disent « livres "
+"lus »."
 
 #. translators: 1: code typed for a language, e.g. fra; 2: its code in the library, e.g. fr.
 #: includes/class-taxonomies.php:679
@@ -3145,11 +3150,11 @@ msgstr "Aucune lecture pour l’instant."
 msgid "Read again"
 msgstr "Relu"
 
-#: app/js/bricks/library-edit.js:435
+#: app/js/bricks/library-edit.js:447
 msgid "Searching the catalogue of the BnF…"
 msgstr "Recherche dans le catalogue de la BnF…"
 
-#: app/js/bricks/library-edit.js:439
+#: app/js/bricks/library-edit.js:451
 msgid "Filled in from the catalogue of the BnF: check what it gives."
 msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 
@@ -3329,11 +3334,11 @@ msgstr "Le plus ancien"
 msgid "No barcode found in the photo: take it again, closer."
 msgstr "Aucun code-barres sur la photo : reprenez-la, de plus près."
 
-#: app/js/lib/api.js:562
+#: app/js/lib/api.js:563
 msgid "The books could not be loaded."
 msgstr "Les livres n’ont pas pu être chargés."
 
-#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1392
+#: app/js/lib/behaviors.js:33 app/js/lib/store.js:1428
 msgid "No book found."
 msgstr "Aucun livre trouvé."
 
@@ -3390,17 +3395,23 @@ msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"
 msgstr[1] "%s autres auteurs/autrices"
 
-#: app/js/lib/store.js:1109
+#: app/js/lib/store.js:1145
 msgid "Reading undone."
 msgstr "Lecture annulée."
 
-#: app/js/lib/store.js:1122
+#: app/js/lib/store.js:1158
 msgid "Reading saved."
 msgstr "Lecture enregistrée."
 
-#: app/js/lib/store.js:1123
+#: app/js/lib/store.js:1159
 msgid "Undo"
 msgstr "Annuler"
+
+#~ msgid "All the catalogue"
+#~ msgstr "Tout le catalogue"
+
+#~ msgid "IDs of its books, in order."
+#~ msgstr "ID de ses livres, dans l’ordre."
 
 #~ msgid "Readings of a book read again in the year."
 #~ msgstr "Lectures d’un livre relu dans l’année."

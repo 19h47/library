@@ -1,7 +1,8 @@
 /**
  * The form of a book to add takes the values of the catalogue of the BnF for the ISBN typed, in the fields left empty,
- * and says what the catalogue answered. The route of the catalogue answers as the plugin would: the catalogue itself is
- * not asked. The route is intercepted for the whole context, as the service worker sends the requests of the app.
+ * and says what the catalogue answered; a book of the catalogue with the ISBN typed, or without ISBN the title typed,
+ * shows. The route of the catalogue answers as the plugin would: the catalogue itself is not asked. The route is
+ * intercepted for the whole context, as the service worker sends the requests of the app.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -105,6 +106,47 @@ test.describe( 'BnF', () => {
 		await expect(
 			page.getByRole( 'dialog', { name: 'Add New Book' } )
 		).toBeHidden();
+	} );
+
+	test( 'a title of the catalogue, without ISBN, puts its book in the library', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		const book = await addBook( requestUtils, {
+			title: 'L’Écume des jours',
+		} );
+
+		// On none of the shelves of the reader: a book of the catalogue.
+		await requestUtils.rest( {
+			method: 'DELETE',
+			path: `/library/v1/books/${ book.id }/shelf`,
+		} );
+		await openApp( page );
+		await page.getByRole( 'button', { name: 'Add New Book' } ).click();
+
+		const form = page.locator( 'library-edit' );
+
+		await form.locator( '[name="title"]' ).fill( "l'écume des jours" );
+		await form.locator( '[name="title"]' ).press( 'Tab' );
+
+		await expect(
+			form.getByText( 'This book is in the catalogue:' )
+		).toBeVisible();
+		await form
+			.getByRole( 'button', { name: 'Put it in my library' } )
+			.click();
+
+		// The page of the book, in the library, the form closed over it.
+		await expect( page ).toHaveURL( new RegExp( `book=${ book.id }` ) );
+		await expect(
+			page.getByRole( 'dialog', { name: 'Add New Book' } )
+		).toBeHidden();
+		expect(
+			await page.evaluate(
+				( id ) => window.store.get().books[ id ].status,
+				book.id
+			)
+		).toBe( 'in-library' );
 	} );
 
 	test( 'an ISBN the catalogue does not know leaves the form as it is', async ( {

@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.1.0
+Stable tag: 10.2.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.2.0 =
+* The form of a book to add without ISBN, such as a book printed before ISBNs, shows the book of the catalogue with the title typed, as it shows the book of an ISBN, to put in the library rather than add twice; a book on none of the shelves of the reader says it is in the catalogue. The search takes the keyword `title:`, a whole title, whatever its case, its accents and its apostrophes.
+* Changed: the app lists the books on the shelves of the reader only: the pages of a person, a series and a collection, and the volumes of a series, no longer show a book of the catalogue on none of their shelves, and the filter Library no longer offers the whole catalogue, which the view All of the books list holds.
+* Code only: the component `isbn-status` of the app is `catalogue-status`.
 
 = 10.1.0 =
 * Forms: a form names its books read for its achievements, in the field Books read of its screen, in the plural, such as “novels read”: 250 novels read rather than 250 books read. A form without it says books read.
