@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><rect width="256" height="256"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- book, from Material Symbols, by Google, under the Apache License 2.0: https://github.com/google/material-design-icons -->
+  <rect width="256" height="256" fill="#1a1a1a" />
+  <path transform="translate(128 128) scale(0.155555) translate(-480 480)" fill="#bababa" d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm200-440 100-60 100 60v-280H440v280Z" />
+</svg>
