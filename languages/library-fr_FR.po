@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-16T14:40:55+00:00\n"
+"POT-Creation-Date: 2026-11-18T08:03:17+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: library.php:11 admin/class-dashboard.php:82 app/class-login.php:207
-#: app/class-page.php:148 app/class-page.php:361 app/class-page.php:362
+#: app/class-page.php:148 app/class-page.php:363 app/class-page.php:364
 #: app/partials/library-app.php:44 app/partials/library-app.php:63
 #: app/partials/library-app.php:153 app/partials/library-app.php:574
 #: app/partials/library-app.php:838
