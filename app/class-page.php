@@ -350,6 +350,8 @@ JS;
 	 *
 	 * The page links it with crossorigin="use-credentials": it is behind the login, like the app.
 	 * Its icons are the dark ones: the home screen icon of a web app does not follow the system theme.
+	 * Its scope is edit.php, where the app is: an app of the same admin on another page, such as Moodboard,
+	 * is installed beside it rather than taken for it.
 	 *
 	 * @return void
 	 */
@@ -361,7 +363,7 @@ JS;
 			'name'             => __( 'Library', 'library' ),
 			'short_name'       => __( 'Library', 'library' ),
 			'start_url'        => self::get_url(),
-			'scope'            => admin_url(),
+			'scope'            => admin_url( 'edit.php' ),
 			'display'          => 'standalone',
 			'background_color' => '#ffffff',
 			'theme_color'      => '#ffffff',
