@@ -116,7 +116,8 @@ class Test_BnF extends TestCase {
 
 	/**
 	 * An older book, found by its ISBN-10: the sub-collection of the library that ends with the one of the catalogue,
-	 * its number in the link to its collection, and its series, which the catalogue gives as a collection too.
+	 * its number in the link to its collection, its series, which the catalogue gives as a collection too, and its
+	 * pages, in a collation without its volume.
 	 *
 	 * @return void
 	 */
@@ -142,6 +143,7 @@ class Test_BnF extends TestCase {
 		$this->assertSame( 'Le bouclier des étoiles', $book['series'] );
 		$this->assertSame( 'Tome 01', $book['meta']['volume_number'] );
 		$this->assertSame( array( $english ), $book['languages'] );
+		$this->assertSame( '377', $book['meta']['pages'] );
 		$this->assertSame( '2000', $book['meta']['edition_date'] );
 	}
 
