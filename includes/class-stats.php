@@ -157,38 +157,62 @@ class Stats {
 	}
 
 	/**
+	 * The pages of books, a book without its number of pages counting the average of the books of its form in the
+	 * library, else of all of them; a book counts one page when no book has its number: pages are then books.
+	 *
+	 * @param Book[] $books Books, or readings: a book read again counts once per reading.
+	 * @return float
+	 */
+	public static function estimate_pages( array $books ): float {
+		$average = fn( array $counted ) => array_sum( array_column( $counted, 'pages' ) ) / count( $counted );
+		$counted = array_filter( Books::get_shelved(), fn( Book $book ) => null !== $book->pages );
+		$by_form = array();
+
+		foreach ( $counted as $book ) {
+			$by_form[ $book->form_ids[0] ?? 0 ][] = $book;
+		}
+
+		$averages = array_map( $average, $by_form );
+		$fallback = $counted ? $average( $counted ) : 1;
+
+		return array_sum( array_map( fn( Book $book ) => $book->pages ?? $averages[ $book->form_ids[0] ?? 0 ] ?? $fallback, $books ) );
+	}
+
+	/**
 	 * Books read this year and by the same date last year, the number expected by the end of the year, and the year
-	 * the books to read would all be read in; both at the pace of this year, a book read again counting once per reading.
+	 * the books to read would all be read in; both at the pace of this year, a book read again counting once per reading,
+	 * the year at the pace of pages: the books to read are not as long as those read.
 	 *
 	 * @return array{year:int,read_count:int,last_year_read_count:int,projected_read_count:int|null,to_read_count:int,all_read_in:int|null}
 	 */
 	public static function get_reading_year_to_date(): array {
 		$today    = new DateTimeImmutable( 'now', wp_timezone() );
 		$same_day = $today->modify( '-1 year' );
-		$days     = array_map( fn( Book $reading ) => substr( $reading->read_date, 0, 10 ), self::get_readings() );
-		$count    = fn( DateTimeImmutable $day ) => count( array_filter( $days, fn( string $read_on ) => $read_on >= $day->format( 'Y-01-01' ) && $read_on <= $day->format( 'Y-m-d' ) ) );
+		$readings = self::get_readings();
+		$read_on  = fn( Book $reading ) => substr( $reading->read_date, 0, 10 );
+		$read_by  = fn( DateTimeImmutable $day ) => array_filter( $readings, fn( Book $reading ) => $read_on( $reading ) >= $day->format( 'Y-01-01' ) && $read_on( $reading ) <= $day->format( 'Y-m-d' ) );
 
-		$this_year    = $count( $today );
+		$this_year    = $read_by( $today );
 		$day_of_year  = self::count_days( (int) $today->format( 'Y' ) );
 		$days_in_year = 365 + (int) $today->format( 'L' );
-		$to_read      = count( self::get_books_on_the_pile() );
+		$pile         = self::get_books_on_the_pile();
 
 		// A month of readings is the least to project from; without readings, the books to read are never read.
 		$has_pace    = $day_of_year >= 31;
-		$projection  = $has_pace ? (int) round( $this_year * $days_in_year / $day_of_year ) : null;
+		$projection  = $has_pace ? (int) round( count( $this_year ) * $days_in_year / $day_of_year ) : null;
 		$all_read_in = null;
 
-		if ( $has_pace && $this_year && $to_read ) {
-			$days_left   = (int) ceil( $to_read * $day_of_year / $this_year );
+		if ( $has_pace && $this_year && $pile ) {
+			$days_left   = (int) ceil( self::estimate_pages( $pile ) * $day_of_year / self::estimate_pages( $this_year ) );
 			$all_read_in = (int) $today->modify( "+$days_left days" )->format( 'Y' );
 		}
 
 		return array(
 			'year'                 => (int) $today->format( 'Y' ),
-			'read_count'           => $this_year,
-			'last_year_read_count' => $count( $same_day ),
+			'read_count'           => count( $this_year ),
+			'last_year_read_count' => count( $read_by( $same_day ) ),
 			'projected_read_count' => $projection,
-			'to_read_count'        => $to_read,
+			'to_read_count'        => count( $pile ),
 			'all_read_in'          => $all_read_in,
 		);
 	}
