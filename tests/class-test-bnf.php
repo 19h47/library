@@ -209,6 +209,17 @@ class Test_BnF extends TestCase {
 	}
 
 	/**
+	 * A volume of a record of several, "2 vol. (631, 471 p.)", has the pages of its own, by the place of its ISBN; none
+	 * when the record has fewer ISBN than volumes, its place not known: "3 vol. (400, 459, 482 p.)" with two.
+	 *
+	 * @return void
+	 */
+	public function test_a_volume_has_its_own_pages(): void {
+		$this->assertSame( '471', $this->get_bnf_book( '978-2-07-032364-7' )->get_data()['meta']['pages'] );
+		$this->assertSame( '', $this->get_bnf_book( '978-2-07-040667-8' )->get_data()['meta']['pages'] );
+	}
+
+	/**
 	 * An ISBN the catalogue does not know answers 404, kept for a day: the catalogue is asked once.
 	 *
 	 * @return void
