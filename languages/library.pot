@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 10.3.3\n"
+"Project-Id-Version: Library 10.3.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-18T11:34:14+00:00\n"
+"POT-Creation-Date: 2026-11-21T14:38:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -2291,7 +2291,7 @@ msgid "Books to read."
 msgstr ""
 
 #: includes/class-rest-schemas.php:420
-msgid "Year they would all be read in at this pace, none without a pace."
+msgid "Year they would all be read in at the pace of pages of this year, none without a pace."
 msgstr ""
 
 #: includes/class-rest-schemas.php:437

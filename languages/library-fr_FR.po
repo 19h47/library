@@ -2432,8 +2432,8 @@ msgid "Books to read."
 msgstr "Livres à lire."
 
 #: includes/class-rest-schemas.php:420
-msgid "Year they would all be read in at this pace, none without a pace."
-msgstr "Année où ils seraient tous lus à ce rythme, aucune sans rythme."
+msgid "Year they would all be read in at the pace of pages of this year, none without a pace."
+msgstr "Année où ils seraient tous lus au rythme de pages de cette année, aucune sans rythme."
 
 #: includes/class-rest-schemas.php:437
 msgid "Month, Y-m."

@@ -288,19 +288,21 @@ class BnF {
 	}
 
 	/**
-	 * The number of pages of a record, as its collation gives them, the unnumbered ones included: 282 for "1 vol.
-	 * (282 p.)", 212 for "1 vol. (204-[8] p.)", 226 for "1 vol. (non paginé [ca 226] p.)"; empty for none.
+	 * The number of pages of a record, as its collation gives them, the unnumbered ones included, the plates left out:
+	 * 282 for "1 vol. (282 p.)", 212 for "1 vol. (204-[8] p.)", 226 for "1 vol. (non paginé [ca 226] p.)", 254 for an
+	 * older "XIII-254 p.-[2] f. de pl."; empty for none.
 	 *
 	 * @param array<int|string,list<Field>> $record Record.
 	 * @return string
 	 */
 	private static function get_pages( array $record ): string {
-		if ( ! preg_match( '/\(([^()]*)\bp\.\)/', self::get_first( $record, '215', 'a' ), $matches ) ) {
+		// The pagination ends at its first "p.", before the plates.
+		if ( ! preg_match( '/^(.*?)\bp\b/u', self::get_first( $record, '215', 'a' ), $matches ) ) {
 			return '';
 		}
 
-		// Each sequence of pages: those numbered in Roman numerals are front matter, left out.
-		preg_match_all( '/\d+/', $matches[1], $numbers );
+		// Each sequence of pages, after the number of volumes: those numbered in Roman numerals are front matter, left out.
+		preg_match_all( '/\b\d+\b(?!\s*vol)/u', $matches[1], $numbers );
 
 		$pages = array_sum( array_map( 'intval', $numbers[0] ) );
 

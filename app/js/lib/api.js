@@ -267,7 +267,7 @@ import {
  * @property {number}      last_year_read_count The books read by this date last year.
  * @property {number|null} projected_read_count The books read by the end of the year at this pace, none without a pace.
  * @property {number}      to_read_count        The books to read.
- * @property {number|null} all_read_in          The year they would all be read in at this pace, none without a pace.
+ * @property {number|null} all_read_in          The year they would all be read in at the pace of pages of this year, none without a pace.
  */
 
 /**

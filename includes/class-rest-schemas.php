@@ -417,7 +417,7 @@ class Rest_Schemas {
 							'last_year_read_count' => self::property( 'integer', __( 'Books read by this date last year.', 'library' ) ),
 							'projected_read_count' => self::property( array( 'integer', 'null' ), __( 'Books read by the end of the year at this pace, none without a pace.', 'library' ) ),
 							'to_read_count'        => self::property( 'integer', __( 'Books to read.', 'library' ) ),
-							'all_read_in'          => self::property( array( 'integer', 'null' ), __( 'Year they would all be read in at this pace, none without a pace.', 'library' ) ),
+							'all_read_in'          => self::property( array( 'integer', 'null' ), __( 'Year they would all be read in at the pace of pages of this year, none without a pace.', 'library' ) ),
 						),
 					)
 				),
