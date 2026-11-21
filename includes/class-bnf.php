@@ -127,7 +127,7 @@ class BnF {
 				'library_volume_number'     => $volume ? sprintf( 'Tome %02d', $volume ) : '',
 				'library_collection_number' => $collection['number'],
 				'library_edition_date'      => self::get_edition_date( $record ),
-				'library_pages'             => self::get_pages( $record ),
+				'library_pages'             => self::get_pages( $record, $isbn ),
 				'library_edition_languages' => self::find_edition_languages( $record ),
 			),
 		);
@@ -155,7 +155,7 @@ class BnF {
 			return $cached ? $cached : null;
 		}
 
-		$codes    = array_filter( array( $digits, ISBN::to_isbn10( $digits ) ) );
+		$codes    = self::get_codes( $isbn );
 		$queries  = array_map( fn( string $code ) => sprintf( 'bib.isbn all "%s"', $code ), $codes );
 		$url      = add_query_arg(
 			array(
@@ -177,7 +177,7 @@ class BnF {
 		// The catalogue finds an ISBN in other fields too, such as the one of another edition: the record of the book has it as its own.
 		$record = array_find(
 			self::parse( wp_remote_retrieve_body( $response ) ),
-			fn( array $item ) => (bool) array_intersect( $codes, array_map( array( ISBN::class, 'get_digits' ), array_merge( ...array_column( array_column( $item['010'] ?? array(), 'subfields' ), 'a' ) ) ) )
+			fn( array $item ) => (bool) array_intersect( $codes, self::get_isbns( $item ) )
 		);
 
 		set_transient( $key, $record ?? array(), DAY_IN_SECONDS );
@@ -288,21 +288,64 @@ class BnF {
 	}
 
 	/**
-	 * The number of pages of a record, as its collation gives them, the unnumbered ones included, the plates left out:
-	 * 282 for "1 vol. (282 p.)", 212 for "1 vol. (204-[8] p.)", 226 for "1 vol. (non paginé [ca 226] p.)", 254 for an
-	 * older "XIII-254 p.-[2] f. de pl."; empty for none.
+	 * The ISBN-13 and ISBN-10 of an ISBN, as digits: the catalogue indexes a book before 2007 by its ISBN-10 only.
+	 *
+	 * @param string $isbn ISBN, with or without hyphens.
+	 * @return list<string>
+	 */
+	private static function get_codes( string $isbn ): array {
+		$digits = ISBN::get_digits( $isbn );
+
+		return array_values( array_filter( array( $digits, ISBN::to_isbn10( $digits ) ) ) );
+	}
+
+	/**
+	 * The ISBN of a record, as digits, in its order: one per volume for a record of several.
 	 *
 	 * @param array<int|string,list<Field>> $record Record.
+	 * @return list<string>
+	 */
+	private static function get_isbns( array $record ): array {
+		return array_map( array( ISBN::class, 'get_digits' ), array_merge( ...array_column( array_column( $record['010'] ?? array(), 'subfields' ), 'a' ) ) );
+	}
+
+	/**
+	 * The number of pages of the book of an ISBN, as the collation of its record gives them, the unnumbered ones
+	 * included, the plates left out: 282 for "1 vol. (282 p.)", 212 for "1 vol. (204-[8] p.)", 226 for "1 vol. (non
+	 * paginé [ca 226] p.)", 254 for an older "XIII-254 p.-[2] f. de pl."; for a record of several volumes, those of the
+	 * volume of the ISBN: 471 for the second ISBN of "2 vol. (631, 471 p.)". Empty for none, or for a volume whose
+	 * place is not known.
+	 *
+	 * @param array<int|string,list<Field>> $record Record.
+	 * @param string                        $isbn   ISBN of the book.
 	 * @return string
 	 */
-	private static function get_pages( array $record ): string {
+	private static function get_pages( array $record, string $isbn ): string {
+		$collation = self::get_first( $record, '215', 'a' );
+
 		// The pagination ends at its first "p.", before the plates.
-		if ( ! preg_match( '/^(.*?)\bp\b/u', self::get_first( $record, '215', 'a' ), $matches ) ) {
+		if ( ! preg_match( '/^(.*?)\bp\b/u', $collation, $matches ) ) {
 			return '';
 		}
 
+		$pagination = $matches[1];
+		$volumes    = preg_match( '/^(\d+)\s*vol/', $collation, $count ) ? (int) $count[1] : 1;
+
+		// Each volume has its pagination, in the order of the ISBN of the record, one each.
+		if ( $volumes > 1 ) {
+			$paginations = explode( ',', $pagination );
+			$isbns       = self::get_isbns( $record );
+			$volume      = array_find_key( $isbns, fn( string $digits ) => in_array( $digits, self::get_codes( $isbn ), true ) );
+
+			if ( count( $paginations ) !== $volumes || count( $isbns ) !== $volumes || null === $volume ) {
+				return '';
+			}
+
+			$pagination = $paginations[ $volume ];
+		}
+
 		// Each sequence of pages, after the number of volumes: those numbered in Roman numerals are front matter, left out.
-		preg_match_all( '/\b\d+\b(?!\s*vol)/u', $matches[1], $numbers );
+		preg_match_all( '/\b\d+\b(?!\s*vol)/u', $pagination, $numbers );
 
 		$pages = array_sum( array_map( 'intval', $numbers[0] ) );
 
