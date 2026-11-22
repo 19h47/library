@@ -174,7 +174,8 @@ class Rest_Schemas {
 			'id'          => self::property( 'integer', __( 'Term ID.', 'library' ) ),
 			'name'        => self::property( 'string', __( 'Name, in plain text.', 'library' ) ),
 			'description' => self::property( 'string', __( 'Description, HTML.', 'library' ) ),
-			'books'       => self::book_ids( __( 'IDs of its books on the shelves of the reader, in order.', 'library' ) ),
+			'books'       => self::book_ids( __( 'IDs of its books on the shelves of the reader, in order, its wishes aside.', 'library' ) ),
+			'wishes'      => self::book_ids( __( 'IDs of its wishes, books to buy without a reading, in the same order.', 'library' ) ),
 			'read_count'  => self::property( 'integer', __( 'How many of its books are read.', 'library' ) ),
 			'completion'  => self::achievement( __( 'Completion its books count for, earned or close, if any.', 'library' ) ),
 		);

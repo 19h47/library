@@ -348,14 +348,16 @@ import {
 
 /**
  * What the pages of a person, a series and a collection share: the name, its description, how many of its books are
- * read, the completion they count for, and the IDs of its books, in order.
+ * read, the completion they count for, the IDs of its books, in order, and those of its wishes, books to buy without a
+ * reading.
  *
  * @typedef {Object} TermData
  * @property {string}                            name        Its name.
  * @property {string}                            description Its description, HTML.
  * @property {number}                            read        How many of its books are read.
  * @property {Achievement|CloseAchievement|null} completion  The completion its books count for, earned or close, if any.
- * @property {number[]}                          books       The IDs of its books, in order.
+ * @property {number[]}                          books       The IDs of its books, in order, its wishes aside.
+ * @property {number[]}                          wishes      The IDs of its wishes, in the same order.
  */
 
 /**
@@ -957,7 +959,8 @@ export function getIdea( position ) {
 }
 
 /**
- * The page `view` of the term `id`, "person", "series" or "publisher": what its state takes, and the IDs of its books, in order.
+ * The page `view` of the term `id`, "person", "series" or "publisher": what its state takes, and the IDs of its books
+ * and of its wishes, in order.
  *
  * @param {PageView}    view             The view of the page.
  * @param {number}      id               Term ID.
@@ -967,13 +970,13 @@ export function getIdea( position ) {
  */
 export async function getPage( view, id, { signal } = {} ) {
 	const { route, from } = PAGES[ view ];
-	/** @type {{books: number[]}} */
+	/** @type {{books: number[], wishes: number[]}} */
 	const data = await apiFetch( {
 		path: `/library/v1/${ route }/${ id }`,
 		signal,
 	} );
 
-	return { ...from( data ), books: data.books };
+	return { ...from( data ), books: data.books, wishes: data.wishes };
 }
 
 /**
