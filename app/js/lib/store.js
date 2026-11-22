@@ -539,9 +539,10 @@ function terms() {
 }
 
 /**
- * The page of a term open, its books loaded as a list, a page at a time, from all their IDs, `books`, in order; `completion`
- * is an achievement, a `description` is HTML. The person open, under the name they are known by: `series` theirs, those
- * with the most of their books first, `bookPages` the pages of their books, as `pages` counts the pages of the list. The
+ * The page of a term open, its books loaded as a list, a page at a time, from all their IDs, `books`, in order; its
+ * `wishes`, books to buy without a reading, few, loaded at once with it; `completion` is an achievement, a
+ * `description` is HTML. The person open, under the name they are known by: `series` theirs, those with the most of
+ * their books first, `bookPages` the pages of their books, as `pages` counts the pages of the list. The
  * series open, or the cycle: its name after its cycles, its `cycle`, its `parts`, the series of a cycle, its `authors`,
  * who wrote the most first, its books in reading order, those of its series with them. The collection open, or the
  * publisher: its name, a sub-collection after the collections it is part of, its `publisher`, the `collection` it is part
@@ -577,6 +578,7 @@ function page( view, id = 0 ) {
 		name: '',
 		description: '',
 		books: [],
+		wishes: [],
 		read: 0,
 		completion: null,
 		...PAGE_STATES[ view ](),
@@ -1484,9 +1486,10 @@ class LibraryStore extends Store {
 	 */
 	#refresh() {
 		const { book } = this.get();
-		const pageBooks = api.PAGE_VIEWS.flatMap(
-			( view ) => this.get()[ view ].items
-		);
+		const pageBooks = api.PAGE_VIEWS.flatMap( ( view ) => [
+			...this.get()[ view ].items,
+			...this.get()[ view ].wishes,
+		] );
 
 		this.set( ( state ) => ( { ...state, terms: terms() } ) );
 		this.#reloadLoaded();
@@ -1812,7 +1815,7 @@ class LibraryStore extends Store {
 				this.get()[ key ].page * perPage
 			);
 
-			await this.#fetchBooks( items, { signal } );
+			await this.#fetchBooks( [ ...items, ...data.wishes ], { signal } );
 
 			return () => ( {
 				...data,

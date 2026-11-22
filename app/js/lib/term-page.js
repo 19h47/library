@@ -22,8 +22,8 @@ import { formatState } from 'library-app/book-lines';
  */
 
 /**
- * The page of a term: its name, its description, how many of its books are read and the completion they count for, then
- * its books, loading as the end of the list comes, as cards or a grid of their covers, as chosen. Opened, its name takes the focus once it is loaded. A page adds what
+ * The page of a term: its name, its description, how many of its books are read and the completion they count for, its
+ * wishes apart, then its books, loading as the end of the list comes, both as cards or a grid of their covers, as chosen. Opened, its name takes the focus once it is loaded. A page adds what
  * is its own: `summary()` what its summary says after its books and those read, `fillPage()` the rest of its state,
  * `subscriptions()` what else it follows, and `line()` the line of a book.
  */
@@ -50,6 +50,7 @@ export class TermPage extends Brick {
 		/** @type {HTMLElement} */
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
+		const $wishes = this.querySelector( '[data-list="wishes"]' );
 		const observe = observeEnd(
 			this.querySelector( '[data-part="more"]' ),
 			signal,
@@ -58,6 +59,7 @@ export class TermPage extends Brick {
 
 		return [
 			followCards( $items, ( book ) => this.line( book ) ),
+			followCards( $wishes, ( book ) => this.line( book ) ),
 			store.select(
 				( state ) => state[ key ],
 				( page ) => {
@@ -97,6 +99,16 @@ export class TermPage extends Brick {
 				( state ) => state.covers,
 				( covers ) => {
 					$items.toggleAttribute( 'data-covers', covers );
+					$wishes.toggleAttribute( 'data-covers', covers );
+				}
+			),
+			store.select(
+				( state ) => state[ key ].wishes,
+				( ids ) => {
+					fill( this, {
+						wishes: ids.length ? formatBooks( ids.length ) : '',
+					} );
+					renderBooks( $wishes, ids, ( book ) => this.line( book ) );
 				}
 			),
 			store.select(

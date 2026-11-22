@@ -166,8 +166,8 @@ class Test_Shelves extends TestCase {
 	}
 
 	/**
-	 * The page of a person, of a series and of a collection lists the books on the shelves of the reader, to buy too,
-	 * never a book of the catalogue on none of them, such as one another reader added.
+	 * The page of a person, of a series and of a collection lists the books on the shelves of the reader, those to buy
+	 * apart, never a book of the catalogue on none of them, such as one another reader added.
 	 *
 	 * @return void
 	 */
@@ -202,7 +202,10 @@ class Test_Shelves extends TestCase {
 		wp_set_current_user( $reader );
 
 		foreach ( $terms as $route => $term_id ) {
-			$this->assertEqualsCanonicalizing( array( $kept, $to_buy ), $this->request( 'GET', "/library/v1/$route/$term_id" )->get_data()['books'], $route );
+			$data = $this->request( 'GET', "/library/v1/$route/$term_id" )->get_data();
+
+			$this->assertSame( array( $kept ), $data['books'], $route );
+			$this->assertSame( array( $to_buy ), $data['wishes'], $route );
 		}
 	}
 

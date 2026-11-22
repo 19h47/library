@@ -106,11 +106,11 @@ class Test_Achievements_Completions extends TestCase {
 	}
 
 	/**
-	 * A book to buy is a book to read: the author read in full is close again.
+	 * A wish, a book to buy without a reading, counts for no completion: the author read in full stays so.
 	 *
 	 * @return void
 	 */
-	public function test_a_book_to_buy_undoes_the_completion(): void {
+	public function test_a_wish_does_not_undo_the_completion(): void {
 		$this->add_reads( array( '2024-01-10', '2024-02-10', '2024-03-05' ), $this->by( 'Ursula K. Le Guin' ) );
 		$this->add_book(
 			array(
@@ -119,13 +119,86 @@ class Test_Achievements_Completions extends TestCase {
 			) + $this->by( 'Ursula K. Le Guin' )
 		);
 
-		$this->assertArrayNotHasKey( 'author', $this->get_earned() );
+		$this->assertArrayNotHasKey( 'author', $this->get_close() );
 
-		$author = $this->get_close()['author'];
+		$author = $this->get_earned()['author'];
 
-		$this->assertSame( '1 book left: Lavinia', $author[0]['detail'] );
-		$this->assertSame( 3, $author[0]['done'] );
-		$this->assertSame( 4, $author[0]['total'] );
+		$this->assertSame( '3 books', $author[0]['detail'] );
+		$this->assertSame( '2024-03-05', $author[0]['date'] );
+	}
+
+	/**
+	 * A wish makes no completion either: two books at hand and a wish are too few.
+	 *
+	 * @return void
+	 */
+	public function test_a_wish_does_not_make_a_completion(): void {
+		$this->add_reads( array( '2024-01-10', '2024-02-10' ), $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_book( array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->by( 'Ursula K. Le Guin' ) );
+
+		$this->assertNull( new Achievements()->get_completion( 'author', $this->get_person_id( 'Ursula K. Le Guin' ) ) );
+	}
+
+	/**
+	 * A wish in a series is a volume left: the series read around it is close, not finished, and names it.
+	 *
+	 * @return void
+	 */
+	public function test_a_wish_in_a_series_is_a_volume_left(): void {
+		$this->add_read( '2024-01-10', $this->in_series( 1 ) );
+		$this->add_book( array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->in_series( 2 ) );
+		$this->add_read( '2024-02-10', $this->in_series( 3 ) );
+
+		$this->assertArrayNotHasKey( 'series', $this->get_earned() );
+
+		$series = $this->get_close()['series'];
+
+		$this->assertStringStartsWith( '1 book left: Earthsea, no. 2', $series[0]['detail'] );
+		$this->assertSame( 2, $series[0]['done'] );
+		$this->assertSame( 3, $series[0]['total'] );
+		$this->assertArrayNotHasKey( get_term_by( 'name', 'Earthsea', 'library_series' )->term_id, new Achievements()->get_finished( 'series' ) );
+	}
+
+	/**
+	 * A wish in a series does not undo the work of its author: the author read in full, the series close.
+	 *
+	 * @return void
+	 */
+	public function test_a_wish_in_a_series_does_not_undo_its_author(): void {
+		$this->add_read( '2024-01-10', $this->in_series( 1 ) + $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_read( '2024-02-10', $this->in_series( 2 ) + $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_read( '2024-03-10', $this->in_series( 3 ) + $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_book( array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->in_series( 4 ) + $this->by( 'Ursula K. Le Guin' ) );
+
+		$this->assertSame( '3 books', $this->get_earned()['author'][0]['detail'] );
+		$this->assertSame( 3, $this->get_close()['series'][0]['done'] );
+	}
+
+	/**
+	 * A series of wishes alone is not started: no completion.
+	 *
+	 * @return void
+	 */
+	public function test_a_series_of_wishes_has_no_completion(): void {
+		$this->add_book( array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->in_series( 1 ) );
+		$this->add_book( array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->in_series( 2 ) );
+
+		$this->assertNull( new Achievements()->get_completion( 'series', get_term_by( 'name', 'Earthsea', 'library_series' )->term_id ) );
+	}
+
+	/**
+	 * A book to buy read elsewhere is read: it counts in a completion.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_to_buy_read_counts(): void {
+		$this->add_reads( array( '2024-01-10', '2024-02-10' ), $this->by( 'Ursula K. Le Guin' ) );
+		$this->add_reads( array( '2024-03-05' ), array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->by( 'Ursula K. Le Guin' ) );
+
+		$author = $this->get_earned()['author'];
+
+		$this->assertSame( '3 books', $author[0]['detail'] );
+		$this->assertSame( '2024-03-05', $author[0]['date'] );
 	}
 
 	/**
@@ -572,6 +645,19 @@ class Test_Achievements_Completions extends TestCase {
 	}
 
 	/**
+	 * The wishes of a collection count for none of its books: half of those at hand.
+	 *
+	 * @return void
+	 */
+	public function test_a_big_collection_without_its_wishes(): void {
+		$this->add_reads( self::get_days( '2024-01-01', 5 ), $this->in( 'Folio' ) );
+		$this->add_books( 5, $this->in( 'Folio' ) );
+		$this->add_books( 2, array( 'shelf' => array( 'status' => 'to-buy' ) ) + $this->in( 'Folio' ) );
+
+		$this->assertSame( '5 read of 10', $this->get_earned()['collection-step'][0]['detail'] );
+	}
+
+	/**
 	 * A collection of nine books is too small, read by half or not.
 	 *
 	 * @return void
@@ -647,6 +733,19 @@ class Test_Achievements_Completions extends TestCase {
 		$this->assertSame( '2 collections read by half or more', $step[0]['title'] );
 		$this->assertSame( 'Folio', $step[0]['subject'] );
 		$this->assertSame( '2024-01-05', $step[0]['date'] );
+	}
+
+	/**
+	 * A volume of Earthsea.
+	 *
+	 * @param int $volume Volume number.
+	 * @return array
+	 */
+	private function in_series( int $volume ): array {
+		return array(
+			'series' => 'Earthsea',
+			'meta'   => array( 'volume_number' => (string) $volume ),
+		);
 	}
 
 	/**

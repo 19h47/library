@@ -299,6 +299,14 @@ use Library\Meta;
 						<p class="app-status" data-field="status" hidden></p>
 						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
 						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
+						<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
+						<section class="library-section" data-row="wishes" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'To buy', 'library' ); ?>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
+							</h3>
+							<ul class="app-list" data-list="wishes"></ul>
+						</section>
 						<?php // The first series, then the others folded, once there are enough of them. ?>
 						<section class="library-section" data-row="series" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
@@ -346,6 +354,14 @@ use Library\Meta;
 						);
 						?>
 						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
+						<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
+						<section class="library-section" data-row="wishes" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'To buy', 'library' ); ?>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
+							</h3>
+							<ul class="app-list" data-list="wishes"></ul>
+						</section>
 						<section class="library-section" data-row="parts" hidden>
 							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
 							<ul class="library-pills" data-list="parts"></ul>
@@ -398,6 +414,14 @@ use Library\Meta;
 						);
 						?>
 						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
+						<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
+						<section class="library-section" data-row="wishes" hidden>
+							<h3 class="library-title">
+								<?php esc_html_e( 'To buy', 'library' ); ?>
+								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
+							</h3>
+							<ul class="app-list" data-list="wishes"></ul>
+						</section>
 						<section class="library-section" data-row="collections" hidden>
 							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
 							<ul class="library-pills" data-list="collections"></ul>

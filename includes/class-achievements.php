@@ -500,6 +500,10 @@ class Achievements {
 	 * The same books count once: for their series, else for their cycle, else for their authors together, else for their
 	 * collection, else for the collection it is part of.
 	 *
+	 * A wish counts for its series alone, once one of its books is not a wish: a volume wished is a gap in the series
+	 * read, which is not finished without it, but a book wished does not undo the work of an author or a collection, open
+	 * sets of which the reader has what they have.
+	 *
 	 * @param array<int,Book> $books All the books.
 	 * @return array<string,Completion_Group>
 	 */
@@ -515,6 +519,10 @@ class Achievements {
 				$groups['series'][ $series_id ][] = $book;
 			}
 
+			if ( $book->is_wish() ) {
+				continue;
+			}
+
 			foreach ( array_keys( $book->get_work_authors() ) as $author_id ) {
 				$groups['author'][ $author_id ][] = $book;
 			}
@@ -528,7 +536,9 @@ class Achievements {
 
 		foreach ( $groups as $kind => $kind_groups ) {
 			foreach ( $kind_groups as $key => $group ) {
-				if ( count( $group ) >= self::COMPLETION_BOOKS[ $kind ] ) {
+				$is_started = array_any( $group, fn( Book $book ) => ! $book->is_wish() );
+
+				if ( $is_started && count( $group ) >= self::COMPLETION_BOOKS[ $kind ] ) {
 					$completions[ implode( ',', array_column( $group, 'id' ) ) ][ $kind ][ $key ] = $group;
 				}
 			}
@@ -617,6 +627,7 @@ class Achievements {
 
 	/**
 	 * The big collections read by half or more, not in full, as one achievement; each one dated by the reading that reached half.
+	 * A wish counts for none, as in the completion of a collection.
 	 *
 	 * @param array<int,Book> $books All the books.
 	 * @return list<Achievement>
@@ -625,7 +636,7 @@ class Achievements {
 		$collections = array();
 		$earned      = array();
 
-		foreach ( $books as $book ) {
+		foreach ( array_filter( $books, fn( Book $book ) => ! $book->is_wish() ) as $book ) {
 			foreach ( $book->collection_ids as $collection_id ) {
 				$collections[ $collection_id ][] = $book;
 			}

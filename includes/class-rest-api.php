@@ -960,7 +960,8 @@ class Rest_API {
 	 *
 	 * The books are those of the person on the shelves of the reader, under any of their names, whatever their role, author
 	 * or another one, such as colorist, as IDs of the core API: in the order they first came out, then by title, those
-	 * without date last.
+	 * without date last. Their wishes, books to buy without a reading, are apart, in the same order: the rest counts none
+	 * of them.
 	 *
 	 * The series are those of these books, each one the narrowest, named after its cycles, with its description and how
 	 * many of these books it holds and are read: those with the most first, then by name.
@@ -977,6 +978,8 @@ class Rest_API {
 		}
 
 		$books       = array_filter( Books::get_shelved(), fn( Book $book ) => in_array( $person->term_id, array( ...$book->author_ids, ...$book->contributor_ids ), true ) );
+		$wishes      = array_filter( $books, fn( Book $book ) => $book->is_wish() );
+		$books       = array_diff_key( $books, $wishes );
 		$other_names = get_terms(
 			array(
 				'taxonomy'   => 'library_person',
@@ -1005,16 +1008,16 @@ class Rest_API {
 			}
 		);
 
-		usort(
-			$books,
-			function ( Book $a, Book $b ): int {
-				$a_date = Books::get_date( $a );
-				$b_date = Books::get_date( $b );
-				$order  = array( '' === $a_date, $a_date ) <=> array( '' === $b_date, $b_date );
+		$by_date = function ( Book $a, Book $b ): int {
+			$a_date = Books::get_date( $a );
+			$b_date = Books::get_date( $b );
+			$order  = array( '' === $a_date, $a_date ) <=> array( '' === $b_date, $b_date );
 
-				return 0 !== $order ? $order : strnatcasecmp( $a->full_title, $b->full_title );
-			}
-		);
+			return 0 !== $order ? $order : strnatcasecmp( $a->full_title, $b->full_title );
+		};
+
+		usort( $books, $by_date );
+		usort( $wishes, $by_date );
 
 		return rest_ensure_response(
 			array(
@@ -1033,6 +1036,7 @@ class Rest_API {
 					$series
 				),
 				'books'       => array_column( $books, 'id' ),
+				'wishes'      => array_column( $wishes, 'id' ),
 				'read_count'  => Books::count_read( $books ),
 				'rating'      => Books::get_average_rating( $books ),
 				'page_count'  => array_sum( array_column( $books, 'pages' ) ),
@@ -1044,7 +1048,8 @@ class Rest_API {
 	/**
 	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its parts, the
 	 * series of a cycle, its authors, its books on the shelves of the reader in reading order, those of its series with them,
-	 * how many are read, and the completion they count for.
+	 * its wishes apart, books to buy without a reading, in the same order, how many of its books are read, and the
+	 * completion they count for.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -1056,9 +1061,11 @@ class Rest_API {
 			return new WP_Error( 'library_no_series', get_taxonomy( 'library_series' )->labels->not_found, array( 'status' => 404 ) );
 		}
 
-		$books = array_filter( Books::get_shelved(), fn( Book $book ) => in_array( $series->term_id, $book->series_ids, true ) );
-		$cycle = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
-		$parts = get_terms(
+		$books  = Books::sort_in_reading_order( array_filter( Books::get_shelved(), fn( Book $book ) => in_array( $series->term_id, $book->series_ids, true ) ) );
+		$wishes = array_filter( $books, fn( Book $book ) => $book->is_wish() );
+		$books  = array_diff_key( $books, $wishes );
+		$cycle  = $series->parent ? get_term( $series->parent, 'library_series' ) : null;
+		$parts  = get_terms(
 			array(
 				'taxonomy'   => 'library_series',
 				'parent'     => $series->term_id,
@@ -1075,7 +1082,8 @@ class Rest_API {
 				'description' => term_description( $series->term_id ),
 				'parts'       => array_map( fn( WP_Term $part ) => self::build_term_link( $part ), is_array( $parts ) ? $parts : array() ),
 				'authors'     => self::get_authors_of( $books ),
-				'books'       => array_column( Books::sort_in_reading_order( $books ), 'id' ),
+				'books'       => array_column( $books, 'id' ),
+				'wishes'      => array_column( $wishes, 'id' ),
 				'read_count'  => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
@@ -1085,7 +1093,8 @@ class Rest_API {
 	/**
 	 * A collection, or a publisher: its name, a sub-collection after the collections it is part of, its publisher and the
 	 * collection it is part of, its description, its collections, its authors, its books on the shelves of the reader, those
-	 * of its collections with them, how many are read, and the completion they count for.
+	 * of its collections with them, its wishes apart, books to buy without a reading, in the same order, how many of its
+	 * books are read, and the completion they count for.
 	 *
 	 * The books are grouped by collection, each one followed by its own collections, by name: those of the publisher, or of
 	 * the collection, first; in each one, in the order of their number in it, those without number last, in reading order.
@@ -1129,6 +1138,9 @@ class Rest_API {
 			}
 		);
 
+		$wishes = array_filter( $books, fn( Book $book ) => $book->is_wish() );
+		$books  = array_diff_key( $books, $wishes );
+
 		return rest_ensure_response(
 			array(
 				'id'          => $publisher->term_id,
@@ -1139,6 +1151,7 @@ class Rest_API {
 				'collections' => array_map( fn( WP_Term $collection ) => self::build_term_link( $collection ), is_array( $collections ) ? $collections : array() ),
 				'authors'     => self::get_authors_of( $books ),
 				'books'       => array_column( $books, 'id' ),
+				'wishes'      => array_column( $wishes, 'id' ),
 				'read_count'  => Books::count_read( $books ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)

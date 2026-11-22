@@ -28,7 +28,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * **Terms lists** – People, publishers, series, languages and forms count their books in the catalogue, and list the terms without books in a view of their own.
 * **Dashboard** – Six widgets of the shelves of the reader: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series, an author rated well, an anniversary, a short book… and now and then a book to buy.
-* **Achievements** – Computed from the books of the reader, nothing stored: authors, series and collections read in full, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
+* **Achievements** – Computed from the books of the reader, nothing stored: authors, series and collections read in full, the books to buy without a reading left out but from a series, where they are volumes left, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
 * **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, on the shelves of the reader or in the whole catalogue, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, an ISBN typed or scanned from its barcode fills the form from the catalogue of the BnF. Without network, it shows what it loaded, which logging out takes off the device.
 * **REST API** – Books and their taxonomies in the core REST API, and routes for the book form, the BnF, the stats, the readings, the reading idea, the achievements, the recap and the pages of the app: see the FAQ.
 * **Translatable** – French translation included.
@@ -130,7 +130,7 @@ The routes of the plugin, under `/wp-json/library/v1`, to readers, the users who
 * `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
 * `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
 * `GET /recaps/<year>` – the recap of a year, as the screens of the app show it.
-* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series, the `parts` of a cycle or its collections, its authors, its books in order, its reading, and the completion of a series or a collection.
+* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series, the `parts` of a cycle or its collections, its authors, its books in order, its reading, and the completion of a series or a collection; its `wishes` apart, the books to buy without a reading, which its reading leaves out, and its completion but for a series.
 
 The routes of the plugin name the meta of a book without the prefix of their keys, `isbn` for `library_isbn`, which the database needs among the meta of every plugin; `wp/v2/books` gives them by their keys, as core does.
 

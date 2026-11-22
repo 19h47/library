@@ -195,6 +195,17 @@ final readonly class Book {
 	}
 
 	/**
+	 * Whether it is a wish: to buy, without a reading. It counts for the completion of its series alone, and the page of a
+	 * person, a series or a collection lists it apart from their books; a book to buy read elsewhere, or being read, is a
+	 * book, and counts.
+	 *
+	 * @return bool
+	 */
+	public function is_wish(): bool {
+		return Status::To_Buy === $this->status && ! $this->readings;
+	}
+
+	/**
 	 * Whether it is on the reading pile: not read, and at hand. The one rule of the books to read, for the stats, the
 	 * reading ideas and the achievements.
 	 *
