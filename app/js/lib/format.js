@@ -49,6 +49,20 @@ export function formatBooks( books ) {
 }
 
 /**
+ * A number of readings: "12 readings".
+ *
+ * @param {number} readings The number of readings.
+ * @return {string} The number of readings formatted.
+ */
+export function formatReadings( readings ) {
+	return sprintf(
+		/* translators: %s: number of readings. */
+		_n( '%s reading', '%s readings', readings, 'library' ),
+		formatNumber( readings )
+	);
+}
+
+/**
  * A number of books read, after a number of books: "8 read".
  *
  * @param {number} read The number of books read.

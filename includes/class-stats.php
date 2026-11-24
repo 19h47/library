@@ -92,6 +92,17 @@ class Stats {
 	}
 
 	/**
+	 * The books, or the readings, of each form, by its term ID: a book of two forms counts in each, a book read again once
+	 * per reading, a form of none 0.
+	 *
+	 * @param Book[] $books Books or readings.
+	 * @return array<int,int> Books by term ID of their form.
+	 */
+	public static function count_by_form( array $books ): array {
+		return array_count_values( array_merge( ...array_map( fn( Book $book ) => $book->form_ids, array_values( $books ) ) ) );
+	}
+
+	/**
 	 * The readings of each month, from January, whatever their year.
 	 *
 	 * @param Book[] $readings Readings with a date.

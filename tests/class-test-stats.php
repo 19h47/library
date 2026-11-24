@@ -58,6 +58,36 @@ class Test_Stats extends TestCase {
 	}
 
 	/**
+	 * The books of each form, on the shelves, and the readings of each form, a book read again once per reading; a book
+	 * without form counts for none.
+	 *
+	 * @return void
+	 */
+	public function test_count_by_form(): void {
+		$novel = $this->get_form( 'Novel' );
+		$comic = $this->get_form( 'Comic' );
+
+		$this->add_book( array( 'form' => $novel ) );
+		$this->add_book( array( 'form' => $novel ) );
+		$this->add_book(
+			array(
+				'form'  => $comic,
+				'shelf' => array( 'readings' => array( '/2026-03-02', '/2026-09-14' ) ),
+			)
+		);
+		$this->add_book();
+
+		$this->assertEquals(
+			array(
+				$novel => 2,
+				$comic => 1,
+			),
+			Stats::count_by_form( Books::get_shelved() )
+		);
+		$this->assertSame( array( $comic => 2 ), Stats::count_by_form( Stats::get_readings() ) );
+	}
+
+	/**
 	 * Without any number of pages, a book counts one page: the pace is that of books.
 	 *
 	 * @return void

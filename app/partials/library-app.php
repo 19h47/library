@@ -21,7 +21,9 @@
  * @var object                                        $publisher_labels Labels of the publishers taxonomy.
  * @var object                                        $language_labels  Labels of the languages taxonomy.
  * @var object                                        $form_labels      Labels of the forms taxonomy.
- * @var array<int,string>                             $form_choices     Forms the filter of the books and the form of a book offer, by term ID.
+ * @var array<int,string>                             $form_choices     Forms the filters of the books and of the diary and the form of a book offer, by term ID.
+ * @var array<int,int>                                $form_book_counts Books of each form on the shelves of the reader, by term ID.
+ * @var array<int,int>                                $form_read_counts Readings of each form, by term ID.
  * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
  * @var int                                           $own_language_id  Term ID of the language of the reader, 0 when the library has none.
  * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the shelves offer, with their label.
@@ -33,6 +35,13 @@ use Library\App\Page;
 use Library\Markup;
 use Library\Meta;
 
+// The forms of the books and of the readings shown, several at once, any of them while none is chosen; each with how many
+// books of the shelves, or readings, it has.
+$form_filter = array(
+	'label'    => $form_labels->name,
+	'options'  => $form_choices,
+	'multiple' => true,
+);
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -156,48 +165,19 @@ use Library\Meta;
 						);
 
 						if ( $form_choices ) {
-							$book_filters['form'] = array(
-								'label'   => $form_labels->singular_name,
-								'options' => array( '' => $form_labels->all_items ) + $form_choices,
-							);
+							$book_filters['forms'] = $form_filter + array( 'counts' => $form_book_counts );
 						}
 						?>
 						<library-filters>
-							<button class="app-pill" type="button" commandfor="library-filters-dialog" command="show-modal" aria-haspopup="dialog" data-part="open">
-								<span data-field="label"><?php esc_html_e( 'Filters', 'library' ); ?></span>
-							</button>
-							<p class="library-filters__chosen library-pills" data-list="chosen" hidden>
-								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
-									<?php foreach ( array_filter( $filter_args['options'], 'strlen', ARRAY_FILTER_USE_KEY ) as $value => $label ) : ?>
-										<button class="app-pill" type="button" data-filter="<?php echo esc_attr( $book_filter ); ?>" data-value="<?php echo esc_attr( $value ); ?>" hidden>
-											<span class="sr-only"><?php esc_html_e( 'Remove the filter:', 'library' ); ?></span>
-											<?php echo esc_html( $label ); ?>
-											<?php Markup::render_icon( 'close' ); ?>
-										</button>
-									<?php endforeach; ?>
-								<?php endforeach; ?>
-							</p>
-							<dialog class="library-sheet" id="library-filters-dialog" aria-labelledby="library-filters-title">
-								<?php Markup::render_component( 'dialog-close', array( 'dialog' => 'library-filters-dialog' ) ); ?>
-								<h2 class="library-heading" id="library-filters-title"><?php esc_html_e( 'Filters', 'library' ); ?></h2>
-								<?php foreach ( $book_filters as $book_filter => $filter_args ) : ?>
-									<library-filter data-filter="<?php echo esc_attr( $book_filter ); ?>">
-										<?php
-										Markup::render_component(
-											'field',
-											array(
-												'id'      => "library-{$book_filter}-filter",
-												'label'   => $filter_args['label'],
-												'control' => Markup::get_select( $filter_args['options'] ),
-											)
-										);
-										?>
-									</library-filter>
-								<?php endforeach; ?>
-								<p>
-									<button class="app-pill app-pill--primary" type="button" commandfor="library-filters-dialog" command="close" data-field="show"></button>
-								</p>
-							</dialog>
+							<?php
+							Markup::render_component(
+								'filters',
+								array(
+									'id'      => 'library-filters-dialog',
+									'filters' => $book_filters,
+								)
+							);
+							?>
 						</library-filters>
 						<library-filter data-filter="sort">
 							<?php
@@ -229,6 +209,21 @@ use Library\Meta;
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
+					<?php if ( $form_choices ) : ?>
+						<div class="app-controls">
+							<library-filters list="diary">
+								<?php
+								Markup::render_component(
+									'filters',
+									array(
+										'id'      => 'library-diary-filters-dialog',
+										'filters' => array( 'forms' => $form_filter + array( 'counts' => $form_read_counts ) ),
+									)
+								);
+								?>
+							</library-filters>
+						</div>
+					<?php endif; ?>
 					<library-diary>
 						<p class="app-status" data-field="status" hidden></p>
 						<div class="library-sections library-diary__months" data-list="months"></div>

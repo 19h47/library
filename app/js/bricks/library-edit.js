@@ -385,11 +385,12 @@ class LibraryEditElement extends Brick {
 						return;
 					}
 
-					const { editing, view, shelf, form } = store.get();
+					const { editing, view, shelf, forms } = store.get();
 					const { id, book } = editing;
 					// A book added joins the list shown: to buy from the books to buy, on the shelf and of the form chosen from the
-					// books, else in the library.
+					// books, when one alone is, else in the library.
 					const listed = { books: shelf, 'to-buy': toBuy }[ view ];
+					const form = 1 === forms.length ? forms[ 0 ] : '';
 
 					// The form opens on the values of the book, or empty, its details folded.
 					$form.reset();

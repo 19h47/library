@@ -486,6 +486,36 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>pills-field</code></h4>
+					<p>A field of several choices shown all at once, its legend above a <code>pill-checkbox</code> for each, named as the field, with how many each has, such as the forms of the filters and their books: two checked</p>
+				</figcaption>
+				<div class="library-styleguide__frame">
+					<?php
+					Markup::render_component(
+						'pills-field',
+						array(
+							'id'      => 'library-styleguide-pills-field',
+							'label'   => 'Forms',
+							'name'    => 'forms',
+							'options' => array(
+								'novel' => 'Novel',
+								'comic' => 'Comic',
+								'essay' => 'Essay',
+								'poems' => 'Poetry',
+							),
+							'counts'  => array(
+								'novel' => 653,
+								'comic' => 579,
+								'essay' => 50,
+							),
+							'checked' => array( 'novel', 'comic' ),
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>image-field</code></h4>
 					<p>A <code>book-cover</code> and the pills that pick it and remove it, Remove shown while it shows an image; its root is its custom element, <code>image-field</code>, which shows the photo picked at once and, removed, checks its checkbox, <code>&lt;name&gt;_removed</code>, which the reset of the form unchecks</p>
 				</figcaption>
@@ -703,7 +733,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>.app-controls</code></h4>
-					<p>The controls of a list: the search, its keywords, a <code>.library-strip</code>, under it while it is used; under the title of the books, the button of the filters, the order and the filters chosen, <code>.library-pills</code></p>
+					<p>The controls of a list: the search, its keywords, a <code>.library-strip</code>, under it while it is used; under the title of the books, the button of the filters, the order and the filters chosen, a pill each, on one line while it holds them</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
@@ -727,10 +757,8 @@ $sizes = array(
 							)
 						);
 						?>
-						<p class="library-filters__chosen library-pills">
-							<button class="app-pill" type="button">To read <?php Markup::render_icon( 'close' ); ?></button>
-							<button class="app-pill" type="button">A form <?php Markup::render_icon( 'close' ); ?></button>
-						</p>
+						<button class="app-pill" type="button">To read <?php Markup::render_icon( 'close' ); ?></button>
+						<button class="app-pill" type="button">All but Novel <?php Markup::render_icon( 'close' ); ?></button>
 					</div>
 				</div>
 			</figure>
@@ -752,11 +780,52 @@ $sizes = array(
 								'control' => Markup::get_select( array( 'no' => 'To read' ) ),
 							)
 						);
+						Markup::render_component(
+							'pills-field',
+							array(
+								'id'      => 'library-styleguide-sheet-forms',
+								'label'   => 'Forms',
+								'name'    => 'forms',
+								'options' => array(
+									'novel' => 'Novel',
+									'comic' => 'Comic',
+								),
+								'checked' => array( 'comic' ),
+							)
+						);
 						?>
 						<p>
 							<button class="app-pill app-pill--primary" type="button">Show 15 books</button>
 						</p>
 					</dialog>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>filters</code></h4>
+					<p>The filters of a list, in an <code>.app-controls</code>: the pill that opens their <code>.library-sheet</code>, a <code>field</code> with a select for a filter of one choice, a <code>pills-field</code> for one of several, such as the forms, then the filters chosen, a pill each that says its choice, all but the few values left unchecked, or its label and how many values are checked, and removes it, after the other controls, on the same line while it holds them; the brick <code>library-filters</code> around it in the app, its <code>list</code> the one it counts, the books found or the readings of the diary</p>
+				</figcaption>
+				<div class="library-styleguide__frame">
+					<div class="app-controls">
+						<?php
+						Markup::render_component(
+							'filters',
+							array(
+								'id'      => 'library-styleguide-filters',
+								'filters' => array(
+									'forms' => array(
+										'label'    => 'Forms',
+										'options'  => array(
+											'novel' => 'Novel',
+											'comic' => 'Comic',
+										),
+										'multiple' => true,
+									),
+								),
+							)
+						);
+						?>
+					</div>
 				</div>
 			</figure>
 			<figure>

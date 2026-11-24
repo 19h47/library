@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.4.0
+Stable tag: 10.5.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,12 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.5.0 =
+* Reading app: the forms filter takes several forms at once, a checkbox each in the sheet of the filters, with how many books of the shelves each has; the diary has the same filter, its forms the same as those of the books, each with its readings, which its months and the button of its sheet count.
+* Reading app: each filter chosen shows as one pill, on the line of the controls while it holds them: the forms by their name when one is chosen, “All but Novel” when one or two are left out, else how many; the button of the filters counts the filters chosen.
+* Changed: a book added from the books view takes the form chosen only when one alone is; the form chosen before is forgotten once.
+* REST API: `GET /readings` takes `forms`, term IDs, for the readings of the books of one of them, and gives how many readings in all in its `X-Library-Reading-Count` header.
 
 = 10.4.0 =
 * Changed: a wish, a book to buy without a reading, counts for no completion of an author or a collection, nor for a collection read by half: a book wished no longer undoes an author read in full. It counts for the completion of its series alone, as a volume left: a series read around a volume wished is close, not finished, in the achievements and the recap; a series of wishes alone has no completion. A book to buy read elsewhere, or being read, counts as a book.

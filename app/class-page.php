@@ -16,6 +16,7 @@ use Library\Meta;
 use Library\Plugin;
 use Library\Posts;
 use Library\Roles;
+use Library\Stats;
 use Library\Status;
 use Library\Taxonomies;
 use WP_Term;
@@ -186,6 +187,8 @@ class Page {
 		$language_labels    = get_taxonomy( 'library_language' )->labels;
 		$form_labels        = get_taxonomy( 'library_form' )->labels;
 		$form_choices       = Taxonomies::get_term_choices( 'library_form' );
+		$form_book_counts   = Stats::count_by_form( Books::get_shelved() );
+		$form_read_counts   = Stats::count_by_form( Stats::get_readings() );
 		$language_choices   = Taxonomies::get_term_choices( 'library_language' );
 		$own_language       = get_term_by( 'slug', Taxonomies::get_own_language_code(), 'library_language' );
 		$own_language_id    = $own_language instanceof WP_Term ? $own_language->term_id : 0;
