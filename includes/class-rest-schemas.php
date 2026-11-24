@@ -405,10 +405,10 @@ class Rest_Schemas {
 		return self::build(
 			'library-stats',
 			array(
-				'read_count'   => self::property( 'integer', __( 'Books read, of those in the library.', 'library' ) ),
-				'book_count'   => self::property( 'integer', __( 'Books in the library.', 'library' ) ),
-				'percent'      => self::property( 'integer', __( 'Percentage of the books read.', 'library' ) ),
-				'year_to_date' => self::property(
+				'read_count'          => self::property( 'integer', __( 'Books read, of those in the library.', 'library' ) ),
+				'book_count'          => self::property( 'integer', __( 'Books in the library.', 'library' ) ),
+				'percent'             => self::property( 'integer', __( 'Percentage of the books read.', 'library' ) ),
+				'year_to_date'        => self::property(
 					'object',
 					__( 'This year to date, against the same date last year, and the pace.', 'library' ),
 					array(
@@ -422,6 +422,8 @@ class Rest_Schemas {
 						),
 					)
 				),
+				'form_book_counts'    => self::property( 'object', __( 'Books on the shelves of each form, by its term ID.', 'library' ), array( 'additionalProperties' => array( 'type' => 'integer' ) ) ),
+				'form_reading_counts' => self::property( 'object', __( 'Readings of each form, by its term ID.', 'library' ), array( 'additionalProperties' => array( 'type' => 'integer' ) ) ),
 			)
 		);
 	}

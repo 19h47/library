@@ -25,7 +25,7 @@ import {
 /**
  * @import { Book, Recap } from 'library-app/api'
  * @import { Share } from 'library-app/render'
- * @import { Loading } from 'library-app/store'
+ * @import { Loading } from 'library-app/parts'
  */
 
 // The columns of covers going by behind the last screen, more than the widest frame holds, one in the middle, and the

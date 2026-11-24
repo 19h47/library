@@ -15,7 +15,7 @@ import { formatState } from 'library-app/book-lines';
 
 /**
  * @import { Book, PageView } from 'library-app/api'
- * @import { PersonPage } from 'library-app/store'
+ * @import { PersonPage } from 'library-app/parts'
  */
 
 /**

@@ -1,6 +1,7 @@
 /**
  * A field of several choices in the form of a book, its original languages: a pill for each choice made, which
  * removes it, the focus going to the button that adds one; the form opened again on the book shows its choices again.
+ * Inline, its choices all shown, a button checks them all, then unchecks them, on its own, as the styleguide shows it.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -79,5 +80,30 @@ test.describe( 'Choices', () => {
 		await edit.click();
 		await details.click();
 		await expect( pill ).toBeVisible();
+	} );
+
+	test( 'inline, a button checks every choice, then unchecks them, on its own', async ( {
+		page,
+	} ) => {
+		await openApp( page, '&view=styleguide' );
+
+		const field = page.locator(
+			'checkboxes-field[name="forms"]:has(#library-styleguide-forms)'
+		);
+		const choices = field.getByRole( 'checkbox' );
+
+		await field.getByRole( 'button', { name: 'Check all' } ).click();
+		await expect( choices ).toHaveCount( 4 );
+		for ( const choice of await choices.all() ) {
+			await expect( choice ).toBeChecked();
+		}
+
+		await field.getByRole( 'button', { name: 'Uncheck all' } ).click();
+		for ( const choice of await choices.all() ) {
+			await expect( choice ).not.toBeChecked();
+		}
+		await expect(
+			field.getByRole( 'button', { name: 'Check all' } )
+		).toBeVisible();
 	} );
 } );

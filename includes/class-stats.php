@@ -103,6 +103,18 @@ class Stats {
 	}
 
 	/**
+	 * The books on the shelves and the readings of each form, by its term ID, as the filters of the app count them.
+	 *
+	 * @return array{form_book_counts: array<int,int>, form_reading_counts: array<int,int>}
+	 */
+	public static function get_form_counts(): array {
+		return array(
+			'form_book_counts'    => self::count_by_form( Books::get_shelved() ),
+			'form_reading_counts' => self::count_by_form( self::get_readings() ),
+		);
+	}
+
+	/**
 	 * The readings of each month, from January, whatever their year.
 	 *
 	 * @param Book[] $readings Readings with a date.

@@ -15,12 +15,16 @@ test.describe( 'Recap', () => {
 
 		await addBook( requestUtils, {
 			title: 'The Recap Long Book',
+			// None, a book of the catalogue of before the forms: its recap has no screen of them.
+			form: 0,
 			people: [ { name: 'Ann Recap', role: 'author' } ],
 			meta: { pages: 600 },
 			shelf: { readings: [ `/${ YEAR }-03-02` ], rating: 9 },
 		} );
 		await addBook( requestUtils, {
 			title: 'The Recap Short Book',
+			// None, a book of the catalogue of before the forms: its recap has no screen of them.
+			form: 0,
 			people: [ { name: 'Ann Recap', role: 'author' } ],
 			meta: { pages: 40 },
 			shelf: { readings: [ `/${ YEAR }-03-20`, `/${ YEAR }-09-01` ] },

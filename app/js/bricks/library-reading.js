@@ -1,6 +1,6 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { toDays } from 'library-app/api';
+import { toDays } from 'library-app/readings';
 import { fill } from 'library-app/dom';
 import { showBusy, showErrors } from 'library-app/behaviors';
 import { today } from 'library-app/format';

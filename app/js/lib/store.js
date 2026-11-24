@@ -23,70 +23,32 @@ import {
 } from 'library-app/app';
 import { Store } from 'library-app/state';
 import * as api from 'library-app/api';
+import {
+	readingOf,
+	readingsOf,
+	sortedOf,
+	toApiReading,
+	toApiReadingInProgress,
+} from 'library-app/readings';
+import { getReference, tryRoute } from 'library-app/reference';
+import {
+	achievements,
+	editing,
+	idea,
+	page,
+	pages,
+	recap,
+	reference,
+	saving,
+	terms,
+	volumes,
+} from 'library-app/parts';
 
 /**
- * @import { Achievements, ApiRoute, ApiTry, Book, BookForm, BookValues, CatalogBook, Idea, Month, PageView, PersonData, PublisherData, ApiReading, EndedReading, Recap, SeriesData, ShelfValues, Stats, Suggestions } from 'library-app/api'
+ * @import { Achievements, Book, BookValues, EndedReading, Idea, Month, PageView, Recap, ShelfValues, Stats } from 'library-app/api'
  * @import { Route } from 'library-app/router'
- */
-
-/**
- * A list loaded by pages: its items so far, and where it stands.
- *
- * @template [T=number]
- * @typedef {Object} Pages
- * @property {T[]}     items    Its items so far, such as the IDs of its books.
- * @property {number}  total    How many it has in all.
- * @property {number}  page     The last page loaded, 0 for none.
- * @property {number}  pages    How many pages it has.
- * @property {boolean} loading  Whether it is loading.
- * @property {boolean} renewing Whether it loads again from its start, its items shown until then.
- * @property {boolean} loaded   Whether it was loaded, or could not be.
- * @property {string}  error    Why it could not be loaded, or empty.
- */
-
-/**
- * How a resource stands: whether it is loading, was loaded, or why it could not be.
- *
- * @typedef {Object} Loading
- * @property {boolean} loading Whether it is loading.
- * @property {boolean} loaded  Whether it was loaded, or could not be.
- * @property {string}  error   Why it could not be loaded, or empty.
- */
-
-/**
- * The volumes of the series of the book open.
- *
- * @typedef {Pages & {name: string}} Volumes
- */
-
-/**
- * The saving of the reading of the book open.
- *
- * @typedef {Object} Saving
- * @property {boolean} loading Whether it is saving.
- * @property {string}  error   Why it could not be saved, or empty.
- */
-
-/**
- * The form of a book, to add one or to edit one.
- *
- * @typedef {Object} Editing
- * @property {number}        id        The book edited, 0 for a book to add.
- * @property {BookForm|null} book      The values of the book edited, none until loaded.
- * @property {boolean}       open      Whether it is open.
- * @property {boolean}       loading   Whether it is saving.
- * @property {string}        error     Why it could not be loaded or saved, or empty.
- * @property {number}        duplicate The book that has the ISBN typed for a book to add, 0 for none.
- * @property {Catalog}       catalog   The book of that ISBN in the catalogue of the BnF, for a book to add.
- */
-
-/**
- * The search of the ISBN typed for a book to add in the catalogue of the BnF.
- *
- * @typedef {Object} Catalog
- * @property {string}                                         isbn   The ISBN searched, its digits only, empty for none.
- * @property {''|'searching'|'found'|'unknown'|'unreachable'} status Where the search is: the catalogue has the book or not, or did not answer.
- * @property {CatalogBook|null}                               book   The book found, else none.
+ * @import { BookReading } from 'library-app/readings'
+ * @import { Catalog, Editing, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
  */
 
 /**
@@ -97,10 +59,6 @@ import * as api from 'library-app/api';
  * @property {{label: string, run: () => void}} [action] The action, its label and what it does.
  */
 
-/** @typedef {Pages & PersonData & {id: number}} PersonPage The page of the person open. */
-/** @typedef {Pages & SeriesData & {id: number}} SeriesPage The page of the series open. */
-/** @typedef {Pages & PublisherData & {id: number}} PublisherPage The page of the collection open. */
-
 /** @typedef {'search'|'inProgress'|'toBuy'} List The lists of books loaded by pages. */
 
 /**
@@ -108,29 +66,6 @@ import * as api from 'library-app/api';
  * saving of its reading, the form of a book and the names it suggests.
  *
  * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
- */
-
-/**
- * The reference of the API: its routes, and the requests tried from it, by endpoint.
- *
- * @typedef {Object} Reference
- * @property {ApiRoute[]}                                  routes Its routes.
- * @property {Object<string, ApiTry & {loading: boolean}>} tries  The requests tried, by the key of their endpoint.
- */
-
-/**
- * The names the form of a book suggests, and whether they are loading or loaded.
- *
- * @typedef {Suggestions & Omit<Loading, 'error'>} Terms
- */
-
-/**
- * The reading of a book by the reader: their copy, as the route of its shelf takes it, the values that change only, and
- * where it goes for them, empty to take it off their shelves.
- *
- * @typedef {Object} BookReading
- * @property {ShelfValues} copy   Their copy, its readings by their days, each with its rating, the one in progress last.
- * @property {string}      status Where it is for them, empty on none of their shelves.
  */
 
 /**
@@ -307,58 +242,6 @@ function searchOf( { query, read } ) {
 }
 
 /**
- * The readings of `book` by their days, as the form gives them, as the API takes them: the ones ended, each with its
- * rating, then the one in progress.
- *
- * @param {Book} book The book.
- * @return {ApiReading[]} Its readings.
- */
-function readingsOf( book ) {
-	const ended = book.readings.map( ( reading ) =>
-		api.toApiReading( api.toDays( reading ) )
-	);
-
-	return book.in_progress
-		? [
-				...ended,
-				api.toApiReadingInProgress( book.started.slice( 0, 10 ) ),
-		  ]
-		: ended;
-}
-
-/**
- * Readings in any order, to compare: the server keeps the time of a reading of the day.
- *
- * @param {ApiReading[]} readings The readings.
- * @return {string} Them, sorted, as JSON.
- */
-const sortedOf = ( readings ) =>
-	JSON.stringify(
-		readings.map( ( reading ) => JSON.stringify( reading ) ).sort()
-	);
-
-/**
- * The reading of `book`, to put it back as it was: whether it is read and being read, its readings by their days, as the
- * form gives them, with their ratings, when its copy was printed, their notes, the photo of their copy, and where it is
- * for the reader.
- *
- * @param {Book} book The book.
- * @return {BookReading} Its reading.
- */
-function readingOf( book ) {
-	const copy = {
-		read: book.read,
-		in_progress: book.in_progress,
-		readings: readingsOf( book ),
-		printed_date: book.printed_date,
-		notes: book.notes,
-		cover: book.copy_cover,
-	};
-
-	return { copy, status: book.status };
-}
-
-/**
  * What a list asks the API for: `search` the books the search finds on the shelf chosen, else on any shelf of the
  * reader but the books to buy for the books to read, which are not at hand, and of the form chosen, in the order chosen;
  * `toBuy` the books to buy; `inProgress` the books being read, the latest started first. The app lists the books of the
@@ -390,203 +273,6 @@ function queryOf( list, state ) {
 		shelf,
 		...( state.forms.length && { forms: state.forms.join() } ),
 		...order,
-	};
-}
-
-/**
- * A list loaded by pages: its items so far, and where it stands; `renewing` when it loads again from its start, its items shown until then.
- *
- * @template T
- * @param {T[]} [items] Its items so far.
- * @return {Pages<T>} The list.
- */
-function pages( items = [] ) {
-	return {
-		items,
-		total: 0,
-		page: 0,
-		pages: 0,
-		loading: false,
-		renewing: false,
-		loaded: false,
-		error: '',
-	};
-}
-
-/**
- * The reading idea, none loaded.
- *
- * @return {Idea & Loading} The idea.
- */
-function idea() {
-	return {
-		book_id: 0,
-		reason: '',
-		position: 0,
-		idea_count: 0,
-		loading: false,
-		loaded: false,
-		error: '',
-	};
-}
-
-/**
- * The achievements, none loaded.
- *
- * @return {Achievements & Loading} The achievements.
- */
-function achievements() {
-	return { earned: [], close: [], loading: false, loaded: false, error: '' };
-}
-
-/**
- * The reference of the API, none loaded.
- *
- * @return {Reference & Loading} The reference.
- */
-function reference() {
-	return { routes: [], tries: {}, loading: false, loaded: false, error: '' };
-}
-
-/**
- * The recap of `year`, none loaded.
- *
- * @param {number} [year] The year.
- * @return {Recap & Loading} The recap.
- */
-function recap( year = 0 ) {
-	return {
-		year,
-		years: [],
-		day_count: 0,
-		reading_count: 0,
-		previous_reading_count: 0,
-		reread_count: 0,
-		books: [],
-		pages: { total: 0, counted: 0 },
-		months: [],
-		forms: [],
-		people: [],
-		discoveries: [],
-		languages: [],
-		series: [],
-		rating: null,
-		best: [],
-		records: { longest: 0, shortest: 0, oldest: 0 },
-		achievements: [],
-		added_count: 0,
-		calendar: {
-			levels: [],
-			memorable: [],
-			read_day_count: 0,
-			streak: 0,
-			best: null,
-			dated_reading_count: 0,
-		},
-		loading: false,
-		loaded: false,
-		error: '',
-	};
-}
-
-/**
- * The volumes of the series `name` of the book open, in reading order.
- *
- * @param {string} [name] The series, after its cycles.
- * @return {Volumes} Its volumes.
- */
-function volumes( name = '' ) {
-	return { ...pages(), name };
-}
-
-/**
- * The saving of the reading of the book open.
- *
- * @return {Saving} The saving.
- */
-function saving() {
-	return { loading: false, error: '' };
-}
-
-/**
- * The form of a book, to add one or to edit the book `id`, whose values it holds as `book`, and its saving; `duplicate`
- * the book that has the ISBN typed for a book to add.
- *
- * @param {number}        [id]   The book edited, 0 for a book to add.
- * @param {BookForm|null} [book] Its values.
- * @return {Editing} The form.
- */
-function editing( id = 0, book = null ) {
-	return {
-		id,
-		book,
-		open: false,
-		loading: false,
-		error: '',
-		duplicate: 0,
-		catalog: { isbn: '', status: '', book: null },
-	};
-}
-
-/**
- * The names the form of a book suggests, as terms: people and their other names, publishers and collections, series.
- *
- * @return {Terms} The names, none loaded.
- */
-function terms() {
-	return {
-		people: [],
-		publishers: [],
-		series: [],
-		loading: false,
-		loaded: false,
-	};
-}
-
-/**
- * The page of a term open, its books loaded as a list, a page at a time, from all their IDs, `books`, in order; its
- * `wishes`, books to buy without a reading, few, loaded at once with it; `completion` is an achievement, a
- * `description` is HTML. The person open, under the name they are known by: `series` theirs, those with the most of
- * their books first, `bookPages` the pages of their books, as `pages` counts the pages of the list. The
- * series open, or the cycle: its name after its cycles, its `cycle`, its `parts`, the series of a cycle, its `authors`,
- * who wrote the most first, its books in reading order, those of its series with them. The collection open, or the
- * publisher: its name, a sub-collection after the collections it is part of, its `publisher`, the `collection` it is part
- * of, its `collections`, its `authors`, its books by collection, in the order of their number.
- */
-const PAGE_STATES = {
-	person: () => ( {
-		otherNames: [],
-		series: [],
-		rating: null,
-		bookPages: 0,
-	} ),
-	series: () => ( { cycle: null, issn: '', parts: [], authors: [] } ),
-	publisher: () => ( {
-		publisher: null,
-		collection: null,
-		collections: [],
-		authors: [],
-	} ),
-};
-
-/**
- * The page `view` of the term `id`, empty.
- *
- * @param {string} view The view of the page: "person", "series" or "publisher".
- * @param {number} [id] Term ID.
- * @return {PersonPage|SeriesPage|PublisherPage} The page.
- */
-function page( view, id = 0 ) {
-	return {
-		...pages(),
-		id,
-		name: '',
-		description: '',
-		books: [],
-		wishes: [],
-		read: 0,
-		completion: null,
-		...PAGE_STATES[ view ](),
 	};
 }
 
@@ -793,7 +479,7 @@ class LibraryStore extends Store {
 			} ) );
 
 		tried( { loading: true } );
-		tried( { ...( await api.tryRoute( path ) ), loading: false } );
+		tried( { ...( await tryRoute( path ) ), loading: false } );
 	}
 
 	/**
@@ -834,15 +520,6 @@ class LibraryStore extends Store {
 		if ( 'forms' === filter && ( diary.page || diary.loading ) ) {
 			this.#fetchDiary( 1 );
 		}
-	}
-
-	/**
-	 * Clears the filter `filter`: none chosen, any form.
-	 *
-	 * @param {string} filter The filter.
-	 */
-	clearFilter( filter ) {
-		this.setFilter( filter, NO_FILTERS[ filter ] );
 	}
 
 	/**
@@ -1243,9 +920,9 @@ class LibraryStore extends Store {
 	} ) {
 		const { book: id, books } = this.get();
 		const book = books[ id ];
-		const ended = readings.map( api.toApiReading );
+		const ended = readings.map( toApiReading );
 		const given = inProgress
-			? [ ...ended, api.toApiReadingInProgress( started ) ]
+			? [ ...ended, toApiReadingInProgress( started ) ]
 			: ended;
 		/** @type {ShelfValues} */
 		const copy = {};
@@ -1946,7 +1623,7 @@ class LibraryStore extends Store {
 
 		if ( ! loading && ( ! loaded || error ) ) {
 			this.#request( 'reference', async () => {
-				const routes = await api.getReference();
+				const routes = await getReference();
 
 				return () => ( { routes } );
 			} );

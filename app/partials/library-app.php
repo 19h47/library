@@ -22,8 +22,7 @@
  * @var object                                        $language_labels  Labels of the languages taxonomy.
  * @var object                                        $form_labels      Labels of the forms taxonomy.
  * @var array<int,string>                             $form_choices     Forms the filters of the books and of the diary and the form of a book offer, by term ID.
- * @var array<int,int>                                $form_book_counts Books of each form on the shelves of the reader, by term ID.
- * @var array<int,int>                                $form_read_counts Readings of each form, by term ID.
+ * @var array{form_book_counts: array<int,int>, form_reading_counts: array<int,int>} $form_counts Books of each form on the shelves of the reader and readings of each form, by term ID: see Stats::get_form_counts().
  * @var array<int,string>                             $language_choices Languages the form of a book offers, original or of the edition, by term ID.
  * @var int                                           $own_language_id  Term ID of the language of the reader, 0 when the library has none.
  * @var array<string,string>                          $status_choices Statuses the forms of a book and the filter of the shelves offer, with their label.
@@ -165,22 +164,18 @@ $form_filter = array(
 						);
 
 						if ( $form_choices ) {
-							$book_filters['forms'] = $form_filter + array( 'counts' => $form_book_counts );
+							$book_filters['forms'] = $form_filter + array( 'counts' => $form_counts['form_book_counts'] );
 						}
 						?>
 						<library-filters>
 							<?php
 							Markup::render_component(
-								'filters',
+								'filters-sheet',
 								array(
 									'id'      => 'library-filters-dialog',
 									'filters' => $book_filters,
 								)
 							);
-							?>
-						</library-filters>
-						<library-filter data-filter="sort">
-							<?php
 							Markup::render_component(
 								'pill-select',
 								array(
@@ -193,11 +188,14 @@ $form_filter = array(
 										'read'   => __( 'Latest read', 'library' ),
 									),
 									// The order of a search for a series, which lists it in reading order.
-									'attributes' => array( 'data-series' => __( 'Reading order', 'library' ) ),
+									'attributes' => array(
+										'name'        => 'sort',
+										'data-series' => __( 'Reading order', 'library' ),
+									),
 								)
 							);
 							?>
-						</library-filter>
+						</library-filters>
 					</div>
 
 					<?php // The books found, as cards or as a grid of their covers, the next ones loading as the end of the list comes, and what it says while it loads or finds none. ?>
@@ -209,15 +207,19 @@ $form_filter = array(
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
+					<h2 class="library-title">
+						<?php echo esc_html( $views['diary']['label'] ); ?>
+						<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="diary" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+					</h2>
 					<?php if ( $form_choices ) : ?>
 						<div class="app-controls">
 							<library-filters list="diary">
 								<?php
 								Markup::render_component(
-									'filters',
+									'filters-sheet',
 									array(
 										'id'      => 'library-diary-filters-dialog',
-										'filters' => array( 'forms' => $form_filter + array( 'counts' => $form_read_counts ) ),
+										'filters' => array( 'forms' => $form_filter + array( 'counts' => $form_counts['form_reading_counts'] ) ),
 									)
 								);
 								?>
@@ -841,12 +843,14 @@ $form_filter = array(
 						)
 					);
 					Markup::render_component( 'meta-field', array( 'key' => 'library_collection_number' ) );
+					// Every book has a form, as soon as the library has some: the filters of the forms leave out a book of none.
 					Markup::render_component(
 						'field',
 						array(
 							'id'         => 'library-edit-form',
 							'label'      => $form_labels->singular_name,
-							'control'    => Markup::get_select( array( '' => $form_labels->no_terms ) + $form_choices ),
+							'required'   => (bool) $form_choices,
+							'control'    => Markup::get_select( array( '' => $form_choices ? __( 'Choose a form', 'library' ) : $form_labels->no_terms ) + $form_choices ),
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
@@ -1048,10 +1052,10 @@ $form_filter = array(
 
 		<template id="library-month">
 			<section class="library-section">
-				<h2 class="library-title">
+				<h3 class="library-title">
 					<span data-field="month"></span>
 					<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="count"></span>
-				</h2>
+				</h3>
 				<ul class="app-list"></ul>
 			</section>
 		</template>

@@ -7,8 +7,18 @@
 
 import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
-import { formatBooks } from 'library-app/format';
+import { formatBooks, formatReadings } from 'library-app/format';
 import { fillBook, renderBook } from 'library-app/render';
+
+/**
+ * What the list `name` counts, as format.js says it: the readings of the diary, the books of the others.
+ *
+ * @param {string} name The list, as the store names it, such as search or diary.
+ * @return {( count: number ) => string} How it says them.
+ */
+export function formatOfList( name ) {
+	return 'diary' === name ? formatReadings : formatBooks;
+}
 
 /**
  * How many books a list has, as `format` says it, once it is loaded; that it is loading until then.

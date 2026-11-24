@@ -9,7 +9,7 @@ import { join } from 'library-app/format';
 /**
  * @import { Field } from 'library-app/behaviors'
  * @import { CatalogBook, Credit } from 'library-app/api'
- * @import { Catalog } from 'library-app/store'
+ * @import { Catalog } from 'library-app/parts'
  * @import { CheckboxesFieldElement } from '../components/checkboxes-field.js'
  * @import { PartialDateElement } from '../components/partial-date.js'
  */
