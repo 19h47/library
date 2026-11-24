@@ -1,0 +1,102 @@
+/**
+ * The days of a month, a molecule, the component month-calendar: a .library-day each, in weeks from Monday. `--covers`,
+ * larger, each day in the shape of a cover: its number at its corner, and the cover of the book whose reading ended that
+ * day, its title in its frame without one, the others counted at the other corner.
+ */
+
+@layer app.components {
+	month-calendar {
+		display: block;
+	}
+
+	.library-month-calendar {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: calc(var(--app-space-xs) / 2);
+	}
+
+	.library-month-calendar--covers {
+		gap: var(--app-space-xs);
+	}
+
+	.library-month-calendar__day {
+		position: relative;
+		aspect-ratio: 1 / var(--app-phi);
+		overflow: hidden;
+	}
+
+	/* Its number, over its cover, on the background of the page to read as well */
+	.library-month-calendar__number {
+		position: absolute;
+		inset: 0 auto auto 0;
+		z-index: 1;
+		padding-inline: var(--app-space-xs);
+		border-end-end-radius: var(--app-radius-s);
+		background: var(--app-bg);
+		color: var(--app-text-muted);
+		line-height: var(--app-line-height);
+	}
+
+	/*
+	 * The book of the day, the whole day: its cover, or without one its title under the number, in its frame, as the frame
+	 * of a cover, cut where the day ends, its words broken with hyphens
+	 */
+	.library-month-calendar__book {
+		position: absolute;
+		inset: 0;
+		padding: calc(var(--app-text-s) * var(--app-line-height)) var(--app-space-xs) var(--app-space-xs);
+		overflow: hidden;
+		border: 1px solid var(--app-line);
+		border-radius: inherit;
+		background: var(--app-bg);
+		color: inherit;
+		font-family: var(--app-font-ui);
+		font-size: var(--app-text-s);
+		line-height: var(--app-line-height);
+		text-decoration: none;
+		overflow-wrap: anywhere;
+		hyphens: auto;
+	}
+
+	.library-month-calendar__cover {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+	}
+
+	/* Its title, two lines at most. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
+	.library-month-calendar__title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	.library-month-calendar__cover:not([hidden]) + .library-month-calendar__title {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	.library-month-calendar__book:focus-visible {
+		outline: var(--app-focus-outline);
+		outline-offset: calc(-1 * var(--app-focus-outline-offset));
+	}
+
+	/* The other books of the day, counted, at the other corner */
+	.library-month-calendar__more {
+		position: absolute;
+		inset: auto 0 0 auto;
+		z-index: 1;
+		padding-inline: var(--app-space-xs);
+		border-start-start-radius: var(--app-radius-s);
+		background: var(--app-bg);
+		line-height: var(--app-line-height);
+	}
+}

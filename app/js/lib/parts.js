@@ -4,7 +4,7 @@
  */
 
 /**
- * @import { Achievements, BookForm, CatalogBook, Idea, PersonData, PublisherData, Recap, SeriesData, Suggestions } from 'library-app/api'
+ * @import { Achievements, BookForm, Calendar, CatalogBook, Idea, PersonData, PublisherData, Recap, SeriesData, Suggestions } from 'library-app/api'
  * @import { ApiRoute, ApiTry } from 'library-app/reference'
  */
 
@@ -176,6 +176,38 @@ export function recap( year = 0 ) {
 			best: null,
 			dated_reading_count: 0,
 		},
+		loading: false,
+		loaded: false,
+		error: '',
+	};
+}
+
+/**
+ * The calendar of the diary: the days of a year, and how it shows them, the year or one of its months.
+ *
+ * @typedef {Calendar & Loading & {scale: 'year'|'month', month: number}} DiaryCalendar
+ */
+
+/**
+ * The calendar of the diary for `year`, empty, showing `scale`, the year or its month `month`.
+ *
+ * @param {number}         [year]  The year, the current one by default.
+ * @param {'year'|'month'} [scale] What it shows: the year, or one of its months.
+ * @param {number}         [month] The month it shows, from 0, the current one by default.
+ * @return {DiaryCalendar} The calendar.
+ */
+export function calendar(
+	year = new Date().getFullYear(),
+	scale = 'year',
+	month = new Date().getMonth()
+) {
+	return {
+		year,
+		years: [],
+		levels: [],
+		ends: {},
+		scale,
+		month,
 		loading: false,
 		loaded: false,
 		error: '',

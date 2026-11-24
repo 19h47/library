@@ -29,19 +29,20 @@ class Rest_Schemas {
 	 */
 	public static function get_schemas(): array {
 		return array(
-			'books'                   => array( self::class, 'get_book' ),
-			'books/(?P<id>\d+)'       => array( self::class, 'get_book_form' ),
-			'books/(?P<id>\d+)/shelf' => array( self::class, 'get_book' ),
-			'books/bnf'               => array( self::class, 'get_book_form' ),
-			'covers'                  => array( self::class, 'get_cover' ),
-			'stats'                   => array( self::class, 'get_stats' ),
-			'readings'                => array( self::class, 'get_readings' ),
-			'idea'                    => array( self::class, 'get_idea' ),
-			'achievements'            => array( self::class, 'get_achievements' ),
-			'recaps/(?P<year>\d{4})'  => array( self::class, 'get_recap' ),
-			'people/(?P<id>\d+)'      => array( self::class, 'get_person' ),
-			'series/(?P<id>\d+)'      => array( self::class, 'get_series' ),
-			'publishers/(?P<id>\d+)'  => array( self::class, 'get_publisher' ),
+			'books'                     => array( self::class, 'get_book' ),
+			'books/(?P<id>\d+)'         => array( self::class, 'get_book_form' ),
+			'books/(?P<id>\d+)/shelf'   => array( self::class, 'get_book' ),
+			'books/bnf'                 => array( self::class, 'get_book_form' ),
+			'covers'                    => array( self::class, 'get_cover' ),
+			'stats'                     => array( self::class, 'get_stats' ),
+			'readings'                  => array( self::class, 'get_readings' ),
+			'idea'                      => array( self::class, 'get_idea' ),
+			'achievements'              => array( self::class, 'get_achievements' ),
+			'calendars/(?P<year>\d{4})' => array( self::class, 'get_calendar' ),
+			'recaps/(?P<year>\d{4})'    => array( self::class, 'get_recap' ),
+			'people/(?P<id>\d+)'        => array( self::class, 'get_person' ),
+			'series/(?P<id>\d+)'        => array( self::class, 'get_series' ),
+			'publishers/(?P<id>\d+)'    => array( self::class, 'get_publisher' ),
 		);
 	}
 
@@ -483,6 +484,23 @@ class Rest_Schemas {
 			array(
 				'earned' => self::property( 'array', __( 'Achievements earned, latest first.', 'library' ), array( 'items' => self::achievement( __( 'An achievement earned.', 'library' ) ) ) ),
 				'close'  => self::property( 'array', __( 'Achievements close to be earned, closest first.', 'library' ), array( 'items' => self::achievement( __( 'An achievement close to be earned.', 'library' ) ) ) ),
+			)
+		);
+	}
+
+	/**
+	 * The schema of the calendar of the diary: the days of a year.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_calendar(): array {
+		return self::build(
+			'library-calendar',
+			array(
+				'year'   => self::property( 'integer', __( 'Year of the calendar.', 'library' ) ),
+				'years'  => self::property( 'array', __( 'Years with a reading, the earliest first.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'levels' => self::property( 'array', __( 'Level of each day gone by, from January 1st: 0 for none read, up to 4 for the days that read the most pages.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'ends'   => self::property( 'object', __( 'IDs of the books whose reading ended on each day, by the day, from 0 for January 1st.', 'library' ) ),
 			)
 		);
 	}

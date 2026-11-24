@@ -1,7 +1,6 @@
 /**
  * The days of a year, a molecule, the component days-calendar: every day from January 1st, in weeks from Monday, the first
- * one in the column of its weekday; each as dark as its level, from the lines to the muted text, a day to come its outline,
- * a memorable one the darkest, a ring around it, pulsing.
+ * one in the column of its weekday, a .library-day; a memorable one the darkest, a ring around it, pulsing.
  *
  * Its weeks follow the shape of the container of its place: as many a row as keep their rows closest to its height, two
  * on a phone, more as it widens.
@@ -55,35 +54,7 @@
 		}
 	}
 
-	/* A day, a square: a day without reading, the fill */
-	.library-days-calendar > li {
-		aspect-ratio: 1;
-		border-radius: var(--app-radius-s);
-		background: var(--app-fill);
-	}
-
-	.library-days-calendar > [data-level="1"] {
-		background: var(--app-line-soft);
-	}
-
-	.library-days-calendar > [data-level="2"] {
-		background: var(--app-line);
-	}
-
-	.library-days-calendar > [data-level="3"] {
-		background: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi) / var(--app-phi)));
-	}
-
-	.library-days-calendar > [data-level="4"] {
-		background: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi)));
-	}
-
-	.library-days-calendar > [data-day="later"] {
-		background: none;
-		box-shadow: inset 0 0 0 1px var(--app-line-soft);
-	}
-
-	.library-days-calendar > [data-day="memorable"] {
+	.library-days-calendar > .library-day[data-day="memorable"] {
 		--library-days-calendar-ring: var(--app-text-muted);
 
 		background: var(--library-days-calendar-ring);
@@ -92,7 +63,7 @@
 
 	/* The memorable days pulse, their ring going out from them, each from its own point, so that no two go together */
 	@media (prefers-reduced-motion: no-preference) {
-		.library-days-calendar > [data-day="memorable"] {
+		.library-days-calendar > .library-day[data-day="memorable"] {
 			animation: library-days-calendar-pulse calc(2s * var(--app-phi)) ease-out infinite;
 			animation-delay: calc(var(--library-days-calendar-day) * -0.13s);
 		}

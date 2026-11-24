@@ -1,0 +1,79 @@
+/**
+ * The diary: its calendar, a step above its readings, the year or a month of it at a time, then the readings by month.
+ */
+
+@layer app.views {
+	/* The calendar, then the readings, a step and a half apart, as sections */
+	.library-calendar {
+		/* Its days, from the lines to the text, darker than the backdrop of the recap, which a veil covers */
+		--library-day-1: var(--app-line);
+		--library-day-2: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi)));
+		--library-day-3: var(--app-text-muted);
+		--library-day-4: var(--app-text);
+
+		display: grid;
+		gap: var(--app-space-m);
+		margin-bottom: var(--app-space-xl);
+	}
+
+	/* Its scale, then Before and After at the end of the line */
+	.library-calendar__bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--app-space-s);
+	}
+
+	.library-calendar__period {
+		font-size: var(--app-text-xl);
+		font-weight: normal;
+		line-height: 1;
+	}
+
+	/* What the days count, side by side, as many a row as fit, a label above each figure */
+	.library-calendar__stats {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(calc(var(--app-u3) * var(--app-phi)), 1fr));
+		gap: var(--app-space-xs) var(--app-space-m);
+	}
+
+	/* Its labels on a row, their last lines together, its figures on the next one, whatever lines a label takes */
+	.library-calendar__stats > div {
+		display: grid;
+		grid-row: span 2;
+		grid-template-rows: subgrid;
+		align-items: end;
+	}
+
+	.library-calendar__figure {
+		font-size: var(--app-text-l);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* The months of the year, side by side, as many a row as fit: four on a phone */
+	.library-calendar__year {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(calc(var(--app-u3) * var(--app-phi)), 1fr));
+		gap: var(--app-space-m) var(--app-space-s);
+	}
+
+	.library-calendar__year > li {
+		display: grid;
+		align-content: start;
+		gap: var(--app-space-xs);
+	}
+
+	/* The name of a month, a link to it, at the start of its line */
+	.library-calendar__year .library-link {
+		justify-self: start;
+		color: var(--app-text-muted);
+	}
+
+	/* Loading another year, its days faded until they come */
+	.library-calendar[aria-busy="true"] :is(.library-calendar__year, [data-part="month"], .library-calendar__stats) {
+		opacity: var(--app-control-opacity);
+		transition: opacity var(--app-transition-1);
+	}
+}

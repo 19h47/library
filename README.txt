@@ -29,7 +29,7 @@ Library adds a **Book** post type and five taxonomies, **People**, **Series**, *
 * **Dashboard** – Six widgets of the shelves of the reader: Reading, Ratings, Reading pile, Library, Reading idea of the week and Achievements. Each chart has a data table for screen readers.
 * **Reading idea of the week** – A book to read, and why: the next volume of a series, an author rated well, an anniversary, a short book… and now and then a book to buy.
 * **Achievements** – Computed from the books of the reader, nothing stored: authors, series and collections read in full, the books to buy without a reading left out but from a series, where they are volumes left, milestones, records, forms, languages and a few easter eggs. **Books > Achievements** lists them all.
-* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, on the shelves of the reader or in the whole catalogue, cards or a grid of covers, the diary, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, an ISBN typed or scanned from its barcode fills the form from the catalogue of the BnF. Without network, it shows what it loaded, which logging out takes off the device.
+* **Reading app** – The library on a phone, in **Books > App**: the books in progress, the search and its filters, on the shelves of the reader or in the whole catalogue, cards or a grid of covers, the diary and its calendar, the reading idea, the stats, the achievements, the recap of each year, and a page for each book, person, series and collection. Books are added and edited there, an ISBN typed or scanned from its barcode fills the form from the catalogue of the BnF. Without network, it shows what it loaded, which logging out takes off the device.
 * **REST API** – Books and their taxonomies in the core REST API, and routes for the book form, the BnF, the stats, the readings, the reading idea, the achievements, the recap and the pages of the app: see the FAQ.
 * **Translatable** – French translation included.
 
@@ -127,6 +127,7 @@ The routes of the plugin, under `/wp-json/library/v1`, to readers, the users who
 * `POST /covers` – uploads the photo of a cover, of an edition or of a copy, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
 * `GET /stats` – the books of the reader, the books read this year against last year, and the year the books to read would all be read at this pace.
 * `GET /readings` – the readings by month, latest first: `page` and `per_page` count months.
+* `GET /calendars/<year>` – the days of reading of a year, as the calendar of the diary shows them: the level of each day gone by, and the books whose reading ended on each; `forms`, term IDs, for the books of one of them.
 * `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
 * `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
 * `GET /recaps/<year>` – the recap of a year, as the screens of the app show it.

@@ -1127,6 +1127,18 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>month-calendar</code></h4>
+					<p>The days of a month, a <code>.library-day</code> each, in weeks from Monday, the days to come outlined; <code>covers</code>, as the diary shows a month, each day its number and the book whose reading ended then, a link to it, its cover or its title, the others counted; its place sets <code>value</code>, and the colors of the levels, <code>--library-day-1</code> to <code>--library-day-4</code></p>
+				</figcaption>
+				<div class="library-styleguide__frame library-calendar" data-sample="month-calendar">
+					<?php
+					Markup::render_component( 'month-calendar' );
+					Markup::render_component( 'month-calendar', array( 'covers' => true ) );
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>days-calendar</code></h4>
 					<p>The days of a year, in weeks from Monday, as many weeks a row as the shape of the container of its place makes it; its place sets <code>value</code>, the year, the level of each day gone by and the memorable ones, pulsing</p>
 				</figcaption>

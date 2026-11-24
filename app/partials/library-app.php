@@ -228,6 +228,59 @@ $form_filter = array(
 							</library-filters>
 						</div>
 					<?php endif; ?>
+					<?php // The days of reading of a year, or of one of its months, which the forms chosen filter too. ?>
+					<library-calendar class="library-calendar">
+						<div class="library-calendar__bar">
+							<?php
+							Markup::render_component(
+								'pill-select',
+								array(
+									'id'         => 'library-calendar-scale',
+									'label'      => __( 'Calendar', 'library' ),
+									'options'    => array(
+										'year'  => __( 'Year', 'library' ),
+										'month' => __( 'Month', 'library' ),
+									),
+									'attributes' => array( 'name' => 'scale' ),
+								)
+							);
+							?>
+							<p class="app-toolbar">
+								<button class="app-control" type="button" data-action="previous" aria-label="<?php esc_attr_e( 'Before', 'library' ); ?>" title="<?php esc_attr_e( 'Before', 'library' ); ?>"><?php Markup::render_icon( 'arrow_back' ); ?></button>
+								<button class="app-control" type="button" data-action="next" aria-label="<?php esc_attr_e( 'After', 'library' ); ?>" title="<?php esc_attr_e( 'After', 'library' ); ?>"><?php Markup::render_icon( 'arrow_forward' ); ?></button>
+							</p>
+						</div>
+						<h3 class="library-calendar__period" data-field="period" aria-live="polite"></h3>
+						<dl class="library-calendar__stats">
+							<?php
+							$calendar_stats = array(
+								'readings' => __( 'Readings', 'library' ),
+								'pages'    => __( 'Pages', 'library' ),
+								'days'     => __( 'Days of reading', 'library' ),
+								'streak'   => __( 'Days in a row', 'library' ),
+							);
+							?>
+							<?php foreach ( $calendar_stats as $calendar_field => $calendar_label ) : ?>
+								<div>
+									<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $calendar_label ); ?></dt>
+									<dd class="library-calendar__figure" data-field="<?php echo esc_attr( $calendar_field ); ?>"></dd>
+								</div>
+							<?php endforeach; ?>
+						</dl>
+						<?php // The months of the year, each a link to it at the scale of a month. ?>
+						<ol class="library-calendar__year" data-part="year">
+							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
+								<li>
+									<button class="library-link app-text-s app-font-ui app-uppercase" type="button" data-action="month" value="<?php echo esc_attr( (string) $calendar_month ); ?>"></button>
+									<?php Markup::render_component( 'month-calendar' ); ?>
+								</li>
+							<?php endfor; ?>
+						</ol>
+						<div data-part="month" hidden>
+							<?php Markup::render_component( 'month-calendar', array( 'covers' => true ) ); ?>
+						</div>
+						<p class="app-status" data-field="status" hidden></p>
+					</library-calendar>
 					<library-diary>
 						<p class="app-status" data-field="status" hidden></p>
 						<div class="library-sections library-diary__months" data-list="months"></div>

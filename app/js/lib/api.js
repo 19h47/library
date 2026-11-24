@@ -966,6 +966,34 @@ export async function getRecap( year, { signal } = {} ) {
 }
 
 /**
+ * The days of reading of a year, as the calendar of the diary shows them.
+ *
+ * @typedef {Object} Calendar
+ * @property {number}                   year   The year.
+ * @property {number[]}                 years  The years with a reading, the earliest first.
+ * @property {number[]}                 levels The level of each day gone by, from January 1st: 0 for none read, up to 4.
+ * @property {Object<string, number[]>} ends   The IDs of the books whose reading ended on each day, by the day, from 0.
+ */
+
+/**
+ * The days of reading of `year`, of the books of `forms`, of every form when none.
+ *
+ * @param {number}      year             The year.
+ * @param {string[]}    forms            The forms, by term ID.
+ * @param {Object}      [options]        Options.
+ * @param {AbortSignal} [options.signal] Cancels the request.
+ * @return {Promise<Calendar>} Its days.
+ */
+export function getCalendar( year, forms, { signal } = {} ) {
+	return apiFetch( {
+		path: addQueryArgs( `/library/v1/calendars/${ year }`, {
+			...( forms.length && { forms: forms.join() } ),
+		} ),
+		signal,
+	} );
+}
+
+/**
  * The achievements earned and close to be earned.
  *
  * @return {Promise<Achievements>} The achievements.

@@ -33,6 +33,7 @@ import {
 import { getReference, tryRoute } from 'library-app/reference';
 import {
 	achievements,
+	calendar,
 	editing,
 	idea,
 	page,
@@ -48,7 +49,7 @@ import {
  * @import { Achievements, Book, BookValues, EndedReading, Idea, Month, PageView, Recap, ShelfValues, Stats } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  * @import { BookReading } from 'library-app/readings'
- * @import { Catalog, Editing, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
+ * @import { Catalog, DiaryCalendar, Editing, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
  */
 
 /**
@@ -65,7 +66,7 @@ import {
  * The parts of the state that change part by part: the resources, the books of the series of the book open, the
  * saving of its reading, the form of a book and the names it suggests.
  *
- * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
+ * @typedef {List|'diary'|'calendar'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
  */
 
 /**
@@ -104,6 +105,7 @@ import {
  * @property {Pages}                  inProgress   The books being read.
  * @property {Pages}                  toBuy        The books to buy.
  * @property {Pages<Month>}           diary        The readings by month.
+ * @property {DiaryCalendar}          calendar     The days of reading of the diary, a year or one of its months.
  * @property {Idea & Loading}         idea         The reading idea.
  * @property {Achievements & Loading} achievements The achievements.
  * @property {PersonPage}             person       The person open.
@@ -141,10 +143,11 @@ const API_VIEW = 'api';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 /** @type {string[]} */
 const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
-// The resource each view shows; the page of a book shows the book open.
+// The resources each view shows; the page of a book shows the book open.
+/** @type {Object<string, string|string[]>} */
 const VIEW_RESOURCES = {
 	books: 'search',
-	diary: 'diary',
+	diary: [ 'diary', 'calendar' ],
 	idea: 'idea',
 	achievements: 'achievements',
 	'to-buy': 'toBuy',
@@ -353,6 +356,11 @@ class LibraryStore extends Store {
 			load: () => this.#fetchDiary( 1 ),
 			reload: () => this.#refreshDiary(),
 		},
+		calendar: {
+			empty: calendar,
+			load: () => this.#fetchCalendar(),
+			reload: () => this.#fetchCalendar(),
+		},
 		idea: {
 			empty: idea,
 			load: () => this.#fetchIdea( 0 ),
@@ -515,11 +523,37 @@ class LibraryStore extends Store {
 		this.set( ( state ) => ( { ...state, [ filter ]: value } ) );
 		this.#fetchList( 'search' );
 
-		const { diary } = this.get();
+		const { diary, calendar: days } = this.get();
 
 		if ( 'forms' === filter && ( diary.page || diary.loading ) ) {
 			this.#fetchDiary( 1 );
 		}
+
+		if ( 'forms' === filter && ( days.loaded || days.loading ) ) {
+			this.#fetchCalendar();
+		}
+	}
+
+	/**
+	 * What the calendar of the diary shows: its `scale`, the year or one of its months, its `year` and its `month`, from 0;
+	 * another year loads its days.
+	 *
+	 * @param {Partial<Pick<DiaryCalendar, 'scale'|'year'|'month'>>} shown What it shows.
+	 */
+	showCalendar( shown ) {
+		const current = this.get().calendar;
+		const { scale, year, month } = { ...current, ...shown };
+
+		if ( year === current.year ) {
+			this.#update( 'calendar', () => ( { scale, month } ) );
+			return;
+		}
+
+		this.set( ( state ) => ( {
+			...state,
+			calendar: calendar( year, scale, month ),
+		} ) );
+		this.#fetchCalendar();
 	}
 
 	/**
@@ -1049,7 +1083,7 @@ class LibraryStore extends Store {
 		const state = this.get();
 		const shown = [
 			'toBuy',
-			VIEW_RESOURCES[ state.view ],
+			...[ VIEW_RESOURCES[ state.view ] ].flat(),
 			...( isHome( state ) ? HOME : [] ),
 		];
 
@@ -1560,6 +1594,29 @@ class LibraryStore extends Store {
 				items: [ ...current.items, ...ids ],
 				page: number,
 			} );
+		} );
+	}
+
+	/**
+	 * The days of reading of the year of the calendar of the diary, of the forms chosen, with the books whose reading
+	 * ended on them. Another year cancels the one loading.
+	 *
+	 * @return {Promise<boolean>} Whether it loaded.
+	 */
+	#fetchCalendar() {
+		const signal = this.#signal( 'calendar' );
+		const { calendar: current, forms: chosen } = this.get();
+
+		return this.#request( 'calendar', async () => {
+			const loaded = await api.getCalendar( current.year, chosen, {
+				signal,
+			} );
+
+			await this.#fetchBooks( Object.values( loaded.ends ).flat(), {
+				signal,
+			} );
+
+			return () => loaded;
 		} );
 	}
 

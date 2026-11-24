@@ -394,6 +394,29 @@ class Rest_API {
 
 		register_rest_route(
 			'library/v1',
+			'calendars/(?P<year>\d{4})',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => fn( WP_REST_Request $request ) => rest_ensure_response( Calendar::get_diary_calendar( (int) $request['year'], $request['forms'] ) ),
+				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
+				'args'                => array(
+					'year'  => array(
+						'description' => __( 'Year of the calendar.', 'library' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
+					'forms' => array(
+						'description' => __( 'Term IDs of forms: only the readings of the books of one of them; all of them, none given.', 'library' ),
+						'type'        => 'array',
+						'items'       => array( 'type' => 'integer' ),
+						'default'     => array(),
+					),
+				),
+			),
+		);
+
+		register_rest_route(
+			'library/v1',
 			'recaps/(?P<year>\d{4})',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
