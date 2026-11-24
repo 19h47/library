@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-24T15:50:17+00:00\n"
+"POT-Creation-Date: 2026-11-24T16:43:27+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2562,11 +2562,11 @@ msgstr ""
 
 #: includes/class-rest-schemas.php:505
 msgid ""
-"IDs of the books read on each day, a reading in progress up to today, by the "
+"IDs of the books read on each day, a reading in progress today alone, by the "
 "day, from 0 for January 1st."
 msgstr ""
-"ID des livres lus chaque jour, une lecture en cours jusqu’à aujourd’hui, par "
-"jour, depuis 0 pour le 1er janvier."
+"ID des livres lus chaque jour, une lecture en cours aujourd’hui seulement, "
+"par jour, depuis 0 pour le 1er janvier."
 
 #: includes/class-rest-schemas.php:506
 msgid ""
@@ -3525,6 +3525,13 @@ msgstr "Lecture enregistrée."
 #: app/js/lib/store.js:881
 msgid "Undo"
 msgstr "Annuler"
+
+#~ msgid ""
+#~ "IDs of the books read on each day, a reading in progress up to today, by "
+#~ "the day, from 0 for January 1st."
+#~ msgstr ""
+#~ "ID des livres lus chaque jour, une lecture en cours jusqu’à aujourd’hui, "
+#~ "par jour, depuis 0 pour le 1er janvier."
 
 #~ msgid ""
 #~ "Days of reading: the level of each day, the memorable ones, the days "

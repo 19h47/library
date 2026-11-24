@@ -53,8 +53,8 @@ class Test_Calendar extends TestCase {
 	}
 
 	/**
-	 * A reading in progress, which may have been left for years, gives no day its level until it ends, but is read on each
-	 * day from its start up to today; no day after today is gone by.
+	 * A reading in progress, which may have been left for years, gives no day its level until it ends, and is read today
+	 * alone; no day after today is gone by.
 	 *
 	 * @return void
 	 */
@@ -70,7 +70,8 @@ class Test_Calendar extends TestCase {
 
 		$this->assertCount( $days, $calendar['levels'] );
 		$this->assertCount( 1, array_filter( $calendar['levels'] ) );
-		$this->assertCount( $days, (array) $calendar['reads'] );
+		// January 1st, a reading ended, and today, the one in progress.
+		$this->assertSame( array_values( array_unique( array( 0, $days - 1 ) ) ), array_keys( (array) $calendar['reads'] ) );
 		$this->assertContains( $reading, ( (array) $calendar['reads'] )[ $days - 1 ] );
 	}
 
