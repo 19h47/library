@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.7.0
+Stable tag: 10.7.1
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -140,6 +140,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.7.1 =
+* Fixed: the calendar lists a reading in progress on today alone, as it counts it for no day: one left long ago no longer shows on every day since its start.
+* Fixed: a month of the diary starts with a capital in French, “Novembre 2026”, as the title of the calendar.
+* REST API: `GET /calendars/<year>` gives a reading in progress in `reads` on today alone.
 
 = 10.7.0 =
 * Reading app: a calendar of the readings, opened from the title of the diary: a year, its months side by side, each day as dark as the pages read then; a month, each day the cover of the book finished then; a day, the books read then. Its figures count the readings, the pages, the days of reading and the most in a row; the forms chosen filter it, and its URL says the year, the month or the day it shows.
