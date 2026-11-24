@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.6.2
+Stable tag: 10.7.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -140,6 +140,13 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.7.0 =
+* Reading app: a calendar of the readings, opened from the title of the diary: a year, its months side by side, each day as dark as the pages read then; a month, each day the cover of the book finished then; a day, the books read then. Its figures count the readings, the pages, the days of reading and the most in a row; the forms chosen filter it, and its URL says the year, the month or the day it shows.
+* Reading app: a control out of use, such as After at the last day of the calendar, fades, even pointed at (gist abd5ff5).
+* REST API: `GET /calendars/<year>` gives the days of reading of a year: the level and the pages of each day, the books read and finished on each, and the readings of each form finished on each; `forms`, term IDs, for the books of one of them.
+* Changed: REST API: `GET /recaps/<year>` no longer gives `calendar`: the days of a recap are the ones of `GET /calendars/<year>`.
+* Code only: the days of reading of the calendar and of the recap have one computation, `Calendar`; a day of a calendar is an atom both share.
 
 = 10.6.2 =
 * Code only: a sheet per component of the reading app: the cards, the link that covers them, the list of cards and its grid of covers, the fields of several choices and of an image, the title page and the fields of a book, the header of a term, the card of an achievement and the link to the recap; the tabs of the bar at the bottom of the screen are a variant of the views; the title of a book and the excerpt of a card are styles of text.
