@@ -103,6 +103,7 @@
 #613ef94dc1 | list-item; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #615a6cbe89 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); color(srgb 0.23 0.22 0.2 / 0.08); 1px; rgb(58, 56, 52); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #61a7f58a4f | flex; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 16px; 16px; none; 1
+#62c62d3dbe | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(154, 151, 144); color(srgb 0.23 0.22 0.2 / 0.08); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 25.89px; 25.89px; 25.89px; 25.89px; normal; normal; none; 1
 #630d118c6d | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; none; none; rgb(154, 151, 144); rgba(0, 0, 0, 0); 0px; rgb(154, 151, 144); 3.78px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 6.29px; 6.29px; none; 1
 #63445f92ba | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); oklch(0.52 0.12 27); 1px; rgb(201, 196, 184); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #646b9ea965 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 6.11px; 16px; none; 1
@@ -142,6 +143,7 @@
 #871c1a7952 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; -1px; -1px; -1px; -1px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #87a8adf626 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgb(92, 92, 92); 1px; rgb(201, 196, 184); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #88403f512f | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 0
+#89530e719a | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(92, 92, 92); color(srgb 0.79 0.77 0.72 / 0.08); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 9.89px; 0px; 0px; 0px; 0px; 25.89px; 25.89px; 25.89px; 25.89px; normal; normal; none; 1
 #895400470b | grid; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 6.11px; 9.89px; none; 1
 #8ae2a52105 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; -1px; -1px; -1px; -1px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #8b58601d65 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgb(69, 69, 69); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
@@ -1291,6 +1293,61 @@ phone light | term-card > div:1>ul:0>li:2>article:0>h4:0>a:0 | #fb4bc4d02a
 phone light | term-card > div:1>ul:0>li:2>article:0>div:1 | #ad87b4ec58
 phone light | term-card > div:1>ul:0>li:2>article:0>div:1>p:0 | #f32e27d3ba
 phone light | term-card > div:1>ul:0>li:2>article:0>p:2 | #12fd2b0dff
+phone light | reading-idea >  | #21099a2d4f
+phone light | reading-idea > figcaption:0 | #3b31681e54
+phone light | reading-idea > figcaption:0>h4:0 | #ee4e620dd5
+phone light | reading-idea > figcaption:0>h4:0>code:0 | #dbdf5b1996
+phone light | reading-idea > figcaption:0>p:1 | #f32e27d3ba
+phone light | reading-idea > figcaption:0>p:1>code:0 | #e00eee4ef4
+phone light | reading-idea > figcaption:0>p:1>code:1 | #e00eee4ef4
+phone light | reading-idea > figcaption:0>p:1>code:2 | #e00eee4ef4
+phone light | reading-idea > figcaption:0>p:1>code:3 | #e00eee4ef4
+phone light | reading-idea > figcaption:0>p:1>code:4 | #e00eee4ef4
+phone light | reading-idea > div:1 | #7665ec1129
+phone light | reading-idea > div:1>div:0 | #d4fbba5493
+phone light | reading-idea > div:1>div:0>h4:0 | #9055b3e2bd
+phone light | reading-idea > div:1>div:0>p:1 | #89530e719a
+phone light | reading-idea > div:1>div:0>p:2 | #7a5b8be307
+phone light | reading-idea > div:1>div:0>ul:3 | #21099a2d4f
+phone light | reading-idea > div:1>div:0>ul:3>li:0 | #684502b93e
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0 | #f5a56a90cb
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0 | #dcb3fa55c4
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>img:0 | #bb19302e52
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>span:1 | #e86521d2fd
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>span:1>span:0 | #793018797d
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1 | #b0b9041b14
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:0 | #12fd2b0dff
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>h3:1 | #7a5b8be307
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>h3:1>a:0 | #fb4bc4d02a
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:2 | #9cc3c90234
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3 | #12fd2b0dff
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:0 | #92bd6266d2
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:1 | #0e8df6c53e
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:2 | #0e8df6c53e
+phone light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:3 | #433689f9f2
+phone light | reading-idea > div:1>div:0>p:4 | #7a5b8be307
+phone light | reading-idea > div:1>div:0>p:4>button:0 | #201e1dd211
+phone light | reading-idea > div:1>div:1 | #d4fbba5493
+phone light | reading-idea > div:1>div:1>div:0 | #d6d2da044b
+phone light | reading-idea > div:1>div:1>div:0>h4:0 | #9055b3e2bd
+phone light | reading-idea > div:1>div:1>div:0>span:1 | #92bd6266d2
+phone light | reading-idea > div:1>div:1>div:0>span:1>button:0 | #38deaf3ca5
+phone light | reading-idea > div:1>div:1>p:1 | #89530e719a
+phone light | reading-idea > div:1>div:1>p:2 | #7a5b8be307
+phone light | reading-idea > div:1>div:1>ul:3 | #21099a2d4f
+phone light | reading-idea > div:1>div:1>ul:3>li:0 | #684502b93e
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0 | #fef0af8417
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0 | #dcb3fa55c4
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>img:0 | #bb19302e52
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>span:1 | #e86521d2fd
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>span:1>span:0 | #793018797d
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1 | #b0b9041b14
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0 | #7a5b8be307
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0>a:0 | #fb4bc4d02a
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0>a:0>span:0 | #374880c9c6
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1 | #12fd2b0dff
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1>span:0 | #92bd6266d2
+phone light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1>span:1 | #433689f9f2
 phone light | achievement-card >  | #21099a2d4f
 phone light | achievement-card > figcaption:0 | #3b31681e54
 phone light | achievement-card > figcaption:0>h4:0 | #ee4e620dd5
@@ -3136,6 +3193,61 @@ phone dark | term-card > div:1>ul:0>li:2>article:0>h4:0>a:0 | #ef68e6bf57
 phone dark | term-card > div:1>ul:0>li:2>article:0>div:1 | #b6bb6439d2
 phone dark | term-card > div:1>ul:0>li:2>article:0>div:1>p:0 | #780ec72c98
 phone dark | term-card > div:1>ul:0>li:2>article:0>p:2 | #2d63dd9762
+phone dark | reading-idea >  | #2d88a2661e
+phone dark | reading-idea > figcaption:0 | #7a7a09ffad
+phone dark | reading-idea > figcaption:0>h4:0 | #39ad583df4
+phone dark | reading-idea > figcaption:0>h4:0>code:0 | #22cc5d16f1
+phone dark | reading-idea > figcaption:0>p:1 | #780ec72c98
+phone dark | reading-idea > figcaption:0>p:1>code:0 | #da82be0cbf
+phone dark | reading-idea > figcaption:0>p:1>code:1 | #da82be0cbf
+phone dark | reading-idea > figcaption:0>p:1>code:2 | #da82be0cbf
+phone dark | reading-idea > figcaption:0>p:1>code:3 | #da82be0cbf
+phone dark | reading-idea > figcaption:0>p:1>code:4 | #da82be0cbf
+phone dark | reading-idea > div:1 | #cd09adf1d8
+phone dark | reading-idea > div:1>div:0 | #fc4a2a016d
+phone dark | reading-idea > div:1>div:0>h4:0 | #114fac91a4
+phone dark | reading-idea > div:1>div:0>p:1 | #62c62d3dbe
+phone dark | reading-idea > div:1>div:0>p:2 | #9270eec119
+phone dark | reading-idea > div:1>div:0>ul:3 | #2d88a2661e
+phone dark | reading-idea > div:1>div:0>ul:3>li:0 | #613ef94dc1
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0 | #c76c67edf3
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0 | #130c38dee9
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>img:0 | #283766d4d5
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>span:1 | #2ce0722b12
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>span:1>span:0 | #8be81d709c
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1 | #f3e118a00f
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:0 | #2d63dd9762
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>h3:1 | #9270eec119
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>h3:1>a:0 | #ef68e6bf57
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:2 | #80f872df4e
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3 | #2d63dd9762
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:0 | #85d1ea2f15
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:1 | #df54ac10d2
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:2 | #df54ac10d2
+phone dark | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:3 | #f89474271b
+phone dark | reading-idea > div:1>div:0>p:4 | #9270eec119
+phone dark | reading-idea > div:1>div:0>p:4>button:0 | #cbc2b30d7e
+phone dark | reading-idea > div:1>div:1 | #fc4a2a016d
+phone dark | reading-idea > div:1>div:1>div:0 | #c6c25725eb
+phone dark | reading-idea > div:1>div:1>div:0>h4:0 | #114fac91a4
+phone dark | reading-idea > div:1>div:1>div:0>span:1 | #85d1ea2f15
+phone dark | reading-idea > div:1>div:1>div:0>span:1>button:0 | #99b736ebeb
+phone dark | reading-idea > div:1>div:1>p:1 | #62c62d3dbe
+phone dark | reading-idea > div:1>div:1>p:2 | #9270eec119
+phone dark | reading-idea > div:1>div:1>ul:3 | #2d88a2661e
+phone dark | reading-idea > div:1>div:1>ul:3>li:0 | #613ef94dc1
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0 | #3fea31022c
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0 | #130c38dee9
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>img:0 | #283766d4d5
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>span:1 | #2ce0722b12
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>span:1>span:0 | #8be81d709c
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1 | #f3e118a00f
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0 | #9270eec119
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0>a:0 | #ef68e6bf57
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0>a:0>span:0 | #fe89421a6d
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1 | #2d63dd9762
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1>span:0 | #85d1ea2f15
+phone dark | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1>span:1 | #f89474271b
 phone dark | achievement-card >  | #2d88a2661e
 phone dark | achievement-card > figcaption:0 | #7a7a09ffad
 phone dark | achievement-card > figcaption:0>h4:0 | #39ad583df4
@@ -4981,6 +5093,61 @@ wide light | term-card > div:1>ul:0>li:2>article:0>h4:0>a:0 | #fb4bc4d02a
 wide light | term-card > div:1>ul:0>li:2>article:0>div:1 | #ad87b4ec58
 wide light | term-card > div:1>ul:0>li:2>article:0>div:1>p:0 | #f32e27d3ba
 wide light | term-card > div:1>ul:0>li:2>article:0>p:2 | #12fd2b0dff
+wide light | reading-idea >  | #21099a2d4f
+wide light | reading-idea > figcaption:0 | #3b31681e54
+wide light | reading-idea > figcaption:0>h4:0 | #ee4e620dd5
+wide light | reading-idea > figcaption:0>h4:0>code:0 | #dbdf5b1996
+wide light | reading-idea > figcaption:0>p:1 | #f32e27d3ba
+wide light | reading-idea > figcaption:0>p:1>code:0 | #e00eee4ef4
+wide light | reading-idea > figcaption:0>p:1>code:1 | #e00eee4ef4
+wide light | reading-idea > figcaption:0>p:1>code:2 | #e00eee4ef4
+wide light | reading-idea > figcaption:0>p:1>code:3 | #e00eee4ef4
+wide light | reading-idea > figcaption:0>p:1>code:4 | #e00eee4ef4
+wide light | reading-idea > div:1 | #7665ec1129
+wide light | reading-idea > div:1>div:0 | #d4fbba5493
+wide light | reading-idea > div:1>div:0>h4:0 | #9055b3e2bd
+wide light | reading-idea > div:1>div:0>p:1 | #89530e719a
+wide light | reading-idea > div:1>div:0>p:2 | #7a5b8be307
+wide light | reading-idea > div:1>div:0>ul:3 | #21099a2d4f
+wide light | reading-idea > div:1>div:0>ul:3>li:0 | #684502b93e
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0 | #2e68a5d2dc
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0 | #dcb3fa55c4
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>img:0 | #bb19302e52
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>span:1 | #e86521d2fd
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>span:0>span:1>span:0 | #793018797d
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1 | #b0b9041b14
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:0 | #12fd2b0dff
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>h3:1 | #7a5b8be307
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>h3:1>a:0 | #fb4bc4d02a
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:2 | #9cc3c90234
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3 | #12fd2b0dff
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:0 | #92bd6266d2
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:1 | #0e8df6c53e
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:2 | #0e8df6c53e
+wide light | reading-idea > div:1>div:0>ul:3>li:0>article:0>div:1>p:3>span:3 | #433689f9f2
+wide light | reading-idea > div:1>div:0>p:4 | #7a5b8be307
+wide light | reading-idea > div:1>div:0>p:4>button:0 | #201e1dd211
+wide light | reading-idea > div:1>div:1 | #d4fbba5493
+wide light | reading-idea > div:1>div:1>div:0 | #d6d2da044b
+wide light | reading-idea > div:1>div:1>div:0>h4:0 | #9055b3e2bd
+wide light | reading-idea > div:1>div:1>div:0>span:1 | #92bd6266d2
+wide light | reading-idea > div:1>div:1>div:0>span:1>button:0 | #38deaf3ca5
+wide light | reading-idea > div:1>div:1>p:1 | #89530e719a
+wide light | reading-idea > div:1>div:1>p:2 | #7a5b8be307
+wide light | reading-idea > div:1>div:1>ul:3 | #21099a2d4f
+wide light | reading-idea > div:1>div:1>ul:3>li:0 | #684502b93e
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0 | #5931506dd7
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0 | #dcb3fa55c4
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>img:0 | #bb19302e52
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>span:1 | #e86521d2fd
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>span:0>span:1>span:0 | #793018797d
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1 | #b0b9041b14
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0 | #7a5b8be307
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0>a:0 | #fb4bc4d02a
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>h4:0>a:0>span:0 | #374880c9c6
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1 | #12fd2b0dff
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1>span:0 | #92bd6266d2
+wide light | reading-idea > div:1>div:1>ul:3>li:0>article:0>div:1>p:1>span:1 | #433689f9f2
 wide light | achievement-card >  | #21099a2d4f
 wide light | achievement-card > figcaption:0 | #3b31681e54
 wide light | achievement-card > figcaption:0>h4:0 | #ee4e620dd5

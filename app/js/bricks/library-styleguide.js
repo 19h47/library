@@ -284,6 +284,23 @@ class LibraryStyleguideElement extends Brick {
 				...render()
 			)
 		);
+		// The reading idea, its book as a card, then compact, as a row.
+		this.querySelectorAll( '[data-sample="reading-idea"] > *' ).forEach(
+			( /** @type {HTMLElement} */ $idea ) => {
+				const $row = $idea.querySelector( '[data-list="row"]' );
+
+				fill( $idea, {
+					reason: 'A book on the pile for a long time, by an author read often.',
+				} );
+				(
+					$row ?? $idea.querySelector( '[data-list="card"]' )
+				).replaceChildren(
+					$row
+						? renderRow( BOOKS[ 0 ] )
+						: renderBook( BOOKS[ 0 ], formatState( BOOKS[ 0 ] ) )
+				);
+			}
+		);
 		// A progress, named by the line above it.
 		const $progressBar = this.querySelector( 'progress-bar' );
 

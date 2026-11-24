@@ -6,17 +6,18 @@ import { followCards } from 'library-app/behaviors';
 import { formatState } from 'library-app/book-lines';
 
 /**
- * The reading idea of the week, and the next one on demand; hidden until it is loaded. Its book as a card, or as a row
- * when it is `compact`, as on the home.
+ * The reading idea of the week, and the next one on demand, its component reading-idea; hidden until it is loaded. Its
+ * book as its list holds it: a card, or a row, compact, as on the home.
  */
 class LibraryIdeaElement extends Brick {
 	connect( signal ) {
-		const $book = this.querySelector( '[data-list="book"]' );
+		const $row = this.querySelector( '[data-list="row"]' );
+		const $book = $row ?? this.querySelector( '[data-list="card"]' );
 		/** @type {HTMLButtonElement} */
 		const $next = this.querySelector( '[data-action="next-idea"]' );
 		/** @type {HTMLElement} */
 		const $nextRow = this.querySelector( '[data-row="next"]' );
-		const isCompact = this.hasAttribute( 'compact' );
+		const isCompact = Boolean( $row );
 		const render = isCompact
 			? renderRow
 			: ( book ) => renderBook( book, formatState( book ) );

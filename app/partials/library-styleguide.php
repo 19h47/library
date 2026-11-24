@@ -648,6 +648,24 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>reading-idea</code></h4>
+					<p>The reading idea of the week, the component <code>reading-idea</code>, its heading level <code>level</code>, 2 by default: its reason, its book as a <code>book-card</code>, then a pill for another idea; <code>compact</code>, as on the home, its book as a <code>book-row</code>, the action a link at the end of its title</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="reading-idea">
+					<?php
+					Markup::render_component( 'reading-idea', array( 'level' => 4 ) );
+					Markup::render_component(
+						'reading-idea',
+						array(
+							'compact' => true,
+							'level'   => 4,
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>achievement-card</code></h4>
 					<p>The component <code>achievement-card</code>, earned, its subject a link when it leads to its books</p>
 				</figcaption>

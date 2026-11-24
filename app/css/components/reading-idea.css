@@ -1,0 +1,11 @@
+/**
+ * The reading idea of the week, an organism, the component reading-idea: its title, its reason, its book and the action
+ * for another one, a step apart.
+ */
+
+@layer app.components {
+	.library-reading-idea {
+		display: grid;
+		gap: var(--app-space-m);
+	}
+}
