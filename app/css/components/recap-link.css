@@ -1,0 +1,17 @@
+/**
+ * The link to the recap of the year gone by, a molecule, the component recap-link, as the home shows it in January: its
+ * year as large as the figures of the recap, then what it opens.
+ */
+
+@layer app.components {
+	.library-recap-link {
+		display: grid;
+		gap: var(--app-space-xs);
+		text-decoration: none;
+	}
+
+	.library-recap-link__year {
+		font-size: var(--app-text-2xl);
+		line-height: 1;
+	}
+}

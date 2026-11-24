@@ -1,5 +1,6 @@
 /**
- * The home: the reading idea and the link to the recap of the year gone by; its books being read are cover-link, current.
+ * The home: the reading idea; its books being read are cover-link, current, and the link to the recap of the year gone by
+ * is recap-link.
  */
 
 @layer app.views {
@@ -7,17 +8,5 @@
 	library-idea {
 		display: grid;
 		gap: var(--app-space-m);
-	}
-
-	/* The link of the home to the recap of the year gone by, in January: its year as large as the figures of the recap */
-	.library-recap-link {
-		display: grid;
-		gap: var(--app-space-xs);
-		text-decoration: none;
-	}
-
-	.library-recap-link__year {
-		font-size: var(--app-text-2xl);
-		line-height: 1;
 	}
 }

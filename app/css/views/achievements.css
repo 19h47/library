@@ -1,5 +1,5 @@
 /**
- * The achievements: the year of reading, which the home shows too, then each achievement with its progress.
+ * The achievements: the year of reading, which the home shows too; each achievement is an achievement-card.
  */
 
 @layer app.views {
@@ -19,21 +19,5 @@
 
 	.library-year p + p {
 		color: var(--app-text-muted);
-	}
-
-	.library-achievement-card {
-		overflow-wrap: anywhere;
-	}
-
-	.library-achievement-card__progress {
-		display: flex;
-		align-items: center;
-		gap: var(--app-space-s);
-	}
-
-	.library-achievement-card__progress progress {
-		flex: 1;
-		height: var(--app-u0);
-		accent-color: var(--app-text);
 	}
 }

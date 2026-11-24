@@ -1,0 +1,24 @@
+/**
+ * The fields of the book open, an organism, the component book-fields: its fields by what they tell of, the work, the
+ * edition and the copy, a group each.
+ */
+
+@layer app.components {
+	/* The fields of the book open, their groups a step apart, as the parts of the book */
+	.library-book-fields {
+		display: grid;
+		gap: var(--app-space-m);
+	}
+
+	/* A group of fields, a line above it, its title then its fields, a step apart; none of them known, it takes no room */
+	.library-book-fields__group {
+		display: grid;
+		gap: var(--app-space-m);
+		padding-top: var(--app-space-m);
+		border-top: 1px solid var(--app-line-soft);
+
+		&:not(:has([data-row]:not([hidden]))) {
+			display: none;
+		}
+	}
+}

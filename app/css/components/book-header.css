@@ -1,0 +1,50 @@
+/**
+ * The title page of the book open, an organism, the component book-header: its cover, its heading, then its excerpt.
+ */
+
+@layer app.components {
+	/* Its cover, its heading, then its excerpt, centered, a step apart */
+	.library-book-header {
+		/*
+		 * Its cover, as high as the screen allows it, as wide as its shape makes it; without its image, it takes no room:
+		 * the title of the page names the book
+		 */
+		--library-cover-block-size: calc(100dvh / var(--app-phi) / var(--app-phi));
+		--library-cover-frame: none;
+
+		display: grid;
+		justify-items: center;
+		gap: var(--app-space-l);
+		text-align: center;
+		text-wrap: balance;
+	}
+
+	/* Its heading: its title, its credits and its translation, closer to one another than to the cover and the excerpt */
+	.library-book-header__heading {
+		display: grid;
+		gap: var(--app-space-s);
+	}
+
+	/* Its subtitle, in its title, on a line of its own, half a step above the text, as light as it */
+	.library-book-header__title > .library-book-header__subtitle {
+		display: block;
+		margin-block-start: var(--app-space-s);
+		font-size: var(--app-text-l);
+		font-weight: normal;
+		line-height: var(--app-line-height);
+		letter-spacing: normal;
+	}
+
+	.library-book-header__credits {
+		overflow-wrap: anywhere;
+	}
+
+	.library-book-header__translation,
+	.library-book-header__excerpt {
+		color: var(--app-text-muted);
+	}
+
+	.library-book-header__excerpt {
+		text-wrap: pretty;
+	}
+}

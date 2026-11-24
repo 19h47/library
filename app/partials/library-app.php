@@ -77,6 +77,7 @@ $form_filter = array(
 							array(
 								'views'   => $views,
 								'current' => $view,
+								'tabs'    => true,
 							)
 						);
 						?>

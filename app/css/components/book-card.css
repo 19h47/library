@@ -1,0 +1,75 @@
+/**
+ * The card of a book, an organism, the component book-card: its cover beside its text, when the book has one; in a grid
+ * of covers, its cover alone.
+ */
+
+@layer app.components {
+	/*
+	 * A book card: the cover beside, when the book has one, as wide as the cover of a card; the link of the title covers
+	 * the card to open the book.
+	 */
+	.library-book-card {
+		--library-cover-inline-size: var(--library-cover-width);
+		--library-cover-block-size: auto;
+		--library-cover-frame: none;
+
+		position: relative;
+		align-items: start;
+	}
+
+	.library-book-card:has(> .library-book-cover > .library-book-cover__image:not([hidden])) {
+		grid-template-columns: auto 1fr;
+		column-gap: var(--app-space-m);
+	}
+
+	.library-book-card:hover {
+		border-color: var(--app-line);
+	}
+
+	.library-book-card:has(:focus-visible) {
+		outline: var(--app-focus-outline);
+		outline-offset: var(--app-focus-outline-offset);
+	}
+
+	.library-book-card__body {
+		display: grid;
+		gap: var(--app-space-xs);
+		min-width: 0;
+	}
+
+	.library-book-card__title {
+		font-size: inherit;
+		font-weight: normal;
+		overflow-wrap: anywhere;
+	}
+
+	/*
+	 * In a grid of covers, a list of data-covers: a cover is laid out off screen too, as cheap as it is: Safari leaves a
+	 * card whose display changes skipped, of no height, where it shows, and the cards of the list that were on screen came
+	 * back as their padding. The card takes the corners of its cover, which it would cut with its own, and its outline when
+	 * focused follows them; a book without a cover shows its title in the frame of its cover. Its title stays for
+	 * assistive technologies, its link covering the cover.
+	 */
+	.app-list[data-covers] > li > .library-book-card {
+		--library-cover-inline-size: 100%;
+		--library-cover-frame: block;
+
+		content-visibility: visible;
+		display: block;
+		padding: 0;
+		border: 0;
+		border-radius: var(--app-radius-s);
+		background: none;
+	}
+
+	.app-list[data-covers] .library-book-card__body > :not(.library-book-card__title) {
+		display: none;
+	}
+
+	.app-list[data-covers] .library-book-card__title {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		opacity: 0;
+	}
+}

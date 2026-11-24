@@ -3,11 +3,8 @@
  */
 
 @layer app.components {
-	/* The views, the search, the books being read and the latest readings: containers, whose width is the one of the content */
-	library-nav,
-	.app-search,
-	library-in-progress,
-	library-latest {
+	/* What holds a strip, as wide as the content: a container, which the strip goes out of to the edges of the viewport */
+	:has(> .library-strip) {
 		container-type: inline-size;
 	}
 

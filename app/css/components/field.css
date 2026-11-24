@@ -1,5 +1,6 @@
 /**
- * Forms: their fields and their errors; the lists of inputs have their own sheets.
+ * Forms: their fields and their errors, a molecule, the component field; the fields of several choices, of an image and the
+ * lists of inputs have their own sheets.
  */
 
 @layer app.components {
@@ -10,11 +11,6 @@
 	.library-form {
 		display: grid;
 		gap: var(--app-space-m);
-	}
-
-	/* A field of several choices: a block, as the fieldset it holds, rather than the inline of a custom element */
-	checkboxes-field {
-		display: block;
 	}
 
 	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
@@ -89,17 +85,5 @@
 	.library-field > small {
 		color: var(--app-text-muted);
 		font-size: var(--app-text-s);
-	}
-
-	image-field {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: end;
-		gap: var(--app-space-m);
-	}
-
-	/* Its pill Remove, while its preview shows an image: the photo picked, or the cover the book has */
-	image-field:not(:has(img:not([hidden]))) > [data-action="remove"] {
-		display: none;
 	}
 }

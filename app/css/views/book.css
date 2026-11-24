@@ -1,5 +1,5 @@
 /**
- * The book open: its parts, its title page, its reading, its fields by what they tell of, and the volumes of its series.
+ * The book open: its parts, its reading and the volumes of its series; its title page and its fields are components.
  */
 
 @layer app.views {
@@ -14,93 +14,15 @@
 		}
 	}
 
-	/*
-	 * The title page of the book open: its cover, its heading, then its excerpt, centered, a step apart
-	 */
-	.library-book-header {
-		display: grid;
-		justify-items: center;
-		gap: var(--app-space-l);
-		text-align: center;
-		text-wrap: balance;
-	}
-
-	/*
-	 * The cover of the book open, as high as the screen allows it, as wide as its shape makes it; without its image, it
-	 * takes no room: the title of the page names the book
-	 */
-	.library-book-header {
-		--library-cover-block-size: calc(100dvh / var(--app-phi) / var(--app-phi));
-		--library-cover-frame: none;
-	}
-
-	/* Its heading: its title, its credits and its translation, closer to one another than to the cover and the excerpt */
-	.library-book-header__heading {
-		display: grid;
-		gap: var(--app-space-s);
-	}
-
-	/* Its title, the one of the page, its lines half a step closer, as large as they are */
-	.library-book-header__title {
-		font-size: var(--app-text-xl);
-		line-height: calc(var(--app-line-height) / sqrt(var(--app-phi)));
-	}
-
-	/* Its subtitle, on a line of its own, half a step above the text, as light as it */
-	.library-book-header__subtitle {
-		display: block;
-		margin-block-start: var(--app-space-s);
-		font-size: var(--app-text-l);
-		font-weight: normal;
-		line-height: var(--app-line-height);
-		letter-spacing: normal;
-	}
-
-	.library-book-header__credits {
-		overflow-wrap: anywhere;
-	}
-
 	/* The languages of a book, named as in a sentence, "japonais" in French, start a field with a capital */
 	.library-book [data-field$="languages"]::first-letter {
 		text-transform: uppercase;
 	}
 
-	.library-book-header__translation,
-	.library-book-header__excerpt {
-		color: var(--app-text-muted);
-	}
-
-	.library-book-header__excerpt {
-		text-wrap: pretty;
-	}
-
-	/* The reading of the book open, its series and each group of its fields: a line above each */
+	/* The reading of the book open and its series: a line above each, as above each group of its fields */
 	.library-reading,
-	.library-book__series,
-	.library-book-fields__group {
+	.library-book__series {
 		padding-top: var(--app-space-m);
 		border-top: 1px solid var(--app-line-soft);
-	}
-
-	/* The fields of the book open, their groups a step apart, as the parts of the book */
-	.library-book-fields {
-		display: grid;
-		gap: var(--app-space-m);
-	}
-
-	/* A group of fields, its title then its fields, a step apart; none of them known, it takes no room */
-	.library-book-fields__group {
-		display: grid;
-		gap: var(--app-space-m);
-
-		&:not(:has([data-row]:not([hidden]))) {
-			display: none;
-		}
-	}
-
-
-	/* The volumes of the series of the book open: a container, as the latest readings, its covers going out to the edges of the viewport */
-	library-volumes {
-		container-type: inline-size;
 	}
 }

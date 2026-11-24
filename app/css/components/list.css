@@ -1,0 +1,28 @@
+/**
+ * A list of cards, an .app-list of the base: loading again, or as a grid of covers, when chosen; its cards say how they
+ * show in it.
+ */
+
+@layer app.components {
+	/* A list loading again from its start, such as for another search: its books faded until the new ones come */
+	.app-list[aria-busy="true"] {
+		opacity: var(--app-control-opacity);
+		transition: opacity var(--app-transition-1);
+	}
+
+	/*
+	 * The books of a list as a grid of their covers, when chosen: as many columns as fit, half a step wider than the cover
+	 * of a card at least, three on a phone, on a line as on a shelf.
+	 */
+	.app-list[data-covers] {
+		grid-template-columns: repeat(auto-fill, minmax(calc(var(--library-cover-width) * sqrt(var(--app-phi))), 1fr));
+		align-items: end;
+	}
+
+	/* Where the browser lays out grid lanes, the covers of each column follow one another, as in a wall of bricks: masonry */
+	@supports (display: grid-lanes) {
+		.app-list[data-covers] {
+			display: grid-lanes;
+		}
+	}
+}

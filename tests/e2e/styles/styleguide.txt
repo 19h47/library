@@ -45,6 +45,7 @@
 #28f666b7de | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; rgba(0, 0, 0, 0.1) 0px 1px 2px 0px, rgba(0, 0, 0, 0.4) 0px 16px 25.89px -9.89px; 1
 #2a70f922c6 | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #2be0b54195 | flex; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 6.11px; 9.89px; none; 1
+#2c8008860e | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 400; 41.89px; -0.66px; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #2ce0722b12 | none; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 12.58px; 400; 20.35px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 1px; color(srgb 0.23 0.22 0.2 / 0.5); 4.8px; 0px; 0px; 0px; 0px; 9.89px; 9.89px; 9.89px; 9.89px; normal; normal; none; 1
 #2ce66a52ac | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 20.35px; 400; 32.93px; normal; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #2d2ed3fd98 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 20.35px; 400; 32.93px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; 9.89px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
@@ -132,6 +133,7 @@
 #816927c725 | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(69, 69, 69); rgb(255, 255, 255); 1px; color(srgb 0.79 0.77 0.72 / 0.5); 20.06px; 0px; 0px; 0px; 0px; 9.89px; 12.58px; 9.89px; 12.58px; 9.89px; 9.89px; none; 1
 #81ae59017d | inline; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 700; 41.89px; -0.66px; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #82fdbf0515 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(69, 69, 69); oklch(0.52 0.09 150); 1px; rgb(201, 196, 184); 4.8px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
+#844f13fefb | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 32.93px; 400; 41.89px; -0.66px; none; none; rgb(69, 69, 69); rgba(0, 0, 0, 0); 0px; rgb(69, 69, 69); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #847d7b72f8 | block; "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgba(0, 0, 0, 0); 0px; rgb(186, 186, 186); 0px; -1px; -1px; -1px; -1px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #85d1ea2f15 | block; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 12.58px; 400; 20.35px; normal; uppercase; none; rgb(154, 151, 144); rgba(0, 0, 0, 0); 0px; rgb(154, 151, 144); 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
 #85e96ad588 | flex; system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 16px; 400; 25.89px; normal; none; none; rgb(186, 186, 186); rgb(26, 26, 26); 1px; rgb(58, 56, 52); 9.89px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; 0px; normal; normal; none; 1
@@ -405,14 +407,18 @@ phone light | Styles of text > figcaption:0>p:1>code:0 | #e00eee4ef4
 phone light | Styles of text > figcaption:0>p:1>code:1 | #e00eee4ef4
 phone light | Styles of text > figcaption:0>p:1>code:2 | #e00eee4ef4
 phone light | Styles of text > figcaption:0>p:1>code:3 | #e00eee4ef4
+phone light | Styles of text > figcaption:0>p:1>code:4 | #e00eee4ef4
+phone light | Styles of text > figcaption:0>p:1>code:5 | #e00eee4ef4
 phone light | Styles of text > div:1 | #7665ec1129
 phone light | Styles of text > div:1>p:0 | #7a5b8be307
 phone light | Styles of text > div:1>p:1 | #1783060db9
-phone light | Styles of text > div:1>p:2 | #92bd6266d2
-phone light | Styles of text > div:1>div:3 | #d4fbba5493
-phone light | Styles of text > div:1>div:3>p:0 | #7a5b8be307
-phone light | Styles of text > div:1>div:3>p:1 | #7a5b8be307
-phone light | Styles of text > div:1>div:3>p:1>em:0 | #6fe76e2496
+phone light | Styles of text > div:1>p:2 | #844f13fefb
+phone light | Styles of text > div:1>p:3 | #92bd6266d2
+phone light | Styles of text > div:1>p:4 | #ad87b4ec58
+phone light | Styles of text > div:1>div:5 | #d4fbba5493
+phone light | Styles of text > div:1>div:5>p:0 | #7a5b8be307
+phone light | Styles of text > div:1>div:5>p:1 | #7a5b8be307
+phone light | Styles of text > div:1>div:5>p:1>em:0 | #6fe76e2496
 phone light | Icons >  | #21099a2d4f
 phone light | Icons > figcaption:0 | #3b31681e54
 phone light | Icons > figcaption:0>h4:0 | #ee4e620dd5
@@ -1400,6 +1406,7 @@ phone light | views-nav > figcaption:0>h4:0 | #ee4e620dd5
 phone light | views-nav > figcaption:0>h4:0>code:0 | #dbdf5b1996
 phone light | views-nav > figcaption:0>p:1 | #f32e27d3ba
 phone light | views-nav > figcaption:0>p:1>code:0 | #e00eee4ef4
+phone light | views-nav > figcaption:0>p:1>code:1 | #e00eee4ef4
 phone light | views-nav > div:1 | #7665ec1129
 phone light | views-nav > div:1>nav:0 | #7a5b8be307
 phone light | views-nav > div:1>nav:0>ul:0 | #f0806118e0
@@ -2232,14 +2239,18 @@ phone dark | Styles of text > figcaption:0>p:1>code:0 | #da82be0cbf
 phone dark | Styles of text > figcaption:0>p:1>code:1 | #da82be0cbf
 phone dark | Styles of text > figcaption:0>p:1>code:2 | #da82be0cbf
 phone dark | Styles of text > figcaption:0>p:1>code:3 | #da82be0cbf
+phone dark | Styles of text > figcaption:0>p:1>code:4 | #da82be0cbf
+phone dark | Styles of text > figcaption:0>p:1>code:5 | #da82be0cbf
 phone dark | Styles of text > div:1 | #cd09adf1d8
 phone dark | Styles of text > div:1>p:0 | #9270eec119
 phone dark | Styles of text > div:1>p:1 | #7b4651a05f
-phone dark | Styles of text > div:1>p:2 | #85d1ea2f15
-phone dark | Styles of text > div:1>div:3 | #fc4a2a016d
-phone dark | Styles of text > div:1>div:3>p:0 | #9270eec119
-phone dark | Styles of text > div:1>div:3>p:1 | #9270eec119
-phone dark | Styles of text > div:1>div:3>p:1>em:0 | #46925c465d
+phone dark | Styles of text > div:1>p:2 | #2c8008860e
+phone dark | Styles of text > div:1>p:3 | #85d1ea2f15
+phone dark | Styles of text > div:1>p:4 | #b6bb6439d2
+phone dark | Styles of text > div:1>div:5 | #fc4a2a016d
+phone dark | Styles of text > div:1>div:5>p:0 | #9270eec119
+phone dark | Styles of text > div:1>div:5>p:1 | #9270eec119
+phone dark | Styles of text > div:1>div:5>p:1>em:0 | #46925c465d
 phone dark | Icons >  | #2d88a2661e
 phone dark | Icons > figcaption:0 | #7a7a09ffad
 phone dark | Icons > figcaption:0>h4:0 | #39ad583df4
@@ -3227,6 +3238,7 @@ phone dark | views-nav > figcaption:0>h4:0 | #39ad583df4
 phone dark | views-nav > figcaption:0>h4:0>code:0 | #22cc5d16f1
 phone dark | views-nav > figcaption:0>p:1 | #780ec72c98
 phone dark | views-nav > figcaption:0>p:1>code:0 | #da82be0cbf
+phone dark | views-nav > figcaption:0>p:1>code:1 | #da82be0cbf
 phone dark | views-nav > div:1 | #cd09adf1d8
 phone dark | views-nav > div:1>nav:0 | #9270eec119
 phone dark | views-nav > div:1>nav:0>ul:0 | #0551824a9f
@@ -4059,14 +4071,18 @@ wide light | Styles of text > figcaption:0>p:1>code:0 | #e00eee4ef4
 wide light | Styles of text > figcaption:0>p:1>code:1 | #e00eee4ef4
 wide light | Styles of text > figcaption:0>p:1>code:2 | #e00eee4ef4
 wide light | Styles of text > figcaption:0>p:1>code:3 | #e00eee4ef4
+wide light | Styles of text > figcaption:0>p:1>code:4 | #e00eee4ef4
+wide light | Styles of text > figcaption:0>p:1>code:5 | #e00eee4ef4
 wide light | Styles of text > div:1 | #7665ec1129
 wide light | Styles of text > div:1>p:0 | #7a5b8be307
 wide light | Styles of text > div:1>p:1 | #1783060db9
-wide light | Styles of text > div:1>p:2 | #92bd6266d2
-wide light | Styles of text > div:1>div:3 | #d4fbba5493
-wide light | Styles of text > div:1>div:3>p:0 | #7a5b8be307
-wide light | Styles of text > div:1>div:3>p:1 | #7a5b8be307
-wide light | Styles of text > div:1>div:3>p:1>em:0 | #6fe76e2496
+wide light | Styles of text > div:1>p:2 | #844f13fefb
+wide light | Styles of text > div:1>p:3 | #92bd6266d2
+wide light | Styles of text > div:1>p:4 | #ad87b4ec58
+wide light | Styles of text > div:1>div:5 | #d4fbba5493
+wide light | Styles of text > div:1>div:5>p:0 | #7a5b8be307
+wide light | Styles of text > div:1>div:5>p:1 | #7a5b8be307
+wide light | Styles of text > div:1>div:5>p:1>em:0 | #6fe76e2496
 wide light | Icons >  | #21099a2d4f
 wide light | Icons > figcaption:0 | #3b31681e54
 wide light | Icons > figcaption:0>h4:0 | #ee4e620dd5
@@ -5054,6 +5070,7 @@ wide light | views-nav > figcaption:0>h4:0 | #ee4e620dd5
 wide light | views-nav > figcaption:0>h4:0>code:0 | #dbdf5b1996
 wide light | views-nav > figcaption:0>p:1 | #f32e27d3ba
 wide light | views-nav > figcaption:0>p:1>code:0 | #e00eee4ef4
+wide light | views-nav > figcaption:0>p:1>code:1 | #e00eee4ef4
 wide light | views-nav > div:1 | #7665ec1129
 wide light | views-nav > div:1>nav:0 | #7a5b8be307
 wide light | views-nav > div:1>nav:0>ul:0 | #f0806118e0

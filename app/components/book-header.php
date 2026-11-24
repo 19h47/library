@@ -28,7 +28,7 @@ $heading = Markup::get_heading( $args['level'] );
 	);
 	?>
 	<div class="library-book-header__heading">
-		<<?php echo esc_html( $heading ); ?> class="library-heading library-book-header__title" data-part="title" tabindex="-1">
+		<<?php echo esc_html( $heading ); ?> class="library-heading library-heading--large library-book-header__title" data-part="title" tabindex="-1">
 			<span data-field="main_title"></span>
 			<span class="library-book-header__subtitle" data-field="subtitle"></span>
 		</<?php echo esc_html( $heading ); ?>>
