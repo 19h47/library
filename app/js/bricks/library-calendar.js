@@ -272,7 +272,7 @@ class LibraryCalendarElement extends Brick {
 
 	/**
 	 * Fills what the days shown count: the year, the month or the day shown, its readings ended and their pages, and for a
-	 * year or a month, its days of reading and the most in a row.
+	 * year or a month, its days of reading and the most in a row; none of them, a figure hides.
 	 *
 	 * @param {DiaryCalendar} calendar The calendar.
 	 */
@@ -300,15 +300,19 @@ class LibraryCalendarElement extends Brick {
 			.flatMap( ( [ , ids ] ) => ids.map( ( id ) => books[ id ] ) )
 			.filter( Boolean );
 
+		// A figure of none hides, its name with it; a day counts no days of reading nor any in a row.
+		const figure = ( /** @type {number} */ count ) =>
+			count ? formatNumber( count ) : '';
+
 		fill( this, {
 			period: {
 				year: year.toString(),
 				month: formatDate( isoDate( year, month, 1 ).slice( 0, 7 ) ),
 				day: formatDate( isoDate( year, month, day ), 'full' ),
 			}[ scale ],
-			readings: formatNumber( ended.length ),
+			readings: figure( ended.length ),
 			// The pages read that day, of the books read from a known start, or of the books ended in the year or the month.
-			pages: formatNumber(
+			pages: figure(
 				isDay
 					? pages[ first ] ?? 0
 					: ended.reduce(
@@ -316,8 +320,8 @@ class LibraryCalendarElement extends Brick {
 							0
 					  )
 			),
-			days: isDay ? '' : formatNumber( shown.filter( Boolean ).length ),
-			streak: isDay ? '' : formatNumber( streakOf( shown ) ),
+			days: isDay ? '' : figure( shown.filter( Boolean ).length ),
+			streak: isDay ? '' : figure( streakOf( shown ) ),
 			status: error,
 		} );
 	}

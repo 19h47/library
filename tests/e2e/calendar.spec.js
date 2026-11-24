@@ -141,8 +141,8 @@ test.describe( 'Calendar', () => {
 		await expect( period ).toHaveText( `Saturday, March 1, ${ YEAR }` );
 		await expect( cards ).toContainText( 'In progress' );
 		await expect(
-			calendar.locator( '[data-field="readings"]' )
-		).toHaveText( '0' );
+			calendar.locator( '[data-row="readings"]' )
+		).toBeHidden();
 
 		// Back through the history, the day before.
 		await page.goBack();
