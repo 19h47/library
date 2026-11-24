@@ -108,13 +108,14 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name">Styles of text</h4>
-					<p>The text, <code>.library-heading</code>, the heading of a page or a dialog, <code>--large</code> the title of a book, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, <code>.library-excerpt</code>, the excerpt of a card, three lines at most, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</p>
+					<p>The text, <code>.library-heading</code>, the heading of a page or a dialog, <code>--large</code> the title of a book, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, <code>.library-excerpt</code>, the excerpt of a card, three lines at most, <code>.library-capitalized</code>, a text named as in a sentence that starts with a capital, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<p>The text of the app, in its font of code.</p>
 					<p class="library-heading">The heading of a page</p>
 					<p class="library-heading library-heading--large">The title of a book</p>
 					<p class="app-text-s app-text-muted app-font-ui app-uppercase">A meta line · 2026</p>
+					<p class="library-capitalized">novembre 2026, as a month of the diary</p>
 					<p class="library-excerpt">The excerpt of a card, small and muted: a longer one ends in an ellipsis at the end of its third line, as this one does on a phone, where it goes on and on, well past the room of three lines of a card.</p>
 					<div class="library-prose">
 						<p>Text written in the admin, such as the notes of a book.</p>

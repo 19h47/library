@@ -279,7 +279,7 @@ $form_filter = array(
 								<a class="app-control" data-part="next" aria-label="<?php esc_attr_e( 'After', 'library' ); ?>" title="<?php esc_attr_e( 'After', 'library' ); ?>"><?php Markup::render_icon( 'arrow_forward' ); ?></a>
 							</p>
 						</div>
-						<h2 class="library-calendar__period" data-field="period" tabindex="-1"></h2>
+						<h2 class="library-capitalized library-calendar__period" data-field="period" tabindex="-1"></h2>
 						<?php // The months of the year, each a link to it at the scale of a month. ?>
 						<ol class="library-calendar__year" data-part="year">
 							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
@@ -1048,7 +1048,7 @@ $form_filter = array(
 		<template id="library-month">
 			<section class="library-section">
 				<h3 class="library-title">
-					<span data-field="month"></span>
+					<span class="library-capitalized" data-field="month"></span>
 					<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="count"></span>
 				</h3>
 				<ul class="app-list"></ul>

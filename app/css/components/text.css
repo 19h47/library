@@ -1,6 +1,7 @@
 /**
  * Styles of text, atoms, as the text styles of a design file: the heading of a page or a dialog, large for the title
- * of a book, an excerpt and the text written in the admin. The sizes are tokens of the base: --app-text-s to --app-text-3xl.
+ * of a book, an excerpt, a text that starts with a capital and the text written in the admin. The sizes are tokens of
+ * the base: --app-text-s to --app-text-3xl.
  */
 
 @layer app.components {
@@ -34,6 +35,14 @@
 		font-family: var(--app-font-ui);
 		/* Small text, half a step below the title */
 		font-size: var(--app-text-s);
+	}
+
+	/*
+	 * A text named as in a sentence, such as a month in French, "novembre 2026", starting with a capital where it heads
+	 * what follows: the month of the diary, the period of the calendar. A block, as ::first-letter needs one.
+	 */
+	.library-capitalized::first-letter {
+		text-transform: uppercase;
 	}
 
 	/* Text written in the admin, the notes of a book or the description of a person or of a series: its paragraphs a step apart */
