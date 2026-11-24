@@ -53,6 +53,29 @@ class Test_Calendar extends TestCase {
 	}
 
 	/**
+	 * A reading abandoned reads its days, of pages unknown, at the first level, and finishes none of them.
+	 *
+	 * @return void
+	 */
+	public function test_reading_abandoned(): void {
+		$this->add_book( $this->read_from( '2025-04-01/2025-04-03#abandoned', 300 ) );
+
+		$calendar = $this->get_calendar( 2025 );
+
+		$this->assertSame(
+			array(
+				90 => 1,
+				91 => 1,
+				92 => 1,
+			),
+			array_filter( $calendar['levels'] )
+		);
+		$this->assertSame( array(), array_filter( $calendar['pages'] ) );
+		$this->assertSame( array(), (array) $calendar['ends'] );
+		$this->assertSame( array( 90, 91, 92 ), array_keys( (array) $calendar['reads'] ) );
+	}
+
+	/**
 	 * A reading in progress, which may have been left for years, gives no day its level until it ends, and is read today
 	 * alone; no day after today is gone by.
 	 *

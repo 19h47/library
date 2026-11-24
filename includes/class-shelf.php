@@ -92,7 +92,7 @@ class Shelf {
 			'library_reading'      => array(
 				'type'              => 'string',
 				'label'             => __( 'Readings', 'library' ),
-				'description'       => __( 'From its start to its end, each one left empty when it is unknown, and the rating it ended with.', 'library' ),
+				'description'       => __( 'From its start to its end, each one left empty when it is unknown, and the rating it ended with, or that it was abandoned.', 'library' ),
 				'single'            => false,
 				'sanitize_callback' => array( Readings::class, 'sanitize' ),
 			),
@@ -204,7 +204,7 @@ class Shelf {
 	}
 
 	/**
-	 * Read dates of a book by a reader, the ends of their readings ended, from the first to the latest: the unknown ones,
+	 * Read dates of a book by a reader, the ends of their readings finished, from the first to the latest: the unknown ones,
 	 * empty, come first.
 	 *
 	 * @param int $post_id Post ID.
@@ -212,7 +212,7 @@ class Shelf {
 	 * @return string[]
 	 */
 	public static function get_read_dates( int $post_id, int $reader ): array {
-		return array_map( fn( Reading $reading ) => $reading->end, Readings::get_ended( self::get_readings( $post_id, $reader ) ) );
+		return array_map( fn( Reading $reading ) => $reading->end, Readings::get_finished( self::get_readings( $post_id, $reader ) ) );
 	}
 
 	/**
@@ -262,7 +262,7 @@ class Shelf {
 		return array(
 			'library_printed_date' => self::get_printed_date( $book_id, $reader ),
 			'library_reading'      => $readings,
-			'library_read'         => (bool) Readings::get_ended( $readings ),
+			'library_read'         => (bool) Readings::get_finished( $readings ),
 			'library_in_progress'  => count( Readings::get_ended( $readings ) ) < count( $readings ),
 			'library_rating'       => Readings::get_rating( $readings ),
 			'library_notes'        => (string) get_post_meta( $book_id, self::key( 'library_notes', $reader ), true ),

@@ -1,6 +1,6 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { toDays, toInterval } from 'library-app/readings';
+import { ABANDONED, toDays, toInterval } from 'library-app/readings';
 import { fill } from 'library-app/dom';
 import { showBusy, showErrors } from 'library-app/behaviors';
 import { today } from 'library-app/format';
@@ -24,7 +24,8 @@ import { formatReadings } from 'library-app/book-lines';
  */
 
 /**
- * The readings ended the form gives, a start, an end and a rating per row, by their days, either empty when it is unknown.
+ * The readings ended the form gives, a start, an end and a rating per row, or that it was abandoned, by their days, either
+ * empty when it is unknown.
  *
  * @param {FormData} data The values of the form.
  * @return {EndedReading[]} The readings.
@@ -35,11 +36,19 @@ function readingsOf( data ) {
 	const ends = /** @type {string[]} */ ( data.getAll( 'reading_end' ) );
 	const ratings = /** @type {string[]} */ ( data.getAll( 'reading_rating' ) );
 
-	return starts.map( ( start, index ) => ( {
-		start,
-		end: ends[ index ],
-		rating: ratings[ index ] ? Number( ratings[ index ] ) : null,
-	} ) );
+	return starts.map( ( start, index ) => {
+		const abandoned = ABANDONED === ratings[ index ];
+
+		return {
+			start,
+			end: ends[ index ],
+			rating:
+				ratings[ index ] && ! abandoned
+					? Number( ratings[ index ] )
+					: null,
+			abandoned,
+		};
+	} );
 }
 
 // Readings by their days, in any order, to compare: a reading of the day keeps its times once saved.
@@ -51,13 +60,13 @@ const sortedOf = ( /** @type {EndedReading[]} */ readings ) =>
 	);
 
 /**
- * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
- * from their starts to their ends, each with the rating it ended with, folded under the line that sums them up, and
- * whether it is in the library, not kept or to buy, when their copy was printed, their notes and the photo of their copy,
- * uploaded as it is picked. A reading added ends
- * the one in progress, from its start, as the server does. Each change is saved at once, a date typed once left, a field
- * in error showing it without taking the focus, and the notice that says so offers Undo; a change made while the one
- * before saves waits for it, the form showing what was chosen until then rather than what the book was.
+ * The reading of the book open, as a form: whether it is read, whether it is being read and since when, which Abandon
+ * ends abandoned, its readings ended, from their starts to their ends, each with the rating it ended with or abandoned,
+ * folded under the line that sums them up, and whether it is in the library, not kept or to buy, when their copy was
+ * printed, their notes and the photo of their copy, uploaded as it is picked. A reading added ends the one in progress,
+ * from its start, as the server does. Each change is saved at once, a date typed once left, a field in error showing it
+ * without taking the focus, and the notice that says so offers Undo; a change made while the one before saves waits for
+ * it, the form showing what was chosen until then rather than what the book was.
  */
 class LibraryReadingElement extends Brick {
 	connect( signal ) {
@@ -78,6 +87,8 @@ class LibraryReadingElement extends Brick {
 		const $printedDate = this.querySelector( 'partial-date' );
 		/** @type {HTMLElement} */
 		const $startedField = this.querySelector( '[data-part="started"]' );
+		/** @type {HTMLButtonElement} */
+		const $abandon = this.querySelector( '[data-action="abandon"]' );
 		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '[data-part="readings"]' );
 		// The readings ended, a row each, a reading-row, its dates known or not.
@@ -113,16 +124,23 @@ class LibraryReadingElement extends Brick {
 			$started.max = today();
 			$started.disabled = ! $inProgress.checked;
 			$startedField.hidden = ! $inProgress.checked;
+			$abandon.hidden = ! $inProgress.checked;
 
 			if ( $inProgress.checked && ! $started.value ) {
 				$started.value = today();
 			}
 		};
 
-		// Unread, the book has no readings ended: they are left out of the form.
+		// Unread, the book has no readings finished: they are left out of the form, unless one was abandoned.
 		const showReadings = () => {
-			$readings.disabled = ! $read.checked;
-			$details.hidden = ! $read.checked;
+			const isShown =
+				$read.checked ||
+				$readings.value.some( ( value ) =>
+					value.endsWith( `#${ ABANDONED }` )
+				);
+
+			$readings.disabled = ! isShown;
+			$details.hidden = ! isShown;
 		};
 
 		// A reading added, whose period takes the new reading, or whose dates are unknown, ends the one in progress, which it
@@ -146,6 +164,19 @@ class LibraryReadingElement extends Brick {
 		);
 
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
+		// Abandoned today, from the start of the reading in progress, which it ends: the focus to In progress.
+		$abandon.addEventListener(
+			'click',
+			() => {
+				$readings.add( `${ newReading() }#${ ABANDONED }` );
+				$inProgress.checked = false;
+				showStarted();
+				showReadings();
+				$inProgress.focus();
+				save();
+			},
+			{ signal }
+		);
 		// A field changed, the list of readings, one removed, or the photo of their copy, removed.
 		$form.addEventListener(
 			'change',

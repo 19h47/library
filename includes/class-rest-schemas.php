@@ -211,8 +211,8 @@ class Rest_Schemas {
 
 	/**
 	 * A reading of a book: what a book of `wp/v2/books` gives in its readings, and what the route of a book takes in the
-	 * reading of its meta. Its start and its end, each null when unknown, its end “..” while it is read, and the rating it
-	 * ended with, null without, none while it is read.
+	 * reading of its meta. Its start and its end, each null when unknown, its end “..” while it is read, the rating it
+	 * ended with, null without, none while it is read, and whether it was abandoned.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -223,9 +223,9 @@ class Rest_Schemas {
 			'title'                => 'library-reading',
 			'type'                 => 'object',
 			'properties'           => array(
-				'start'  => self::property( array( 'string', 'null' ), __( 'Start, its day or with its time, such as 2026-11-08T09:15; null when unknown.', 'library' ), $date ),
-				'end'    => self::property( array( 'string', 'null' ), __( 'End, its day or with its time; null when unknown, “..” while it is read.', 'library' ), array( 'pattern' => '^(\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2})?|\\.\\.)$' ) ),
-				'rating' => self::property(
+				'start'     => self::property( array( 'string', 'null' ), __( 'Start, its day or with its time, such as 2026-11-08T09:15; null when unknown.', 'library' ), $date ),
+				'end'       => self::property( array( 'string', 'null' ), __( 'End, its day or with its time; null when unknown, “..” while it is read.', 'library' ), array( 'pattern' => '^(\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2})?|\\.\\.)$' ) ),
+				'rating'    => self::property(
 					array( 'number', 'null' ),
 					__( 'Rating it ended with, out of 10, by half points; null without, and while it is read.', 'library' ),
 					array(
@@ -234,6 +234,7 @@ class Rest_Schemas {
 						'multipleOf' => Readings::RATING_LIMITS['multipleOf'],
 					)
 				),
+				'abandoned' => self::property( 'boolean', __( 'Whether it ended without being finished: the book is not read by it, nor rated, and leaves the pile.', 'library' ), array( 'default' => false ) ),
 			),
 			'additionalProperties' => false,
 		);

@@ -607,6 +607,10 @@ $form_filter = array(
 											'control' => Meta::get_control( 'library_in_progress', array( 'name' => Meta::get_name( 'library_in_progress' ) ) ),
 										)
 									);
+									?>
+									<?php // While a reading is in progress: it ends today, abandoned, as Read ends it finished. ?>
+									<button class="app-pill" type="button" data-action="abandon" hidden><?php echo esc_html_x( 'Abandon', 'a reading', 'library' ); ?></button>
+									<?php
 									Markup::render_component(
 										'pill-select',
 										array(

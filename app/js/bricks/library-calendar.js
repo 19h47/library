@@ -111,10 +111,19 @@ class LibraryCalendarElement extends Brick {
 		/** @type {HTMLElement} */
 		const $period = this.querySelector( '[data-field="period"]' );
 		const $cards = $day.querySelector( '[data-list="day"]' );
-		const line = ( /** @type {Book} */ book ) =>
-			this.#ended.has( book.id )
-				? __( 'Finished that day', 'library' )
+		// Finished that day, abandoned that day, or read then.
+		const line = ( /** @type {Book} */ book ) => {
+			if ( this.#ended.has( book.id ) ) {
+				return __( 'Finished that day', 'library' );
+			}
+
+			return book.readings.some(
+				( { abandoned, end } ) =>
+					abandoned && this.#date === end.slice( 0, 10 )
+			)
+				? __( 'Abandoned that day', 'library' )
 				: __( 'In progress', 'library' );
+		};
 
 		$scale.addEventListener(
 			'change',

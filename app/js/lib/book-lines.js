@@ -5,6 +5,7 @@
 
 import { __, _n, _x, notKept, sprintf, toBuy } from 'library-app/app';
 import { getPeople } from 'library-app/api';
+import { finishedOf, isAbandoned } from 'library-app/readings';
 import {
 	formatAnd,
 	formatDate,
@@ -115,7 +116,7 @@ export function formatStatus( book ) {
  * @return {string} How many times it is read.
  */
 function formatReadCount( book ) {
-	const readings = book.readings.length;
+	const readings = finishedOf( book ).length;
 
 	return readings > 1
 		? sprintf(
@@ -127,14 +128,16 @@ function formatReadCount( book ) {
 }
 
 /**
- * Whether a book is being read, read, how many times from two readings, or to read unless it is to buy, and its rating.
+ * Whether a book is being read, read, how many times from two readings, abandoned, or to read unless it is to buy, and its
+ * rating.
  *
  * @param {Book} book The book.
  * @return {string} Its state.
  */
 export function formatState( book ) {
 	const toRead = toBuy === book.status ? '' : __( 'To read', 'library' );
-	const state = book.read ? formatReadCount( book ) : toRead;
+	const unread = isAbandoned( book ) ? __( 'Abandoned', 'library' ) : toRead;
+	const state = book.read ? formatReadCount( book ) : unread;
 
 	return join( [
 		book.in_progress ? __( 'In progress', 'library' ) : state,
@@ -171,7 +174,8 @@ function formatReadingTime( book ) {
 
 /**
  * The readings of a book, in a line: how many times it is read, the day its latest reading ended and how long it took,
- * when they are known: "Read 2 times · April 4, 2025 · in 12 days"; empty unread.
+ * when they are known: "Read 2 times · April 4, 2025 · in 12 days"; its latest reading abandoned, that it was, and when:
+ * "Abandoned · March 14, 2025"; empty unread.
  *
  * @param {Book} book The book.
  * @return {string} Its readings, or empty.
@@ -181,6 +185,14 @@ export function formatReadings( book ) {
 
 	if ( ! reading ) {
 		return '';
+	}
+
+	if ( reading.abandoned ) {
+		return join( [
+			book.read && formatReadCount( book ),
+			__( 'Abandoned', 'library' ),
+			reading.end && formatDate( reading.end ),
+		] );
 	}
 
 	const time = formatReadingTime( book );

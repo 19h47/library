@@ -1743,6 +1743,7 @@ phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:17 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:18 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:19 | #dd8fe579bb
+phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:20 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>button:1 | #9948e2bc86
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1 | #21099a2d4f
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0 | #b0b9041b14
@@ -1771,6 +1772,7 @@ phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:17 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:18 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:19 | #dd8fe579bb
+phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:20 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>button:1 | #9948e2bc86
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2 | #21099a2d4f
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0 | #b0b9041b14
@@ -1799,6 +1801,7 @@ phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:17 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:18 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:19 | #dd8fe579bb
+phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:20 | #dd8fe579bb
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>button:1 | #9948e2bc86
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>span:2 | #c7ad66ea95
 phone light | inputs-list > div:1>inputs-list:0>fieldset:0>small:2 | #f93c5a365e
@@ -4336,6 +4339,7 @@ phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:17 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:18 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:19 | #b1eb411d5b
+phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:20 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>button:1 | #fbd9f80423
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1 | #2d88a2661e
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0 | #f3e118a00f
@@ -4364,6 +4368,7 @@ phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:17 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:18 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:19 | #b1eb411d5b
+phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:20 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>button:1 | #fbd9f80423
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2 | #2d88a2661e
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0 | #f3e118a00f
@@ -4392,6 +4397,7 @@ phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:17 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:18 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:19 | #b1eb411d5b
+phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:20 | #b1eb411d5b
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>button:1 | #fbd9f80423
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>span:2 | #b68f623131
 phone dark | inputs-list > div:1>inputs-list:0>fieldset:0>small:2 | #a2680ab512
@@ -6929,6 +6935,7 @@ wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:17 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:18 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:19 | #dd8fe579bb
+wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>reading-row:0>select:2>option:20 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:0>button:1 | #9948e2bc86
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1 | #21099a2d4f
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0 | #b0b9041b14
@@ -6957,6 +6964,7 @@ wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:17 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:18 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:19 | #dd8fe579bb
+wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>reading-row:0>select:2>option:20 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:1>button:1 | #9948e2bc86
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2 | #21099a2d4f
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0 | #b0b9041b14
@@ -6985,6 +6993,7 @@ wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:17 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:18 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:19 | #dd8fe579bb
+wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>reading-row:0>select:2>option:20 | #dd8fe579bb
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>button:1 | #9948e2bc86
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>ul:1>li:2>span:2 | #c7ad66ea95
 wide light | inputs-list > div:1>inputs-list:0>fieldset:0>small:2 | #f93c5a365e

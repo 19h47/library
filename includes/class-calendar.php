@@ -39,7 +39,8 @@ class Calendar {
 
 	/**
 	 * The days of `$year` gone by, from January 1st: whether each was read, the pages read on each, the books whose reading
-	 * ended on each and the books read on each, by their IDs.
+	 * was finished on each and the books read on each, by their IDs. A reading abandoned reads its days, of pages unknown,
+	 * and finishes none.
 	 *
 	 * @param Book[] $books Books.
 	 * @param int    $year  Year.
@@ -64,7 +65,7 @@ class Calendar {
 					continue;
 				}
 
-				if ( $count && str_starts_with( $end, "$year-" ) && $end <= $last ) {
+				if ( $count && $reading->is_finished() && str_starts_with( $end, "$year-" ) && $end <= $last ) {
 					$ends[ self::get_day( $end ) ][] = $book->id;
 				}
 
@@ -77,7 +78,7 @@ class Calendar {
 				}
 
 				$length  = (int) new DateTimeImmutable( $start )->diff( new DateTimeImmutable( $end ) )->days + 1;
-				$per_day = $is_dated && $book->pages ? $book->pages / $length : 0.0;
+				$per_day = $is_dated && $book->pages && $reading->is_finished() ? $book->pages / $length : 0.0;
 
 				foreach ( range( self::get_day( $from ), self::get_day( $to ) ) as $day ) {
 					$read[ $day ]    = true;

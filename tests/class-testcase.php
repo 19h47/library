@@ -12,6 +12,7 @@ use Library\Books;
 use Library\Cache;
 use Library\Meta;
 use Library\Reading;
+use Library\Readings;
 use Library\Shelf;
 use ReflectionProperty;
 use WP_REST_Request;
@@ -94,20 +95,22 @@ abstract class TestCase extends WP_UnitTestCase {
 
 	/**
 	 * A reading as the route of a book takes it, from its interval, as the tests write it: its start and its end, either
-	 * empty when unknown, its end “..” while it is read, and its rating after a hash: '/2024-03-14', '2024-10-20/..',
-	 * '/' for a reading of unknown dates, '2024-03-02/2024-03-20#8'.
+	 * empty when unknown, its end “..” while it is read, and its rating after a hash, or abandoned: '/2024-03-14',
+	 * '2024-10-20/..', '/' for a reading of unknown dates, '2024-03-02/2024-03-20#8', '2024-03-02/2024-03-05#abandoned'.
 	 *
 	 * @param string $interval Interval.
-	 * @return array{start:string|null,end:string|null,rating:float|null}
+	 * @return array{start:string|null,end:string|null,rating:float|null,abandoned:bool}
 	 */
 	protected static function reading( string $interval ): array {
 		[ $period, $rating ] = array_pad( explode( '#', $interval, 2 ), 2, null );
 		[ $start, $end ]     = array_pad( explode( '/', $period, 2 ), 2, '' );
+		$abandoned           = Readings::ABANDONED === $rating;
 
 		return array(
-			'start'  => '' !== $start ? $start : null,
-			'end'    => '' !== $end ? $end : null,
-			'rating' => null !== $rating ? (float) $rating : null,
+			'start'     => '' !== $start ? $start : null,
+			'end'       => '' !== $end ? $end : null,
+			'rating'    => null !== $rating && ! $abandoned ? (float) $rating : null,
+			'abandoned' => $abandoned,
 		);
 	}
 
@@ -128,7 +131,14 @@ abstract class TestCase extends WP_UnitTestCase {
 	 * @return string[]
 	 */
 	protected static function intervals( array $readings ): array {
-		return array_map( fn( Reading $reading ) => "{$reading->start}/{$reading->end}" . ( null !== $reading->rating ? "#{$reading->rating}" : '' ), $readings );
+		return array_map(
+			fn( Reading $reading ) => "{$reading->start}/{$reading->end}" . match ( true ) {
+				$reading->abandoned => '#' . Readings::ABANDONED,
+				null !== $reading->rating => "#{$reading->rating}",
+				default => '',
+			},
+			$readings
+		);
 	}
 
 	/**

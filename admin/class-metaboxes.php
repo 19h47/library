@@ -14,6 +14,7 @@ namespace Library\Admin;
 use Library\Meta;
 use Library\Posts;
 use Library\Reading;
+use Library\Readings;
 use Library\Roles;
 use Library\Shelf;
 use Library\Status;
@@ -254,13 +255,14 @@ class Metaboxes {
 		$values = wp_unslash( $_POST );
 		$status = Status::tryFrom( sanitize_key( (string) ( $values['library_shelf_status'] ?? '' ) ) );
 
-		// The readings ended, a start, an end and a rating each, then the one in progress, since its start; a book whose
-		// readings were all removed sends none.
+		// The readings ended, a start, an end and a rating each, or abandoned rather than a rating, then the one in progress,
+		// since its start; a book whose readings were all removed sends none.
 		$values['library_reading'] = array_map(
 			fn( $start, $end, $rating ) => array(
-				'start'  => $start,
-				'end'    => $end,
-				'rating' => $rating,
+				'start'     => $start,
+				'end'       => $end,
+				'rating'    => Readings::ABANDONED === $rating ? null : $rating,
+				'abandoned' => Readings::ABANDONED === $rating,
 			),
 			(array) ( $values['library_reading_start'] ?? array() ),
 			(array) ( $values['library_reading_end'] ?? array() ),

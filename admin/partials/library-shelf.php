@@ -92,7 +92,7 @@ use Library\Status;
 				</template>
 			</fieldset>
 			<p class="description" id="library-reading-description">
-				<?php esc_html_e( 'Optional. One line per reading, from its start to its end, each left empty when it is unknown, and the rating it ended with. Ending a reading marks the book as read; marking it as read without a reading ends one today. The rating of the book is the one of its latest reading rated.', 'library' ); ?>
+				<?php esc_html_e( 'Optional. One line per reading, from its start to its end, each left empty when it is unknown, and the rating it ended with, or that it was abandoned. Ending a reading marks the book as read, unless it was abandoned; marking it as read without a reading ends one today. The rating of the book is the one of its latest reading rated.', 'library' ); ?>
 			</p>
 		</td>
 	</tr>
