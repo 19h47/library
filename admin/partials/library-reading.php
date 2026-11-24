@@ -26,11 +26,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<span aria-hidden="true">→</span>
 	<input type="date" name="library_reading_end[]" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" value="<?php echo esc_attr( substr( $reading->end, 0, 10 ) ); ?>" aria-label="<?php esc_attr_e( 'Read date', 'library' ); ?>">
 	<?php
-	$rating = Meta::get_control(
-		'library_rating',
+	// Its rating, or abandoned.
+	$rating = Meta::get_ending_control(
+		$reading,
 		array(
 			'name'       => 'library_reading_rating[]',
-			'value'      => null !== $reading->rating ? (string) $reading->rating : null,
 			'aria-label' => Meta::get_label( 'library_rating' ),
 		)
 	);

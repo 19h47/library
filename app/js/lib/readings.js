@@ -18,6 +18,8 @@
 
 // The end of a reading in progress, which has none yet, as an interval of ISO 8601-2 left open: 2026-11-08/..
 export const IN_PROGRESS = '..';
+// How a reading ended, abandoned, in the choice of its rating on its row of a form, rather than a rating.
+export const ABANDONED = 'abandoned';
 
 /**
  * Readings as the API gives them, in order, as the app reads them: the ones ended, an unknown start or end empty, and the
@@ -27,10 +29,11 @@ export const IN_PROGRESS = '..';
  * @return {BookReadings} The readings ended and the start of the one in progress.
  */
 export function toReadings( items ) {
-	const all = items.map( ( { start, end, rating } ) => ( {
+	const all = items.map( ( { start, end, rating, abandoned } ) => ( {
 		start: start ?? '',
 		end: end ?? '',
 		rating,
+		abandoned: abandoned ?? false,
 	} ) );
 
 	return {
@@ -45,8 +48,8 @@ export function toReadings( items ) {
  * @param {EndedReading} reading The reading.
  * @return {ApiReading} The reading of the API.
  */
-export function toApiReading( { start, end, rating } ) {
-	return { start: start || null, end: end || null, rating };
+export function toApiReading( { start, end, rating, abandoned } ) {
+	return { start: start || null, end: end || null, rating, abandoned };
 }
 
 /**
@@ -56,7 +59,12 @@ export function toApiReading( { start, end, rating } ) {
  * @return {ApiReading} The reading of the API.
  */
 export function toApiReadingInProgress( started ) {
-	return { start: started || null, end: IN_PROGRESS, rating: null };
+	return {
+		start: started || null,
+		end: IN_PROGRESS,
+		rating: null,
+		abandoned: false,
+	};
 }
 
 /**
@@ -66,21 +74,27 @@ export function toApiReadingInProgress( started ) {
  * @param {EndedReading} reading A reading, its start and end with their times or not.
  * @return {EndedReading} Its days.
  */
-export function toDays( { start, end, rating } ) {
-	return { start: start.slice( 0, 10 ), end: end.slice( 0, 10 ), rating };
+export function toDays( { start, end, rating, abandoned } ) {
+	return {
+		start: start.slice( 0, 10 ),
+		end: end.slice( 0, 10 ),
+		rating,
+		abandoned,
+	};
 }
 
 /**
- * A reading as a row of the reading form takes it: an interval of days and its rating after a hash,
- * 2025-03-10/2025-03-21#8, a side empty when unknown, no rating without one.
+ * A reading as a row of the reading form takes it: an interval of days and its rating after a hash, or that it was
+ * abandoned, 2025-03-10/2025-03-21#8, 2025-03-10/2025-03-14#abandoned, a side empty when unknown, no rating without one.
  *
  * @param {EndedReading} reading The reading.
  * @return {string} Its interval and its rating.
  */
 export function toInterval( reading ) {
-	const { start, end, rating } = toDays( reading );
+	const { start, end, rating, abandoned } = toDays( reading );
+	const ending = abandoned ? ABANDONED : rating ?? '';
 
-	return `${ start }/${ end }${ null !== rating ? `#${ rating }` : '' }`;
+	return `${ start }/${ end }${ '' !== ending ? `#${ ending }` : '' }`;
 }
 
 /**
@@ -130,4 +144,28 @@ export function readingOf( book ) {
 	};
 
 	return { copy, status: book.status };
+}
+
+/**
+ * The readings of `book` finished, which read it: the ones ended but those abandoned.
+ *
+ * @param {Book} book The book.
+ * @return {EndedReading[]} Its readings finished.
+ */
+export function finishedOf( book ) {
+	return book.readings.filter( ( reading ) => ! reading.abandoned );
+}
+
+/**
+ * Whether `book` is abandoned: a reading of it abandoned, none finished, none in progress.
+ *
+ * @param {Book} book The book.
+ * @return {boolean} Whether it is abandoned.
+ */
+export function isAbandoned( book ) {
+	return (
+		! book.read &&
+		! book.in_progress &&
+		book.readings.some( ( reading ) => reading.abandoned )
+	);
 }

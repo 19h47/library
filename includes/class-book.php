@@ -104,7 +104,7 @@ final readonly class Book {
 		public array $form_ids,
 		public string $read_date = '',
 	) {
-		$this->read_dates = array_map( fn( Reading $reading ) => $reading->end, Readings::get_ended( $readings ) );
+		$this->read_dates = array_map( fn( Reading $reading ) => $reading->end, Readings::get_finished( $readings ) );
 		$this->read       = (bool) $this->read_dates;
 	}
 
@@ -206,12 +206,24 @@ final readonly class Book {
 	}
 
 	/**
-	 * Whether it is on the reading pile: not read, and at hand. The one rule of the books to read, for the stats, the
-	 * reading ideas and the achievements.
+	 * Whether it is abandoned: a reading of it abandoned, none finished and none in progress. Started again, it is read
+	 * again; finished, it is read.
+	 *
+	 * @return bool
+	 */
+	public function is_abandoned(): bool {
+		return ! $this->read
+			&& null === Readings::get_in_progress( $this->readings )
+			&& (bool) array_filter( $this->readings, fn( Reading $reading ) => $reading->abandoned );
+	}
+
+	/**
+	 * Whether it is on the reading pile: not read, at hand, and not abandoned, which its reader chose not to finish. The
+	 * one rule of the books to read, for the stats, the reading ideas and the achievements.
 	 *
 	 * @return bool
 	 */
 	public function is_on_the_pile(): bool {
-		return ! $this->read && $this->is_at_hand();
+		return ! $this->read && $this->is_at_hand() && ! $this->is_abandoned();
 	}
 }

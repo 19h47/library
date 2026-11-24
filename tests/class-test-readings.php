@@ -8,6 +8,7 @@
 
 namespace Library\Tests;
 
+use Library\Books;
 use Library\Reading;
 use Library\Readings;
 use Library\Shelf;
@@ -183,6 +184,80 @@ class Test_Readings extends TestCase {
 	}
 
 	/**
+	 * A reading abandoned ends the one in progress, which gives it its start, without reading the book nor rating it: the
+	 * book is neither read nor being read.
+	 *
+	 * @return void
+	 */
+	public function test_a_reading_abandoned_ends_the_one_in_progress(): void {
+		$book_id = $this->add_book( array( 'shelf' => array( 'readings' => array( '2024-10-20/..' ) ) ) );
+
+		$this->save(
+			$book_id,
+			array(
+				'readings' => array(
+					'2024-10-20/..',
+					array(
+						'start'     => null,
+						'end'       => '2024-11-02',
+						'rating'    => 8,
+						'abandoned' => true,
+					),
+				),
+			)
+		);
+
+		$this->assertSame( array( '2024-10-20/2024-11-02#abandoned' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
+		$this->assertFalse( $this->copy( $book_id )['library_read'] );
+		$this->assertFalse( $this->copy( $book_id )['library_in_progress'] );
+		$this->assertNull( $this->copy( $book_id )['library_rating'] );
+	}
+
+	/**
+	 * Marked as unread, a book loses its readings finished and keeps the ones abandoned; marked as read with none
+	 * finished, it is read now, its readings abandoned kept.
+	 *
+	 * @return void
+	 */
+	public function test_the_read_state_keeps_the_readings_abandoned(): void {
+		$book_id = $this->add_book( array( 'shelf' => array( 'readings' => array( '2024-01-01/2024-01-10#abandoned', '/2024-03-02#8' ) ) ) );
+
+		$this->save( $book_id, array( 'read' => false ) );
+
+		$this->assertSame( array( '2024-01-01/2024-01-10#abandoned' ), self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) ) );
+
+		$this->save( $book_id, array( 'read' => true ) );
+
+		$readings = self::intervals( Shelf::get_readings( $book_id, get_current_user_id() ) );
+
+		$this->assertCount( 2, $readings );
+		$this->assertSame( '2024-01-01/2024-01-10#abandoned', $readings[0] );
+		$this->assertTrue( $this->copy( $book_id )['library_read'] );
+	}
+
+	/**
+	 * A book of a reading abandoned alone is not read for the searches, nor in the month it was abandoned, and leaves the
+	 * pile: its reader chose not to finish it. Started again, it is on the pile again.
+	 *
+	 * @return void
+	 */
+	public function test_a_book_abandoned_is_not_read_and_leaves_the_pile(): void {
+		$abandoned = $this->add_book( array( 'shelf' => array( 'readings' => array( '2024-01-01/2024-01-10#abandoned' ) ) ) );
+		$again     = $this->add_book( array( 'shelf' => array( 'readings' => array( '2024-01-01/2024-01-10#abandoned', '2024-06-01/..' ) ) ) );
+
+		$this->assertNotContains( $abandoned, $this->find( array( 'search' => 'read:yes' ) ) );
+		$this->assertContains( $abandoned, $this->find( array( 'search' => 'read:no' ) ) );
+		$this->assertNotContains( $abandoned, $this->find( array( 'search' => 'read:2024-01' ) ) );
+
+		$books = Books::get_books();
+
+		$this->assertTrue( $books[ $abandoned ]->is_abandoned() );
+		$this->assertFalse( $books[ $abandoned ]->is_on_the_pile() );
+		$this->assertFalse( $books[ $again ]->is_abandoned() );
+		$this->assertTrue( $books[ $again ]->is_on_the_pile() );
+	}
+
+	/**
 	 * The rating of a book is the one of its latest reading rated: read again without rating, it keeps the one before;
 	 * rated again, it takes the new one. A reading in progress has none.
 	 *
@@ -236,14 +311,16 @@ class Test_Readings extends TestCase {
 		$this->assertSame(
 			array(
 				array(
-					'start'  => null,
-					'end'    => null,
-					'rating' => null,
+					'start'     => null,
+					'end'       => null,
+					'rating'    => null,
+					'abandoned' => false,
 				),
 				array(
-					'start'  => '2024-03-02',
-					'end'    => '2024-03-20',
-					'rating' => 8.0,
+					'start'     => '2024-03-02',
+					'end'       => '2024-03-20',
+					'rating'    => 8.0,
+					'abandoned' => false,
 				),
 			),
 			rest_do_request( $request )->get_data()['shelf']['readings']

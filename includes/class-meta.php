@@ -404,6 +404,26 @@ class Meta {
 	}
 
 	/**
+	 * The choice of how a reading ended, in a row of the readings of a form: its rating, none, or abandoned, rather than a
+	 * rating, as a reading abandoned has none.
+	 *
+	 * @param Reading|null        $reading    The reading, none for one to add.
+	 * @param array<string,mixed> $attributes Attributes of the select, such as its name.
+	 * @return string HTML.
+	 */
+	public static function get_ending_control( ?Reading $reading, array $attributes ): string {
+		$choices = self::get_rating_choices() + array( Readings::ABANDONED => __( 'Abandoned', 'library' ) );
+		$value   = match ( true ) {
+			null === $reading => null,
+			$reading->abandoned => Readings::ABANDONED,
+			null !== $reading->rating => (string) $reading->rating,
+			default => '',
+		};
+
+		return Markup::set_attributes( Markup::get_select( $choices, $value ), $attributes );
+	}
+
+	/**
 	 * The control of a book meta, as its registration says: a select of its choices for the rating, a checkbox for a
 	 * boolean, a number with its minimum, maximum and step, or a text with its pattern, anchored in the schema
 	 * and anchored already by HTML.

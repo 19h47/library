@@ -1,8 +1,9 @@
 <?php
 /**
- * A reading of a book: its start and its end, each empty when unknown, its end IN_PROGRESS while it is read, and the
- * rating it ended with, none without. One row of the meta library_reading each, as JSON, and an object of the REST API,
- * {"start":"2026-10-20","end":"2026-11-02","rating":8}, an unknown start or end and no rating null.
+ * A reading of a book: its start and its end, each empty when unknown, its end IN_PROGRESS while it is read, the
+ * rating it ended with, none without, and whether it was abandoned, ended without being finished. One row of the meta
+ * library_reading each, as JSON, and an object of the REST API,
+ * {"start":"2026-10-20","end":"2026-11-02","rating":8,"abandoned":false}, an unknown start or end and no rating null.
  *
  * @link       https://github.com/19h47/library
  * @since      9.46.0
@@ -16,7 +17,7 @@ namespace Library;
 /**
  * A reading of a book.
  *
- * @phpstan-type Reading_Data array{start: string|null, end: string|null, rating: float|null}
+ * @phpstan-type Reading_Data array{start: string|null, end: string|null, rating: float|null, abandoned: bool}
  */
 final class Reading {
 	/**
@@ -27,14 +28,16 @@ final class Reading {
 	/**
 	 * A reading.
 	 *
-	 * @param string     $start  Its start, Y-m-d or with its time, empty when unknown.
-	 * @param string     $end    Its end, Y-m-d or with its time, empty when unknown, IN_PROGRESS while it is read.
-	 * @param float|null $rating The rating it ended with, out of 10, null without; none while it is read.
+	 * @param string     $start     Its start, Y-m-d or with its time, empty when unknown.
+	 * @param string     $end       Its end, Y-m-d or with its time, empty when unknown, IN_PROGRESS while it is read.
+	 * @param float|null $rating    The rating it ended with, out of 10, null without; none while it is read.
+	 * @param bool       $abandoned Whether it ended without being finished: the book is not read by it.
 	 */
 	public function __construct(
 		public readonly string $start = '',
 		public readonly string $end = '',
 		public readonly ?float $rating = null,
+		public readonly bool $abandoned = false,
 	) {}
 
 	/**
@@ -60,7 +63,8 @@ final class Reading {
 		return new self(
 			is_string( $data['start'] ?? null ) ? $data['start'] : '',
 			is_string( $data['end'] ?? null ) ? $data['end'] : '',
-			is_numeric( $rating ) ? (float) $rating : null
+			is_numeric( $rating ) ? (float) $rating : null,
+			true === ( $data['abandoned'] ?? false )
 		);
 	}
 
@@ -73,7 +77,7 @@ final class Reading {
 	 * @return self
 	 */
 	public function with( ?string $start = null, ?string $end = null, ?float $rating = null ): self {
-		return new self( $start ?? $this->start, $end ?? $this->end, $rating ?? $this->rating );
+		return new self( $start ?? $this->start, $end ?? $this->end, $rating ?? $this->rating, $this->abandoned );
 	}
 
 	/**
@@ -82,7 +86,7 @@ final class Reading {
 	 * @return self
 	 */
 	public function without_rating(): self {
-		return new self( $this->start, $this->end );
+		return new self( $this->start, $this->end, null, $this->abandoned );
 	}
 
 	/**
@@ -95,15 +99,25 @@ final class Reading {
 	}
 
 	/**
+	 * Whether it is finished: ended, and not abandoned, which reads the book.
+	 *
+	 * @return bool
+	 */
+	public function is_finished(): bool {
+		return $this->is_ended() && ! $this->abandoned;
+	}
+
+	/**
 	 * The object of the REST API: an unknown start or end and no rating null.
 	 *
 	 * @return Reading_Data
 	 */
 	public function to_array(): array {
 		return array(
-			'start'  => '' !== $this->start ? $this->start : null,
-			'end'    => '' !== $this->end ? $this->end : null,
-			'rating' => $this->rating,
+			'start'     => '' !== $this->start ? $this->start : null,
+			'end'       => '' !== $this->end ? $this->end : null,
+			'rating'    => $this->rating,
+			'abandoned' => $this->abandoned,
 		);
 	}
 

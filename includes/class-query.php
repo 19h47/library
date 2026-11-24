@@ -77,6 +77,16 @@ class Query {
 	}
 
 	/**
+	 * The SQL that a reading, a row of the meta library_reading, is not abandoned: a row of before 10.8.0 has no
+	 * abandoned, a row since false or true, which MySQL 5.7 unquotes as the text of the JSON.
+	 *
+	 * @return string
+	 */
+	private static function get_finished_sql(): string {
+		return "IFNULL( JSON_UNQUOTE( JSON_EXTRACT( meta_value, '$.abandoned' ) ), 'false' ) <> 'true'";
+	}
+
+	/**
 	 * The SQL of the key of the readings of the current reader, quoted: a key of the plugin and a user ID, nothing typed.
 	 *
 	 * @return string
@@ -541,9 +551,10 @@ class Query {
 
 				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'library_isbn' AND REPLACE( REPLACE( meta_value, '-', '' ), ' ', '' ) LIKE %s", $digits );
 			case 'read':
-				// A book is read once it has a reading ended, of a known date or not.
-				$end  = self::get_reading_sql( 'end' );
-				$read = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND $end <> '..'";
+				// A book is read once it has a reading finished, of a known date or not: ended, and not abandoned.
+				$end           = self::get_reading_sql( 'end' );
+				$not_abandoned = self::get_finished_sql();
+				$read          = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . " AND $end <> '..' AND $not_abandoned";
 
 				if ( 'yes' === $value ) {
 					return $read;
@@ -558,7 +569,7 @@ class Query {
 					return $none;
 				}
 
-				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND $end LIKE %s", Shelf::key( 'library_reading', get_current_user_id() ), $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end holds no value given.
+				return $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND $end LIKE %s AND $not_abandoned", Shelf::key( 'library_reading', get_current_user_id() ), $value . '%' ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The SQL of the end and of a reading not abandoned hold no value given.
 			case 'progress':
 				$in_progress = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = " . self::get_readings_key_sql() . ' AND ' . self::get_reading_sql( 'end' ) . " = '..'";
 

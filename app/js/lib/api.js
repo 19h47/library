@@ -97,9 +97,10 @@ import { toReadings } from 'library-app/readings';
  * and the rating it ended with, null without.
  *
  * @typedef {Object} ApiReading
- * @property {string|null} start  Its start, or null.
- * @property {string|null} end    Its end, “..” while it is read, or null.
- * @property {number|null} rating The rating it ended with, or null.
+ * @property {string|null} start     Its start, or null.
+ * @property {string|null} end       Its end, “..” while it is read, or null.
+ * @property {number|null} rating    The rating it ended with, or null.
+ * @property {boolean}     abandoned Whether it ended without being finished.
  */
 
 /**
@@ -135,9 +136,10 @@ import { toReadings } from 'library-app/readings';
  * started or ended the day it was saved; and the rating it ended with.
  *
  * @typedef {Object} EndedReading
- * @property {string}      start  Its start, or empty.
- * @property {string}      end    Its end, or empty.
- * @property {number|null} rating The rating it ended with, none without.
+ * @property {string}      start     Its start, or empty.
+ * @property {string}      end       Its end, or empty.
+ * @property {number|null} rating    The rating it ended with, none without.
+ * @property {boolean}     abandoned Whether it ended without being finished, which reads the book not.
  */
 
 /**

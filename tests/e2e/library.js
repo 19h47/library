@@ -15,8 +15,8 @@ const MOST_BOOKS = 100;
 
 /**
  * A reading as the API takes it, from its interval, as the tests write it: its start and its end, either empty when
- * unknown, its end “..” while it is read, and its rating after a hash: '/2024-03-14', '2024-10-20/..', '/' for a reading
- * of unknown dates, '2024-03-02/2024-03-20#8'.
+ * unknown, its end “..” while it is read, and its rating after a hash, or abandoned: '/2024-03-14', '2024-10-20/..', '/' for a reading
+ * of unknown dates, '2024-03-02/2024-03-20#8', '2024-03-02/2024-03-05#abandoned'.
  *
  * @param {string} interval The interval.
  * @return {{start: string|null, end: string|null, rating: number|null}} The reading.
@@ -25,10 +25,13 @@ export function reading( interval ) {
 	const [ period, rating ] = interval.split( '#' );
 	const [ start, end = '' ] = period.split( '/' );
 
+	const abandoned = 'abandoned' === rating;
+
 	return {
 		start: start || null,
 		end: end || null,
-		rating: rating ? Number( rating ) : null,
+		rating: rating && ! abandoned ? Number( rating ) : null,
+		abandoned,
 	};
 }
 
@@ -51,8 +54,8 @@ export function readings( intervals ) {
  */
 export function intervalsOf( items ) {
 	return items.map(
-		( { start, end, rating } ) =>
-			`${ start ?? '' }/${ end ?? '' }${
+		( { start, end, rating, abandoned } ) =>
+			`${ start ?? '' }/${ end ?? '' }${ abandoned ? '#abandoned' : '' }${
 				null !== rating ? `#${ rating }` : ''
 			}`
 	);

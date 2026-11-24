@@ -9,6 +9,7 @@ import {
 	observeEnd,
 } from 'library-app/behaviors';
 import { formatDate, formatRating, join } from 'library-app/format';
+import { finishedOf } from 'library-app/readings';
 
 /**
  * @import { Book, Month } from 'library-app/api'
@@ -139,8 +140,10 @@ class LibraryDiaryElement extends Brick {
 	 * @return {string} The line.
 	 */
 	#state( book, date ) {
-		const isFirstReading = date === book.readings[ 0 ]?.end;
-		const reading = book.readings.find( ( { end } ) => end === date );
+		// Its readings finished, which the diary lists.
+		const finished = finishedOf( book );
+		const isFirstReading = date === finished[ 0 ]?.end;
+		const reading = finished.find( ( { end } ) => end === date );
 
 		return join( [
 			formatDate( date, 'day' ),

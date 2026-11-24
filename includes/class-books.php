@@ -250,7 +250,7 @@ class Books {
 		$readings = array();
 
 		foreach ( $books as $book ) {
-			foreach ( Readings::get_ended( $book->readings ) as $reading ) {
+			foreach ( Readings::get_finished( $book->readings ) as $reading ) {
 				$readings[] = $book->with( read_date: $reading->end, rating: $reading->rating );
 			}
 		}

@@ -287,6 +287,49 @@ test.describe( 'Reading', () => {
 		await expect( started ).toBeHidden();
 	} );
 
+	test( 'Abandon ends the reading in progress, abandoned, the book neither read nor being read', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await requestUtils.rest( {
+			method: 'POST',
+			path: `/library/v1/books/${ book.id }/shelf`,
+			data: { readings: readings( [ '2020-01-01/..' ] ) },
+		} );
+		await openApp( page, `&view=book&book=${ book.id }` );
+		await waitForIdle( page );
+
+		const reading = page.locator( 'library-reading' );
+		const today = await page.evaluate( () =>
+			new Date().toLocaleDateString( 'sv' )
+		);
+
+		await reading.getByRole( 'button', { name: 'Abandon' } ).click();
+		await waitForIdle( page );
+
+		// Ended today, from the start of the one in progress, abandoned: read neither; its row shows, abandoned.
+		await expect
+			.poll( async () =>
+				intervalsOf(
+					( await getBook( requestUtils, book.id ) ).shelf.readings
+				).map( ( interval ) => interval.replace( /T\d{2}:\d{2}/, '' ) )
+			)
+			.toEqual( [ `2020-01-01/${ today }#abandoned` ] );
+		await expect( reading.locator( '[name="read"]' ) ).not.toBeChecked();
+		await expect(
+			reading.locator( '[name="in_progress"]' )
+		).not.toBeChecked();
+		await expect( reading.locator( 'summary' ) ).toContainText(
+			'Abandoned'
+		);
+		await expect(
+			reading.getByRole( 'button', { name: 'Abandon' } )
+		).toBeHidden();
+		await expect(
+			reading.locator( '[name="reading_rating"]' ).last()
+		).toHaveValue( 'abandoned' );
+	} );
+
 	test( 'a reading added ends the one in progress, from its start, and one of an unknown date is saved too, the focus on its rating', async ( {
 		page,
 		requestUtils,
