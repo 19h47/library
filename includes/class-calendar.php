@@ -25,7 +25,7 @@ use DateTimeImmutable;
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
  * @phpstan-type Calendar_Days array{read:list<bool>,pages:list<float>,ends:array<int,list<int>>,reads:array<int,list<int>>,dated:int}
- * @phpstan-type Diary_Calendar array{year:int,years:list<int>,levels:list<int>,pages:list<int>,ends:object,reads:object}
+ * @phpstan-type Diary_Calendar array{year:int,years:list<int>,levels:list<int>,pages:list<int>,ends:object,reads:object,form_ends:object}
  */
 class Calendar {
 
@@ -168,7 +168,9 @@ class Calendar {
 	 * The calendar of the diary for `$year`, of the books of `$form_ids`, of every form when none: the years with a
 	 * reading, the level of each day gone by and the pages read on it, the books whose reading ended on each day, and the
 	 * books read on each day, by the day from 0 for January 1st. A reading in progress, which counts for no level until it
-	 * ends, is read on each day from its start, or today alone when its start is unknown, up to today.
+	 * ends, is read on each day from its start, or today alone when its start is unknown, up to today. The readings of
+	 * each form ended on each day, of every form, by the day, then by term ID: its filter counts them for the year, the
+	 * month or the day shown.
 	 *
 	 * @param int   $year     Year.
 	 * @param int[] $form_ids Term IDs of forms, none for every form.
@@ -202,13 +204,23 @@ class Calendar {
 
 		ksort( $reads );
 
+		$form_ends = array();
+
+		foreach ( Stats::get_year_readings( $year ) as $ended ) {
+			$form_ends[ self::get_day( substr( $ended->read_date, 0, 10 ) ) ][] = $ended;
+		}
+
+		ksort( $form_ends );
+		$form_ends = array_map( fn( array $readings ) => (object) Stats::count_by_form( $readings ), $form_ends );
+
 		return array(
-			'year'   => $year,
-			'years'  => array_keys( Stats::count_by_year() ),
-			'levels' => self::get_levels( $days['read'], $days['pages'] ),
-			'pages'  => array_map( fn( float $pages ) => (int) round( $pages ), $days['pages'] ),
-			'ends'   => (object) $days['ends'],
-			'reads'  => (object) $reads,
+			'year'      => $year,
+			'years'     => array_keys( Stats::count_by_year() ),
+			'levels'    => self::get_levels( $days['read'], $days['pages'] ),
+			'pages'     => array_map( fn( float $pages ) => (int) round( $pages ), $days['pages'] ),
+			'ends'      => (object) $days['ends'],
+			'reads'     => (object) $reads,
+			'form_ends' => (object) $form_ends,
 		);
 	}
 }

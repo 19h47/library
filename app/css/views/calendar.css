@@ -34,6 +34,11 @@
 		line-height: 1;
 	}
 
+	/* A month or a day, named as in a sentence, "novembre 2026" in French, starts the title with a capital */
+	.library-calendar__period::first-letter {
+		text-transform: uppercase;
+	}
+
 
 	/* The months of the year, three a row, a quarter each */
 	.library-calendar__year {

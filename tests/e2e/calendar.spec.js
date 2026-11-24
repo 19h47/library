@@ -88,6 +88,13 @@ test.describe( 'Calendar', () => {
 		await calendar.getByRole( 'link', { name: 'March' } ).click();
 		await expect( period ).toHaveText( `March ${ YEAR }` );
 		await expect( page ).toHaveURL( new RegExp( `calendar=${ YEAR }03` ) );
+
+		// The filter of the forms counts the readings of the month shown, then of the day.
+		const formCount = calendar
+			.locator( 'checkboxes-field label', { hasText: 'Test Form' } )
+			.locator( '[data-part="count"]' );
+
+		await expect( formCount ).toHaveText( '2' );
 		await expect( calendar.locator( 'select[name="scale"]' ) ).toHaveValue(
 			'month'
 		);
@@ -114,6 +121,7 @@ test.describe( 'Calendar', () => {
 			.getByRole( 'link', { name: `Sunday, March 2, ${ YEAR }` } )
 			.click();
 		await expect( period ).toHaveText( `Sunday, March 2, ${ YEAR }` );
+		await expect( formCount ).toHaveText( '1' );
 
 		const cards = calendar.locator( '[data-list="day"]' );
 

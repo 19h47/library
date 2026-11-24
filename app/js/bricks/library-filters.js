@@ -1,14 +1,22 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatOfList } from 'library-app/behaviors';
+import { calendarFormCounts } from 'library-app/parts';
 
-/** @import { FiltersSheetElement } from '../components/filters-sheet.js' */
+/**
+ * @import { FiltersSheetElement } from '../components/filters-sheet.js'
+ * @import { State } from 'library-app/store'
+ */
 
-// The counts of the stats of the values of the forms, by list: the books of each form on the shelves, or its readings.
+// The counts of the values of the forms, by list: the books of each form on the shelves, its readings, or its readings
+// of the year, the month or the day the calendar shows.
 const FORM_COUNTS = {
-	search: 'form_book_counts',
-	diary: 'form_reading_counts',
-	calendar: 'form_reading_counts',
+	search: ( /** @type {State} */ state ) => state.stats?.form_book_counts,
+	diary: ( /** @type {State} */ state ) => state.stats?.form_reading_counts,
+	calendar: ( /** @type {State} */ state ) =>
+		state.calendar.loaded
+			? calendarFormCounts( state.calendar )
+			: undefined,
 };
 // A search for a series, which the server lists in reading order, as it reads the keyword (Query::parse_keywords()):
 // whatever its case, not excluded, with a name, quoted or not.
@@ -74,14 +82,11 @@ class LibraryFiltersElement extends Brick {
 					} );
 				}
 			),
-			store.select(
-				( state ) => state.stats?.[ FORM_COUNTS[ list ] ],
-				( counts ) => {
-					if ( counts ) {
-						$sheet.counts = { forms: counts };
-					}
+			store.select( FORM_COUNTS[ list ], ( counts ) => {
+				if ( counts ) {
+					$sheet.counts = { forms: counts };
 				}
-			),
+			} ),
 			store.select(
 				( state ) =>
 					state[ list ].loaded

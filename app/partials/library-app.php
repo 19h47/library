@@ -280,6 +280,19 @@ $form_filter = array(
 							</p>
 						</div>
 						<h2 class="library-calendar__period" data-field="period" tabindex="-1"></h2>
+						<?php // The months of the year, each a link to it at the scale of a month. ?>
+						<ol class="library-calendar__year" data-part="year">
+							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
+								<li>
+									<a class="library-link app-text-s app-font-ui app-uppercase" data-part="month-link" href=""></a>
+									<?php Markup::render_component( 'month-calendar' ); ?>
+								</li>
+							<?php endfor; ?>
+						</ol>
+						<div data-part="month" hidden>
+							<?php Markup::render_component( 'month-calendar', array( 'covers' => true ) ); ?>
+						</div>
+						<?php // What its days count: after the year or the month, before the books read that day. ?>
 						<dl class="library-fields library-fields--aside">
 							<?php
 							$calendar_stats = array(
@@ -296,18 +309,6 @@ $form_filter = array(
 								</div>
 							<?php endforeach; ?>
 						</dl>
-						<?php // The months of the year, each a link to it at the scale of a month. ?>
-						<ol class="library-calendar__year" data-part="year">
-							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
-								<li>
-									<a class="library-link app-text-s app-font-ui app-uppercase" data-part="month-link" href=""></a>
-									<?php Markup::render_component( 'month-calendar' ); ?>
-								</li>
-							<?php endfor; ?>
-						</ol>
-						<div data-part="month" hidden>
-							<?php Markup::render_component( 'month-calendar', array( 'covers' => true ) ); ?>
-						</div>
 						<?php // The books read that day, the one in progress up to today. ?>
 						<div data-part="day" hidden>
 							<ul class="app-list" data-list="day"></ul>

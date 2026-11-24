@@ -247,6 +247,49 @@ export function calendarOf( id ) {
 }
 
 /**
+ * The days of the year the calendar shows, from 0 for January 1st: from the first one, then up to the next one, out of
+ * them, of the year, the month or the day shown.
+ *
+ * @param {DiaryCalendar} calendar The calendar.
+ * @return {[number, number]} Its first day, and the one after its last.
+ */
+export function calendarDays( { scale, year, month, day, levels } ) {
+	const dayOf = ( /** @type {number} */ m, /** @type {number} */ d ) =>
+		( Date.UTC( year, m, d ) - Date.UTC( year, 0, 1 ) ) / 86400000;
+	/** @type {Object<CalendarScale, [number, number]>} */
+	const days = {
+		year: [ 0, levels.length ],
+		month: [ dayOf( month, 1 ), dayOf( month + 1, 1 ) ],
+		day: [ dayOf( month, day ), dayOf( month, day + 1 ) ],
+	};
+
+	return days[ scale ];
+}
+
+/**
+ * The readings of each form ended in what the calendar shows, the year, the month or the day, of every form, by term ID,
+ * as its filter counts them.
+ *
+ * @param {DiaryCalendar} shown The calendar.
+ * @return {Object<string, number>} The readings of each form.
+ */
+export function calendarFormCounts( shown ) {
+	const [ first, last ] = calendarDays( shown );
+	/** @type {Object<string, number>} */
+	const counts = {};
+
+	Object.entries( shown.form_ends )
+		.filter( ( [ day ] ) => Number( day ) >= first && Number( day ) < last )
+		.forEach( ( [ , forms ] ) =>
+			Object.entries( forms ).forEach( ( [ form, count ] ) => {
+				counts[ form ] = ( counts[ form ] ?? 0 ) + count;
+			} )
+		);
+
+	return counts;
+}
+
+/**
  * The ID of the URL of what the calendar shows: its year, 2026, then its month, 202611, then its day, 20261124, as its
  * scale goes.
  *
@@ -288,6 +331,7 @@ export function calendar(
 		pages: [],
 		ends: {},
 		reads: {},
+		form_ends: {},
 		total: 0,
 		scale,
 		month,

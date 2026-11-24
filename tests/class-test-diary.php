@@ -53,7 +53,8 @@ class Test_Diary extends TestCase {
 
 	/**
 	 * The calendar of a year: a level for each day gone by, a day read without its pages known at the first one, and the
-	 * books whose reading ended on each day; with forms, only those of the books of one of them.
+	 * books whose reading ended on each day; with forms, only those of the books of one of them, the readings of each form
+	 * counted all the same.
 	 *
 	 * @return void
 	 */
@@ -76,9 +77,21 @@ class Test_Diary extends TestCase {
 		$this->assertSame( array( $first_novel ), $ends[1] );
 		$this->assertEqualsCanonicalizing( array( $second_novel, $comic_book ), $ends[59] );
 
-		$comics = (array) $this->get_calendar( 2025, array( 'forms' => $comic ) )->get_data()['ends'];
+		$comics = $this->get_calendar( 2025, array( 'forms' => $comic ) )->get_data();
 
-		$this->assertSame( array( 59 => array( $comic_book ) ), $comics );
+		$this->assertSame( array( 59 => array( $comic_book ) ), (array) $comics['ends'] );
+		// The readings of each form ended on each day, of every form, which its filter counts for what it shows.
+		$form_ends = (array) $comics['form_ends'];
+
+		$this->assertSame( array( 1, 59 ), array_keys( $form_ends ) );
+		$this->assertSame( array( $novel => 1 ), (array) $form_ends[1] );
+		$this->assertEqualsCanonicalizing(
+			array(
+				$novel => 1,
+				$comic => 1,
+			),
+			(array) $form_ends[59]
+		);
 	}
 
 	/**
