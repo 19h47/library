@@ -323,7 +323,7 @@ $sizes = array(
 					<h4 class="library-styleguide__name"><code>covers-toggle</code></h4>
 					<p>The Covers <code>pill-checkbox</code> at the end of a title, which shows the lists of books as a grid of their covers, or as cards; the brick <code>library-covers-toggle</code> around it in the app ties it to the store</p>
 				</figcaption>
-				<div class="library-styleguide__frame">
+				<div class="library-styleguide__frame library-styleguide__row">
 					<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-styleguide-covers-toggle' ) ); ?>
 				</div>
 			</figure>

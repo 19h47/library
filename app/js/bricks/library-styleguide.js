@@ -325,6 +325,8 @@ class LibraryStyleguideElement extends Brick {
 		this.querySelector( '[data-sample="keywords"]' ).querySelector(
 			'search-form'
 		).open = true;
+		// What the list of the filters finds, as the brick around them in the app says it.
+		this.querySelector( 'filters-sheet' ).found = '15 books';
 
 		// Six authors, the ones past the first folded, as the page of a series folds them.
 		fillCardsGroup(
