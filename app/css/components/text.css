@@ -1,6 +1,6 @@
 /**
- * Styles of text, atoms, as the text styles of a design file: the heading of a page or a dialog, and the text written in
- * the admin. The sizes are tokens of the base: --app-text-s to --app-text-3xl.
+ * Styles of text, atoms, as the text styles of a design file: the heading of a page or a dialog, large for the title
+ * of a book, an excerpt and the text written in the admin. The sizes are tokens of the base: --app-text-s to --app-text-3xl.
  */
 
 @layer app.components {
@@ -13,6 +13,27 @@
 		line-height: var(--app-line-height);
 		letter-spacing: -0.02em;
 		overflow-wrap: anywhere;
+	}
+
+	/* Large, the title of a book on its page: a step larger, its lines half a step closer, as large as they are */
+	.library-heading--large {
+		font-size: var(--app-text-xl);
+		line-height: calc(var(--app-line-height) / sqrt(var(--app-phi)));
+	}
+
+	/*
+	 * An excerpt, small and muted, three lines at most: the excerpt of a book card, the description of a term card.
+	 * Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box.
+	 */
+	.library-excerpt {
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		color: var(--app-text-muted);
+		font-family: var(--app-font-ui);
+		/* Small text, half a step below the title */
+		font-size: var(--app-text-s);
 	}
 
 	/* Text written in the admin, the notes of a book or the description of a person or of a series: its paragraphs a step apart */

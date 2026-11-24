@@ -1,0 +1,17 @@
+/**
+ * A progress bar, a molecule, the component progress-bar: its bar takes the room left beside its count.
+ */
+
+@layer app.components {
+	progress-bar {
+		display: flex;
+		align-items: center;
+		gap: var(--app-space-s);
+	}
+
+	progress-bar > progress {
+		flex: 1;
+		height: var(--app-u0);
+		accent-color: var(--app-text);
+	}
+}

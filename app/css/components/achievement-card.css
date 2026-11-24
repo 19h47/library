@@ -1,0 +1,10 @@
+/**
+ * The card of an achievement, an organism, the component achievement-card: its name, a long one broken anywhere; close,
+ * its progress-bar.
+ */
+
+@layer app.components {
+	.library-achievement-card {
+		overflow-wrap: anywhere;
+	}
+}

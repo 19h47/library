@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.6.1
+Stable tag: 10.6.2
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,10 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.6.2 =
+* Code only: a sheet per component of the reading app: the cards, the link that covers them, the list of cards and its grid of covers, the fields of several choices and of an image, the title page and the fields of a book, the header of a term, the card of an achievement and the link to the recap; the tabs of the bar at the bottom of the screen are a variant of the views; the title of a book and the excerpt of a card are styles of text.
+* Code only: the progress bar, the reading idea, the charts of the recap, its calendar and its figures that count up are components of their own, drawn from templates rather than built in scripts; the pages of a person, of a series and of a collection come from one loop; the link of the diary to the recap of a year is a variant of the one of the home.
 
 = 10.6.1 =
 * Code only: the components of the reading app are told through their API alone, values, properties and events, rather than reached into: the search, what the catalogue tells of a book to add, the fields few books have and how many are filled in, a reading on its row, a cover that opens its book and the control that removes a row are components of their own; the photo of a copy removed sends a change.

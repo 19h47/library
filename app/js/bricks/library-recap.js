@@ -2,15 +2,14 @@ import { __, _n, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import {
+	fillBookCover,
 	fillPills,
 	pageLink,
 	renderAchievementPill,
 	renderCover,
-	renderMonths,
-	renderShares,
 	renderTile,
 } from 'library-app/render';
-import { fill } from 'library-app/dom';
+import { clone, fill } from 'library-app/dom';
 import { urlOf } from 'library-app/router';
 import {
 	formatBooks,
@@ -24,7 +23,8 @@ import {
 
 /**
  * @import { Book, Recap } from 'library-app/api'
- * @import { Share } from 'library-app/render'
+ * @import { CountUpElement } from '../components/count-up.js'
+ * @import { Share, SharesChartElement } from '../components/shares-chart.js'
  * @import { Loading } from 'library-app/parts'
  */
 
@@ -32,45 +32,16 @@ import {
 // covers a column has at least, to go past the height of a screen.
 const MARQUEE_COLUMNS = 15;
 const MARQUEE_COVERS = 16;
-// How long a figure counts up to its value, slowing down to it.
-const COUNT_MS = 1000;
-const reducedMotion = matchMedia( '(prefers-reduced-motion: reduce)' );
 
 /**
  * The recap of a year, a screen per subject: the books read, against the year before, the pages read, the readings of
  * each month, the forms, the people read the most and those read for the first time, the original languages, the series,
  * the days of reading, over the calendar of the year, the average rating with the books rated the highest, the records,
  * the achievements earned and the books added; a screen without anything to say hides. The last one leads to the recaps of the years before and after, those gone by.
- * Its figures count up to their value as their screen comes, once per year shown.
+ * Its figures, count-up, count up to their value as their screen comes.
  */
 class LibraryRecapElement extends Brick {
-	/**
-	 * The figures to count up, as they come on the screen, with their value.
-	 *
-	 * @type {Map<Element, number>}
-	 */
-	#counts = new Map();
-	/**
-	 * The figures counted up, of the year shown.
-	 *
-	 * @type {WeakSet<Element>}
-	 */
-	#counted = new WeakSet();
-	// The year shown.
-	#year = 0;
-	/** @type {IntersectionObserver} */
-	#observer;
-
-	connect( signal ) {
-		this.#observer = new IntersectionObserver(
-			( entries ) =>
-				entries
-					.filter( ( entry ) => entry.isIntersecting )
-					.forEach( ( { target } ) => this.#countUp( target ) ),
-			{ threshold: 1 }
-		);
-		signal.addEventListener( 'abort', () => this.#observer.disconnect() );
-
+	connect() {
 		return [
 			store.select(
 				( state ) => state.recap,
@@ -95,7 +66,6 @@ class LibraryRecapElement extends Brick {
 		fill( this, {
 			year: recap.year ? recap.year.toString() : '',
 			status: this.#status( recap ),
-			readings: formatNumber( recap.reading_count ),
 			previous: this.#previous( recap ),
 			rereads: recap.reread_count
 				? sprintf(
@@ -112,15 +82,12 @@ class LibraryRecapElement extends Brick {
 			...this.#pages( recap ),
 			bestMonth: this.#bestMonth( recap ),
 			...this.#days( recap ),
-			discoveries: formatNumber( recap.discoveries.length ),
 			discovered: _n(
 				'person read for the first time',
 				'people read for the first time',
 				recap.discoveries.length,
 				'library'
 			),
-			languages: formatNumber( recap.languages.length ),
-			series: formatNumber( recap.series.length ),
 			seriesState: join( [
 				started.length &&
 					sprintf(
@@ -146,8 +113,6 @@ class LibraryRecapElement extends Brick {
 					),
 			] ),
 			rating: formatRating( recap.rating ),
-			achievements: formatNumber( recap.achievements.length ),
-			added: formatNumber( recap.added_count ),
 			addedBooks: _n(
 				'book added',
 				'books added',
@@ -173,10 +138,15 @@ class LibraryRecapElement extends Brick {
 		this.querySelector( '[data-list="marquee"]' ).replaceChildren(
 			...this.#renderMarquee( covered )
 		);
-		this.querySelector( '[data-list="months"]' ).replaceChildren(
-			...renderMonths( recap.months, recap.year )
-		);
-		this.#fillCalendar( recap );
+		const $months = this.querySelector( 'months-chart' );
+
+		$months.year = recap.year;
+		$months.months = recap.months;
+		this.querySelector( 'days-calendar' ).value = {
+			year: recap.year,
+			levels: recap.calendar.levels,
+			memorable: recap.calendar.memorable,
+		};
 		this.#fillShares(
 			'forms',
 			recap.forms.map( ( { name, reading_count: readings } ) => ( {
@@ -225,7 +195,7 @@ class LibraryRecapElement extends Brick {
 			...recap.achievements.map( renderAchievementPill )
 		);
 
-		this.#prepareCounts( recap.year, {
+		this.#count( {
 			readings: recap.reading_count,
 			pages: recap.pages.total,
 			daysRead: recap.calendar.read_day_count,
@@ -234,8 +204,6 @@ class LibraryRecapElement extends Brick {
 			series: recap.series.length,
 			achievements: recap.achievements.length,
 			added: recap.added_count,
-			recordLongest: books[ recap.records.longest ]?.pages ?? 0,
-			recordShortest: books[ recap.records.shortest ]?.pages ?? 0,
 		} );
 		this.#showScreens( {
 			readings: isShown,
@@ -256,67 +224,16 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
-	 * Gets the figures `counts` of `year` ready to count up as they come on the screen: each shows 0, while assistive
-	 * technologies read its value, unless it was counted up already, or without motion.
+	 * Gives each figure its value, which it counts up to.
 	 *
-	 * @param {number}                 year   The year.
 	 * @param {Object<string, number>} counts The value of each figure, by its field.
 	 */
-	#prepareCounts( year, counts ) {
-		if ( year !== this.#year ) {
-			this.#year = year;
-			this.#counted = new WeakSet();
-		}
-
+	#count( counts ) {
 		Object.entries( counts ).forEach( ( [ name, value ] ) => {
-			const $figure = this.querySelector( `[data-field="${ name }"]` );
-
-			if (
-				reducedMotion.matches ||
-				! value ||
-				this.#counted.has( $figure )
-			) {
-				return;
-			}
-
-			const $said = document.createElement( 'span' );
-			const $shown = document.createElement( 'span' );
-
-			$said.className = 'sr-only';
-			$said.textContent = $figure.textContent;
-			$shown.setAttribute( 'aria-hidden', 'true' );
-			$shown.textContent = formatNumber( 0 );
-			$figure.replaceChildren( $said, $shown );
-			this.#counts.set( $figure, value );
-			this.#observer.observe( $figure );
+			/** @type {CountUpElement} */ (
+				this.querySelector( `count-up[data-field="${ name }"]` )
+			).value = value;
 		} );
-	}
-
-	/**
-	 * Counts the figure `$figure` up to its value, slowing down to it: its digits as wide as one another, it does not jump.
-	 *
-	 * @param {Element} $figure The figure.
-	 */
-	#countUp( $figure ) {
-		const value = this.#counts.get( $figure );
-		const $shown = $figure.lastElementChild;
-		const start = performance.now();
-		/** @param {number} now The time of the frame. */
-		const step = ( now ) => {
-			const progress = Math.min( 1, ( now - start ) / COUNT_MS );
-			const eased = 1 - ( 1 - progress ) ** 3;
-
-			$shown.textContent = formatNumber( Math.round( value * eased ) );
-
-			if ( progress < 1 ) {
-				requestAnimationFrame( step );
-			}
-		};
-
-		this.#observer.unobserve( $figure );
-		this.#counts.delete( $figure );
-		this.#counted.add( $figure );
-		requestAnimationFrame( step );
 	}
 
 	/**
@@ -393,7 +310,7 @@ class LibraryRecapElement extends Brick {
 	 * no number of pages.
 	 *
 	 * @param {Recap} recap The recap.
-	 * @return {{pages: string, perDay: string, perBook: string, counted: string}} The fields.
+	 * @return {{perDay: string, perBook: string, counted: string}} The fields.
 	 */
 	#pages( { pages, day_count: days, reading_count: readings } ) {
 		const perDay = days ? Math.round( pages.total / days ) : 0;
@@ -402,7 +319,6 @@ class LibraryRecapElement extends Brick {
 			: 0;
 
 		return {
-			pages: formatNumber( pages.total ),
 			perDay: perDay
 				? sprintf(
 						/* translators: %s: number of pages read a day, on average. */
@@ -505,7 +421,7 @@ class LibraryRecapElement extends Brick {
 	 * while some have no start.
 	 *
 	 * @param {Recap} recap The recap.
-	 * @return {{daysRead: string, daysReadLabel: string, streak: string, bestDay: string, dated: string}} The fields.
+	 * @return {{daysReadLabel: string, streak: string, bestDay: string, dated: string}} The fields.
 	 */
 	#days( { year, reading_count: readings, calendar } ) {
 		const {
@@ -516,7 +432,6 @@ class LibraryRecapElement extends Brick {
 		} = calendar;
 
 		return {
-			daysRead: formatNumber( read ),
 			daysReadLabel: _n(
 				'day of reading',
 				'days of reading',
@@ -564,45 +479,6 @@ class LibraryRecapElement extends Brick {
 					  )
 					: '',
 		};
-	}
-
-	/**
-	 * The calendar behind the screen of the days: every day of the year, from January 1st, in weeks from Monday, the
-	 * first one in the column of its weekday; each as dark as its level, a day to come blank, a memorable one pulsing.
-	 *
-	 * @param {Recap} recap The recap.
-	 */
-	#fillCalendar( { year, calendar } ) {
-		/** @type {HTMLOListElement} */
-		const $list = this.querySelector( '[data-list="calendar"]' );
-		const length = 1 === new Date( year, 1, 29 ).getMonth() ? 366 : 365;
-		// Monday first, as the weeks of ISO 8601.
-		const weekday = ( new Date( year, 0, 1 ).getDay() + 6 ) % 7;
-		const memorable = new Set( calendar.memorable );
-
-		const $days = [ ...Array( year ? length : 0 ).keys() ].map( ( day ) => {
-			const $day = document.createElement( 'li' );
-
-			if ( day >= calendar.levels.length ) {
-				$day.className = 'library-recap__later';
-			} else {
-				$day.dataset.level = calendar.levels[ day ].toString();
-			}
-
-			if ( memorable.has( day ) ) {
-				$day.className = 'library-recap__memorable';
-				// Its own point of its pulse, so that no two beat together.
-				$day.style.setProperty( '--library-recap-day', day.toString() );
-			}
-
-			return $day;
-		} );
-
-		$days[ 0 ]?.style.setProperty(
-			'grid-column-start',
-			( weekday + 1 ).toString()
-		);
-		$list.replaceChildren( ...$days );
 	}
 
 	/**
@@ -659,15 +535,15 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
-	 * Fills the list `name` with `shares`.
+	 * Gives the chart of the screen `name` its `shares`.
 	 *
-	 * @param {string}  name   The list.
+	 * @param {string}  name   The screen.
 	 * @param {Share[]} shares The lines.
 	 */
 	#fillShares( name, shares ) {
-		this.querySelector( `[data-list="${ name }"]` ).replaceChildren(
-			...renderShares( shares )
-		);
+		/** @type {SharesChartElement} */ (
+			this.querySelector( `[data-screen="${ name }"] shares-chart` )
+		).shares = shares;
 	}
 
 	/**
@@ -686,31 +562,31 @@ class LibraryRecapElement extends Brick {
 				book.edition_date ||
 				book.printed_date
 			).slice( 0, 4 );
-		/** @type {{id: number, field: string, label: string, figure: ( book: Book ) => string, unit: ( book: Book ) => string}[]} */
+		const pages = ( /** @type {Book} */ book ) => book.pages;
+		const unit = ( /** @type {Book} */ book ) =>
+			/* translators: what the figure of a record counts, after it: 1 947 pages. */
+			_n( 'page', 'pages', book.pages, 'library' );
+		/** @type {{id: number, label: string, figure: ( book: Book ) => number, year: ( book: Book ) => string, unit: ( book: Book ) => string}[]} */
 		const lines = [
 			{
 				id: records.longest,
-				field: 'recordLongest',
 				label: __( 'The longest', 'library' ),
-				figure: ( book ) => formatNumber( book.pages ),
-				unit: ( book ) =>
-					/* translators: what the figure of a record counts, after it: 1 947 pages. */
-					_n( 'page', 'pages', book.pages, 'library' ),
+				figure: pages,
+				year: () => '',
+				unit,
 			},
 			{
 				id: records.shortest,
-				field: 'recordShortest',
 				label: __( 'The shortest', 'library' ),
-				figure: ( book ) => formatNumber( book.pages ),
-				unit: ( book ) =>
-					/* translators: what the figure of a record counts, after it: 1 947 pages. */
-					_n( 'page', 'pages', book.pages, 'library' ),
+				figure: pages,
+				year: () => '',
+				unit,
 			},
 			{
 				id: records.oldest,
-				field: 'recordOldest',
 				label: __( 'The oldest', 'library' ),
-				figure: year,
+				figure: () => 0,
+				year,
 				unit: () => '',
 			},
 		];
@@ -718,33 +594,29 @@ class LibraryRecapElement extends Brick {
 		this.querySelector( '[data-list="records"]' ).replaceChildren(
 			...lines
 				.filter( ( { id } ) => books[ id ] )
-				.map( ( { id, field, label, figure, unit } ) => {
+				.map( ( { id, label, figure, unit: unitOf, year: yearOf } ) => {
 					const book = books[ id ];
-					// The title names the book: its cover is an image of it only.
-					const $item = renderTile( book );
-					const $text = document.createElement( 'div' );
-					const $figure = document.createElement( 'p' );
-					const $label = document.createElement( 'p' );
-					const $value = document.createElement( 'span' );
-					const $unit = document.createElement( 'span' );
-
-					$value.dataset.field = field;
-					$value.textContent = figure( book );
-					$unit.className =
-						'app-text-s app-text-muted app-font-ui app-uppercase';
-					$unit.textContent = unit( book );
-					$figure.className = 'library-recap__record-figure';
-					$figure.append( $value, ' ', $unit );
-					$label.className =
-						'app-text-s app-text-muted app-font-ui app-uppercase';
-					$label.textContent = label;
-					$text.append(
-						$figure,
-						$label,
-						pageLink( 'book', id, book.title )
+					const $item = clone( 'library-recap-record' );
+					const $figure = $item.querySelector( 'count-up' );
+					/** @type {HTMLAnchorElement} */
+					const $title = $item.querySelector(
+						'[data-field="title"]'
 					);
-					$item.className = 'library-recap__record';
-					$item.append( $text );
+
+					// The title names the book: its cover is an image of it only.
+					fillBookCover(
+						$item.querySelector( '[data-part="cover"]' ),
+						book
+					);
+					fill( $item, {
+						year: yearOf( book ),
+						unit: unitOf( book ),
+						label,
+						title: book.title,
+					} );
+					$title.href = urlOf( { view: 'book', id } );
+					$figure.hidden = ! figure( book );
+					$figure.value = figure( book );
 
 					return $item;
 				} )

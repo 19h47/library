@@ -25,7 +25,7 @@ A space that the browser cannot take from a custom property, such as the width o
 | `--app-text-s` | u1 / √φ ≈ 12.6 px | the interface: pills, meta lines, labels, captions |
 | `--app-text-m` | u1 = 16 px | the text, the titles of the cards and of the sections |
 | `--app-text-l` | u1 × √φ ≈ 20.4 px | a heading, `.library-heading`, the title of the page on a phone |
-| `--app-text-xl` | u2 × √φ ≈ 32.9 px | the title of the page beyond a phone, the title of a book |
+| `--app-text-xl` | u2 × √φ ≈ 32.9 px | the title of the page beyond a phone, the title of a book, `.library-heading--large` |
 | `--app-text-2xl` | u3 × φ ≈ 67.8 px | a figure alone, such as a figure of the recap |
 | `--app-text-3xl` | u3 × φ² ≈ 109.7 px | the year of the recap |
 

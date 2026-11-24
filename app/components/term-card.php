@@ -20,6 +20,6 @@ $heading = Markup::get_heading( $args['level'] );
 ?>
 <article class="app-item library-term-card" data-part="card">
 	<<?php echo esc_html( $heading ); ?> class="library-term-card__name" data-part="name"></<?php echo esc_html( $heading ); ?>>
-	<div class="library-term-card__description" data-html="description" hidden></div>
+	<div class="library-excerpt" data-html="description" hidden></div>
 	<p class="app-item__meta" data-field="line"></p>
 </article>

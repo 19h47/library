@@ -108,12 +108,14 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name">Styles of text</h4>
-					<p>The text, <code>.library-heading</code>, the heading of a page or a dialog, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</p>
+					<p>The text, <code>.library-heading</code>, the heading of a page or a dialog, <code>--large</code> the title of a book, a meta line, the utilities <code>.app-text-s .app-text-muted .app-font-ui .app-uppercase</code>, <code>.app-font-normal</code> in a heading, <code>.library-excerpt</code>, the excerpt of a card, three lines at most, and <code>.library-prose</code>, text written in the admin, its paragraphs a step apart</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<p>The text of the app, in its font of code.</p>
 					<p class="library-heading">The heading of a page</p>
+					<p class="library-heading library-heading--large">The title of a book</p>
 					<p class="app-text-s app-text-muted app-font-ui app-uppercase">A meta line · 2026</p>
+					<p class="library-excerpt">The excerpt of a card, small and muted: a longer one ends in an ellipsis at the end of its third line, as this one does on a phone, where it goes on and on, well past the room of three lines of a card.</p>
 					<div class="library-prose">
 						<p>Text written in the admin, such as the notes of a book.</p>
 						<p>A second paragraph, with <em>a word in italics</em>.</p>
@@ -316,6 +318,16 @@ $sizes = array(
 						)
 					);
 					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>progress-bar</code></h4>
+					<p>How far a thing is, such as an achievement close to be earned: its bar, the room left, then its count, which the bar reads in words; its place sets its <code>value</code>, its <code>max</code> and <code>labelledBy</code>, what names it</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="progress-bar">
+					<p id="library-styleguide-progress-bar">Read the books of a series</p>
+					<?php Markup::render_component( 'progress-bar' ); ?>
 				</div>
 			</figure>
 			<figure>
@@ -636,6 +648,24 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>reading-idea</code></h4>
+					<p>The reading idea of the week, the component <code>reading-idea</code>, its heading level <code>level</code>, 2 by default: its reason, its book as a <code>book-card</code>, then a pill for another idea; <code>compact</code>, as on the home, its book as a <code>book-row</code>, the action a link at the end of its title</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="reading-idea">
+					<?php
+					Markup::render_component( 'reading-idea', array( 'level' => 4 ) );
+					Markup::render_component(
+						'reading-idea',
+						array(
+							'compact' => true,
+							'level'   => 4,
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>achievement-card</code></h4>
 					<p>The component <code>achievement-card</code>, earned, its subject a link when it leads to its books</p>
 				</figcaption>
@@ -691,7 +721,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>views-nav</code></h4>
-					<p>The views, a <code>.library-strip</code> of pills under the title, or on a phone the tabs in a bar at the bottom of the screen</p>
+					<p>The views, a <code>.library-strip</code> of pills, the current one marked; <code>tabs</code>, on a phone, the tabs of an app, as the bar at the bottom of the screen holds them: the app shows them, wider than a frame</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -1054,12 +1084,12 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>.library-recap__screen</code></h4>
-					<p>A screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, its lines</p>
+					<p>A screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, a <code>count-up</code> that counts up to its value as it comes on the screen, its lines</p>
 				</figcaption>
-				<div class="library-styleguide__frame">
+				<div class="library-styleguide__frame" data-sample="count-up">
 					<section class="library-recap__screen">
 						<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal">Books read</h3>
-						<p class="library-recap__figure">82</p>
+						<p class="library-recap__figure"><?php Markup::render_component( 'count-up' ); ?></p>
 						<p>19 more than in 2024</p>
 						<p class="app-text-s app-text-muted app-font-ui app-uppercase">Including 2 read again</p>
 					</section>
@@ -1076,31 +1106,46 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-recap__months</code></h4>
-					<p>The readings of each month, which assistive technologies read as the name of the month and its books</p>
+					<h4 class="library-styleguide__name"><code>months-chart</code></h4>
+					<p>The readings of each month of a year, a <code>.library-bar--vertical</code> each, which assistive technologies read as the name of the month and its books; its place sets <code>year</code> and <code>months</code>, and may set <code>--library-months-chart-height</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<ol class="library-recap__months" data-sample="months"></ol>
+					<?php Markup::render_component( 'months-chart' ); ?>
 				</div>
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-recap__shares</code></h4>
-					<p>The forms or the languages, and <code>.library-recap__ranking</code>, the people or the series, a link each: a bar as long as the share of the first one</p>
+					<h4 class="library-styleguide__name"><code>shares-chart</code></h4>
+					<p>The forms or the languages, a <code>.library-bar</code> each, as long as the share of the first one; <code>ranked</code>, the people or the series, a link each, a name on one line; its place sets <code>shares</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="library-recap__shares" data-sample="shares"></ul>
+					<?php
+					Markup::render_component( 'shares-chart' );
+					Markup::render_component( 'shares-chart', array( 'ranked' => true ) );
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>days-calendar</code></h4>
+					<p>The days of a year, in weeks from Monday, as many weeks a row as the shape of the container of its place makes it; its place sets <code>value</code>, the year, the level of each day gone by and the memorable ones, pulsing</p>
+				</figcaption>
+				<div class="library-styleguide__frame">
+					<div class="library-styleguide__calendar">
+						<?php Markup::render_component( 'days-calendar' ); ?>
+					</div>
 				</div>
 			</figure>
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>recap-link</code></h4>
-					<p>The recap of the year gone by on the home, in January, an <code>.app-item</code></p>
+					<p>The recap of a year: gone by, on the home in January, an <code>.app-item</code>; <code>pill</code>, in the diary before the latest month of a year gone by; <code>fillRecapLink()</code> fills both</p>
 				</figcaption>
-				<div class="library-styleguide__frame">
-					<div data-sample="recap-link">
-						<?php Markup::render_component( 'recap-link' ); ?>
-					</div>
+				<div class="library-styleguide__frame" data-sample="recap-link">
+					<?php
+					Markup::render_component( 'recap-link' );
+					Markup::render_component( 'recap-link', array( 'pill' => true ) );
+					?>
 				</div>
 			</figure>
 		</div>

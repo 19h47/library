@@ -1,0 +1,48 @@
+/**
+ * The shares of a chart, a molecule, the component shares-chart: a line each, its name and its books, over a bar as long
+ * as its share of the first one; `ranked`, a name on one line, cut short when too long, its link naming it whole, the
+ * ring of focus of the link in the room around it.
+ */
+
+@layer app.components {
+	shares-chart {
+		display: block;
+	}
+
+	.library-shares-chart {
+		list-style: none;
+		display: grid;
+		gap: var(--app-space-m);
+	}
+
+	.library-shares-chart__line {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: baseline;
+		gap: var(--app-space-xs) var(--app-space-s);
+	}
+
+	.library-shares-chart__line > .library-bar {
+		grid-column: 1 / -1;
+		inline-size: calc(var(--library-share) * 100%);
+		block-size: calc(var(--app-u0) / var(--app-phi));
+	}
+
+	.library-shares-chart__name {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	/* A language named in the middle of a sentence, as French names them: the first letter of a line */
+	.library-shares-chart__name::first-letter {
+		text-transform: uppercase;
+	}
+
+	.library-shares-chart--ranked .library-shares-chart__name {
+		margin: calc(-1 * var(--library-focus-room));
+		padding: var(--library-focus-room);
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+}

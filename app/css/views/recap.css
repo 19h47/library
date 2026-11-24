@@ -1,5 +1,6 @@
 /**
- * The recap of a year: its screens, its walls of covers, its figures, its bars and how they come in.
+ * The recap of a year: its screens, its walls of covers, its figures and how they come in; its charts, its calendar and
+ * its figures that count up are components.
  */
 
 @layer app.views {
@@ -141,7 +142,6 @@
 	.library-recap__figure {
 		font-size: var(--app-text-2xl);
 		line-height: 1;
-		font-variant-numeric: tabular-nums;
 		text-wrap: balance;
 	}
 
@@ -175,7 +175,6 @@
 	.library-recap__record-figure {
 		font-size: var(--app-text-xl);
 		line-height: 1;
-		font-variant-numeric: tabular-nums;
 	}
 
 	/*
@@ -307,165 +306,7 @@
 		);
 	}
 
-	/*
-	 * The days in weeks from Monday, squares as wide as the frame lets them, as many weeks a row as keep their rows
-	 * closest to its height: two on a phone, more as the frame widens.
-	 */
-	.library-recap__calendar ol {
-		--library-recap-gap: calc(var(--app-space-xs) / 2);
-
-		list-style: none;
-		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		gap: var(--library-recap-gap);
-	}
-
-	/*
-	 * A week more a row as the frame widens: from w weeks to w + 1 at a ratio of w (w + 1) × 7 / 53, where both are as
-	 * far from its height
-	 */
-	@container (aspect-ratio > 4 / 15) {
-		.library-recap__calendar ol {
-			grid-template-columns: repeat(14, 1fr);
-		}
-	}
-
-	@container (aspect-ratio > 4 / 5) {
-		.library-recap__calendar ol {
-			grid-template-columns: repeat(21, 1fr);
-		}
-	}
-
-	@container (aspect-ratio > 8 / 5) {
-		.library-recap__calendar ol {
-			grid-template-columns: repeat(28, 1fr);
-		}
-	}
-
-	@container (aspect-ratio > 8 / 3) {
-		.library-recap__calendar ol {
-			grid-template-columns: repeat(35, 1fr);
-		}
-	}
-
-	@container (aspect-ratio > 4) {
-		.library-recap__calendar ol {
-			grid-template-columns: repeat(42, 1fr);
-		}
-	}
-
-	/* A day, a square as dark as its level, from the lines to the muted text: a day without reading, their fill */
-	.library-recap__calendar li {
-		aspect-ratio: 1;
-		border-radius: var(--app-radius-s);
-		background: var(--app-fill);
-	}
-
-	.library-recap__calendar [data-level="1"] {
-		background: var(--app-line-soft);
-	}
-
-	.library-recap__calendar [data-level="2"] {
-		background: var(--app-line);
-	}
-
-	.library-recap__calendar [data-level="3"] {
-		background: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi) / var(--app-phi)));
-	}
-
-	.library-recap__calendar [data-level="4"] {
-		background: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi)));
-	}
-
-	/* A day to come, its outline */
-	.library-recap__calendar .library-recap__later {
-		background: none;
-		box-shadow: inset 0 0 0 1px var(--app-line-soft);
-	}
-
-	/* A memorable day, the darkest, the muted text, a ring around it */
-	.library-recap__calendar .library-recap__memorable {
-		--library-recap-ring: var(--app-text-muted);
-
-		background: var(--library-recap-ring);
-		box-shadow: 0 0 0 var(--library-recap-gap) var(--app-bg), 0 0 0 calc(2 * var(--library-recap-gap)) var(--library-recap-ring);
-	}
-
-	/* The bars of the months, their number above, their initial under, side by side from January */
-	.library-recap__months {
-		/* The height of the bar of the month read the most */
-		--library-recap-chart: calc(var(--app-u3) * var(--app-phi));
-
-		list-style: none;
-		display: grid;
-		grid-template-columns: repeat(12, 1fr);
-		align-items: end;
-		gap: var(--app-space-xs);
-		text-align: center;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.library-recap__months li {
-		display: grid;
-		justify-items: center;
-		gap: var(--app-space-xs);
-	}
-
-	.library-recap__bar {
-		display: block;
-		border-radius: var(--app-radius-s);
-		background: var(--app-text);
-	}
-
-	/* A month without a reading keeps a line */
-	.library-recap__months .library-recap__bar {
-		inline-size: 100%;
-		block-size: max(1px, var(--library-share) * var(--library-recap-chart));
-	}
-
-	/* The forms, the people, the languages and the series: each its name and its books, over a bar as long as its share */
-	:is(.library-recap__shares, .library-recap__ranking) {
-		list-style: none;
-		display: grid;
-		gap: var(--app-space-m);
-	}
-
-	:is(.library-recap__shares, .library-recap__ranking) li {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		align-items: baseline;
-		gap: var(--app-space-xs) var(--app-space-s);
-	}
-
-	:is(.library-recap__shares, .library-recap__ranking) .library-recap__bar {
-		grid-column: 1 / -1;
-		inline-size: calc(var(--library-share) * 100%);
-		block-size: calc(var(--app-u0) / var(--app-phi));
-	}
-
-	.library-recap__name {
-		min-width: 0;
-		overflow-wrap: anywhere;
-	}
-
-	/*
-	 * The people and the series ranked, a line each, so that the five of them fit on a screen: a name too long cut short,
-	 * its link naming it whole and leading to its page; the ring of focus of the link in the room around it.
-	 */
-	.library-recap__ranking .library-recap__name {
-		margin: calc(-1 * var(--library-focus-room));
-		padding: var(--library-focus-room);
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-	}
-
-	/* A language named in the middle of a sentence, as French names them: the first letter of a line */
-	.library-recap__name::first-letter {
-		text-transform: uppercase;
-	}
-
-	/* On the screen it comes to, what a screen says comes in, its bars growing, from their foot */
+	/* On the screen it comes to, what a screen says comes in */
 	@media (prefers-reduced-motion: no-preference) {
 		@supports (animation-timeline: view()) {
 			.library-recap__screen > * {
@@ -513,27 +354,6 @@
 					--library-recap-pace: calc(55s * sqrt(var(--app-phi)));
 				}
 			}
-
-			/* The memorable days pulse, their ring going out from them, each from its own point, so that no two go together */
-			.library-recap__calendar .library-recap__memorable {
-				animation: library-recap-pulse calc(2s * var(--app-phi)) ease-out infinite;
-				animation-delay: calc(var(--library-recap-day) * -0.13s);
-			}
-
-			.library-recap__bar {
-				animation: library-recap-grow linear both;
-				animation-timeline: view();
-				animation-range: entry 50% cover 40%;
-			}
-
-			.library-recap__months .library-recap__bar {
-				transform-origin: bottom;
-				animation-name: library-recap-rise;
-			}
-
-			:is(.library-recap__shares, .library-recap__ranking) .library-recap__bar {
-				transform-origin: left;
-			}
 		}
 	}
 
@@ -548,28 +368,6 @@
 	@keyframes library-recap-marquee {
 		to {
 			translate: 0 -50%;
-		}
-	}
-
-	@keyframes library-recap-pulse {
-		from {
-			box-shadow: 0 0 0 0 var(--library-recap-ring);
-		}
-
-		to {
-			box-shadow: 0 0 0 calc(4 * var(--library-recap-gap)) transparent;
-		}
-	}
-
-	@keyframes library-recap-grow {
-		from {
-			scale: 0 1;
-		}
-	}
-
-	@keyframes library-recap-rise {
-		from {
-			scale: 1 0;
 		}
 	}
 }

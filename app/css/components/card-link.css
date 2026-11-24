@@ -1,0 +1,20 @@
+/**
+ * The link that covers a card, a molecule: the link of the title of a book card or of a book row, which opens the book from
+ * anywhere on the card; the card shows its focus.
+ */
+
+@layer app.components {
+	.library-card-link {
+		text-align: start;
+	}
+
+	.library-card-link::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	.library-card-link:focus-visible {
+		outline: none;
+	}
+}

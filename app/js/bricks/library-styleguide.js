@@ -7,15 +7,15 @@ import {
 	renderAchievement,
 	renderAuthor,
 	renderBook,
+	fillRecapLink,
 	renderDiaryRecap,
 	renderMonth,
 	renderCloseAchievement,
 	renderCover,
 	renderCurrent,
-	renderMonths,
 	renderRow,
+	pageLink,
 	renderSeries,
-	renderShares,
 	renderTile,
 } from 'library-app/render';
 import { fill, fillHtml } from 'library-app/dom';
@@ -28,7 +28,10 @@ import {
 } from 'library-app/format';
 import { formatState } from 'library-app/book-lines';
 
-/** @import { Book } from 'library-app/api' */
+/**
+ * @import { Book } from 'library-app/api'
+ * @import { CountUpElement } from '../components/count-up.js'
+ */
 
 // A cover drawn rather than loaded, two thirds as wide as high, as most covers.
 const COVER = {
@@ -257,18 +260,6 @@ class LibraryStyleguideElement extends Brick {
 			],
 			mosaic: () =>
 				Array.from( { length: 14 }, () => renderTile( BOOKS[ 0 ] ) ),
-			// A month without a reading keeps a line.
-			months: () =>
-				renderMonths( [ 2, 7, 5, 8, 10, 11, 0, 8, 12, 3, 2, 5 ], 2025 ),
-			shares: () =>
-				renderShares( [
-					{ name: 'A form', readings: 45 },
-					{ name: 'Another form', readings: 30 },
-					{
-						name: 'A form of a name long enough to go on two lines',
-						readings: 3,
-					},
-				] ),
 			achievements: () => ACHIEVEMENTS.map( renderAchievement ),
 			close: () =>
 				CLOSE_ACHIEVEMENTS.map( ( achievement, index ) =>
@@ -284,6 +275,68 @@ class LibraryStyleguideElement extends Brick {
 				...render()
 			)
 		);
+		// The reading idea, its book as a card, then compact, as a row.
+		this.querySelectorAll( '[data-sample="reading-idea"] > *' ).forEach(
+			( /** @type {HTMLElement} */ $idea ) => {
+				const $row = $idea.querySelector( '[data-list="row"]' );
+
+				fill( $idea, {
+					reason: 'A book on the pile for a long time, by an author read often.',
+				} );
+				(
+					$row ?? $idea.querySelector( '[data-list="card"]' )
+				).replaceChildren(
+					$row
+						? renderRow( BOOKS[ 0 ] )
+						: renderBook( BOOKS[ 0 ], formatState( BOOKS[ 0 ] ) )
+				);
+			}
+		);
+		// The charts of a recap: the months, a month without a reading keeping a line; the shares, then ranked, a link each;
+		// the days of a year, a level each, some memorable, the days past the 300th to come; a figure.
+		const $months = this.querySelector( 'months-chart' );
+
+		$months.year = 2025;
+		$months.months = [ 2, 7, 5, 8, 10, 11, 0, 8, 12, 3, 2, 5 ];
+		const [ $shares, $ranked ] = this.querySelectorAll( 'shares-chart' );
+
+		$shares.shares = [
+			{ name: 'A form', readings: 45 },
+			{ name: 'Another form', readings: 30 },
+			{
+				name: 'A form of a name long enough to go on two lines',
+				readings: 3,
+			},
+		];
+		$ranked.shares = [
+			{ name: pageLink( 'person', 1, 'A person' ), readings: 12 },
+			{
+				name: pageLink(
+					'person',
+					2,
+					'A person of a name long enough to be cut short'
+				),
+				readings: 7,
+			},
+		];
+		this.querySelector( 'days-calendar' ).value = {
+			year: 2025,
+			levels: Array.from(
+				{ length: 300 },
+				( _day, day ) => ( day * 7 ) % 5
+			),
+			memorable: [ 60, 200 ],
+		};
+		/** @type {CountUpElement} */ (
+			this.querySelector( '[data-sample="count-up"] count-up' )
+		).value = 82;
+
+		// A progress, named by the line above it.
+		const $progressBar = this.querySelector( 'progress-bar' );
+
+		$progressBar.max = 14;
+		$progressBar.value = 9;
+		$progressBar.labelledBy = 'library-styleguide-progress-bar';
 		// The period of a reading, its start and its end.
 		this.querySelector( '[data-sample="reading-period"]' ).querySelector(
 			'reading-period'
@@ -309,9 +362,10 @@ class LibraryStyleguideElement extends Brick {
 		// The book open, the link to the recap, what the catalogue tells of a book to add and the keywords of a search, filled
 		// as their bricks fill them: a book of the catalogue on none of the shelves of the reader.
 		fillBookPage( this.querySelector( '[data-sample="book"]' ), BOOK_PAGE );
-		fill( this.querySelector( '[data-sample="recap-link"]' ), {
-			year: '2025',
-		} );
+		this.querySelectorAll( '[data-sample="recap-link"] a' ).forEach(
+			( /** @type {HTMLAnchorElement} */ $link ) =>
+				fillRecapLink( $link, 2025 )
+		);
 		this.querySelector(
 			'[data-sample="catalogue-status-duplicate"]'
 		).querySelector( 'catalogue-status' ).duplicate = {

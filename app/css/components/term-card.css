@@ -1,0 +1,12 @@
+/**
+ * The card of a term, an organism, the component term-card: a person or a series, its name as a title, its description
+ * as an excerpt, as the card of a book.
+ */
+
+@layer app.components {
+	.library-term-card__name {
+		font-size: inherit;
+		font-weight: normal;
+		overflow-wrap: anywhere;
+	}
+}

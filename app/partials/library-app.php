@@ -77,6 +77,7 @@ $form_filter = array(
 							array(
 								'views'   => $views,
 								'current' => $view,
+								'tabs'    => true,
 							)
 						);
 						?>
@@ -115,15 +116,16 @@ $form_filter = array(
 							</div>
 							<ul class="library-strip"></ul>
 						</library-latest>
-						<?php // As a row, its next idea at the end of its title, as the view of the idea has it in full. ?>
-						<library-idea class="library-section" compact hidden>
-							<div class="library-title">
-								<h3 class="library-title__heading"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h3>
-								<span class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" data-row="next"><button class="library-link" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button></span>
-							</div>
-							<p class="app-status" data-field="status" hidden></p>
-							<p class="library-idea__reason" data-field="reason"></p>
-							<ul class="app-list" data-list="book"></ul>
+						<library-idea class="library-section" hidden>
+							<?php
+							Markup::render_component(
+								'reading-idea',
+								array(
+									'compact' => true,
+									'level'   => 3,
+								)
+							);
+							?>
 						</library-idea>
 						<library-close class="library-section" hidden>
 							<div class="library-title">
@@ -235,13 +237,7 @@ $form_filter = array(
 
 				<library-view name="idea" <?php echo 'idea' === $view ? '' : 'hidden'; ?>>
 					<library-idea>
-						<h2 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h2>
-						<p class="app-status" data-field="status" hidden></p>
-						<p class="library-idea__reason" data-field="reason"></p>
-						<ul class="app-list" data-list="book"></ul>
-						<p class="library-idea__actions" data-row="next">
-							<button class="app-pill" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
-						</p>
+						<?php Markup::render_component( 'reading-idea' ); ?>
 					</library-idea>
 				</library-view>
 
@@ -288,162 +284,102 @@ $form_filter = array(
 					</library-list>
 				</library-view>
 
-				<library-view name="person" <?php echo Page::PERSON_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<?php Markup::render_component( 'back' ); ?>
-					</library-back>
-					<library-person>
-						<p class="app-status" data-field="status" hidden></p>
-						<?php Markup::render_component( 'term-header', array( 'lines' => array( array( 'field' => 'otherNames' ) ) ) ); ?>
-						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
-						<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
-						<section class="library-section" data-row="wishes" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'To buy', 'library' ); ?>
-								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
-							</h3>
-							<ul class="app-list" data-list="wishes"></ul>
-						</section>
-						<?php // The first series, then the others folded, once there are enough of them. ?>
-						<section class="library-section" data-row="series" hidden>
-							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<?php Markup::render_component( 'cards-group' ); ?>
-						</section>
-						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
-						<section class="library-section">
-							<div class="library-title">
-								<h3 class="library-title__heading">
-									<?php echo esc_html( $labels->name ); ?>
-									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="person"></library-count>
-								</h3>
-								<library-covers-toggle class="library-title__action">
-									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-person' ) ); ?>
-								</library-covers-toggle>
-							</div>
-							<ul class="app-list" data-list="books"></ul>
-							<div class="library-list__more" data-part="more"></div>
-						</section>
-					</library-person>
-				</library-view>
-
-				<library-view name="series" <?php echo Page::SERIES_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<?php Markup::render_component( 'back' ); ?>
-					</library-back>
-					<library-series>
-						<p class="app-status" data-field="status" hidden></p>
-						<?php
-						Markup::render_component(
-							'term-header',
+				<?php
+				/*
+				 * The page of a term, a person, a series or a collection, each its brick, library-<name>, which TermPage
+				 * bases: the lines of its header, then its own sections, between its wishes and its books, each a row
+				 * hidden until it has something to show, either term cards, the first ones then the others folded once
+				 * there are enough of them, or pills.
+				 */
+				$series_labels = get_taxonomy( 'library_series' )->labels;
+				$term_pages    = array(
+					Page::PERSON_VIEW    => array(
+						'lines'    => array( array( 'field' => 'otherNames' ) ),
+						'sections' => array(
+							'series' => array( $series_labels->name, 'cards' ),
+						),
+					),
+					Page::SERIES_VIEW    => array(
+						'lines'    => array(
 							array(
-								'lines' => array(
-									array(
-										'field' => 'cycle',
-										'label' => get_taxonomy( 'library_series' )->labels->parent_item_colon,
-										'link'  => true,
-									),
-									array(
-										'field' => 'issn',
-										'label' => get_registered_meta_keys( 'term', 'library_series' )['library_issn']['label'],
-									),
-								),
-							)
-						);
-						?>
-						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
-						<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
-						<section class="library-section" data-row="wishes" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'To buy', 'library' ); ?>
-								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
-							</h3>
-							<ul class="app-list" data-list="wishes"></ul>
-						</section>
-						<section class="library-section" data-row="parts" hidden>
-							<h3 class="library-title"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<ul class="library-pills" data-list="parts"></ul>
-						</section>
-						<?php // The first authors, then the others folded, once there are enough of them. ?>
-						<section class="library-section" data-row="authors" hidden>
-							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<?php Markup::render_component( 'cards-group' ); ?>
-						</section>
-						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
-						<section class="library-section">
-							<div class="library-title">
-								<h3 class="library-title__heading">
-									<?php echo esc_html( $labels->name ); ?>
-									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="series"></library-count>
-								</h3>
-								<library-covers-toggle class="library-title__action">
-									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-series' ) ); ?>
-								</library-covers-toggle>
-							</div>
-							<ul class="app-list" data-list="books"></ul>
-							<div class="library-list__more" data-part="more"></div>
-						</section>
-					</library-series>
-				</library-view>
-
-				<library-view name="publisher" <?php echo Page::PUBLISHER_VIEW === $view ? '' : 'hidden'; ?>>
-					<library-back class="library-back">
-						<?php Markup::render_component( 'back' ); ?>
-					</library-back>
-					<library-publisher>
-						<p class="app-status" data-field="status" hidden></p>
-						<?php
-						Markup::render_component(
-							'term-header',
+								'field' => 'cycle',
+								'label' => $series_labels->parent_item_colon,
+								'link'  => true,
+							),
 							array(
-								'lines' => array(
-									array(
-										'field' => 'publisher',
-										'label' => __( 'Publisher:', 'library' ),
-										'link'  => true,
-									),
-									array(
-										'field' => 'collection',
-										'label' => __( 'Collection:', 'library' ),
-										'link'  => true,
-									),
-								),
-							)
-						);
-						?>
-						<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
-						<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
-						<section class="library-section" data-row="wishes" hidden>
-							<h3 class="library-title">
-								<?php esc_html_e( 'To buy', 'library' ); ?>
-								<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
-							</h3>
-							<ul class="app-list" data-list="wishes"></ul>
-						</section>
-						<section class="library-section" data-row="collections" hidden>
-							<h3 class="library-title"><?php esc_html_e( 'Collections', 'library' ); ?></h3>
-							<ul class="library-pills" data-list="collections"></ul>
-						</section>
-						<?php // The first authors, then the others folded, once there are enough of them. ?>
-						<section class="library-section" data-row="authors" hidden>
-							<h3 class="library-title"><?php esc_html_e( 'Authors', 'library' ); ?></h3>
-							<?php Markup::render_component( 'cards-group' ); ?>
-						</section>
-						<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
-						<section class="library-section">
-							<div class="library-title">
-								<h3 class="library-title__heading">
-									<?php echo esc_html( $labels->name ); ?>
-									<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="publisher"></library-count>
+								'field' => 'issn',
+								'label' => get_registered_meta_keys( 'term', 'library_series' )['library_issn']['label'],
+							),
+						),
+						'sections' => array(
+							'parts'   => array( $series_labels->name, 'pills' ),
+							'authors' => array( __( 'Authors', 'library' ), 'cards' ),
+						),
+					),
+					Page::PUBLISHER_VIEW => array(
+						'lines'    => array(
+							array(
+								'field' => 'publisher',
+								'label' => __( 'Publisher:', 'library' ),
+								'link'  => true,
+							),
+							array(
+								'field' => 'collection',
+								'label' => __( 'Collection:', 'library' ),
+								'link'  => true,
+							),
+						),
+						'sections' => array(
+							'collections' => array( __( 'Collections', 'library' ), 'pills' ),
+							'authors'     => array( __( 'Authors', 'library' ), 'cards' ),
+						),
+					),
+				);
+				?>
+				<?php foreach ( $term_pages as $term_view => $term_page ) : ?>
+					<library-view name="<?php echo esc_attr( $term_view ); ?>" <?php echo $term_view === $view ? '' : 'hidden'; ?>>
+						<library-back class="library-back">
+							<?php Markup::render_component( 'back' ); ?>
+						</library-back>
+						<<?php echo esc_html( "library-$term_view" ); ?>>
+							<p class="app-status" data-field="status" hidden></p>
+							<?php Markup::render_component( 'term-header', array( 'lines' => $term_page['lines'] ) ); ?>
+							<ul class="app-list library-term-completion" data-list="completion" hidden></ul>
+							<?php // Its wishes, books to buy without a reading, apart from its books: few, all at once. ?>
+							<section class="library-section" data-row="wishes" hidden>
+								<h3 class="library-title">
+									<?php esc_html_e( 'To buy', 'library' ); ?>
+									<span class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" data-field="wishes"></span>
 								</h3>
-								<library-covers-toggle class="library-title__action">
-									<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-publisher' ) ); ?>
-								</library-covers-toggle>
-							</div>
-							<ul class="app-list" data-list="books"></ul>
-							<div class="library-list__more" data-part="more"></div>
-						</section>
-					</library-publisher>
-				</library-view>
+								<ul class="app-list" data-list="wishes"></ul>
+							</section>
+							<?php foreach ( $term_page['sections'] as $row => [ $section_title, $kind ] ) : ?>
+								<section class="library-section" data-row="<?php echo esc_attr( $row ); ?>" hidden>
+									<h3 class="library-title"><?php echo esc_html( $section_title ); ?></h3>
+									<?php if ( 'cards' === $kind ) : ?>
+										<?php Markup::render_component( 'cards-group' ); ?>
+									<?php else : ?>
+										<ul class="library-pills" data-list="<?php echo esc_attr( $row ); ?>"></ul>
+									<?php endif; ?>
+								</section>
+							<?php endforeach; ?>
+							<?php // Its books, under their title, as the home has them: their number, and their cards or their covers, as chosen. ?>
+							<section class="library-section">
+								<div class="library-title">
+									<h3 class="library-title__heading">
+										<?php echo esc_html( $labels->name ); ?>
+										<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="<?php echo esc_attr( $term_view ); ?>"></library-count>
+									</h3>
+									<library-covers-toggle class="library-title__action">
+										<?php Markup::render_component( 'covers-toggle', array( 'id' => "library-covers-$term_view" ) ); ?>
+									</library-covers-toggle>
+								</div>
+								<ul class="app-list" data-list="books"></ul>
+								<div class="library-list__more" data-part="more"></div>
+							</section>
+						</<?php echo esc_html( "library-$term_view" ); ?>>
+					</library-view>
+				<?php endforeach; ?>
 
 				<?php // A screen per subject, each as high as the screen, those without anything to say hidden. ?>
 				<library-view name="recap" data-immersive <?php echo Page::RECAP_VIEW === $view ? '' : 'hidden'; ?>>
@@ -462,14 +398,14 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="readings" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Books read', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="readings"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'readings' ) ) ); ?></p>
 							<p data-field="previous"></p>
 							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="rereads"></p>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pages" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Pages read', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="pages"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'pages' ) ) ); ?></p>
 							<p data-field="perDay"></p>
 							<p data-field="perBook"></p>
 							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="counted"></p>
@@ -477,17 +413,17 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="months" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Month by month', 'library' ); ?></h3>
-							<ol class="library-recap__months" data-list="months"></ol>
+							<?php Markup::render_component( 'months-chart' ); ?>
 							<p data-field="bestMonth"></p>
 						</section>
 
 						<?php // Over its days, a backdrop: those read, as dark as the pages read, the memorable ones pulsing. ?>
 						<section class="library-recap__screen library-recap__days" data-screen="days" hidden>
-							<div class="library-recap__calendar" aria-hidden="true">
-								<ol data-list="calendar"></ol>
+							<div class="library-recap__calendar">
+								<?php Markup::render_component( 'days-calendar' ); ?>
 							</div>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Day by day', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="daysRead"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'daysRead' ) ) ); ?></p>
 							<p data-field="daysReadLabel"></p>
 							<p data-field="streak"></p>
 							<p data-field="bestDay"></p>
@@ -496,32 +432,32 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="forms" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( $form_labels->name ); ?></h3>
-							<ul class="library-recap__shares" data-list="forms"></ul>
+							<?php Markup::render_component( 'shares-chart' ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="people" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Read the most', 'library' ); ?></h3>
-							<ol class="library-recap__ranking" data-list="people"></ol>
+							<?php Markup::render_component( 'shares-chart', array( 'ranked' => true ) ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="discoveries" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="discoveries"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'discoveries' ) ) ); ?></p>
 							<p data-field="discovered"></p>
 							<ul class="library-pills library-recap__cloud library-recap__cut" data-row="discoveries" data-list="discoveries"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( $language_labels->name_for_book ); ?></h3>
-							<p class="library-recap__figure" data-field="languages"></p>
-							<ul class="library-recap__shares" data-list="languages"></ul>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'languages' ) ) ); ?></p>
+							<?php Markup::render_component( 'shares-chart' ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="series" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<p class="library-recap__figure" data-field="series"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'series' ) ) ); ?></p>
 							<p data-field="seriesState"></p>
-							<ol class="library-recap__ranking" data-list="series"></ol>
+							<?php Markup::render_component( 'shares-chart', array( 'ranked' => true ) ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="rating" hidden>
@@ -538,13 +474,13 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="achievements" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="achievements"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'achievements' ) ) ); ?></p>
 							<ul class="library-pills library-recap__cloud library-recap__cut" data-list="achievements"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pile" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'The pile', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="added"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'added' ) ) ); ?></p>
 							<p data-field="addedBooks"></p>
 							<p data-field="pile"></p>
 						</section>
@@ -989,6 +925,22 @@ $form_filter = array(
 			</li>
 		</template>
 
+		<?php // A record of a recap: its cover, its figure, what it counts, which record it is, and its book, which it opens. ?>
+		<template id="library-recap-record">
+			<li class="library-recap__record">
+				<?php Markup::render_component( 'book-cover', array( 'attributes' => array( 'aria-hidden' => 'true' ) ) ); ?>
+				<div>
+					<p class="library-recap__record-figure">
+						<?php Markup::render_component( 'count-up' ); ?>
+						<span data-field="year"></span>
+						<span class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="unit"></span>
+					</p>
+					<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="label"></p>
+					<a data-field="title" href=""></a>
+				</div>
+			</li>
+		</template>
+
 		<template id="library-tile">
 			<li><?php Markup::render_component( 'book-cover', array( 'attributes' => array( 'aria-hidden' => 'true' ) ) ); ?></li>
 		</template>
@@ -1006,7 +958,7 @@ $form_filter = array(
 
 		<template id="library-diary-recap">
 			<p class="library-diary__recap">
-				<a class="app-pill" data-field="recap" href=""></a>
+				<?php Markup::render_component( 'recap-link', array( 'pill' => true ) ); ?>
 			</p>
 		</template>
 

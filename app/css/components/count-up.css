@@ -1,0 +1,10 @@
+/**
+ * A figure that counts up to its value, an atom, the component count-up: its digits as wide as one another, it does not
+ * jump as it counts.
+ */
+
+@layer app.components {
+	count-up {
+		font-variant-numeric: tabular-nums;
+	}
+}

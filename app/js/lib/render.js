@@ -13,8 +13,6 @@ import {
 	formatLanguage,
 	formatList,
 	formatListParts,
-	formatMonthInitial,
-	formatMonthName,
 	formatNumber,
 	formatRecap,
 	join,
@@ -28,14 +26,6 @@ import {
 /**
  * @import { Achievement, Author, Book, CloseAchievement, Cover, PersonSeries, Target, Term } from 'library-app/api'
  * @import { Route } from 'library-app/router'
- */
-
-/**
- * A line of a list of a recap, such as a form and its readings, with a bar as long as its share of the most read one.
- *
- * @typedef {Object} Share
- * @property {string|HTMLElement} name     Its name, or a link to its page.
- * @property {number}             readings Its readings.
  */
 
 /**
@@ -507,30 +497,18 @@ export function renderAchievementPill( achievement ) {
 export function renderCloseAchievement( achievement, id ) {
 	const $item = clone( 'library-achievement-card-close' );
 	const $name = $item.querySelector( '[data-field="name"]' );
-	const $progress = $item.querySelector( 'progress' );
+	const $progress = $item.querySelector( 'progress-bar' );
 	const hasSubject = '' !== achievement.subject;
-	const done = formatNumber( achievement.done );
-	const total = formatNumber( achievement.total );
 
 	fill( $item, {
 		name: hasSubject ? achievement.subject : achievement.title,
 		meta: join( [ hasSubject && achievement.title, achievement.detail ] ),
-		count: `${ done } / ${ total }`,
 	} );
 	$name.id = id;
 	linkAchievement( $name, achievement );
 	$progress.max = achievement.total;
 	$progress.value = achievement.done;
-	$progress.setAttribute( 'aria-labelledby', $name.id );
-	$progress.setAttribute(
-		'aria-valuetext',
-		sprintf(
-			/* translators: 1: number done, 2: total, e.g. "13 of 14". */
-			__( '%1$s of %2$s', 'library' ),
-			done,
-			total
-		)
-	);
+	$progress.labelledBy = $name.id;
 
 	return $item;
 }
@@ -577,24 +555,6 @@ function span( text, className ) {
 }
 
 /**
- * Gives each of `$items` its share of the most of `values`, by their order, from 0 to 1, which sets the length of its
- * bar: --library-share.
- *
- * @param {HTMLElement[]} $items The elements, such as the lines of a list.
- * @param {number[]}      values Their values, such as their readings.
- */
-function setShares( $items, values ) {
-	const most = Math.max( 1, ...values );
-
-	$items.forEach( ( $item, index ) =>
-		$item.style.setProperty(
-			'--library-share',
-			( values[ index ] / most ).toString()
-		)
-	);
-}
-
-/**
  * A cover of a recap, which opens nothing, an image of its book only: on the wall of the books read, their cards a tap
  * away in the diary, in the columns going by behind its last screen, and beside a record, which names its book.
  *
@@ -607,89 +567,6 @@ export function renderTile( book ) {
 	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 
 	return $item;
-}
-
-/**
- * The readings of each month of `year`, as bars as high as their share of the month read the most, under their number
- * and above the initial of their month; assistive technologies read the name of the month and its books.
- *
- * @param {number[]} months The readings of each month, from January.
- * @param {number}   year   The year.
- * @return {HTMLElement[]} The months.
- */
-export function renderMonths( months, year ) {
-	const $months = months.map( ( readings, month ) => {
-		const $item = document.createElement( 'li' );
-		const date = new Date( year, month );
-		const $shown = [
-			span(
-				formatNumber( readings ),
-				'app-text-s app-text-muted app-font-ui app-uppercase'
-			),
-			span( '', 'library-recap__bar' ),
-			span(
-				formatMonthInitial( date ),
-				'app-text-s app-text-muted app-font-ui app-uppercase'
-			),
-		];
-
-		$shown.forEach( ( $span ) =>
-			$span.setAttribute( 'aria-hidden', 'true' )
-		);
-		$item.append(
-			...$shown,
-			span(
-				sprintf(
-					/* translators: 1: name of a month, 2: number of books read in it. */
-					__( '%1$s: %2$s', 'library' ),
-					formatMonthName( date ),
-					formatBooks( readings )
-				),
-				'sr-only'
-			)
-		);
-
-		return $item;
-	} );
-
-	setShares( $months, months );
-
-	return $months;
-}
-
-/**
- * The lines of a list of a recap, the most read first: each its name, its books and a bar as long as its share of the
- * first one.
- *
- * @param {Share[]} shares The lines.
- * @return {HTMLElement[]} The lines.
- */
-export function renderShares( shares ) {
-	const $lines = shares.map( ( share ) => {
-		const $item = document.createElement( 'li' );
-		const $name = span( '', 'library-recap__name' );
-		const $bar = span( '', 'library-recap__bar' );
-
-		$name.append( share.name );
-		$bar.setAttribute( 'aria-hidden', 'true' );
-		$item.append(
-			$name,
-			span(
-				formatBooks( share.readings ),
-				'app-text-s app-text-muted app-font-ui app-uppercase'
-			),
-			$bar
-		);
-
-		return $item;
-	} );
-
-	setShares(
-		$lines,
-		shares.map( ( share ) => share.readings )
-	);
-
-	return $lines;
 }
 
 /**
@@ -710,7 +587,19 @@ export function renderMonth( month, count, $readings ) {
 }
 
 /**
- * The link to the recap of `year`, before its latest month in the diary.
+ * Fills the link to the recap of `year`, the component recap-link, whichever its variant: its year, or its name, and where
+ * it leads.
+ *
+ * @param {HTMLAnchorElement} $link The link.
+ * @param {number}            year  The year.
+ */
+export function fillRecapLink( $link, year ) {
+	$link.href = urlOf( { view: 'recap', id: year } );
+	fill( $link, { year: year.toString(), recap: formatRecap( year ) } );
+}
+
+/**
+ * The link to the recap of `year`, a pill before its latest month in the diary.
  *
  * @param {number} year The year.
  * @return {HTMLElement} Its paragraph.
@@ -718,9 +607,7 @@ export function renderMonth( month, count, $readings ) {
 export function renderDiaryRecap( year ) {
 	const $recap = clone( 'library-diary-recap' );
 
-	/** @type {HTMLAnchorElement} */ ( $recap.querySelector( 'a' ) ).href =
-		urlOf( { view: 'recap', id: year } );
-	fill( $recap, { recap: formatRecap( year ) } );
+	fillRecapLink( $recap.querySelector( 'a' ), year );
 
 	return $recap;
 }

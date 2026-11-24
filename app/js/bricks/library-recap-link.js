@@ -1,6 +1,5 @@
 import { Brick } from 'library-app/brick';
-import { fill } from 'library-app/dom';
-import { urlOf } from 'library-app/router';
+import { fillRecapLink } from 'library-app/render';
 
 /**
  * The link of the home to the recap of the year just gone by, in January only: the year is over, and its readings all
@@ -12,8 +11,7 @@ class LibraryRecapLinkElement extends Brick {
 		const year = now.getFullYear() - 1;
 
 		this.hidden = 0 !== now.getMonth();
-		this.querySelector( 'a' ).href = urlOf( { view: 'recap', id: year } );
-		fill( this, { year: year.toString() } );
+		fillRecapLink( this.querySelector( 'a' ), year );
 
 		return [];
 	}

@@ -1,0 +1,18 @@
+/**
+ * The field of an image, a molecule, the component image-field: its preview, then its pills, the one that picks a photo
+ * and Remove, on one line while it holds them, at the bottom of the preview.
+ */
+
+@layer app.components {
+	image-field {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: end;
+		gap: var(--app-space-m);
+	}
+
+	/* Its pill Remove, while its preview shows an image: the photo picked, or the cover the book has */
+	image-field:not(:has(img:not([hidden]))) > [data-action="remove"] {
+		display: none;
+	}
+}

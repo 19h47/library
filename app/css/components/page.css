@@ -77,49 +77,6 @@
 			background: var(--app-bg);
 		}
 
-		/*
-		 * Every view at once, as the tabs of an app, rather than a row that scrolls: each as wide as its label, which is longer
-		 * in a language than in another, the room left between them; the current one only a pill, each with the room of one
-		 * all the same, so that none moves as the current one changes.
-		 */
-		library-nav .library-views-nav {
-			justify-content: space-between;
-			gap: 0;
-			margin-inline: 0;
-			padding-inline: 0;
-			overflow-x: visible;
-		}
-
-		/*
-		 * A tab of several words, such as To buy in English, goes on two lines where the narrowest phones leave too little room.
-		 * No stop of a strip: the row no longer scrolls, the page would take its tabs, fixed at the bottom of the screen, for
-		 * stops of its own, always the height of the screen above the bar further, and rest the recap between two screens.
-		 */
-		library-nav .library-views-nav li {
-			flex: 0 1 auto;
-			min-width: min-content;
-			scroll-snap-align: none;
-		}
-
-		library-nav .app-pill {
-			--app-pill-padding-inline: calc(1em / var(--app-phi));
-
-			justify-content: center;
-			white-space: normal;
-			text-align: center;
-		}
-
-		/* On the narrowest phones, the room of a pill a step smaller */
-		@container (width < 22rem) {
-			library-nav .app-pill {
-				--app-pill-padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
-			}
-		}
-
-		library-nav .app-pill:not([aria-current="page"]) {
-			border-color: transparent;
-		}
-
 		.app-page {
 			padding-block-end: calc(var(--library-tab-bar-height) + env(safe-area-inset-bottom));
 		}

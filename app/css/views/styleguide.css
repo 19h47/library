@@ -63,6 +63,12 @@
 		border-radius: var(--app-radius-m);
 	}
 
+	/* The days of a year, in a container of the shape of the backdrop of a wide screen of the recap, whose weeks follow it */
+	.library-styleguide__calendar {
+		container-type: size;
+		aspect-ratio: 2;
+	}
+
 	/* A strip in a frame goes to the edges of its frame, not of the screen */
 	.library-styleguide__frame .library-strip {
 		--library-bleed: 0px;

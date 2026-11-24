@@ -1,0 +1,10 @@
+/**
+ * A field of several choices, an organism, the component checkboxes-field: a block, as the fieldset it holds, rather than
+ * the inline of a custom element; its pills and its sheet are pills and a sheet of their own.
+ */
+
+@layer app.components {
+	checkboxes-field {
+		display: block;
+	}
+}

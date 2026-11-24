@@ -1,23 +1,8 @@
 /**
- * The page of a person, of a series or of a collection: its header, its completion, its sections and its books.
+ * The page of a person, of a series or of a collection: its parts; its header is a component.
  */
 
 @layer app.views {
-	/* The header of the page: its name, the lines that place it, its description and its reading */
-	.library-term-header {
-		display: grid;
-		gap: var(--app-space-xs);
-	}
-
-	.library-term-header > p {
-		color: var(--app-text-muted);
-	}
-
-	/* Its description, spaced from the lines around it */
-	.library-term-header > .library-prose {
-		margin-block: var(--app-space-s);
-	}
-
 	/*
 	 * The page, a step apart between its parts: its status, its header, its completion, its sections, the series of a
 	 * cycle, the collections of a publisher, the authors, the series of a person, then its books

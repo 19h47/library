@@ -1,0 +1,51 @@
+/**
+ * The views of the app, an organism, the component views-nav: a strip of pills, the current one marked. `tabs`, on a phone,
+ * the tabs of an app, as the bar at the bottom of the screen holds them.
+ */
+
+@layer app.components {
+	@media (width < 42rem) {
+		/*
+		 * Every view at once, as the tabs of an app, rather than a row that scrolls: each as wide as its label, which is longer
+		 * in a language than in another, the room left between them; the current one only a pill, each with the room of one
+		 * all the same, so that none moves as the current one changes.
+		 */
+		.library-views-nav--tabs {
+			justify-content: space-between;
+			gap: 0;
+			margin-inline: 0;
+			padding-inline: 0;
+			overflow-x: visible;
+		}
+
+		/*
+		 * A tab of several words, such as To buy in English, goes on two lines where the narrowest phones leave too little room.
+		 * No stop of a strip: the row no longer scrolls, the page would take its tabs, fixed at the bottom of the screen, for
+		 * stops of its own, always the height of the screen above the bar further, and rest the recap between two screens.
+		 */
+		.library-views-nav--tabs > li {
+			flex: 0 1 auto;
+			min-width: min-content;
+			scroll-snap-align: none;
+		}
+
+		.library-views-nav--tabs .app-pill {
+			--app-pill-padding-inline: calc(1em / var(--app-phi));
+
+			justify-content: center;
+			white-space: normal;
+			text-align: center;
+		}
+
+		/* On the narrowest phones, the room of a pill a step smaller */
+		@container (width < 22rem) {
+			.library-views-nav--tabs .app-pill {
+				--app-pill-padding-inline: calc(1em / var(--app-phi) / var(--app-phi));
+			}
+		}
+
+		.library-views-nav--tabs .app-pill:not([aria-current="page"]) {
+			border-color: transparent;
+		}
+	}
+}

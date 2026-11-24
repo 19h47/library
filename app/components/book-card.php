@@ -25,7 +25,7 @@ $heading = Markup::get_heading( $args['level'] );
 		<<?php echo esc_html( $heading ); ?> class="library-book-card__title">
 			<a class="library-card-link" data-part="link" data-field="title"></a>
 		</<?php echo esc_html( $heading ); ?>>
-		<p class="library-book-card__excerpt" data-field="excerpt" hidden></p>
+		<p class="library-excerpt" data-field="excerpt" hidden></p>
 		<p class="app-item__meta">
 			<span data-field="state"></span>
 			<span class="library-tag" data-field="form" hidden></span>

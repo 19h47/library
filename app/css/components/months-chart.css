@@ -1,0 +1,35 @@
+/**
+ * The readings of each month of a year, a molecule, the component months-chart: a bar each, as high as its share of the
+ * month read the most, its number above it, the initial of its month under it, side by side from January.
+ *
+ * Properties its place sets:
+ * - --library-months-chart-height: the height of the bar of the month read the most.
+ */
+
+@layer app.components {
+	months-chart {
+		display: block;
+	}
+
+	.library-months-chart {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		align-items: end;
+		gap: var(--app-space-xs);
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.library-months-chart > li {
+		display: grid;
+		justify-items: center;
+		gap: var(--app-space-xs);
+	}
+
+	/* A month without a reading keeps a line */
+	.library-months-chart .library-bar {
+		inline-size: 100%;
+		block-size: max(1px, var(--library-share) * var(--library-months-chart-height, var(--app-u3) * var(--app-phi)));
+	}
+}
