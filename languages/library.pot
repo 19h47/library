@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-24T11:45:45+00:00\n"
+"POT-Creation-Date: 2026-11-24T12:07:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -25,7 +25,7 @@ msgstr ""
 #: app/partials/library-app.php:71
 #: app/partials/library-app.php:161
 #: app/partials/library-app.php:595
-#: app/partials/library-app.php:865
+#: app/partials/library-app.php:864
 msgid "Library"
 msgstr ""
 
@@ -66,7 +66,7 @@ msgstr ""
 #: app/components/book-fields.php:23
 #: app/partials/library-app.php:368
 #: app/partials/library-app.php:428
-#: app/partials/library-app.php:788
+#: app/partials/library-app.php:787
 msgid "Authors"
 msgstr ""
 
@@ -88,7 +88,7 @@ msgid "Read: %s"
 msgstr ""
 
 #: admin/class-books-list.php:159
-#: app/partials/library-app.php:1021
+#: app/components/reading-row.php:30
 msgid "Unknown date"
 msgstr ""
 
@@ -619,10 +619,7 @@ msgid "Start of the reading"
 msgstr ""
 
 #: admin/partials/library-reading.php:40
-#: app/partials/library-app.php:1011
-#: app/partials/library-app.php:1012
-#: app/partials/library-app.php:1027
-#: app/partials/library-app.php:1028
+#: app/partials/library-app.php:988
 msgid "Remove this reading"
 msgstr ""
 
@@ -755,30 +752,30 @@ msgid "The recap of the year"
 msgstr ""
 
 #. translators: %s: current year.
-#: app/components/search.php:25
+#: app/components/search-form.php:26
 #, php-format
 msgid "Read in %s"
 msgstr ""
 
-#: app/components/search.php:26
+#: app/components/search-form.php:27
 msgid "Rated 9 or more"
 msgstr ""
 
-#: app/components/search.php:30
+#: app/components/search-form.php:32
 msgid "Search the library"
 msgstr ""
 
-#: app/components/search.php:35
+#: app/components/search-form.php:37
 msgid "Title, author, series, ISBN…"
 msgstr ""
 
-#: app/components/search.php:43
-#: app/components/search.php:44
+#: app/components/search-form.php:45
+#: app/components/search-form.php:46
 msgctxt "verb"
 msgid "Search"
 msgstr ""
 
-#: app/components/search.php:50
+#: app/components/search-form.php:52
 msgid "Narrow the search to:"
 msgstr ""
 
@@ -843,7 +840,7 @@ msgid "Latest added"
 msgstr ""
 
 #: app/partials/library-app.php:186
-#: app/partials/library-app.php:779
+#: app/partials/library-app.php:778
 msgid "Title"
 msgstr ""
 
@@ -917,81 +914,80 @@ msgstr ""
 msgid "Add a reading with an unknown date"
 msgstr ""
 
-#: app/partials/library-app.php:674
+#: app/partials/library-app.php:673
 msgid "Photograph my copy"
 msgstr ""
 
-#: app/partials/library-app.php:675
+#: app/partials/library-app.php:674
 msgid "Remove the photo of my copy"
 msgstr ""
 
-#: app/partials/library-app.php:708
+#: app/partials/library-app.php:707
 msgid "Dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:709
+#: app/partials/library-app.php:708
 msgid "Top"
 msgstr ""
 
-#: app/partials/library-app.php:727
+#: app/partials/library-app.php:726
 msgid "Dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:728
+#: app/partials/library-app.php:727
 msgid "Light or dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:760
+#: app/partials/library-app.php:759
 msgid "Choose a cover"
 msgstr ""
 
-#: app/partials/library-app.php:761
+#: app/partials/library-app.php:760
 msgid "Remove the cover"
 msgstr ""
 
-#: app/partials/library-app.php:801
+#: app/partials/library-app.php:800
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:802
+#: app/partials/library-app.php:801
 msgid "Add a person"
 msgstr ""
 
-#: app/partials/library-app.php:836
+#: app/partials/library-app.php:835
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:853
+#: app/partials/library-app.php:852
 msgid "Choose a form"
 msgstr ""
 
-#: app/partials/library-app.php:878
+#: app/partials/library-app.php:877
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:912
-#: app/partials/library-app.php:923
+#: app/partials/library-app.php:911
+#: app/partials/library-app.php:922
 msgid "Add a language"
 msgstr ""
 
-#: app/partials/library-app.php:947
+#: app/partials/library-app.php:946
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:961
+#: app/partials/library-app.php:960
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:961
+#: app/partials/library-app.php:960
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:965
+#: app/partials/library-app.php:964
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:1053
-#: app/partials/library-app.php:1054
+#: app/partials/library-app.php:1003
 msgid "Remove this person"
 msgstr ""
 
