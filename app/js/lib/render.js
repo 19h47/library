@@ -587,7 +587,19 @@ export function renderMonth( month, count, $readings ) {
 }
 
 /**
- * The link to the recap of `year`, before its latest month in the diary.
+ * Fills the link to the recap of `year`, the component recap-link, whichever its variant: its year, or its name, and where
+ * it leads.
+ *
+ * @param {HTMLAnchorElement} $link The link.
+ * @param {number}            year  The year.
+ */
+export function fillRecapLink( $link, year ) {
+	$link.href = urlOf( { view: 'recap', id: year } );
+	fill( $link, { year: year.toString(), recap: formatRecap( year ) } );
+}
+
+/**
+ * The link to the recap of `year`, a pill before its latest month in the diary.
  *
  * @param {number} year The year.
  * @return {HTMLElement} Its paragraph.
@@ -595,9 +607,7 @@ export function renderMonth( month, count, $readings ) {
 export function renderDiaryRecap( year ) {
 	const $recap = clone( 'library-diary-recap' );
 
-	/** @type {HTMLAnchorElement} */ ( $recap.querySelector( 'a' ) ).href =
-		urlOf( { view: 'recap', id: year } );
-	fill( $recap, { recap: formatRecap( year ) } );
+	fillRecapLink( $recap.querySelector( 'a' ), year );
 
 	return $recap;
 }

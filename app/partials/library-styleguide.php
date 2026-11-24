@@ -1139,12 +1139,13 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>recap-link</code></h4>
-					<p>The recap of the year gone by on the home, in January, an <code>.app-item</code></p>
+					<p>The recap of a year: gone by, on the home in January, an <code>.app-item</code>; <code>pill</code>, in the diary before the latest month of a year gone by; <code>fillRecapLink()</code> fills both</p>
 				</figcaption>
-				<div class="library-styleguide__frame">
-					<div data-sample="recap-link">
-						<?php Markup::render_component( 'recap-link' ); ?>
-					</div>
+				<div class="library-styleguide__frame" data-sample="recap-link">
+					<?php
+					Markup::render_component( 'recap-link' );
+					Markup::render_component( 'recap-link', array( 'pill' => true ) );
+					?>
 				</div>
 			</figure>
 		</div>

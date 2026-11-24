@@ -958,7 +958,7 @@ $form_filter = array(
 
 		<template id="library-diary-recap">
 			<p class="library-diary__recap">
-				<a class="app-pill" data-field="recap" href=""></a>
+				<?php Markup::render_component( 'recap-link', array( 'pill' => true ) ); ?>
 			</p>
 		</template>
 

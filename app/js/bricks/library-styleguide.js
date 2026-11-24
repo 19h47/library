@@ -7,6 +7,7 @@ import {
 	renderAchievement,
 	renderAuthor,
 	renderBook,
+	fillRecapLink,
 	renderDiaryRecap,
 	renderMonth,
 	renderCloseAchievement,
@@ -361,9 +362,10 @@ class LibraryStyleguideElement extends Brick {
 		// The book open, the link to the recap, what the catalogue tells of a book to add and the keywords of a search, filled
 		// as their bricks fill them: a book of the catalogue on none of the shelves of the reader.
 		fillBookPage( this.querySelector( '[data-sample="book"]' ), BOOK_PAGE );
-		fill( this.querySelector( '[data-sample="recap-link"]' ), {
-			year: '2025',
-		} );
+		this.querySelectorAll( '[data-sample="recap-link"] a' ).forEach(
+			( /** @type {HTMLAnchorElement} */ $link ) =>
+				fillRecapLink( $link, 2025 )
+		);
 		this.querySelector(
 			'[data-sample="catalogue-status-duplicate"]'
 		).querySelector( 'catalogue-status' ).duplicate = {
