@@ -19,7 +19,10 @@ test.describe( 'Recap', () => {
 			form: 0,
 			people: [ { name: 'Ann Recap', role: 'author' } ],
 			meta: { pages: 600 },
-			shelf: { readings: [ `/${ YEAR }-03-02` ], rating: 9 },
+			shelf: {
+				readings: [ `${ YEAR }-02-27/${ YEAR }-03-02` ],
+				rating: 9,
+			},
 		} );
 		await addBook( requestUtils, {
 			title: 'The Recap Short Book',
@@ -70,18 +73,27 @@ test.describe( 'Recap', () => {
 			'March: 2 books'
 		);
 
-		// The days of reading over the calendar of the year, a backdrop: the readings without their start, their ends
-		// alone, the one of the favourite memorable, March 2nd.
+		// The days of reading over the calendar of the year, a backdrop: the long book from its start, its pages spread
+		// over its four days, the biggest of them the first one, and the others on their ends alone; memorable, the biggest
+		// day and the one the favourite was finished, March 2nd.
 		const days = recap.locator( '[data-screen="days"]' );
 		const calendar = days.locator( 'days-calendar li' );
 
 		await expect(
 			days.locator( '[data-field="daysRead"] .sr-only' )
-		).toHaveText( '3' );
+		).toHaveText( '6' );
+		await expect( days ).toContainText( 'Up to 4 days in a row' );
 		await expect( days ).toContainText(
-			'Start date known for 0 readings out of 3.'
+			'The biggest day: 150 pages, on February 27'
+		);
+		await expect( days ).toContainText(
+			'Start date known for 1 reading out of 3.'
 		);
 		await expect( calendar ).toHaveCount( 365 );
+		await expect( calendar.nth( 57 ) ).toHaveAttribute(
+			'data-day',
+			'memorable'
+		);
 		await expect( calendar.nth( 60 ) ).toHaveAttribute(
 			'data-day',
 			'memorable'

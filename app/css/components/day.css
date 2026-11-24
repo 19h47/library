@@ -1,0 +1,36 @@
+/**
+ * A day of a calendar, an atom: a square as dark as its level, data-level, from the lines to the muted text, a day
+ * without reading the fill; a day to come, data-day="later", its outline.
+ *
+ * Properties its place sets:
+ * - --library-day-1 to --library-day-4: the color of each level, darker where no veil covers the days.
+ */
+
+@layer app.components {
+	.library-day {
+		aspect-ratio: 1;
+		border-radius: var(--app-radius-s);
+		background: var(--app-fill);
+	}
+
+	.library-day[data-level="1"] {
+		background: var(--library-day-1, var(--app-line-soft));
+	}
+
+	.library-day[data-level="2"] {
+		background: var(--library-day-2, var(--app-line));
+	}
+
+	.library-day[data-level="3"] {
+		background: var(--library-day-3, color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi) / var(--app-phi))));
+	}
+
+	.library-day[data-level="4"] {
+		background: var(--library-day-4, color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi))));
+	}
+
+	.library-day[data-day="later"] {
+		background: none;
+		box-shadow: inset 0 0 0 1px var(--app-line-soft);
+	}
+}

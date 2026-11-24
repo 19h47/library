@@ -1,13 +1,28 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { formatOfList } from 'library-app/behaviors';
+import { calendarFormCounts, calendarReadingCount } from 'library-app/parts';
 
-/** @import { FiltersSheetElement } from '../components/filters-sheet.js' */
+/**
+ * @import { FiltersSheetElement } from '../components/filters-sheet.js'
+ * @import { State } from 'library-app/store'
+ */
 
-// The counts of the stats of the values of the forms, by list: the books of each form on the shelves, or its readings.
+// The counts of the values of the forms, by list: the books of each form on the shelves, its readings, or its readings
+// of the year, the month or the day the calendar shows.
 const FORM_COUNTS = {
-	search: 'form_book_counts',
-	diary: 'form_reading_counts',
+	search: ( /** @type {State} */ state ) => state.stats?.form_book_counts,
+	diary: ( /** @type {State} */ state ) => state.stats?.form_reading_counts,
+	calendar: ( /** @type {State} */ state ) =>
+		state.calendar.loaded
+			? calendarFormCounts( state.calendar )
+			: undefined,
+};
+// How many the filters find, by list: the books or the readings of the list, or the readings of the year, the month or
+// the day the calendar shows.
+/** @type {Object<string, ( state: State ) => number>} */
+const TOTALS = {
+	calendar: ( state ) => calendarReadingCount( state.calendar ),
 };
 // A search for a series, which the server lists in reading order, as it reads the keyword (Query::parse_keywords()):
 // whatever its case, not excluded, with a name, quoted or not.
@@ -73,18 +88,19 @@ class LibraryFiltersElement extends Brick {
 					} );
 				}
 			),
-			store.select(
-				( state ) => state.stats?.[ FORM_COUNTS[ list ] ],
-				( counts ) => {
-					if ( counts ) {
-						$sheet.counts = { forms: counts };
-					}
+			// Its filters hide while they would find nothing whatever the forms, such as a month without readings.
+			store.select( FORM_COUNTS[ list ], ( counts ) => {
+				if ( counts ) {
+					$sheet.counts = { forms: counts };
+					this.hidden = ! Object.values( counts ).some( Boolean );
 				}
-			),
+			} ),
 			store.select(
 				( state ) =>
 					state[ list ].loaded
-						? formatOfList( list )( state[ list ].total )
+						? formatOfList( list )(
+								TOTALS[ list ]?.( state ) ?? state[ list ].total
+						  )
 						: '',
 				( found ) => {
 					$sheet.found = found;

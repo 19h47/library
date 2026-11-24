@@ -4,7 +4,7 @@
  */
 
 /**
- * @import { Achievements, BookForm, CatalogBook, Idea, PersonData, PublisherData, Recap, SeriesData, Suggestions } from 'library-app/api'
+ * @import { Achievements, BookForm, Calendar, CatalogBook, Idea, PersonData, PublisherData, Recap, SeriesData, Suggestions } from 'library-app/api'
  * @import { ApiRoute, ApiTry } from 'library-app/reference'
  */
 
@@ -142,10 +142,16 @@ export function reference() {
 }
 
 /**
+ * The recap of a year, with the days of its calendar, of every form.
+ *
+ * @typedef {Recap & {calendar: Calendar} & Loading} RecapPage
+ */
+
+/**
  * The recap of `year`, none loaded.
  *
  * @param {number} [year] The year.
- * @return {Recap & Loading} The recap.
+ * @return {RecapPage} The recap.
  */
 export function recap( year = 0 ) {
 	return {
@@ -169,13 +175,205 @@ export function recap( year = 0 ) {
 		achievements: [],
 		added_count: 0,
 		calendar: {
+			year,
+			years: [],
 			levels: [],
-			memorable: [],
-			read_day_count: 0,
-			streak: 0,
-			best: null,
-			dated_reading_count: 0,
+			pages: [],
+			ends: {},
+			reads: {},
+			form_ends: {},
 		},
+		loading: false,
+		loaded: false,
+		error: '',
+	};
+}
+
+/**
+ * What the calendar shows: a year, one of its months, or one of its days.
+ *
+ * @typedef {'year'|'month'|'day'} CalendarScale
+ */
+
+/**
+ * What the calendar shows: its scale, the year, a month or a day, its year, its month, from 0, and its day of the month,
+ * from 1.
+ *
+ * @typedef {Object} CalendarPeriod
+ * @property {CalendarScale} scale Its scale.
+ * @property {number}        year  Its year.
+ * @property {number}        month Its month, from 0.
+ * @property {number}        day   Its day of the month, from 1.
+ */
+
+/**
+ * The calendar: the days of a year, and what it shows, the year, its month `month`, from 0, or its day `day` of that
+ * month, from 1.
+ *
+ * @typedef {Calendar & Loading & CalendarPeriod} DiaryCalendar
+ */
+
+/**
+ * What the calendar shows, from the ID of its URL, as calendarId() writes it: a year, 2026, a month, 202611, or a day,
+ * 20261124; the current year for none, or for an ID of no day.
+ *
+ * @param {number} id The ID.
+ * @return {CalendarPeriod} What it shows.
+ */
+export function calendarOf( id ) {
+	const now = new Date();
+	const digits = id.toString();
+	const year = Number( digits.slice( 0, 4 ) );
+	const month = Number( digits.slice( 4, 6 ) || '1' ) - 1;
+	const day = Number( digits.slice( 6, 8 ) || '1' );
+	const date = new Date( year, month, day );
+	const scale = /** @type {CalendarScale|undefined} */ (
+		{ 4: 'year', 6: 'month', 8: 'day' }[ digits.length ]
+	);
+
+	if (
+		! scale ||
+		date.getFullYear() !== year ||
+		date.getMonth() !== month ||
+		date.getDate() !== day
+	) {
+		return {
+			scale: 'year',
+			year: now.getFullYear(),
+			month: now.getMonth(),
+			day: now.getDate(),
+		};
+	}
+
+	return {
+		scale,
+		year,
+		month: 'year' === scale ? now.getMonth() : month,
+		day: 'day' === scale ? day : now.getDate(),
+	};
+}
+
+/**
+ * The most days read in a row among `levels`.
+ *
+ * @param {number[]} levels The level of each day, in order.
+ * @return {number} The most days read in a row.
+ */
+export function streakOf( levels ) {
+	let streak = 0;
+	let current = 0;
+
+	levels.forEach( ( level ) => {
+		current = level ? current + 1 : 0;
+		streak = Math.max( streak, current );
+	} );
+
+	return streak;
+}
+
+/**
+ * The days of the year the calendar shows, from 0 for January 1st: from the first one, then up to the next one, out of
+ * them, of the year, the month or the day shown.
+ *
+ * @param {DiaryCalendar} calendar The calendar.
+ * @return {[number, number]} Its first day, and the one after its last.
+ */
+export function calendarDays( { scale, year, month, day, levels } ) {
+	const dayOf = ( /** @type {number} */ m, /** @type {number} */ d ) =>
+		( Date.UTC( year, m, d ) - Date.UTC( year, 0, 1 ) ) / 86400000;
+	/** @type {Object<CalendarScale, [number, number]>} */
+	const days = {
+		year: [ 0, levels.length ],
+		month: [ dayOf( month, 1 ), dayOf( month + 1, 1 ) ],
+		day: [ dayOf( month, day ), dayOf( month, day + 1 ) ],
+	};
+
+	return days[ scale ];
+}
+
+/**
+ * How many readings of the forms chosen ended in what the calendar shows, the year, the month or the day.
+ *
+ * @param {DiaryCalendar} shown The calendar.
+ * @return {number} The readings.
+ */
+export function calendarReadingCount( shown ) {
+	const [ first, last ] = calendarDays( shown );
+
+	return Object.entries( shown.ends )
+		.filter( ( [ day ] ) => Number( day ) >= first && Number( day ) < last )
+		.reduce( ( count, [ , ids ] ) => count + ids.length, 0 );
+}
+
+/**
+ * The readings of each form ended in what the calendar shows, the year, the month or the day, of every form, by term ID,
+ * as its filter counts them.
+ *
+ * @param {DiaryCalendar} shown The calendar.
+ * @return {Object<string, number>} The readings of each form.
+ */
+export function calendarFormCounts( shown ) {
+	const [ first, last ] = calendarDays( shown );
+	/** @type {Object<string, number>} */
+	const counts = {};
+
+	Object.entries( shown.form_ends )
+		.filter( ( [ day ] ) => Number( day ) >= first && Number( day ) < last )
+		.forEach( ( [ , forms ] ) =>
+			Object.entries( forms ).forEach( ( [ form, count ] ) => {
+				counts[ form ] = ( counts[ form ] ?? 0 ) + count;
+			} )
+		);
+
+	return counts;
+}
+
+/**
+ * The ID of the URL of what the calendar shows: its year, 2026, then its month, 202611, then its day, 20261124, as its
+ * scale goes.
+ *
+ * @param {CalendarPeriod} period What it shows.
+ * @return {number} The ID.
+ */
+export function calendarId( { scale, year, month, day } ) {
+	const pad = ( /** @type {number} */ number ) =>
+		number.toString().padStart( 2, '0' );
+
+	return Number(
+		{
+			year: `${ year }`,
+			month: `${ year }${ pad( month + 1 ) }`,
+			day: `${ year }${ pad( month + 1 ) }${ pad( day ) }`,
+		}[ scale ]
+	);
+}
+
+/**
+ * The calendar for `year`, empty, showing `scale`, the year, its month `month` or the day `day` of it.
+ *
+ * @param {number}        [year]  The year, the current one by default.
+ * @param {CalendarScale} [scale] What it shows: the year, one of its months, or one of its days.
+ * @param {number}        [month] The month it shows, from 0, the current one by default.
+ * @param {number}        [day]   The day of the month it shows, from 1, today by default.
+ * @return {DiaryCalendar} The calendar.
+ */
+export function calendar(
+	year = new Date().getFullYear(),
+	scale = 'year',
+	month = new Date().getMonth(),
+	day = new Date().getDate()
+) {
+	return {
+		year,
+		years: [],
+		levels: [],
+		pages: [],
+		ends: {},
+		reads: {},
+		form_ends: {},
+		scale,
+		month,
+		day,
 		loading: false,
 		loaded: false,
 		error: '',

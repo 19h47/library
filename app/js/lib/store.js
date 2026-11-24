@@ -33,6 +33,8 @@ import {
 import { getReference, tryRoute } from 'library-app/reference';
 import {
 	achievements,
+	calendar,
+	calendarOf,
 	editing,
 	idea,
 	page,
@@ -48,7 +50,7 @@ import {
  * @import { Achievements, Book, BookValues, EndedReading, Idea, Month, PageView, Recap, ShelfValues, Stats } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  * @import { BookReading } from 'library-app/readings'
- * @import { Catalog, Editing, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
+ * @import { Catalog, DiaryCalendar, Editing, RecapPage, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
  */
 
 /**
@@ -65,7 +67,7 @@ import {
  * The parts of the state that change part by part: the resources, the books of the series of the book open, the
  * saving of its reading, the form of a book and the names it suggests.
  *
- * @typedef {List|'diary'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
+ * @typedef {List|'diary'|'calendar'|'idea'|'achievements'|PageView|'recap'|'volumes'|'saving'|'editing'|'terms'|'reference'} Part
  */
 
 /**
@@ -104,12 +106,13 @@ import {
  * @property {Pages}                  inProgress   The books being read.
  * @property {Pages}                  toBuy        The books to buy.
  * @property {Pages<Month>}           diary        The readings by month.
+ * @property {DiaryCalendar}          calendar     The days of reading of a year, the calendar open, the year, a month or a day.
  * @property {Idea & Loading}         idea         The reading idea.
  * @property {Achievements & Loading} achievements The achievements.
  * @property {PersonPage}             person       The person open.
  * @property {SeriesPage}             series       The series open.
  * @property {PublisherPage}          publisher    The collection open.
- * @property {Recap & Loading}        recap        The recap of the year open.
+ * @property {RecapPage}              recap        The recap of the year open, with the days of its calendar.
  * @property {Reference & Loading}    reference    The reference of the API.
  */
 
@@ -136,15 +139,19 @@ const FORMS = forms.split( ',' );
 const BOOK_VIEW = 'book';
 // The recap of a year, opened from the diary or, in January, from the home.
 const RECAP_VIEW = 'recap';
+// The calendar, opened from the diary, its year, its month or its day in its URL.
+const CALENDAR_VIEW = 'calendar';
 // The reference of the API, for development, opened by searching its name: it loads as it first shows, and never goes stale.
 const API_VIEW = 'api';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
 /** @type {string[]} */
 const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
-// The resource each view shows; the page of a book shows the book open.
+// The resources each view shows; the page of a book shows the book open.
+/** @type {Object<string, string|string[]>} */
 const VIEW_RESOURCES = {
 	books: 'search',
 	diary: 'diary',
+	calendar: 'calendar',
 	idea: 'idea',
 	achievements: 'achievements',
 	'to-buy': 'toBuy',
@@ -353,6 +360,11 @@ class LibraryStore extends Store {
 			load: () => this.#fetchDiary( 1 ),
 			reload: () => this.#refreshDiary(),
 		},
+		calendar: {
+			empty: calendar,
+			load: () => this.#fetchCalendar(),
+			reload: () => this.#fetchCalendar(),
+		},
 		idea: {
 			empty: idea,
 			load: () => this.#fetchIdea( 0 ),
@@ -515,10 +527,14 @@ class LibraryStore extends Store {
 		this.set( ( state ) => ( { ...state, [ filter ]: value } ) );
 		this.#fetchList( 'search' );
 
-		const { diary } = this.get();
+		const { diary, calendar: days } = this.get();
 
 		if ( 'forms' === filter && ( diary.page || diary.loading ) ) {
 			this.#fetchDiary( 1 );
+		}
+
+		if ( 'forms' === filter && ( days.loaded || days.loading ) ) {
+			this.#fetchCalendar();
 		}
 	}
 
@@ -1049,7 +1065,7 @@ class LibraryStore extends Store {
 		const state = this.get();
 		const shown = [
 			'toBuy',
-			VIEW_RESOURCES[ state.view ],
+			...[ VIEW_RESOURCES[ state.view ] ].flat(),
 			...( isHome( state ) ? HOME : [] ),
 		];
 
@@ -1083,6 +1099,20 @@ class LibraryStore extends Store {
 				id !== current[ view ].id && { [ view ]: page( view, id ) } ) ||
 			( RECAP_VIEW === view &&
 				id !== current.recap.year && { recap: recap( id ) } );
+		const period = CALENDAR_VIEW === view && calendarOf( id );
+		// Another year of the calendar loads its days; the same one shows another of its months or days.
+		const shownCalendar =
+			period &&
+			( period.year === current.calendar.year
+				? { calendar: { ...current.calendar, ...period } }
+				: {
+						calendar: calendar(
+							period.year,
+							period.scale,
+							period.month,
+							period.day
+						),
+				  } );
 
 		this.set( ( state ) => {
 			const next =
@@ -1090,7 +1120,7 @@ class LibraryStore extends Store {
 					? state
 					: { ...state, view, book, saving: saving() };
 
-			return fresh ? { ...next, ...fresh } : next;
+			return { ...next, ...fresh, ...shownCalendar };
 		} );
 
 		if ( BOOK_VIEW === view ) {
@@ -1564,7 +1594,36 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The recap of the year open, with its books. Another year cancels the one loading.
+	 * The days of reading of the year of the calendar, of the forms chosen, with the books read on them.
+	 * Another year cancels the one loading.
+	 *
+	 * @return {Promise<boolean>} Whether it loaded.
+	 */
+	#fetchCalendar() {
+		const signal = this.#signal( 'calendar' );
+		const { calendar: current, forms: chosen } = this.get();
+
+		return this.#request( 'calendar', async () => {
+			const loaded = await api.getCalendar( current.year, chosen, {
+				signal,
+			} );
+
+			await this.#fetchBooks(
+				[
+					...new Set( [
+						...Object.values( loaded.ends ).flat(),
+						...Object.values( loaded.reads ).flat(),
+					] ),
+				],
+				{ signal }
+			);
+
+			return () => loaded;
+		} );
+	}
+
+	/**
+	 * The recap of the year open, with its books and the days of its calendar. Another year cancels the one loading.
 	 *
 	 * @return {Promise<boolean>} Whether it loaded.
 	 */
@@ -1573,11 +1632,15 @@ class LibraryStore extends Store {
 		const { year } = this.get().recap;
 
 		return this.#request( 'recap', async () => {
-			const loaded = await api.getRecap( year, { signal } );
+			// Its days, of every form, are the ones of its calendar.
+			const [ loaded, days ] = await Promise.all( [
+				api.getRecap( year, { signal } ),
+				api.getCalendar( year, [], { signal } ),
+			] );
 
 			await this.#fetchBooks( loaded.books, { signal } );
 
-			return () => loaded;
+			return () => ( { ...loaded, calendar: days } );
 		} );
 	}
 

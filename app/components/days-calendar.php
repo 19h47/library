@@ -16,6 +16,6 @@
 <days-calendar aria-hidden="true">
 	<ol class="library-days-calendar" data-part="days"></ol>
 	<template>
-		<li></li>
+		<li class="library-day"></li>
 	</template>
 </days-calendar>

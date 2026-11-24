@@ -5,7 +5,7 @@
  * Copy this file into an app, with the revision of the gist it comes from in this comment,
  * and add the app's own styles after it. An update is a new copy, app by app.
  *
- * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision d7cd1f8.
+ * From https://gist.github.com/19h47/27df983fac74beb8d3e0a30688654498, revision abd5ff5.
  *
  * A golden-ratio scale (φ), colors with light-dark() and color-mix(). Every size is on the scale: its steps for space,
  * --app-space-xs to --app-space-xl, half steps (√φ) between them for text, --app-text-s to --app-text-3xl, a step and a
@@ -583,6 +583,17 @@
     border-color: var(--app-line);
     color: var(--app-text);
     background-image: linear-gradient(var(--app-fill), var(--app-fill));
+  }
+
+  /*
+   * A control out of use, such as the one that goes to the next period at the last one: faded, at rest even pointed at.
+   * A button says it disabled; a link, without its URL, aria-disabled.
+   */
+  .app-control:is(:disabled, [aria-disabled="true"]) {
+    border-color: color-mix(in srgb, var(--app-line) var(--app-control-rest), transparent);
+    color: color-mix(in srgb, var(--app-text) var(--app-control-rest), transparent);
+    cursor: default;
+    opacity: var(--app-control-opacity);
   }
 
   @media (prefers-reduced-motion: reduce) {

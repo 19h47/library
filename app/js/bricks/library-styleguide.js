@@ -331,6 +331,38 @@ class LibraryStyleguideElement extends Brick {
 			this.querySelector( '[data-sample="count-up"] count-up' )
 		).value = 82;
 
+		// The days of a month: its levels, the 20 days gone by; then with a book with a cover, another without, and two the
+		// same day.
+		const levels = Array.from(
+			{ length: 20 },
+			( _day, day ) => ( day * 3 ) % 5
+		);
+		const [ $dots, $covers ] = this.querySelectorAll( 'month-calendar' );
+		const book = ( /** @type {Book} */ { title, cover } ) => ( {
+			title,
+			cover: cover ?? null,
+		} );
+
+		$dots.value = {
+			year: 2025,
+			month: 10,
+			days: levels.map( ( level ) => ( { level, books: [] } ) ),
+		};
+		$covers.value = {
+			year: 2025,
+			month: 10,
+			days: levels.map( ( level, day ) => ( {
+				level,
+				url: '#top',
+				books:
+					{
+						3: [ book( BOOKS[ 0 ] ) ],
+						9: [ book( BOOKS[ 1 ] ) ],
+						15: [ book( BOOKS[ 0 ] ), book( BOOKS[ 3 ] ) ],
+					}[ day ] ?? [],
+			} ) ),
+		};
+
 		// A progress, named by the line above it.
 		const $progressBar = this.querySelector( 'progress-bar' );
 

@@ -76,7 +76,8 @@ $form_filter = array(
 							'views-nav',
 							array(
 								'views'   => $views,
-								'current' => $view,
+								// The calendar, opened from the diary, is part of it.
+								'current' => 'calendar' === $view ? 'diary' : $view,
 								'tabs'    => true,
 							)
 						);
@@ -209,10 +210,14 @@ $form_filter = array(
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
-					<h2 class="library-title">
-						<?php echo esc_html( $views['diary']['label'] ); ?>
-						<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="diary" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
-					</h2>
+					<?php // Its title, with how many readings, then the link to the calendar of its days at the end of its line. ?>
+					<div class="library-title">
+						<h2 class="library-title__heading">
+							<?php echo esc_html( $views['diary']['label'] ); ?>
+							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="diary" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+						</h2>
+						<a class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" href="<?php echo esc_url( add_query_arg( 'view', 'calendar', $views['books']['url'] ) ); ?>"><?php esc_html_e( 'Calendar', 'library' ); ?></a>
+					</div>
 					<?php if ( $form_choices ) : ?>
 						<div class="app-controls">
 							<library-filters list="diary">
@@ -233,6 +238,84 @@ $form_filter = array(
 						<div class="library-sections library-diary__months" data-list="months"></div>
 						<div class="library-list__more" data-part="more"></div>
 					</library-diary>
+				</library-view>
+
+				<?php // The days of reading of a year, of one of its months or of one of its days, which the forms chosen filter too: opened from the diary. ?>
+				<library-view name="calendar" <?php echo 'calendar' === $view ? '' : 'hidden'; ?>>
+					<library-calendar class="library-calendar">
+						<div class="library-calendar__bar">
+							<div class="library-pills">
+								<?php
+								Markup::render_component(
+									'pill-select',
+									array(
+										'id'         => 'library-calendar-scale',
+										'label'      => __( 'Calendar', 'library' ),
+										'options'    => array(
+											'year'  => __( 'Year', 'library' ),
+											'month' => __( 'Month', 'library' ),
+											'day'   => __( 'Day', 'library' ),
+										),
+										'attributes' => array( 'name' => 'scale' ),
+									)
+								);
+								?>
+								<?php if ( $form_choices ) : ?>
+									<library-filters list="calendar">
+										<?php
+										Markup::render_component(
+											'filters-sheet',
+											array(
+												'id'      => 'library-calendar-filters-dialog',
+												'filters' => array( 'forms' => $form_filter + array( 'counts' => $form_counts['form_reading_counts'] ) ),
+											)
+										);
+										?>
+									</library-filters>
+								<?php endif; ?>
+							</div>
+							<p class="app-toolbar">
+								<a class="app-control" data-part="previous" aria-label="<?php esc_attr_e( 'Before', 'library' ); ?>" title="<?php esc_attr_e( 'Before', 'library' ); ?>"><?php Markup::render_icon( 'arrow_back' ); ?></a>
+								<a class="app-control" data-part="next" aria-label="<?php esc_attr_e( 'After', 'library' ); ?>" title="<?php esc_attr_e( 'After', 'library' ); ?>"><?php Markup::render_icon( 'arrow_forward' ); ?></a>
+							</p>
+						</div>
+						<h2 class="library-calendar__period" data-field="period" tabindex="-1"></h2>
+						<?php // The months of the year, each a link to it at the scale of a month. ?>
+						<ol class="library-calendar__year" data-part="year">
+							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
+								<li>
+									<a class="library-link app-text-s app-font-ui app-uppercase" data-part="month-link" href=""></a>
+									<?php Markup::render_component( 'month-calendar' ); ?>
+								</li>
+							<?php endfor; ?>
+						</ol>
+						<div data-part="month" hidden>
+							<?php Markup::render_component( 'month-calendar', array( 'covers' => true ) ); ?>
+						</div>
+						<?php // What its days count: after the year or the month, before the books read that day. ?>
+						<dl class="library-fields library-fields--aside">
+							<?php
+							$calendar_stats = array(
+								'readings' => __( 'Readings', 'library' ),
+								'pages'    => __( 'Pages', 'library' ),
+								'days'     => __( 'Days of reading', 'library' ),
+								'streak'   => __( 'Days in a row', 'library' ),
+							);
+							?>
+							<?php foreach ( $calendar_stats as $calendar_field => $calendar_label ) : ?>
+								<div data-row="<?php echo esc_attr( $calendar_field ); ?>">
+									<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $calendar_label ); ?></dt>
+									<dd data-field="<?php echo esc_attr( $calendar_field ); ?>"></dd>
+								</div>
+							<?php endforeach; ?>
+						</dl>
+						<?php // The books read that day, the one in progress up to today. ?>
+						<div data-part="day" hidden>
+							<ul class="app-list" data-list="day"></ul>
+							<p class="app-status" data-part="none" hidden><?php esc_html_e( 'No reading that day.', 'library' ); ?></p>
+						</div>
+						<p class="app-status" data-field="status" hidden></p>
+					</library-calendar>
 				</library-view>
 
 				<library-view name="idea" <?php echo 'idea' === $view ? '' : 'hidden'; ?>>

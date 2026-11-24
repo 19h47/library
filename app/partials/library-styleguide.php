@@ -160,13 +160,15 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>.app-control</code></h4>
-					<p>An action as an icon, its name for assistive technologies: add, the theme in light then in dark, close</p>
+					<p>An action as an icon, its name for assistive technologies: add, the theme in light then in dark, close; out of use, a button disabled or a link without its URL, <code>aria-disabled</code>, such as After at the last period of the calendar</p>
 				</figcaption>
 				<div class="library-styleguide__frame library-styleguide__row">
 					<button class="app-control" type="button" aria-label="Add"><?php Markup::render_icon( 'add' ); ?></button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="false"><?php Markup::render_icon( 'dark_mode' ); ?><?php Markup::render_icon( 'light_mode' ); ?></button>
 					<button class="app-control" type="button" aria-label="Dark theme" aria-pressed="true"><?php Markup::render_icon( 'dark_mode' ); ?><?php Markup::render_icon( 'light_mode' ); ?></button>
 					<button class="app-control" type="button" aria-label="Close"><?php Markup::render_icon( 'close' ); ?></button>
+					<button class="app-control" type="button" aria-label="Before" disabled><?php Markup::render_icon( 'arrow_back' ); ?></button>
+					<a class="app-control" role="link" aria-disabled="true" aria-label="After"><?php Markup::render_icon( 'arrow_forward' ); ?></a>
 				</div>
 			</figure>
 			<figure>
@@ -1122,6 +1124,18 @@ $sizes = array(
 					<?php
 					Markup::render_component( 'shares-chart' );
 					Markup::render_component( 'shares-chart', array( 'ranked' => true ) );
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>month-calendar</code></h4>
+					<p>The days of a month, a <code>.library-day</code> each, in weeks from Monday, the days to come outlined; <code>covers</code>, as the diary shows a month, each day its number and the book whose reading ended then, a link to it, its cover or its title, the others counted; its place sets <code>value</code>, and the colors of the levels, <code>--library-day-1</code> to <code>--library-day-4</code></p>
+				</figcaption>
+				<div class="library-styleguide__frame library-calendar" data-sample="month-calendar">
+					<?php
+					Markup::render_component( 'month-calendar' );
+					Markup::render_component( 'month-calendar', array( 'covers' => true ) );
 					?>
 				</div>
 			</figure>

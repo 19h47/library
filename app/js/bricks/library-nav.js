@@ -40,6 +40,10 @@ class LibraryNavElement extends Brick {
 				return formatRecap( state.recap.year );
 			}
 
+			if ( 'calendar' === state.view ) {
+				return __( 'Calendar', 'library' );
+			}
+
 			if ( 'books' === state.view ) {
 				return state.query.trim();
 			}
@@ -64,8 +68,10 @@ class LibraryNavElement extends Brick {
 					$books.href = urlOf( { query } );
 				}
 			),
+			// The calendar, opened from the diary, is part of it: the diary stays the view current.
 			store.select(
-				( state ) => state.view,
+				( state ) =>
+					'calendar' === state.view ? 'diary' : state.view,
 				( view ) =>
 					$links.forEach( ( $link ) => {
 						if ( view !== routeOf( $link.href ).view ) {

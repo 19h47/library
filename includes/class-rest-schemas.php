@@ -29,19 +29,20 @@ class Rest_Schemas {
 	 */
 	public static function get_schemas(): array {
 		return array(
-			'books'                   => array( self::class, 'get_book' ),
-			'books/(?P<id>\d+)'       => array( self::class, 'get_book_form' ),
-			'books/(?P<id>\d+)/shelf' => array( self::class, 'get_book' ),
-			'books/bnf'               => array( self::class, 'get_book_form' ),
-			'covers'                  => array( self::class, 'get_cover' ),
-			'stats'                   => array( self::class, 'get_stats' ),
-			'readings'                => array( self::class, 'get_readings' ),
-			'idea'                    => array( self::class, 'get_idea' ),
-			'achievements'            => array( self::class, 'get_achievements' ),
-			'recaps/(?P<year>\d{4})'  => array( self::class, 'get_recap' ),
-			'people/(?P<id>\d+)'      => array( self::class, 'get_person' ),
-			'series/(?P<id>\d+)'      => array( self::class, 'get_series' ),
-			'publishers/(?P<id>\d+)'  => array( self::class, 'get_publisher' ),
+			'books'                     => array( self::class, 'get_book' ),
+			'books/(?P<id>\d+)'         => array( self::class, 'get_book_form' ),
+			'books/(?P<id>\d+)/shelf'   => array( self::class, 'get_book' ),
+			'books/bnf'                 => array( self::class, 'get_book_form' ),
+			'covers'                    => array( self::class, 'get_cover' ),
+			'stats'                     => array( self::class, 'get_stats' ),
+			'readings'                  => array( self::class, 'get_readings' ),
+			'idea'                      => array( self::class, 'get_idea' ),
+			'achievements'              => array( self::class, 'get_achievements' ),
+			'calendars/(?P<year>\d{4})' => array( self::class, 'get_calendar' ),
+			'recaps/(?P<year>\d{4})'    => array( self::class, 'get_recap' ),
+			'people/(?P<id>\d+)'        => array( self::class, 'get_person' ),
+			'series/(?P<id>\d+)'        => array( self::class, 'get_series' ),
+			'publishers/(?P<id>\d+)'    => array( self::class, 'get_publisher' ),
 		);
 	}
 
@@ -488,6 +489,26 @@ class Rest_Schemas {
 	}
 
 	/**
+	 * The schema of the calendar of the diary: the days of a year.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_calendar(): array {
+		return self::build(
+			'library-calendar',
+			array(
+				'year'      => self::property( 'integer', __( 'Year of the calendar.', 'library' ) ),
+				'years'     => self::property( 'array', __( 'Years with a reading, the earliest first.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'levels'    => self::property( 'array', __( 'Level of each day gone by, from January 1st: 0 for none read, up to 4 for the days that read the most pages.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'pages'     => self::property( 'array', __( 'Pages read on each day gone by, from January 1st, those of a book read from a known start spread over its days.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'ends'      => self::property( 'object', __( 'IDs of the books whose reading ended on each day, by the day, from 0 for January 1st.', 'library' ) ),
+				'reads'     => self::property( 'object', __( 'IDs of the books read on each day, a reading in progress up to today, by the day, from 0 for January 1st.', 'library' ) ),
+				'form_ends' => self::property( 'object', __( 'Readings of each form ended on each day, of every form, by the day, from 0 for January 1st, then by term ID.', 'library' ) ),
+			)
+		);
+	}
+
+	/**
 	 * The recap of a year: a reading is a read date of the year, a book read again counting once per reading.
 	 *
 	 * @return array<string,mixed>
@@ -530,7 +551,6 @@ class Rest_Schemas {
 				'records'                => self::property( 'object', __( 'IDs of the longest, the shortest and the oldest books read, 0 for none.', 'library' ) ),
 				'achievements'           => self::property( 'array', __( 'Achievements earned in the year.', 'library' ), array( 'items' => self::achievement( __( 'An achievement earned.', 'library' ) ) ) ),
 				'added_count'            => self::property( 'integer', __( 'Books added in the year, but those to buy.', 'library' ) ),
-				'calendar'               => self::property( 'object', __( 'Days of reading: the level of each day, the memorable ones, the days read, the longest streak, the best day and the readings dated.', 'library' ) ),
 			)
 		);
 	}

@@ -13,6 +13,7 @@ import type { FiltersSheetElement } from '../app/js/components/filters-sheet.js'
 import type { ImageFieldElement } from '../app/js/components/image-field.js';
 import type { InputGroupsElement } from '../app/js/components/input-groups.js';
 import type { InputsListElement } from '../app/js/components/inputs-list.js';
+import type { MonthCalendarElement } from '../app/js/components/month-calendar.js';
 import type { MonthsChartElement } from '../app/js/components/months-chart.js';
 import type { OfflineStatusElement } from '../app/js/components/offline-status.js';
 import type { PartialDateElement } from '../app/js/components/partial-date.js';
@@ -34,6 +35,7 @@ declare global {
 		'image-field': ImageFieldElement;
 		'input-groups': InputGroupsElement;
 		'inputs-list': InputsListElement;
+		'month-calendar': MonthCalendarElement;
 		'months-chart': MonthsChartElement;
 		'offline-status': OfflineStatusElement;
 		'partial-date': PartialDateElement;

@@ -415,19 +415,6 @@ import { toReadings } from 'library-app/readings';
  */
 
 /**
- * The days of a year gone by, from January 1st: a day is read while a reading ended was open, or on its end alone when
- * its start is unknown, the pages of a book read from a known start spread over its days.
- *
- * @typedef {Object} RecapCalendar
- * @property {number[]}                          levels              The level of each day, 0 for none read, then 1 to 4 by its pages.
- * @property {number[]}                          memorable           The memorable days, by their index: the biggest one, and those a favourite was finished.
- * @property {number}                            read_day_count      The days read.
- * @property {number}                            streak              The most days read in a row.
- * @property {{day: number, pages: number}|null} best                The day the most pages were read, by its index, none without pages.
- * @property {number}                            dated_reading_count The readings ended in the year with their start known.
- */
-
-/**
  * The recap of a year: a reading is a read date of the year, a book read again counting once per reading; the books
  * read, the ratings and the records take each book once.
  *
@@ -451,7 +438,6 @@ import { toReadings } from 'library-app/readings';
  * @property {{longest: number, shortest: number, oldest: number}} records                The IDs of the longest, the shortest and the oldest books read, 0 for none.
  * @property {Achievement[]}                                       achievements           The achievements earned in the year.
  * @property {number}                                              added_count            The books added in the year, but those to buy.
- * @property {RecapCalendar}                                       calendar               Its days of reading.
  */
 
 /**
@@ -963,6 +949,38 @@ export async function getRecap( year, { signal } = {} ) {
 		discoveries: recap.discoveries.map( toPlainName ),
 		series: recap.series.map( toPlainName ),
 	};
+}
+
+/**
+ * The days of reading of a year, as the calendar of the diary shows them.
+ *
+ * @typedef {Object} Calendar
+ * @property {number}                                 year      The year.
+ * @property {number[]}                               years     The years with a reading, the earliest first.
+ * @property {number[]}                               levels    The level of each day gone by, from January 1st: 0 for none read, up to 4.
+ * @property {number[]}                               pages     The pages read on each day gone by, from January 1st.
+ * @property {Object<string, number[]>}               ends      The IDs of the books whose reading ended on each day, by the day, from 0.
+ * @property {Object<string, number[]>}               reads     The IDs of the books read on each day, a reading in progress up to today.
+ * @property {Object<string, Object<string, number>>} form_ends The readings of each form ended on each day, of every
+ *                                                              form, by the day, then by term ID.
+ */
+
+/**
+ * The days of reading of `year`, of the books of `forms`, of every form when none.
+ *
+ * @param {number}      year             The year.
+ * @param {string[]}    forms            The forms, by term ID.
+ * @param {Object}      [options]        Options.
+ * @param {AbortSignal} [options.signal] Cancels the request.
+ * @return {Promise<Calendar>} Its days.
+ */
+export function getCalendar( year, forms, { signal } = {} ) {
+	return apiFetch( {
+		path: addQueryArgs( `/library/v1/calendars/${ year }`, {
+			...( forms.length && { forms: forms.join() } ),
+		} ),
+		signal,
+	} );
 }
 
 /**
