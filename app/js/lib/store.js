@@ -34,6 +34,7 @@ import { getReference, tryRoute } from 'library-app/reference';
 import {
 	achievements,
 	calendar,
+	calendarOf,
 	editing,
 	idea,
 	page,
@@ -105,7 +106,7 @@ import {
  * @property {Pages}                  inProgress   The books being read.
  * @property {Pages}                  toBuy        The books to buy.
  * @property {Pages<Month>}           diary        The readings by month.
- * @property {DiaryCalendar}          calendar     The days of reading of the diary, a year or one of its months.
+ * @property {DiaryCalendar}          calendar     The days of reading of a year, the calendar open, the year, a month or a day.
  * @property {Idea & Loading}         idea         The reading idea.
  * @property {Achievements & Loading} achievements The achievements.
  * @property {PersonPage}             person       The person open.
@@ -138,6 +139,8 @@ const FORMS = forms.split( ',' );
 const BOOK_VIEW = 'book';
 // The recap of a year, opened from the diary or, in January, from the home.
 const RECAP_VIEW = 'recap';
+// The calendar, opened from the diary, its year, its month or its day in its URL.
+const CALENDAR_VIEW = 'calendar';
 // The reference of the API, for development, opened by searching its name: it loads as it first shows, and never goes stale.
 const API_VIEW = 'api';
 // The home, the books view without a query, shows the books being read, the latest readings, the reading idea and the achievements close to be earned.
@@ -147,7 +150,8 @@ const HOME = [ 'inProgress', 'diary', 'idea', 'achievements' ];
 /** @type {Object<string, string|string[]>} */
 const VIEW_RESOURCES = {
 	books: 'search',
-	diary: [ 'diary', 'calendar' ],
+	diary: 'diary',
+	calendar: 'calendar',
 	idea: 'idea',
 	achievements: 'achievements',
 	'to-buy': 'toBuy',
@@ -532,33 +536,6 @@ class LibraryStore extends Store {
 		if ( 'forms' === filter && ( days.loaded || days.loading ) ) {
 			this.#fetchCalendar();
 		}
-	}
-
-	/**
-	 * What the calendar of the diary shows: its `scale`, the year, one of its months or one of its days, its `year`, its
-	 * `month`, from 0, and its `day`, from 1; another year loads its days.
-	 *
-	 * @param {Partial<Pick<DiaryCalendar, 'scale'|'year'|'month'|'day'>>} shown What it shows.
-	 */
-	showCalendar( shown ) {
-		const current = this.get().calendar;
-		const { scale, year, month, ...next } = { ...current, ...shown };
-		// A day of the month, the 31st of a month before becoming the last one of a shorter one.
-		const day = Math.min(
-			next.day,
-			new Date( year, month + 1, 0 ).getDate()
-		);
-
-		if ( year === current.year ) {
-			this.#update( 'calendar', () => ( { scale, month, day } ) );
-			return;
-		}
-
-		this.set( ( state ) => ( {
-			...state,
-			calendar: calendar( year, scale, month, day ),
-		} ) );
-		this.#fetchCalendar();
 	}
 
 	/**
@@ -1122,6 +1099,20 @@ class LibraryStore extends Store {
 				id !== current[ view ].id && { [ view ]: page( view, id ) } ) ||
 			( RECAP_VIEW === view &&
 				id !== current.recap.year && { recap: recap( id ) } );
+		const period = CALENDAR_VIEW === view && calendarOf( id );
+		// Another year of the calendar loads its days; the same one shows another of its months or days.
+		const shownCalendar =
+			period &&
+			( period.year === current.calendar.year
+				? { calendar: { ...current.calendar, ...period } }
+				: {
+						calendar: calendar(
+							period.year,
+							period.scale,
+							period.month,
+							period.day
+						),
+				  } );
 
 		this.set( ( state ) => {
 			const next =
@@ -1129,7 +1120,7 @@ class LibraryStore extends Store {
 					? state
 					: { ...state, view, book, saving: saving() };
 
-			return fresh ? { ...next, ...fresh } : next;
+			return { ...next, ...fresh, ...shownCalendar };
 		} );
 
 		if ( BOOK_VIEW === view ) {
@@ -1603,7 +1594,7 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The days of reading of the year of the calendar of the diary, of the forms chosen, with the books read on them.
+	 * The days of reading of the year of the calendar, of the forms chosen, with the books read on them.
 	 * Another year cancels the one loading.
 	 *
 	 * @return {Promise<boolean>} Whether it loaded.
@@ -1627,7 +1618,10 @@ class LibraryStore extends Store {
 				{ signal }
 			);
 
-			return () => loaded;
+			return () => ( {
+				...loaded,
+				total: Object.values( loaded.ends ).flat().length,
+			} );
 		} );
 	}
 

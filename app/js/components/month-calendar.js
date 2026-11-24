@@ -7,20 +7,20 @@ import { formatDate } from 'library-app/format';
  */
 
 /**
- * A book of a day: its title, where it leads, and its cover, if any.
+ * A book of a day: its title, and its cover, if any.
  *
  * @typedef {Object} CalendarBook
  * @property {string}     title Its title.
- * @property {string}     url   Its page.
  * @property {Cover|null} cover Its cover, none without one.
  */
 
 /**
- * A day gone by: its level, from 0, none read, to 4, and the books whose reading ended that day.
+ * A day gone by: its level, from 0, none read, to 4, the books whose reading ended that day, and where the day leads.
  *
  * @typedef {Object} CalendarDay
  * @property {number}         level Its level.
  * @property {CalendarBook[]} books The books whose reading ended that day.
+ * @property {string}         [url] Where the day leads, the calendar of that day.
  */
 
 /**
@@ -35,11 +35,10 @@ import { formatDate } from 'library-app/format';
 
 /**
  * The days of a month, the root of the component month-calendar: in weeks from Monday, the first one in the column of its
- * weekday, each as dark as its level, a day to come its outline, today marked; covers, each day its number, which chooses
- * it, and the cover of the book whose reading ended that day, a link to it, the others counted.
+ * weekday, each as dark as its level, a day to come its outline, today marked; covers, each day a link to it, its number
+ * and the cover of the book whose reading ended that day, or its title, the others counted.
  *
- * Its API: `value`, the year, the month and its days gone by; `dayselect`, which a day chosen sends, its day of the month,
- * from 1, in its detail.
+ * Its API: `value`, the year, the month and its days gone by.
  */
 export class MonthCalendarElement extends Component {
 	static properties = [ 'value' ];
@@ -87,17 +86,7 @@ export class MonthCalendarElement extends Component {
 				$day.dataset.day = 'later';
 			}
 
-			/** @type {HTMLButtonElement|null} */
-			const $number = $day.querySelector( '[data-part="number"]' );
-
-			if ( $number ) {
-				$number.textContent = ( day + 1 ).toString();
-				$number.value = ( day + 1 ).toString();
-				$number.setAttribute(
-					'aria-label',
-					formatDate( date, 'full' )
-				);
-			}
+			this.#fillLink( $day, day + 1, date, days[ day ]?.url ?? '' );
 
 			return $day;
 		} );
@@ -110,36 +99,44 @@ export class MonthCalendarElement extends Component {
 		this.querySelector( '[data-part="days"]' ).replaceChildren( ...$days );
 	}
 
-	connect( signal ) {
-		this.addEventListener(
-			'click',
-			( event ) => {
-				/** @type {HTMLButtonElement|null} */
-				const $number = /** @type {Element} */ ( event.target ).closest(
-					'[data-part="number"]'
-				);
+	/**
+	 * Fills the link of the day `$day`, in the variant that has one: its number, its date, said in full, and where it
+	 * leads; a day to come leads nowhere.
+	 *
+	 * @param {HTMLElement} $day   The day.
+	 * @param {number}      number Its day of the month.
+	 * @param {string}      date   Its date, ISO 8601.
+	 * @param {string}      url    Where it leads, empty for nowhere.
+	 */
+	#fillLink( $day, number, date, url ) {
+		/** @type {HTMLAnchorElement|null} */
+		const $link = $day.querySelector( '[data-part="link"]' );
 
-				if ( $number ) {
-					this.dispatchEvent(
-						new CustomEvent( 'dayselect', {
-							bubbles: true,
-							detail: { day: Number( $number.value ) },
-						} )
-					);
-				}
-			},
-			{ signal }
+		if ( ! $link ) {
+			return;
+		}
+
+		$link.querySelector( '[data-part="number"]' ).textContent =
+			number.toString();
+		$link.querySelector( '[data-part="date"]' ).textContent = formatDate(
+			date,
+			'full'
 		);
+
+		if ( url ) {
+			$link.href = url;
+		}
 	}
 
 	/**
-	 * Shows on the day `$day` the first of `books`, a link to it, and how many others, in the variant that shows them.
+	 * Shows on the day `$day` the first of `books`, its cover or its title, and how many others, in the variant that shows
+	 * them.
 	 *
 	 * @param {HTMLElement}    $day  The day.
 	 * @param {CalendarBook[]} books Its books.
 	 */
 	#fillBooks( $day, books ) {
-		/** @type {HTMLAnchorElement|null} */
+		/** @type {HTMLElement|null} */
 		const $book = $day.querySelector( '[data-part="book"]' );
 		const [ book ] = books;
 
@@ -152,7 +149,6 @@ export class MonthCalendarElement extends Component {
 		);
 
 		$book.hidden = false;
-		$book.href = book.url;
 		$book.querySelector( '[data-part="title"]' ).textContent = book.title;
 		fillCover( $book.querySelector( 'img' ), book.cover );
 		$more.hidden = books.length < 2;

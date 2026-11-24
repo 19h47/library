@@ -2,13 +2,19 @@ import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
-import { followCards, renderBooks, showBusy } from 'library-app/behaviors';
+import {
+	focusTitle,
+	followCards,
+	renderBooks,
+	showBusy,
+} from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
+import { calendarId } from 'library-app/parts';
 import { formatDate, formatMonthName, formatNumber } from 'library-app/format';
 
 /**
  * @import { Book } from 'library-app/api'
- * @import { CalendarScale, DiaryCalendar } from 'library-app/parts'
+ * @import { CalendarPeriod, CalendarScale, DiaryCalendar } from 'library-app/parts'
  * @import { CalendarDay } from '../components/month-calendar.js'
  */
 
@@ -43,6 +49,16 @@ function isoDate( year, month, day ) {
 }
 
 /**
+ * The URL of the calendar showing `period`.
+ *
+ * @param {CalendarPeriod} period What it shows.
+ * @return {string} Its URL.
+ */
+function calendarUrl( period ) {
+	return urlOf( { view: 'calendar', id: calendarId( period ) } );
+}
+
+/**
  * The most days read in a row among `levels`.
  *
  * @param {number[]} levels The level of each day, in order.
@@ -61,11 +77,30 @@ function streakOf( levels ) {
 }
 
 /**
- * The calendar of the diary: the days of reading of a year, its months side by side, of one of its months, each day the
- * cover of the book whose reading ended then, or of one of its days, the books read then, as cards; above them, what they
- * count, the readings ended and their pages, and for a year or a month, the days of reading and the most in a row. Before
- * and After go from a year, a month or a day to the next one, from the first year with a reading to today; a month of the
- * year opens it, a day of the month opens it.
+ * Leads `$link` to `url`, or nowhere, out of use, without one.
+ *
+ * @param {HTMLAnchorElement} $link The link.
+ * @param {string}            url   Where it leads, empty for nowhere.
+ */
+function lead( $link, url ) {
+	if ( url ) {
+		$link.href = url;
+		$link.removeAttribute( 'role' );
+		$link.removeAttribute( 'aria-disabled' );
+	} else {
+		// A link without a URL, out of use, as a link still.
+		$link.removeAttribute( 'href' );
+		$link.setAttribute( 'role', 'link' );
+		$link.setAttribute( 'aria-disabled', 'true' );
+	}
+}
+
+/**
+ * The calendar, a view of its own opened from the diary: the days of reading of a year, its months side by side, of one
+ * of its months, each day the cover of the book whose reading ended then, or of one of its days, the books read then, as
+ * cards; above them, what they count, the readings ended and their pages, and for a year or a month, the days of reading
+ * and the most in a row. Its URL says what it shows, which Before and After, a month of the year and a day of the month
+ * lead to, from the first year with a reading to today; its scale goes to the same period, the year, its month or its day.
  */
 class LibraryCalendarElement extends Brick {
 	/**
@@ -81,72 +116,33 @@ class LibraryCalendarElement extends Brick {
 	connect( signal ) {
 		/** @type {HTMLSelectElement} */
 		const $scale = this.querySelector( 'select[name="scale"]' );
-		/** @type {HTMLButtonElement} */
-		const $previous = this.querySelector( '[data-action="previous"]' );
-		/** @type {HTMLButtonElement} */
-		const $next = this.querySelector( '[data-action="next"]' );
+		/** @type {HTMLAnchorElement} */
+		const $previous = this.querySelector( '[data-part="previous"]' );
+		/** @type {HTMLAnchorElement} */
+		const $next = this.querySelector( '[data-part="next"]' );
 		/** @type {HTMLElement} */
 		const $year = this.querySelector( '[data-part="year"]' );
 		/** @type {HTMLElement} */
 		const $month = this.querySelector( '[data-part="month"]' );
 		/** @type {HTMLElement} */
 		const $day = this.querySelector( '[data-part="day"]' );
+		/** @type {HTMLElement} */
+		const $period = this.querySelector( '[data-field="period"]' );
 		const $cards = $day.querySelector( '[data-list="day"]' );
 		const line = ( /** @type {Book} */ book ) =>
 			this.#ended.has( book.id )
 				? __( 'Finished that day', 'library' )
 				: __( 'In progress', 'library' );
-		// Before, or after: the year, the month or the day before or after the one shown.
-		const step = ( /** @type {number} */ by ) => {
-			const { scale, year, month, day } = store.get().calendar;
-			const date = new Date(
-				year + ( 'year' === scale ? by : 0 ),
-				month + ( 'month' === scale ? by : 0 ),
-				'day' === scale ? day + by : 1
-			);
-
-			store.showCalendar( {
-				year: date.getFullYear(),
-				month: date.getMonth(),
-				...( 'day' === scale && { day: date.getDate() } ),
-			} );
-		};
 
 		$scale.addEventListener(
 			'change',
 			() =>
-				store.showCalendar( {
-					scale: /** @type {CalendarScale} */ ( $scale.value ),
-				} ),
-			{ signal }
-		);
-		$previous.addEventListener( 'click', () => step( -1 ), { signal } );
-		$next.addEventListener( 'click', () => step( 1 ), { signal } );
-		$year.addEventListener(
-			'click',
-			( event ) => {
-				/** @type {HTMLButtonElement|null} */
-				const $open = /** @type {Element} */ ( event.target ).closest(
-					'[data-action="month"]'
-				);
-
-				if ( $open ) {
-					store.showCalendar( {
-						scale: 'month',
-						month: Number( $open.value ),
-					} );
-				}
-			},
-			{ signal }
-		);
-		$month.addEventListener(
-			'dayselect',
-			( event ) =>
-				store.showCalendar( {
-					scale: 'day',
-					day: /** @type {CustomEvent<{day: number}>} */ ( event )
-						.detail.day,
-				} ),
+				navigation.navigate(
+					calendarUrl( {
+						...store.get().calendar,
+						scale: /** @type {CalendarScale} */ ( $scale.value ),
+					} )
+				),
 			{ signal }
 		);
 
@@ -166,11 +162,22 @@ class LibraryCalendarElement extends Brick {
 					this.#fillSteps( calendar, $previous, $next );
 				}
 			),
+			// Opened, what it shows takes the focus, as the title of a page.
+			store.select(
+				( state ) =>
+					'calendar' === state.view &&
+					calendarId( state.calendar ).toString(),
+				( shown ) => {
+					if ( shown && 'forward' === store.get().moved ) {
+						focusTitle( $period );
+					}
+				}
+			),
 		];
 	}
 
 	/**
-	 * Fills the months of the year, and the month shown, its days with their books.
+	 * Fills the months of the year, each a link to it, and the month shown, its days with their books, each a link to it.
 	 *
 	 * @param {DiaryCalendar} calendar The calendar.
 	 * @param {HTMLElement}   $year    The months of the year.
@@ -178,16 +185,22 @@ class LibraryCalendarElement extends Brick {
 	 */
 	#fillMonths( calendar, $year, $month ) {
 		const { year } = calendar;
-		const $names = /** @type {HTMLButtonElement[]} */ ( [
-			...$year.querySelectorAll( '[data-action="month"]' ),
+		const $links = /** @type {HTMLAnchorElement[]} */ ( [
+			...$year.querySelectorAll( '[data-part="month-link"]' ),
 		] );
 
 		$year
 			.querySelectorAll( 'month-calendar' )
 			.forEach( ( $days, month ) => {
-				$names[ month ].textContent = formatMonthName(
+				$links[ month ].textContent = formatMonthName(
 					new Date( year, month )
 				);
+				$links[ month ].href = calendarUrl( {
+					scale: 'month',
+					year,
+					month,
+					day: 1,
+				} );
 				$days.value = {
 					year,
 					month,
@@ -227,7 +240,7 @@ class LibraryCalendarElement extends Brick {
 	}
 
 	/**
-	 * The days gone by of the month `month`: the level of each, and the books whose reading ended then.
+	 * The days gone by of the month `month`: the level of each, the books whose reading ended then, and its link.
 	 *
 	 * @param {DiaryCalendar} calendar The calendar.
 	 * @param {number}        month    The month, from 0.
@@ -246,9 +259,14 @@ class LibraryCalendarElement extends Brick {
 					.filter( ( id ) => id in books )
 					.map( ( id ) => ( {
 						title: books[ id ].title,
-						url: urlOf( { view: 'book', id } ),
 						cover: books[ id ].cover,
 					} ) ),
+				url: calendarUrl( {
+					scale: 'day',
+					year,
+					month,
+					day: index + 1,
+				} ),
 			} ) );
 	}
 
@@ -308,26 +326,40 @@ class LibraryCalendarElement extends Brick {
 	 * Before, as long as a year with a reading comes before, and After, up to the current year, month or day.
 	 *
 	 * @param {DiaryCalendar}     calendar  The calendar.
-	 * @param {HTMLButtonElement} $previous Before.
-	 * @param {HTMLButtonElement} $next     After.
+	 * @param {HTMLAnchorElement} $previous Before.
+	 * @param {HTMLAnchorElement} $next     After.
 	 */
 	#fillSteps( { scale, year, month, day, years }, $previous, $next ) {
 		const today = new Date();
 		const firstYear = Math.min( years[ 0 ] ?? year, year );
-		// The first day of the year, the month or the day shown, and of the one that follows it.
-		const start = {
-			year: new Date( year, 0, 1 ),
-			month: new Date( year, month, 1 ),
-			day: new Date( year, month, day ),
-		}[ scale ];
-		const end = {
-			year: new Date( year + 1, 0, 1 ),
-			month: new Date( year, month + 1, 1 ),
-			day: new Date( year, month, day + 1 ),
-		}[ scale ];
+		const by = ( /** @type {number} */ step ) =>
+			new Date(
+				year + ( 'year' === scale ? step : 0 ),
+				month + ( 'month' === scale ? step : 0 ),
+				'day' === scale ? day + step : 1
+			);
+		const periodOf = ( /** @type {Date} */ date ) => ( {
+			scale,
+			year: date.getFullYear(),
+			month: 'year' === scale ? month : date.getMonth(),
+			day: 'day' === scale ? date.getDate() : day,
+		} );
+		const before = by( -1 );
+		const after = by( 1 );
+		// The first day of the period after the one shown, the year after starting on January 1st.
+		const afterStart =
+			'year' === scale ? new Date( year + 1, 0, 1 ) : after;
 
-		$previous.disabled = start <= new Date( firstYear, 0, 1 );
-		$next.disabled = end > today;
+		lead(
+			$previous,
+			before.getFullYear() >= firstYear
+				? calendarUrl( periodOf( before ) )
+				: ''
+		);
+		lead(
+			$next,
+			afterStart <= today ? calendarUrl( periodOf( after ) ) : ''
+		);
 	}
 }
 customElements.define( 'library-calendar', LibraryCalendarElement );

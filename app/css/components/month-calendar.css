@@ -1,7 +1,7 @@
 /**
  * The days of a month, a molecule, the component month-calendar: a .library-day each, in weeks from Monday. `--covers`,
- * larger, each day in the shape of a cover: its number at its corner, and the cover of the book whose reading ended that
- * day, its title in its frame without one, the others counted at the other corner.
+ * larger, each day in the shape of a cover, a link to it: its number at its corner, and the cover of the book whose
+ * reading ended that day, its title in its frame without one, the others counted at the other corner.
  */
 
 @layer app.components {
@@ -32,21 +32,32 @@
 		outline-offset: 1px;
 	}
 
-	/* Its number, a button that chooses it, over its cover, on the background of the page to read as well */
+	/* The whole day, a link to it once gone by, its parts over one another */
+	.library-month-calendar__link {
+		position: absolute;
+		inset: 0;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.library-month-calendar__link:focus-visible {
+		outline: var(--app-focus-outline);
+		outline-offset: calc(-1 * var(--app-focus-outline-offset));
+	}
+
+	/* Its number, over its cover, on the background of the page to read as well */
 	.library-month-calendar__number {
 		position: absolute;
 		inset: 0 auto auto 0;
 		z-index: 1;
 		padding: 0 var(--app-space-xs);
-		border: 0;
 		border-end-end-radius: var(--app-radius-s);
 		background: var(--app-bg);
 		color: var(--app-text-muted);
 		line-height: var(--app-line-height);
-		cursor: pointer;
 	}
 
-	.library-month-calendar__number:hover {
+	.library-month-calendar__link[href]:hover .library-month-calendar__number {
 		color: var(--app-text);
 	}
 
@@ -62,11 +73,9 @@
 		border: 1px solid var(--app-line);
 		border-radius: inherit;
 		background: var(--app-bg);
-		color: inherit;
 		font-family: var(--app-font-ui);
 		font-size: var(--app-text-s);
 		line-height: var(--app-line-height);
-		text-decoration: none;
 		overflow-wrap: anywhere;
 		hyphens: auto;
 	}
@@ -94,11 +103,6 @@
 		overflow: hidden;
 		clip-path: inset(50%);
 		white-space: nowrap;
-	}
-
-	.library-month-calendar__book:focus-visible {
-		outline: var(--app-focus-outline);
-		outline-offset: calc(-1 * var(--app-focus-outline-offset));
 	}
 
 	/* The other books of the day, counted, at the other corner */

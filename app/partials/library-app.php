@@ -76,7 +76,8 @@ $form_filter = array(
 							'views-nav',
 							array(
 								'views'   => $views,
-								'current' => $view,
+								// The calendar, opened from the diary, is part of it.
+								'current' => 'calendar' === $view ? 'diary' : $view,
 								'tabs'    => true,
 							)
 						);
@@ -209,10 +210,14 @@ $form_filter = array(
 				</library-view>
 
 				<library-view name="diary" <?php echo 'diary' === $view ? '' : 'hidden'; ?>>
-					<h2 class="library-title">
-						<?php echo esc_html( $views['diary']['label'] ); ?>
-						<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="diary" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
-					</h2>
+					<?php // Its title, with how many readings, then the link to the calendar of its days at the end of its line. ?>
+					<div class="library-title">
+						<h2 class="library-title__heading">
+							<?php echo esc_html( $views['diary']['label'] ); ?>
+							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" list="diary" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
+						</h2>
+						<a class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" href="<?php echo esc_url( add_query_arg( 'view', 'calendar', $views['books']['url'] ) ); ?>"><?php esc_html_e( 'Calendar', 'library' ); ?></a>
+					</div>
 					<?php if ( $form_choices ) : ?>
 						<div class="app-controls">
 							<library-filters list="diary">
@@ -228,31 +233,54 @@ $form_filter = array(
 							</library-filters>
 						</div>
 					<?php endif; ?>
-					<?php // The days of reading of a year, of one of its months or of one of its days, which the forms chosen filter too. ?>
+					<library-diary>
+						<p class="app-status" data-field="status" hidden></p>
+						<div class="library-sections library-diary__months" data-list="months"></div>
+						<div class="library-list__more" data-part="more"></div>
+					</library-diary>
+				</library-view>
+
+				<?php // The days of reading of a year, of one of its months or of one of its days, which the forms chosen filter too: opened from the diary. ?>
+				<library-view name="calendar" <?php echo 'calendar' === $view ? '' : 'hidden'; ?>>
 					<library-calendar class="library-calendar">
 						<div class="library-calendar__bar">
-							<?php
-							Markup::render_component(
-								'pill-select',
-								array(
-									'id'         => 'library-calendar-scale',
-									'label'      => __( 'Calendar', 'library' ),
-									'options'    => array(
-										'year'  => __( 'Year', 'library' ),
-										'month' => __( 'Month', 'library' ),
-										'day'   => __( 'Day', 'library' ),
-									),
-									'attributes' => array( 'name' => 'scale' ),
-								)
-							);
-							?>
+							<div class="library-pills">
+								<?php
+								Markup::render_component(
+									'pill-select',
+									array(
+										'id'         => 'library-calendar-scale',
+										'label'      => __( 'Calendar', 'library' ),
+										'options'    => array(
+											'year'  => __( 'Year', 'library' ),
+											'month' => __( 'Month', 'library' ),
+											'day'   => __( 'Day', 'library' ),
+										),
+										'attributes' => array( 'name' => 'scale' ),
+									)
+								);
+								?>
+								<?php if ( $form_choices ) : ?>
+									<library-filters list="calendar">
+										<?php
+										Markup::render_component(
+											'filters-sheet',
+											array(
+												'id'      => 'library-calendar-filters-dialog',
+												'filters' => array( 'forms' => $form_filter + array( 'counts' => $form_counts['form_reading_counts'] ) ),
+											)
+										);
+										?>
+									</library-filters>
+								<?php endif; ?>
+							</div>
 							<p class="app-toolbar">
-								<button class="app-control" type="button" data-action="previous" aria-label="<?php esc_attr_e( 'Before', 'library' ); ?>" title="<?php esc_attr_e( 'Before', 'library' ); ?>"><?php Markup::render_icon( 'arrow_back' ); ?></button>
-								<button class="app-control" type="button" data-action="next" aria-label="<?php esc_attr_e( 'After', 'library' ); ?>" title="<?php esc_attr_e( 'After', 'library' ); ?>"><?php Markup::render_icon( 'arrow_forward' ); ?></button>
+								<a class="app-control" data-part="previous" aria-label="<?php esc_attr_e( 'Before', 'library' ); ?>" title="<?php esc_attr_e( 'Before', 'library' ); ?>"><?php Markup::render_icon( 'arrow_back' ); ?></a>
+								<a class="app-control" data-part="next" aria-label="<?php esc_attr_e( 'After', 'library' ); ?>" title="<?php esc_attr_e( 'After', 'library' ); ?>"><?php Markup::render_icon( 'arrow_forward' ); ?></a>
 							</p>
 						</div>
-						<h3 class="library-calendar__period" data-field="period" aria-live="polite"></h3>
-						<dl class="library-fields library-fields--columns">
+						<h2 class="library-calendar__period" data-field="period" tabindex="-1"></h2>
+						<dl class="library-fields library-fields--aside">
 							<?php
 							$calendar_stats = array(
 								'readings' => __( 'Readings', 'library' ),
@@ -272,7 +300,7 @@ $form_filter = array(
 						<ol class="library-calendar__year" data-part="year">
 							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
 								<li>
-									<button class="library-link app-text-s app-font-ui app-uppercase" type="button" data-action="month" value="<?php echo esc_attr( (string) $calendar_month ); ?>"></button>
+									<a class="library-link app-text-s app-font-ui app-uppercase" data-part="month-link" href=""></a>
 									<?php Markup::render_component( 'month-calendar' ); ?>
 								</li>
 							<?php endfor; ?>
@@ -287,11 +315,6 @@ $form_filter = array(
 						</div>
 						<p class="app-status" data-field="status" hidden></p>
 					</library-calendar>
-					<library-diary>
-						<p class="app-status" data-field="status" hidden></p>
-						<div class="library-sections library-diary__months" data-list="months"></div>
-						<div class="library-list__more" data-part="more"></div>
-					</library-diary>
 				</library-view>
 
 				<library-view name="idea" <?php echo 'idea' === $view ? '' : 'hidden'; ?>>

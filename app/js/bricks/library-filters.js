@@ -8,6 +8,7 @@ import { formatOfList } from 'library-app/behaviors';
 const FORM_COUNTS = {
 	search: 'form_book_counts',
 	diary: 'form_reading_counts',
+	calendar: 'form_reading_counts',
 };
 // A search for a series, which the server lists in reading order, as it reads the keyword (Query::parse_keywords()):
 // whatever its case, not excluded, with a name, quoted or not.

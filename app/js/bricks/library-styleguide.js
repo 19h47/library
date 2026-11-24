@@ -340,7 +340,6 @@ class LibraryStyleguideElement extends Brick {
 		const [ $dots, $covers ] = this.querySelectorAll( 'month-calendar' );
 		const book = ( /** @type {Book} */ { title, cover } ) => ( {
 			title,
-			url: '#top',
 			cover: cover ?? null,
 		} );
 
@@ -354,6 +353,7 @@ class LibraryStyleguideElement extends Brick {
 			month: 10,
 			days: levels.map( ( level, day ) => ( {
 				level,
+				url: '#top',
 				books:
 					{
 						3: [ book( BOOKS[ 0 ] ) ],

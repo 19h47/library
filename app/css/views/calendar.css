@@ -1,30 +1,31 @@
 /**
- * The diary: its calendar, a step above its readings, the year or a month of it at a time, then the readings by month.
+ * The calendar, opened from the diary: a year, a month or a day of it at a time, what its days count, and its days.
  */
 
 @layer app.views {
-	/* The calendar, then the readings, a step and a half apart, as sections */
+	/* The calendar, its parts a step apart */
 	.library-calendar {
 		/* Its days, from the lines to the text, darker than the backdrop of the recap, which a veil covers */
 		--library-day-1: var(--app-line);
 		--library-day-2: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi)));
 		--library-day-3: var(--app-text-muted);
 		--library-day-4: var(--app-text);
-		/* What its days count, figures a step larger than the text */
-		--library-fields-value-size: var(--app-text-l);
 
 		display: grid;
 		gap: var(--app-space-m);
-		margin-bottom: var(--app-space-xl);
 	}
 
-	/* Its scale, then Before and After at the end of the line */
+	/* Its scale, then Before and After at the end of the line, out of use where no period comes before or after */
 	.library-calendar__bar {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--app-space-s);
+	}
+
+	.library-calendar__bar a.app-control:not([href]) {
+		opacity: var(--app-control-opacity);
 	}
 
 	.library-calendar__period {

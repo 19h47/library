@@ -1,9 +1,6 @@
 /**
  * A list of fields, a molecule: the name of each, a meta, above its value, or beside it, such as the ISBN and the pages
- * of a book; or side by side, such as the figures of the calendar of the diary.
- *
- * Properties its place sets:
- * - --library-fields-value-size: the size of the text of the values, the one of the text by default.
+ * of a book.
  */
 
 @layer app.components {
@@ -13,7 +10,6 @@
 	}
 
 	.library-fields dd {
-		font-size: var(--library-fields-value-size, inherit);
 		overflow-wrap: anywhere;
 	}
 
@@ -31,22 +27,5 @@
 		grid-column: 1 / -1;
 		grid-template-columns: subgrid;
 		align-items: baseline;
-	}
-
-	/*
-	 * Fields side by side, as many a row as fit, such as figures: the names on a row, their last lines together, the
-	 * values on the next one, whatever lines a name takes; their digits as wide as one another
-	 */
-	.library-fields--columns {
-		grid-template-columns: repeat(auto-fit, minmax(calc(var(--app-u3) * var(--app-phi)), 1fr));
-		gap: var(--app-space-xs) var(--app-space-m);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.library-fields--columns > * {
-		display: grid;
-		grid-row: span 2;
-		grid-template-rows: subgrid;
-		align-items: end;
 	}
 }

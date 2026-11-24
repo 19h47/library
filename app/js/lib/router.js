@@ -15,7 +15,8 @@ import { store } from 'library-app/store';
  *
  * @typedef {Object} Route
  * @property {string} view  Its view, such as "books" or "person".
- * @property {number} id    The ID of the book or the term of its page, or the year of a recap, 0 for none.
+ * @property {number} id    The ID of the book or the term of its page, the year of a recap, or the year, the month or the
+ *                          day of the calendar, 0 for none.
  * @property {string} query The search of the books, empty for another view.
  */
 
@@ -24,6 +25,7 @@ import { store } from 'library-app/store';
 const NAMED_VIEWS = [
 	'books',
 	'diary',
+	'calendar',
 	'idea',
 	'achievements',
 	'to-buy',
@@ -31,8 +33,9 @@ const NAMED_VIEWS = [
 	'api',
 ];
 // The pages of a book, a person, a series or a collection, with its ID in the argument of the same name: ?view=book&book=564;
-// the recap of a year, with its year: ?view=recap&recap=2025.
-const ID_VIEWS = [ 'book', ...PAGE_VIEWS, 'recap' ];
+// the recap of a year, with its year: ?view=recap&recap=2025; the calendar, with its year, its month or its day:
+// ?view=calendar&calendar=202611.
+const ID_VIEWS = [ 'book', ...PAGE_VIEWS, 'recap', 'calendar' ];
 
 const app = new URL( appUrl );
 /**

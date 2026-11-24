@@ -183,20 +183,91 @@ export function recap( year = 0 ) {
 }
 
 /**
- * What the calendar of the diary shows: a year, one of its months, or one of its days.
+ * What the calendar shows: a year, one of its months, or one of its days.
  *
  * @typedef {'year'|'month'|'day'} CalendarScale
  */
 
 /**
- * The calendar of the diary: the days of a year, and how it shows them, the year, its month `month`, from 0, or its day
- * `day` of that month, from 1.
+ * What the calendar shows: its scale, the year, a month or a day, its year, its month, from 0, and its day of the month,
+ * from 1.
  *
- * @typedef {Calendar & Loading & {scale: CalendarScale, month: number, day: number}} DiaryCalendar
+ * @typedef {Object} CalendarPeriod
+ * @property {CalendarScale} scale Its scale.
+ * @property {number}        year  Its year.
+ * @property {number}        month Its month, from 0.
+ * @property {number}        day   Its day of the month, from 1.
  */
 
 /**
- * The calendar of the diary for `year`, empty, showing `scale`, the year, its month `month` or the day `day` of it.
+ * The calendar: the days of a year, how many readings ended in it, and what it shows, the year, its month `month`, from
+ * 0, or its day `day` of that month, from 1.
+ *
+ * @typedef {Calendar & Loading & CalendarPeriod & {total: number}} DiaryCalendar
+ */
+
+/**
+ * What the calendar shows, from the ID of its URL, as calendarId() writes it: a year, 2026, a month, 202611, or a day,
+ * 20261124; the current year for none, or for an ID of no day.
+ *
+ * @param {number} id The ID.
+ * @return {CalendarPeriod} What it shows.
+ */
+export function calendarOf( id ) {
+	const now = new Date();
+	const digits = id.toString();
+	const year = Number( digits.slice( 0, 4 ) );
+	const month = Number( digits.slice( 4, 6 ) || '1' ) - 1;
+	const day = Number( digits.slice( 6, 8 ) || '1' );
+	const date = new Date( year, month, day );
+	const scale = /** @type {CalendarScale|undefined} */ (
+		{ 4: 'year', 6: 'month', 8: 'day' }[ digits.length ]
+	);
+
+	if (
+		! scale ||
+		date.getFullYear() !== year ||
+		date.getMonth() !== month ||
+		date.getDate() !== day
+	) {
+		return {
+			scale: 'year',
+			year: now.getFullYear(),
+			month: now.getMonth(),
+			day: now.getDate(),
+		};
+	}
+
+	return {
+		scale,
+		year,
+		month: 'year' === scale ? now.getMonth() : month,
+		day: 'day' === scale ? day : now.getDate(),
+	};
+}
+
+/**
+ * The ID of the URL of what the calendar shows: its year, 2026, then its month, 202611, then its day, 20261124, as its
+ * scale goes.
+ *
+ * @param {CalendarPeriod} period What it shows.
+ * @return {number} The ID.
+ */
+export function calendarId( { scale, year, month, day } ) {
+	const pad = ( /** @type {number} */ number ) =>
+		number.toString().padStart( 2, '0' );
+
+	return Number(
+		{
+			year: `${ year }`,
+			month: `${ year }${ pad( month + 1 ) }`,
+			day: `${ year }${ pad( month + 1 ) }${ pad( day ) }`,
+		}[ scale ]
+	);
+}
+
+/**
+ * The calendar for `year`, empty, showing `scale`, the year, its month `month` or the day `day` of it.
  *
  * @param {number}        [year]  The year, the current one by default.
  * @param {CalendarScale} [scale] What it shows: the year, one of its months, or one of its days.
@@ -217,6 +288,7 @@ export function calendar(
 		pages: [],
 		ends: {},
 		reads: {},
+		total: 0,
 		scale,
 		month,
 		day,

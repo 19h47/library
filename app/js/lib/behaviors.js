@@ -11,13 +11,15 @@ import { formatBooks, formatReadings } from 'library-app/format';
 import { fillBook, renderBook } from 'library-app/render';
 
 /**
- * What the list `name` counts, as format.js says it: the readings of the diary, the books of the others.
+ * What the list `name` counts, as format.js says it: the readings of the diary and of the calendar, the books of the others.
  *
  * @param {string} name The list, as the store names it, such as search or diary.
  * @return {( count: number ) => string} How it says them.
  */
 export function formatOfList( name ) {
-	return 'diary' === name ? formatReadings : formatBooks;
+	return [ 'diary', 'calendar' ].includes( name )
+		? formatReadings
+		: formatBooks;
 }
 
 /**
