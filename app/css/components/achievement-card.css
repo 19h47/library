@@ -1,22 +1,10 @@
 /**
- * The card of an achievement, an organism, the component achievement-card: its name, then its progress, its bar the room
- * left beside its figures.
+ * The card of an achievement, an organism, the component achievement-card: its name, a long one broken anywhere; close,
+ * its progress-bar.
  */
 
 @layer app.components {
 	.library-achievement-card {
 		overflow-wrap: anywhere;
-	}
-
-	.library-achievement-card__progress {
-		display: flex;
-		align-items: center;
-		gap: var(--app-space-s);
-	}
-
-	.library-achievement-card__progress progress {
-		flex: 1;
-		height: var(--app-u0);
-		accent-color: var(--app-text);
 	}
 }

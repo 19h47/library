@@ -284,6 +284,12 @@ class LibraryStyleguideElement extends Brick {
 				...render()
 			)
 		);
+		// A progress, named by the line above it.
+		const $progressBar = this.querySelector( 'progress-bar' );
+
+		$progressBar.max = 14;
+		$progressBar.value = 9;
+		$progressBar.labelledBy = 'library-styleguide-progress-bar';
 		// The period of a reading, its start and its end.
 		this.querySelector( '[data-sample="reading-period"]' ).querySelector(
 			'reading-period'

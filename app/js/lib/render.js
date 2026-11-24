@@ -507,30 +507,18 @@ export function renderAchievementPill( achievement ) {
 export function renderCloseAchievement( achievement, id ) {
 	const $item = clone( 'library-achievement-card-close' );
 	const $name = $item.querySelector( '[data-field="name"]' );
-	const $progress = $item.querySelector( 'progress' );
+	const $progress = $item.querySelector( 'progress-bar' );
 	const hasSubject = '' !== achievement.subject;
-	const done = formatNumber( achievement.done );
-	const total = formatNumber( achievement.total );
 
 	fill( $item, {
 		name: hasSubject ? achievement.subject : achievement.title,
 		meta: join( [ hasSubject && achievement.title, achievement.detail ] ),
-		count: `${ done } / ${ total }`,
 	} );
 	$name.id = id;
 	linkAchievement( $name, achievement );
 	$progress.max = achievement.total;
 	$progress.value = achievement.done;
-	$progress.setAttribute( 'aria-labelledby', $name.id );
-	$progress.setAttribute(
-		'aria-valuetext',
-		sprintf(
-			/* translators: 1: number done, 2: total, e.g. "13 of 14". */
-			__( '%1$s of %2$s', 'library' ),
-			done,
-			total
-		)
-	);
+	$progress.labelledBy = $name.id;
 
 	return $item;
 }

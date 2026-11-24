@@ -13,6 +13,7 @@ import type { InputGroupsElement } from '../app/js/components/input-groups.js';
 import type { InputsListElement } from '../app/js/components/inputs-list.js';
 import type { OfflineStatusElement } from '../app/js/components/offline-status.js';
 import type { PartialDateElement } from '../app/js/components/partial-date.js';
+import type { ProgressBarElement } from '../app/js/components/progress-bar.js';
 import type { ReadingPeriodElement } from '../app/js/components/reading-period.js';
 import type { ReadingRowElement } from '../app/js/components/reading-row.js';
 import type { SearchFormElement } from '../app/js/components/search-form.js';
@@ -29,6 +30,7 @@ declare global {
 		'inputs-list': InputsListElement;
 		'offline-status': OfflineStatusElement;
 		'partial-date': PartialDateElement;
+		'progress-bar': ProgressBarElement;
 		'reading-period': ReadingPeriodElement;
 		'reading-row': ReadingRowElement;
 		'search-form': SearchFormElement;

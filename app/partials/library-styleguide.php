@@ -322,6 +322,16 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>progress-bar</code></h4>
+					<p>How far a thing is, such as an achievement close to be earned: its bar, the room left, then its count, which the bar reads in words; its place sets its <code>value</code>, its <code>max</code> and <code>labelledBy</code>, what names it</p>
+				</figcaption>
+				<div class="library-styleguide__frame" data-sample="progress-bar">
+					<p id="library-styleguide-progress-bar">Read the books of a series</p>
+					<?php Markup::render_component( 'progress-bar' ); ?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>covers-toggle</code></h4>
 					<p>The Covers <code>pill-checkbox</code> at the end of a title, which shows the lists of books as a grid of their covers, or as cards; the brick <code>library-covers-toggle</code> around it in the app ties it to the store</p>
 				</figcaption>
