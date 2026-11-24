@@ -453,16 +453,18 @@ phone light | Styles of text > figcaption:0>p:1>code:2 | #e00eee4ef4
 phone light | Styles of text > figcaption:0>p:1>code:3 | #e00eee4ef4
 phone light | Styles of text > figcaption:0>p:1>code:4 | #e00eee4ef4
 phone light | Styles of text > figcaption:0>p:1>code:5 | #e00eee4ef4
+phone light | Styles of text > figcaption:0>p:1>code:6 | #e00eee4ef4
 phone light | Styles of text > div:1 | #7665ec1129
 phone light | Styles of text > div:1>p:0 | #7a5b8be307
 phone light | Styles of text > div:1>p:1 | #1783060db9
 phone light | Styles of text > div:1>p:2 | #844f13fefb
 phone light | Styles of text > div:1>p:3 | #92bd6266d2
-phone light | Styles of text > div:1>p:4 | #ad87b4ec58
-phone light | Styles of text > div:1>div:5 | #d4fbba5493
-phone light | Styles of text > div:1>div:5>p:0 | #7a5b8be307
-phone light | Styles of text > div:1>div:5>p:1 | #7a5b8be307
-phone light | Styles of text > div:1>div:5>p:1>em:0 | #6fe76e2496
+phone light | Styles of text > div:1>p:4 | #7a5b8be307
+phone light | Styles of text > div:1>p:5 | #ad87b4ec58
+phone light | Styles of text > div:1>div:6 | #d4fbba5493
+phone light | Styles of text > div:1>div:6>p:0 | #7a5b8be307
+phone light | Styles of text > div:1>div:6>p:1 | #7a5b8be307
+phone light | Styles of text > div:1>div:6>p:1>em:0 | #6fe76e2496
 phone light | Icons >  | #21099a2d4f
 phone light | Icons > figcaption:0 | #3b31681e54
 phone light | Icons > figcaption:0>h4:0 | #ee4e620dd5
@@ -3044,16 +3046,18 @@ phone dark | Styles of text > figcaption:0>p:1>code:2 | #da82be0cbf
 phone dark | Styles of text > figcaption:0>p:1>code:3 | #da82be0cbf
 phone dark | Styles of text > figcaption:0>p:1>code:4 | #da82be0cbf
 phone dark | Styles of text > figcaption:0>p:1>code:5 | #da82be0cbf
+phone dark | Styles of text > figcaption:0>p:1>code:6 | #da82be0cbf
 phone dark | Styles of text > div:1 | #cd09adf1d8
 phone dark | Styles of text > div:1>p:0 | #9270eec119
 phone dark | Styles of text > div:1>p:1 | #7b4651a05f
 phone dark | Styles of text > div:1>p:2 | #2c8008860e
 phone dark | Styles of text > div:1>p:3 | #85d1ea2f15
-phone dark | Styles of text > div:1>p:4 | #b6bb6439d2
-phone dark | Styles of text > div:1>div:5 | #fc4a2a016d
-phone dark | Styles of text > div:1>div:5>p:0 | #9270eec119
-phone dark | Styles of text > div:1>div:5>p:1 | #9270eec119
-phone dark | Styles of text > div:1>div:5>p:1>em:0 | #46925c465d
+phone dark | Styles of text > div:1>p:4 | #9270eec119
+phone dark | Styles of text > div:1>p:5 | #b6bb6439d2
+phone dark | Styles of text > div:1>div:6 | #fc4a2a016d
+phone dark | Styles of text > div:1>div:6>p:0 | #9270eec119
+phone dark | Styles of text > div:1>div:6>p:1 | #9270eec119
+phone dark | Styles of text > div:1>div:6>p:1>em:0 | #46925c465d
 phone dark | Icons >  | #2d88a2661e
 phone dark | Icons > figcaption:0 | #7a7a09ffad
 phone dark | Icons > figcaption:0>h4:0 | #39ad583df4
@@ -5635,16 +5639,18 @@ wide light | Styles of text > figcaption:0>p:1>code:2 | #e00eee4ef4
 wide light | Styles of text > figcaption:0>p:1>code:3 | #e00eee4ef4
 wide light | Styles of text > figcaption:0>p:1>code:4 | #e00eee4ef4
 wide light | Styles of text > figcaption:0>p:1>code:5 | #e00eee4ef4
+wide light | Styles of text > figcaption:0>p:1>code:6 | #e00eee4ef4
 wide light | Styles of text > div:1 | #7665ec1129
 wide light | Styles of text > div:1>p:0 | #7a5b8be307
 wide light | Styles of text > div:1>p:1 | #1783060db9
 wide light | Styles of text > div:1>p:2 | #844f13fefb
 wide light | Styles of text > div:1>p:3 | #92bd6266d2
-wide light | Styles of text > div:1>p:4 | #ad87b4ec58
-wide light | Styles of text > div:1>div:5 | #d4fbba5493
-wide light | Styles of text > div:1>div:5>p:0 | #7a5b8be307
-wide light | Styles of text > div:1>div:5>p:1 | #7a5b8be307
-wide light | Styles of text > div:1>div:5>p:1>em:0 | #6fe76e2496
+wide light | Styles of text > div:1>p:4 | #7a5b8be307
+wide light | Styles of text > div:1>p:5 | #ad87b4ec58
+wide light | Styles of text > div:1>div:6 | #d4fbba5493
+wide light | Styles of text > div:1>div:6>p:0 | #7a5b8be307
+wide light | Styles of text > div:1>div:6>p:1 | #7a5b8be307
+wide light | Styles of text > div:1>div:6>p:1>em:0 | #6fe76e2496
 wide light | Icons >  | #21099a2d4f
 wide light | Icons > figcaption:0 | #3b31681e54
 wide light | Icons > figcaption:0>h4:0 | #ee4e620dd5

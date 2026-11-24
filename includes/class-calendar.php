@@ -142,7 +142,7 @@ class Calendar {
 	 * The calendar of the diary for `$year`, of the books of `$form_ids`, of every form when none: the years with a
 	 * reading, the level of each day gone by and the pages read on it, the books whose reading ended on each day, and the
 	 * books read on each day, by the day from 0 for January 1st. A reading in progress, which counts for no level until it
-	 * ends, is read on each day from its start, or today alone when its start is unknown, up to today. The readings of
+	 * ends and may have been left long ago, is read today alone: the day of today lists what is being read. The readings of
 	 * each form ended on each day, of every form, by the day, then by term ID: its filter counts them for the year, the
 	 * month or the day shown.
 	 *
@@ -156,23 +156,12 @@ class Calendar {
 		$reads = $days['reads'];
 		$today = current_datetime()->format( 'Y-m-d' );
 
-		foreach ( $books as $book ) {
-			$reading = Readings::get_in_progress( $book->readings );
-
-			if ( null === $reading ) {
-				continue;
-			}
-
-			$start = substr( $reading->start, 0, 10 );
-			$from  = max( '' !== $start ? $start : $today, "$year-01-01" );
-			$to    = min( $today, "$year-12-31" );
-
-			if ( $from > $to ) {
-				continue;
-			}
-
-			foreach ( range( self::get_day( $from ), self::get_day( $to ) ) as $day ) {
-				$reads[ $day ][] = $book->id;
+		// The books being read, today alone: a reading in progress may have been left long ago.
+		if ( str_starts_with( $today, "$year-" ) ) {
+			foreach ( $books as $book ) {
+				if ( null !== Readings::get_in_progress( $book->readings ) ) {
+					$reads[ self::get_day( $today ) ][] = $book->id;
+				}
 			}
 		}
 
