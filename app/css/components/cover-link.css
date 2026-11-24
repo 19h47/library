@@ -1,0 +1,46 @@
+/**
+ * A cover that opens its book, a molecule: alone in a row of covers, or, current, a book being read with its title and
+ * its status under it.
+ */
+
+@layer app.components {
+	/*
+	 * The link a cover is, alone in a row of covers or with its title and its status under it, a small gap apart, as a
+	 * book being read: it holds its reading state, out of sight, which stays in the row, which scrolls, rather than
+	 * widening the page
+	 */
+	.library-cover-link {
+		position: relative;
+		display: grid;
+		justify-items: start;
+		gap: var(--app-space-xs);
+		text-align: start;
+		text-decoration: none;
+	}
+
+	/* The book open among the covers of its series: its line as firm as the text */
+	.library-cover-link[aria-current="page"] :is(.library-book-cover__image, .library-book-cover__frame) {
+		border-color: var(--app-text);
+	}
+
+	/*
+	 * A book being read, as the home shows it: its cover a step larger than the ones of the latest readings, its title and
+	 * status under it, as wide as the cover; the book open, its reading is read, rated and dated.
+	 */
+	.library-cover-link--current {
+		--library-cover-block-size: calc(var(--library-cover-height) * var(--app-phi));
+
+		width: min-content;
+	}
+
+	/* Two lines of the title, small: a longer one ends in an ellipsis. Unprefixed line-clamp is in no stable browser yet: the prefixed one needs its box. */
+	.library-cover-link__title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+		font-size: var(--app-text-s);
+		overflow-wrap: anywhere;
+		hyphens: auto;
+	}
+}

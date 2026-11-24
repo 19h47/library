@@ -1,0 +1,32 @@
+/**
+ * The search of a list, a molecule, its custom element its root: its field and its button on one line, then its keywords
+ * a gap under them, a strip.
+ */
+
+@layer app.components {
+	search-form {
+		display: block;
+	}
+
+	/* The field of the search, then its keywords a gap under it: the room of their focus, out of their row, comes off it */
+	.library-search {
+		display: grid;
+		gap: var(--app-space-s);
+	}
+
+	/* The field, then its button, on one line: the field takes the room left */
+	.library-search__row {
+		display: flex;
+		gap: var(--app-space-s);
+	}
+
+	.library-search__row > input {
+		flex: 1;
+		min-width: 0;
+	}
+
+	/* Its button, a control as those of the toolbar */
+	.library-search__row > button {
+		flex: none;
+	}
+}

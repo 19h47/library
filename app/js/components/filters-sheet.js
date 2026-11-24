@@ -189,6 +189,8 @@ export class FiltersSheetElement extends Component {
 		/** @type {HTMLButtonElement} */
 		const $open = this.querySelector( '[data-part="open"]' );
 
+		// The button that closes the dialog says what the list finds, that it loads until its place says it.
+		this.found = this.#found;
 		this.addEventListener( 'change', () => this.#show(), { signal } );
 		// A pill removes its filter, its field sending the events of a change; it leaves, the focus goes to the button of
 		// the filters.

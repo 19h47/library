@@ -71,6 +71,19 @@ export function toDays( { start, end, rating } ) {
 }
 
 /**
+ * A reading as a row of the reading form takes it: an interval of days and its rating after a hash,
+ * 2025-03-10/2025-03-21#8, a side empty when unknown, no rating without one.
+ *
+ * @param {EndedReading} reading The reading.
+ * @return {string} Its interval and its rating.
+ */
+export function toInterval( reading ) {
+	const { start, end, rating } = toDays( reading );
+
+	return `${ start }/${ end }${ null !== rating ? `#${ rating }` : '' }`;
+}
+
+/**
  * The readings of `book` by their days, as the form gives them, as the API takes them: the ones ended, each with its
  * rating, then the one in progress.
  *

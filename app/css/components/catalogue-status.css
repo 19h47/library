@@ -1,16 +1,26 @@
 /**
- * What the catalogue tells of a book to add: the book that has its ISBN or its title already, or the search of the
- * catalogue of the BnF.
+ * What the catalogue tells of a book to add, a molecule, its custom element its root: the book that has its ISBN or its
+ * title already, or the search of the catalogue of the BnF.
  */
 
 @layer app.components {
+	catalogue-status {
+		display: block;
+	}
+
 	/* Its messages stay in the page, to be read once one shows, out of the flow while none does */
-	.library-catalogue-status:not(:has(> :not([hidden]))) {
+	catalogue-status:not(:has(> :not([hidden]))) {
 		position: absolute;
 	}
 
-	/* The button that buys the book to buy, or puts the book of the catalogue in the library, after its title */
-	.library-catalogue-status__duplicate > .app-pill {
-		margin-inline-start: var(--app-space-s);
+	/*
+	 * The book of the catalogue: what it is, its title, then the button that buys the book to buy, or puts the book of the
+	 * catalogue in the library, on as many lines as they need, a gap apart, on the line of their text
+	 */
+	.library-catalogue-status__duplicate {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--app-space-xs) var(--app-space-s);
 	}
 }

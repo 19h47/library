@@ -252,12 +252,12 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>search</code></h4>
-					<p>The field of a search, as high as a control</p>
+					<h4 class="library-styleguide__name"><code>search-form</code></h4>
+					<p>The field of a search, as high as a control, and its button; its keywords show under it while it is used. Its root is its custom element, <code>search-form</code>, its <code>value</code> the query and its <code>open</code> its keywords shown, which sends the input of its field, a keyword taken too, and the submit of its form</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-search">
-						<?php Markup::render_component( 'search', array( 'id' => 'library-styleguide-search' ) ); ?>
+						<?php Markup::render_component( 'search-form', array( 'id' => 'library-styleguide-search' ) ); ?>
 					</div>
 				</div>
 			</figure>
@@ -320,6 +320,15 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>covers-toggle</code></h4>
+					<p>The Covers <code>pill-checkbox</code> at the end of a title, which shows the lists of books as a grid of their covers, or as cards; the brick <code>library-covers-toggle</code> around it in the app ties it to the store</p>
+				</figcaption>
+				<div class="library-styleguide__frame library-styleguide__row">
+					<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-styleguide-covers-toggle' ) ); ?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>back</code></h4>
 					<p>A pill with its arrow, above the page of a book, of a person, of a series or of a collection, and the recap</p>
 				</figcaption>
@@ -359,8 +368,8 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-cover-link</code></h4>
-					<p>A cover that opens its book, its state for assistive technologies only: read, being read, to read, and the book open, <code>[aria-current="page"]</code>, its line as firm as the text</p>
+					<h4 class="library-styleguide__name"><code>cover-link</code></h4>
+					<p>A cover that opens its book, the component <code>cover-link</code>, its state for assistive technologies only: read, being read, to read, and the book open, <code>[aria-current="page"]</code>, its line as firm as the text</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="volumes"></ul>
@@ -486,6 +495,23 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>meta-field</code></h4>
+					<p>A <code>field</code> of a book meta in the form of a book, its label, its input and its description as the meta is registered, named as the REST API names it: here the ISBN</p>
+				</figcaption>
+				<div class="library-styleguide__frame">
+					<?php
+					Markup::render_component(
+						'meta-field',
+						array(
+							'key' => 'library_isbn',
+							'id'  => 'library-styleguide-meta-field',
+						)
+					);
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>image-field</code></h4>
 					<p>A <code>book-cover</code> and the pills that pick it and remove it, Remove shown while it shows an image; its root is its custom element, <code>image-field</code>, which shows the photo picked at once and, removed, checks its checkbox, <code>&lt;name&gt;_removed</code>, which the reset of the form unchecks</p>
 				</figcaption>
@@ -592,8 +618,8 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-current</code></h4>
-					<p>A book being read, as the home shows it: a <code>.library-cover-link</code> a step higher, its title and its status under it; with a cover, not kept without, with a long title</p>
+					<h4 class="library-styleguide__name"><code>cover-link</code>, current</h4>
+					<p>A book being read, as the home shows it, the component <code>cover-link</code>, its <code>current</code>: its cover a step higher, its title and its status under it; with a cover, not kept without, with a long title</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<ul class="library-styleguide__row" data-sample="current"></ul>
@@ -708,7 +734,7 @@ $sizes = array(
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
 						<div class="app-search" data-sample="keywords">
-							<?php Markup::render_component( 'search', array( 'id' => 'library-styleguide-search-keywords' ) ); ?>
+							<?php Markup::render_component( 'search-form', array( 'id' => 'library-styleguide-search-keywords' ) ); ?>
 						</div>
 					</div>
 					<h4 class="library-title library-books__title">
@@ -861,13 +887,12 @@ $sizes = array(
 							'id'          => 'library-styleguide-readings',
 							'label'       => 'Readings',
 							'description' => 'From its start to its end, each one left empty when it is unknown.',
-							'template'    => 'library-reading-ended',
+							'template'    => 'library-reading-row',
 							'add'         => 'Add a reading',
 							'variants'    => array(
 								array(
-									'label'    => 'Add a reading with an unknown date',
-									'template' => 'library-reading-unknown',
-									'value'    => '/',
+									'label' => 'Add a reading with an unknown date',
+									'value' => '/',
 								),
 							),
 							'attributes'  => array( 'data-sample' => 'readings' ),
@@ -991,22 +1016,39 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-edit__details</code></h4>
-					<p>The fields few books have, in the form of a book, folded</p>
+					<h4 class="library-styleguide__name"><code>fields-disclosure</code></h4>
+					<p>Fields folded under a summary, such as the ones few books have in the form of a book: its summary says its label and how many of its fields are filled in, here one of two; its root is its custom element, <code>fields-disclosure</code>, which counts them as they change, its <code>open</code> and its <code>recount()</code> for its place</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<details class="library-disclosure library-edit__details">
-						<summary class="app-text-s app-text-muted app-font-ui app-uppercase">More details</summary>
-						<?php
-						Markup::render_component(
-							'field',
-							array(
-								'id'    => 'library-styleguide-detail',
-								'label' => 'A field',
-							)
-						);
-						?>
-					</details>
+					<?php
+					Markup::render_component(
+						'fields-disclosure',
+						array(
+							'label'  => 'More details',
+							'fields' => function (): void {
+								Markup::render_component(
+									'field',
+									array(
+										'id'         => 'library-styleguide-detail',
+										'label'      => 'A field',
+										'attributes' => array(
+											'name'  => 'detail',
+											'value' => 'Filled in',
+										),
+									)
+								);
+								Markup::render_component(
+									'field',
+									array(
+										'id'         => 'library-styleguide-detail-empty',
+										'label'      => 'Another field',
+										'attributes' => array( 'name' => 'other_detail' ),
+									)
+								);
+							},
+						)
+					);
+					?>
 				</div>
 			</figure>
 			<figure>

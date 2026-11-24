@@ -1,10 +1,9 @@
-import { __, editUrl, inLibrary, toBuy } from 'library-app/app';
+import { editUrl, inLibrary, toBuy } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
 import { showErrors, showSaving } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
-import { join } from 'library-app/format';
 
 /**
  * @import { Field } from 'library-app/behaviors'
@@ -118,19 +117,14 @@ class LibraryEditElement extends Brick {
 		// The names, each in the group of its role.
 		const $people = this.querySelector( 'input-groups' );
 		const $coverField = this.querySelector( 'image-field' );
-		/** @type {HTMLDetailsElement} */
-		const $details = this.querySelector( '[data-part="details"]' );
-		const $summary = $details.querySelector( 'summary' );
-		/** @type {HTMLAnchorElement} */
-		const $admin = this.querySelector( '[data-link="admin"]' );
+		const $details = this.querySelector( 'fields-disclosure' );
+		/** @type {HTMLElement} */
+		const $admin = this.querySelector( '[data-part="admin"]' );
+		/** @type {HTMLElement} */
+		const $statusField = this.querySelector( '[data-part="status"]' );
 		/** @type {HTMLButtonElement} */
 		const $submit = $form.querySelector( '[type="submit"]' );
-		/** @type {HTMLElement} */
-		const $found = this.querySelector( '[data-field="found"]' );
-		/** @type {HTMLAnchorElement} */
-		const $duplicate = this.querySelector( '[data-field="duplicate"]' );
-		/** @type {HTMLButtonElement} */
-		const $keep = this.querySelector( '[data-action="keep"]' );
+		const $catalogueStatus = this.querySelector( 'catalogue-status' );
 		const $suggestions = {
 			people: this.querySelector( '#library-edit-people' ),
 			publishers: this.querySelector( '#library-edit-publishers' ),
@@ -139,27 +133,6 @@ class LibraryEditElement extends Brick {
 		};
 
 		const clearErrors = showErrors( $form, signal );
-
-		// The summary of the details counts the fields filled in, as the button of the filters does: the checkboxes of a field
-		// once, a date once, its parts sending nothing.
-		const countDetails = () => {
-			const filled = new Set(
-				/** @type {Array<Field|PartialDateElement>} */ ( [
-					...$details.querySelectorAll(
-						'input, select, textarea, partial-date'
-					),
-				] )
-					.filter( ( $field ) => $field.name && getValue( $field ) )
-					.map( ( $field ) => $field.name )
-			).size;
-
-			$summary.textContent = join( [
-				$summary.dataset.label,
-				filled && filled.toString(),
-			] );
-		};
-
-		$details.addEventListener( 'input', countDetails, { signal } );
 
 		// The collections of the publisher typed, at any depth, when the library has it; a collection needs a publisher.
 		// Its name is compared case and accents aside, as the server finds a term by its name.
@@ -264,7 +237,7 @@ class LibraryEditElement extends Brick {
 				$collection.value = book.collection;
 			}
 
-			countDetails();
+			$details.recount();
 		};
 
 		$dialog.addEventListener( 'close', () => store.closeEdit(), {
@@ -294,8 +267,8 @@ class LibraryEditElement extends Brick {
 
 		// The link to the book opens it under the form, then closes the form over it, as openBook() does: closed at the
 		// click, the form would forget the book, and the link with it, before the browser follows it.
-		$duplicate.addEventListener(
-			'click',
+		$catalogueStatus.addEventListener(
+			'open',
 			() =>
 				navigation.addEventListener(
 					'navigatesuccess',
@@ -304,8 +277,8 @@ class LibraryEditElement extends Brick {
 				),
 			{ signal }
 		);
-		$keep.addEventListener(
-			'click',
+		$catalogueStatus.addEventListener(
+			'keep',
 			async () =>
 				openBook(
 					await store.keepBook( store.get().editing.duplicate )
@@ -398,10 +371,10 @@ class LibraryEditElement extends Brick {
 					$heading.textContent = id
 						? $heading.dataset.edit
 						: $heading.dataset.add;
-					$admin.href = editUrl + id;
-					$admin.parentElement.hidden = ! id;
+					$admin.querySelector( 'a' ).href = editUrl + id;
+					$admin.hidden = ! id;
 					$status.disabled = Boolean( id );
-					$status.parentElement.hidden = Boolean( id );
+					$statusField.hidden = Boolean( id );
 					$status.value = listed || inLibrary;
 					$bookForm.value = 'books' === view ? form : '';
 					showPeople( book?.people ?? [] );
@@ -430,7 +403,7 @@ class LibraryEditElement extends Brick {
 					}
 
 					$details.open = false;
-					countDetails();
+					$details.recount();
 					// The cover of its edition, whatever the photo of the copy of the reader; the field shows a photo picked itself.
 					$coverField.cover =
 						store.get().books[ id ]?.edition_cover ?? null;
@@ -454,27 +427,7 @@ class LibraryEditElement extends Brick {
 				( state ) => state.editing.catalog,
 				/** @param {Catalog} catalog The search of the ISBN typed in the catalogue. */
 				( catalog ) => {
-					const messages = {
-						'': '',
-						searching: __(
-							'Searching the catalogue of the BnF…',
-							'library'
-						),
-						found: __(
-							'Filled in from the catalogue of the BnF: check what it gives.',
-							'library'
-						),
-						unknown: __(
-							'The catalogue of the BnF has no book of this ISBN.',
-							'library'
-						),
-						unreachable: __(
-							'The catalogue of the BnF does not answer: try again later.',
-							'library'
-						),
-					};
-
-					fill( this, { catalog: messages[ catalog.status ] } );
+					$catalogueStatus.catalog = catalog.status;
 
 					if ( catalog.book ) {
 						fillEmpty( catalog.book );
@@ -486,20 +439,16 @@ class LibraryEditElement extends Brick {
 				( id ) => {
 					const book = store.get().books[ id ];
 					// A book on none of the shelves of the reader is one of the catalogue, to put in their library.
-					const isInCatalogue = '' === book?.status;
+					/** @type {Object<string, 'catalogue'|'to-buy'>} */
+					const kinds = { '': 'catalogue', [ toBuy ]: 'to-buy' };
 
-					fill( this, {
-						found: isInCatalogue
-							? $found.dataset.catalogue
-							: $found.dataset.added,
-						duplicate: book?.title ?? '',
-					} );
-					$duplicate.href = urlOf( { view: 'book', id } );
-					// A book to buy is bought, one on none of the shelves of the reader put in their library; the others are theirs.
-					$keep.hidden = toBuy !== book?.status && ! isInCatalogue;
-					$keep.textContent = isInCatalogue
-						? $keep.dataset.catalogue
-						: $keep.dataset.toBuy;
+					$catalogueStatus.duplicate = book
+						? {
+								title: book.title,
+								url: urlOf( { view: 'book', id } ),
+								kind: kinds[ book.status ] ?? 'added',
+						  }
+						: null;
 				}
 			),
 			store.select(

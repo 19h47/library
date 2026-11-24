@@ -1,6 +1,6 @@
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { toDays } from 'library-app/readings';
+import { toDays, toInterval } from 'library-app/readings';
 import { fill } from 'library-app/dom';
 import { showBusy, showErrors } from 'library-app/behaviors';
 import { today } from 'library-app/format';
@@ -50,10 +50,6 @@ const sortedOf = ( /** @type {EndedReading[]} */ readings ) =>
 			.sort()
 	);
 
-// The period of a reading, by its days, as its row takes it: 2026-10-20/2026-11-02, a side empty when unknown.
-const periodOf = ( /** @type {EndedReading} */ { start, end } ) =>
-	`${ start.slice( 0, 10 ) }/${ end.slice( 0, 10 ) }`;
-
 /**
  * The reading of the book open, as a form: whether it is read, whether it is being read and since when, its readings ended,
  * from their starts to their ends, each with the rating it ended with, folded under the line that sums them up, and
@@ -84,7 +80,7 @@ class LibraryReadingElement extends Brick {
 		const $startedField = this.querySelector( '[data-part="started"]' );
 		/** @type {HTMLDetailsElement} */
 		const $details = this.querySelector( '[data-part="readings"]' );
-		// The readings ended, a row each, of a reading-period, or of a reading whose dates are unknown.
+		// The readings ended, a row each, a reading-row, its dates known or not.
 		const $readings = this.querySelector( 'inputs-list' );
 		// Whether a change waits for the saving of the one before.
 		let isPending = false;
@@ -134,12 +130,12 @@ class LibraryReadingElement extends Brick {
 		$readings.addEventListener(
 			'rowadd',
 			( event ) => {
-				const $period = /** @type {Element} */ (
+				const $reading = /** @type {Element} */ (
 					event.target
-				).querySelector( 'reading-period' );
+				).querySelector( 'reading-row' );
 
-				if ( $period ) {
-					$period.value = newReading();
+				if ( ! $reading.unknown ) {
+					$reading.value = newReading();
 				}
 
 				$inProgress.checked = false;
@@ -150,21 +146,7 @@ class LibraryReadingElement extends Brick {
 		);
 
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
-		// The photo of their copy removed goes at once: its field checks its checkbox, which changes nothing the form hears.
-		$form.addEventListener(
-			'click',
-			( event ) => {
-				if (
-					/** @type {Element} */ ( event.target ).closest(
-						'image-field [data-action="remove"]'
-					)
-				) {
-					save();
-				}
-			},
-			{ signal }
-		);
-		// A field changed, or the list of readings, one removed.
+		// A field changed, the list of readings, one removed, or the photo of their copy, removed.
 		$form.addEventListener(
 			'change',
 			( event ) => {
@@ -284,16 +266,8 @@ class LibraryReadingElement extends Brick {
 					// By its day, as a date field takes it: a reading started today keeps its time once saved.
 					$started.value = book.started.slice( 0, 10 );
 					showStarted();
-					$readings.value = book.readings.map( periodOf );
-					// Each row with the rating its reading ended with, in their order.
-					$readings
-						.querySelectorAll( '[name="reading_rating"]' )
-						.forEach( ( $rating, index ) => {
-							/** @type {HTMLSelectElement} */ ( $rating ).value =
-								(
-									book.readings[ index ].rating ?? ''
-								).toString();
-						} );
+					// Each row with its dates and the rating its reading ended with.
+					$readings.value = book.readings.map( toInterval );
 					showReadings();
 					$status.value = book.status;
 					$printedDate.value = book.printed_date;

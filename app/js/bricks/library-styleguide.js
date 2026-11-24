@@ -7,6 +7,8 @@ import {
 	renderAchievement,
 	renderAuthor,
 	renderBook,
+	renderDiaryRecap,
+	renderMonth,
 	renderCloseAchievement,
 	renderCover,
 	renderCurrent,
@@ -16,7 +18,7 @@ import {
 	renderShares,
 	renderTile,
 } from 'library-app/render';
-import { clone, fill, fillHtml } from 'library-app/dom';
+import { fill, fillHtml } from 'library-app/dom';
 import { showError } from 'library-app/behaviors';
 import {
 	formatBooks,
@@ -224,7 +226,22 @@ class LibraryStyleguideElement extends Brick {
 			current: () =>
 				[ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
 			rows: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderRow ),
-			month: () => [ this.#renderDiaryRecap(), this.#renderMonth() ],
+			month: () => [
+				renderDiaryRecap( 2025 ),
+				renderMonth(
+					'2026-10',
+					2,
+					[ BOOKS[ 0 ], BOOKS[ 1 ] ].map( ( book ) =>
+						renderBook(
+							book,
+							join( [
+								formatDate( '2026-10-28', 'day' ),
+								formatRating( book.rating ),
+							] )
+						)
+					)
+				),
+			],
 			volumes: () => this.#renderVolumes(),
 			terms: () => [
 				...AUTHORS.map( ( author ) =>
@@ -282,18 +299,12 @@ class LibraryStyleguideElement extends Brick {
 		fill( $scan, {
 			message: 'No barcode found in the photo: take it again, closer.',
 		} );
-		// The readings of a book, in the list of their field.
+		// The readings of a book, in the list of their field: of unknown dates, rated, then in error.
 		this.querySelector( 'inputs-list' ).value = [
 			'/',
-			'2026-10-20/2026-10-28',
+			'2026-10-20/2026-10-28#8',
 			'/2126-10-28',
 		];
-		// The reading of known dates rated.
-		/** @type {HTMLSelectElement} */ (
-			this.querySelector( 'inputs-list' ).querySelectorAll(
-				'[name="reading_rating"]'
-			)[ 1 ]
-		).value = '8';
 
 		// The book open, the link to the recap, what the catalogue tells of a book to add and the keywords of a search, filled
 		// as their bricks fill them: a book of the catalogue on none of the shelves of the reader.
@@ -301,33 +312,21 @@ class LibraryStyleguideElement extends Brick {
 		fill( this.querySelector( '[data-sample="recap-link"]' ), {
 			year: '2025',
 		} );
-		/** @type {HTMLElement} */
-		const $found = this.querySelector(
+		this.querySelector(
 			'[data-sample="catalogue-status-duplicate"]'
-		);
-		/** @type {HTMLElement} */
-		const $keep = $found.querySelector( '[data-action="keep"]' );
-
-		fill( $found, {
-			found: /** @type {HTMLElement} */ (
-				$found.querySelector( '[data-field="found"]' )
-			).dataset.catalogue,
-			duplicate: 'A title',
-		} );
-		$keep.textContent = $keep.dataset.catalogue;
-		$keep.hidden = false;
-		fill(
-			this.querySelector( '[data-sample="catalogue-status-catalog"]' ),
-			{
-				catalog:
-					'Filled in from the catalogue of the BnF: check what it gives.',
-			}
-		);
-		/** @type {HTMLElement} */ (
-			this.querySelector(
-				'[data-sample="keywords"] [data-list="keywords"]'
-			)
-		).hidden = false;
+		).querySelector( 'catalogue-status' ).duplicate = {
+			title: 'A title',
+			url: '#top',
+			kind: 'catalogue',
+		};
+		this.querySelector(
+			'[data-sample="catalogue-status-catalog"]'
+		).querySelector( 'catalogue-status' ).catalog = 'found';
+		this.querySelector( '[data-sample="keywords"]' ).querySelector(
+			'search-form'
+		).open = true;
+		// What the list of the filters finds, as the brick around them in the app says it.
+		this.querySelector( 'filters-sheet' ).found = '15 books';
 
 		// Six authors, the ones past the first folded, as the page of a series folds them.
 		fillCardsGroup(
@@ -425,48 +424,6 @@ class LibraryStyleguideElement extends Brick {
 			.setAttribute( 'aria-current', 'page' );
 
 		return $covers;
-	}
-
-	/**
-	 * The link of the diary to the recap of a year gone by, from its template.
-	 *
-	 * @return {HTMLElement} The link, in its paragraph.
-	 */
-	#renderDiaryRecap() {
-		const $recap = clone( 'library-diary-recap' );
-
-		fill( $recap, { recap: 'Recap of 2025' } );
-
-		return $recap;
-	}
-
-	/**
-	 * A month of the diary, with two readings.
-	 *
-	 * @return {HTMLElement} The month.
-	 */
-	#renderMonth() {
-		const $month = clone( 'library-month' );
-
-		fill( $month, {
-			month: formatDate( '2026-10' ),
-			count: formatBooks( 2 ),
-		} );
-		$month
-			.querySelector( 'ul' )
-			.append(
-				...[ BOOKS[ 0 ], BOOKS[ 1 ] ].map( ( book ) =>
-					renderBook(
-						book,
-						join( [
-							formatDate( '2026-10-28', 'day' ),
-							formatRating( book.rating ),
-						] )
-					)
-				)
-			);
-
-		return $month;
 	}
 }
 customElements.define( 'library-styleguide', LibraryStyleguideElement );

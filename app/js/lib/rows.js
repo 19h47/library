@@ -37,7 +37,7 @@ export function addRow( $list, template, value = '' ) {
 
 /**
  * Lets the buttons of `$element` add and remove its rows. A button that adds one, `data-action="add"`, gives the row
- * `add()` makes the focus, its first field, or its button that removes it without one, and the row tells it with a
+ * `add()` makes the focus, its first field enabled and shown, or its button that removes it without one, and the row tells it with a
  * rowadd event, which bubbles. A button that removes one removes its row, gives the focus to the first button that adds
  * one, and `$element` tells it with a change, as a field changed does: the values of the form changed.
  *
@@ -59,7 +59,7 @@ export function listenRows( $element, add, signal ) {
 
 				/** @type {HTMLElement} */ (
 					$row.querySelector(
-						'input:not([type="hidden"]), select, textarea, [data-action="remove"]'
+						':is(input:not([type="hidden"]), select, textarea):enabled:not([hidden] *), [data-action="remove"]'
 					)
 				).focus();
 				$row.dispatchEvent( new Event( 'rowadd', { bubbles: true } ) );

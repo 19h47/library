@@ -11,7 +11,7 @@ import { formatState } from 'library-app/book-lines';
  */
 class LibraryIdeaElement extends Brick {
 	connect( signal ) {
-		const $book = this.querySelector( '[data-field="book"]' );
+		const $book = this.querySelector( '[data-list="book"]' );
 		/** @type {HTMLButtonElement} */
 		const $next = this.querySelector( '[data-action="next-idea"]' );
 		/** @type {HTMLElement} */

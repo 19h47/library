@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.6.0
+Stable tag: 10.6.1
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,10 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.6.1 =
+* Code only: the components of the reading app are told through their API alone, values, properties and events, rather than reached into: the search, what the catalogue tells of a book to add, the fields few books have and how many are filled in, a reading on its row, a cover that opens its book and the control that removes a row are components of their own; the photo of a copy removed sends a change.
+* Code only: the rows of the lists of inputs share their classes, each list its own; the pages of a series and of a collection share their authors and their links; the months of the diary render in one place, for the diary and the styleguide, which shows the Covers toggle and a field of a book meta too.
 
 = 10.6.0 =
 * Reading app: the diary has its title, with how many readings the forms chosen leave, as the books view counts its books.

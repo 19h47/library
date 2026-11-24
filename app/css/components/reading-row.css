@@ -1,0 +1,22 @@
+/**
+ * A reading of a book on its row, a molecule, its custom element its root: its period, or that its dates are unknown,
+ * then its rating under it, closer to it than to the rows around, the button that removes the row beside them.
+ */
+
+@layer app.components {
+	reading-row {
+		display: grid;
+		gap: var(--app-space-xs);
+	}
+
+	/* A reading whose dates are unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
+	.library-reading-row__unknown {
+		display: flex;
+		align-items: center;
+		min-block-size: var(--app-control-size);
+		padding-inline: 1em;
+		border: 1px solid var(--app-line-soft);
+		border-radius: var(--app-radius-m);
+		color: var(--app-text-muted);
+	}
+}

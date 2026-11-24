@@ -191,4 +191,28 @@ test.describe( 'Covers', () => {
 		await expect( removed ).not.toBeChecked();
 		await expect( remove ).toBeHidden();
 	} );
+
+	test( 'the photo of a copy removed is saved at once, from the reading form', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		const media = await requestUtils.uploadMedia( PHOTO );
+		const copied = await addBook( requestUtils, {
+			title: 'The Copy Photo Test',
+			shelf: { readings: [ '/2024-03-14' ], cover: media.id },
+		} );
+		const shelfOf = async () =>
+			( await getBook( requestUtils, copied.id ) ).shelf.cover;
+
+		expect( await shelfOf() ).not.toBeNull();
+
+		await openApp( page, `&view=book&book=${ copied.id }` );
+		await waitForIdle( page );
+		await page
+			.locator( 'library-reading' )
+			.getByRole( 'button', { name: 'Remove the photo of my copy' } )
+			.click();
+
+		await expect.poll( shelfOf ).toBeNull();
+	} );
 } );
