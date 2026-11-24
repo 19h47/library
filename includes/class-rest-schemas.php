@@ -551,7 +551,6 @@ class Rest_Schemas {
 				'records'                => self::property( 'object', __( 'IDs of the longest, the shortest and the oldest books read, 0 for none.', 'library' ) ),
 				'achievements'           => self::property( 'array', __( 'Achievements earned in the year.', 'library' ), array( 'items' => self::achievement( __( 'An achievement earned.', 'library' ) ) ) ),
 				'added_count'            => self::property( 'integer', __( 'Books added in the year, but those to buy.', 'library' ) ),
-				'calendar'               => self::property( 'object', __( 'Days of reading: the level of each day, the memorable ones, the days read, the longest streak, the best day and the readings dated.', 'library' ) ),
 			)
 		);
 	}

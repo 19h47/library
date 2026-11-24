@@ -14,8 +14,8 @@ namespace Library;
 use DateTimeImmutable;
 
 /**
- * The days of a year gone by, from January 1st, and the reading of each, as the recap of a year and the calendar of the
- * diary show them: a day is read while a reading ended was open, from its start to its end, or on its end alone when its
+ * The days of a year gone by, from January 1st, and the reading of each, as the calendar shows them, and the recap of a
+ * year from it: a day is read while a reading ended was open, from its start to its end, or on its end alone when its
  * start is unknown; a reading in progress, which may have been left for years, reads none until it ends. The pages of a
  * book read from a known start to its end spread over its days, as many each.
  *
@@ -24,7 +24,7 @@ use DateTimeImmutable;
  * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
- * @phpstan-type Calendar_Days array{read:list<bool>,pages:list<float>,ends:array<int,list<int>>,reads:array<int,list<int>>,dated:int}
+ * @phpstan-type Calendar_Days array{read:list<bool>,pages:list<float>,ends:array<int,list<int>>,reads:array<int,list<int>>}
  * @phpstan-type Diary_Calendar array{year:int,years:list<int>,levels:list<int>,pages:list<int>,ends:object,reads:object,form_ends:object}
  */
 class Calendar {
@@ -39,7 +39,7 @@ class Calendar {
 
 	/**
 	 * The days of `$year` gone by, from January 1st: whether each was read, the pages read on each, the books whose reading
-	 * ended on each and the books read on each, by their IDs, and the readings ended in the year with their start known.
+	 * ended on each and the books read on each, by their IDs.
 	 *
 	 * @param Book[] $books Books.
 	 * @param int    $year  Year.
@@ -53,7 +53,6 @@ class Calendar {
 		$read  = array_fill( 0, $count, false );
 		$ends  = array();
 		$reads = array();
-		$dated = 0;
 
 		foreach ( $books as $book ) {
 			foreach ( Readings::get_ended( $book->readings ) as $reading ) {
@@ -63,10 +62,6 @@ class Calendar {
 
 				if ( '' === $end ) {
 					continue;
-				}
-
-				if ( $is_dated && str_starts_with( $end, "$year-" ) ) {
-					++$dated;
 				}
 
 				if ( $count && str_starts_with( $end, "$year-" ) && $end <= $last ) {
@@ -100,7 +95,6 @@ class Calendar {
 			'pages' => array_values( $pages ),
 			'ends'  => $ends,
 			'reads' => $reads,
-			'dated' => $dated,
 		);
 	}
 
@@ -132,26 +126,6 @@ class Calendar {
 			$read,
 			$pages
 		);
-	}
-
-	/**
-	 * The most days read in a row.
-	 *
-	 * @param bool[] $read Whether each day was read, in order.
-	 * @return int
-	 *
-	 * @phpstan-param list<bool> $read
-	 */
-	public static function get_streak( array $read ): int {
-		$streak  = 0;
-		$current = 0;
-
-		foreach ( $read as $is_read ) {
-			$current = $is_read ? $current + 1 : 0;
-			$streak  = max( $streak, $current );
-		}
-
-		return $streak;
 	}
 
 	/**

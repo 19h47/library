@@ -50,7 +50,7 @@ import {
  * @import { Achievements, Book, BookValues, EndedReading, Idea, Month, PageView, Recap, ShelfValues, Stats } from 'library-app/api'
  * @import { Route } from 'library-app/router'
  * @import { BookReading } from 'library-app/readings'
- * @import { Catalog, DiaryCalendar, Editing, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
+ * @import { Catalog, DiaryCalendar, Editing, RecapPage, Loading, Pages, PersonPage, PublisherPage, Reference, Saving, SeriesPage, Terms, Volumes } from 'library-app/parts'
  */
 
 /**
@@ -112,7 +112,7 @@ import {
  * @property {PersonPage}             person       The person open.
  * @property {SeriesPage}             series       The series open.
  * @property {PublisherPage}          publisher    The collection open.
- * @property {Recap & Loading}        recap        The recap of the year open.
+ * @property {RecapPage}              recap        The recap of the year open, with the days of its calendar.
  * @property {Reference & Loading}    reference    The reference of the API.
  */
 
@@ -1623,7 +1623,7 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The recap of the year open, with its books. Another year cancels the one loading.
+	 * The recap of the year open, with its books and the days of its calendar. Another year cancels the one loading.
 	 *
 	 * @return {Promise<boolean>} Whether it loaded.
 	 */
@@ -1632,11 +1632,15 @@ class LibraryStore extends Store {
 		const { year } = this.get().recap;
 
 		return this.#request( 'recap', async () => {
-			const loaded = await api.getRecap( year, { signal } );
+			// Its days, of every form, are the ones of its calendar.
+			const [ loaded, days ] = await Promise.all( [
+				api.getRecap( year, { signal } ),
+				api.getCalendar( year, [], { signal } ),
+			] );
 
 			await this.#fetchBooks( loaded.books, { signal } );
 
-			return () => loaded;
+			return () => ( { ...loaded, calendar: days } );
 		} );
 	}
 

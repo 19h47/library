@@ -142,10 +142,16 @@ export function reference() {
 }
 
 /**
+ * The recap of a year, with the days of its calendar, of every form.
+ *
+ * @typedef {Recap & {calendar: Calendar} & Loading} RecapPage
+ */
+
+/**
  * The recap of `year`, none loaded.
  *
  * @param {number} [year] The year.
- * @return {Recap & Loading} The recap.
+ * @return {RecapPage} The recap.
  */
 export function recap( year = 0 ) {
 	return {
@@ -169,12 +175,13 @@ export function recap( year = 0 ) {
 		achievements: [],
 		added_count: 0,
 		calendar: {
+			year,
+			years: [],
 			levels: [],
-			memorable: [],
-			read_day_count: 0,
-			streak: 0,
-			best: null,
-			dated_reading_count: 0,
+			pages: [],
+			ends: {},
+			reads: {},
+			form_ends: {},
 		},
 		loading: false,
 		loaded: false,
@@ -244,6 +251,24 @@ export function calendarOf( id ) {
 		month: 'year' === scale ? now.getMonth() : month,
 		day: 'day' === scale ? day : now.getDate(),
 	};
+}
+
+/**
+ * The most days read in a row among `levels`.
+ *
+ * @param {number[]} levels The level of each day, in order.
+ * @return {number} The most days read in a row.
+ */
+export function streakOf( levels ) {
+	let streak = 0;
+	let current = 0;
+
+	levels.forEach( ( level ) => {
+		current = level ? current + 1 : 0;
+		streak = Math.max( streak, current );
+	} );
+
+	return streak;
 }
 
 /**

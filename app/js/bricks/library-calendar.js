@@ -9,7 +9,7 @@ import {
 	showBusy,
 } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
-import { calendarId } from 'library-app/parts';
+import { calendarId, streakOf } from 'library-app/parts';
 import { formatDate, formatMonthName, formatNumber } from 'library-app/format';
 
 /**
@@ -56,24 +56,6 @@ function isoDate( year, month, day ) {
  */
 function calendarUrl( period ) {
 	return urlOf( { view: 'calendar', id: calendarId( period ) } );
-}
-
-/**
- * The most days read in a row among `levels`.
- *
- * @param {number[]} levels The level of each day, in order.
- * @return {number} The most days read in a row.
- */
-function streakOf( levels ) {
-	let streak = 0;
-	let current = 0;
-
-	levels.forEach( ( level ) => {
-		current = level ? current + 1 : 0;
-		streak = Math.max( streak, current );
-	} );
-
-	return streak;
 }
 
 /**

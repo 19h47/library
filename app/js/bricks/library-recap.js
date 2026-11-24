@@ -10,6 +10,7 @@ import {
 	renderTile,
 } from 'library-app/render';
 import { clone, fill } from 'library-app/dom';
+import { streakOf } from 'library-app/parts';
 import { urlOf } from 'library-app/router';
 import {
 	formatBooks,
@@ -22,10 +23,22 @@ import {
 } from 'library-app/format';
 
 /**
- * @import { Book, Recap } from 'library-app/api'
+ * @import { Book } from 'library-app/api'
  * @import { CountUpElement } from '../components/count-up.js'
  * @import { Share, SharesChartElement } from '../components/shares-chart.js'
- * @import { Loading } from 'library-app/parts'
+ * @import { RecapPage } from 'library-app/parts'
+ */
+
+/**
+ * What the days of a year count, from its calendar: the days read, the most in a row, the day the most pages were read,
+ * by its index, with its pages, the memorable days, and the readings ended in the year with their start known.
+ *
+ * @typedef {Object} RecapDays
+ * @property {number}                            read      The days read.
+ * @property {number}                            streak    The most days read in a row.
+ * @property {{day: number, pages: number}|null} best      The day the most pages were read, none without pages.
+ * @property {number[]}                          memorable The memorable days, by their index, in order.
+ * @property {number}                            dated     The readings ended in the year with their start known.
  */
 
 // The columns of covers going by behind the last screen, more than the widest frame holds, one in the middle, and the
@@ -53,11 +66,12 @@ class LibraryRecapElement extends Brick {
 	/**
 	 * Draws the recap.
 	 *
-	 * @param {Recap & Loading} recap The recap.
+	 * @param {RecapPage} recap The recap.
 	 */
 	#render( recap ) {
 		const { books } = store.get();
 		const read = recap.books.map( ( id ) => books[ id ] ).filter( Boolean );
+		const days = this.#daysOf( recap, read, books );
 		const isShown =
 			recap.loaded && ! recap.error && recap.reading_count > 0;
 		const started = recap.series.filter( ( series ) => series.started );
@@ -81,7 +95,7 @@ class LibraryRecapElement extends Brick {
 				: '',
 			...this.#pages( recap ),
 			bestMonth: this.#bestMonth( recap ),
-			...this.#days( recap ),
+			...this.#days( recap, days ),
 			discovered: _n(
 				'person read for the first time',
 				'people read for the first time',
@@ -145,7 +159,7 @@ class LibraryRecapElement extends Brick {
 		this.querySelector( 'days-calendar' ).value = {
 			year: recap.year,
 			levels: recap.calendar.levels,
-			memorable: recap.calendar.memorable,
+			memorable: days.memorable,
 		};
 		this.#fillShares(
 			'forms',
@@ -198,7 +212,7 @@ class LibraryRecapElement extends Brick {
 		this.#count( {
 			readings: recap.reading_count,
 			pages: recap.pages.total,
-			daysRead: recap.calendar.read_day_count,
+			daysRead: days.read,
 			discoveries: recap.discoveries.length,
 			languages: recap.languages.length,
 			series: recap.series.length,
@@ -239,7 +253,7 @@ class LibraryRecapElement extends Brick {
 	/**
 	 * What the recap says while it loads, could not, or finds no reading in its year.
 	 *
-	 * @param {Recap & Loading} recap The recap.
+	 * @param {RecapPage} recap The recap.
 	 * @return {string} What it says, or empty.
 	 */
 	#status( recap ) {
@@ -259,7 +273,7 @@ class LibraryRecapElement extends Brick {
 	/**
 	 * The books read against the year before: how many more or fewer.
 	 *
-	 * @param {Recap} recap The recap.
+	 * @param {RecapPage} recap The recap.
 	 * @return {string} The comparison, or empty without a reading the year before.
 	 */
 	#previous( {
@@ -309,7 +323,7 @@ class LibraryRecapElement extends Brick {
 	 * The pages read: in all, a day of the year gone by, a book on average, and the books they count, while some have
 	 * no number of pages.
 	 *
-	 * @param {Recap} recap The recap.
+	 * @param {RecapPage} recap The recap.
 	 * @return {{perDay: string, perBook: string, counted: string}} The fields.
 	 */
 	#pages( { pages, day_count: days, reading_count: readings } ) {
@@ -398,7 +412,7 @@ class LibraryRecapElement extends Brick {
 	/**
 	 * The month read the most, the first one of them.
 	 *
-	 * @param {Recap} recap The recap.
+	 * @param {RecapPage} recap The recap.
 	 * @return {string} The month and its readings, or empty.
 	 */
 	#bestMonth( { year, months } ) {
@@ -417,20 +431,53 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
+	 * What the days of the year count, from its calendar: the days read, the most in a row, the day the most pages were
+	 * read, the memorable days, that one and the days a favourite of the year, of its best rating, was finished, and the
+	 * readings ended in the year with their start known.
+	 *
+	 * @param {RecapPage}            recap The recap.
+	 * @param {Book[]}               read  The books read in the year.
+	 * @param {Object<number, Book>} books The books, by their IDs.
+	 * @return {RecapDays} What they count.
+	 */
+	#daysOf( { year, calendar }, read, books ) {
+		const { levels, pages, ends } = calendar;
+		const most = Math.max( 0, ...pages );
+		const rating = Math.max( 0, ...read.map( ( book ) => book.rating ) );
+		const favourites = Object.entries( ends )
+			.filter(
+				( [ , ids ] ) =>
+					rating &&
+					ids.some( ( id ) => books[ id ]?.rating === rating )
+			)
+			.map( ( [ day ] ) => Number( day ) );
+		const best = most ? pages.indexOf( most ) : -1;
+
+		return {
+			read: levels.filter( Boolean ).length,
+			streak: streakOf( levels ),
+			best: most ? { day: best, pages: most } : null,
+			memorable: [
+				...new Set( [ ...( most ? [ best ] : [] ), ...favourites ] ),
+			].sort( ( a, b ) => a - b ),
+			dated: read
+				.flatMap( ( book ) => book.readings )
+				.filter(
+					( { start, end } ) =>
+						start && end.startsWith( `${ year }-` )
+				).length,
+		};
+	}
+
+	/**
 	 * The days of reading: how many, the most in a row, the day the most pages were read, and the readings they go by,
 	 * while some have no start.
 	 *
-	 * @param {Recap} recap The recap.
+	 * @param {RecapPage} recap The recap.
+	 * @param {RecapDays} days  What its days count.
 	 * @return {{daysReadLabel: string, streak: string, bestDay: string, dated: string}} The fields.
 	 */
-	#days( { year, reading_count: readings, calendar } ) {
-		const {
-			read_day_count: read,
-			streak,
-			best,
-			dated_reading_count: dated,
-		} = calendar;
-
+	#days( { year, reading_count: readings }, { read, streak, best, dated } ) {
 		return {
 			daysReadLabel: _n(
 				'day of reading',
@@ -513,7 +560,7 @@ class LibraryRecapElement extends Brick {
 	/**
 	 * The links to the recaps of the year with a reading before, and after, as long as it is gone by.
 	 *
-	 * @param {Recap} recap The recap.
+	 * @param {RecapPage} recap The recap.
 	 * @return {{previousYear: string, nextYear: string}} Their text, empty for none.
 	 */
 	#years( { year, years } ) {
@@ -551,7 +598,7 @@ class LibraryRecapElement extends Brick {
 	 * counts, then which record it is and the book, which it opens; the longest and the shortest by their pages, which
 	 * count up as the others, the oldest by the year it first came out.
 	 *
-	 * @param {Recap}                recap The recap.
+	 * @param {RecapPage}            recap The recap.
 	 * @param {Object<number, Book>} books The books, by their IDs.
 	 */
 	#fillRecords( { records }, books ) {

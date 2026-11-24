@@ -12,7 +12,7 @@ use WP_REST_Response;
 
 /**
  * The route of the readings by month, `library/v1/readings`: of every form, or of the forms asked for, with how many
- * readings in all; and the one of the calendar of a year, `library/v1/calendars/<year>`.
+ * readings in all; and the forms of the calendar of a year, `library/v1/calendars/<year>`, as the diary opens it.
  */
 class Test_Diary extends TestCase {
 

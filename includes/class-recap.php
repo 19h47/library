@@ -11,13 +11,12 @@
 
 namespace Library;
 
-use DateTimeImmutable;
-
 /**
  * The recap of a year, from Books::get_shelved(): its readings, those of the year before, its pages, its months, its forms,
  * the people read the most and those read for the first time, its original languages, its series, its ratings, its
- * records, its achievements, the books added and its days of reading. A reading is a read date of the year: a book read
- * again counts once per reading, as on the home; what counts books, the ratings and the records, takes each book once.
+ * records, its achievements and the books added; its days of reading are the ones of its calendar, Calendar. A reading
+ * is a read date of the year: a book read again counts once per reading, as on the home; what counts books, the ratings
+ * and the records, takes each book once.
  *
  * @since      9.27.0
  * @package    Library
@@ -27,8 +26,7 @@ use DateTimeImmutable;
  * @phpstan-import-type Achievement from Achievements
  * @phpstan-type Named array{id:int,name:string,reading_count:int}
  * @phpstan-type Recap_Series array{id:int,name:string,reading_count:int,started:bool,finished:bool}
- * @phpstan-type Recap_Calendar array{levels:list<int>,memorable:list<int>,read_day_count:int,streak:int,best:array{day:int,pages:int}|null,dated_reading_count:int}
- * @phpstan-type Recap_Data array{year:int,years:list<int>,day_count:int,reading_count:int,previous_reading_count:int,reread_count:int,books:list<int>,pages:array{total:int,counted:int},months:list<int>,forms:list<Named>,people:list<Named>,discoveries:list<array{id:int,name:string}>,languages:list<array{code:string,reading_count:int}>,series:list<Recap_Series>,rating:float|null,best:list<int>,records:array{longest:int,shortest:int,oldest:int},achievements:list<Achievement>,added_count:int,calendar:Recap_Calendar}
+ * @phpstan-type Recap_Data array{year:int,years:list<int>,day_count:int,reading_count:int,previous_reading_count:int,reread_count:int,books:list<int>,pages:array{total:int,counted:int},months:list<int>,forms:list<Named>,people:list<Named>,discoveries:list<array{id:int,name:string}>,languages:list<array{code:string,reading_count:int}>,series:list<Recap_Series>,rating:float|null,best:list<int>,records:array{longest:int,shortest:int,oldest:int},achievements:list<Achievement>,added_count:int}
  */
 class Recap {
 
@@ -78,49 +76,6 @@ class Recap {
 			'records'                => self::get_records( $read ),
 			'achievements'           => array_values( array_filter( new Achievements()->get_achievements()['earned'], fn( array $achievement ) => str_starts_with( $achievement['date'], "$year-" ) ) ),
 			'added_count'            => count( array_filter( $books, fn( Book $book ) => $book->is_at_hand() && str_starts_with( $book->added, "$year-" ) ) ),
-			'calendar'               => self::get_calendar( $books, $read, $year ),
-		);
-	}
-
-	/**
-	 * The days of reading of `$year`, as Calendar counts them: the level of each day gone by, the memorable days, the day
-	 * the most pages were read and the days a favourite of the year, of its best rating, was finished, the days read, the
-	 * most in a row, the best day, and the readings dated, those ended in the year with their start known.
-	 *
-	 * @param array<int,Book> $books Books.
-	 * @param Book[]          $read  Books read in the year.
-	 * @param int             $year  Year.
-	 * @return Recap_Calendar
-	 */
-	private static function get_calendar( array $books, array $read, int $year ): array {
-		$days   = Calendar::get_days( $books, $year );
-		$pages  = $days['pages'];
-		$paged  = array_filter( $pages );
-		$best   = $paged ? (int) array_search( max( $paged ), $pages, true ) : null;
-		$last   = new DateTimeImmutable( "$year-01-01", wp_timezone() )->modify( '+' . max( 0, count( $pages ) - 1 ) . ' days' )->format( 'Y-m-d' );
-		$rating = max( array( 0.0, ...array_map( fn( Book $book ) => (float) $book->rating, $read ) ) );
-		$ends   = array();
-
-		foreach ( $rating ? array_filter( $read, fn( Book $book ) => $rating === $book->rating ) : array() as $book ) {
-			foreach ( array_filter( $book->read_dates, fn( string $date ) => str_starts_with( $date, "$year-" ) && substr( $date, 0, 10 ) <= $last ) as $date ) {
-				$ends[] = Calendar::get_day( substr( $date, 0, 10 ) );
-			}
-		}
-
-		$memorable = array_values( array_unique( null !== $best ? array( $best, ...$ends ) : $ends ) );
-
-		sort( $memorable );
-
-		return array(
-			'levels'              => Calendar::get_levels( $days['read'], $pages ),
-			'memorable'           => $memorable,
-			'read_day_count'      => count( array_filter( $days['read'] ) ),
-			'streak'              => Calendar::get_streak( $days['read'] ),
-			'best'                => null !== $best ? array(
-				'day'   => $best,
-				'pages' => (int) round( $pages[ $best ] ),
-			) : null,
-			'dated_reading_count' => $days['dated'],
 		);
 	}
 

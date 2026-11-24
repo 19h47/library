@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-24T15:34:37+00:00\n"
+"POT-Creation-Date: 2026-11-24T15:50:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -810,7 +810,7 @@ msgstr ""
 #: app/partials/library-app.php:217
 #: app/js/bricks/library-api.js:273
 #: app/js/bricks/library-book.js:40
-#: app/js/bricks/library-recap.js:251
+#: app/js/bricks/library-recap.js:265
 #: app/js/components/filters-sheet.js:82
 #: app/js/lib/behaviors.js:33
 msgid "Loading…"
@@ -2128,7 +2128,7 @@ msgstr ""
 #: includes/class-rest-schemas.php:158
 #: includes/class-rest-schemas.php:175
 #: includes/class-rest-schemas.php:524
-#: includes/class-rest-schemas.php:576
+#: includes/class-rest-schemas.php:575
 msgid "Term ID."
 msgstr ""
 
@@ -2193,7 +2193,7 @@ msgstr ""
 
 #: includes/class-rest-schemas.php:160
 #: includes/class-rest-schemas.php:177
-#: includes/class-rest-schemas.php:578
+#: includes/class-rest-schemas.php:577
 msgid "Description, HTML."
 msgstr ""
 
@@ -2483,67 +2483,63 @@ msgstr ""
 msgid "Books added in the year, but those to buy."
 msgstr ""
 
-#: includes/class-rest-schemas.php:554
-msgid "Days of reading: the level of each day, the memorable ones, the days read, the longest streak, the best day and the readings dated."
-msgstr ""
-
-#: includes/class-rest-schemas.php:568
+#: includes/class-rest-schemas.php:567
 msgid "Other names, such as a pseudonym or their birth name."
 msgstr ""
 
-#: includes/class-rest-schemas.php:571
+#: includes/class-rest-schemas.php:570
 msgid "Series of their books, those with the most first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:577
+#: includes/class-rest-schemas.php:576
 msgid "Name, after its cycles."
 msgstr ""
 
-#: includes/class-rest-schemas.php:579
+#: includes/class-rest-schemas.php:578
 msgid "How many of their books it holds."
 msgstr ""
 
-#: includes/class-rest-schemas.php:580
+#: includes/class-rest-schemas.php:579
 msgid "How many of these are read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:585
+#: includes/class-rest-schemas.php:584
 msgid "Average rating of their books, none without one."
 msgstr ""
 
-#: includes/class-rest-schemas.php:586
+#: includes/class-rest-schemas.php:585
 msgid "Pages of their books, those with a number of pages."
 msgstr ""
 
-#: includes/class-rest-schemas.php:600
+#: includes/class-rest-schemas.php:599
 msgid "Cycle of the series, if any."
 msgstr ""
 
-#: includes/class-rest-schemas.php:601
+#: includes/class-rest-schemas.php:600
 msgid "ISSN of the magazine, or empty."
 msgstr ""
 
-#: includes/class-rest-schemas.php:602
+#: includes/class-rest-schemas.php:601
 msgid "Series of a cycle."
 msgstr ""
 
-#: includes/class-rest-schemas.php:602
+#: includes/class-rest-schemas.php:601
 msgid "A series."
 msgstr ""
 
-#: includes/class-rest-schemas.php:617
+#: includes/class-rest-schemas.php:616
 msgid "Publisher of a collection."
 msgstr ""
 
-#: includes/class-rest-schemas.php:618
+#: includes/class-rest-schemas.php:617
 msgid "Collection a sub-collection is part of."
 msgstr ""
 
-#: includes/class-rest-schemas.php:619
+#: includes/class-rest-schemas.php:618
 msgid "Its collections."
 msgstr ""
 
-#: includes/class-rest-schemas.php:619
+#: includes/class-rest-schemas.php:618
 msgid "A collection."
 msgstr ""
 
@@ -2570,7 +2566,7 @@ msgid "From its start to its end, each one left empty when it is unknown, and th
 msgstr ""
 
 #: includes/class-shelf.php:106
-#: app/js/bricks/library-calendar.js:135
+#: app/js/bricks/library-calendar.js:117
 #: app/js/bricks/library-volumes.js:104
 #: app/js/lib/book-lines.js:140
 msgid "In progress"
@@ -3023,7 +3019,7 @@ msgstr ""
 msgid "%s items"
 msgstr ""
 
-#: app/js/bricks/library-calendar.js:134
+#: app/js/bricks/library-calendar.js:116
 msgid "Finished that day"
 msgstr ""
 
@@ -3064,21 +3060,21 @@ msgid "First published in %s"
 msgstr ""
 
 #. translators: %s: number of readings of a book read again in the year.
-#: app/js/bricks/library-recap.js:73
+#: app/js/bricks/library-recap.js:87
 #, js-format
 msgid "Including %s read again"
 msgid_plural "Including %s read again"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:85
+#: app/js/bricks/library-recap.js:99
 msgid "person read for the first time"
 msgid_plural "people read for the first time"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of series first read in the year.
-#: app/js/bricks/library-recap.js:95
+#: app/js/bricks/library-recap.js:109
 #, js-format
 msgid "%s started"
 msgid_plural "%s started"
@@ -3086,37 +3082,37 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of series read in full, the last book in the year.
-#: app/js/bricks/library-recap.js:106
+#: app/js/bricks/library-recap.js:120
 #, js-format
 msgid "%s finished"
 msgid_plural "%s finished"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:116
+#: app/js/bricks/library-recap.js:130
 msgid "book added"
 msgid_plural "books added"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: year of the recap.
-#: app/js/bricks/library-recap.js:126
+#: app/js/bricks/library-recap.js:140
 #, js-format
 msgid "That was %s"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:256
+#: app/js/bricks/library-recap.js:270
 msgid "No readings that year."
 msgstr ""
 
 #. translators: %d: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:278
+#: app/js/bricks/library-recap.js:292
 #, js-format
 msgid "As many as in %d"
 msgstr ""
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:284
+#: app/js/bricks/library-recap.js:298
 #, js-format
 msgid "%1$s more than in %2$d"
 msgid_plural "%1$s more than in %2$d"
@@ -3124,7 +3120,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:297
+#: app/js/bricks/library-recap.js:311
 #, js-format
 msgid "%1$s fewer than in %2$d"
 msgid_plural "%1$s fewer than in %2$d"
@@ -3132,19 +3128,19 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of pages read a day, on average.
-#: app/js/bricks/library-recap.js:325
+#: app/js/bricks/library-recap.js:339
 #, js-format
 msgid "About %s a day"
 msgstr ""
 
 #. translators: %s: number of pages of a book read, on average.
-#: app/js/bricks/library-recap.js:332
+#: app/js/bricks/library-recap.js:346
 #, js-format
 msgid "%s a book on average"
 msgstr ""
 
 #. translators: 1: number of books read with their number of pages, 2: number of books read.
-#: app/js/bricks/library-recap.js:340
+#: app/js/bricks/library-recap.js:354
 #, js-format
 msgid "Pages filled in for %1$s book out of %2$s."
 msgid_plural "Pages filled in for %1$s books out of %2$s."
@@ -3152,19 +3148,19 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: name of a month, 2: number of books read in it.
-#: app/js/bricks/library-recap.js:413
+#: app/js/bricks/library-recap.js:427
 #, js-format
 msgid "The month read the most: %1$s, %2$s"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:435
+#: app/js/bricks/library-recap.js:482
 msgid "day of reading"
 msgid_plural "days of reading"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of days read in a row, the most of the year.
-#: app/js/bricks/library-recap.js:445
+#: app/js/bricks/library-recap.js:492
 #, js-format
 msgid "Up to %s day in a row"
 msgid_plural "Up to %s days in a row"
@@ -3172,7 +3168,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of pages read in a day, the most of the year, 2: the day, such as 12 March.
-#: app/js/bricks/library-recap.js:457
+#: app/js/bricks/library-recap.js:504
 #, js-format
 msgid "The biggest day: %1$s page, on %2$s"
 msgid_plural "The biggest day: %1$s pages, on %2$s"
@@ -3180,45 +3176,45 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of readings of the year with their start date, 2: number of readings of the year.
-#: app/js/bricks/library-recap.js:471
+#: app/js/bricks/library-recap.js:518
 #, js-format
 msgid "Start date known for %1$s reading out of %2$s."
 msgid_plural "Start date known for %1$s readings out of %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:493
+#: app/js/bricks/library-recap.js:540
 msgid "The pile held steady."
 msgstr ""
 
 #. translators: %s: number of books, those added beyond those read.
-#: app/js/bricks/library-recap.js:501
+#: app/js/bricks/library-recap.js:548
 #, js-format
 msgid "The pile grew by %s."
 msgstr ""
 
 #. translators: %s: number of books, those read beyond those added.
-#: app/js/bricks/library-recap.js:508
+#: app/js/bricks/library-recap.js:555
 #, js-format
 msgid "The pile went down by %s."
 msgstr ""
 
 #. translators: what the figure of a record counts, after it: 1 947 pages.
-#: app/js/bricks/library-recap.js:568
+#: app/js/bricks/library-recap.js:615
 msgid "page"
 msgid_plural "pages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/bricks/library-recap.js:573
+#: app/js/bricks/library-recap.js:620
 msgid "The longest"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:580
+#: app/js/bricks/library-recap.js:627
 msgid "The shortest"
 msgstr ""
 
-#: app/js/bricks/library-recap.js:587
+#: app/js/bricks/library-recap.js:634
 msgid "The oldest"
 msgstr ""
 
@@ -3266,7 +3262,7 @@ msgstr ""
 msgid "All but %s"
 msgstr ""
 
-#: app/js/lib/api.js:514
+#: app/js/lib/api.js:500
 msgid "The books could not be loaded."
 msgstr ""
 
