@@ -1084,12 +1084,12 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>.library-recap__screen</code></h4>
-					<p>A screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, its lines</p>
+					<p>A screen of the recap of a year, as high as the screen in the app: its <code>__title</code>, its <code>__figure</code>, a <code>count-up</code> that counts up to its value as it comes on the screen, its lines</p>
 				</figcaption>
-				<div class="library-styleguide__frame">
+				<div class="library-styleguide__frame" data-sample="count-up">
 					<section class="library-recap__screen">
 						<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal">Books read</h3>
-						<p class="library-recap__figure">82</p>
+						<p class="library-recap__figure"><?php Markup::render_component( 'count-up' ); ?></p>
 						<p>19 more than in 2024</p>
 						<p class="app-text-s app-text-muted app-font-ui app-uppercase">Including 2 read again</p>
 					</section>
@@ -1106,20 +1106,34 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-recap__months</code></h4>
-					<p>The readings of each month, which assistive technologies read as the name of the month and its books</p>
+					<h4 class="library-styleguide__name"><code>months-chart</code></h4>
+					<p>The readings of each month of a year, a <code>.library-bar--vertical</code> each, which assistive technologies read as the name of the month and its books; its place sets <code>year</code> and <code>months</code>, and may set <code>--library-months-chart-height</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<ol class="library-recap__months" data-sample="months"></ol>
+					<?php Markup::render_component( 'months-chart' ); ?>
 				</div>
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>.library-recap__shares</code></h4>
-					<p>The forms or the languages, and <code>.library-recap__ranking</code>, the people or the series, a link each: a bar as long as the share of the first one</p>
+					<h4 class="library-styleguide__name"><code>shares-chart</code></h4>
+					<p>The forms or the languages, a <code>.library-bar</code> each, as long as the share of the first one; <code>ranked</code>, the people or the series, a link each, a name on one line; its place sets <code>shares</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame">
-					<ul class="library-recap__shares" data-sample="shares"></ul>
+					<?php
+					Markup::render_component( 'shares-chart' );
+					Markup::render_component( 'shares-chart', array( 'ranked' => true ) );
+					?>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
+					<h4 class="library-styleguide__name"><code>days-calendar</code></h4>
+					<p>The days of a year, in weeks from Monday, as many weeks a row as the shape of the container of its place makes it; its place sets <code>value</code>, the year, the level of each day gone by and the memorable ones, pulsing</p>
+				</figcaption>
+				<div class="library-styleguide__frame">
+					<div class="library-styleguide__calendar">
+						<?php Markup::render_component( 'days-calendar' ); ?>
+					</div>
 				</div>
 			</figure>
 			<figure>

@@ -1,0 +1,40 @@
+/**
+ * A bar, an atom, as long as a share: its chart sets its size from the share, --library-share, from 0 to 1. It grows
+ * from its foot as it comes into view; `--vertical`, from the bottom, as a bar of a month.
+ */
+
+@layer app.components {
+	.library-bar {
+		display: block;
+		border-radius: var(--app-radius-s);
+		background: var(--app-text);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: view()) {
+			.library-bar {
+				transform-origin: left;
+				animation: library-bar-grow linear both;
+				animation-timeline: view();
+				animation-range: entry 50% cover 40%;
+			}
+
+			.library-bar--vertical {
+				transform-origin: bottom;
+				animation-name: library-bar-rise;
+			}
+		}
+	}
+
+	@keyframes library-bar-grow {
+		from {
+			scale: 0 1;
+		}
+	}
+
+	@keyframes library-bar-rise {
+		from {
+			scale: 1 0;
+		}
+	}
+}

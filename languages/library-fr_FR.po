@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-24T14:03:45+00:00\n"
+"POT-Creation-Date: 2026-11-24T14:22:13+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -26,8 +26,8 @@ msgstr ""
 #: library.php:11 admin/class-dashboard.php:82 app/class-login.php:207
 #: app/class-page.php:148 app/class-page.php:364 app/class-page.php:365
 #: app/partials/library-app.php:52 app/partials/library-app.php:71
-#: app/partials/library-app.php:162 app/partials/library-app.php:596
-#: app/partials/library-app.php:865
+#: app/partials/library-app.php:163 app/partials/library-app.php:531
+#: app/partials/library-app.php:800
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -57,7 +57,7 @@ msgstr "https://www.19h47.fr"
 
 #: admin/class-achievements-page.php:64 admin/class-achievements-page.php:71
 #: admin/partials/library-achievements.php:20 app/class-page.php:334
-#: app/partials/library-app.php:267 app/partials/library-app.php:541
+#: app/partials/library-app.php:262 app/partials/library-app.php:476
 msgid "Achievements"
 msgstr "Succès"
 
@@ -67,8 +67,8 @@ msgstr "Miniature"
 
 # Un trait d’union conditionnel dans « autrices » : la colonne des noms d’un livre, sur un téléphone, le coupe en deux lignes.
 #: admin/class-books-list.php:90 app/components/book-fields.php:23
-#: app/partials/library-app.php:369 app/partials/library-app.php:429
-#: app/partials/library-app.php:788
+#: app/partials/library-app.php:316 app/partials/library-app.php:334
+#: app/partials/library-app.php:723
 msgid "Authors"
 msgstr "Auteurs/au­trices"
 
@@ -119,7 +119,7 @@ msgid "Table ordered by rating."
 msgstr "Tableau trié par note."
 
 #: admin/class-books-list.php:416 admin/class-metaboxes.php:216
-#: app/partials/library-app.php:163
+#: app/partials/library-app.php:164
 msgid "My shelves"
 msgstr "Mes étagères"
 
@@ -243,7 +243,7 @@ msgstr "Pas de note"
 msgid "Average rating by year read"
 msgstr "Note moyenne par année de lecture"
 
-#: admin/class-dashboard.php:380 app/partials/library-app.php:531
+#: admin/class-dashboard.php:380 app/partials/library-app.php:466
 msgid "Average rating"
 msgstr "Note moyenne"
 
@@ -285,8 +285,8 @@ msgstr ""
 "Un livre que vous avez lu reste sur vos étagères. Indiquez plutôt qu’il est "
 "de passage."
 
-#: admin/class-reading-idea-widget.php:46 app/partials/library-app.php:122
-#: app/partials/library-app.php:239
+#: admin/class-reading-idea-widget.php:46 app/components/reading-idea.php:30
+#: app/components/reading-idea.php:34
 msgid "Reading idea of the week"
 msgstr "Idée de lecture de la semaine"
 
@@ -419,7 +419,7 @@ msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
 #: admin/partials/library-dashboard-idea.php:58
-#: app/js/components/progress-bar.js:60
+#: app/js/components/progress-bar.js:61
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -442,7 +442,7 @@ msgstr[1] "dont %s succès cachés"
 
 #: admin/partials/library-achievements.php:27
 #: admin/partials/library-dashboard-achievements.php:37
-#: app/partials/library-app.php:131 app/partials/library-app.php:260
+#: app/partials/library-app.php:132 app/partials/library-app.php:255
 msgid "Close to it"
 msgstr "En approche"
 
@@ -462,7 +462,7 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:369
 #: includes/class-books.php:374 includes/class-books.php:392
-#: app/js/lib/render.js:632
+#: app/js/components/months-chart.js:69
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -505,7 +505,7 @@ msgid "Add a cover"
 msgstr "Ajouter une couverture"
 
 #: admin/partials/library-dashboard-idea.php:53
-#: app/partials/library-app.php:123 app/partials/library-app.php:244
+#: app/components/reading-idea.php:31 app/components/reading-idea.php:41
 msgid "Another idea"
 msgstr "Une autre idée"
 
@@ -605,11 +605,11 @@ msgstr ""
 msgid "Start of the reading"
 msgstr "Début de la lecture"
 
-#: admin/partials/library-reading.php:40 app/partials/library-app.php:989
+#: admin/partials/library-reading.php:40 app/partials/library-app.php:924
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
-#: admin/partials/library-shelf.php:32 app/partials/library-app.php:597
+#: admin/partials/library-shelf.php:32 app/partials/library-app.php:532
 #: app/js/lib/book-lines.js:105
 msgid "On none of my shelves"
 msgstr "Sur aucune de mes étagères"
@@ -622,11 +622,11 @@ msgstr ""
 "De passage : lu mais pas dans ma bibliothèque. Envie : pas encore dans ma "
 "bibliothèque. Le livre reste au catalogue pour les autres lecteurs."
 
-#: admin/partials/library-shelf.php:62 app/partials/library-app.php:610
+#: admin/partials/library-shelf.php:62 app/partials/library-app.php:545
 msgid "Started"
 msgstr "Commencé le"
 
-#: admin/partials/library-shelf.php:84 app/partials/library-app.php:632
+#: admin/partials/library-shelf.php:84 app/partials/library-app.php:567
 msgid "Add a reading"
 msgstr "Ajouter une lecture"
 
@@ -661,8 +661,7 @@ msgstr "Journal"
 msgid "Idea"
 msgstr "Idée"
 
-#: app/class-page.php:335 app/partials/library-app.php:303
-#: app/partials/library-app.php:358 app/partials/library-app.php:418
+#: app/class-page.php:335 app/partials/library-app.php:351
 msgid "To buy"
 msgstr "Envies"
 
@@ -805,179 +804,179 @@ msgstr "Essayer"
 msgid "Latest readings"
 msgstr "Dernières lectures"
 
-#: app/partials/library-app.php:140 app/partials/library-app.php:213
+#: app/partials/library-app.php:141 app/partials/library-app.php:214
 #: app/js/bricks/library-api.js:273 app/js/bricks/library-book.js:40
-#: app/js/bricks/library-recap.js:334 app/js/components/filters-sheet.js:82
+#: app/js/bricks/library-recap.js:251 app/js/components/filters-sheet.js:82
 #: app/js/lib/behaviors.js:31
 msgid "Loading…"
 msgstr "Chargement…"
 
-#: app/partials/library-app.php:151
+#: app/partials/library-app.php:152
 msgid "Reading state"
 msgstr "État de lecture"
 
-#: app/partials/library-app.php:154 includes/class-shelf.php:101
+#: app/partials/library-app.php:155 includes/class-shelf.php:101
 #: app/js/bricks/library-volumes.js:107 app/js/lib/book-lines.js:126
 msgid "Read"
 msgstr "Lu"
 
-#: app/partials/library-app.php:155 app/js/lib/book-lines.js:136
+#: app/partials/library-app.php:156 app/js/lib/book-lines.js:136
 msgid "To read"
 msgstr "À lire"
 
-#: app/partials/library-app.php:184
+#: app/partials/library-app.php:185
 msgid "Order"
 msgstr "Ordre"
 
-#: app/partials/library-app.php:186
+#: app/partials/library-app.php:187
 msgid "Latest added"
 msgstr "Ajout récent"
 
-#: app/partials/library-app.php:187 app/partials/library-app.php:779
+#: app/partials/library-app.php:188 app/partials/library-app.php:714
 msgid "Title"
 msgstr "Titre"
 
-#: app/partials/library-app.php:189
+#: app/partials/library-app.php:190
 msgid "Latest read"
 msgstr "Lecture récente"
 
-#: app/partials/library-app.php:194
+#: app/partials/library-app.php:195
 msgid "Reading order"
 msgstr "Ordre de lecture"
 
-#: app/partials/library-app.php:402
+#: app/partials/library-app.php:323
 msgid "Publisher:"
 msgstr "Éditeur :"
 
-#: app/partials/library-app.php:407
+#: app/partials/library-app.php:328
 msgid "Collection:"
 msgstr "Collection :"
 
-#: app/partials/library-app.php:424
+#: app/partials/library-app.php:333
 msgid "Collections"
 msgstr "Collections"
 
-#: app/partials/library-app.php:458
+#: app/partials/library-app.php:393
 msgid "A year of reading"
 msgstr "Une année de lecture"
 
-#: app/partials/library-app.php:465 includes/class-taxonomies.php:630
+#: app/partials/library-app.php:400 includes/class-taxonomies.php:630
 msgid "Books read"
 msgstr "Livres lus"
 
-#: app/partials/library-app.php:472
+#: app/partials/library-app.php:407
 msgid "Pages read"
 msgstr "Pages lues"
 
-#: app/partials/library-app.php:480
+#: app/partials/library-app.php:415
 msgid "Month by month"
 msgstr "Mois par mois"
 
-#: app/partials/library-app.php:490
+#: app/partials/library-app.php:425
 msgid "Day by day"
 msgstr "Jour après jour"
 
-#: app/partials/library-app.php:504
+#: app/partials/library-app.php:439
 msgid "Read the most"
 msgstr "Autrices et auteurs les plus lus"
 
-#: app/partials/library-app.php:509 includes/class-achievement-family.php:40
+#: app/partials/library-app.php:444 includes/class-achievement-family.php:40
 msgid "Discoveries"
 msgstr "Découvertes"
 
-#: app/partials/library-app.php:529
+#: app/partials/library-app.php:464
 msgid "Favourites"
 msgstr "Coups de cœur"
 
-#: app/partials/library-app.php:536
+#: app/partials/library-app.php:471
 msgid "Records"
 msgstr "Records"
 
-#: app/partials/library-app.php:547
+#: app/partials/library-app.php:482
 msgid "The pile"
 msgstr "La pile"
 
-#: app/partials/library-app.php:556
+#: app/partials/library-app.php:491
 msgid "Other years"
 msgstr "Autres années"
 
-#: app/partials/library-app.php:636
+#: app/partials/library-app.php:571
 msgid "Add a reading with an unknown date"
 msgstr "Ajouter une lecture sans date"
 
-#: app/partials/library-app.php:674
+#: app/partials/library-app.php:609
 msgid "Photograph my copy"
 msgstr "Photographier mon exemplaire"
 
-#: app/partials/library-app.php:675
+#: app/partials/library-app.php:610
 msgid "Remove the photo of my copy"
 msgstr "Retirer la photo de mon exemplaire"
 
-#: app/partials/library-app.php:708
+#: app/partials/library-app.php:643
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: app/partials/library-app.php:709
+#: app/partials/library-app.php:644
 msgid "Top"
 msgstr "Haut"
 
-#: app/partials/library-app.php:727
+#: app/partials/library-app.php:662
 msgid "Dark theme"
 msgstr "Thème sombre"
 
-#: app/partials/library-app.php:728
+#: app/partials/library-app.php:663
 msgid "Light or dark theme"
 msgstr "Thème clair ou sombre"
 
-#: app/partials/library-app.php:760
+#: app/partials/library-app.php:695
 msgid "Choose a cover"
 msgstr "Choisir une couverture"
 
-#: app/partials/library-app.php:761
+#: app/partials/library-app.php:696
 msgid "Remove the cover"
 msgstr "Retirer la couverture"
 
-#: app/partials/library-app.php:801
+#: app/partials/library-app.php:736
 msgid "Role"
 msgstr "Rôle"
 
-#: app/partials/library-app.php:802
+#: app/partials/library-app.php:737
 msgid "Add a person"
 msgstr "Ajouter une personne"
 
-#: app/partials/library-app.php:836
+#: app/partials/library-app.php:771
 msgid "Collection"
 msgstr "Collection"
 
-#: app/partials/library-app.php:853
+#: app/partials/library-app.php:788
 msgid "Choose a form"
 msgstr "Choisir une forme"
 
-#: app/partials/library-app.php:878
+#: app/partials/library-app.php:813
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:912 app/partials/library-app.php:923
+#: app/partials/library-app.php:847 app/partials/library-app.php:858
 msgid "Add a language"
 msgstr "Ajouter une langue"
 
-#: app/partials/library-app.php:947
+#: app/partials/library-app.php:882
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:961
+#: app/partials/library-app.php:896
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: app/partials/library-app.php:961
+#: app/partials/library-app.php:896
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:965
+#: app/partials/library-app.php:900
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:1004
+#: app/partials/library-app.php:955
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -1467,7 +1466,7 @@ msgstr "t. %s"
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
 #: includes/class-books.php:379 includes/class-books.php:470
-#: app/js/lib/render.js:243
+#: app/js/lib/render.js:233
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
@@ -3203,145 +3202,145 @@ msgid "First published in %s"
 msgstr "Paru en %s"
 
 #. translators: %s: number of readings of a book read again in the year.
-#: app/js/bricks/library-recap.js:103
+#: app/js/bricks/library-recap.js:73
 msgid "Including %s read again"
 msgid_plural "Including %s read again"
 msgstr[0] "Dont %s relu"
 msgstr[1] "Dont %s relus"
 
-#: app/js/bricks/library-recap.js:116
+#: app/js/bricks/library-recap.js:85
 msgid "person read for the first time"
 msgid_plural "people read for the first time"
 msgstr[0] "personne lue pour la première fois"
 msgstr[1] "personnes lues pour la première fois"
 
 #. translators: %s: number of series first read in the year.
-#: app/js/bricks/library-recap.js:128
+#: app/js/bricks/library-recap.js:95
 msgid "%s started"
 msgid_plural "%s started"
 msgstr[0] "%s commencée"
 msgstr[1] "%s commencées"
 
 #. translators: %s: number of series read in full, the last book in the year.
-#: app/js/bricks/library-recap.js:139
+#: app/js/bricks/library-recap.js:106
 msgid "%s finished"
 msgid_plural "%s finished"
 msgstr[0] "%s terminée"
 msgstr[1] "%s terminées"
 
-#: app/js/bricks/library-recap.js:151
+#: app/js/bricks/library-recap.js:116
 msgid "book added"
 msgid_plural "books added"
 msgstr[0] "livre ajouté"
 msgstr[1] "livres ajoutés"
 
 #. translators: %s: year of the recap.
-#: app/js/bricks/library-recap.js:161
+#: app/js/bricks/library-recap.js:126
 msgid "That was %s"
 msgstr "C’était %s"
 
-#: app/js/bricks/library-recap.js:339
+#: app/js/bricks/library-recap.js:256
 msgid "No readings that year."
 msgstr "Aucune lecture cette année-là."
 
 #. translators: %d: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:361
+#: app/js/bricks/library-recap.js:278
 msgid "As many as in %d"
 msgstr "Autant qu’en %d"
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:367
+#: app/js/bricks/library-recap.js:284
 msgid "%1$s more than in %2$d"
 msgid_plural "%1$s more than in %2$d"
 msgstr[0] "%1$s de plus qu’en %2$d"
 msgstr[1] "%1$s de plus qu’en %2$d"
 
 #. translators: 1: number of books, 2: the year before the one of the recap.
-#: app/js/bricks/library-recap.js:380
+#: app/js/bricks/library-recap.js:297
 msgid "%1$s fewer than in %2$d"
 msgid_plural "%1$s fewer than in %2$d"
 msgstr[0] "%1$s de moins qu’en %2$d"
 msgstr[1] "%1$s de moins qu’en %2$d"
 
 #. translators: %s: number of pages read a day, on average.
-#: app/js/bricks/library-recap.js:409
+#: app/js/bricks/library-recap.js:325
 msgid "About %s a day"
 msgstr "Environ %s par jour"
 
 #. translators: %s: number of pages of a book read, on average.
-#: app/js/bricks/library-recap.js:416
+#: app/js/bricks/library-recap.js:332
 msgid "%s a book on average"
 msgstr "%s par livre en moyenne"
 
 #. translators: 1: number of books read with their number of pages, 2: number of books read.
-#: app/js/bricks/library-recap.js:424
+#: app/js/bricks/library-recap.js:340
 msgid "Pages filled in for %1$s book out of %2$s."
 msgid_plural "Pages filled in for %1$s books out of %2$s."
 msgstr[0] "Pages renseignées pour %1$s livre sur %2$s."
 msgstr[1] "Pages renseignées pour %1$s livres sur %2$s."
 
 #. translators: 1: name of a month, 2: number of books read in it.
-#: app/js/bricks/library-recap.js:497
+#: app/js/bricks/library-recap.js:413
 msgid "The month read the most: %1$s, %2$s"
 msgstr "Le mois le plus lu : %1$s, %2$s"
 
-#: app/js/bricks/library-recap.js:520
+#: app/js/bricks/library-recap.js:435
 msgid "day of reading"
 msgid_plural "days of reading"
 msgstr[0] "jour de lecture"
 msgstr[1] "jours de lecture"
 
 #. translators: %s: number of days read in a row, the most of the year.
-#: app/js/bricks/library-recap.js:530
+#: app/js/bricks/library-recap.js:445
 msgid "Up to %s day in a row"
 msgid_plural "Up to %s days in a row"
 msgstr[0] "Jusqu’à %s jour d’affilée"
 msgstr[1] "Jusqu’à %s jours d’affilée"
 
 #. translators: 1: number of pages read in a day, the most of the year, 2: the day, such as 12 March.
-#: app/js/bricks/library-recap.js:542
+#: app/js/bricks/library-recap.js:457
 msgid "The biggest day: %1$s page, on %2$s"
 msgid_plural "The biggest day: %1$s pages, on %2$s"
 msgstr[0] "La plus grosse journée : %1$s page, le %2$s"
 msgstr[1] "La plus grosse journée : %1$s pages, le %2$s"
 
 #. translators: 1: number of readings of the year with their start date, 2: number of readings of the year.
-#: app/js/bricks/library-recap.js:556
+#: app/js/bricks/library-recap.js:471
 msgid "Start date known for %1$s reading out of %2$s."
 msgid_plural "Start date known for %1$s readings out of %2$s."
 msgstr[0] "Date de début connue pour %1$s lecture sur %2$s."
 msgstr[1] "Date de début connue pour %1$s lectures sur %2$s."
 
-#: app/js/bricks/library-recap.js:617
+#: app/js/bricks/library-recap.js:493
 msgid "The pile held steady."
 msgstr "La pile n’a pas bougé."
 
 #. translators: %s: number of books, those added beyond those read.
-#: app/js/bricks/library-recap.js:625
+#: app/js/bricks/library-recap.js:501
 msgid "The pile grew by %s."
 msgstr "La pile a grandi de %s."
 
 #. translators: %s: number of books, those read beyond those added.
-#: app/js/bricks/library-recap.js:632
+#: app/js/bricks/library-recap.js:508
 msgid "The pile went down by %s."
 msgstr "La pile a baissé de %s."
 
-#: app/js/bricks/library-recap.js:694
-msgid "The longest"
-msgstr "Le plus long"
-
 #. translators: what the figure of a record counts, after it: 1 947 pages.
-#: app/js/bricks/library-recap.js:698 app/js/bricks/library-recap.js:707
+#: app/js/bricks/library-recap.js:568
 msgid "page"
 msgid_plural "pages"
 msgstr[0] "page"
 msgstr[1] "pages"
 
-#: app/js/bricks/library-recap.js:703
+#: app/js/bricks/library-recap.js:573
+msgid "The longest"
+msgstr "Le plus long"
+
+#: app/js/bricks/library-recap.js:580
 msgid "The shortest"
 msgstr "Le plus court"
 
-#: app/js/bricks/library-recap.js:712
+#: app/js/bricks/library-recap.js:587
 msgid "The oldest"
 msgstr "Le plus ancien"
 
@@ -3442,7 +3441,7 @@ msgid "Recap of %s"
 msgstr "Bilan %s"
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:442
+#: app/js/lib/render.js:432
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"

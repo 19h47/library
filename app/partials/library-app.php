@@ -398,14 +398,14 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="readings" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Books read', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="readings"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'readings' ) ) ); ?></p>
 							<p data-field="previous"></p>
 							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="rereads"></p>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pages" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Pages read', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="pages"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'pages' ) ) ); ?></p>
 							<p data-field="perDay"></p>
 							<p data-field="perBook"></p>
 							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="counted"></p>
@@ -413,17 +413,17 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="months" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Month by month', 'library' ); ?></h3>
-							<ol class="library-recap__months" data-list="months"></ol>
+							<?php Markup::render_component( 'months-chart' ); ?>
 							<p data-field="bestMonth"></p>
 						</section>
 
 						<?php // Over its days, a backdrop: those read, as dark as the pages read, the memorable ones pulsing. ?>
 						<section class="library-recap__screen library-recap__days" data-screen="days" hidden>
-							<div class="library-recap__calendar" aria-hidden="true">
-								<ol data-list="calendar"></ol>
+							<div class="library-recap__calendar">
+								<?php Markup::render_component( 'days-calendar' ); ?>
 							</div>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Day by day', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="daysRead"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'daysRead' ) ) ); ?></p>
 							<p data-field="daysReadLabel"></p>
 							<p data-field="streak"></p>
 							<p data-field="bestDay"></p>
@@ -432,32 +432,32 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="forms" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( $form_labels->name ); ?></h3>
-							<ul class="library-recap__shares" data-list="forms"></ul>
+							<?php Markup::render_component( 'shares-chart' ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="people" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Read the most', 'library' ); ?></h3>
-							<ol class="library-recap__ranking" data-list="people"></ol>
+							<?php Markup::render_component( 'shares-chart', array( 'ranked' => true ) ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="discoveries" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Discoveries', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="discoveries"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'discoveries' ) ) ); ?></p>
 							<p data-field="discovered"></p>
 							<ul class="library-pills library-recap__cloud library-recap__cut" data-row="discoveries" data-list="discoveries"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="languages" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( $language_labels->name_for_book ); ?></h3>
-							<p class="library-recap__figure" data-field="languages"></p>
-							<ul class="library-recap__shares" data-list="languages"></ul>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'languages' ) ) ); ?></p>
+							<?php Markup::render_component( 'shares-chart' ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="series" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php echo esc_html( get_taxonomy( 'library_series' )->labels->name ); ?></h3>
-							<p class="library-recap__figure" data-field="series"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'series' ) ) ); ?></p>
 							<p data-field="seriesState"></p>
-							<ol class="library-recap__ranking" data-list="series"></ol>
+							<?php Markup::render_component( 'shares-chart', array( 'ranked' => true ) ); ?>
 						</section>
 
 						<section class="library-recap__screen" data-screen="rating" hidden>
@@ -474,13 +474,13 @@ $form_filter = array(
 
 						<section class="library-recap__screen" data-screen="achievements" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Achievements', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="achievements"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'achievements' ) ) ); ?></p>
 							<ul class="library-pills library-recap__cloud library-recap__cut" data-list="achievements"></ul>
 						</section>
 
 						<section class="library-recap__screen" data-screen="pile" hidden>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'The pile', 'library' ); ?></h3>
-							<p class="library-recap__figure" data-field="added"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'added' ) ) ); ?></p>
 							<p data-field="addedBooks"></p>
 							<p data-field="pile"></p>
 						</section>
@@ -922,6 +922,22 @@ $form_filter = array(
 			<li class="library-row">
 				<?php Markup::render_component( 'reading-row' ); ?>
 				<?php Markup::render_component( 'remove-control', array( 'label' => __( 'Remove this reading', 'library' ) ) ); ?>
+			</li>
+		</template>
+
+		<?php // A record of a recap: its cover, its figure, what it counts, which record it is, and its book, which it opens. ?>
+		<template id="library-recap-record">
+			<li class="library-recap__record">
+				<?php Markup::render_component( 'book-cover', array( 'attributes' => array( 'aria-hidden' => 'true' ) ) ); ?>
+				<div>
+					<p class="library-recap__record-figure">
+						<?php Markup::render_component( 'count-up' ); ?>
+						<span data-field="year"></span>
+						<span class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="unit"></span>
+					</p>
+					<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="label"></p>
+					<a data-field="title" href=""></a>
+				</div>
 			</li>
 		</template>
 

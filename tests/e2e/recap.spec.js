@@ -65,17 +65,15 @@ test.describe( 'Recap', () => {
 		await expect(
 			recap.locator( '[data-field="pages"] .sr-only' )
 		).toHaveText( '680' );
-		await expect( recap.locator( '[data-list="months"] li' ) ).toHaveCount(
-			12
-		);
-		await expect( recap.locator( '[data-list="months"]' ) ).toContainText(
+		await expect( recap.locator( 'months-chart li' ) ).toHaveCount( 12 );
+		await expect( recap.locator( 'months-chart' ) ).toContainText(
 			'March: 2 books'
 		);
 
 		// The days of reading over the calendar of the year, a backdrop: the readings without their start, their ends
 		// alone, the one of the favourite memorable, March 2nd.
 		const days = recap.locator( '[data-screen="days"]' );
-		const calendar = days.locator( '[data-list="calendar"] li' );
+		const calendar = days.locator( 'days-calendar li' );
 
 		await expect(
 			days.locator( '[data-field="daysRead"] .sr-only' )
@@ -84,17 +82,19 @@ test.describe( 'Recap', () => {
 			'Start date known for 0 readings out of 3.'
 		);
 		await expect( calendar ).toHaveCount( 365 );
-		await expect( calendar.nth( 60 ) ).toHaveClass(
-			'library-recap__memorable'
+		await expect( calendar.nth( 60 ) ).toHaveAttribute(
+			'data-day',
+			'memorable'
 		);
-		await expect(
-			days.locator( '.library-recap__calendar' )
-		).toHaveAttribute( 'aria-hidden', 'true' );
+		await expect( days.locator( 'days-calendar' ) ).toHaveAttribute(
+			'aria-hidden',
+			'true'
+		);
 
 		// The person read the most leads to their page; read for the first time this year.
 		await expect(
 			recap
-				.locator( '[data-list="people"]' )
+				.locator( '[data-screen="people"] shares-chart' )
 				.getByRole( 'link', { name: 'Ann Recap' } )
 		).toBeVisible();
 		await expect(
