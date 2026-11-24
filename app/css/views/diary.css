@@ -51,11 +51,11 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	/* The months of the year, side by side, as many a row as fit: four on a phone */
+	/* The months of the year, three a row, a quarter each */
 	.library-calendar__year {
 		list-style: none;
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(calc(var(--app-u3) * var(--app-phi)), 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: var(--app-space-m) var(--app-space-s);
 	}
 
