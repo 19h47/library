@@ -95,6 +95,9 @@ test.describe( 'Calendar', () => {
 			.locator( '[data-part="count"]' );
 
 		await expect( formCount ).toHaveText( '2' );
+		await expect( calendar.locator( '[data-field="show"]' ) ).toHaveText(
+			'Show 2 readings'
+		);
 		await expect( calendar.locator( 'select[name="scale"]' ) ).toHaveValue(
 			'month'
 		);
@@ -122,6 +125,9 @@ test.describe( 'Calendar', () => {
 			.click();
 		await expect( period ).toHaveText( `Sunday, March 2, ${ YEAR }` );
 		await expect( formCount ).toHaveText( '1' );
+		await expect( calendar.locator( '[data-field="show"]' ) ).toHaveText(
+			'Show 1 reading'
+		);
 
 		const cards = calendar.locator( '[data-list="day"]' );
 
@@ -141,6 +147,16 @@ test.describe( 'Calendar', () => {
 		// Back through the history, the day before.
 		await page.goBack();
 		await expect( period ).toHaveText( `Sunday, March 2, ${ YEAR }` );
+
+		// April, without a reading: no filter to choose from.
+		await calendar
+			.locator( 'select[name="scale"]' )
+			.selectOption( 'month' );
+		await calendar.getByRole( 'link', { name: 'After' } ).click();
+		await expect( period ).toHaveText( `April ${ YEAR }` );
+		await expect( calendar.locator( 'library-filters' ) ).toBeHidden();
+		await calendar.getByRole( 'link', { name: 'Before' } ).click();
+		await expect( calendar.locator( 'library-filters' ) ).toBeVisible();
 
 		// Back to the year.
 		await calendar.locator( 'select[name="scale"]' ).selectOption( 'year' );

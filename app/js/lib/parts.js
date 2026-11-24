@@ -200,10 +200,10 @@ export function recap( year = 0 ) {
  */
 
 /**
- * The calendar: the days of a year, how many readings ended in it, and what it shows, the year, its month `month`, from
- * 0, or its day `day` of that month, from 1.
+ * The calendar: the days of a year, and what it shows, the year, its month `month`, from 0, or its day `day` of that
+ * month, from 1.
  *
- * @typedef {Calendar & Loading & CalendarPeriod & {total: number}} DiaryCalendar
+ * @typedef {Calendar & Loading & CalendarPeriod} DiaryCalendar
  */
 
 /**
@@ -264,6 +264,20 @@ export function calendarDays( { scale, year, month, day, levels } ) {
 	};
 
 	return days[ scale ];
+}
+
+/**
+ * How many readings of the forms chosen ended in what the calendar shows, the year, the month or the day.
+ *
+ * @param {DiaryCalendar} shown The calendar.
+ * @return {number} The readings.
+ */
+export function calendarReadingCount( shown ) {
+	const [ first, last ] = calendarDays( shown );
+
+	return Object.entries( shown.ends )
+		.filter( ( [ day ] ) => Number( day ) >= first && Number( day ) < last )
+		.reduce( ( count, [ , ids ] ) => count + ids.length, 0 );
 }
 
 /**
@@ -332,7 +346,6 @@ export function calendar(
 		ends: {},
 		reads: {},
 		form_ends: {},
-		total: 0,
 		scale,
 		month,
 		day,

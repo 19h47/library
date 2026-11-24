@@ -1618,10 +1618,7 @@ class LibraryStore extends Store {
 				{ signal }
 			);
 
-			return () => ( {
-				...loaded,
-				total: Object.values( loaded.ends ).flat().length,
-			} );
+			return () => loaded;
 		} );
 	}
 
