@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.7.1
+Stable tag: 10.8.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -140,6 +140,11 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.8.0 =
+* A reading may be abandoned: in the reading app, Abandon ends the one in progress today, and a row of the readings chooses Abandoned rather than a rating, as does a row of the Shelf box in the admin.
+* A book abandoned is neither read nor being read, nor rated by its reading abandoned, and leaves the pile; the diary, the recap, the stats, the achievements and the searches of the books read count only the readings finished. Its card says Abandoned, and the calendar reads the days of a reading abandoned, of pages unknown.
+* REST API: a reading has `abandoned`, false unless it ended without being finished; a reading saved before has none, and is not abandoned.
 
 = 10.7.1 =
 * Fixed: the calendar lists a reading in progress on today alone, as it counts it for no day: one left long ago no longer shows on every day since its start.
