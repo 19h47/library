@@ -1,0 +1,33 @@
+/**
+ * A list of inputs in groups, an organism, its custom element its root, such as the people of a book by role: its groups
+ * a field apart, as the fields of a form, then the pills that add an input. A group, its legend then its rows, shows
+ * once it holds a row, the one added in it, and hides with the last one removed.
+ */
+
+@layer app.components {
+	input-groups {
+		display: block;
+	}
+
+	input-groups > fieldset {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--app-space-m);
+		min-inline-size: 0;
+		border: 0;
+	}
+
+	.library-input-groups__group {
+		min-inline-size: 0;
+		border: 0;
+	}
+
+	.library-input-groups__group:not(:has(li)) {
+		display: none;
+	}
+
+	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
+	.library-input-groups__group > legend {
+		margin-bottom: var(--app-space-xs);
+	}
+}

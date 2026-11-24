@@ -299,18 +299,12 @@ class LibraryStyleguideElement extends Brick {
 		fill( $scan, {
 			message: 'No barcode found in the photo: take it again, closer.',
 		} );
-		// The readings of a book, in the list of their field.
+		// The readings of a book, in the list of their field: of unknown dates, rated, then in error.
 		this.querySelector( 'inputs-list' ).value = [
 			'/',
-			'2026-10-20/2026-10-28',
+			'2026-10-20/2026-10-28#8',
 			'/2126-10-28',
 		];
-		// The reading of known dates rated.
-		/** @type {HTMLSelectElement} */ (
-			this.querySelector( 'inputs-list' ).querySelectorAll(
-				'[name="reading_rating"]'
-			)[ 1 ]
-		).value = '8';
 
 		// The book open, the link to the recap, what the catalogue tells of a book to add and the keywords of a search, filled
 		// as their bricks fill them: a book of the catalogue on none of the shelves of the reader.
@@ -328,11 +322,9 @@ class LibraryStyleguideElement extends Brick {
 		this.querySelector(
 			'[data-sample="catalogue-status-catalog"]'
 		).querySelector( 'catalogue-status' ).catalog = 'found';
-		/** @type {HTMLElement} */ (
-			this.querySelector(
-				'[data-sample="keywords"] [data-list="keywords"]'
-			)
-		).hidden = false;
+		this.querySelector( '[data-sample="keywords"]' ).querySelector(
+			'search-form'
+		).open = true;
 
 		// Six authors, the ones past the first folded, as the page of a series folds them.
 		fillCardsGroup(

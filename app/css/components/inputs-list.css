@@ -1,0 +1,31 @@
+/**
+ * A list of inputs, an organism, its custom element its root, such as the read dates of a book: its legend above it as
+ * the label of a field, then its rows, its description and the buttons that add one, a gap apart. The list as wide as
+ * its box, never as its inputs: a fraction of a grid sized by its content takes the width of an input, which would push
+ * the button that removes it out of a phone.
+ */
+
+@layer app.components {
+	inputs-list {
+		display: block;
+	}
+
+	inputs-list > fieldset {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--app-space-s);
+		min-inline-size: 0;
+		border: 0;
+	}
+
+	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
+	inputs-list > fieldset > legend {
+		margin-bottom: var(--app-space-xs);
+	}
+
+	/* Its description, under its rows, as the one of a field */
+	inputs-list > fieldset > small {
+		color: var(--app-text-muted);
+		font-size: var(--app-text-s);
+	}
+}

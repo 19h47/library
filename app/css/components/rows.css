@@ -1,0 +1,24 @@
+/**
+ * The rows of a list of inputs, which inputs-list and input-groups share, as library-app/rows adds and removes them: a
+ * row each, its control, then the control that removes it.
+ */
+
+@layer app.components {
+	.library-rows {
+		list-style: none;
+		display: grid;
+		gap: var(--app-space-s);
+	}
+
+	.library-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		gap: var(--app-space-s);
+	}
+
+	/* The message of its control in error, such as a read date, on a line of its own */
+	.library-row > .library-error {
+		grid-column: 1 / -1;
+	}
+}

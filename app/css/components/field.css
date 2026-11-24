@@ -1,5 +1,5 @@
 /**
- * Forms: their fields, the lists of inputs, such as the people of a book or its read dates, and their errors.
+ * Forms: their fields and their errors; the lists of inputs have their own sheets.
  */
 
 @layer app.components {
@@ -12,87 +12,14 @@
 		gap: var(--app-space-m);
 	}
 
-	/*
-	 * A list of inputs, such as the people of a book or its read dates: its legend above it as the label of a field, then
-	 * its rows, its description and the button that adds one, a gap apart. A row holds its input and the control that removes it.
-	 * The list as wide as its box, never as its inputs: a fraction of a grid sized by its content takes the width of an
-	 * input, which would push the button that removes it out of a phone.
-	 */
-	.library-inputs-list {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr);
-		gap: var(--app-space-s);
-		min-inline-size: 0;
-		border: 0;
-	}
-
-	/* A field of several choices, a list of inputs: a block, as the fieldset it holds, rather than the inline of a custom element */
-	checkboxes-field,
-	inputs-list,
-	input-groups {
+	/* A field of several choices: a block, as the fieldset it holds, rather than the inline of a custom element */
+	checkboxes-field {
 		display: block;
 	}
 
 	/* A legend sits apart from the grid of its fieldset: its margin stands for the gap of a label */
-	:is(.library-field, .library-inputs-list, .library-inputs-list__group) > legend {
+	.library-field > legend {
 		margin-bottom: var(--app-space-xs);
-	}
-
-	/*
-	 * A group of a list, such as the people of a role: its legend, then its rows, as a list of its own. It shows once it
-	 * holds a row, the one added in it, and hides with the last one removed.
-	 */
-	.library-inputs-list__group {
-		min-inline-size: 0;
-		border: 0;
-	}
-
-	.library-inputs-list__group:not(:has(li)) {
-		display: none;
-	}
-
-	/* A list in groups: its groups a field apart, as the fields of a form */
-	.library-inputs-list--groups {
-		gap: var(--app-space-m);
-	}
-
-	.library-inputs-list__items {
-		list-style: none;
-		display: grid;
-		gap: var(--app-space-s);
-	}
-
-	/* A row: its input, then the button that removes it */
-	.library-inputs-list__item {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		align-items: center;
-		gap: var(--app-space-s);
-	}
-
-	/*
-	 * A row with a select after its field, such as the rating of a reading: the select under the field, closer to it than
-	 * to the rows around, the button that removes the row beside them
-	 */
-	.library-inputs-list__item:has(> select) {
-		row-gap: var(--app-space-xs);
-	}
-
-	.library-inputs-list__item:has(> select) > [data-action="remove"] {
-		grid-column: 2;
-		grid-row: 1 / span 2;
-	}
-
-
-	/* A row without input, such as a reading whose date is unknown: its text in the box of a field, muted as a placeholder, as there is nothing to type */
-	.library-inputs-list__text {
-		display: flex;
-		align-items: center;
-		min-block-size: var(--app-control-size);
-		padding-inline: 1em;
-		border: 1px solid var(--app-line-soft);
-		border-radius: var(--app-radius-m);
-		color: var(--app-text-muted);
 	}
 
 	/* The control of a field of a form, an input, a select or a textarea, such as a read date or the title of a book; a checkbox is the one of its pill */
@@ -139,11 +66,6 @@
 		font-size: var(--app-text-s);
 	}
 
-	/* In a row of a list of inputs, such as a read date, it takes a line of its own */
-	.library-inputs-list__item > .library-error {
-		grid-column: 1 / -1;
-	}
-
 	/*
 	 * The excerpt and the notes grow with their text, from their padding: half a step less above and below than on each
 	 * side; empty, or made smaller by hand, they keep room for three lines, their padding one more; made higher by hand
@@ -164,7 +86,7 @@
 		border: 0;
 	}
 
-	:is(.library-field, .library-inputs-list) > small {
+	.library-field > small {
 		color: var(--app-text-muted);
 		font-size: var(--app-text-s);
 	}

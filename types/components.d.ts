@@ -14,6 +14,8 @@ import type { InputsListElement } from '../app/js/components/inputs-list.js';
 import type { OfflineStatusElement } from '../app/js/components/offline-status.js';
 import type { PartialDateElement } from '../app/js/components/partial-date.js';
 import type { ReadingPeriodElement } from '../app/js/components/reading-period.js';
+import type { ReadingRowElement } from '../app/js/components/reading-row.js';
+import type { SearchFormElement } from '../app/js/components/search-form.js';
 
 declare global {
 	interface HTMLElementTagNameMap {
@@ -28,6 +30,8 @@ declare global {
 		'offline-status': OfflineStatusElement;
 		'partial-date': PartialDateElement;
 		'reading-period': ReadingPeriodElement;
+		'reading-row': ReadingRowElement;
+		'search-form': SearchFormElement;
 	}
 }
 

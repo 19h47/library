@@ -5,7 +5,7 @@
  * them as they change; its place gives it its fields, `fields`, which prints them, and a class of its own, `class`.
  *
  * @link       https://github.com/19h47/library
- * @since      10.7.0
+ * @since      10.6.1
  *
  * @package    Library
  * @subpackage Library/app/components

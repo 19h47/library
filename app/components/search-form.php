@@ -2,8 +2,9 @@
 /**
  * The search of the books, a search landmark: its field, then its button, which the keyboard of a phone does not always
  * show, Enter or the button submitting it; then the keywords that narrow it, as the help of the books list explains
- * them, a name between quotes, which keep its spaces, hidden until the field is focused. library-search follows the
- * typing; submitted, it searches at once, or opens the styleguide or the reference of the API typed.
+ * them, a name between quotes, which keep its spaces, hidden until the field is focused. Its root is its custom element,
+ * search-form, which shows the keywords while it is used and adds the one taken; the brick library-search around it in
+ * the app follows the typing and, submitted, searches at once, or opens the styleguide or the reference of the API typed.
  *
  * @link       https://github.com/19h47/library
  * @since      9.41.0
@@ -26,6 +27,7 @@ $keywords = array(
 	'rating:9'               => __( 'Rated 9 or more', 'library' ),
 );
 ?>
+<search-form>
 <form class="library-search" role="search">
 	<label class="sr-only" for="<?php echo esc_attr( $args['id'] ); ?>"><?php esc_html_e( 'Search the library', 'library' ); ?></label>
 	<p class="library-search__row">
@@ -53,3 +55,4 @@ $keywords = array(
 		<?php endforeach; ?>
 	</p>
 </form>
+</search-form>

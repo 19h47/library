@@ -89,7 +89,7 @@ $form_filter = array(
 					<h2 class="sr-only"><?php echo esc_html( $labels->name ); ?></h2>
 					<div class="app-controls">
 						<library-search class="app-search">
-							<?php Markup::render_component( 'search', array( 'id' => 'library-search' ) ); ?>
+							<?php Markup::render_component( 'search-form', array( 'id' => 'library-search' ) ); ?>
 						</library-search>
 					</div>
 
@@ -627,14 +627,13 @@ $form_filter = array(
 											'id'          => 'library-reading-readings',
 											'label'       => Meta::get_label( 'library_reading' ),
 											'description' => Meta::get_description( 'library_reading' ),
-											'template'    => 'library-reading-ended',
+											'template'    => 'library-reading-row',
 											'add'         => __( 'Add a reading', 'library' ),
 											// A date input fills in today once touched, as on an iPhone: a reading whose date is unknown has none.
 											'variants'    => array(
 												array(
-													'label'    => __( 'Add a reading with an unknown date', 'library' ),
-													'template' => 'library-reading-unknown',
-													'value'    => '/',
+													'label' => __( 'Add a reading with an unknown date', 'library' ),
+													'value' => '/',
 												),
 											),
 											'attributes'  => array( 'disabled' => true ),
@@ -980,53 +979,13 @@ $form_filter = array(
 		</template>
 
 		<template id="library-current">
-			<li class="library-current">
-				<a class="library-cover-link" data-part="link">
-					<?php Markup::render_component( 'book-cover' ); ?>
-					<span class="library-current__title" data-field="title"></span>
-					<span class="app-text-s app-font-ui app-uppercase library-tag library-tag--status" data-field="status" hidden></span>
-				</a>
-			</li>
+			<li><?php Markup::render_component( 'cover-link', array( 'current' => true ) ); ?></li>
 		</template>
 
-		<?php
-		// The rating a reading ended with, on its row.
-		$reading_rating = Meta::get_control(
-			'library_rating',
-			array(
-				'name'       => 'reading_rating',
-				'class'      => 'library-input',
-				'aria-label' => Meta::get_label( 'library_rating' ),
-			)
-		);
-		?>
-		<template id="library-reading-ended">
-			<li class="library-inputs-list__item">
-				<?php Markup::render_component( 'reading-period' ); ?>
-				<?php echo $reading_rating; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes it. ?>
-				<button
-					class="app-control"
-					type="button"
-					data-action="remove"
-					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
-					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
-				><?php Markup::render_icon( 'close' ); ?></button>
-			</li>
-		</template>
-
-		<template id="library-reading-unknown">
-			<li class="library-inputs-list__item">
-				<input type="hidden" name="reading_start" value="">
-				<input type="hidden" name="reading_end" value="">
-				<span class="library-inputs-list__text"><?php esc_html_e( 'Unknown date', 'library' ); ?></span>
-				<?php echo $reading_rating; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by WP_HTML_Tag_Processor, which escapes it. ?>
-				<button
-					class="app-control"
-					type="button"
-					data-action="remove"
-					aria-label="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
-					title="<?php esc_attr_e( 'Remove this reading', 'library' ); ?>"
-				><?php Markup::render_icon( 'close' ); ?></button>
+		<template id="library-reading-row">
+			<li class="library-row">
+				<?php Markup::render_component( 'reading-row' ); ?>
+				<?php Markup::render_component( 'remove-control', array( 'label' => __( 'Remove this reading', 'library' ) ) ); ?>
 			</li>
 		</template>
 
@@ -1035,24 +994,13 @@ $form_filter = array(
 		</template>
 
 		<template id="library-cover">
-			<li>
-				<a class="library-cover-link" data-part="link">
-					<?php Markup::render_component( 'book-cover' ); ?>
-					<span class="sr-only" data-field="state" hidden></span>
-				</a>
-			</li>
+			<li><?php Markup::render_component( 'cover-link' ); ?></li>
 		</template>
 
 		<template id="library-edit-person">
-			<li class="library-inputs-list__item">
+			<li class="library-row">
 				<input class="library-input" name="person" list="library-edit-people" autocomplete="off" aria-label="<?php echo esc_attr( $person_labels->singular_name ); ?>">
-				<button
-					class="app-control"
-					type="button"
-					data-action="remove"
-					aria-label="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
-					title="<?php esc_attr_e( 'Remove this person', 'library' ); ?>"
-				><?php Markup::render_icon( 'close' ); ?></button>
+				<?php Markup::render_component( 'remove-control', array( 'label' => __( 'Remove this person', 'library' ) ) ); ?>
 			</li>
 		</template>
 

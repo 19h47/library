@@ -1,5 +1,5 @@
 /**
- * The home: the reading idea and the link to the recap of the year gone by; its books being read are cards, .library-current.
+ * The home: the reading idea and the link to the recap of the year gone by; its books being read are cover-link, current.
  */
 
 @layer app.views {

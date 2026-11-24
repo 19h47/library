@@ -8,129 +8,34 @@ import { urlOf } from 'library-app/router';
 const HIDDEN_VIEWS = [ 'styleguide', 'api' ];
 
 /**
- * The search of the books: what is typed is the query, searched after a pause in the typing, or at once with Enter or its
- * button; the name of a view for development, then Enter or the button, opens it, the search left empty. Its keywords show under it while it is used, as a search field shows its suggestions; one taken adds
- * to the query, the cursor in its quotes, if any, for the name to type.
+ * The search of the books, around the component search-form: what is typed is the query, searched after a pause in the
+ * typing, or at once with Enter or its button; the name of a view for development, then Enter or the button, opens it,
+ * the search left empty.
  */
 class LibrarySearchElement extends Brick {
 	connect( signal ) {
-		const $input = this.querySelector( 'input' );
-		/** @type {HTMLElement} */
-		const $keywords = this.querySelector( '[data-list="keywords"]' );
-		const hide = () => {
-			$keywords.hidden = true;
-		};
-		// A finger or a button down, until its click: what it is on takes the focus, but the tap has not reached it yet. A
-		// finger lifts before the focus moves, so the tap lasts until its click, or until it turns into a scroll.
-		let isPointing = false;
+		const $search = this.querySelector( 'search-form' );
 
-		$input.addEventListener(
+		$search.addEventListener(
 			'input',
-			() => store.setQuery( $input.value ),
+			() => store.setQuery( $search.value ),
 			{ signal }
 		);
 		// Enter or the button: the search at once, without waiting for a pause, or the view for development typed.
-		this.querySelector( 'form' ).addEventListener(
+		$search.addEventListener(
 			'submit',
-			( event ) => {
-				const view = $input.value.trim().toLowerCase();
-
-				event.preventDefault();
+			() => {
+				const view = $search.value.trim().toLowerCase();
 
 				if ( ! HIDDEN_VIEWS.includes( view ) ) {
-					store.setQuery( $input.value, { now: true } );
+					store.setQuery( $search.value, { now: true } );
 					return;
 				}
 
 				// The query may be empty already, as when the word comes at once: the field does not follow it then.
-				$input.value = '';
+				$search.value = '';
 				store.setQuery( '' );
 				navigation.navigate( urlOf( { view } ) );
-			},
-			{ signal }
-		);
-		this.addEventListener(
-			'focusin',
-			() => {
-				$keywords.hidden = false;
-			},
-			{ signal }
-		);
-		// Left with the keyboard, or with a tap elsewhere once it has reached what it was on: hidden as the finger comes
-		// down, the keywords would move it away first. A tap on a keyword may take the focus from the field first.
-		this.addEventListener(
-			'focusout',
-			( event ) => {
-				if (
-					! isPointing &&
-					event.relatedTarget &&
-					! this.contains(
-						/** @type {Node} */ ( event.relatedTarget )
-					)
-				) {
-					hide();
-				}
-			},
-			{ signal }
-		);
-		document.addEventListener(
-			'pointerdown',
-			() => {
-				isPointing = true;
-			},
-			{ signal }
-		);
-		// Nor does a press that ends elsewhere, whose click never comes: the keyboard ends it.
-		[ 'pointercancel', 'keydown' ].forEach( ( type ) =>
-			document.addEventListener(
-				type,
-				() => {
-					isPointing = false;
-				},
-				{ signal }
-			)
-		);
-		document.addEventListener(
-			'click',
-			( event ) => {
-				isPointing = false;
-
-				if ( ! this.contains( /** @type {Node} */ ( event.target ) ) ) {
-					hide();
-				}
-			},
-			{ signal }
-		);
-		// A keyword keeps the focus in the field, and the keyboard of a phone open.
-		$keywords.addEventListener(
-			'mousedown',
-			( event ) => event.preventDefault(),
-			{ signal }
-		);
-		$keywords.addEventListener(
-			'click',
-			( event ) => {
-				/** @type {HTMLElement} */
-				const $keyword = /** @type {Element} */ (
-					event.target
-				).closest( '[data-keyword]' );
-				const keyword = $keyword?.dataset.keyword;
-
-				if ( ! keyword ) {
-					return;
-				}
-
-				const query = [ $input.value.trim(), keyword ]
-					.filter( Boolean )
-					.join( ' ' );
-				const caret = keyword.endsWith( '""' )
-					? query.length - 1
-					: query.length;
-
-				$input.value = query;
-				$input.focus();
-				$input.setSelectionRange( caret, caret );
-				store.setQuery( query );
 			},
 			{ signal }
 		);
@@ -139,9 +44,7 @@ class LibrarySearchElement extends Brick {
 			store.select(
 				( state ) => state.query,
 				( query ) => {
-					if ( $input.value !== query ) {
-						$input.value = query;
-					}
+					$search.value = query;
 				}
 			),
 		];

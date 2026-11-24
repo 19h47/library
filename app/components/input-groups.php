@@ -22,13 +22,13 @@ $args = wp_parse_args( $args, array( 'attributes' => array() ) );
 ?>
 <input-groups template="<?php echo esc_attr( $args['template'] ); ?>">
 <?php
-Markup::render_tag( '<fieldset>', $args['attributes'] + array( 'class' => 'library-inputs-list library-inputs-list--groups' ) );
+Markup::render_tag( '<fieldset>', $args['attributes'] );
 ?>
 	<legend class="sr-only"><?php echo esc_html( $args['label'] ); ?></legend>
 	<?php foreach ( $args['groups'] as $group => $legend ) : ?>
-		<fieldset class="library-inputs-list__group" data-group="<?php echo esc_attr( $group ); ?>">
+		<fieldset class="library-input-groups__group" data-group="<?php echo esc_attr( $group ); ?>">
 			<legend class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $legend ); ?></legend>
-			<ul class="library-inputs-list__items"></ul>
+			<ul class="library-rows"></ul>
 		</fieldset>
 	<?php endforeach; ?>
 	<p class="library-pills">
