@@ -486,36 +486,6 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>pills-field</code></h4>
-					<p>A field of several choices shown all at once, its legend above a <code>pill-checkbox</code> for each, named as the field, with how many each has, such as the forms of the filters and their books: two checked</p>
-				</figcaption>
-				<div class="library-styleguide__frame">
-					<?php
-					Markup::render_component(
-						'pills-field',
-						array(
-							'id'      => 'library-styleguide-pills-field',
-							'label'   => 'Forms',
-							'name'    => 'forms',
-							'options' => array(
-								'novel' => 'Novel',
-								'comic' => 'Comic',
-								'essay' => 'Essay',
-								'poems' => 'Poetry',
-							),
-							'counts'  => array(
-								'novel' => 653,
-								'comic' => 579,
-								'essay' => 50,
-							),
-							'checked' => array( 'novel', 'comic' ),
-						)
-					);
-					?>
-				</div>
-			</figure>
-			<figure>
-				<figcaption>
 					<h4 class="library-styleguide__name"><code>image-field</code></h4>
 					<p>A <code>book-cover</code> and the pills that pick it and remove it, Remove shown while it shows an image; its root is its custom element, <code>image-field</code>, which shows the photo picked at once and, removed, checks its checkbox, <code>&lt;name&gt;_removed</code>, which the reset of the form unchecks</p>
 				</figcaption>
@@ -781,8 +751,9 @@ $sizes = array(
 							)
 						);
 						Markup::render_component(
-							'pills-field',
+							'checkboxes-field',
 							array(
+								'inline'  => true,
 								'id'      => 'library-styleguide-sheet-forms',
 								'label'   => 'Forms',
 								'name'    => 'forms',
@@ -802,14 +773,14 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
-					<h4 class="library-styleguide__name"><code>filters</code></h4>
-					<p>The filters of a list, in an <code>.app-controls</code>: the pill that opens their <code>.library-sheet</code>, a <code>field</code> with a select for a filter of one choice, a <code>pills-field</code> for one of several, such as the forms, then the filters chosen, a pill each that says its choice, all but the few values left unchecked, or its label and how many values are checked, and removes it, after the other controls, on the same line while it holds them; the brick <code>library-filters</code> around it in the app, its <code>list</code> the one it counts, the books found or the readings of the diary</p>
+					<h4 class="library-styleguide__name"><code>filters-sheet</code></h4>
+					<p>The filters of a list, in an <code>.app-controls</code>, its custom element its root: the pill that opens their <code>.library-sheet</code>, a <code>field</code> with a select for a filter of one choice, an inline <code>checkboxes-field</code> for one of several, such as the forms, then the filters chosen, a pill each that says its choice, all but the few values left unchecked, or its label and how many values are checked, and removes it, after the other controls, on the same line while it holds them; its place sets its <code>value</code>, the <code>counts</code> of the values and what the list <code>found</code>, here the brick <code>library-filters</code> around it in the app, its <code>list</code> the one it counts, the books found or the readings of the diary</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<div class="app-controls">
 						<?php
 						Markup::render_component(
-							'filters',
+							'filters-sheet',
 							array(
 								'id'      => 'library-styleguide-filters',
 								'filters' => array(
@@ -831,7 +802,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>checkboxes-field</code></h4>
-					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description; its root is its custom element, <code>checkboxes-field</code>, named as its field, its <code>value</code> the values checked</p>
+					<p>The choices made, a pill each that removes it, then the pill that opens all of them in a <code>.library-sheet</code>, a <code>pill-checkbox</code> each; with a description. Inline, <code>inline</code>, few choices shown all at once, a <code>pill-checkbox</code> each, with how many each has, <code>counts</code>, such as the forms of the filters and their books, then, <code>toggle_all</code>, a pill that checks them all, or unchecks them once they are: two checked. Its root is its custom element, <code>checkboxes-field</code>, named as its field, its <code>value</code> the values checked</p>
 				</figcaption>
 				<div class="library-styleguide__frame">
 					<?php
@@ -850,6 +821,28 @@ $sizes = array(
 							),
 							'checked'     => array( 'en', 'fr' ),
 							'description' => 'Its description, under its choices.',
+						)
+					);
+					Markup::render_component(
+						'checkboxes-field',
+						array(
+							'inline'     => true,
+							'id'         => 'library-styleguide-forms',
+							'label'      => 'Forms',
+							'name'       => 'forms',
+							'toggle_all' => true,
+							'options'    => array(
+								'novel' => 'Novel',
+								'comic' => 'Comic',
+								'essay' => 'Essay',
+								'poems' => 'Poetry',
+							),
+							'counts'     => array(
+								'novel' => 653,
+								'comic' => 579,
+								'essay' => 50,
+							),
+							'checked'    => array( 'novel', 'comic' ),
 						)
 					);
 					?>

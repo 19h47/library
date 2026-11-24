@@ -327,7 +327,8 @@ class Rest_API {
 			'stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => fn() => rest_ensure_response( Stats::get_reading_stats() + array( 'year_to_date' => Stats::get_reading_year_to_date() ) ),
+				// The counts of the forms as objects, by term ID, even when there are none.
+				'callback'            => fn() => rest_ensure_response( Stats::get_reading_stats() + array( 'year_to_date' => Stats::get_reading_year_to_date() ) + array_map( fn( array $counts ) => (object) $counts, Stats::get_form_counts() ) ),
 				'permission_callback' => fn() => current_user_can( Roles::SHELVE ),
 			),
 		);

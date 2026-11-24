@@ -6,7 +6,7 @@ import { TermPage } from 'library-app/term-page';
 
 /**
  * @import { PageView } from 'library-app/api'
- * @import { PublisherPage } from 'library-app/store'
+ * @import { PublisherPage } from 'library-app/parts'
  */
 
 /**

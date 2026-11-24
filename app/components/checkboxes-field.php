@@ -1,10 +1,14 @@
 <?php
 /**
  * A field of several options, such as the original languages of a book: its label above a pill for each option checked,
- * which unchecks it, and a button that opens all of them in a sheet, a checkbox each; its description under them. The
- * checkboxes are the field, in its form: the pills only show them. Its root is its custom element, checkboxes-field,
- * named as its field, which keeps the pills in step with the checkboxes; its `value`, the values checked, which its
- * place sets. The options checked by default are the ones a reset of the form checks again.
+ * which unchecks it, and a button that opens all of them in a sheet, a checkbox each; its description under them.
+ * `inline`, few options shown all at once instead, a pill checkbox each, such as the forms of the filters, which a sheet
+ * already holds. Each checkbox may say how many its option has, `counts`, such as the books of a form, 0 for an option
+ * left out of them; `toggle_all`, after them a button checks them all, or unchecks them all once they are.
+ *
+ * The checkboxes are the field, in its form: the pills only show them. Its root is its custom element, checkboxes-field,
+ * named as its field, which keeps the pills and the button that checks all in step with the checkboxes; its `value`, the
+ * values checked, which its place sets. The options checked by default are the ones a reset of the form checks again.
  *
  * @link       https://github.com/19h47/library
  * @since      9.28.0
@@ -12,7 +16,7 @@
  * @package    Library
  * @subpackage Library/app/components
  *
- * @var array{id: string, label: string, name: string, add: string, options: array<int|string, string>, checked?: array<int|string>, description?: string} $args
+ * @var array{id: string, label: string, name: string, options: array<int|string, string>, add?: string, inline?: bool, counts?: array<int|string, int>, toggle_all?: bool, checked?: array<int|string>, description?: string} $args
  */
 
 use Library\Markup;
@@ -20,6 +24,10 @@ use Library\Markup;
 $args = wp_parse_args(
 	$args,
 	array(
+		'add'         => '',
+		'inline'      => false,
+		'counts'      => array(),
+		'toggle_all'  => false,
 		'checked'     => array(),
 		'description' => '',
 	)
@@ -28,6 +36,31 @@ $args = wp_parse_args(
 $description_id = "{$args['id']}-description";
 $dialog_id      = "{$args['id']}-dialog";
 $title_id       = "{$args['id']}-title";
+
+// A pill checkbox for each option, then the button that checks them all, if it has one.
+$render_checkboxes = function () use ( $args ): void {
+	foreach ( $args['options'] as $value => $label ) {
+		Markup::render_component(
+			'pill-checkbox',
+			array(
+				'id'         => "{$args['id']}-$value",
+				'label'      => $label,
+				'count'      => $args['counts'] ? $args['counts'][ $value ] ?? 0 : null,
+				'attributes' => array(
+					'name'    => $args['name'],
+					'value'   => (string) $value,
+					'checked' => in_array( $value, $args['checked'], true ),
+				),
+			)
+		);
+	}
+
+	if ( $args['toggle_all'] ) {
+		?>
+		<button class="app-pill" type="button" data-action="toggle-all"><?php esc_html_e( 'Check all', 'library' ); ?></button>
+		<?php
+	}
+};
 
 ?>
 <checkboxes-field name="<?php echo esc_attr( $args['name'] ); ?>">
@@ -41,41 +74,32 @@ Markup::render_tag(
 );
 ?>
 	<legend class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $args['label'] ); ?></legend>
-	<p class="library-pills">
-		<?php foreach ( $args['options'] as $value => $label ) : ?>
-			<button class="app-pill" type="button" data-value="<?php echo esc_attr( (string) $value ); ?>" hidden>
-				<span class="sr-only"><?php esc_html_e( 'Remove:', 'library' ); ?></span>
-				<?php echo esc_html( $label ); ?>
-				<?php Markup::render_icon( 'close' ); ?>
-			</button>
-		<?php endforeach; ?>
-		<button class="app-pill" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="show-modal" aria-haspopup="dialog"><?php echo esc_html( $args['add'] ); ?></button>
-	</p>
-	<dialog class="library-sheet" id="<?php echo esc_attr( $dialog_id ); ?>" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
-		<?php Markup::render_component( 'dialog-close', array( 'dialog' => $dialog_id ) ); ?>
-		<h2 class="library-heading" id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $args['label'] ); ?></h2>
-		<div class="library-pills">
-			<?php
-			foreach ( $args['options'] as $value => $label ) {
-				Markup::render_component(
-					'pill-checkbox',
-					array(
-						'id'         => "{$args['id']}-$value",
-						'label'      => $label,
-						'attributes' => array(
-							'name'    => $args['name'],
-							'value'   => (string) $value,
-							'checked' => in_array( $value, $args['checked'], true ),
-						),
-					)
-				);
-			}
-			?>
-		</div>
-		<p>
-			<button class="app-pill app-pill--primary" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="close"><?php esc_html_e( 'Done', 'library' ); ?></button>
+	<?php if ( $args['inline'] ) : ?>
+		<p class="library-pills">
+			<?php $render_checkboxes(); ?>
 		</p>
-	</dialog>
+	<?php else : ?>
+		<p class="library-pills">
+			<?php foreach ( $args['options'] as $value => $label ) : ?>
+				<button class="app-pill" type="button" data-value="<?php echo esc_attr( (string) $value ); ?>" hidden>
+					<span class="sr-only"><?php esc_html_e( 'Remove:', 'library' ); ?></span>
+					<?php echo esc_html( $label ); ?>
+					<?php Markup::render_icon( 'close' ); ?>
+				</button>
+			<?php endforeach; ?>
+			<button class="app-pill" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="show-modal" aria-haspopup="dialog"><?php echo esc_html( $args['add'] ); ?></button>
+		</p>
+		<dialog class="library-sheet" id="<?php echo esc_attr( $dialog_id ); ?>" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+			<?php Markup::render_component( 'dialog-close', array( 'dialog' => $dialog_id ) ); ?>
+			<h2 class="library-heading" id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $args['label'] ); ?></h2>
+			<div class="library-pills">
+				<?php $render_checkboxes(); ?>
+			</div>
+			<p>
+				<button class="app-pill app-pill--primary" type="button" commandfor="<?php echo esc_attr( $dialog_id ); ?>" command="close"><?php esc_html_e( 'Done', 'library' ); ?></button>
+			</p>
+		</dialog>
+	<?php endif; ?>
 	<?php if ( '' !== $args['description'] ) : ?>
 		<small id="<?php echo esc_attr( $description_id ); ?>"><?php echo esc_html( $args['description'] ); ?></small>
 	<?php endif; ?>

@@ -4,11 +4,19 @@
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
-import { addBook, deleteAllBooks, openApp, waitForIdle } from './library.js';
+import {
+	addBook,
+	deleteAllBooks,
+	getFormId,
+	openApp,
+	waitForIdle,
+} from './library.js';
 
 const FORMS = [ 'Forms Novel', 'Forms Comic', 'Forms Essay' ];
 
 test.describe( 'Forms', () => {
+	let firstNovel;
+
 	test.beforeAll( async ( { requestUtils } ) => {
 		await deleteAllBooks( requestUtils );
 
@@ -16,7 +24,7 @@ test.describe( 'Forms', () => {
 			FORMS.map( ( name ) => getFormId( requestUtils, name ) )
 		);
 
-		await addBook( requestUtils, {
+		firstNovel = await addBook( requestUtils, {
 			title: 'Forms Novel 1',
 			form: novel,
 			shelf: { readings: [ '/2024-01-10' ] },
@@ -41,32 +49,6 @@ test.describe( 'Forms', () => {
 	test.afterAll( async ( { requestUtils } ) => {
 		await deleteAllBooks( requestUtils );
 	} );
-
-	/**
-	 * The term ID of a form, added if the site has none of that name.
-	 *
-	 * @param {Object} requestUtils The request utils of WordPress.
-	 * @param {string} name         Its name.
-	 * @return {Promise<number>} Its term ID.
-	 */
-	async function getFormId( requestUtils, name ) {
-		const [ found ] = await requestUtils.rest( {
-			path: '/wp/v2/forms',
-			params: { search: name, _fields: 'id,name' },
-		} );
-
-		if ( found?.name === name ) {
-			return found.id;
-		}
-
-		const { id } = await requestUtils.rest( {
-			method: 'POST',
-			path: '/wp/v2/forms',
-			data: { name },
-		} );
-
-		return id;
-	}
 
 	test( 'the books of several forms, counted, the forms chosen one pill, which removes them', async ( {
 		page,
@@ -132,7 +114,7 @@ test.describe( 'Forms', () => {
 		).toBeFocused();
 	} );
 
-	test( 'every form but one: its pill says all but it', async ( {
+	test( 'every form checked at once, then all but one: its pill says all but it', async ( {
 		page,
 	} ) => {
 		await openApp( page );
@@ -146,12 +128,15 @@ test.describe( 'Forms', () => {
 
 		await filters.getByRole( 'button', { name: 'Filters' } ).click();
 		const sheet = filters.getByRole( 'dialog' );
-		const forms = sheet.getByRole( 'checkbox' );
+		const toggle = sheet.getByRole( 'button', { name: 'Check all' } );
 
-		for ( const form of await forms.all() ) {
-			await form.check();
-		}
+		await toggle.click();
+		await expect( sheet.getByRole( 'checkbox' ).first() ).toBeChecked();
+		await expect(
+			sheet.getByRole( 'button', { name: 'Uncheck all' } )
+		).toBeVisible();
 		await sheet.getByRole( 'checkbox', { name: 'Forms Novel' } ).uncheck();
+		await expect( toggle ).toBeVisible();
 
 		await expect( view.locator( 'library-count' ) ).toHaveText( '2 books' );
 		await sheet.getByRole( 'button', { name: 'Show 2 books' } ).click();
@@ -171,6 +156,9 @@ test.describe( 'Forms', () => {
 		const months = view.locator( '[data-list="months"] > section' );
 
 		await expect( months ).toHaveCount( 4 );
+		await expect( view.locator( 'library-count' ) ).toHaveText(
+			'4 readings'
+		);
 
 		await filters.getByRole( 'button', { name: 'Filters' } ).click();
 		const sheet = filters.getByRole( 'dialog' );
@@ -183,6 +171,9 @@ test.describe( 'Forms', () => {
 		await sheet.getByRole( 'button', { name: 'Show 3 readings' } ).click();
 
 		await expect( months ).toHaveCount( 3 );
+		await expect( view.locator( 'library-count' ) ).toHaveText(
+			'3 readings'
+		);
 		await expect( months.getByText( 'Forms Comic' ) ).toHaveCount( 0 );
 
 		// The books view keeps the same forms: the novels and the essay.
@@ -193,5 +184,52 @@ test.describe( 'Forms', () => {
 		await expect(
 			page.locator( 'library-view[name="books"] library-count' )
 		).toHaveText( '3 books' );
+	} );
+
+	test( 'a book saved with another form: the forms counted again, a form required', async ( {
+		page,
+	} ) => {
+		await openApp( page, `&view=book&book=${ firstNovel.id }` );
+		await page.getByRole( 'button', { name: 'Edit Book' } ).click();
+
+		const form = page.locator( 'library-edit' );
+		const select = form.getByLabel( 'Form (required)' );
+
+		await expect( select ).toHaveJSProperty( 'required', true );
+		await select.selectOption( { label: 'Forms Comic' } );
+
+		const saved = page.waitForResponse(
+			( response ) =>
+				'POST' === response.request().method() &&
+				/books(\/|%2F)\d+/.test( response.url() )
+		);
+
+		await form.getByRole( 'button', { name: 'Save' } ).click();
+		await saved;
+
+		await page
+			.getByRole( 'navigation' )
+			.getByRole( 'link', { name: 'Books' } )
+			.click();
+
+		const filters = page.locator(
+			'library-view[name="books"] library-filters'
+		);
+
+		await filters.getByRole( 'button', { name: 'Filters' } ).click();
+		const sheet = filters.getByRole( 'dialog' );
+
+		await expect(
+			sheet.getByRole( 'checkbox', {
+				name: 'Forms Novel 1',
+				exact: true,
+			} )
+		).toBeVisible();
+		await expect(
+			sheet.getByRole( 'checkbox', {
+				name: 'Forms Comic 2',
+				exact: true,
+			} )
+		).toBeVisible();
 	} );
 } );

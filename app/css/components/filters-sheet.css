@@ -1,0 +1,20 @@
+/**
+ * The filters of a list, an organism, its custom element its root: the button that opens their sheet, then the filters
+ * chosen, a pill each. Its parts take their place among the controls that hold it, the filters chosen after them.
+ */
+
+@layer app.components {
+	/* Its parts take their place among the controls of its place */
+	filters-sheet {
+		display: contents;
+	}
+
+	/* The filters chosen, a pill each, take their place among the controls too, after them, on the same line while it holds them */
+	filters-sheet > p {
+		display: contents;
+	}
+
+	filters-sheet > p > .app-pill {
+		order: 1;
+	}
+}

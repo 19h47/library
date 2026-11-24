@@ -58,23 +58,55 @@ export function intervalsOf( items ) {
 	);
 }
 
+// The form of a book of the tests that names none: every book has one, as the book form requires.
+const FORM = 'Test Form';
+
+/**
+ * The term ID of a form, added if the site has none of that name.
+ *
+ * @param {Object} requestUtils The request utils of WordPress.
+ * @param {string} name         Its name.
+ * @return {Promise<number>} Its term ID.
+ */
+export async function getFormId( requestUtils, name ) {
+	// A search finds the forms whose name holds it, such as Forms Novel for Novel.
+	const results = await requestUtils.rest( {
+		path: '/wp/v2/forms',
+		params: { search: name, _fields: 'id,name' },
+	} );
+	const found = results.find( ( form ) => form.name === name );
+
+	if ( found ) {
+		return found.id;
+	}
+
+	const { id } = await requestUtils.rest( {
+		method: 'POST',
+		path: '/wp/v2/forms',
+		data: { name },
+	} );
+
+	return id;
+}
+
 /**
  * Adds a book through the route of the book form, as the app adds one, and returns it as the route gives it back.
  *
  * @param {Object} requestUtils The request utils of WordPress.
  * @param {Object} book         Fields of the book, as the route takes them: title, people, series, meta, shelf…; the
- *                              readings of its shelf as intervals, see reading().
+ *                              readings of its shelf as intervals, see reading(); the test form unless it names one, 0 for none.
  * @return {Promise<Object>} The book.
  */
-export function addBook( requestUtils, book ) {
+export async function addBook( requestUtils, book ) {
 	const shelf = book.shelf?.readings
 		? { ...book.shelf, readings: readings( book.shelf.readings ) }
 		: book.shelf;
+	const form = book.form ?? ( await getFormId( requestUtils, FORM ) );
 
 	return requestUtils.rest( {
 		method: 'POST',
 		path: '/library/v1/books',
-		data: shelf ? { ...book, shelf } : book,
+		data: { ...book, form, ...( shelf && { shelf } ) },
 	} );
 }
 

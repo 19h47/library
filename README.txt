@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.5.0
+Stable tag: 10.6.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,15 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.6.0 =
+* Reading app: the diary has its title, with how many readings the forms chosen leave, as the books view counts its books.
+* Reading app: a button of the forms filter checks every form at once, or unchecks them, to leave out one or two.
+* Reading app: the count of each form follows the books saved and the readings ended, without loading the app again.
+* Changed: the form of a book is required in its form, once the library has forms: the forms filter leaves out a book of none.
+* Fixed: in French, “Auteurs/autrices” goes on two lines, with a hyphen, where the column of the fields of a book is narrow.
+* REST API: `GET /stats` gives the books of each form on the shelves, `form_book_counts`, and the readings of each form, `form_reading_counts`, by term ID.
+* Code only: the filters are a component, filters-sheet, which knows its fields by their API; the forms are the inline variant of checkboxes-field, pills-field is gone; one brick binds the filters and the order; the store and the API are split into smaller modules; the styleguide no longer widens on a phone.
 
 = 10.5.0 =
 * Reading app: the forms filter takes several forms at once, a checkbox each in the sheet of the filters, with how many books of the shelves each has; the diary has the same filter, its forms the same as those of the books, each with its readings, which its months and the button of its sheet count.

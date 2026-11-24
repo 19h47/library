@@ -35,11 +35,15 @@
 	library-recap-link,
 	library-in-progress,
 	library-volumes,
-	library-filter,
 	library-latest,
 	library-idea,
 	library-close {
 		display: block;
+	}
+
+	/* Around the filters of a list and its order, which take their place among the controls */
+	library-filters {
+		display: contents;
 	}
 
 	/* A view spaces its controls from what they act on, as the content of the page does */
