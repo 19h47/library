@@ -150,21 +150,7 @@ class LibraryReadingElement extends Brick {
 		);
 
 		$inProgress.addEventListener( 'change', showStarted, { signal } );
-		// The photo of their copy removed goes at once: its field checks its checkbox, which changes nothing the form hears.
-		$form.addEventListener(
-			'click',
-			( event ) => {
-				if (
-					/** @type {Element} */ ( event.target ).closest(
-						'image-field [data-action="remove"]'
-					)
-				) {
-					save();
-				}
-			},
-			{ signal }
-		);
-		// A field changed, or the list of readings, one removed.
+		// A field changed, the list of readings, one removed, or the photo of their copy, removed.
 		$form.addEventListener(
 			'change',
 			( event ) => {

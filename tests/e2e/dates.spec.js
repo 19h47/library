@@ -23,9 +23,7 @@ test.describe( 'Dates', () => {
 
 		await openApp( page, `&view=book&book=${ book.id }` );
 		await page.getByRole( 'button', { name: 'Edit Book' } ).click();
-		await page
-			.locator( 'library-edit [data-part="details"] > summary' )
-			.click();
+		await page.locator( 'library-edit fields-disclosure summary' ).click();
 
 		const form = page.locator( 'library-edit' );
 		const date = form.getByRole( 'group', { name: 'Edition date' } );

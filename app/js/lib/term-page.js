@@ -4,7 +4,7 @@
 
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { fillCompletion } from 'library-app/render';
+import { fillAuthors, fillCompletion } from 'library-app/render';
 import { fill, fillHtml } from 'library-app/dom';
 import {
 	focusTitle,
@@ -15,6 +15,7 @@ import {
 } from 'library-app/behaviors';
 import { formatBooks, formatRead, join } from 'library-app/format';
 import { formatState } from 'library-app/book-lines';
+import { urlOf } from 'library-app/router';
 
 /**
  * @import { Book, PageView } from 'library-app/api'
@@ -23,7 +24,9 @@ import { formatState } from 'library-app/book-lines';
 
 /**
  * The page of a term: its name, its description, how many of its books are read and the completion they count for, its
- * wishes apart, then its books, loading as the end of the list comes, both as cards or a grid of their covers, as chosen. Opened, its name takes the focus once it is loaded. A page adds what
+ * wishes apart, then its books, loading as the end of the list comes, both as cards or a grid of their covers, as chosen;
+ * the authors of a series or of a collection, as cards, the ones past the first folded. Opened, its name takes the
+ * focus once it is loaded. A page adds what
  * is its own: `summary()` what its summary says after its books and those read, `fillPage()` the rest of its state,
  * `subscriptions()` what else it follows, and `line()` the line of a book.
  */
@@ -51,6 +54,8 @@ export class TermPage extends Brick {
 		const $completion = this.querySelector( '[data-list="completion"]' );
 		const $items = this.querySelector( '[data-list="books"]' );
 		const $wishes = this.querySelector( '[data-list="wishes"]' );
+		/** @type {HTMLElement|null} */
+		const $authors = this.querySelector( '[data-row="authors"]' );
 		const observe = observeEnd(
 			this.querySelector( '[data-part="more"]' ),
 			signal,
@@ -119,8 +124,42 @@ export class TermPage extends Brick {
 					observe();
 				}
 			),
+			// Loaded with its authors, for a page that has them.
+			...( $authors
+				? [
+						store.select(
+							( state ) =>
+								/** @type {SeriesPage|PublisherPage} */ (
+									state[ key ]
+								).authors,
+							( authors ) =>
+								fillAuthors(
+									$authors,
+									authors,
+									store.get()[ key ].total
+								)
+						),
+				  ]
+				: [] ),
 			...this.subscriptions(),
 		];
+	}
+
+	/**
+	 * Fills the field `key` with the name of `term`, a link to its page `view`; none hides it.
+	 *
+	 * @param {string}                          key  The field.
+	 * @param {PageView}                        view The page of the term.
+	 * @param {{id: number, name: string}|null} term The term, none for none.
+	 */
+	fillLink( key, view, term ) {
+		fill( this, { [ key ]: term?.name ?? '' } );
+
+		if ( term ) {
+			/** @type {HTMLAnchorElement} */ (
+				this.querySelector( `[data-field="${ key }"]` )
+			).href = urlOf( { view, id: term.id } );
+		}
 	}
 
 	/**

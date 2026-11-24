@@ -1,7 +1,4 @@
-import { store } from 'library-app/store';
-import { fillAuthors, fillPills, pageLink } from 'library-app/render';
-import { fill } from 'library-app/dom';
-import { urlOf } from 'library-app/router';
+import { fillPills, pageLink } from 'library-app/render';
 import { TermPage } from 'library-app/term-page';
 
 /**
@@ -24,22 +21,9 @@ class LibraryPublisherElement extends TermPage {
 	 * @param {PublisherPage} publisher The collection.
 	 */
 	fillPage( publisher ) {
-		fill( this, {
-			publisher: publisher.publisher?.name ?? '',
-			collection: publisher.collection?.name ?? '',
-		} );
-
 		// The publisher above, and the collection above a sub-collection.
-		[ 'publisher', 'collection' ].forEach( ( key ) => {
-			if ( publisher[ key ] ) {
-				/** @type {HTMLAnchorElement} */ (
-					this.querySelector( `[data-field="${ key }"]` )
-				).href = urlOf( {
-					view: 'publisher',
-					id: publisher[ key ].id,
-				} );
-			}
-		} );
+		this.fillLink( 'publisher', 'publisher', publisher.publisher );
+		this.fillLink( 'collection', 'publisher', publisher.collection );
 
 		fillPills(
 			this.querySelector( '[data-list="collections"]' ),
@@ -47,29 +31,6 @@ class LibraryPublisherElement extends TermPage {
 				pageLink( 'publisher', collection.id, collection.name )
 			)
 		);
-	}
-
-	/**
-	 * Follows its authors, as cards, the ones past the first folded.
-	 *
-	 * @return {Array<() => void>} The unsubscribe functions.
-	 */
-	subscriptions() {
-		/** @type {HTMLElement} */
-		const $authors = this.querySelector( '[data-row="authors"]' );
-
-		// Loaded with its authors.
-		return [
-			store.select(
-				( state ) => state.publisher.authors,
-				( authors ) =>
-					fillAuthors(
-						$authors,
-						authors,
-						store.get().publisher.total
-					)
-			),
-		];
 	}
 }
 customElements.define( 'library-publisher', LibraryPublisherElement );

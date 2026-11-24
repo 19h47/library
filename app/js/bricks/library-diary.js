@@ -1,21 +1,14 @@
 import { __ } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
-import { renderBook } from 'library-app/render';
-import { clone, fill } from 'library-app/dom';
+import { renderBook, renderDiaryRecap, renderMonth } from 'library-app/render';
+import { fill } from 'library-app/dom';
 import {
 	followCards,
 	formatListStatus,
 	observeEnd,
 } from 'library-app/behaviors';
-import { urlOf } from 'library-app/router';
-import {
-	formatBooks,
-	formatDate,
-	formatRating,
-	formatRecap,
-	join,
-} from 'library-app/format';
+import { formatDate, formatRating, join } from 'library-app/format';
 
 /**
  * @import { Book, Month } from 'library-app/api'
@@ -107,44 +100,20 @@ class LibraryDiaryElement extends Brick {
 			const isLatestOfYear =
 				! index ||
 				! months[ index - 1 ].month.startsWith( `${ year }-` );
-			const $month = clone( 'library-month' );
 			// A reading shows with its book only.
 			const shown = readings.filter( ( reading ) => reading.id in books );
-
-			fill( $month, {
-				month: formatDate( month ),
-				count: formatBooks( readings.length ),
-			} );
-			$month
-				.querySelector( 'ul' )
-				.append(
-					...shown.map( ( { date, id } ) =>
-						this.#renderReading( books[ id ], date )
-					)
-				);
+			const $month = renderMonth(
+				month,
+				readings.length,
+				shown.map( ( { date, id } ) =>
+					this.#renderReading( books[ id ], date )
+				)
+			);
 
 			return isLatestOfYear && year < thisYear
-				? [ this.#renderRecap( year ), $month ]
+				? [ renderDiaryRecap( year ), $month ]
 				: [ $month ];
 		} );
-	}
-
-	/**
-	 * The link to the recap of `year`.
-	 *
-	 * @param {number} year The year.
-	 * @return {HTMLElement} Its paragraph.
-	 */
-	#renderRecap( year ) {
-		const $recap = clone( 'library-diary-recap' );
-
-		/** @type {HTMLAnchorElement} */ ( $recap.querySelector( 'a' ) ).href =
-			urlOf( { view: 'recap', id: year } );
-		fill( $recap, {
-			recap: formatRecap( year ),
-		} );
-
-		return $recap;
 	}
 
 	/**

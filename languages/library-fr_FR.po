@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-24T11:29:58+00:00\n"
+"POT-Creation-Date: 2026-11-24T11:45:45+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,7 +27,7 @@ msgstr ""
 #: app/class-page.php:148 app/class-page.php:364 app/class-page.php:365
 #: app/partials/library-app.php:52 app/partials/library-app.php:71
 #: app/partials/library-app.php:161 app/partials/library-app.php:595
-#: app/partials/library-app.php:861
+#: app/partials/library-app.php:865
 msgid "Library"
 msgstr "Bibliothèque"
 
@@ -87,7 +87,7 @@ msgstr "Date de lecture"
 msgid "Read: %s"
 msgstr "Lu : %s"
 
-#: admin/class-books-list.php:159 app/partials/library-app.php:1009
+#: admin/class-books-list.php:159 app/partials/library-app.php:1021
 msgid "Unknown date"
 msgstr "Date inconnue"
 
@@ -418,7 +418,7 @@ msgstr[1] "Sans livre <span class=\"count\">(%s)</span>"
 #. translators: 1: position of the idea, 2: number of ideas.
 #: admin/partials/library-achievement-close.php:24
 #: admin/partials/library-achievements.php:46
-#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:528
+#: admin/partials/library-dashboard-idea.php:58 app/js/lib/render.js:529
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s sur %2$s"
@@ -461,7 +461,7 @@ msgstr "Tous les succès (%s)"
 #. translators: 1: name of a month, 2: number of books read in it.
 #: admin/partials/library-dashboard-chart.php:41 includes/class-books.php:369
 #: includes/class-books.php:374 includes/class-books.php:392
-#: app/js/lib/render.js:643
+#: app/js/lib/render.js:644
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s : %2$s"
@@ -604,9 +604,9 @@ msgstr ""
 msgid "Start of the reading"
 msgstr "Début de la lecture"
 
-#: admin/partials/library-reading.php:40 app/partials/library-app.php:999
-#: app/partials/library-app.php:1000 app/partials/library-app.php:1015
-#: app/partials/library-app.php:1016
+#: admin/partials/library-reading.php:40 app/partials/library-app.php:1011
+#: app/partials/library-app.php:1012 app/partials/library-app.php:1027
+#: app/partials/library-app.php:1028
 msgid "Remove this reading"
 msgstr "Retirer cette lecture"
 
@@ -693,22 +693,6 @@ msgstr "L’exemplaire"
 #: app/components/book-fields.php:38
 msgid "Added"
 msgstr "Ajouté le"
-
-#: app/components/catalogue-status.php:18
-msgid "Already added:"
-msgstr "Déjà ajouté :"
-
-#: app/components/catalogue-status.php:18
-msgid "This book is in the catalogue:"
-msgstr "Ce livre est au catalogue :"
-
-#: app/components/catalogue-status.php:20
-msgid "I bought it"
-msgstr "Je l’ai acheté"
-
-#: app/components/catalogue-status.php:20
-msgid "Put it in my library"
-msgstr "Le mettre dans ma bibliothèque"
 
 #: app/components/checkboxes-field.php:60
 #: app/js/components/checkboxes-field.js:103
@@ -970,31 +954,31 @@ msgstr "Collection"
 msgid "Choose a form"
 msgstr "Choisir une forme"
 
-#: app/partials/library-app.php:869
+#: app/partials/library-app.php:878
 msgid "More details"
 msgstr "Plus de détails"
 
-#: app/partials/library-app.php:902 app/partials/library-app.php:913
+#: app/partials/library-app.php:912 app/partials/library-app.php:923
 msgid "Add a language"
 msgstr "Ajouter une langue"
 
-#: app/partials/library-app.php:937
+#: app/partials/library-app.php:947
 msgid "Excerpt"
 msgstr "Extrait"
 
-#: app/partials/library-app.php:949
+#: app/partials/library-app.php:961
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: app/partials/library-app.php:949
+#: app/partials/library-app.php:961
 msgid "Save"
 msgstr "Enregistrer"
 
-#: app/partials/library-app.php:953
+#: app/partials/library-app.php:965
 msgid "Edit in the dashboard"
 msgstr "Modifier dans le tableau de bord"
 
-#: app/partials/library-app.php:1041 app/partials/library-app.php:1042
+#: app/partials/library-app.php:1053 app/partials/library-app.php:1054
 msgid "Remove this person"
 msgstr "Retirer cette personne"
 
@@ -1471,7 +1455,7 @@ msgstr "Retour aux sources"
 msgid "Volume 1 read after a later volume"
 msgstr "Tome 1 lu après un tome suivant"
 
-#: includes/class-bnf.php:174 app/js/bricks/library-edit.js:471
+#: includes/class-bnf.php:174 app/js/components/catalogue-status.js:80
 msgid "The catalogue of the BnF does not answer: try again later."
 msgstr "Le catalogue de la BnF ne répond pas : réessayez plus tard."
 
@@ -1484,7 +1468,7 @@ msgstr "t. %s"
 #. translators: %s: volume number.
 #. translators: %s: number of the book in its collection.
 #: includes/class-books.php:379 includes/class-books.php:470
-#: app/js/lib/render.js:242
+#: app/js/lib/render.js:243
 #, php-format
 msgid "no. %s"
 msgstr "n° %s"
@@ -2180,7 +2164,7 @@ msgstr ""
 msgid "No book has this ID."
 msgstr "Aucun livre n’a cet ID."
 
-#: includes/class-rest-api.php:671 app/js/bricks/library-edit.js:467
+#: includes/class-rest-api.php:671 app/js/components/catalogue-status.js:76
 msgid "The catalogue of the BnF has no book of this ISBN."
 msgstr "Le catalogue de la BnF n’a aucun livre de cet ISBN."
 
@@ -3187,21 +3171,13 @@ msgstr "Pas de réponse"
 msgid "%s items"
 msgstr "%s éléments"
 
-#: app/js/bricks/library-diary.js:45
+#: app/js/bricks/library-diary.js:38
 msgid "No readings yet."
 msgstr "Aucune lecture pour l’instant."
 
-#: app/js/bricks/library-diary.js:178
+#: app/js/bricks/library-diary.js:147
 msgid "Read again"
 msgstr "Relu"
-
-#: app/js/bricks/library-edit.js:459
-msgid "Searching the catalogue of the BnF…"
-msgstr "Recherche dans le catalogue de la BnF…"
-
-#: app/js/bricks/library-edit.js:463
-msgid "Filled in from the catalogue of the BnF: check what it gives."
-msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
 
 #. translators: %s: average rating of the books of a person, e.g. 7.5.
 #: app/js/bricks/library-person.js:40
@@ -3374,6 +3350,30 @@ msgstr "Le plus ancien"
 msgid "No barcode found in the photo: take it again, closer."
 msgstr "Aucun code-barres sur la photo : reprenez-la, de plus près."
 
+#: app/js/components/catalogue-status.js:49
+msgid "This book is in the catalogue:"
+msgstr "Ce livre est au catalogue :"
+
+#: app/js/components/catalogue-status.js:50
+msgid "Already added:"
+msgstr "Déjà ajouté :"
+
+#: app/js/components/catalogue-status.js:58
+msgid "Put it in my library"
+msgstr "Le mettre dans ma bibliothèque"
+
+#: app/js/components/catalogue-status.js:59
+msgid "I bought it"
+msgstr "Je l’ai acheté"
+
+#: app/js/components/catalogue-status.js:71
+msgid "Searching the catalogue of the BnF…"
+msgstr "Recherche dans le catalogue de la BnF…"
+
+#: app/js/components/catalogue-status.js:72
+msgid "Filled in from the catalogue of the BnF: check what it gives."
+msgstr "Rempli d’après le catalogue de la BnF : vérifiez ce qu’il donne."
+
 #: app/js/components/checkboxes-field.js:102
 msgid "Uncheck all"
 msgstr "Tout décocher"
@@ -3443,7 +3443,7 @@ msgid "Recap of %s"
 msgstr "Bilan %s"
 
 #. translators: %s: number of authors of a series or a collection, after the first ones.
-#: app/js/lib/render.js:441
+#: app/js/lib/render.js:442
 msgid "%s other author"
 msgid_plural "%s other authors"
 msgstr[0] "%s autre auteur/autrice"

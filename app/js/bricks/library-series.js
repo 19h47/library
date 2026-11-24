@@ -1,7 +1,5 @@
-import { store } from 'library-app/store';
-import { fillAuthors, fillPills, pageLink } from 'library-app/render';
+import { fillPills, pageLink } from 'library-app/render';
 import { fill } from 'library-app/dom';
-import { urlOf } from 'library-app/router';
 import { TermPage } from 'library-app/term-page';
 
 /**
@@ -24,16 +22,8 @@ class LibrarySeriesElement extends TermPage {
 	 * @param {SeriesPage} series The series.
 	 */
 	fillPage( series ) {
-		fill( this, { cycle: series.cycle?.name ?? '', issn: series.issn } );
-
-		if ( series.cycle ) {
-			/** @type {HTMLAnchorElement} */ (
-				this.querySelector( '[data-field="cycle"]' )
-			).href = urlOf( {
-				view: 'series',
-				id: series.cycle.id,
-			} );
-		}
+		fill( this, { issn: series.issn } );
+		this.fillLink( 'cycle', 'series', series.cycle );
 
 		fillPills(
 			this.querySelector( '[data-list="parts"]' ),
@@ -41,25 +31,6 @@ class LibrarySeriesElement extends TermPage {
 				pageLink( 'series', part.id, part.name )
 			)
 		);
-	}
-
-	/**
-	 * Follows its authors, as cards, the ones past the first folded.
-	 *
-	 * @return {Array<() => void>} The unsubscribe functions.
-	 */
-	subscriptions() {
-		/** @type {HTMLElement} */
-		const $authors = this.querySelector( '[data-row="authors"]' );
-
-		// Loaded with its authors.
-		return [
-			store.select(
-				( state ) => state.series.authors,
-				( authors ) =>
-					fillAuthors( $authors, authors, store.get().series.total )
-			),
-		];
 	}
 }
 customElements.define( 'library-series', LibrarySeriesElement );

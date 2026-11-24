@@ -1,7 +1,8 @@
 /**
  * A field of several choices in the form of a book, its original languages: a pill for each choice made, which
  * removes it, the focus going to the button that adds one; the form opened again on the book shows its choices again.
- * Inline, its choices all shown, a button checks them all, then unchecks them, on its own, as the styleguide shows it.
+ * Inline, its choices all shown, a button checks them all, then unchecks them, on its own, as the styleguide shows it;
+ * fields folded under a summary count the ones filled in, on their own too.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -60,7 +61,7 @@ test.describe( 'Choices', () => {
 
 		// The languages, among the details of the form, folded.
 		const details = page.locator(
-			'library-edit [data-part="details"] > summary'
+			'library-edit fields-disclosure summary'
 		);
 
 		await edit.click();
@@ -105,5 +106,21 @@ test.describe( 'Choices', () => {
 		await expect(
 			field.getByRole( 'button', { name: 'Check all' } )
 		).toBeVisible();
+	} );
+
+	test( 'fields folded count the ones filled in, in their summary, on their own', async ( {
+		page,
+	} ) => {
+		await openApp( page, '&view=styleguide' );
+
+		const disclosure = page
+			.locator( 'fields-disclosure' )
+			.filter( { has: page.locator( '#library-styleguide-detail' ) } );
+		const summary = disclosure.locator( 'summary' );
+
+		await expect( summary ).toHaveText( 'More details · 1' );
+		await summary.click();
+		await disclosure.getByLabel( 'Another field' ).fill( 'Typed' );
+		await expect( summary ).toHaveText( 'More details · 2' );
 	} );
 } );

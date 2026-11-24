@@ -12,7 +12,8 @@ import { fillCover } from 'library-app/dom';
  * shows an image.
  *
  * Its API: `cover`, the cover it has, such as the one of the book open, shown until a photo is picked or it is removed;
- * its fields, the photo picked and `<name>_removed`, checked once the cover is removed, which its form sends.
+ * its fields, the photo picked and `<name>_removed`, checked once the cover is removed, which its form sends. Remove
+ * sends a change from that checkbox, as a click on it would.
  */
 export class ImageFieldElement extends Component {
 	static properties = [ 'cover' ];
@@ -61,6 +62,12 @@ export class ImageFieldElement extends Component {
 				$file.value = '';
 				$removed.checked = true;
 				show( null );
+				$removed.dispatchEvent(
+					new Event( 'input', { bubbles: true } )
+				);
+				$removed.dispatchEvent(
+					new Event( 'change', { bubbles: true } )
+				);
 				// The button hides: the focus goes to the one that picks a photo.
 				$file.focus();
 			},

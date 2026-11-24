@@ -1,11 +1,15 @@
 /**
- * What the catalogue tells of a book to add: the book that has its ISBN or its title already, or the search of the
- * catalogue of the BnF.
+ * What the catalogue tells of a book to add, a molecule, its custom element its root: the book that has its ISBN or its
+ * title already, or the search of the catalogue of the BnF.
  */
 
 @layer app.components {
+	catalogue-status {
+		display: block;
+	}
+
 	/* Its messages stay in the page, to be read once one shows, out of the flow while none does */
-	.library-catalogue-status:not(:has(> :not([hidden]))) {
+	catalogue-status:not(:has(> :not([hidden]))) {
 		position: absolute;
 	}
 

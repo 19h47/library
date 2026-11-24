@@ -123,7 +123,7 @@ $form_filter = array(
 							</div>
 							<p class="app-status" data-field="status" hidden></p>
 							<p class="library-idea__reason" data-field="reason"></p>
-							<ul class="app-list" data-field="book"></ul>
+							<ul class="app-list" data-list="book"></ul>
 						</library-idea>
 						<library-close class="library-section" hidden>
 							<div class="library-title">
@@ -238,7 +238,7 @@ $form_filter = array(
 						<h2 class="library-title"><?php esc_html_e( 'Reading idea of the week', 'library' ); ?></h2>
 						<p class="app-status" data-field="status" hidden></p>
 						<p class="library-idea__reason" data-field="reason"></p>
-						<ul class="app-list" data-field="book"></ul>
+						<ul class="app-list" data-list="book"></ul>
 						<p class="library-idea__actions" data-row="next">
 							<button class="app-pill" type="button" data-action="next-idea"><?php esc_html_e( 'Another idea', 'library' ); ?></button>
 						</p>
@@ -854,103 +854,115 @@ $form_filter = array(
 							'attributes' => array( 'name' => 'form' ),
 						)
 					);
-					Markup::render_component(
-						'field',
-						array(
-							'id'         => 'library-edit-status',
-							'label'      => __( 'Library', 'library' ),
-							'control'    => Markup::get_select( $status_choices ),
-							'attributes' => array( 'name' => 'status' ),
-						)
-					);
 					?>
-					<?php // The fields few books have, closed: its summary counts the ones filled in. ?>
-					<details class="library-disclosure library-edit__details" data-part="details">
-						<summary class="app-text-s app-text-muted app-font-ui app-uppercase" data-label="<?php esc_attr_e( 'More details', 'library' ); ?>"><?php esc_html_e( 'More details', 'library' ); ?></summary>
+					<?php // Where the book goes, for a book to add only: one edited has its reading form. ?>
+					<div data-part="status">
 						<?php
-						Markup::render_component( 'meta-field', array( 'key' => 'library_subtitle' ) );
-
-						// A date by its day, its month in words and its year, rather than typed in the order of ISO 8601.
-						foreach ( array( 'library_published_date', 'library_edition_date' ) as $key ) {
-							Markup::render_component(
-								'partial-date',
-								array(
-									'id'          => 'library-edit-' . str_replace( '_', '-', $key ),
-									'label'       => Meta::get_label( $key ),
-									'description' => Meta::get_description( $key ),
-									'name'        => Meta::get_name( $key ),
-									'attributes'  => array( 'data-meta' => true ),
-								)
-							);
-						}
-
-						// A number of pages is typed with the digits only.
-						Markup::render_component(
-							'meta-field',
-							array(
-								'key'        => 'library_pages',
-								'attributes' => array( 'inputmode' => 'numeric' ),
-							)
-						);
-
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'      => 'library-edit-languages',
-								'label'   => $language_labels->name_for_book,
-								'name'    => 'languages',
-								'add'     => __( 'Add a language', 'library' ),
-								'options' => $language_choices,
-							)
-						);
-						// A book added is in the language of the reader, unless the catalogue says otherwise.
-						Markup::render_component(
-							'checkboxes-field',
-							array(
-								'id'          => 'library-edit-edition-languages',
-								'label'       => Meta::get_label( 'library_edition_languages' ),
-								'name'        => Meta::get_name( 'library_edition_languages' ),
-								'add'         => __( 'Add a language', 'library' ),
-								'options'     => $language_choices,
-								'checked'     => array( $own_language_id ),
-								'description' => Meta::get_description( 'library_edition_languages' ),
-							)
-						);
-						Markup::render_component(
-							'pill-checkbox',
-							array(
-								'id'      => 'library-edit-collective',
-								'label'   => Meta::get_label( 'library_collective' ),
-								'control' => Meta::get_control(
-									'library_collective',
-									array(
-										'name'      => Meta::get_name( 'library_collective' ),
-										'data-meta' => true,
-									)
-								),
-							)
-						);
 						Markup::render_component(
 							'field',
 							array(
-								'id'         => 'library-edit-excerpt',
-								'label'      => __( 'Excerpt', 'library' ),
-								'control'    => '<textarea></textarea>',
-								'attributes' => array(
-									'name' => 'excerpt',
-									'rows' => 3,
-								),
+								'id'         => 'library-edit-status',
+								'label'      => __( 'Library', 'library' ),
+								'control'    => Markup::get_select( $status_choices ),
+								'attributes' => array( 'name' => 'status' ),
 							)
 						);
 						?>
-					</details>
+					</div>
+					<?php
+
+					// The fields few books have, closed: its summary counts the ones filled in.
+					Markup::render_component(
+						'fields-disclosure',
+						array(
+							'label'  => __( 'More details', 'library' ),
+							'class'  => 'library-edit__details',
+							'fields' => function () use ( $language_labels, $language_choices, $own_language_id ): void {
+								Markup::render_component( 'meta-field', array( 'key' => 'library_subtitle' ) );
+
+								// A date by its day, its month in words and its year, rather than typed in the order of ISO 8601.
+								foreach ( array( 'library_published_date', 'library_edition_date' ) as $key ) {
+									Markup::render_component(
+										'partial-date',
+										array(
+											'id'          => 'library-edit-' . str_replace( '_', '-', $key ),
+											'label'       => Meta::get_label( $key ),
+											'description' => Meta::get_description( $key ),
+											'name'        => Meta::get_name( $key ),
+											'attributes'  => array( 'data-meta' => true ),
+										)
+									);
+								}
+
+								// A number of pages is typed with the digits only.
+								Markup::render_component(
+									'meta-field',
+									array(
+										'key'        => 'library_pages',
+										'attributes' => array( 'inputmode' => 'numeric' ),
+									)
+								);
+
+								Markup::render_component(
+									'checkboxes-field',
+									array(
+										'id'      => 'library-edit-languages',
+										'label'   => $language_labels->name_for_book,
+										'name'    => 'languages',
+										'add'     => __( 'Add a language', 'library' ),
+										'options' => $language_choices,
+									)
+								);
+								// A book added is in the language of the reader, unless the catalogue says otherwise.
+								Markup::render_component(
+									'checkboxes-field',
+									array(
+										'id'          => 'library-edit-edition-languages',
+										'label'       => Meta::get_label( 'library_edition_languages' ),
+										'name'        => Meta::get_name( 'library_edition_languages' ),
+										'add'         => __( 'Add a language', 'library' ),
+										'options'     => $language_choices,
+										'checked'     => array( $own_language_id ),
+										'description' => Meta::get_description( 'library_edition_languages' ),
+									)
+								);
+								Markup::render_component(
+									'pill-checkbox',
+									array(
+										'id'      => 'library-edit-collective',
+										'label'   => Meta::get_label( 'library_collective' ),
+										'control' => Meta::get_control(
+											'library_collective',
+											array(
+												'name' => Meta::get_name( 'library_collective' ),
+												'data-meta' => true,
+											)
+										),
+									)
+								);
+								Markup::render_component(
+									'field',
+									array(
+										'id'         => 'library-edit-excerpt',
+										'label'      => __( 'Excerpt', 'library' ),
+										'control'    => '<textarea></textarea>',
+										'attributes' => array(
+											'name' => 'excerpt',
+											'rows' => 3,
+										),
+									)
+								);
+							},
+						)
+					);
+					?>
 					<p class="app-status" data-field="error" role="alert" hidden></p>
 					<p>
 						<button class="app-pill app-pill--primary" type="submit" data-saving="<?php esc_attr_e( 'Saving…', 'library' ); ?>"><?php esc_html_e( 'Save', 'library' ); ?></button>
 					</p>
 				</form>
-				<p class="app-text-s app-text-muted app-font-ui app-uppercase" hidden>
-					<a data-link="admin" href=""><?php esc_html_e( 'Edit in the dashboard', 'library' ); ?></a>
+				<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-part="admin" hidden>
+					<a href=""><?php esc_html_e( 'Edit in the dashboard', 'library' ); ?></a>
 				</p>
 				<datalist id="library-edit-people"></datalist>
 				<datalist id="library-edit-publishers"></datalist>

@@ -16,6 +16,7 @@ import {
 	formatMonthInitial,
 	formatMonthName,
 	formatNumber,
+	formatRecap,
 	join,
 } from 'library-app/format';
 import {
@@ -689,4 +690,37 @@ export function renderShares( shares ) {
 	);
 
 	return $lines;
+}
+
+/**
+ * A month of the diary: its name, how many readings it has, and their cards.
+ *
+ * @param {string}        month     The month, Y-m.
+ * @param {number}        count     How many readings it has, those whose book is not loaded too.
+ * @param {HTMLElement[]} $readings The cards of its readings.
+ * @return {HTMLElement} Its section.
+ */
+export function renderMonth( month, count, $readings ) {
+	const $month = clone( 'library-month' );
+
+	fill( $month, { month: formatDate( month ), count: formatBooks( count ) } );
+	$month.querySelector( 'ul' ).append( ...$readings );
+
+	return $month;
+}
+
+/**
+ * The link to the recap of `year`, before its latest month in the diary.
+ *
+ * @param {number} year The year.
+ * @return {HTMLElement} Its paragraph.
+ */
+export function renderDiaryRecap( year ) {
+	const $recap = clone( 'library-diary-recap' );
+
+	/** @type {HTMLAnchorElement} */ ( $recap.querySelector( 'a' ) ).href =
+		urlOf( { view: 'recap', id: year } );
+	fill( $recap, { recap: formatRecap( year ) } );
+
+	return $recap;
 }

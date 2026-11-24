@@ -7,6 +7,8 @@ import {
 	renderAchievement,
 	renderAuthor,
 	renderBook,
+	renderDiaryRecap,
+	renderMonth,
 	renderCloseAchievement,
 	renderCover,
 	renderCurrent,
@@ -16,7 +18,7 @@ import {
 	renderShares,
 	renderTile,
 } from 'library-app/render';
-import { clone, fill, fillHtml } from 'library-app/dom';
+import { fill, fillHtml } from 'library-app/dom';
 import { showError } from 'library-app/behaviors';
 import {
 	formatBooks,
@@ -224,7 +226,22 @@ class LibraryStyleguideElement extends Brick {
 			current: () =>
 				[ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderCurrent ),
 			rows: () => [ BOOKS[ 0 ], BOOKS[ 3 ], BOOKS[ 5 ] ].map( renderRow ),
-			month: () => [ this.#renderDiaryRecap(), this.#renderMonth() ],
+			month: () => [
+				renderDiaryRecap( 2025 ),
+				renderMonth(
+					'2026-10',
+					2,
+					[ BOOKS[ 0 ], BOOKS[ 1 ] ].map( ( book ) =>
+						renderBook(
+							book,
+							join( [
+								formatDate( '2026-10-28', 'day' ),
+								formatRating( book.rating ),
+							] )
+						)
+					)
+				),
+			],
 			volumes: () => this.#renderVolumes(),
 			terms: () => [
 				...AUTHORS.map( ( author ) =>
@@ -301,28 +318,16 @@ class LibraryStyleguideElement extends Brick {
 		fill( this.querySelector( '[data-sample="recap-link"]' ), {
 			year: '2025',
 		} );
-		/** @type {HTMLElement} */
-		const $found = this.querySelector(
+		this.querySelector(
 			'[data-sample="catalogue-status-duplicate"]'
-		);
-		/** @type {HTMLElement} */
-		const $keep = $found.querySelector( '[data-action="keep"]' );
-
-		fill( $found, {
-			found: /** @type {HTMLElement} */ (
-				$found.querySelector( '[data-field="found"]' )
-			).dataset.catalogue,
-			duplicate: 'A title',
-		} );
-		$keep.textContent = $keep.dataset.catalogue;
-		$keep.hidden = false;
-		fill(
-			this.querySelector( '[data-sample="catalogue-status-catalog"]' ),
-			{
-				catalog:
-					'Filled in from the catalogue of the BnF: check what it gives.',
-			}
-		);
+		).querySelector( 'catalogue-status' ).duplicate = {
+			title: 'A title',
+			url: '#top',
+			kind: 'catalogue',
+		};
+		this.querySelector(
+			'[data-sample="catalogue-status-catalog"]'
+		).querySelector( 'catalogue-status' ).catalog = 'found';
 		/** @type {HTMLElement} */ (
 			this.querySelector(
 				'[data-sample="keywords"] [data-list="keywords"]'
@@ -425,48 +430,6 @@ class LibraryStyleguideElement extends Brick {
 			.setAttribute( 'aria-current', 'page' );
 
 		return $covers;
-	}
-
-	/**
-	 * The link of the diary to the recap of a year gone by, from its template.
-	 *
-	 * @return {HTMLElement} The link, in its paragraph.
-	 */
-	#renderDiaryRecap() {
-		const $recap = clone( 'library-diary-recap' );
-
-		fill( $recap, { recap: 'Recap of 2025' } );
-
-		return $recap;
-	}
-
-	/**
-	 * A month of the diary, with two readings.
-	 *
-	 * @return {HTMLElement} The month.
-	 */
-	#renderMonth() {
-		const $month = clone( 'library-month' );
-
-		fill( $month, {
-			month: formatDate( '2026-10' ),
-			count: formatBooks( 2 ),
-		} );
-		$month
-			.querySelector( 'ul' )
-			.append(
-				...[ BOOKS[ 0 ], BOOKS[ 1 ] ].map( ( book ) =>
-					renderBook(
-						book,
-						join( [
-							formatDate( '2026-10-28', 'day' ),
-							formatRating( book.rating ),
-						] )
-					)
-				)
-			);
-
-		return $month;
 	}
 }
 customElements.define( 'library-styleguide', LibraryStyleguideElement );

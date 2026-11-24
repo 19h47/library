@@ -4,7 +4,9 @@
  */
 
 import type { BarcodeScanElement } from '../app/js/components/barcode-scan.js';
+import type { CatalogueStatusElement } from '../app/js/components/catalogue-status.js';
 import type { CheckboxesFieldElement } from '../app/js/components/checkboxes-field.js';
+import type { FieldsDisclosureElement } from '../app/js/components/fields-disclosure.js';
 import type { FiltersSheetElement } from '../app/js/components/filters-sheet.js';
 import type { ImageFieldElement } from '../app/js/components/image-field.js';
 import type { InputGroupsElement } from '../app/js/components/input-groups.js';
@@ -16,7 +18,9 @@ import type { ReadingPeriodElement } from '../app/js/components/reading-period.j
 declare global {
 	interface HTMLElementTagNameMap {
 		'barcode-scan': BarcodeScanElement;
+		'catalogue-status': CatalogueStatusElement;
 		'checkboxes-field': CheckboxesFieldElement;
+		'fields-disclosure': FieldsDisclosureElement;
 		'filters-sheet': FiltersSheetElement;
 		'image-field': ImageFieldElement;
 		'input-groups': InputGroupsElement;
