@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Library\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
-"POT-Creation-Date: 2026-11-24T14:22:13+00:00\n"
+"POT-Creation-Date: 2026-11-24T14:32:08+00:00\n"
 "PO-Revision-Date: 2026-03-06 10:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -740,7 +740,7 @@ msgstr ""
 msgid "Day"
 msgstr "Jour"
 
-#: app/components/recap-link.php:16
+#: app/components/recap-link.php:25
 msgid "The recap of the year"
 msgstr "Le bilan de l’année"
 
