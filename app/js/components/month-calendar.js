@@ -1,5 +1,6 @@
 import { Component } from 'library-app/component';
 import { fillCover } from 'library-app/dom';
+import { formatDate } from 'library-app/format';
 
 /**
  * @import { Cover } from 'library-app/api'
@@ -34,10 +35,11 @@ import { fillCover } from 'library-app/dom';
 
 /**
  * The days of a month, the root of the component month-calendar: in weeks from Monday, the first one in the column of its
- * weekday, each as dark as its level, a day to come its outline; covers, each day its number and the cover of the book
- * whose reading ended that day, a link to it, the others counted.
+ * weekday, each as dark as its level, a day to come its outline, today marked; covers, each day its number, which chooses
+ * it, and the cover of the book whose reading ended that day, a link to it, the others counted.
  *
- * Its API: `value`, the year, the month and its days gone by.
+ * Its API: `value`, the year, the month and its days gone by; `dayselect`, which a day chosen sends, its day of the month,
+ * from 1, in its detail.
  */
 export class MonthCalendarElement extends Component {
 	static properties = [ 'value' ];
@@ -59,10 +61,24 @@ export class MonthCalendarElement extends Component {
 		const $template = /** @type {HTMLTemplateElement} */ (
 			this.querySelector( 'template' )
 		).content.firstElementChild;
+		const now = new Date();
 		const $days = [ ...Array( year ? length : 0 ).keys() ].map( ( day ) => {
 			const $day = /** @type {HTMLElement} */ (
 				$template.cloneNode( true )
 			);
+			const date = `${ year }-${ ( month + 1 )
+				.toString()
+				.padStart( 2, '0' ) }-${ ( day + 1 )
+				.toString()
+				.padStart( 2, '0' ) }`;
+
+			if (
+				year === now.getFullYear() &&
+				month === now.getMonth() &&
+				day + 1 === now.getDate()
+			) {
+				$day.setAttribute( 'aria-current', 'date' );
+			}
 
 			if ( day < days.length ) {
 				$day.dataset.level = days[ day ].level.toString();
@@ -71,10 +87,16 @@ export class MonthCalendarElement extends Component {
 				$day.dataset.day = 'later';
 			}
 
+			/** @type {HTMLButtonElement|null} */
 			const $number = $day.querySelector( '[data-part="number"]' );
 
 			if ( $number ) {
 				$number.textContent = ( day + 1 ).toString();
+				$number.value = ( day + 1 ).toString();
+				$number.setAttribute(
+					'aria-label',
+					formatDate( date, 'full' )
+				);
 			}
 
 			return $day;
@@ -86,6 +108,28 @@ export class MonthCalendarElement extends Component {
 			( weekday + 1 ).toString()
 		);
 		this.querySelector( '[data-part="days"]' ).replaceChildren( ...$days );
+	}
+
+	connect( signal ) {
+		this.addEventListener(
+			'click',
+			( event ) => {
+				/** @type {HTMLButtonElement|null} */
+				const $number = /** @type {Element} */ ( event.target ).closest(
+					'[data-part="number"]'
+				);
+
+				if ( $number ) {
+					this.dispatchEvent(
+						new CustomEvent( 'dayselect', {
+							bubbles: true,
+							detail: { day: Number( $number.value ) },
+						} )
+					);
+				}
+			},
+			{ signal }
+		);
 	}
 
 	/**

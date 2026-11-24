@@ -26,16 +26,28 @@
 		overflow: hidden;
 	}
 
-	/* Its number, over its cover, on the background of the page to read as well */
+	/* Today, its outline */
+	.library-month-calendar > [aria-current="date"] {
+		outline: 1px solid var(--app-text);
+		outline-offset: 1px;
+	}
+
+	/* Its number, a button that chooses it, over its cover, on the background of the page to read as well */
 	.library-month-calendar__number {
 		position: absolute;
 		inset: 0 auto auto 0;
 		z-index: 1;
-		padding-inline: var(--app-space-xs);
+		padding: 0 var(--app-space-xs);
+		border: 0;
 		border-end-end-radius: var(--app-radius-s);
 		background: var(--app-bg);
 		color: var(--app-text-muted);
 		line-height: var(--app-line-height);
+		cursor: pointer;
+	}
+
+	.library-month-calendar__number:hover {
+		color: var(--app-text);
 	}
 
 	/*

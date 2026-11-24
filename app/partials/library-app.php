@@ -228,7 +228,7 @@ $form_filter = array(
 							</library-filters>
 						</div>
 					<?php endif; ?>
-					<?php // The days of reading of a year, or of one of its months, which the forms chosen filter too. ?>
+					<?php // The days of reading of a year, of one of its months or of one of its days, which the forms chosen filter too. ?>
 					<library-calendar class="library-calendar">
 						<div class="library-calendar__bar">
 							<?php
@@ -240,6 +240,7 @@ $form_filter = array(
 									'options'    => array(
 										'year'  => __( 'Year', 'library' ),
 										'month' => __( 'Month', 'library' ),
+										'day'   => __( 'Day', 'library' ),
 									),
 									'attributes' => array( 'name' => 'scale' ),
 								)
@@ -251,7 +252,7 @@ $form_filter = array(
 							</p>
 						</div>
 						<h3 class="library-calendar__period" data-field="period" aria-live="polite"></h3>
-						<dl class="library-calendar__stats">
+						<dl class="library-fields library-fields--columns">
 							<?php
 							$calendar_stats = array(
 								'readings' => __( 'Readings', 'library' ),
@@ -261,9 +262,9 @@ $form_filter = array(
 							);
 							?>
 							<?php foreach ( $calendar_stats as $calendar_field => $calendar_label ) : ?>
-								<div>
+								<div data-row="<?php echo esc_attr( $calendar_field ); ?>">
 									<dt class="app-text-s app-text-muted app-font-ui app-uppercase"><?php echo esc_html( $calendar_label ); ?></dt>
-									<dd class="library-calendar__figure" data-field="<?php echo esc_attr( $calendar_field ); ?>"></dd>
+									<dd data-field="<?php echo esc_attr( $calendar_field ); ?>"></dd>
 								</div>
 							<?php endforeach; ?>
 						</dl>
@@ -278,6 +279,11 @@ $form_filter = array(
 						</ol>
 						<div data-part="month" hidden>
 							<?php Markup::render_component( 'month-calendar', array( 'covers' => true ) ); ?>
+						</div>
+						<?php // The books read that day, the one in progress up to today. ?>
+						<div data-part="day" hidden>
+							<ul class="app-list" data-list="day"></ul>
+							<p class="app-status" data-part="none" hidden><?php esc_html_e( 'No reading that day.', 'library' ); ?></p>
 						</div>
 						<p class="app-status" data-field="status" hidden></p>
 					</library-calendar>

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-24T14:46:00+00:00\n"
+"POT-Creation-Date: 2026-11-24T15:07:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -24,8 +24,8 @@ msgstr ""
 #: app/partials/library-app.php:52
 #: app/partials/library-app.php:71
 #: app/partials/library-app.php:163
-#: app/partials/library-app.php:584
-#: app/partials/library-app.php:853
+#: app/partials/library-app.php:590
+#: app/partials/library-app.php:859
 msgid "Library"
 msgstr ""
 
@@ -53,8 +53,8 @@ msgstr ""
 #: admin/class-achievements-page.php:71
 #: admin/partials/library-achievements.php:20
 #: app/class-page.php:334
-#: app/partials/library-app.php:315
-#: app/partials/library-app.php:529
+#: app/partials/library-app.php:321
+#: app/partials/library-app.php:535
 msgid "Achievements"
 msgstr ""
 
@@ -64,9 +64,9 @@ msgstr ""
 
 #: admin/class-books-list.php:90
 #: app/components/book-fields.php:23
-#: app/partials/library-app.php:369
-#: app/partials/library-app.php:387
-#: app/partials/library-app.php:776
+#: app/partials/library-app.php:375
+#: app/partials/library-app.php:393
+#: app/partials/library-app.php:782
 msgid "Authors"
 msgstr ""
 
@@ -95,7 +95,7 @@ msgstr ""
 #. translators: %s: number of readings of a book.
 #. translators: %s: number of readings.
 #: admin/class-books-list.php:163
-#: app/js/lib/format.js:60
+#: app/js/lib/format.js:61
 #, php-format,js-format
 msgid "%s reading"
 msgid_plural "%s readings"
@@ -243,7 +243,7 @@ msgstr ""
 #. translators: %s: rating, e.g. 7.5.
 #: admin/class-dashboard.php:370
 #: includes/class-books.php:551
-#: app/js/lib/format.js:140
+#: app/js/lib/format.js:142
 #, php-format,js-format
 msgid "%s/10"
 msgstr ""
@@ -259,7 +259,7 @@ msgid "Average rating by year read"
 msgstr ""
 
 #: admin/class-dashboard.php:380
-#: app/partials/library-app.php:519
+#: app/partials/library-app.php:525
 msgid "Average rating"
 msgstr ""
 
@@ -271,7 +271,7 @@ msgstr ""
 
 #. translators: %s: number of books read, after the number of books of a person, a series or a collection.
 #: admin/class-dashboard.php:430
-#: app/js/lib/format.js:74
+#: app/js/lib/format.js:75
 #, php-format,js-format
 msgid "%s read"
 msgid_plural "%s read"
@@ -461,7 +461,7 @@ msgstr[1] ""
 #: admin/partials/library-achievements.php:27
 #: admin/partials/library-dashboard-achievements.php:37
 #: app/partials/library-app.php:132
-#: app/partials/library-app.php:308
+#: app/partials/library-app.php:314
 msgid "Close to it"
 msgstr ""
 
@@ -515,7 +515,7 @@ msgstr ""
 
 #. translators: %s: number of pages.
 #: admin/partials/library-dashboard-idea.php:30
-#: app/js/lib/format.js:88
+#: app/js/lib/format.js:89
 #, php-format,js-format
 msgid "%s page"
 msgid_plural "%s pages"
@@ -621,12 +621,12 @@ msgid "Start of the reading"
 msgstr ""
 
 #: admin/partials/library-reading.php:40
-#: app/partials/library-app.php:977
+#: app/partials/library-app.php:983
 msgid "Remove this reading"
 msgstr ""
 
 #: admin/partials/library-shelf.php:32
-#: app/partials/library-app.php:585
+#: app/partials/library-app.php:591
 #: app/js/lib/book-lines.js:105
 msgid "On none of my shelves"
 msgstr ""
@@ -636,12 +636,12 @@ msgid "Not kept: read but not in my library. To buy: not in my library yet. The 
 msgstr ""
 
 #: admin/partials/library-shelf.php:62
-#: app/partials/library-app.php:598
+#: app/partials/library-app.php:604
 msgid "Started"
 msgstr ""
 
 #: admin/partials/library-shelf.php:84
-#: app/partials/library-app.php:620
+#: app/partials/library-app.php:626
 msgid "Add a reading"
 msgstr ""
 
@@ -669,7 +669,7 @@ msgid "Idea"
 msgstr ""
 
 #: app/class-page.php:335
-#: app/partials/library-app.php:404
+#: app/partials/library-app.php:410
 msgid "To buy"
 msgstr ""
 
@@ -744,6 +744,7 @@ msgstr ""
 
 #: app/components/partial-date.php:30
 #: app/components/partial-date.php:56
+#: app/partials/library-app.php:243
 msgid "Day"
 msgstr ""
 
@@ -840,7 +841,7 @@ msgid "Latest added"
 msgstr ""
 
 #: app/partials/library-app.php:188
-#: app/partials/library-app.php:767
+#: app/partials/library-app.php:773
 msgid "Title"
 msgstr ""
 
@@ -856,168 +857,172 @@ msgstr ""
 msgid "Calendar"
 msgstr ""
 
-#: app/partials/library-app.php:249
+#: app/partials/library-app.php:250
 msgid "Before"
 msgstr ""
 
-#: app/partials/library-app.php:250
+#: app/partials/library-app.php:251
 msgid "After"
 msgstr ""
 
-#: app/partials/library-app.php:257
+#: app/partials/library-app.php:258
 #: includes/class-shelf.php:94
 msgid "Readings"
 msgstr ""
 
-#: app/partials/library-app.php:258
+#: app/partials/library-app.php:259
 #: includes/class-meta.php:136
 msgid "Pages"
 msgstr ""
 
-#: app/partials/library-app.php:259
+#: app/partials/library-app.php:260
 msgid "Days of reading"
 msgstr ""
 
-#: app/partials/library-app.php:260
+#: app/partials/library-app.php:261
 msgid "Days in a row"
 msgstr ""
 
-#: app/partials/library-app.php:376
+#: app/partials/library-app.php:286
+msgid "No reading that day."
+msgstr ""
+
+#: app/partials/library-app.php:382
 msgid "Publisher:"
 msgstr ""
 
-#: app/partials/library-app.php:381
+#: app/partials/library-app.php:387
 msgid "Collection:"
 msgstr ""
 
-#: app/partials/library-app.php:386
+#: app/partials/library-app.php:392
 msgid "Collections"
 msgstr ""
 
-#: app/partials/library-app.php:446
+#: app/partials/library-app.php:452
 msgid "A year of reading"
 msgstr ""
 
-#: app/partials/library-app.php:453
+#: app/partials/library-app.php:459
 #: includes/class-taxonomies.php:630
 msgid "Books read"
 msgstr ""
 
-#: app/partials/library-app.php:460
+#: app/partials/library-app.php:466
 msgid "Pages read"
 msgstr ""
 
-#: app/partials/library-app.php:468
+#: app/partials/library-app.php:474
 msgid "Month by month"
 msgstr ""
 
-#: app/partials/library-app.php:478
+#: app/partials/library-app.php:484
 msgid "Day by day"
 msgstr ""
 
-#: app/partials/library-app.php:492
+#: app/partials/library-app.php:498
 msgid "Read the most"
 msgstr ""
 
-#: app/partials/library-app.php:497
+#: app/partials/library-app.php:503
 #: includes/class-achievement-family.php:40
 msgid "Discoveries"
 msgstr ""
 
-#: app/partials/library-app.php:517
+#: app/partials/library-app.php:523
 msgid "Favourites"
 msgstr ""
 
-#: app/partials/library-app.php:524
+#: app/partials/library-app.php:530
 msgid "Records"
 msgstr ""
 
-#: app/partials/library-app.php:535
+#: app/partials/library-app.php:541
 msgid "The pile"
 msgstr ""
 
-#: app/partials/library-app.php:544
+#: app/partials/library-app.php:550
 msgid "Other years"
 msgstr ""
 
-#: app/partials/library-app.php:624
+#: app/partials/library-app.php:630
 msgid "Add a reading with an unknown date"
 msgstr ""
 
-#: app/partials/library-app.php:662
+#: app/partials/library-app.php:668
 msgid "Photograph my copy"
 msgstr ""
 
-#: app/partials/library-app.php:663
+#: app/partials/library-app.php:669
 msgid "Remove the photo of my copy"
 msgstr ""
 
-#: app/partials/library-app.php:696
+#: app/partials/library-app.php:702
 msgid "Dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:697
+#: app/partials/library-app.php:703
 msgid "Top"
 msgstr ""
 
-#: app/partials/library-app.php:715
+#: app/partials/library-app.php:721
 msgid "Dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:716
+#: app/partials/library-app.php:722
 msgid "Light or dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:748
+#: app/partials/library-app.php:754
 msgid "Choose a cover"
 msgstr ""
 
-#: app/partials/library-app.php:749
+#: app/partials/library-app.php:755
 msgid "Remove the cover"
 msgstr ""
 
-#: app/partials/library-app.php:789
+#: app/partials/library-app.php:795
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:790
+#: app/partials/library-app.php:796
 msgid "Add a person"
 msgstr ""
 
-#: app/partials/library-app.php:824
+#: app/partials/library-app.php:830
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:841
+#: app/partials/library-app.php:847
 msgid "Choose a form"
 msgstr ""
 
-#: app/partials/library-app.php:866
+#: app/partials/library-app.php:872
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:900
-#: app/partials/library-app.php:911
+#: app/partials/library-app.php:906
+#: app/partials/library-app.php:917
 msgid "Add a language"
 msgstr ""
 
-#: app/partials/library-app.php:935
+#: app/partials/library-app.php:941
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:949
+#: app/partials/library-app.php:955
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:949
+#: app/partials/library-app.php:955
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:953
+#: app/partials/library-app.php:959
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:1008
+#: app/partials/library-app.php:1014
 msgid "Remove this person"
 msgstr ""
 
@@ -1524,7 +1529,7 @@ msgstr ""
 
 #. translators: %s: number of books.
 #: includes/class-books.php:497
-#: app/js/lib/format.js:46
+#: app/js/lib/format.js:47
 #, php-format,js-format
 msgid "%s book"
 msgid_plural "%s books"
@@ -2031,7 +2036,7 @@ msgid "Year of the calendar."
 msgstr ""
 
 #: includes/class-rest-api.php:427
-#: includes/class-rest-schemas.php:532
+#: includes/class-rest-schemas.php:534
 msgid "Year of the recap."
 msgstr ""
 
@@ -2120,15 +2125,15 @@ msgstr ""
 #: includes/class-rest-schemas.php:102
 #: includes/class-rest-schemas.php:158
 #: includes/class-rest-schemas.php:175
-#: includes/class-rest-schemas.php:521
-#: includes/class-rest-schemas.php:573
+#: includes/class-rest-schemas.php:523
+#: includes/class-rest-schemas.php:575
 msgid "Term ID."
 msgstr ""
 
 #: includes/class-rest-schemas.php:103
 #: includes/class-rest-schemas.php:159
 #: includes/class-rest-schemas.php:176
-#: includes/class-rest-schemas.php:522
+#: includes/class-rest-schemas.php:524
 msgid "Name, in plain text."
 msgstr ""
 
@@ -2186,7 +2191,7 @@ msgstr ""
 
 #: includes/class-rest-schemas.php:160
 #: includes/class-rest-schemas.php:177
-#: includes/class-rest-schemas.php:575
+#: includes/class-rest-schemas.php:577
 msgid "Description, HTML."
 msgstr ""
 
@@ -2363,7 +2368,7 @@ msgid "Achievements earned, latest first."
 msgstr ""
 
 #: includes/class-rest-schemas.php:485
-#: includes/class-rest-schemas.php:549
+#: includes/class-rest-schemas.php:551
 msgid "An achievement earned."
 msgstr ""
 
@@ -2376,7 +2381,7 @@ msgid "An achievement close to be earned."
 msgstr ""
 
 #: includes/class-rest-schemas.php:501
-#: includes/class-rest-schemas.php:533
+#: includes/class-rest-schemas.php:535
 msgid "Years with a reading, the earliest first."
 msgstr ""
 
@@ -2385,146 +2390,154 @@ msgid "Level of each day gone by, from January 1st: 0 for none read, up to 4 for
 msgstr ""
 
 #: includes/class-rest-schemas.php:503
+msgid "Pages read on each day gone by, from January 1st, those of a book read from a known start spread over its days."
+msgstr ""
+
+#: includes/class-rest-schemas.php:504
 msgid "IDs of the books whose reading ended on each day, by the day, from 0 for January 1st."
 msgstr ""
 
-#: includes/class-rest-schemas.php:523
+#: includes/class-rest-schemas.php:505
+msgid "IDs of the books read on each day, a reading in progress up to today, by the day, from 0 for January 1st."
+msgstr ""
+
+#: includes/class-rest-schemas.php:525
 msgid "Readings in the year."
 msgstr ""
 
-#: includes/class-rest-schemas.php:534
+#: includes/class-rest-schemas.php:536
 msgid "Days gone by: all of them for a year gone."
 msgstr ""
 
-#: includes/class-rest-schemas.php:535
+#: includes/class-rest-schemas.php:537
 msgid "Readings of the year."
 msgstr ""
 
-#: includes/class-rest-schemas.php:536
+#: includes/class-rest-schemas.php:538
 msgid "Readings of the year before."
 msgstr ""
 
-#: includes/class-rest-schemas.php:537
+#: includes/class-rest-schemas.php:539
 msgid "The readings of the year of a book read before, in the year or earlier."
 msgstr ""
 
-#: includes/class-rest-schemas.php:538
+#: includes/class-rest-schemas.php:540
 msgid "IDs of the books read, in the order they were read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:539
+#: includes/class-rest-schemas.php:541
 msgid "Pages read, and the readings of a book with its number of pages."
 msgstr ""
 
-#: includes/class-rest-schemas.php:540
+#: includes/class-rest-schemas.php:542
 msgid "Readings of each month, from January."
 msgstr ""
 
-#: includes/class-rest-schemas.php:541
+#: includes/class-rest-schemas.php:543
 msgid "Forms read, the most read first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:542
+#: includes/class-rest-schemas.php:544
 msgid "People read the most, by the name they are known by."
 msgstr ""
 
-#: includes/class-rest-schemas.php:543
+#: includes/class-rest-schemas.php:545
 msgid "People read for the first time, in the order they were read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:543
+#: includes/class-rest-schemas.php:545
 msgid "A person."
 msgstr ""
 
-#: includes/class-rest-schemas.php:544
+#: includes/class-rest-schemas.php:546
 msgid "Original languages, as ISO 639 codes, the most read first, each with its readings."
 msgstr ""
 
-#: includes/class-rest-schemas.php:545
+#: includes/class-rest-schemas.php:547
 msgid "Series read, the most read first, each started in the year or finished, or not."
 msgstr ""
 
-#: includes/class-rest-schemas.php:546
+#: includes/class-rest-schemas.php:548
 msgid "Average rating of the books read, none without one."
 msgstr ""
 
-#: includes/class-rest-schemas.php:547
+#: includes/class-rest-schemas.php:549
 msgid "IDs of the books read with a rating, the highest first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:548
+#: includes/class-rest-schemas.php:550
 msgid "IDs of the longest, the shortest and the oldest books read, 0 for none."
 msgstr ""
 
-#: includes/class-rest-schemas.php:549
+#: includes/class-rest-schemas.php:551
 msgid "Achievements earned in the year."
 msgstr ""
 
-#: includes/class-rest-schemas.php:550
+#: includes/class-rest-schemas.php:552
 msgid "Books added in the year, but those to buy."
 msgstr ""
 
-#: includes/class-rest-schemas.php:551
+#: includes/class-rest-schemas.php:553
 msgid "Days of reading: the level of each day, the memorable ones, the days read, the longest streak, the best day and the readings dated."
 msgstr ""
 
-#: includes/class-rest-schemas.php:565
+#: includes/class-rest-schemas.php:567
 msgid "Other names, such as a pseudonym or their birth name."
 msgstr ""
 
-#: includes/class-rest-schemas.php:568
+#: includes/class-rest-schemas.php:570
 msgid "Series of their books, those with the most first."
 msgstr ""
 
-#: includes/class-rest-schemas.php:574
+#: includes/class-rest-schemas.php:576
 msgid "Name, after its cycles."
 msgstr ""
 
-#: includes/class-rest-schemas.php:576
+#: includes/class-rest-schemas.php:578
 msgid "How many of their books it holds."
 msgstr ""
 
-#: includes/class-rest-schemas.php:577
+#: includes/class-rest-schemas.php:579
 msgid "How many of these are read."
 msgstr ""
 
-#: includes/class-rest-schemas.php:582
+#: includes/class-rest-schemas.php:584
 msgid "Average rating of their books, none without one."
 msgstr ""
 
-#: includes/class-rest-schemas.php:583
+#: includes/class-rest-schemas.php:585
 msgid "Pages of their books, those with a number of pages."
 msgstr ""
 
-#: includes/class-rest-schemas.php:597
+#: includes/class-rest-schemas.php:599
 msgid "Cycle of the series, if any."
 msgstr ""
 
-#: includes/class-rest-schemas.php:598
+#: includes/class-rest-schemas.php:600
 msgid "ISSN of the magazine, or empty."
 msgstr ""
 
-#: includes/class-rest-schemas.php:599
+#: includes/class-rest-schemas.php:601
 msgid "Series of a cycle."
 msgstr ""
 
-#: includes/class-rest-schemas.php:599
+#: includes/class-rest-schemas.php:601
 msgid "A series."
 msgstr ""
 
-#: includes/class-rest-schemas.php:614
+#: includes/class-rest-schemas.php:616
 msgid "Publisher of a collection."
 msgstr ""
 
-#: includes/class-rest-schemas.php:615
+#: includes/class-rest-schemas.php:617
 msgid "Collection a sub-collection is part of."
 msgstr ""
 
-#: includes/class-rest-schemas.php:616
+#: includes/class-rest-schemas.php:618
 msgid "Its collections."
 msgstr ""
 
-#: includes/class-rest-schemas.php:616
+#: includes/class-rest-schemas.php:618
 msgid "A collection."
 msgstr ""
 
@@ -2551,6 +2564,7 @@ msgid "From its start to its end, each one left empty when it is unknown, and th
 msgstr ""
 
 #: includes/class-shelf.php:106
+#: app/js/bricks/library-calendar.js:95
 #: app/js/bricks/library-volumes.js:104
 #: app/js/lib/book-lines.js:140
 msgid "In progress"
@@ -3003,6 +3017,10 @@ msgstr ""
 msgid "%s items"
 msgstr ""
 
+#: app/js/bricks/library-calendar.js:94
+msgid "Finished that day"
+msgstr ""
+
 #: app/js/bricks/library-diary.js:38
 msgid "No readings yet."
 msgstr ""
@@ -3247,7 +3265,7 @@ msgid "The books could not be loaded."
 msgstr ""
 
 #: app/js/lib/behaviors.js:43
-#: app/js/lib/store.js:1168
+#: app/js/lib/store.js:1173
 msgid "No book found."
 msgstr ""
 
@@ -3299,7 +3317,7 @@ msgid "in %s"
 msgstr ""
 
 #. translators: %s: year.
-#: app/js/lib/format.js:102
+#: app/js/lib/format.js:103
 #, js-format
 msgid "Recap of %s"
 msgstr ""
@@ -3312,14 +3330,14 @@ msgid_plural "%s other authors"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/js/lib/store.js:885
+#: app/js/lib/store.js:890
 msgid "Reading undone."
 msgstr ""
 
-#: app/js/lib/store.js:898
+#: app/js/lib/store.js:903
 msgid "Reading saved."
 msgstr ""
 
-#: app/js/lib/store.js:899
+#: app/js/lib/store.js:904
 msgid "Undo"
 msgstr ""

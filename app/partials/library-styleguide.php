@@ -425,6 +425,32 @@ $sizes = array(
 			</figure>
 			<figure>
 				<figcaption>
+					<h4 class="library-styleguide__name"><code>.library-fields--columns</code></h4>
+					<p>Fields side by side, as many a row as fit, the values lined up whatever lines a name takes, as the figures of the calendar of the diary; its place may set <code>--library-fields-value-size</code></p>
+				</figcaption>
+				<div class="library-styleguide__frame">
+					<dl class="library-fields library-fields--columns">
+						<div>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">Readings</dt>
+							<dd>67</dd>
+						</div>
+						<div>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">Pages</dt>
+							<dd>22 600</dd>
+						</div>
+						<div>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">Days of reading</dt>
+							<dd>201</dd>
+						</div>
+						<div>
+							<dt class="app-text-s app-text-muted app-font-ui app-uppercase">Days in a row</dt>
+							<dd>20</dd>
+						</div>
+					</dl>
+				</div>
+			</figure>
+			<figure>
+				<figcaption>
 					<h4 class="library-styleguide__name"><code>.library-notice</code></h4>
 					<p>What an action done says, a pill with its text and its action, a <code>.library-link</code>: at the bottom of the screen in the app</p>
 				</figcaption>

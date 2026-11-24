@@ -183,31 +183,43 @@ export function recap( year = 0 ) {
 }
 
 /**
- * The calendar of the diary: the days of a year, and how it shows them, the year or one of its months.
+ * What the calendar of the diary shows: a year, one of its months, or one of its days.
  *
- * @typedef {Calendar & Loading & {scale: 'year'|'month', month: number}} DiaryCalendar
+ * @typedef {'year'|'month'|'day'} CalendarScale
  */
 
 /**
- * The calendar of the diary for `year`, empty, showing `scale`, the year or its month `month`.
+ * The calendar of the diary: the days of a year, and how it shows them, the year, its month `month`, from 0, or its day
+ * `day` of that month, from 1.
  *
- * @param {number}         [year]  The year, the current one by default.
- * @param {'year'|'month'} [scale] What it shows: the year, or one of its months.
- * @param {number}         [month] The month it shows, from 0, the current one by default.
+ * @typedef {Calendar & Loading & {scale: CalendarScale, month: number, day: number}} DiaryCalendar
+ */
+
+/**
+ * The calendar of the diary for `year`, empty, showing `scale`, the year, its month `month` or the day `day` of it.
+ *
+ * @param {number}        [year]  The year, the current one by default.
+ * @param {CalendarScale} [scale] What it shows: the year, one of its months, or one of its days.
+ * @param {number}        [month] The month it shows, from 0, the current one by default.
+ * @param {number}        [day]   The day of the month it shows, from 1, today by default.
  * @return {DiaryCalendar} The calendar.
  */
 export function calendar(
 	year = new Date().getFullYear(),
 	scale = 'year',
-	month = new Date().getMonth()
+	month = new Date().getMonth(),
+	day = new Date().getDate()
 ) {
 	return {
 		year,
 		years: [],
 		levels: [],
+		pages: [],
 		ends: {},
+		reads: {},
 		scale,
 		month,
+		day,
 		loading: false,
 		loaded: false,
 		error: '',

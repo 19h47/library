@@ -1,9 +1,10 @@
 <?php
 /**
  * The days of a month, as a calendar: in weeks from Monday, the first one in the column of its weekday, each a
- * .library-day as dark as its level, a day to come its outline. `covers`, larger, as the diary shows a month: each day its
- * number, and the cover of the book whose reading ended that day, a link to it, the others counted. Its root is its custom
- * element, month-calendar, whose `value` its place sets: the year, the month, and each day of it.
+ * .library-day as dark as its level, a day to come its outline, today marked. `covers`, larger, as the diary shows a month:
+ * each day its number, a button that chooses it, and the cover of the book whose reading ended that day, a link to it, the
+ * others counted. Its root is its custom element, month-calendar, whose `value` its place sets: the year, the month, and
+ * each day of it; a day chosen sends `dayselect`.
  *
  * @link       https://github.com/19h47/library
  * @since      10.7.0
@@ -21,7 +22,7 @@ $args = wp_parse_args( $args, array( 'covers' => false ) );
 	<template>
 		<?php if ( $args['covers'] ) : ?>
 			<li class="library-day library-month-calendar__day">
-				<span class="app-text-s app-font-ui library-month-calendar__number" data-part="number"></span>
+				<button class="app-text-s app-font-ui library-month-calendar__number" type="button" data-part="number"></button>
 				<a class="library-month-calendar__book" data-part="book" href="" hidden>
 					<img class="library-month-calendar__cover" data-field="cover" alt="" loading="lazy" hidden>
 					<span class="library-month-calendar__title" data-part="title"></span>

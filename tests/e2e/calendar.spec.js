@@ -1,7 +1,7 @@
 /**
  * The calendar of the diary: the days of reading of the current year, its months side by side, with what they count;
  * Before goes to the year before, a month of it opens at the scale of a month, each day the book whose reading ended
- * then, a link to it; the scale chosen goes back to the year.
+ * then, a link to it, a day of it at the scale of a day, the books read then; the scale chosen goes back to the year.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -93,6 +93,28 @@ test.describe( 'Calendar', () => {
 		await expect(
 			calendar.locator( '[data-field="readings"]' )
 		).toHaveText( '2' );
+
+		// The 2nd, a day: the book whose reading ended then, its pages spread over its days; the day before, the same book,
+		// being read.
+		await month
+			.getByRole( 'button', { name: `Sunday, March 2, ${ YEAR }` } )
+			.click();
+		await expect( period ).toHaveText( `Sunday, March 2, ${ YEAR }` );
+
+		const cards = calendar.locator( '[data-list="day"]' );
+
+		await expect( cards ).toContainText( 'The Calendar Long Book' );
+		await expect( cards ).toContainText( 'Finished that day' );
+		await expect( calendar.locator( '[data-field="pages"]' ) ).toHaveText(
+			'55'
+		);
+		await expect( calendar.locator( '[data-row="streak"]' ) ).toBeHidden();
+		await calendar.getByRole( 'button', { name: 'Before' } ).click();
+		await expect( period ).toHaveText( `Saturday, March 1, ${ YEAR }` );
+		await expect( cards ).toContainText( 'In progress' );
+		await expect(
+			calendar.locator( '[data-field="readings"]' )
+		).toHaveText( '0' );
 
 		// Back to the year.
 		await calendar.locator( 'select[name="scale"]' ).selectOption( 'year' );

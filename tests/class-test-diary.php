@@ -82,6 +82,32 @@ class Test_Diary extends TestCase {
 	}
 
 	/**
+	 * The books read on each day of a year: a reading ended, from its start to its end, its pages spread over them; a
+	 * reading in progress from its start, without a level.
+	 *
+	 * @return void
+	 */
+	public function test_calendar_days_read(): void {
+		$read    = $this->add_book(
+			array(
+				'meta'  => array( 'pages' => 300 ),
+				'shelf' => array( 'readings' => array( '2025-02-20/2025-02-22' ) ),
+			)
+		);
+		$reading = $this->add_book( array( 'shelf' => array( 'readings' => array( '2025-12-30/..' ) ) ) );
+
+		$calendar = $this->get_calendar( 2025, array() )->get_data();
+		$reads    = (array) $calendar['reads'];
+
+		$this->assertSame( array( 50, 51, 52, 363, 364 ), array_keys( $reads ) );
+		$this->assertSame( array( $read ), $reads[51] );
+		$this->assertSame( array( $reading ), $reads[364] );
+		$this->assertSame( 100, $calendar['pages'][50] );
+		$this->assertSame( 0, $calendar['levels'][364] );
+		$this->assertSame( array( 52 ), array_keys( (array) $calendar['ends'] ) );
+	}
+
+	/**
 	 * The calendar of a year.
 	 *
 	 * @param int                 $year   Year.

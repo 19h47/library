@@ -24,8 +24,8 @@ use DateTimeImmutable;
  * @subpackage Library/includes
  * @author     Jérémy Levron <jeremylevron@19h47.fr>
  *
- * @phpstan-type Calendar_Days array{read:list<bool>,pages:list<float>,ends:array<int,list<int>>,dated:int}
- * @phpstan-type Diary_Calendar array{year:int,years:list<int>,levels:list<int>,ends:object}
+ * @phpstan-type Calendar_Days array{read:list<bool>,pages:list<float>,ends:array<int,list<int>>,reads:array<int,list<int>>,dated:int}
+ * @phpstan-type Diary_Calendar array{year:int,years:list<int>,levels:list<int>,pages:list<int>,ends:object,reads:object}
  */
 class Calendar {
 
@@ -39,7 +39,7 @@ class Calendar {
 
 	/**
 	 * The days of `$year` gone by, from January 1st: whether each was read, the pages read on each, the books whose reading
-	 * ended on each, by their IDs, and the readings ended in the year with their start known.
+	 * ended on each and the books read on each, by their IDs, and the readings ended in the year with their start known.
 	 *
 	 * @param Book[] $books Books.
 	 * @param int    $year  Year.
@@ -52,6 +52,7 @@ class Calendar {
 		$pages = array_fill( 0, $count, 0.0 );
 		$read  = array_fill( 0, $count, false );
 		$ends  = array();
+		$reads = array();
 		$dated = 0;
 
 		foreach ( $books as $book ) {
@@ -84,18 +85,21 @@ class Calendar {
 				$per_day = $is_dated && $book->pages ? $book->pages / $length : 0.0;
 
 				foreach ( range( self::get_day( $from ), self::get_day( $to ) ) as $day ) {
-					$read[ $day ]   = true;
-					$pages[ $day ] += $per_day;
+					$read[ $day ]    = true;
+					$pages[ $day ]  += $per_day;
+					$reads[ $day ][] = $book->id;
 				}
 			}
 		}
 
 		ksort( $ends );
+		ksort( $reads );
 
 		return array(
 			'read'  => array_values( $read ),
 			'pages' => array_values( $pages ),
 			'ends'  => $ends,
+			'reads' => $reads,
 			'dated' => $dated,
 		);
 	}
@@ -162,8 +166,9 @@ class Calendar {
 
 	/**
 	 * The calendar of the diary for `$year`, of the books of `$form_ids`, of every form when none: the years with a
-	 * reading, the level of each day gone by, and the books whose reading ended on each day, by the day from 0 for
-	 * January 1st.
+	 * reading, the level of each day gone by and the pages read on it, the books whose reading ended on each day, and the
+	 * books read on each day, by the day from 0 for January 1st. A reading in progress, which counts for no level until it
+	 * ends, is read on each day from its start, or today alone when its start is unknown, up to today.
 	 *
 	 * @param int   $year     Year.
 	 * @param int[] $form_ids Term IDs of forms, none for every form.
@@ -172,12 +177,38 @@ class Calendar {
 	public static function get_diary_calendar( int $year, array $form_ids = array() ): array {
 		$books = array_filter( Books::get_shelved(), fn( Book $book ) => ! $form_ids || array_intersect( $book->form_ids, $form_ids ) );
 		$days  = self::get_days( $books, $year );
+		$reads = $days['reads'];
+		$today = current_datetime()->format( 'Y-m-d' );
+
+		foreach ( $books as $book ) {
+			$reading = Readings::get_in_progress( $book->readings );
+
+			if ( null === $reading ) {
+				continue;
+			}
+
+			$start = substr( $reading->start, 0, 10 );
+			$from  = max( '' !== $start ? $start : $today, "$year-01-01" );
+			$to    = min( $today, "$year-12-31" );
+
+			if ( $from > $to ) {
+				continue;
+			}
+
+			foreach ( range( self::get_day( $from ), self::get_day( $to ) ) as $day ) {
+				$reads[ $day ][] = $book->id;
+			}
+		}
+
+		ksort( $reads );
 
 		return array(
 			'year'   => $year,
 			'years'  => array_keys( Stats::count_by_year() ),
 			'levels' => self::get_levels( $days['read'], $days['pages'] ),
+			'pages'  => array_map( fn( float $pages ) => (int) round( $pages ), $days['pages'] ),
 			'ends'   => (object) $days['ends'],
+			'reads'  => (object) $reads,
 		);
 	}
 }

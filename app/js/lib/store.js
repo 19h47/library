@@ -535,23 +535,28 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * What the calendar of the diary shows: its `scale`, the year or one of its months, its `year` and its `month`, from 0;
-	 * another year loads its days.
+	 * What the calendar of the diary shows: its `scale`, the year, one of its months or one of its days, its `year`, its
+	 * `month`, from 0, and its `day`, from 1; another year loads its days.
 	 *
-	 * @param {Partial<Pick<DiaryCalendar, 'scale'|'year'|'month'>>} shown What it shows.
+	 * @param {Partial<Pick<DiaryCalendar, 'scale'|'year'|'month'|'day'>>} shown What it shows.
 	 */
 	showCalendar( shown ) {
 		const current = this.get().calendar;
-		const { scale, year, month } = { ...current, ...shown };
+		const { scale, year, month, ...next } = { ...current, ...shown };
+		// A day of the month, the 31st of a month before becoming the last one of a shorter one.
+		const day = Math.min(
+			next.day,
+			new Date( year, month + 1, 0 ).getDate()
+		);
 
 		if ( year === current.year ) {
-			this.#update( 'calendar', () => ( { scale, month } ) );
+			this.#update( 'calendar', () => ( { scale, month, day } ) );
 			return;
 		}
 
 		this.set( ( state ) => ( {
 			...state,
-			calendar: calendar( year, scale, month ),
+			calendar: calendar( year, scale, month, day ),
 		} ) );
 		this.#fetchCalendar();
 	}
@@ -1598,8 +1603,8 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The days of reading of the year of the calendar of the diary, of the forms chosen, with the books whose reading
-	 * ended on them. Another year cancels the one loading.
+	 * The days of reading of the year of the calendar of the diary, of the forms chosen, with the books read on them.
+	 * Another year cancels the one loading.
 	 *
 	 * @return {Promise<boolean>} Whether it loaded.
 	 */
@@ -1612,9 +1617,15 @@ class LibraryStore extends Store {
 				signal,
 			} );
 
-			await this.#fetchBooks( Object.values( loaded.ends ).flat(), {
-				signal,
-			} );
+			await this.#fetchBooks(
+				[
+					...new Set( [
+						...Object.values( loaded.ends ).flat(),
+						...Object.values( loaded.reads ).flat(),
+					] ),
+				],
+				{ signal }
+			);
 
 			return () => loaded;
 		} );

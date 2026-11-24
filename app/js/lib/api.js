@@ -972,7 +972,9 @@ export async function getRecap( year, { signal } = {} ) {
  * @property {number}                   year   The year.
  * @property {number[]}                 years  The years with a reading, the earliest first.
  * @property {number[]}                 levels The level of each day gone by, from January 1st: 0 for none read, up to 4.
+ * @property {number[]}                 pages  The pages read on each day gone by, from January 1st.
  * @property {Object<string, number[]>} ends   The IDs of the books whose reading ended on each day, by the day, from 0.
+ * @property {Object<string, number[]>} reads  The IDs of the books read on each day, a reading in progress up to today.
  */
 
 /**

@@ -10,6 +10,8 @@
 		--library-day-2: color-mix(in srgb, var(--app-line), var(--app-text-muted) calc(100% / var(--app-phi)));
 		--library-day-3: var(--app-text-muted);
 		--library-day-4: var(--app-text);
+		/* What its days count, figures a step larger than the text */
+		--library-fields-value-size: var(--app-text-l);
 
 		display: grid;
 		gap: var(--app-space-m);
@@ -31,25 +33,6 @@
 		line-height: 1;
 	}
 
-	/* What the days count, side by side, as many a row as fit, a label above each figure */
-	.library-calendar__stats {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(calc(var(--app-u3) * var(--app-phi)), 1fr));
-		gap: var(--app-space-xs) var(--app-space-m);
-	}
-
-	/* Its labels on a row, their last lines together, its figures on the next one, whatever lines a label takes */
-	.library-calendar__stats > div {
-		display: grid;
-		grid-row: span 2;
-		grid-template-rows: subgrid;
-		align-items: end;
-	}
-
-	.library-calendar__figure {
-		font-size: var(--app-text-l);
-		font-variant-numeric: tabular-nums;
-	}
 
 	/* The months of the year, three a row, a quarter each */
 	.library-calendar__year {
@@ -72,7 +55,7 @@
 	}
 
 	/* Loading another year, its days faded until they come */
-	.library-calendar[aria-busy="true"] :is(.library-calendar__year, [data-part="month"], .library-calendar__stats) {
+	.library-calendar[aria-busy="true"] :is(.library-calendar__year, [data-part="month"], [data-part="day"], .library-fields) {
 		opacity: var(--app-control-opacity);
 		transition: opacity var(--app-transition-1);
 	}

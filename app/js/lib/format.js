@@ -10,6 +10,7 @@ const numberFormat = new Intl.NumberFormat( lang );
 const dateFormats = {
 	long: new Intl.DateTimeFormat( lang, { dateStyle: 'long' } ),
 	day: new Intl.DateTimeFormat( lang, { day: 'numeric', month: 'long' } ),
+	full: new Intl.DateTimeFormat( lang, { dateStyle: 'full' } ),
 };
 const monthFormat = new Intl.DateTimeFormat( lang, {
 	year: 'numeric',
@@ -106,10 +107,11 @@ export function formatRecap( year ) {
 
 /**
  * A date of the API: "2024-05-12", a read date of the day with its time, "2026-11-01T21:40", or "1929-11" and "1929" for a
- * date first published; its day long, "May 12, 2024", or as a day of its year, "May 12".
+ * date first published; its day long, "May 12, 2024", as a day of its year, "May 12", or in full, with its weekday,
+ * "Monday, May 12, 2024".
  *
- * @param {string}       date    The date.
- * @param {'long'|'day'} [style] How its day shows, long unless a day of its year.
+ * @param {string}              date    The date.
+ * @param {'long'|'day'|'full'} [style] How its day shows, long unless a day of its year or in full.
  * @return {string} The date formatted.
  */
 export function formatDate( date, style = 'long' ) {
