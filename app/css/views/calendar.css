@@ -15,17 +15,13 @@
 		gap: var(--app-space-m);
 	}
 
-	/* Its scale, then Before and After at the end of the line, out of use where no period comes before or after */
+	/* Its scale, then Before and After at the end of the line */
 	.library-calendar__bar {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--app-space-s);
-	}
-
-	.library-calendar__bar a.app-control:not([href]) {
-		opacity: var(--app-control-opacity);
 	}
 
 	.library-calendar__period {
