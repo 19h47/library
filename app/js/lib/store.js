@@ -151,7 +151,7 @@ import * as api from 'library-app/api';
  * @property {boolean}                themeChosen  Whether the theme was chosen over the system one.
  * @property {string}                 read         The read state of the books shown: "", "yes", "no" or "progress".
  * @property {string}                 shelf        The shelf of the books shown: "" for any of the reader, or a status.
- * @property {string}                 form         The term ID of the form of the books shown, "" for any.
+ * @property {string[]}               forms        The term IDs of the forms of the books and the readings shown, none for any.
  * @property {string}                 sort         The order of the books, "" for the latest added.
  * @property {boolean}                covers       Whether the lists of books show as a grid of their covers.
  * @property {string}                 view         The view shown, none until the router shows the one of the URL.
@@ -184,7 +184,7 @@ const SAVED = [
 	'themeChosen',
 	'read',
 	'shelf',
-	'form',
+	'forms',
 	'sort',
 	'covers',
 ];
@@ -192,8 +192,11 @@ const SAVED = [
 const STATUSES = statuses.split( ',' );
 // The orders of the books besides the latest added, as the API names them: by title from A, the others highest or latest first.
 const SORTS = [ 'title', 'rating', 'read' ];
-// The filters of the books, and their order: see load().
-const FILTERS = [ 'read', 'shelf', 'form', 'sort' ];
+// The filters of the books, none chosen, and their order: see load(). The forms filter the readings of the diary too.
+const NO_FILTERS = { read: '', shelf: '', forms: [], sort: '' };
+const FILTERS = Object.keys( NO_FILTERS );
+// Every form, which the config gives separated with commas, by term ID.
+const FORMS = forms.split( ',' );
 // The page of a book, opened from its card, its cover or a link.
 const BOOK_VIEW = 'book';
 // The recap of a year, opened from the diary or, in January, from the home.
@@ -229,7 +232,7 @@ const darkQuery = matchMedia( '(prefers-color-scheme: dark)' );
  * What localStorage holds, checked: anything else falls back. The theme chosen is the one the theme script read from
  * it before the first paint, on <html data-theme>.
  *
- * @return {Pick<State, 'theme'|'themeChosen'|'read'|'shelf'|'form'|'sort'|'covers'>} What it holds.
+ * @return {Pick<State, 'theme'|'themeChosen'|'read'|'shelf'|'forms'|'sort'|'covers'>} What it holds.
  */
 function load() {
 	let saved = null;
@@ -252,8 +255,10 @@ function load() {
 			: '',
 		// "" for any shelf of the reader, or the status of the books shown, such as not kept.
 		shelf: STATUSES.includes( saved?.shelf ) ? saved.shelf : '',
-		// "" for any, or the term ID of the form of the books shown, such as comics.
-		form: forms.split( ',' ).includes( saved?.form ) ? saved.form : '',
+		// None for any, or the term IDs of the forms of the books shown, such as comics.
+		forms: Array.isArray( saved?.forms )
+			? FORMS.filter( ( form ) => saved.forms.includes( form ) )
+			: [],
 		// "" for the latest added, or one of SORTS.
 		sort: SORTS.includes( saved?.sort ) ? saved.sort : '',
 		covers: true === saved?.covers,
@@ -383,7 +388,7 @@ function queryOf( list, state ) {
 	return {
 		...( search && { search } ),
 		shelf,
-		...( state.form && { forms: state.form } ),
+		...( state.forms.length && { forms: state.forms.join() } ),
 		...order,
 	};
 }
@@ -767,10 +772,7 @@ class LibraryStore extends Store {
 			// The books found load again once the books view shows.
 			...( 'books' === view &&
 				query !== state.query && { query, search: pages() } ),
-			...( isSearchLink &&
-				Object.fromEntries(
-					FILTERS.map( ( filter ) => [ filter, '' ] )
-				) ),
+			...( isSearchLink && NO_FILTERS ),
 		} ) );
 		this.#show( view, id );
 	}
@@ -813,16 +815,34 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * A filter of the books, or their order, one of FILTERS, "" for none: the books found load again.
+	 * A filter of the books, or their order, one of FILTERS, "" or none for none: the books found load again, and the
+	 * diary loaded, as the forms change.
 	 *
-	 * @param {string} filter The filter.
-	 * @param {string} value  Its value, "" for none.
+	 * @param {string}          filter The filter.
+	 * @param {string|string[]} value  Its value, "" for none; the values of the forms, none for any.
 	 */
 	setFilter( filter, value ) {
-		if ( FILTERS.includes( filter ) ) {
-			this.set( ( state ) => ( { ...state, [ filter ]: value } ) );
-			this.#fetchList( 'search' );
+		if ( ! FILTERS.includes( filter ) ) {
+			return;
 		}
+
+		this.set( ( state ) => ( { ...state, [ filter ]: value } ) );
+		this.#fetchList( 'search' );
+
+		const { diary } = this.get();
+
+		if ( 'forms' === filter && ( diary.page || diary.loading ) ) {
+			this.#fetchDiary( 1 );
+		}
+	}
+
+	/**
+	 * Clears the filter `filter`: none chosen, any form.
+	 *
+	 * @param {string} filter The filter.
+	 */
+	clearFilter( filter ) {
+		this.setFilter( filter, NO_FILTERS[ filter ] );
 	}
 
 	/**
@@ -1702,42 +1722,52 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * A page of the diary, with the books of its readings. `fresh`, they load all, as the page preloads them, rather than
-	 * the ones not loaded yet.
+	 * A page of the diary, of the forms chosen, with the books of its readings. `fresh`, they load all, as the page
+	 * preloads them the first time, rather than the ones not loaded yet.
 	 *
-	 * @param {number}  number  The page, from 1.
-	 * @param {boolean} [fresh] Whether its books load all.
-	 * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, and how many months and pages in all.
+	 * @param {number}      number           The page, from 1.
+	 * @param {Object}      [options]        Options.
+	 * @param {boolean}     [options.fresh]  Whether its books load all.
+	 * @param {AbortSignal} [options.signal] Cancels the requests.
+	 * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, how many readings in all, and how many pages.
 	 */
-	async #fetchReadings( number, fresh = false ) {
-		const readings = await api.getReadings( number );
+	async #fetchReadings( number, { fresh = false, signal } = {} ) {
+		const readings = await api.getReadings( number, this.get().forms, {
+			signal,
+		} );
 
 		await this.#fetchBooks(
 			readings.months.flatMap( ( { readings: items } ) =>
 				items.map( ( reading ) => reading.id )
 			),
-			{ fresh }
+			{ fresh, signal }
 		);
 
 		return readings;
 	}
 
 	/**
-	 * The next page of the diary; the first one, as the page preloads it.
+	 * A page of the diary: the next one, or the first one, as the page preloads it or as the forms chosen change, which
+	 * replaces the months shown. A new request cancels the one running.
 	 *
 	 * @param {number} number The page, from 1.
 	 * @return {Promise<boolean>} Whether it loaded.
 	 */
 	#fetchDiary( number ) {
+		const signal = this.#signal( 'diary' );
+
 		return this.#request( 'diary', async () => {
 			const {
 				months,
 				total,
 				pages: last,
-			} = await this.#fetchReadings( number, 1 === number );
+			} = await this.#fetchReadings( number, {
+				fresh: ! this.get().diary.loaded,
+				signal,
+			} );
 
 			return ( current ) => ( {
-				items: [ ...current.items, ...months ],
+				items: 1 === number ? months : [ ...current.items, ...months ],
 				total,
 				pages: last,
 				page: number,
@@ -1756,10 +1786,12 @@ class LibraryStore extends Store {
 			return;
 		}
 
+		const signal = this.#signal( 'diary' );
+
 		try {
 			const all = await Promise.all(
 				Array.from( { length: loaded }, ( value, index ) =>
-					this.#fetchReadings( index + 1 )
+					this.#fetchReadings( index + 1, { signal } )
 				)
 			);
 			const { total, pages: last } = all.at( -1 );

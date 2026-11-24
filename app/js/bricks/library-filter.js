@@ -6,7 +6,7 @@ import { Brick } from 'library-app/brick';
 const SERIES_SEARCH = /(?:^|\s)series:(?:"[^"]*\S[^"]*"|[^\s",])/i;
 
 /**
- * A filter of the books, or their order, its select named by `data-filter`: read, status, form or sort. A select whose
+ * The order of the books, or a filter of them, its select named by `data-filter`, such as sort. A select whose
  * first choice has another name for a search for a series, `data-series`, takes it: such a search lists the series in
  * reading order unless another order is chosen.
  */

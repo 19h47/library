@@ -927,23 +927,36 @@ export async function findInBnf( isbn ) {
 }
 
 /**
- * A page of the diary: whole months, latest first, each with its readings and the IDs of their books; the totals count
- * months.
+ * A page of the diary: whole months, latest first, each with its readings and the IDs of their books; only the readings
+ * of the books of one of `forms`, if any.
  *
- * @param {number} page The page, from 1.
- * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, and how many months and pages in all.
+ * @param {number}      page             The page, from 1.
+ * @param {string[]}    forms            The term IDs of the forms, none for all of them.
+ * @param {Object}      [options]        Options.
+ * @param {AbortSignal} [options.signal] Cancels the request.
+ * @return {Promise<{months: Month[], total: number, pages: number}>} Its months, how many readings in all, and how many pages.
  */
-export async function getReadings( page ) {
-	/** @type {Paged<{month: string, readings: Array<{date: string, book_id: number}>}>} */
-	const { items, total, pages } = await fetchPaged( {
-		path: addQueryArgs( '/library/v1/readings', { page } ),
+export async function getReadings( page, forms, { signal } = {} ) {
+	const response = await apiFetch( {
+		path: addQueryArgs( '/library/v1/readings', {
+			page,
+			...( forms.length && { forms: forms.join() } ),
+		} ),
+		parse: false,
+		signal,
 	} );
+	/** @type {Array<{month: string, readings: Array<{date: string, book_id: number}>}>} */
+	const items = await response.json();
 	const months = items.map( ( { month, readings } ) => ( {
 		month,
 		readings: readings.map( ( { date, book_id: id } ) => ( { date, id } ) ),
 	} ) );
 
-	return { months, total, pages };
+	return {
+		months,
+		total: Number( response.headers.get( 'X-Library-Reading-Count' ) ),
+		pages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
+	};
 }
 
 /**

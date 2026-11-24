@@ -353,6 +353,12 @@ class Rest_API {
 						'maximum'     => 12,
 						'default'     => 3,
 					),
+					'forms'    => array(
+						'description' => __( 'Term IDs of forms: only the readings of the books of one of them; all of them, none given.', 'library' ),
+						'type'        => 'array',
+						'items'       => array( 'type' => 'integer' ),
+						'default'     => array(),
+					),
 				),
 			),
 		);
@@ -909,19 +915,21 @@ class Rest_API {
 
 	/**
 	 * The readings by month, latest first, each with the ID of its book: one per read date, so a book read again comes once
-	 * per reading, kept or not.
+	 * per reading, kept or not; with forms, only those of the books of one of them.
 	 *
 	 * A page holds whole months, so a month never goes on in the next one; the totals in the X-WP-Total and
-	 * X-WP-TotalPages headers count months.
+	 * X-WP-TotalPages headers count months, X-Library-Reading-Count the readings of every page.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function get_readings( WP_REST_Request $request ): WP_REST_Response {
 		$per_page = $request['per_page'];
+		$forms    = $request['forms'];
+		$readings = array_filter( Stats::get_readings(), fn( Book $reading ) => ! $forms || array_intersect( $reading->form_ids, $forms ) );
 		$months   = array();
 
-		foreach ( Stats::get_readings() as $reading ) {
+		foreach ( $readings as $reading ) {
 			$months[ substr( $reading->read_date, 0, 7 ) ][] = array(
 				'date'    => $reading->read_date,
 				'book_id' => $reading->id,
@@ -944,6 +952,7 @@ class Rest_API {
 
 		$response->header( 'X-WP-Total', (string) $total );
 		$response->header( 'X-WP-TotalPages', (string) (int) ceil( $total / $per_page ) );
+		$response->header( 'X-Library-Reading-Count', (string) count( $readings ) );
 
 		return $response;
 	}
