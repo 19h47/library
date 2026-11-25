@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.8.0
+Stable tag: 10.9.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -140,6 +140,12 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.9.0 =
+* Changed: the calendar counts a day on the end of a reading finished, its start left aside, as dark as the pages of the books finished then; a day shows the books finished then, and its figures count the readings and the pages. A reading abandoned or in progress shows in none of its days.
+* Changed: the recap of a year counts the days a book was finished, and its biggest day by the pages of the books finished then; the most days in a row and the starts known are gone.
+* Breaking: REST API: `GET /calendars/<year>` no longer gives `reads`, and its `pages` are those of the books finished on each day.
+* The French translations follow the tone of WordPress, such as Image mise en avant and Téléverser, and name people with one form, the doublet, feminine first: « autrices et auteurs ».
 
 = 10.8.0 =
 * A reading may be abandoned: in the reading app, Abandon ends the one in progress today, and a row of the readings chooses Abandoned rather than a rating, as does a row of the Shelf box in the admin.
