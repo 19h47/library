@@ -15,11 +15,11 @@ import { formatDate } from 'library-app/format';
  */
 
 /**
- * A day gone by: its level, from 0, none read, to 4, the books whose reading ended that day, and where the day leads.
+ * A day gone by: its level, from 0, none finished, to 4, the books finished that day, and where the day leads.
  *
  * @typedef {Object} CalendarDay
  * @property {number}         level Its level.
- * @property {CalendarBook[]} books The books whose reading ended that day.
+ * @property {CalendarBook[]} books The books finished that day.
  * @property {string}         [url] Where the day leads, the calendar of that day.
  */
 
@@ -36,7 +36,7 @@ import { formatDate } from 'library-app/format';
 /**
  * The days of a month, the root of the component month-calendar: in weeks from Monday, the first one in the column of its
  * weekday, each as dark as its level, a day to come its outline, today marked; covers, each day a link to it, its number
- * and the cover of the book whose reading ended that day, or its title, the others counted.
+ * and the cover of the book finished that day, or its title, the others counted.
  *
  * Its API: `value`, the year, the month and its days gone by.
  */

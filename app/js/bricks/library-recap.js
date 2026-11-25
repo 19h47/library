@@ -10,7 +10,6 @@ import {
 	renderTile,
 } from 'library-app/render';
 import { clone, fill } from 'library-app/dom';
-import { streakOf } from 'library-app/parts';
 import { urlOf } from 'library-app/router';
 import {
 	formatBooks,
@@ -30,15 +29,13 @@ import {
  */
 
 /**
- * What the days of a year count, from its calendar: the days read, the most in a row, the day the most pages were read,
- * by its index, with its pages, the memorable days, and the readings ended in the year with their start known.
+ * What the days of a year count, from its calendar: the days a book was finished, the day the most pages were finished,
+ * by its index, with its pages, and the memorable days.
  *
  * @typedef {Object} RecapDays
- * @property {number}                            read      The days read.
- * @property {number}                            streak    The most days read in a row.
- * @property {{day: number, pages: number}|null} best      The day the most pages were read, none without pages.
+ * @property {number}                            finished  The days a book was finished.
+ * @property {{day: number, pages: number}|null} best      The day the most pages were finished, none without pages.
  * @property {number[]}                          memorable The memorable days, by their index, in order.
- * @property {number}                            dated     The readings ended in the year with their start known.
  */
 
 // The columns of covers going by behind the last screen, more than the widest frame holds, one in the middle, and the
@@ -49,7 +46,7 @@ const MARQUEE_COVERS = 16;
 /**
  * The recap of a year, a screen per subject: the books read, against the year before, the pages read, the readings of
  * each month, the forms, the people read the most and those read for the first time, the original languages, the series,
- * the days of reading, over the calendar of the year, the average rating with the books rated the highest, the records,
+ * the days a book was finished, over the calendar of the year, the average rating with the books rated the highest, the records,
  * the achievements earned and the books added; a screen without anything to say hides. The last one leads to the recaps of the years before and after, those gone by.
  * Its figures, count-up, count up to their value as their screen comes.
  */
@@ -212,7 +209,7 @@ class LibraryRecapElement extends Brick {
 		this.#count( {
 			readings: recap.reading_count,
 			pages: recap.pages.total,
-			daysRead: days.read,
+			daysFinished: days.finished,
 			discoveries: recap.discoveries.length,
 			languages: recap.languages.length,
 			series: recap.series.length,
@@ -431,16 +428,15 @@ class LibraryRecapElement extends Brick {
 	}
 
 	/**
-	 * What the days of the year count, from its calendar: the days read, the most in a row, the day the most pages were
-	 * read, the memorable days, that one and the days a favourite of the year, of its best rating, was finished, and the
-	 * readings ended in the year with their start known.
+	 * What the days of the year count, from its calendar: the days a book was finished, the day the most pages were
+	 * finished, and the memorable days, that one and the days a favourite of the year, of its best rating, was finished.
 	 *
 	 * @param {RecapPage}            recap The recap.
 	 * @param {Book[]}               read  The books read in the year.
 	 * @param {Object<number, Book>} books The books, by their IDs.
 	 * @return {RecapDays} What they count.
 	 */
-	#daysOf( { year, calendar }, read, books ) {
+	#daysOf( { calendar }, read, books ) {
 		const { levels, pages, ends } = calendar;
 		const most = Math.max( 0, ...pages );
 		const rating = Math.max( 0, ...read.map( ( book ) => book.rating ) );
@@ -454,56 +450,35 @@ class LibraryRecapElement extends Brick {
 		const best = most ? pages.indexOf( most ) : -1;
 
 		return {
-			read: levels.filter( Boolean ).length,
-			streak: streakOf( levels ),
+			finished: levels.filter( Boolean ).length,
 			best: most ? { day: best, pages: most } : null,
 			memorable: [
 				...new Set( [ ...( most ? [ best ] : [] ), ...favourites ] ),
 			].sort( ( a, b ) => a - b ),
-			dated: read
-				.flatMap( ( book ) => book.readings )
-				.filter(
-					( { start, end } ) =>
-						start && end.startsWith( `${ year }-` )
-				).length,
 		};
 	}
 
 	/**
-	 * The days of reading: how many, the most in a row, the day the most pages were read, and the readings they go by,
-	 * while some have no start.
+	 * The days a book was finished: how many, and the day the most pages were finished.
 	 *
 	 * @param {RecapPage} recap The recap.
 	 * @param {RecapDays} days  What its days count.
-	 * @return {{daysReadLabel: string, streak: string, bestDay: string, dated: string}} The fields.
+	 * @return {{daysFinishedLabel: string, bestDay: string}} The fields.
 	 */
-	#days( { year, reading_count: readings }, { read, streak, best, dated } ) {
+	#days( { year }, { finished, best } ) {
 		return {
-			daysReadLabel: _n(
-				'day of reading',
-				'days of reading',
-				read,
+			daysFinishedLabel: _n(
+				'day a book was finished',
+				'days a book was finished',
+				finished,
 				'library'
 			),
-			streak:
-				streak > 1
-					? sprintf(
-							/* translators: %s: number of days read in a row, the most of the year. */
-							_n(
-								'Up to %s day in a row',
-								'Up to %s days in a row',
-								streak,
-								'library'
-							),
-							formatNumber( streak )
-					  )
-					: '',
 			bestDay: best
 				? sprintf(
-						/* translators: 1: number of pages read in a day, the most of the year, 2: the day, such as 12 March. */
+						/* translators: 1: number of pages of the books finished in a day, the most of the year, 2: the day, such as 12 March. */
 						_n(
-							'The biggest day: %1$s page, on %2$s',
-							'The biggest day: %1$s pages, on %2$s',
+							'The biggest day: %1$s page finished, on %2$s',
+							'The biggest day: %1$s pages finished, on %2$s',
 							best.pages,
 							'library'
 						),
@@ -511,20 +486,6 @@ class LibraryRecapElement extends Brick {
 						formatDay( new Date( year, 0, 1 + best.day ) )
 				  )
 				: '',
-			dated:
-				dated < readings
-					? sprintf(
-							/* translators: 1: number of readings of the year with their start date, 2: number of readings of the year. */
-							_n(
-								'Start date known for %1$s reading out of %2$s.',
-								'Start date known for %1$s readings out of %2$s.',
-								dated,
-								'library'
-							),
-							formatNumber( dated ),
-							formatNumber( readings )
-					  )
-					: '',
 		};
 	}
 

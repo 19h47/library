@@ -2,7 +2,7 @@ import { Component } from 'library-app/component';
 
 /**
  * The days of a year as a calendar, the root of the component days-calendar: the year, the level of each day gone by,
- * from 0, none read, to 4, and the memorable ones, by their days from January 1st.
+ * from 0, none finished, to 4, and the memorable ones, by their days from January 1st.
  *
  * @typedef {Object} DaysCalendarValue
  * @property {number}   year      The year.

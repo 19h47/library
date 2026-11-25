@@ -180,7 +180,6 @@ export function recap( year = 0 ) {
 			levels: [],
 			pages: [],
 			ends: {},
-			reads: {},
 			form_ends: {},
 		},
 		loading: false,
@@ -251,24 +250,6 @@ export function calendarOf( id ) {
 		month: 'year' === scale ? now.getMonth() : month,
 		day: 'day' === scale ? day : now.getDate(),
 	};
-}
-
-/**
- * The most days read in a row among `levels`.
- *
- * @param {number[]} levels The level of each day, in order.
- * @return {number} The most days read in a row.
- */
-export function streakOf( levels ) {
-	let streak = 0;
-	let current = 0;
-
-	levels.forEach( ( level ) => {
-		current = level ? current + 1 : 0;
-		streak = Math.max( streak, current );
-	} );
-
-	return streak;
 }
 
 /**
@@ -369,7 +350,6 @@ export function calendar(
 		levels: [],
 		pages: [],
 		ends: {},
-		reads: {},
 		form_ends: {},
 		scale,
 		month,

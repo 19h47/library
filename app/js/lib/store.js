@@ -1594,7 +1594,7 @@ class LibraryStore extends Store {
 	}
 
 	/**
-	 * The days of reading of the year of the calendar, of the forms chosen, with the books read on them.
+	 * The days of reading of the year of the calendar, of the forms chosen, with the books finished on them.
 	 * Another year cancels the one loading.
 	 *
 	 * @return {Promise<boolean>} Whether it loaded.
@@ -1609,12 +1609,7 @@ class LibraryStore extends Store {
 			} );
 
 			await this.#fetchBooks(
-				[
-					...new Set( [
-						...Object.values( loaded.ends ).flat(),
-						...Object.values( loaded.reads ).flat(),
-					] ),
-				],
+				[ ...new Set( Object.values( loaded.ends ).flat() ) ],
 				{ signal }
 			);
 

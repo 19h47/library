@@ -298,8 +298,6 @@ $form_filter = array(
 							$calendar_stats = array(
 								'readings' => __( 'Readings', 'library' ),
 								'pages'    => __( 'Pages', 'library' ),
-								'days'     => __( 'Days of reading', 'library' ),
-								'streak'   => __( 'Days in a row', 'library' ),
 							);
 							?>
 							<?php foreach ( $calendar_stats as $calendar_field => $calendar_label ) : ?>
@@ -309,10 +307,10 @@ $form_filter = array(
 								</div>
 							<?php endforeach; ?>
 						</dl>
-						<?php // The books read that day, the one in progress up to today. ?>
+						<?php // The books finished that day. ?>
 						<div data-part="day" hidden>
 							<ul class="app-list" data-list="day"></ul>
-							<p class="app-status" data-part="none" hidden><?php esc_html_e( 'No reading that day.', 'library' ); ?></p>
+							<p class="app-status" data-part="none" hidden><?php esc_html_e( 'No book finished that day.', 'library' ); ?></p>
 						</div>
 						<p class="app-status" data-field="status" hidden></p>
 					</library-calendar>
@@ -500,17 +498,15 @@ $form_filter = array(
 							<p data-field="bestMonth"></p>
 						</section>
 
-						<?php // Over its days, a backdrop: those read, as dark as the pages read, the memorable ones pulsing. ?>
+						<?php // Over its days, a backdrop: those a book was finished, as dark as the pages finished, the memorable ones pulsing. ?>
 						<section class="library-recap__screen library-recap__days" data-screen="days" hidden>
 							<div class="library-recap__calendar">
 								<?php Markup::render_component( 'days-calendar' ); ?>
 							</div>
 							<h3 class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal"><?php esc_html_e( 'Day by day', 'library' ); ?></h3>
-							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'daysRead' ) ) ); ?></p>
-							<p data-field="daysReadLabel"></p>
-							<p data-field="streak"></p>
+							<p class="library-recap__figure"><?php Markup::render_component( 'count-up', array( 'attributes' => array( 'data-field' => 'daysFinished' ) ) ); ?></p>
+							<p data-field="daysFinishedLabel"></p>
 							<p data-field="bestDay"></p>
-							<p class="app-text-s app-text-muted app-font-ui app-uppercase" data-field="dated"></p>
 						</section>
 
 						<section class="library-recap__screen" data-screen="forms" hidden>

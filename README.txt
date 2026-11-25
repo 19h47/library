@@ -127,7 +127,7 @@ The routes of the plugin, under `/wp-json/library/v1`, to readers, the users who
 * `POST /covers` – uploads the photo of a cover, of an edition or of a copy, in its `file` field, named after its book from the fields of its form sent with it, `title`, `people`, `series` and `meta`: `charlie-adlard-walking-dead-vol-25-blood-for-blood.jpg`. It gives the image back as `wp/v2/media` does. To users who can upload files.
 * `GET /stats` – the books of the reader, the books read this year against last year, and the year the books to read would all be read at this pace.
 * `GET /readings` – the readings by month, latest first: `page` and `per_page` count months.
-* `GET /calendars/<year>` – the days of reading of a year, as the calendar of the diary shows them: the level of each day gone by, and the books whose reading ended on each; `forms`, term IDs, for the books of one of them.
+* `GET /calendars/<year>` – the days of reading of a year, as the calendar of the diary shows them: a day counts on the end of a reading finished, its start left aside; the level of each day gone by, the pages of the books finished on it, and those books; `forms`, term IDs, for the books of one of them.
 * `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
 * `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
 * `GET /recaps/<year>` – the recap of a year, as the screens of the app show it; its days of reading are the ones of `GET /calendars/<year>`.
