@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Library 10.10.0\n"
+"Project-Id-Version: Library 10.11.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/library\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-25T09:06:08+00:00\n"
+"POT-Creation-Date: 2026-11-25T13:49:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: library\n"
@@ -24,8 +24,8 @@ msgstr ""
 #: app/partials/library-app.php:52
 #: app/partials/library-app.php:71
 #: app/partials/library-app.php:164
-#: app/partials/library-app.php:614
-#: app/partials/library-app.php:883
+#: app/partials/library-app.php:616
+#: app/partials/library-app.php:885
 msgid "Library"
 msgstr ""
 
@@ -53,8 +53,8 @@ msgstr ""
 #: admin/class-achievements-page.php:71
 #: admin/partials/library-achievements.php:20
 #: app/class-page.php:334
-#: app/partials/library-app.php:343
-#: app/partials/library-app.php:555
+#: app/partials/library-app.php:345
+#: app/partials/library-app.php:557
 msgid "Achievements"
 msgstr ""
 
@@ -64,9 +64,9 @@ msgstr ""
 
 #: admin/class-books-list.php:90
 #: app/components/book-fields.php:23
-#: app/partials/library-app.php:397
-#: app/partials/library-app.php:415
-#: app/partials/library-app.php:806
+#: app/partials/library-app.php:399
+#: app/partials/library-app.php:417
+#: app/partials/library-app.php:808
 msgid "Authors"
 msgstr ""
 
@@ -259,7 +259,7 @@ msgid "Average rating by year read"
 msgstr ""
 
 #: admin/class-dashboard.php:380
-#: app/partials/library-app.php:545
+#: app/partials/library-app.php:547
 msgid "Average rating"
 msgstr ""
 
@@ -461,7 +461,7 @@ msgstr[1] ""
 #: admin/partials/library-achievements.php:27
 #: admin/partials/library-dashboard-achievements.php:37
 #: app/partials/library-app.php:133
-#: app/partials/library-app.php:336
+#: app/partials/library-app.php:338
 msgid "Close to it"
 msgstr ""
 
@@ -621,12 +621,12 @@ msgid "Start of the reading"
 msgstr ""
 
 #: admin/partials/library-reading.php:40
-#: app/partials/library-app.php:1007
+#: app/partials/library-app.php:1009
 msgid "Remove this reading"
 msgstr ""
 
 #: admin/partials/library-shelf.php:32
-#: app/partials/library-app.php:615
+#: app/partials/library-app.php:617
 #: app/js/lib/book-lines.js:106
 msgid "On none of my shelves"
 msgstr ""
@@ -636,12 +636,12 @@ msgid "Not kept: read but not in my library. To buy: not in my library yet. The 
 msgstr ""
 
 #: admin/partials/library-shelf.php:62
-#: app/partials/library-app.php:628
+#: app/partials/library-app.php:630
 msgid "Started"
 msgstr ""
 
 #: admin/partials/library-shelf.php:84
-#: app/partials/library-app.php:650
+#: app/partials/library-app.php:652
 msgid "Add a reading"
 msgstr ""
 
@@ -669,7 +669,7 @@ msgid "Idea"
 msgstr ""
 
 #: app/class-page.php:335
-#: app/partials/library-app.php:432
+#: app/partials/library-app.php:434
 msgid "To buy"
 msgstr ""
 
@@ -841,7 +841,7 @@ msgid "Latest added"
 msgstr ""
 
 #: app/partials/library-app.php:189
-#: app/partials/library-app.php:797
+#: app/partials/library-app.php:799
 msgid "Title"
 msgstr ""
 
@@ -863,165 +863,170 @@ msgstr ""
 msgid "Before"
 msgstr ""
 
-#: app/partials/library-app.php:279
+#: app/partials/library-app.php:280
+#: app/js/bricks/library-calendar.js:343
+msgid "Up"
+msgstr ""
+
+#: app/partials/library-app.php:281
 msgid "After"
 msgstr ""
 
-#: app/partials/library-app.php:299
+#: app/partials/library-app.php:301
 #: includes/class-shelf.php:94
 msgid "Readings"
 msgstr ""
 
-#: app/partials/library-app.php:300
+#: app/partials/library-app.php:302
 #: includes/class-meta.php:136
 msgid "Pages"
 msgstr ""
 
-#: app/partials/library-app.php:313
+#: app/partials/library-app.php:315
 msgid "No book finished that day."
 msgstr ""
 
-#: app/partials/library-app.php:404
+#: app/partials/library-app.php:406
 msgid "Publisher:"
 msgstr ""
 
-#: app/partials/library-app.php:409
+#: app/partials/library-app.php:411
 msgid "Collection:"
 msgstr ""
 
-#: app/partials/library-app.php:414
+#: app/partials/library-app.php:416
 msgid "Collections"
 msgstr ""
 
-#: app/partials/library-app.php:474
+#: app/partials/library-app.php:476
 msgid "A year of reading"
 msgstr ""
 
-#: app/partials/library-app.php:481
+#: app/partials/library-app.php:483
 #: includes/class-taxonomies.php:630
 msgid "Books read"
 msgstr ""
 
-#: app/partials/library-app.php:488
+#: app/partials/library-app.php:490
 msgid "Pages read"
 msgstr ""
 
-#: app/partials/library-app.php:496
+#: app/partials/library-app.php:498
 msgid "Month by month"
 msgstr ""
 
-#: app/partials/library-app.php:506
+#: app/partials/library-app.php:508
 msgid "Day by day"
 msgstr ""
 
-#: app/partials/library-app.php:518
+#: app/partials/library-app.php:520
 msgid "Read the most"
 msgstr ""
 
-#: app/partials/library-app.php:523
+#: app/partials/library-app.php:525
 #: includes/class-achievement-family.php:40
 msgid "Discoveries"
 msgstr ""
 
-#: app/partials/library-app.php:543
+#: app/partials/library-app.php:545
 msgid "Favourites"
 msgstr ""
 
-#: app/partials/library-app.php:550
+#: app/partials/library-app.php:552
 msgid "Records"
 msgstr ""
 
-#: app/partials/library-app.php:561
+#: app/partials/library-app.php:563
 msgid "The pile"
 msgstr ""
 
-#: app/partials/library-app.php:570
+#: app/partials/library-app.php:572
 msgid "Other years"
 msgstr ""
 
-#: app/partials/library-app.php:608
+#: app/partials/library-app.php:610
 msgctxt "a reading"
 msgid "Abandon"
 msgstr ""
 
-#: app/partials/library-app.php:654
+#: app/partials/library-app.php:656
 msgid "Add a reading with an unknown date"
 msgstr ""
 
-#: app/partials/library-app.php:692
+#: app/partials/library-app.php:694
 msgid "Photograph my copy"
 msgstr ""
 
-#: app/partials/library-app.php:693
+#: app/partials/library-app.php:695
 msgid "Remove the photo of my copy"
 msgstr ""
 
-#: app/partials/library-app.php:726
+#: app/partials/library-app.php:728
 msgid "Dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:727
+#: app/partials/library-app.php:729
 msgid "Top"
 msgstr ""
 
-#: app/partials/library-app.php:745
+#: app/partials/library-app.php:747
 msgid "Dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:746
+#: app/partials/library-app.php:748
 msgid "Light or dark theme"
 msgstr ""
 
-#: app/partials/library-app.php:778
+#: app/partials/library-app.php:780
 msgid "Choose a cover"
 msgstr ""
 
-#: app/partials/library-app.php:779
+#: app/partials/library-app.php:781
 msgid "Remove the cover"
 msgstr ""
 
-#: app/partials/library-app.php:819
+#: app/partials/library-app.php:821
 msgid "Role"
 msgstr ""
 
-#: app/partials/library-app.php:820
+#: app/partials/library-app.php:822
 msgid "Add a person"
 msgstr ""
 
-#: app/partials/library-app.php:854
+#: app/partials/library-app.php:856
 msgid "Collection"
 msgstr ""
 
-#: app/partials/library-app.php:871
+#: app/partials/library-app.php:873
 msgid "Choose a form"
 msgstr ""
 
-#: app/partials/library-app.php:896
+#: app/partials/library-app.php:898
 msgid "More details"
 msgstr ""
 
-#: app/partials/library-app.php:930
-#: app/partials/library-app.php:941
+#: app/partials/library-app.php:932
+#: app/partials/library-app.php:943
 msgid "Add a language"
 msgstr ""
 
-#: app/partials/library-app.php:965
+#: app/partials/library-app.php:967
 msgid "Excerpt"
 msgstr ""
 
-#: app/partials/library-app.php:979
+#: app/partials/library-app.php:981
 msgid "Saving…"
 msgstr ""
 
-#: app/partials/library-app.php:979
+#: app/partials/library-app.php:981
 msgid "Save"
 msgstr ""
 
-#: app/partials/library-app.php:983
+#: app/partials/library-app.php:985
 msgid "Edit in the dashboard"
 msgstr ""
 
-#: app/partials/library-app.php:1038
+#: app/partials/library-app.php:1040
 msgid "Remove this person"
 msgstr ""
 
@@ -3021,8 +3026,14 @@ msgstr ""
 msgid "%s items"
 msgstr ""
 
-#: app/js/bricks/library-calendar.js:102
+#: app/js/bricks/library-calendar.js:105
 msgid "Finished that day"
+msgstr ""
+
+#. translators: %s: the month or the year Up leads to, such as March 2025 or 2025.
+#: app/js/bricks/library-calendar.js:340
+#, js-format
+msgid "Up to %s"
 msgstr ""
 
 #: app/js/bricks/library-diary.js:39

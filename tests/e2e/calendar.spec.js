@@ -185,6 +185,28 @@ test.describe( 'Calendar', () => {
 		).toHaveCount( 12 );
 	} );
 
+	test( 'Up goes from a day to its month, then to its year, where it is out of use', async ( {
+		page,
+	} ) => {
+		await openApp( page, `&view=calendar&calendar=${ YEAR }0302` );
+		await waitForIdle( page );
+
+		const calendar = page.locator( 'library-calendar' );
+		const period = calendar.locator( '[data-field="period"]' );
+		const up = calendar.locator( '[data-part="up"]' );
+
+		await expect( period ).toHaveText( `Sunday, March 2, ${ YEAR }` );
+		await calendar
+			.getByRole( 'link', { name: `Up to March ${ YEAR }` } )
+			.click();
+		await expect( period ).toHaveText( `March ${ YEAR }` );
+		await calendar.getByRole( 'link', { name: `Up to ${ YEAR }` } ).click();
+		await expect( period ).toHaveText( `${ YEAR }` );
+		await expect( up ).toHaveAccessibleName( 'Up' );
+		await expect( up ).toHaveAttribute( 'aria-disabled', 'true' );
+		await expect( up ).not.toHaveAttribute( 'href' );
+	} );
+
 	test.describe( 'with a finger', () => {
 		test.use( { hasTouch: true, isMobile: true } );
 

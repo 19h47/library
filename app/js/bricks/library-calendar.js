@@ -1,4 +1,4 @@
-import { __ } from 'library-app/app';
+import { __, sprintf } from 'library-app/app';
 import { store } from 'library-app/store';
 import { Brick } from 'library-app/brick';
 import { fill } from 'library-app/dom';
@@ -80,7 +80,8 @@ function lead( $link, url ) {
  * The calendar, a view of its own opened from the diary: the days of reading of a year, its months side by side, of one
  * of its months, each day the cover of the book finished then, or of one of its days, the books finished then, as cards;
  * above them, what they count, the readings finished and their pages. Its URL says what it shows, which Before and After, a month of the year and a day of the month
- * lead to, from the first year with a reading to today; its scale goes to the same period, the year, its month or its day.
+ * lead to, from the first year with a reading to today, and Up, from a day to its month, from a month to its year; its
+ * scale goes to the same period, the year, its month or its day.
  */
 class LibraryCalendarElement extends Brick {
 	connect( signal ) {
@@ -90,6 +91,8 @@ class LibraryCalendarElement extends Brick {
 		const $previous = this.querySelector( '[data-part="previous"]' );
 		/** @type {HTMLAnchorElement} */
 		const $next = this.querySelector( '[data-part="next"]' );
+		/** @type {HTMLAnchorElement} */
+		const $up = this.querySelector( '[data-part="up"]' );
 		/** @type {HTMLElement} */
 		const $year = this.querySelector( '[data-part="year"]' );
 		/** @type {HTMLElement} */
@@ -127,6 +130,7 @@ class LibraryCalendarElement extends Brick {
 					this.#fillDay( calendar, $day, line );
 					this.#fillStats( calendar );
 					this.#fillSteps( calendar, $previous, $next );
+					this.#fillUp( calendar, $up );
 				}
 			),
 			// Opened, what it shows takes the focus, as the title of a page.
@@ -314,6 +318,36 @@ class LibraryCalendarElement extends Brick {
 			$next,
 			afterStart <= today ? calendarUrl( periodOf( after ) ) : ''
 		);
+	}
+
+	/**
+	 * Up, from a day to its month, from a month to its year, named after where it leads; out of use on a year.
+	 *
+	 * @param {DiaryCalendar}     calendar The calendar.
+	 * @param {HTMLAnchorElement} $up      Up.
+	 */
+	#fillUp( { scale, year, month, day }, $up ) {
+		/** @type {Record<CalendarScale, CalendarScale|null>} */
+		const aboveOf = { year: null, month: 'year', day: 'month' };
+		const above = aboveOf[ scale ];
+		const destination =
+			'month' === above
+				? formatDate( isoDate( year, month, 1 ).slice( 0, 7 ) )
+				: year.toString();
+		const label = above
+			? sprintf(
+					/* translators: %s: the month or the year Up leads to, such as March 2025 or 2025. */
+					__( 'Up to %s', 'library' ),
+					destination
+			  )
+			: __( 'Up', 'library' );
+
+		lead(
+			$up,
+			above ? calendarUrl( { scale: above, year, month, day } ) : ''
+		);
+		$up.setAttribute( 'aria-label', label );
+		$up.title = label;
 	}
 }
 customElements.define( 'library-calendar', LibraryCalendarElement );

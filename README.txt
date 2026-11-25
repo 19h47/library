@@ -5,7 +5,7 @@ Donate link: https://www.19h47.fr
 Tags: books, library, custom post type, taxonomy, isbn, authors, publishers, languages, reading
 Requires at least: 7.1
 Tested up to: 7.1
-Stable tag: 10.10.0
+Stable tag: 10.11.0
 Requires PHP: 8.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -140,6 +140,9 @@ A field that counts ends in `_count`, such as `read_count` or `book_count`, a fi
 The REST API answers in the language the `Accept-Language` header of the request prefers, among English and the languages the plugin is translated into, French: its descriptions, its schemas, its messages and what the plugin writes, such as the titles of the achievements, but not what the library holds, such as the names of the forms. It says it in `Content-Language`. Without the header, or with none of these languages, it answers in the language of the site, as it does a request that writes, `POST`, `PUT`, `PATCH` or `DELETE`, so that what it saves, such as the name of a cover, does not depend on who sends it; `_locale=user`, which the reading app sends, in the language of the logged-in user.
 
 == Changelog ==
+
+= 10.11.0 =
+* Reading app: the calendar has Up between Before and After, from a day to its month and from a month to its year, named after where it leads, such as “Up to March 2025”; on a year, it is out of use.
 
 = 10.10.0 =
 * Reading app: in the year of the calendar, a day with a book finished opens that day at a click, outlined as it is pointed at; with a finger, a month opens as a whole, its days too small to aim at. The keyboard and screen readers still go through the name of the month.

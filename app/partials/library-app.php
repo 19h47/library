@@ -276,6 +276,8 @@ $form_filter = array(
 							</div>
 							<p class="app-toolbar">
 								<a class="app-control" data-part="previous" aria-label="<?php esc_attr_e( 'Before', 'library' ); ?>" title="<?php esc_attr_e( 'Before', 'library' ); ?>"><?php Markup::render_icon( 'arrow_back' ); ?></a>
+								<?php // Up to the month of a day, or to the year of a month: its name says where, once its period is known. ?>
+								<a class="app-control" data-part="up" aria-label="<?php esc_attr_e( 'Up', 'library' ); ?>" title="<?php esc_attr_e( 'Up', 'library' ); ?>"><?php Markup::render_icon( 'arrow_upward' ); ?></a>
 								<a class="app-control" data-part="next" aria-label="<?php esc_attr_e( 'After', 'library' ); ?>" title="<?php esc_attr_e( 'After', 'library' ); ?>"><?php Markup::render_icon( 'arrow_forward' ); ?></a>
 							</p>
 						</div>
