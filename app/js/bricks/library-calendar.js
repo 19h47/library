@@ -9,11 +9,10 @@ import {
 	showBusy,
 } from 'library-app/behaviors';
 import { urlOf } from 'library-app/router';
-import { calendarId, streakOf } from 'library-app/parts';
+import { calendarId } from 'library-app/parts';
 import { formatDate, formatMonthName, formatNumber } from 'library-app/format';
 
 /**
- * @import { Book } from 'library-app/api'
  * @import { CalendarPeriod, CalendarScale, DiaryCalendar } from 'library-app/parts'
  * @import { CalendarDay } from '../components/month-calendar.js'
  */
@@ -79,22 +78,11 @@ function lead( $link, url ) {
 
 /**
  * The calendar, a view of its own opened from the diary: the days of reading of a year, its months side by side, of one
- * of its months, each day the cover of the book whose reading ended then, or of one of its days, the books read then, as
- * cards; above them, what they count, the readings ended and their pages, and for a year or a month, the days of reading
- * and the most in a row. Its URL says what it shows, which Before and After, a month of the year and a day of the month
+ * of its months, each day the cover of the book finished then, or of one of its days, the books finished then, as cards;
+ * above them, what they count, the readings finished and their pages. Its URL says what it shows, which Before and After, a month of the year and a day of the month
  * lead to, from the first year with a reading to today; its scale goes to the same period, the year, its month or its day.
  */
 class LibraryCalendarElement extends Brick {
-	/**
-	 * The books whose reading ended on the day shown, whose cards say so.
-	 *
-	 * @type {Set<number>}
-	 */
-	#ended = new Set();
-
-	// The day shown, by its date, whose cards a card of another day does not stand for: their lines differ.
-	#date = '';
-
 	connect( signal ) {
 		/** @type {HTMLSelectElement} */
 		const $scale = this.querySelector( 'select[name="scale"]' );
@@ -111,19 +99,7 @@ class LibraryCalendarElement extends Brick {
 		/** @type {HTMLElement} */
 		const $period = this.querySelector( '[data-field="period"]' );
 		const $cards = $day.querySelector( '[data-list="day"]' );
-		// Finished that day, abandoned that day, or read then.
-		const line = ( /** @type {Book} */ book ) => {
-			if ( this.#ended.has( book.id ) ) {
-				return __( 'Finished that day', 'library' );
-			}
-
-			return book.readings.some(
-				( { abandoned, end } ) =>
-					abandoned && this.#date === end.slice( 0, 10 )
-			)
-				? __( 'Abandoned that day', 'library' )
-				: __( 'In progress', 'library' );
-		};
+		const line = () => __( 'Finished that day', 'library' );
 
 		$scale.addEventListener(
 			'change',
@@ -206,32 +182,25 @@ class LibraryCalendarElement extends Brick {
 	}
 
 	/**
-	 * Fills the day shown: the cards of the books read then, or why there is none.
+	 * Fills the day shown: the cards of the books finished then, or why there is none.
 	 *
-	 * @param {DiaryCalendar}            calendar The calendar.
-	 * @param {HTMLElement}              $day     The day.
-	 * @param {( book: Book ) => string} line     The line of a card.
+	 * @param {DiaryCalendar} calendar The calendar.
+	 * @param {HTMLElement}   $day     The day.
+	 * @param {() => string}  line     The line of a card.
 	 */
-	#fillDay( { year, month, day, reads, ends, loaded }, $day, line ) {
-		const index = dayOfYear( year, month, day );
-		const ids = [ ...new Set( reads[ index ] ?? [] ) ];
-		const $cards = $day.querySelector( '[data-list="day"]' );
-		const date = isoDate( year, month, day );
+	#fillDay( { year, month, day, ends, loaded }, $day, line ) {
+		const ids = [
+			...new Set( ends[ dayOfYear( year, month, day ) ] ?? [] ),
+		];
 
-		if ( date !== this.#date ) {
-			this.#date = date;
-			$cards.replaceChildren();
-		}
-
-		this.#ended = new Set( ends[ index ] ?? [] );
-		renderBooks( $cards, ids, line );
+		renderBooks( $day.querySelector( '[data-list="day"]' ), ids, line );
 		/** @type {HTMLElement} */ (
 			$day.querySelector( '[data-part="none"]' )
 		).hidden = ! loaded || ids.length > 0;
 	}
 
 	/**
-	 * The days gone by of the month `month`: the level of each, the books whose reading ended then, and its link.
+	 * The days gone by of the month `month`: the level of each, the books finished then, and its link.
 	 *
 	 * @param {DiaryCalendar} calendar The calendar.
 	 * @param {number}        month    The month, from 0.
@@ -262,14 +231,12 @@ class LibraryCalendarElement extends Brick {
 	}
 
 	/**
-	 * Fills what the days shown count: the year, the month or the day shown, its readings ended and their pages, and for a
-	 * year or a month, its days of reading and the most in a row; none of them, a figure hides.
+	 * Fills what the days shown count: the year, the month or the day shown, its readings finished and their pages; none
+	 * of them, a figure hides.
 	 *
 	 * @param {DiaryCalendar} calendar The calendar.
 	 */
 	#fillStats( { year, month, day, scale, levels, pages, ends, error } ) {
-		const { books } = store.get();
-		const isDay = 'day' === scale;
 		const [ first, last ] = {
 			year: [ 0, levels.length ],
 			month: [
@@ -281,17 +248,16 @@ class LibraryCalendarElement extends Brick {
 				dayOfYear( year, month, day + 1 ),
 			],
 		}[ scale ];
-		const shown = levels.slice( first, last );
-		/** @type {Book[]} */
-		const ended = Object.entries( ends )
+		const finished = Object.entries( ends )
 			.filter(
 				( [ index ] ) =>
 					Number( index ) >= first && Number( index ) < last
 			)
-			.flatMap( ( [ , ids ] ) => ids.map( ( id ) => books[ id ] ) )
-			.filter( Boolean );
-
-		// A figure of none hides, its name with it; a day counts no days of reading nor any in a row.
+			.flatMap( ( [ , ids ] ) => ids );
+		const finishedPages = pages
+			.slice( first, last )
+			.reduce( ( sum, count ) => sum + count, 0 );
+		// A figure of none hides, its name with it.
 		const figure = ( /** @type {number} */ count ) =>
 			count ? formatNumber( count ) : '';
 
@@ -301,18 +267,8 @@ class LibraryCalendarElement extends Brick {
 				month: formatDate( isoDate( year, month, 1 ).slice( 0, 7 ) ),
 				day: formatDate( isoDate( year, month, day ), 'full' ),
 			}[ scale ],
-			readings: figure( ended.length ),
-			// The pages read that day, of the books read from a known start, or of the books ended in the year or the month.
-			pages: figure(
-				isDay
-					? pages[ first ] ?? 0
-					: ended.reduce(
-							( sum, book ) => sum + ( book.pages || 0 ),
-							0
-					  )
-			),
-			days: isDay ? '' : figure( shown.filter( Boolean ).length ),
-			streak: isDay ? '' : figure( streakOf( shown ) ),
+			readings: figure( finished.length ),
+			pages: figure( finishedPages ),
 			status: error,
 		} );
 	}

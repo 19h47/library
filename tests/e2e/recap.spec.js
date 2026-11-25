@@ -73,24 +73,23 @@ test.describe( 'Recap', () => {
 			'March: 2 books'
 		);
 
-		// The days of reading over the calendar of the year, a backdrop: the long book from its start, its pages spread
-		// over its four days, the biggest of them the first one, and the others on their ends alone; memorable, the biggest
-		// day and the one the favourite was finished, March 2nd.
+		// The days a book was finished over the calendar of the year, a backdrop, a reading counting on its end alone: the
+		// biggest day, March 2nd, the long book finished then, memorable, as the day the favourite was finished; its start
+		// is not.
 		const days = recap.locator( '[data-screen="days"]' );
 		const calendar = days.locator( 'days-calendar li' );
 
 		await expect(
-			days.locator( '[data-field="daysRead"] .sr-only' )
-		).toHaveText( '6' );
-		await expect( days ).toContainText( 'Up to 4 days in a row' );
+			days.locator( '[data-field="daysFinished"] .sr-only' )
+		).toHaveText( '3' );
+		await expect(
+			days.locator( '[data-field="daysFinishedLabel"]' )
+		).toHaveText( 'days a book was finished' );
 		await expect( days ).toContainText(
-			'The biggest day: 150 pages, on February 27'
-		);
-		await expect( days ).toContainText(
-			'Start date known for 1 reading out of 3.'
+			'The biggest day: 600 pages finished, on March 2'
 		);
 		await expect( calendar ).toHaveCount( 365 );
-		await expect( calendar.nth( 57 ) ).toHaveAttribute(
+		await expect( calendar.nth( 57 ) ).not.toHaveAttribute(
 			'data-day',
 			'memorable'
 		);

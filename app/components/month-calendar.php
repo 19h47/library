@@ -2,7 +2,7 @@
 /**
  * The days of a month, as a calendar: in weeks from Monday, the first one in the column of its weekday, each a
  * .library-day as dark as its level, a day to come its outline, today marked. `covers`, larger, as the diary shows a month:
- * each day a link to it, its number and the cover of the book whose reading ended that day, or its title, the others
+ * each day a link to it, its number and the cover of the book finished that day, or its title, the others
  * counted. Its root is its custom element, month-calendar, whose `value` its place sets: the year, the month, and each day
  * of it, with where it leads.
  *

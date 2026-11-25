@@ -490,7 +490,7 @@ class Rest_Schemas {
 	}
 
 	/**
-	 * The schema of the calendar of the diary: the days of a year.
+	 * The schema of the calendar of the diary: the days of a year, each by the readings finished on it.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -500,10 +500,9 @@ class Rest_Schemas {
 			array(
 				'year'      => self::property( 'integer', __( 'Year of the calendar.', 'library' ) ),
 				'years'     => self::property( 'array', __( 'Years with a reading, the earliest first.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
-				'levels'    => self::property( 'array', __( 'Level of each day gone by, from January 1st: 0 for none read, up to 4 for the days that read the most pages.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
-				'pages'     => self::property( 'array', __( 'Pages read on each day gone by, from January 1st, those of a book read from a known start spread over its days.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
-				'ends'      => self::property( 'object', __( 'IDs of the books whose reading ended on each day, by the day, from 0 for January 1st.', 'library' ) ),
-				'reads'     => self::property( 'object', __( 'IDs of the books read on each day, a reading in progress today alone, by the day, from 0 for January 1st.', 'library' ) ),
+				'levels'    => self::property( 'array', __( 'Level of each day gone by, from January 1st: 0 for none finished, up to 4 for the days that finished the most pages.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'pages'     => self::property( 'array', __( 'Pages of the books finished on each day gone by, from January 1st.', 'library' ), array( 'items' => array( 'type' => 'integer' ) ) ),
+				'ends'      => self::property( 'object', __( 'IDs of the books finished on each day, by the day, from 0 for January 1st.', 'library' ) ),
 				'form_ends' => self::property( 'object', __( 'Readings of each form ended on each day, of every form, by the day, from 0 for January 1st, then by term ID.', 'library' ) ),
 			)
 		);

@@ -1,8 +1,8 @@
 /**
  * The calendar, opened from the diary: the days of reading of the current year, its months side by side, with what they
- * count; Before goes to the year before, a month of it opens at the scale of a month, each day the book whose reading
- * ended then, a link to it, a day of it at the scale of a day, the books read then; the scale chosen goes back to the
- * year; its URL says what it shows, which the history goes back to.
+ * count; Before goes to the year before, a month of it opens at the scale of a month, each day the book finished then,
+ * a link to it, a day of it at the scale of a day, the books finished then; the scale chosen goes back to the year; its
+ * URL says what it shows, which the history goes back to.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -64,8 +64,8 @@ test.describe( 'Calendar', () => {
 			calendar.getByRole( 'link', { name: 'After' } )
 		).toHaveAttribute( 'aria-disabled', 'true' );
 
-		// The year before: two readings, their pages, the days from the start of the first one to its end and the end of
-		// the second one.
+		// The year before: two readings finished, their pages; no days of reading nor any in a row, a reading counting on
+		// its end alone.
 		await calendar.getByRole( 'link', { name: 'Before' } ).click();
 		await expect( period ).toHaveText( `${ YEAR }` );
 		await expect(
@@ -74,17 +74,17 @@ test.describe( 'Calendar', () => {
 		await expect( calendar.locator( '[data-field="pages"]' ) ).toHaveText(
 			'640'
 		);
-		await expect( calendar.locator( '[data-field="days"]' ) ).toHaveText(
-			'12'
+		await expect( calendar.locator( '[data-row="days"]' ) ).toHaveCount(
+			0
 		);
-		await expect( calendar.locator( '[data-field="streak"]' ) ).toHaveText(
-			'11'
+		await expect( calendar.locator( '[data-row="streak"]' ) ).toHaveCount(
+			0
 		);
 		await expect(
 			calendar.getByRole( 'link', { name: 'Before' } )
 		).toHaveAttribute( 'aria-disabled', 'true' );
 
-		// March, at the scale of a month: each day a link to it, the book whose reading ended then on it.
+		// March, at the scale of a month: each day a link to it, the book finished then on it.
 		await calendar.getByRole( 'link', { name: 'March' } ).click();
 		await expect( period ).toHaveText( `March ${ YEAR }` );
 		await expect( page ).toHaveURL( new RegExp( `calendar=${ YEAR }03` ) );
@@ -118,8 +118,7 @@ test.describe( 'Calendar', () => {
 			calendar.locator( '[data-field="readings"]' )
 		).toHaveText( '2' );
 
-		// The 2nd, a day: the book whose reading ended then, its pages spread over its days; the day before, the same book,
-		// being read.
+		// The 2nd, a day: the book finished then, all its pages; the day before, its start, none.
 		await month
 			.getByRole( 'link', { name: `Sunday, March 2, ${ YEAR }` } )
 			.click();
@@ -134,12 +133,14 @@ test.describe( 'Calendar', () => {
 		await expect( cards ).toContainText( 'The Calendar Long Book' );
 		await expect( cards ).toContainText( 'Finished that day' );
 		await expect( calendar.locator( '[data-field="pages"]' ) ).toHaveText(
-			'55'
+			'600'
 		);
-		await expect( calendar.locator( '[data-row="streak"]' ) ).toBeHidden();
 		await calendar.getByRole( 'link', { name: 'Before' } ).click();
 		await expect( period ).toHaveText( `Saturday, March 1, ${ YEAR }` );
-		await expect( cards ).toContainText( 'In progress' );
+		await expect( cards.locator( 'li' ) ).toHaveCount( 0 );
+		await expect(
+			calendar.getByText( 'No book finished that day.' )
+		).toBeVisible();
 		await expect(
 			calendar.locator( '[data-row="readings"]' )
 		).toBeHidden();

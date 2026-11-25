@@ -132,7 +132,7 @@ class Test_Roles extends TestCase {
 		// The French of the plugin, which the tests cannot switch to: WordPress is not installed in French.
 		load_textdomain( 'library', LIBRARY_DIR_PATH . 'languages/library-fr_FR.mo', 'fr_FR' );
 
-		$this->assertSame( 'Lecteur', translate_user_role( wp_roles()->role_names['library_reader'] ) );
+		$this->assertSame( 'Lectrice ou lecteur', translate_user_role( wp_roles()->role_names['library_reader'] ) );
 		$this->assertSame( 'Bibliothécaire', translate_user_role( wp_roles()->role_names['library_librarian'] ) );
 
 		unload_textdomain( 'library' );
