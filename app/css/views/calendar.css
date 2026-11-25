@@ -51,6 +51,20 @@
 		color: var(--app-text-muted);
 	}
 
+	/* For a finger, the whole month a link to it, over its days, too small to aim at one */
+	@media (pointer: coarse) {
+		.library-calendar__year > li {
+			position: relative;
+		}
+
+		.library-calendar__month-link::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+		}
+	}
+
 	/* Loading another year, its days faded until they come */
 	.library-calendar[aria-busy="true"] :is(.library-calendar__year, [data-part="month"], [data-part="day"], .library-fields) {
 		opacity: var(--app-control-opacity);

@@ -168,10 +168,13 @@ class LibraryCalendarElement extends Brick {
 					month,
 					day: 1,
 				} );
+				// A day leads to it with a book finished, the others to nothing worth a click.
 				$days.value = {
 					year,
 					month,
-					days: this.#days( calendar, month ),
+					days: this.#days( calendar, month ).map( ( day ) =>
+						day.books.length ? day : { ...day, url: '' }
+					),
 				};
 			} );
 		$month.querySelector( 'month-calendar' ).value = {

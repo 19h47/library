@@ -331,8 +331,8 @@ class LibraryStyleguideElement extends Brick {
 			this.querySelector( '[data-sample="count-up"] count-up' )
 		).value = 82;
 
-		// The days of a month: its levels, the 20 days gone by; then with a book with a cover, another without, and two the
-		// same day.
+		// The days of a month: its levels, the 20 days gone by, those read a link; then with a book with a cover, another
+		// without, and two the same day.
 		const levels = Array.from(
 			{ length: 20 },
 			( _day, day ) => ( day * 3 ) % 5
@@ -346,7 +346,11 @@ class LibraryStyleguideElement extends Brick {
 		$dots.value = {
 			year: 2025,
 			month: 10,
-			days: levels.map( ( level ) => ( { level, books: [] } ) ),
+			days: levels.map( ( level ) => ( {
+				level,
+				books: [],
+				url: level ? '#top' : '',
+			} ) ),
 		};
 		$covers.value = {
 			year: 2025,

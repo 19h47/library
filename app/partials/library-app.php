@@ -280,11 +280,11 @@ $form_filter = array(
 							</p>
 						</div>
 						<h2 class="library-capitalized library-calendar__period" data-field="period" tabindex="-1"></h2>
-						<?php // The months of the year, each a link to it at the scale of a month. ?>
+						<?php // The months of the year, each a link to it at the scale of a month, each day with a book finished a link to it for a pointer. ?>
 						<ol class="library-calendar__year" data-part="year">
 							<?php for ( $calendar_month = 0; $calendar_month < 12; $calendar_month++ ) : ?>
 								<li>
-									<a class="library-link app-text-s app-font-ui app-uppercase" data-part="month-link" href=""></a>
+									<a class="library-link app-text-s app-font-ui app-uppercase library-calendar__month-link" data-part="month-link" href=""></a>
 									<?php Markup::render_component( 'month-calendar' ); ?>
 								</li>
 							<?php endfor; ?>

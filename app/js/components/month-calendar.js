@@ -35,8 +35,8 @@ import { formatDate } from 'library-app/format';
 
 /**
  * The days of a month, the root of the component month-calendar: in weeks from Monday, the first one in the column of its
- * weekday, each as dark as its level, a day to come its outline, today marked; covers, each day a link to it, its number
- * and the cover of the book finished that day, or its title, the others counted.
+ * weekday, each as dark as its level, a day to come its outline, today marked, a day that leads somewhere a link to it;
+ * covers, each day its number and the cover of the book finished that day, or its title, the others counted.
  *
  * Its API: `value`, the year, the month and its days gone by.
  */
@@ -100,8 +100,8 @@ export class MonthCalendarElement extends Component {
 	}
 
 	/**
-	 * Fills the link of the day `$day`, in the variant that has one: its number, its date, said in full, and where it
-	 * leads; a day to come leads nowhere.
+	 * Fills the link of the day `$day`: where it leads, a day to come nowhere; in the variant of the covers, its number and
+	 * its date, said in full.
 	 *
 	 * @param {HTMLElement} $day   The day.
 	 * @param {number}      number Its day of the month.
@@ -109,19 +109,16 @@ export class MonthCalendarElement extends Component {
 	 * @param {string}      url    Where it leads, empty for nowhere.
 	 */
 	#fillLink( $day, number, date, url ) {
-		/** @type {HTMLAnchorElement|null} */
+		/** @type {HTMLAnchorElement} */
 		const $link = $day.querySelector( '[data-part="link"]' );
 
-		if ( ! $link ) {
-			return;
-		}
+		const $number = $link.querySelector( '[data-part="number"]' );
 
-		$link.querySelector( '[data-part="number"]' ).textContent =
-			number.toString();
-		$link.querySelector( '[data-part="date"]' ).textContent = formatDate(
-			date,
-			'full'
-		);
+		if ( $number ) {
+			$number.textContent = number.toString();
+			$link.querySelector( '[data-part="date"]' ).textContent =
+				formatDate( date, 'full' );
+		}
 
 		if ( url ) {
 			$link.href = url;

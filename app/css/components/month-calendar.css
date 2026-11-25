@@ -1,7 +1,8 @@
 /**
- * The days of a month, a molecule, the component month-calendar: a .library-day each, in weeks from Monday. `--covers`,
- * larger, each day in the shape of a cover, a link to it: its number at its corner, and the cover of the book whose
- * reading ended that day, its title in its frame without one, the others counted at the other corner.
+ * The days of a month, a molecule, the component month-calendar: a .library-day each, in weeks from Monday, a day that
+ * leads somewhere a link to it, outlined as it is pointed at. `--covers`, larger, each day in the shape of a cover: its
+ * number at its corner, and the cover of the book finished that day, its title in its frame without one, the others
+ * counted at the other corner.
  */
 
 @layer app.components {
@@ -20,8 +21,11 @@
 		gap: var(--app-space-xs);
 	}
 
-	.library-month-calendar__day {
+	.library-month-calendar > li {
 		position: relative;
+	}
+
+	.library-month-calendar__day {
 		aspect-ratio: 1 / var(--app-phi);
 		overflow: hidden;
 	}
@@ -36,8 +40,15 @@
 	.library-month-calendar__link {
 		position: absolute;
 		inset: 0;
+		border-radius: inherit;
 		color: inherit;
 		text-decoration: none;
+	}
+
+	/* A day a link, without covers: outlined as it is pointed at, as today is */
+	.library-month-calendar:not(.library-month-calendar--covers) .library-month-calendar__link[href]:hover {
+		outline: 1px solid var(--app-text);
+		outline-offset: 1px;
 	}
 
 	.library-month-calendar__link:focus-visible {

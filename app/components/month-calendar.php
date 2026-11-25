@@ -1,7 +1,9 @@
 <?php
 /**
  * The days of a month, as a calendar: in weeks from Monday, the first one in the column of its weekday, each a
- * .library-day as dark as its level, a day to come its outline, today marked. `covers`, larger, as the diary shows a month:
+ * .library-day as dark as its level, a day to come its outline, today marked; a day that leads somewhere, a link to it for
+ * a pointer, out of the order of the focus, as the calendar is an image the place says in words. `covers`, larger, as the
+ * diary shows a month:
  * each day a link to it, its number and the cover of the book finished that day, or its title, the others
  * counted. Its root is its custom element, month-calendar, whose `value` its place sets: the year, the month, and each day
  * of it, with where it leads.
@@ -34,7 +36,10 @@ $args = wp_parse_args( $args, array( 'covers' => false ) );
 				</a>
 			</li>
 		<?php else : ?>
-			<li class="library-day"></li>
+			<li class="library-day">
+				<?php // The whole day, a link for a pointer where it leads: the place leads there in words. ?>
+				<a class="library-month-calendar__link" data-part="link" tabindex="-1"></a>
+			</li>
 		<?php endif; ?>
 	</template>
 </month-calendar>
