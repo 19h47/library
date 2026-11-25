@@ -84,6 +84,24 @@ test.describe( 'Calendar', () => {
 			calendar.getByRole( 'link', { name: 'Before' } )
 		).toHaveAttribute( 'aria-disabled', 'true' );
 
+		// A day with a book finished, a link to it for a pointer, out of the order of the focus; the day before, read but
+		// finishing none, leads nowhere. The day opens, then the history goes back to the year.
+		const march = calendar
+			.locator( '[data-part="year"] month-calendar' )
+			.nth( 2 )
+			.locator( '[data-part="link"]' );
+
+		await expect( march.nth( 1 ) ).toHaveAttribute(
+			'href',
+			new RegExp( `calendar=${ YEAR }0302` )
+		);
+		await expect( march.nth( 1 ) ).toHaveAttribute( 'tabindex', '-1' );
+		await expect( march.nth( 0 ) ).not.toHaveAttribute( 'href' );
+		await march.nth( 1 ).click();
+		await expect( period ).toHaveText( `Sunday, March 2, ${ YEAR }` );
+		await page.goBack();
+		await expect( period ).toHaveText( `${ YEAR }` );
+
 		// March, at the scale of a month: each day a link to it, the book finished then on it.
 		await calendar.getByRole( 'link', { name: 'March' } ).click();
 		await expect( period ).toHaveText( `March ${ YEAR }` );
@@ -165,5 +183,34 @@ test.describe( 'Calendar', () => {
 		await expect(
 			calendar.locator( '[data-part="year"] month-calendar' )
 		).toHaveCount( 12 );
+	} );
+
+	test.describe( 'with a finger', () => {
+		test.use( { hasTouch: true, isMobile: true } );
+
+		test( 'a month of the year is a link to it as a whole, its days too small to aim at', async ( {
+			page,
+		} ) => {
+			await openApp( page, `&view=calendar&calendar=${ YEAR }` );
+			await waitForIdle( page );
+
+			const calendar = page.locator( 'library-calendar' );
+
+			// The month, over the day, takes the touch: the day is no target of its own.
+			const box = await calendar
+				.locator( '[data-part="year"] month-calendar' )
+				.nth( 2 )
+				.locator( 'li' )
+				.nth( 1 )
+				.boundingBox();
+
+			await page.touchscreen.tap(
+				box.x + box.width / 2,
+				box.y + box.height / 2
+			);
+			await expect(
+				calendar.locator( '[data-field="period"]' )
+			).toHaveText( `March ${ YEAR }` );
+		} );
 	} );
 } );

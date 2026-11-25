@@ -1131,7 +1131,7 @@ $sizes = array(
 			<figure>
 				<figcaption>
 					<h4 class="library-styleguide__name"><code>month-calendar</code></h4>
-					<p>The days of a month, a <code>.library-day</code> each, in weeks from Monday, the days to come outlined; <code>covers</code>, as the diary shows a month, each day its number and the book whose reading ended then, a link to it, its cover or its title, the others counted; its place sets <code>value</code>, and the colors of the levels, <code>--library-day-1</code> to <code>--library-day-4</code></p>
+					<p>The days of a month, a <code>.library-day</code> each, in weeks from Monday, the days to come outlined, a day that leads somewhere a link to it for a pointer, outlined as it is pointed at; <code>covers</code>, as the diary shows a month, each day its number and the book finished then, its cover or its title, the others counted; its place sets <code>value</code>, and the colors of the levels, <code>--library-day-1</code> to <code>--library-day-4</code></p>
 				</figcaption>
 				<div class="library-styleguide__frame library-calendar" data-sample="month-calendar">
 					<?php
