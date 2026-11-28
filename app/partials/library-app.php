@@ -75,9 +75,13 @@ $form_filter = array(
 						Markup::render_component(
 							'views-nav',
 							array(
-								'views'   => $views,
-								// The calendar, opened from the diary, is part of it.
-								'current' => 'calendar' === $view ? 'diary' : $view,
+								// The wishes, opened from the books, have no tab of their own.
+								'views'   => array_diff_key( $views, array( 'to-buy' => true ) ),
+								// The calendar, opened from the diary, is part of it, as the wishes are part of the books.
+								'current' => array(
+									'calendar' => 'diary',
+									'to-buy'   => 'books',
+								)[ $view ] ?? $view,
 								'tabs'    => true,
 							)
 						);
@@ -141,6 +145,7 @@ $form_filter = array(
 							<?php echo esc_html( $labels->name ); ?>
 							<library-count class="app-text-s app-text-muted app-font-ui app-uppercase app-font-normal" role="status"><?php esc_html_e( 'Loading…', 'library' ); ?></library-count>
 						</h3>
+						<a class="app-text-s app-text-muted app-font-ui app-uppercase library-title__action" href="<?php echo esc_url( $views['to-buy']['url'] ); ?>"><?php echo esc_html( $views['to-buy']['label'] ); ?></a>
 						<library-covers-toggle class="library-title__action">
 							<?php Markup::render_component( 'covers-toggle', array( 'id' => 'library-covers-books' ) ); ?>
 						</library-covers-toggle>

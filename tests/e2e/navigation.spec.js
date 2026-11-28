@@ -1,5 +1,6 @@
 /**
- * The views of the reading app: the tabs on a phone, the name of the page, and the links of the books.
+ * The views of the reading app: the tabs on a phone, the name of the page, the link to the wishes, the summary of a
+ * series, and the links of the books.
  */
 
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
@@ -20,7 +21,11 @@ test.describe( 'Navigation', () => {
 					title: `Volume ${ volume }`,
 					series: SERIES,
 					people: [ { name: AUTHOR, role: 'author' } ],
-					meta: { volume_number: String( volume ) },
+					meta: {
+						volume_number: String( volume ),
+						subtitle: `Subtitle ${ volume }`,
+						pages: 200,
+					},
 				} )
 			);
 		}
@@ -39,7 +44,7 @@ test.describe( 'Navigation', () => {
 
 			const tabs = page.getByRole( 'navigation' ).getByRole( 'link' );
 
-			await expect( tabs ).toHaveCount( 5 );
+			await expect( tabs ).toHaveCount( 4 );
 
 			for ( const tab of await tabs.all() ) {
 				const box = await tab.boundingBox();
@@ -80,6 +85,24 @@ test.describe( 'Navigation', () => {
 		);
 	} );
 
+	test( 'the wishes open from the title of the books, which stay current', async ( {
+		page,
+	} ) => {
+		await openApp( page );
+
+		const appName = await page.title();
+
+		await page
+			.locator( 'library-view[name="books"]' )
+			.getByRole( 'link', { name: 'To buy', exact: true } )
+			.click();
+		await expect( page ).toHaveURL( /view=to-buy/ );
+		await expect( page ).toHaveTitle( `To buy – ${ appName }` );
+		await expect(
+			page.locator( 'library-nav' ).getByRole( 'link', { name: 'Books' } )
+		).toHaveAttribute( 'aria-current', 'page' );
+	} );
+
 	test( 'a book opens from its card, in the app', async ( { page } ) => {
 		await openApp( page );
 		await waitForIdle( page );
@@ -96,6 +119,31 @@ test.describe( 'Navigation', () => {
 		expect( await page.evaluate( () => window.isSameDocument ) ).toBe(
 			true
 		);
+	} );
+
+	test( 'a series sums up its books, read and their pages, its cards titled without subtitle', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		const [ { id } ] = await requestUtils.rest( {
+			path: '/wp/v2/series',
+			params: { search: SERIES, _fields: 'id' },
+		} );
+
+		await openApp( page, `&view=series&series=${ id }` );
+
+		const series = page.locator( 'library-series' );
+
+		await expect( series.locator( '[data-field="summary"]' ) ).toHaveText(
+			'3 books · 0 read · 600 pages'
+		);
+		// Its subtitle on its page only.
+		await expect(
+			series.getByRole( 'link', {
+				name: `${ SERIES }, no. 1: Volume 1`,
+				exact: true,
+			} )
+		).toBeVisible();
 	} );
 
 	test( 'the volume open is the current page among its series', async ( {

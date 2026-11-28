@@ -59,4 +59,9 @@
 		flex: none;
 		margin-inline-start: auto;
 	}
+
+	/* The actions after the first one follow it, a gap apart, such as the covers toggle after the link to the wishes */
+	.library-title__action ~ .library-title__action {
+		margin-inline-start: 0;
+	}
 }
