@@ -416,9 +416,9 @@ export function terms() {
 
 /**
  * The page of a term open, its books loaded as a list, a page at a time, from all their IDs, `books`, in order; its
- * `wishes`, books to buy without a reading, few, loaded at once with it; `completion` is an achievement, a
- * `description` is HTML. The person open, under the name they are known by: `series` theirs, those with the most of
- * their books first, `bookPages` the pages of their books, as `pages` counts the pages of the list. The
+ * `wishes`, books to buy without a reading, few, loaded at once with it; `bookPages` the pages of its books, as `pages`
+ * counts the pages of the list; `completion` is an achievement, a `description` is HTML. The person open, under the
+ * name they are known by: `series` theirs, those with the most of their books first. The
  * series open, or the cycle: its name after its cycles, its `cycle`, its `parts`, the series of a cycle, its `authors`,
  * who wrote the most first, its books in reading order, those of its series with them. The collection open, or the
  * publisher: its name, a sub-collection after the collections it is part of, its `publisher`, the `collection` it is part
@@ -429,7 +429,6 @@ const PAGE_STATES = {
 		otherNames: [],
 		series: [],
 		rating: null,
-		bookPages: 0,
 	} ),
 	series: () => ( { cycle: null, issn: '', parts: [], authors: [] } ),
 	publisher: () => ( {
@@ -456,6 +455,7 @@ export function page( view, id = 0 ) {
 		books: [],
 		wishes: [],
 		read: 0,
+		bookPages: 0,
 		completion: null,
 		...PAGE_STATES[ view ](),
 	};

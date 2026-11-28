@@ -131,7 +131,7 @@ The routes of the plugin, under `/wp-json/library/v1`, to readers, the users who
 * `GET /idea` – the idea of the week and its reason: `position=1` gives the next one.
 * `GET /achievements` – the achievements earned and the closest ones, each with its `target`.
 * `GET /recaps/<year>` – the recap of a year, as the screens of the app show it; its days of reading are the ones of `GET /calendars/<year>`.
-* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series, the `parts` of a cycle or its collections, its authors, its books in order, its reading, and the completion of a series or a collection; its `wishes` apart, the books to buy without a reading, which its reading leaves out, and its completion but for a series.
+* `GET /people/<id>`, `GET /series/<id>` and `GET /publishers/<id>` – the page of a person, a series or a collection in the app: its other names, its cycle or its publisher, its description, its series, the `parts` of a cycle or its collections, its authors, its books in order, its reading, the pages of its books, `page_count`, and the completion of a series or a collection; its `wishes` apart, the books to buy without a reading, which its reading leaves out, and its completion but for a series.
 
 The routes of the plugin name the meta of a book without the prefix of their keys, `isbn` for `library_isbn`, which the database needs among the meta of every plugin; `wp/v2/books` gives them by their keys, as core does.
 

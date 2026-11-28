@@ -7,7 +7,6 @@ import {
 	formatBooks,
 	formatList,
 	formatNumber,
-	formatPages,
 	formatRead,
 	join,
 } from 'library-app/format';
@@ -19,15 +18,15 @@ import { formatState } from 'library-app/book-lines';
  */
 
 /**
- * The page of a person: their names, their description, their reading, the pages of their books and the completion
- * their books count for, their series, then their books, in the order they first came out.
+ * The page of a person: their names, their description, their reading, the pages of their books, their rating and the
+ * completion their books count for, their series, then their books, in the order they first came out.
  */
 class LibraryPersonElement extends TermPage {
 	/** @type {PageView} */
 	static page = 'person';
 
 	/**
-	 * What its summary says after its books and those read: the average rating of their books and their pages.
+	 * What its summary says after its books, those read and their pages: the average rating of their books.
 	 *
 	 * @param {PersonPage} person The person.
 	 * @return {Array<string|0|null>} The parts of its summary, none for none.
@@ -41,7 +40,7 @@ class LibraryPersonElement extends TermPage {
 				formatNumber( person.rating )
 			);
 
-		return [ rating, person.bookPages && formatPages( person.bookPages ) ];
+		return [ rating ];
 	}
 
 	/**
