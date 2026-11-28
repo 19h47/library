@@ -72,7 +72,7 @@ import { toReadings } from 'library-app/readings';
  * @typedef {Object} BookFields
  * @property {number}     id                Its ID.
  * @property {string}     title             Its title, with its series, its volume and its subtitle.
- * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
+ * @property {string}     main_title        Its title but its subtitle, which its card shows, and its page above it.
  * @property {string}     excerpt           Its summary in a few words.
  * @property {string}     notes             The notes of the reader, as typed.
  * @property {string}     notes_html        Their notes, HTML as the API renders them.

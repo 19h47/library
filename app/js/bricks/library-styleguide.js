@@ -42,7 +42,8 @@ const COVER = {
 	height: 300,
 };
 
-// The cases of a card: the samples are written in English, as code is. They have the fields a card reads only.
+// The cases of a card: the samples are written in English, as code is. They have the fields a card reads only, their
+// title without subtitle the one of their card.
 const BOOKS = [
 	{
 		title: 'A book with a cover, read again',
@@ -86,7 +87,7 @@ const BOOKS = [
 		status: toBuy,
 	},
 	{
-		title: 'A title long enough to go over several lines, as the title of a volume of a series with its subtitle does',
+		title: 'A title long enough to go over several lines, as the title of a volume of a series after its series does',
 		credits:
 			'A First Author, A Second Author and A Third Author · A Publisher With A Long Name, A Collection With A Long Name · 2024',
 		cover: COVER,
@@ -109,6 +110,7 @@ const BOOKS = [
 			edition_languages: [],
 			people: [ { id: 1, name: 'An Author', role: 'author' } ],
 			...book,
+			main_title: book.title,
 		} )
 );
 

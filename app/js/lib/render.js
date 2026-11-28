@@ -170,7 +170,8 @@ export function fillBook( $item, book, state ) {
 	fillBookCover( $item.querySelector( '[data-part="cover"]' ), book );
 	fill( $item, {
 		credits: book.credits,
-		title: book.title,
+		// Its subtitle on its page only; its series and its volume tell the volumes of a series apart.
+		title: book.main_title,
 		excerpt: book.excerpt,
 		state,
 		form: book.form,
