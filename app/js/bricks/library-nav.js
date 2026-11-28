@@ -5,10 +5,14 @@ import { Brick } from 'library-app/brick';
 import { routeOf, urlOf } from 'library-app/router';
 import { formatRecap } from 'library-app/format';
 
+/** The views without a tab of their own, opened from another one, which stays current. */
+const PART_OF = { calendar: 'diary', 'to-buy': 'books' };
+
 /**
  * The links to the views, which mark the current one; the one to the books leads to their search. Their row at the top
  * of the page scrolls sideways where it is too narrow: it scrolls as little as it takes for the current one to show
  * whole, the page staying where it is. On a phone, they are the tabs of a bar at the bottom of the screen, all in sight.
+ * The calendar and the wishes have none: the diary and the books stay current.
  * The document is named after what shows, before the name of the app, as WordPress names a page: the book, the person,
  * the series or the collection open, the recap of a year, the search, or the view; the home by the name of the app alone.
  */
@@ -44,6 +48,10 @@ class LibraryNavElement extends Brick {
 				return __( 'Calendar', 'library' );
 			}
 
+			if ( 'to-buy' === state.view ) {
+				return __( 'To buy', 'library' );
+			}
+
 			if ( 'books' === state.view ) {
 				return state.query.trim();
 			}
@@ -68,10 +76,10 @@ class LibraryNavElement extends Brick {
 					$books.href = urlOf( { query } );
 				}
 			),
-			// The calendar, opened from the diary, is part of it: the diary stays the view current.
+			// The calendar, opened from the diary, is part of it, as the wishes are part of the books: the view they are
+			// part of stays current.
 			store.select(
-				( state ) =>
-					'calendar' === state.view ? 'diary' : state.view,
+				( state ) => PART_OF[ state.view ] ?? state.view,
 				( view ) =>
 					$links.forEach( ( $link ) => {
 						if ( view !== routeOf( $link.href ).view ) {

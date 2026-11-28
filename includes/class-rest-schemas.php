@@ -178,6 +178,7 @@ class Rest_Schemas {
 			'books'       => self::book_ids( __( 'IDs of its books on the shelves of the reader, in order, its wishes aside.', 'library' ) ),
 			'wishes'      => self::book_ids( __( 'IDs of its wishes, books to buy without a reading, in the same order.', 'library' ) ),
 			'read_count'  => self::property( 'integer', __( 'How many of its books are read.', 'library' ) ),
+			'page_count'  => self::property( 'integer', __( 'Pages of its books, those with a number of pages, its wishes aside.', 'library' ) ),
 			'completion'  => self::achievement( __( 'Completion its books count for, earned or close, if any.', 'library' ) ),
 		);
 	}
@@ -582,7 +583,6 @@ class Rest_Schemas {
 					)
 				),
 				'rating'      => self::property( array( 'number', 'null' ), __( 'Average rating of their books, none without one.', 'library' ) ),
-				'page_count'  => self::property( 'integer', __( 'Pages of their books, those with a number of pages.', 'library' ) ),
 			)
 		);
 	}

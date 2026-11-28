@@ -72,7 +72,7 @@ import { toReadings } from 'library-app/readings';
  * @typedef {Object} BookFields
  * @property {number}     id                Its ID.
  * @property {string}     title             Its title, with its series, its volume and its subtitle.
- * @property {string}     main_title        Its title but its subtitle, which its page shows above it.
+ * @property {string}     main_title        Its title but its subtitle, which its card shows, and its page above it.
  * @property {string}     excerpt           Its summary in a few words.
  * @property {string}     notes             The notes of the reader, as typed.
  * @property {string}     notes_html        Their notes, HTML as the API renders them.
@@ -353,13 +353,14 @@ import { toReadings } from 'library-app/readings';
 
 /**
  * What the pages of a person, a series and a collection share: the name, its description, how many of its books are
- * read, the completion they count for, the IDs of its books, in order, and those of its wishes, books to buy without a
- * reading.
+ * read, their pages, the completion they count for, the IDs of its books, in order, and those of its wishes, books to
+ * buy without a reading.
  *
  * @typedef {Object} TermData
  * @property {string}                            name        Its name.
  * @property {string}                            description Its description, HTML.
  * @property {number}                            read        How many of its books are read.
+ * @property {number}                            bookPages   The pages of its books, its wishes aside.
  * @property {Achievement|CloseAchievement|null} completion  The completion its books count for, earned or close, if any.
  * @property {number[]}                          books       The IDs of its books, in order, its wishes aside.
  * @property {number[]}                          wishes      The IDs of its wishes, in the same order.
@@ -372,7 +373,6 @@ import { toReadings } from 'library-app/readings';
  * @property {string[]}       otherNames Their other names, such as a pseudonym.
  * @property {PersonSeries[]} series     Their series, those with the most of their books first.
  * @property {number|null}    rating     The average rating of their books, none without one.
- * @property {number}         bookPages  The pages of their books.
  */
 
 /**
@@ -650,8 +650,8 @@ const PAGES = {
 			description: data.description,
 			series: data.series.map( toPlainName ),
 			read: data.read_count,
-			rating: data.rating,
 			bookPages: data.page_count,
+			rating: data.rating,
 			completion: data.completion,
 		} ),
 	},
@@ -665,6 +665,7 @@ const PAGES = {
 			authors: data.authors.map( toPlainName ),
 			description: data.description,
 			read: data.read_count,
+			bookPages: data.page_count,
 			completion: data.completion,
 		} ),
 	},
@@ -678,6 +679,7 @@ const PAGES = {
 			authors: data.authors.map( toPlainName ),
 			description: data.description,
 			read: data.read_count,
+			bookPages: data.page_count,
 			completion: data.completion,
 		} ),
 	},

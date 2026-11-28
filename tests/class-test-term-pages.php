@@ -11,9 +11,9 @@ use Library\Shelf;
 use WP_REST_Request;
 
 /**
- * A page lists its wishes, books to buy without a reading, apart from its books, which its counts keep to, and its
- * completion but for a series, where a wish is a volume left; a book to buy read elsewhere, or being read, is one of its
- * books.
+ * A page lists its wishes, books to buy without a reading, apart from its books, which its counts and its pages keep to,
+ * and its completion but for a series, where a wish is a volume left; a book to buy read elsewhere, or being read, is one
+ * of its books.
  */
 class Test_Term_Pages extends TestCase {
 
@@ -80,7 +80,8 @@ class Test_Term_Pages extends TestCase {
 	}
 
 	/**
-	 * The page of a series: its wishes apart, in reading order, out of its counts, but a volume left of its completion.
+	 * The page of a series: its wishes apart, in reading order, out of its counts and its pages, but a volume left of its
+	 * completion.
 	 *
 	 * @return void
 	 */
@@ -89,13 +90,19 @@ class Test_Term_Pages extends TestCase {
 			'2024-01-10',
 			array(
 				'series' => 'Earthsea',
-				'meta'   => array( 'volume_number' => '1' ),
+				'meta'   => array(
+					'volume_number' => '1',
+					'pages'         => 205,
+				),
 			)
 		);
 		$wish  = $this->add_book(
 			array(
 				'series' => 'Earthsea',
-				'meta'   => array( 'volume_number' => '2' ),
+				'meta'   => array(
+					'volume_number' => '2',
+					'pages'         => 180,
+				),
 				'shelf'  => array( 'status' => 'to-buy' ),
 			)
 		);
@@ -103,7 +110,10 @@ class Test_Term_Pages extends TestCase {
 			'2024-02-10',
 			array(
 				'series' => 'Earthsea',
-				'meta'   => array( 'volume_number' => '3' ),
+				'meta'   => array(
+					'volume_number' => '3',
+					'pages'         => 259,
+				),
 			)
 		);
 
@@ -112,12 +122,13 @@ class Test_Term_Pages extends TestCase {
 		$this->assertSame( array( $first, $third ), $series['books'] );
 		$this->assertSame( array( $wish ), $series['wishes'] );
 		$this->assertSame( 2, $series['read_count'] );
+		$this->assertSame( 464, $series['page_count'] );
 		$this->assertSame( 2, $series['completion']['done'] );
 		$this->assertSame( 3, $series['completion']['total'] );
 	}
 
 	/**
-	 * The page of a collection: its wishes apart.
+	 * The page of a collection: its wishes apart, out of its counts and its pages.
 	 *
 	 * @return void
 	 */
@@ -126,14 +137,20 @@ class Test_Term_Pages extends TestCase {
 			'publisher'  => 'Gallimard',
 			'collection' => 'Folio',
 		);
-		$books      = array( $this->add_read( '2024-01-10', $collection ), $this->add_book( $collection ) );
-		$wish       = $this->add_book( $collection + array( 'shelf' => array( 'status' => 'to-buy' ) ) );
+		$books      = array( $this->add_read( '2024-01-10', $collection + array( 'meta' => array( 'pages' => 120 ) ) ), $this->add_book( $collection ) );
+		$wish       = $this->add_book(
+			$collection + array(
+				'shelf' => array( 'status' => 'to-buy' ),
+				'meta'  => array( 'pages' => 300 ),
+			)
+		);
 
 		$page = $this->get( 'publishers/' . get_term_by( 'name', 'Folio', 'library_publisher' )->term_id );
 
 		$this->assertEqualsCanonicalizing( $books, $page['books'] );
 		$this->assertSame( array( $wish ), $page['wishes'] );
 		$this->assertSame( 1, $page['read_count'] );
+		$this->assertSame( 120, $page['page_count'] );
 	}
 
 	/**

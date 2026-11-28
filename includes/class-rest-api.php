@@ -1071,8 +1071,8 @@ class Rest_API {
 				'books'       => array_column( $books, 'id' ),
 				'wishes'      => array_column( $wishes, 'id' ),
 				'read_count'  => Books::count_read( $books ),
-				'rating'      => Books::get_average_rating( $books ),
 				'page_count'  => array_sum( array_column( $books, 'pages' ) ),
+				'rating'      => Books::get_average_rating( $books ),
 				'completion'  => new Achievements()->get_completion( 'author', $person->term_id ),
 			)
 		);
@@ -1081,8 +1081,8 @@ class Rest_API {
 	/**
 	 * A series, or a cycle: its name after its cycles, its cycle, its ISSN for a magazine, its description, its parts, the
 	 * series of a cycle, its authors, its books on the shelves of the reader in reading order, those of its series with them,
-	 * its wishes apart, books to buy without a reading, in the same order, how many of its books are read, and the
-	 * completion they count for.
+	 * its wishes apart, books to buy without a reading, in the same order, how many of its books are read, their pages, and
+	 * the completion they count for.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -1118,6 +1118,7 @@ class Rest_API {
 				'books'       => array_column( $books, 'id' ),
 				'wishes'      => array_column( $wishes, 'id' ),
 				'read_count'  => Books::count_read( $books ),
+				'page_count'  => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'series', $series->term_id ),
 			)
 		);
@@ -1127,7 +1128,7 @@ class Rest_API {
 	 * A collection, or a publisher: its name, a sub-collection after the collections it is part of, its publisher and the
 	 * collection it is part of, its description, its collections, its authors, its books on the shelves of the reader, those
 	 * of its collections with them, its wishes apart, books to buy without a reading, in the same order, how many of its
-	 * books are read, and the completion they count for.
+	 * books are read, their pages, and the completion they count for.
 	 *
 	 * The books are grouped by collection, each one followed by its own collections, by name: those of the publisher, or of
 	 * the collection, first; in each one, in the order of their number in it, those without number last, in reading order.
@@ -1186,6 +1187,7 @@ class Rest_API {
 				'books'       => array_column( $books, 'id' ),
 				'wishes'      => array_column( $wishes, 'id' ),
 				'read_count'  => Books::count_read( $books ),
+				'page_count'  => array_sum( array_column( $books, 'pages' ) ),
 				'completion'  => new Achievements()->get_completion( 'collection', $publisher->term_id ),
 			)
 		);

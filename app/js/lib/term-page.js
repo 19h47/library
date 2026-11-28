@@ -13,7 +13,7 @@ import {
 	observeEnd,
 	renderBooks,
 } from 'library-app/behaviors';
-import { formatBooks, formatRead, join } from 'library-app/format';
+import { formatBooks, formatPages, formatRead, join } from 'library-app/format';
 import { formatState } from 'library-app/book-lines';
 import { urlOf } from 'library-app/router';
 
@@ -23,12 +23,12 @@ import { urlOf } from 'library-app/router';
  */
 
 /**
- * The page of a term: its name, its description, how many of its books are read and the completion they count for, its
- * wishes apart, then its books, loading as the end of the list comes, both as cards or a grid of their covers, as chosen;
- * the authors of a series or of a collection, as cards, the ones past the first folded. Opened, its name takes the
- * focus once it is loaded. A page adds what
- * is its own: `summary()` what its summary says after its books and those read, `fillPage()` the rest of its state,
- * `subscriptions()` what else it follows, and `line()` the line of a book.
+ * The page of a term: its name, its description, how many of its books are read, their pages, the completion they count
+ * for, its wishes apart, then its books, loading as the end of the list comes, both as cards or a grid of their covers,
+ * as chosen; the authors of a series or of a collection, as cards, the ones past the first folded. Opened, its name
+ * takes the focus once it is loaded. A page adds what is its own: `summary()` what its summary says after its books,
+ * those read and their pages, `fillPage()` the rest of its state, `subscriptions()` what else it follows, and `line()`
+ * the line of a book.
  */
 export class TermPage extends Brick {
 	/**
@@ -75,6 +75,8 @@ export class TermPage extends Brick {
 							? join( [
 									formatBooks( page.total ),
 									formatRead( page.read ),
+									page.bookPages &&
+										formatPages( page.bookPages ),
 									...this.summary( page ),
 							  ] )
 							: '',
@@ -163,7 +165,7 @@ export class TermPage extends Brick {
 	}
 
 	/**
-	 * What its summary says after its books and those read, from its state.
+	 * What its summary says after its books, those read and their pages, from its state.
 	 *
 	 * @type {( page: PersonPage|SeriesPage|PublisherPage ) => Array<string|0|null>}
 	 */

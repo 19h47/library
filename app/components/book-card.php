@@ -1,8 +1,8 @@
 <?php
 /**
- * The card of a book, an .app-item: its cover, its credits, its title, a link to its page, its excerpt, then its state
- * and its tags, its form, its original language and its status. fillBook() fills its fields; the place that holds it,
- * such as the item of a list, sets where it goes.
+ * The card of a book, an .app-item: its cover, its credits, its title without its subtitle, a link to its page, its
+ * excerpt, then its state and its tags, its form, its original language and its status. fillBook() fills its fields; the
+ * place that holds it, such as the item of a list, sets where it goes.
  *
  * @link       https://github.com/19h47/library
  * @since      9.41.0
